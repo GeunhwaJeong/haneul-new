@@ -3,11 +3,13 @@
 
 use clap::*;
 use ethers::providers::Middleware;
+use fastcrypto::encoding::{Encoding, Hex};
 use shared_crypto::intent::Intent;
 use shared_crypto::intent::IntentMessage;
 use std::collections::HashMap;
 use std::str::from_utf8;
 use std::sync::Arc;
+use std::time::Duration;
 use haneul_bridge::client::bridge_authority_aggregator::BridgeAuthorityAggregator;
 use haneul_bridge::crypto::{BridgeAuthorityPublicKey, BridgeAuthorityPublicKeyBytes};
 use haneul_bridge::eth_transaction_builder::build_eth_transaction;
@@ -238,18 +240,18 @@ async fn main() -> anyhow::Result<()> {
                     continue;
                 };
                 let eth_address = BridgeAuthorityPublicKeyBytes::from(&pubkey).to_eth_address();
-                let Ok(base_url) = from_utf8(&http_rest_url) else {
+                let Ok(url) = from_utf8(&http_rest_url) else {
                     println!(
                         "Invalid bridge http url for validator: {}: {:?}",
                         haneul_address, http_rest_url
                     );
                     continue;
                 };
-                let base_url = base_url.to_string();
+                let url = url.to_string();
 
                 let (protocol_key, name) = names.get(&haneul_address).unwrap();
                 let stake = stakes.get(protocol_key).unwrap();
-                authorities.push((name, haneul_address, pubkey, eth_address, base_url, stake));
+                authorities.push((name, haneul_address, pubkey, eth_address, url, stake));
             }
             let total_stake = authorities
                 .iter()
@@ -259,16 +261,21 @@ async fn main() -> anyhow::Result<()> {
                 "Total registered stake: {}%",
                 total_stake as f32 / TOTAL_VOTING_POWER as f32 * 100.0
             );
-            println!("Name, Haneul Address, Eth Address, Pubkey, Base URL, Stake");
-            for (name, haneul_address, pubkey, eth_address, base_url, stake) in authorities {
+            println!("Name, HaneulAddress, EthAddress, Pubkey, URL, Stake");
+            for (name, haneul_address, pubkey, eth_address, url, stake) in authorities {
                 println!(
                     "{}, {}, {}, {}, {}, {}",
-                    name, haneul_address, eth_address, pubkey, base_url, stake
+                    name,
+                    haneul_address,
+                    eth_address,
+                    Hex::encode(pubkey.as_bytes()),
+                    url,
+                    stake
                 );
             }
         }
 
-        BridgeCommand::PrintBridgeCommitteeInfo { haneul_rpc_url } => {
+        BridgeCommand::PrintBridgeCommitteeInfo { haneul_rpc_url, ping } => {
             let haneul_bridge_client = HaneulClient::<HaneulSdkClient>::new(&haneul_rpc_url).await?;
             let bridge_summary = haneul_bridge_client
                 .get_bridge_summary()
@@ -285,6 +292,12 @@ async fn main() -> anyhow::Result<()> {
                 .map(|summary| (summary.haneul_address, summary.name))
                 .collect::<HashMap<_, _>>();
             let mut authorities = vec![];
+            let mut ping_tasks = vec![];
+            let client = reqwest::Client::builder()
+                .connect_timeout(Duration::from_secs(10))
+                .timeout(Duration::from_secs(10))
+                .build()
+                .unwrap();
             for (_, member) in move_type_bridge_committee.members {
                 let MoveTypeCommitteeMember {
                     haneul_address,
@@ -301,22 +314,26 @@ async fn main() -> anyhow::Result<()> {
                     continue;
                 };
                 let eth_address = BridgeAuthorityPublicKeyBytes::from(&pubkey).to_eth_address();
-                let Ok(base_url) = from_utf8(&http_rest_url) else {
+                let Ok(url) = from_utf8(&http_rest_url) else {
                     println!(
                         "Invalid bridge http url for validator: {}: {:?}",
                         haneul_address, http_rest_url
                     );
                     continue;
                 };
-                let base_url = base_url.to_string();
+                let url = url.to_string();
 
                 let name = names.get(&haneul_address).unwrap();
+                if ping {
+                    let client_clone = client.clone();
+                    ping_tasks.push(client_clone.get(url.clone()).send());
+                }
                 authorities.push((
                     name,
                     haneul_address,
                     pubkey,
                     eth_address,
-                    base_url,
+                    url,
                     voting_power,
                     blocklisted,
                 ));
@@ -329,14 +346,58 @@ async fn main() -> anyhow::Result<()> {
                 "Total stake (static): {}%",
                 total_stake as f32 / TOTAL_VOTING_POWER as f32 * 100.0
             );
-
-            println!("Name, Haneul Address, Eth Address, Pubkey, Base URL, Stake, Blocklisted");
-            for (name, haneul_address, pubkey, eth_address, base_url, stake, blocklisted) in
-                authorities
-            {
+            let ping_tasks_resp = if !ping_tasks.is_empty() {
+                futures::future::join_all(ping_tasks)
+                    .await
+                    .into_iter()
+                    .map(|resp| {
+                        Some(match resp {
+                            Ok(resp) => resp.status().is_success(),
+                            Err(_e) => false,
+                        })
+                    })
+                    .collect::<Vec<_>>()
+            } else {
+                vec![None; authorities.len()]
+            };
+            if ping {
                 println!(
-                    "{}, {}, 0x{:x}, {}, {}, {}, {}",
-                    name, haneul_address, eth_address, pubkey, base_url, stake, blocklisted
+                    "Name, HaneulAddress, EthAddress, Pubkey, URL, Stake, Blocklisted, PingStatus"
+                );
+            } else {
+                println!("Name, HaneulAddress, EthAddress, Pubkey, URL, Stake, Blocklisted");
+            }
+            let mut total_online_stake = 0;
+            for ((name, haneul_address, pubkey, eth_address, url, stake, blocklisted), ping_resp) in
+                authorities.into_iter().zip(ping_tasks_resp)
+            {
+                match ping_resp {
+                    Some(resp) => {
+                        if resp {
+                            total_online_stake += stake;
+                        }
+                        println!(
+                            "{}, {}, 0x{:x}, {}, {}, {}, {}, {}",
+                            name,
+                            haneul_address,
+                            eth_address,
+                            Hex::encode(pubkey.as_bytes()),
+                            url,
+                            stake,
+                            blocklisted,
+                            if resp { "online" } else { "offline" }
+                        );
+                    }
+                    None => println!(
+                        "{}, {}, 0x{:x}, {}, {}, {}, {}",
+                        name, haneul_address, eth_address, pubkey, url, stake, blocklisted
+                    ),
+                }
+            }
+            if ping {
+                println!(
+                    "Total online stake (static): {}%",
+                    total_online_stake as f32 / TOTAL_VOTING_POWER as f32 * 100.0
                 );
             }
         }
