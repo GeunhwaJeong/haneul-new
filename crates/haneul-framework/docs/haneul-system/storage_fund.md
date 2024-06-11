@@ -94,7 +94,7 @@ Called by <code><a href="haneul_system.md#0x3_haneul_system">haneul_system</a></
 Called by <code><a href="haneul_system.md#0x3_haneul_system">haneul_system</a></code> at epoch change times to process the inflows and outflows of storage fund.
 
 
-<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="storage_fund.md#0x3_storage_fund_advance_epoch">advance_epoch</a>(self: &<b>mut</b> <a href="storage_fund.md#0x3_storage_fund_StorageFund">storage_fund::StorageFund</a>, storage_charges: <a href="../haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, storage_fund_reinvestment: <a href="../haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, leftover_staking_rewards: <a href="../haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, storage_rebate_amount: u64, non_refundable_storage_fee_amount: u64): <a href="../haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="storage_fund.md#0x3_storage_fund_advance_epoch">advance_epoch</a>(self: &<b>mut</b> <a href="storage_fund.md#0x3_storage_fund_StorageFund">storage_fund::StorageFund</a>, storage_charges: <a href="../haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, storage_fund_reinvestment: <a href="../haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, leftover_staking_rewards: <a href="../haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;, storage_rebate_amount: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>, non_refundable_storage_fee_amount: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>): <a href="../haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;
 </code></pre>
 
 
@@ -108,8 +108,8 @@ Called by <code><a href="haneul_system.md#0x3_haneul_system">haneul_system</a></
     storage_charges: Balance&lt;HANEUL&gt;,
     storage_fund_reinvestment: Balance&lt;HANEUL&gt;,
     leftover_staking_rewards: Balance&lt;HANEUL&gt;,
-    storage_rebate_amount: u64,
-    non_refundable_storage_fee_amount: u64,
+    storage_rebate_amount: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>,
+    non_refundable_storage_fee_amount: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>,
 ) : Balance&lt;HANEUL&gt; {
     // Both the reinvestment and leftover rewards are not <b>to</b> be refunded so they go <b>to</b> the non-refundable <a href="../haneul-framework/balance.md#0x2_balance">balance</a>.
     self.non_refundable_balance.join(storage_fund_reinvestment);
@@ -144,7 +144,7 @@ Called by <code><a href="haneul_system.md#0x3_haneul_system">haneul_system</a></
 
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="storage_fund.md#0x3_storage_fund_total_object_storage_rebates">total_object_storage_rebates</a>(self: &<a href="storage_fund.md#0x3_storage_fund_StorageFund">storage_fund::StorageFund</a>): u64
+<pre><code><b>public</b> <b>fun</b> <a href="storage_fund.md#0x3_storage_fund_total_object_storage_rebates">total_object_storage_rebates</a>(self: &<a href="storage_fund.md#0x3_storage_fund_StorageFund">storage_fund::StorageFund</a>): <a href="../move-stdlib/u64.md#0x1_u64">u64</a>
 </code></pre>
 
 
@@ -153,7 +153,7 @@ Called by <code><a href="haneul_system.md#0x3_haneul_system">haneul_system</a></
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="storage_fund.md#0x3_storage_fund_total_object_storage_rebates">total_object_storage_rebates</a>(self: &<a href="storage_fund.md#0x3_storage_fund_StorageFund">StorageFund</a>): u64 {
+<pre><code><b>public</b> <b>fun</b> <a href="storage_fund.md#0x3_storage_fund_total_object_storage_rebates">total_object_storage_rebates</a>(self: &<a href="storage_fund.md#0x3_storage_fund_StorageFund">StorageFund</a>): <a href="../move-stdlib/u64.md#0x1_u64">u64</a> {
     self.total_object_storage_rebates.value()
 }
 </code></pre>
@@ -168,7 +168,7 @@ Called by <code><a href="haneul_system.md#0x3_haneul_system">haneul_system</a></
 
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="storage_fund.md#0x3_storage_fund_total_balance">total_balance</a>(self: &<a href="storage_fund.md#0x3_storage_fund_StorageFund">storage_fund::StorageFund</a>): u64
+<pre><code><b>public</b> <b>fun</b> <a href="storage_fund.md#0x3_storage_fund_total_balance">total_balance</a>(self: &<a href="storage_fund.md#0x3_storage_fund_StorageFund">storage_fund::StorageFund</a>): <a href="../move-stdlib/u64.md#0x1_u64">u64</a>
 </code></pre>
 
 
@@ -177,7 +177,7 @@ Called by <code><a href="haneul_system.md#0x3_haneul_system">haneul_system</a></
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="storage_fund.md#0x3_storage_fund_total_balance">total_balance</a>(self: &<a href="storage_fund.md#0x3_storage_fund_StorageFund">StorageFund</a>): u64 {
+<pre><code><b>public</b> <b>fun</b> <a href="storage_fund.md#0x3_storage_fund_total_balance">total_balance</a>(self: &<a href="storage_fund.md#0x3_storage_fund_StorageFund">StorageFund</a>): <a href="../move-stdlib/u64.md#0x1_u64">u64</a> {
     self.total_object_storage_rebates.value() + self.non_refundable_balance.value()
 }
 </code></pre>

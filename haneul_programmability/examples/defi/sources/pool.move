@@ -36,7 +36,6 @@ module defi::pool {
     use haneul::coin::{Self, Coin};
     use haneul::balance::{Self, Supply, Balance};
     use haneul::haneul::HANEUL;
-    use haneul::math;
 
     /// For when supplied Coin is zero.
     const EZeroAmount: u64 = 0;
@@ -104,7 +103,7 @@ module defi::pool {
         assert!(fee_percent >= 0 && fee_percent < 10000, EWrongFee);
 
         // Initial share of LSP is the sqrt(a) * sqrt(b)
-        let share = math::sqrt(haneul_amt) * math::sqrt(tok_amt);
+        let share = haneul_amt.sqrt() * tok_amt.sqrt();
         let mut lsp_supply = balance::create_supply(LSP<P, T> {});
         let lsp = lsp_supply.increase_supply(share);
 
@@ -217,10 +216,8 @@ module defi::pool {
 
         let haneul_added = haneul_balance.value();
         let tok_added = tok_balance.value();
-        let share_minted = math::min(
-            (haneul_added * lsp_supply) / haneul_amount,
-            (tok_added * lsp_supply) / tok_amount
-        );
+        let share_minted =
+            ((haneul_added * lsp_supply) / haneul_amount).min((tok_added * lsp_supply) / tok_amount);
 
         let haneul_amt = pool.haneul.join(haneul_balance);
         let tok_amt = pool.token.join(tok_balance);
@@ -577,6 +574,6 @@ module defi::pool_tests {
 
     // utilities
     fun scenario(): Scenario { test::begin(@0x1) }
-    
+
     fun people(): (address, address) { (@0xBEEF, @0x1337) }
 }
