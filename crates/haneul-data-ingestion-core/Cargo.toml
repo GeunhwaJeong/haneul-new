@@ -26,6 +26,7 @@ haneul-types.workspace = true
 url.workspace = true
 tempfile.workspace = true
 tap.workspace = true
+haneul-protocol-config.workspace = true
 haneul-rest-api.workspace = true
 
 [dev-dependencies]

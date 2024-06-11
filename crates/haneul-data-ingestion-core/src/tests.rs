@@ -11,6 +11,7 @@ use rand::prelude::StdRng;
 use rand::SeedableRng;
 use std::path::PathBuf;
 use std::time::Duration;
+use haneul_protocol_config::ProtocolConfig;
 use haneul_storage::blob::{Blob, BlobEncoding};
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::full_checkpoint_content::CheckpointData;
@@ -136,6 +137,7 @@ fn mock_checkpoint_data_bytes(seq_number: CheckpointSequenceNumber) -> Vec<u8> {
     let (keys, committee) = make_committee_key(&mut rng);
     let contents = CheckpointContents::new_with_digests_only_for_tests(vec![]);
     let summary = CheckpointSummary::new(
+        &ProtocolConfig::get_for_max_version_UNSAFE(),
         0,
         seq_number,
         0,
@@ -144,6 +146,7 @@ fn mock_checkpoint_data_bytes(seq_number: CheckpointSequenceNumber) -> Vec<u8> {
         GasCostSummary::default(),
         None,
         0,
+        Vec::new(),
     );
 
     let sign_infos: Vec<_> = keys
