@@ -15,7 +15,7 @@ use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
 use haneul_types::bridge::{BridgeChainId, TOKEN_ID_ETH};
 use tracing::info;
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 16)]
 async fn test_haneul_bridge_paused() {
     telemetry_subscribers::init_for_testing();
 

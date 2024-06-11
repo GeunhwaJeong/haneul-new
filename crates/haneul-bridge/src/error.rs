@@ -61,6 +61,8 @@ pub enum BridgeError {
     ActionIsNotTokenTransferAction,
     // Haneul transaction failure due to generic error
     HaneulTxFailureGeneric(String),
+    // Zero value bridge transfer should not be allowed
+    ZeroValueBridgeTransfer(String),
     // Storage Error
     StorageError(String),
     // Rest API Error
