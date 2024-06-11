@@ -48,4 +48,4 @@ Haneul is for the community. Contribute for the benefit of all.
 
 ## License
 
-The Haneul Documentation is distributed under the [LICENSE](CC BY 4.0 license).
+The Haneul Documentation is distributed under the [CC BY 4.0 license](../LICENSE-docs).
