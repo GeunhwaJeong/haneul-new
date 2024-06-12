@@ -713,6 +713,12 @@ impl RestStateReader for PersistedStoreInnerReadOnlyWrapper {
         todo!()
     }
 
+    fn get_lowest_available_checkpoint_objects(
+        &self,
+    ) -> haneul_types::storage::error::Result<CheckpointSequenceNumber> {
+        Ok(0)
+    }
+
     fn get_chain_identifier(
         &self,
     ) -> haneul_types::storage::error::Result<haneul_types::digests::ChainIdentifier> {

@@ -193,6 +193,10 @@ impl ObjectCacheRead for ProxyCache {
     ) -> HaneulResult<Option<(SequenceNumber, MarkerValue)>> {
         delegate_method!(self.get_latest_marker(object_id, epoch_id))
     }
+
+    fn get_highest_pruned_checkpoint(&self) -> HaneulResult<CheckpointSequenceNumber> {
+        delegate_method!(self.get_highest_pruned_checkpoint())
+    }
 }
 
 impl TransactionCacheRead for ProxyCache {
