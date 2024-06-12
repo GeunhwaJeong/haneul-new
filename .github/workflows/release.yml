@@ -60,6 +60,11 @@ jobs:
           export haneul_version=$(echo ${haneul_tag} | sed -e 's/mainnet-v//' -e 's/testnet-v//')
           echo "haneul_version=${haneul_version}" >> $GITHUB_ENV
 
+      - name: Check out ${{ env.haneul_tag }}
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # pin@v3
+        with:
+          ref: ${{ env.haneul_tag }}          
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # pin v4.0.2
         with:
@@ -97,6 +102,7 @@ jobs:
         run: |
           mkdir -p ${{ env.TMP_BUILD_DIR }}
           aws s3 cp s3://haneul-releases/releases/haneul-${{ env.haneul_tag }}-${os_type}.tgz ./tmp/haneul-${{ env.haneul_tag }}-${os_type}.tgz
+          tar -xf ./tmp/haneul-${{ env.haneul_tag }}-${os_type}.tgz -C ${{ env.TMP_BUILD_DIR }}
 
       - name: Setup caching
         if: ${{ env.s3_archive_exist == '' }}
@@ -133,13 +139,7 @@ jobs:
           PKG_CONFIG_PATH: "/opt/homebrew/lib/pkgconfig:$PKG_CONFIG_PATH"
           PATH: "/opt/homebrew/bin:$PATH"
         run: |
-          brew install postgresql          
-
-      - name: Check out ${{ env.haneul_tag }}
-        if: ${{ env.s3_archive_exist == '' }}
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # pin@v3
-        with:
-          ref: ${{ env.haneul_tag }}
+          brew install postgresql
 
       - name: Cargo build for ${{ matrix.os }} platform
         if: ${{ env.s3_archive_exist == '' }}
@@ -163,14 +163,14 @@ jobs:
           tar -cvzf ./tmp/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz -C ${{ env.TMP_BUILD_DIR }} .
           [[ ${{ env.haneul_tag }} == *"testnet"* ]] && aws s3 cp ./tmp/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz s3://haneul-releases/releases/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz || true
 
-      - name: "Publish Windows haneul binary to Chocolately"
+      - name: Publish Windows haneul binary to Chocolatey
         if: ${{ matrix.os == 'windows-ghcloud' && contains( env.haneul_tag, 'testnet') }}
-        working-directory: chocolatey
         continue-on-error: true
         shell: bash
         run: |
           choco install checksum
           export haneul_sha=$(checksum -t sha256 ${{ env.TMP_BUILD_DIR }}/haneul.exe)
+          cd chocolatey
 
           cat <<EOF >>VERIFICATION.txt
           Haneul Binary verification steps

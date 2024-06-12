@@ -20,7 +20,7 @@ enclosed in quotation marks, you should use an editor that supports UTF-8, not t
 		<releaseNotes>https://github.com/GeunhwaJeong/haneul/releases/tag/mainnet-v$version$</releaseNotes>
 	</metadata>
 	<files>
-		<file src="../target/release/haneul.exe" target="bin/haneul.exe" />
+		<file src="./tmp/release/haneul.exe" target="bin/haneul.exe" />
 		<file src="../LICENSE" target="bin/LICENSE.txt" />
 		<file src="./VERIFICATION.txt" target="bin/VERIFICATION.txt" />
 	</files>
