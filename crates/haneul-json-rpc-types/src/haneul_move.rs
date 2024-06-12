@@ -501,6 +501,14 @@ impl HaneulMoveStruct {
             }
         }
     }
+
+    pub fn field_value(&self, field_name: &str) -> Option<HaneulMoveValue> {
+        match self {
+            HaneulMoveStruct::WithFields(fields) => fields.get(field_name).cloned(),
+            HaneulMoveStruct::WithTypes { type_: _, fields } => fields.get(field_name).cloned(),
+            _ => None,
+        }
+    }
 }
 
 impl Display for HaneulMoveStruct {
