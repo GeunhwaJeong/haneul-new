@@ -2,7 +2,7 @@
 	"name": "@haneullabs/haneulns-toolkit",
 	"author": "Haneul Labs <build@haneul-labs.com>",
 	"description": "HaneulNS TypeScript SDK",
-	"version": "0.5.6",
+	"version": "0.5.7",
 	"license": "Apache-2.0",
 	"type": "commonjs",
 	"main": "./dist/cjs/index.js",
