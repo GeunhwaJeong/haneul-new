@@ -48,7 +48,7 @@ use haneul_types::committee::StakeUnit;
 use haneul_types::crypto::AuthorityStrongQuorumSignInfo;
 use haneul_types::digests::{CheckpointContentsDigest, CheckpointDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
-use haneul_types::error::HaneulResult;
+use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::gas::GasCostSummary;
 use haneul_types::message_envelope::Message;
 use haneul_types::messages_checkpoint::{
@@ -1919,6 +1919,14 @@ impl CheckpointSignatureAggregator {
         let envelope =
             SignedCheckpointSummary::new_from_data_and_sig(self.summary.clone(), signature);
         match self.signatures_by_digest.insert(their_digest, envelope) {
+            // ignore repeated signatures
+            InsertResult::Failed {
+                error:
+                    HaneulError::StakeAggregatorRepeatedSigner {
+                        conflicting_sig: false,
+                        ..
+                    },
+            } => Err(()),
             InsertResult::Failed { error } => {
                 warn!(
                     checkpoint_seq = self.summary.sequence_number,
