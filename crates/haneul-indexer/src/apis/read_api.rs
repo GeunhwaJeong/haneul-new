@@ -24,8 +24,6 @@ use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::digests::{ChainIdentifier, TransactionDigest};
 use haneul_types::haneul_serde::BigInt;
 
-use haneul_json_rpc_types::HaneulLoadedChildObjectsResponse;
-
 #[derive(Clone)]
 pub(crate) struct ReadApi<T: R2D2Connection + 'static> {
     inner: IndexerReader<T>,
@@ -267,16 +265,6 @@ impl<T: R2D2Connection + 'static> ReadApiServer for ReadApi<T> {
             .get_transaction_events_in_blocking_task(transaction_digest)
             .await
             .map_err(Into::into)
-    }
-
-    async fn get_loaded_child_objects(
-        &self,
-        _digest: TransactionDigest,
-    ) -> RpcResult<HaneulLoadedChildObjectsResponse> {
-        Err(jsonrpsee::types::error::CallError::Custom(
-            jsonrpsee::types::error::ErrorCode::MethodNotFound.into(),
-        )
-        .into())
     }
 
     async fn get_protocol_config(

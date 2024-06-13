@@ -19,6 +19,7 @@ use haneul_json_rpc_api::{
     CoinReadApiClient, GovernanceReadApiClient, IndexerApiClient, MoveUtilsClient, ReadApiClient,
     WriteApiClient,
 };
+use haneul_json_rpc_types::CheckpointPage;
 use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake, DevInspectResults,
     DryRunTransactionBlockResponse, DynamicFieldPage, EventFilter, EventPage, ObjectsPage,
@@ -28,7 +29,6 @@ use haneul_json_rpc_types::{
     HaneulTransactionBlockResponseOptions, HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
     TransactionFilter,
 };
-use haneul_json_rpc_types::{CheckpointPage, HaneulLoadedChildObjectsResponse};
 use haneul_types::balance::Supply;
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TransactionDigest};
 use haneul_types::dynamic_field::DynamicFieldName;
@@ -684,17 +684,6 @@ impl ReadApi {
                 additional_args,
             )
             .await?)
-    }
-
-    /// Return the loaded child objects response for the provided digest, or an error upon failure.
-    ///
-    /// Loaded child objects ([HaneulLoadedChildObject](haneul_json_rpc_types::HaneulLoadedChildObject)) are the non-input objects that the transaction at the digest loaded
-    /// in response to dynamic field accesses.
-    pub async fn get_loaded_child_objects(
-        &self,
-        digest: TransactionDigest,
-    ) -> HaneulRpcResult<HaneulLoadedChildObjectsResponse> {
-        Ok(self.api.http.get_loaded_child_objects(digest).await?)
     }
 
     /// Return the protocol config, or an error upon failure.

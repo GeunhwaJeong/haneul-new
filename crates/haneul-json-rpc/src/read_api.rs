@@ -30,7 +30,6 @@ use haneul_json_rpc_types::{
     HaneulTransactionBlock, HaneulTransactionBlockEvents, HaneulTransactionBlockResponse,
     HaneulTransactionBlockResponseOptions,
 };
-use haneul_json_rpc_types::{HaneulLoadedChildObject, HaneulLoadedChildObjectsResponse};
 use haneul_open_rpc::Module;
 use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
 use haneul_storage::key_value_store::TransactionKeyValueStore;
@@ -1010,32 +1009,6 @@ impl ReadApiServer for ReadApi {
             self.get_checkpoints(cursor, limit.map(|l| *l as usize), descending_order)
                 .await
                 .map_err(Error::from)
-        })
-    }
-
-    #[instrument(skip(self))]
-    async fn get_loaded_child_objects(
-        &self,
-        digest: TransactionDigest,
-    ) -> RpcResult<HaneulLoadedChildObjectsResponse> {
-        with_tracing!(async move {
-            Ok(HaneulLoadedChildObjectsResponse {
-                loaded_child_objects: match self
-                    .state
-                    .loaded_child_object_versions(&digest)
-                    .map_err(|e| {
-                        error!(
-                            "Failed to get loaded child objects at {digest:?} with error: {e:?}"
-                        );
-                        Error::StateReadError(e)
-                    })? {
-                    Some(v) => v
-                        .into_iter()
-                        .map(|q| HaneulLoadedChildObject::new(q.0, q.1))
-                        .collect::<Vec<_>>(),
-                    None => vec![],
-                },
-            })
         })
     }
 

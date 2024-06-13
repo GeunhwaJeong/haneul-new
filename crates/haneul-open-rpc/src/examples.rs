@@ -25,9 +25,8 @@ use haneul_json_rpc_types::{
     MoveFunctionArgType, ObjectChange, ObjectValueKind::ByImmutableReference,
     ObjectValueKind::ByMutableReference, ObjectValueKind::ByValue, ObjectsPage, OwnedObjectRef,
     Page, ProtocolConfigResponse, RPCTransactionRequestParams, Stake, StakeStatus, HaneulCoinMetadata,
-    HaneulCommittee, HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulGetPastObjectRequest,
-    HaneulLoadedChildObject, HaneulLoadedChildObjectsResponse, HaneulMoveAbility, HaneulMoveAbilitySet,
-    HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
+    HaneulCommittee, HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulGetPastObjectRequest, HaneulMoveAbility,
+    HaneulMoveAbilitySet, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
     HaneulMoveNormalizedType, HaneulMoveVisibility, HaneulObjectData, HaneulObjectDataFilter,
     HaneulObjectDataOptions, HaneulObjectRef, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedData,
     HaneulPastObjectResponse, HaneulTransactionBlock, HaneulTransactionBlockData,
@@ -122,7 +121,6 @@ impl RpcExampleProvider {
             self.haneulx_get_dynamic_fields(),
             self.haneulx_get_dynamic_field_object(),
             self.haneulx_get_owned_objects(),
-            self.haneul_get_loaded_child_objects(),
             self.haneul_get_move_function_arg_types(),
             self.haneul_get_normalized_move_function(),
             self.haneul_get_normalized_move_module(),
@@ -996,33 +994,6 @@ impl RpcExampleProvider {
             vec![ExamplePairing::new(
                 "Gets total supply for the type of coin provided.",
                 vec![("coin_type", json!(coin))],
-                json!(result),
-            )],
-        )
-    }
-
-    fn haneul_get_loaded_child_objects(&mut self) -> Examples {
-        let mut sequence = SequenceNumber::from_u64(self.rng.gen_range(24506..6450624));
-        let seqs = (0..6)
-            .map(|x| {
-                if x % 2 == 0 || x % 3 == 0 {
-                    sequence = SequenceNumber::from_u64(self.rng.gen_range(24506..6450624));
-                }
-
-                HaneulLoadedChildObject::new(ObjectID::new(self.rng.gen()), sequence)
-            })
-            .collect::<Vec<_>>();
-        let result = {
-            HaneulLoadedChildObjectsResponse {
-                loaded_child_objects: seqs,
-            }
-        };
-
-        Examples::new(
-            "haneul_getLoadedChildObjects",
-            vec![ExamplePairing::new(
-                "Gets loaded child objects associated with the transaction the request provides.",
-                vec![("digest", json!(ObjectDigest::new(self.rng.gen())))],
                 json!(result),
             )],
         )
