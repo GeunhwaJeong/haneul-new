@@ -9,7 +9,7 @@ use std::fmt;
 use haneul_types::authenticator_state::get_authenticator_state_obj_initial_shared_version;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::bridge::{get_bridge_obj_initial_shared_version, is_bridge_committee_initiated};
-use haneul_types::deny_list::get_deny_list_obj_initial_shared_version;
+use haneul_types::deny_list_v1::get_deny_list_obj_initial_shared_version;
 use haneul_types::epoch_data::EpochData;
 use haneul_types::error::HaneulResult;
 use haneul_types::messages_checkpoint::{CheckpointDigest, CheckpointTimestamp};

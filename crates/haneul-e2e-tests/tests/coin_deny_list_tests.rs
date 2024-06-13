@@ -4,12 +4,12 @@
 use std::path::PathBuf;
 use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
 use haneul_macros::sim_test;
-use haneul_types::deny_list::CoinDenyCap;
-use haneul_types::deny_list::RegulatedCoinMetadata;
+use haneul_types::deny_list_v1::CoinDenyCap;
+use haneul_types::deny_list_v1::RegulatedCoinMetadata;
 use test_cluster::TestClusterBuilder;
 
 #[sim_test]
-async fn test_regulated_coin_creation() {
+async fn test_regulated_coin_v1_creation() {
     let test_cluster = TestClusterBuilder::new().build().await;
     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     path.push("tests/move_test_code");

@@ -11,7 +11,7 @@ use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::clock::Clock;
 use haneul_types::committee::CommitteeWithNetworkMetadata;
 use haneul_types::crypto::DefaultHash;
-use haneul_types::deny_list::{get_coin_deny_list, PerTypeDenyList};
+use haneul_types::deny_list_v1::{get_coin_deny_list, PerTypeDenyList};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::gas_coin::TOTAL_SUPPLY_GEUNHWA;
 use haneul_types::messages_checkpoint::{

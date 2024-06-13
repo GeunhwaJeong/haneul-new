@@ -29,7 +29,7 @@ use move_core_types::{
 };
 use std::{collections::BTreeMap, error::Error, num::NonZeroU64};
 use haneul_types::bridge::BRIDGE_MODULE_NAME;
-use haneul_types::deny_list::{DENY_LIST_CREATE_FUNC, DENY_LIST_MODULE};
+use haneul_types::deny_list_v1::{DENY_LIST_CREATE_FUNC, DENY_LIST_MODULE};
 use haneul_types::{
     authenticator_state::AUTHENTICATOR_STATE_MODULE_NAME,
     clock::CLOCK_MODULE_NAME,
