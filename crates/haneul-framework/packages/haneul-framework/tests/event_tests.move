@@ -1,6 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-/* uncomment me after next release
+
 #[test_only]
 module haneul::event_tests {
     use haneul::event;
@@ -56,4 +56,4 @@ module haneul::event_tests {
         assert_eq(event::events_by_type<S1>()[1], e3);
         assert_eq(event::num_events(), 4);
     }
-}*/
+}

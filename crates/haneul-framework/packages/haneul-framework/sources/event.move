@@ -36,7 +36,6 @@ module haneul::event {
     /// phantom parameters, eg `emit(MyEvent<phantom T>)`.
     public native fun emit<T: copy + drop>(event: T);
 
-/* uncomment me after next release
     #[test_only]
     /// Get the total number of events emitted during execution so far
     public native fun num_events(): u32;
@@ -45,5 +44,4 @@ module haneul::event {
     /// Get all events of type `T` emitted during execution.
     /// Can only be used in testing,
     public native fun events_by_type<T: copy + drop>(): vector<T>;
-*/
 }
