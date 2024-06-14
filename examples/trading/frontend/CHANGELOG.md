@@ -1,5 +1,11 @@
 # frontend
 
+## 0.0.10
+
+### Patch Changes
+
+- @haneullabs/dapp-kit@0.14.9
+
 ## 0.0.9
 
 ### Patch Changes
