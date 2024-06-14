@@ -1,10 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use move_core_types::language_storage::StructTag;
 use parking_lot::Mutex;
 use std::sync::Arc;
-use haneul_types::storage::ObjectStore;
-
+use haneul_types::base_types::ObjectID;
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::committee::Committee;
 use haneul_types::committee::EpochId;
@@ -20,15 +21,26 @@ use haneul_types::messages_checkpoint::VerifiedCheckpoint;
 use haneul_types::messages_checkpoint::VerifiedCheckpointContents;
 use haneul_types::object::Object;
 use haneul_types::storage::error::Error as StorageError;
+use haneul_types::storage::error::Result;
+use haneul_types::storage::AccountOwnedObjectInfo;
+use haneul_types::storage::CoinInfo;
+use haneul_types::storage::ObjectStore;
+use haneul_types::storage::RestDynamicFieldInfo;
 use haneul_types::storage::RestStateReader;
 use haneul_types::storage::WriteStore;
 use haneul_types::storage::{ObjectKey, ReadStore};
 use haneul_types::transaction::VerifiedTransaction;
+use tap::Pipe;
 
 use crate::authority::AuthorityState;
 use crate::checkpoints::CheckpointStore;
 use crate::epoch::committee_store::CommitteeStore;
 use crate::execution_cache::ExecutionCacheTraitPointers;
+use crate::rest_index::CoinIndexInfo;
+use crate::rest_index::DynamicFieldIndexInfo;
+use crate::rest_index::DynamicFieldKey;
+use crate::rest_index::OwnerIndexInfo;
+use crate::rest_index::OwnerIndexKey;
 use crate::rest_index::RestIndexStore;
 
 #[derive(Clone)]
@@ -503,5 +515,72 @@ impl RestStateReader for RestReadStore {
         self.state
             .get_chain_identifier()
             .ok_or_else(|| StorageError::missing("unable to query chain identifier"))
+    }
+
+    fn account_owned_objects_info_iter(
+        &self,
+        owner: HaneulAddress,
+        cursor: Option<ObjectID>,
+    ) -> Result<Box<dyn Iterator<Item = AccountOwnedObjectInfo> + '_>> {
+        let iter = self.index()?.owner_iter(owner, cursor)?.map(
+            |(OwnerIndexKey { owner, object_id }, OwnerIndexInfo { version, type_ })| {
+                AccountOwnedObjectInfo {
+                    owner,
+                    object_id,
+                    version,
+                    type_,
+                }
+            },
+        );
+
+        Ok(Box::new(iter) as _)
+    }
+
+    fn dynamic_field_iter(
+        &self,
+        parent: ObjectID,
+        cursor: Option<ObjectID>,
+    ) -> haneul_types::storage::error::Result<Box<dyn Iterator<Item = RestDynamicFieldInfo> + '_>>
+    {
+        let iter = self.index()?.dynamic_field_iter(parent, cursor)?.map(
+            |(
+                DynamicFieldKey { parent, field_id },
+                DynamicFieldIndexInfo {
+                    dynamic_field_type,
+                    name_type,
+                    name_value,
+                    dynamic_object_id,
+                },
+            )| {
+                RestDynamicFieldInfo {
+                    parent,
+                    field_id,
+                    dynamic_field_type,
+                    name_type,
+                    name_value,
+                    dynamic_object_id,
+                }
+            },
+        );
+
+        Ok(Box::new(iter) as _)
+    }
+
+    fn get_coin_info(
+        &self,
+        coin_type: &StructTag,
+    ) -> haneul_types::storage::error::Result<Option<CoinInfo>> {
+        self.index()?
+            .get_coin_info(coin_type)?
+            .map(
+                |CoinIndexInfo {
+                     coin_metadata_object_id,
+                     treasury_object_id,
+                 }| CoinInfo {
+                    coin_metadata_object_id,
+                    treasury_object_id,
+                },
+            )
+            .pipe(Ok)
     }
 }
