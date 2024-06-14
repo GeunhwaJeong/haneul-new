@@ -24,8 +24,9 @@ use haneul_types::storage::error::Error as StorageError;
 use haneul_types::storage::error::Result;
 use haneul_types::storage::AccountOwnedObjectInfo;
 use haneul_types::storage::CoinInfo;
+use haneul_types::storage::DynamicFieldIndexInfo;
+use haneul_types::storage::DynamicFieldKey;
 use haneul_types::storage::ObjectStore;
-use haneul_types::storage::RestDynamicFieldInfo;
 use haneul_types::storage::RestStateReader;
 use haneul_types::storage::WriteStore;
 use haneul_types::storage::{ObjectKey, ReadStore};
@@ -37,8 +38,6 @@ use crate::checkpoints::CheckpointStore;
 use crate::epoch::committee_store::CommitteeStore;
 use crate::execution_cache::ExecutionCacheTraitPointers;
 use crate::rest_index::CoinIndexInfo;
-use crate::rest_index::DynamicFieldIndexInfo;
-use crate::rest_index::DynamicFieldKey;
 use crate::rest_index::OwnerIndexInfo;
 use crate::rest_index::OwnerIndexKey;
 use crate::rest_index::RestIndexStore;
@@ -546,28 +545,10 @@ impl RestStateReader for RestReadStore {
         &self,
         parent: ObjectID,
         cursor: Option<ObjectID>,
-    ) -> haneul_types::storage::error::Result<Box<dyn Iterator<Item = RestDynamicFieldInfo> + '_>>
-    {
-        let iter = self.index()?.dynamic_field_iter(parent, cursor)?.map(
-            |(
-                DynamicFieldKey { parent, field_id },
-                DynamicFieldIndexInfo {
-                    dynamic_field_type,
-                    name_type,
-                    name_value,
-                    dynamic_object_id,
-                },
-            )| {
-                RestDynamicFieldInfo {
-                    parent,
-                    field_id,
-                    dynamic_field_type,
-                    name_type,
-                    name_value,
-                    dynamic_object_id,
-                }
-            },
-        );
+    ) -> haneul_types::storage::error::Result<
+        Box<dyn Iterator<Item = (DynamicFieldKey, DynamicFieldIndexInfo)> + '_>,
+    > {
+        let iter = self.index()?.dynamic_field_iter(parent, cursor)?;
 
         Ok(Box::new(iter) as _)
     }

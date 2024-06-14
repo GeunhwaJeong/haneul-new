@@ -746,7 +746,14 @@ impl RestStateReader for PersistedStoreInnerReadOnlyWrapper {
         _parent: ObjectID,
         _cursor: Option<ObjectID>,
     ) -> haneul_types::storage::error::Result<
-        Box<dyn Iterator<Item = haneul_types::storage::RestDynamicFieldInfo> + '_>,
+        Box<
+            dyn Iterator<
+                    Item = (
+                        haneul_types::storage::DynamicFieldKey,
+                        haneul_types::storage::DynamicFieldIndexInfo,
+                    ),
+                > + '_,
+        >,
     > {
         todo!()
     }
