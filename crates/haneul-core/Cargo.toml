@@ -96,6 +96,7 @@ haneul-simulator.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
 zeroize.workspace = true
+nonempty.workspace = true
 
 [dev-dependencies]
 clap.workspace = true
