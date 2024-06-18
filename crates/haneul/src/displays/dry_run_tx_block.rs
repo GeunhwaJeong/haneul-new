@@ -1,10 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::displays::Pretty;
+use crate::{client_commands::estimate_gas_budget_from_gas_cost, displays::Pretty};
 use std::fmt::{Display, Formatter};
 use haneul_json_rpc_types::{
-    DryRunTransactionBlockResponse, ObjectChange, HaneulTransactionBlockEffectsAPI,
+    DryRunTransactionBlockResponse, ObjectChange, HaneulTransactionBlockDataAPI,
+    HaneulTransactionBlockEffectsAPI,
 };
 use tabled::{
     builder::Builder as TableBuilder,
@@ -93,6 +94,14 @@ impl<'a> Display for Pretty<'a, DryRunTransactionBlockResponse> {
             f,
             "Dry run completed, execution status: {}",
             response.effects.status()
+        )?;
+        writeln!(
+            f,
+            "Estimated gas cost (includes a small buffer): {} GEUNHWA",
+            estimate_gas_budget_from_gas_cost(
+                response.effects.gas_cost_summary(),
+                response.input.gas_data().price
+            )
         )
     }
 }
