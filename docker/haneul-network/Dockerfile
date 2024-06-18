@@ -1,5 +1,6 @@
-# We generate the genesis blob and validator configurations
-from docker.io/haneullabs/haneul-tools:mainnet-v1.19.1 as setup
+ARG HANEUL_TOOLS_IMAGE_TAG
+
+FROM haneullabs/haneul-tools:$HANEUL_TOOLS_IMAGE_TAG as setup
 
 RUN apt update
 RUN apt install python3 python3-pip -y
