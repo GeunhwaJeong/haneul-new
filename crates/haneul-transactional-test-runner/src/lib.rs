@@ -24,6 +24,7 @@ use haneul_storage::key_value_store::TransactionKeyValueStore;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::VersionNumber;
+use haneul_types::committee::EpochId;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::effects::TransactionEffects;
@@ -217,7 +218,9 @@ impl TransactionalAdapter for ValidatorWithFullnode {
     }
 
     async fn advance_epoch(&mut self, _create_random_state: bool) -> anyhow::Result<()> {
-        unimplemented!("advance_epoch not supported")
+        self.validator.reconfigure_for_testing().await;
+        self.fullnode.reconfigure_for_testing().await;
+        Ok(())
     }
 
     async fn request_gas(
@@ -252,6 +255,10 @@ impl ReadStore for ValidatorWithFullnode {
         _epoch: haneul_types::committee::EpochId,
     ) -> haneul_types::storage::error::Result<Option<Arc<haneul_types::committee::Committee>>> {
         todo!()
+    }
+
+    fn get_latest_epoch_id(&self) -> haneul_types::storage::error::Result<EpochId> {
+        Ok(self.validator.epoch_store_for_testing().epoch())
     }
 
     fn get_latest_checkpoint(&self) -> haneul_types::storage::error::Result<VerifiedCheckpoint> {

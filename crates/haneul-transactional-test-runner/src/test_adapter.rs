@@ -62,6 +62,7 @@ use haneul_storage::{
 };
 use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_types::base_types::{SequenceNumber, VersionNumber};
+use haneul_types::committee::EpochId;
 use haneul_types::crypto::{get_authority_key_pair, RandomnessRound};
 use haneul_types::digests::{ConsensusCommitDigest, TransactionDigest, TransactionEventsDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI, TransactionEvents};
@@ -2257,6 +2258,10 @@ impl ObjectStore for HaneulTestAdapter {
 }
 
 impl ReadStore for HaneulTestAdapter {
+    fn get_latest_epoch_id(&self) -> haneul_types::storage::error::Result<EpochId> {
+        self.executor.get_latest_epoch_id()
+    }
+
     fn get_committee(
         &self,
         epoch: haneul_types::committee::EpochId,
