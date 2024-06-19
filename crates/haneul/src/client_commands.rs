@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
+    clever_error_rendering::render_clever_error_opt,
     client_ptb::ptb::PTB,
     displays::Pretty,
     key_identity::{get_identity_address, KeyIdentity},
@@ -42,7 +43,8 @@ use haneul_json_rpc_types::{
     Coin, DryRunTransactionBlockResponse, DynamicFieldPage, HaneulCoinMetadata, HaneulData,
     HaneulExecutionStatus, HaneulObjectData, HaneulObjectDataOptions, HaneulObjectResponse,
     HaneulObjectResponseQuery, HaneulParsedData, HaneulProtocolConfigValue, HaneulRawData,
-    HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
+    HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions,
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_move_build::{
@@ -663,7 +665,7 @@ impl HaneulClientCommands {
         self,
         context: &mut WalletContext,
     ) -> Result<HaneulClientCommandResult, anyhow::Error> {
-        let ret = Ok(match self {
+        let ret = match self {
             HaneulClientCommands::ProfileTransaction {
                 tx_digest,
                 profile_output,
@@ -1583,8 +1585,9 @@ impl HaneulClientCommands {
                 ptb.execute(context).await?;
                 HaneulClientCommandResult::NoOutput
             }
-        });
-        ret
+        };
+        let client = context.get_client().await?;
+        Ok(ret.prerender_clever_errors(client.read_api()).await)
     }
 
     pub fn switch_env(config: &mut HaneulClientConfig, env: &str) -> Result<(), anyhow::Error> {
@@ -2204,6 +2207,42 @@ impl HaneulClientCommandResult {
             _ => None,
         }
     }
+
+    pub async fn prerender_clever_errors(mut self, read_api: &ReadApi) -> Self {
+        match &mut self {
+            HaneulClientCommandResult::DryRun(DryRunTransactionBlockResponse { effects, .. })
+            | HaneulClientCommandResult::TransactionBlock(HaneulTransactionBlockResponse {
+                effects: Some(effects),
+                ..
+            }) => prerender_clever_errors(effects, read_api).await,
+
+            HaneulClientCommandResult::TransactionBlock(HaneulTransactionBlockResponse {
+                effects: None,
+                ..
+            }) => (),
+            HaneulClientCommandResult::ActiveAddress(_)
+            | HaneulClientCommandResult::ActiveEnv(_)
+            | HaneulClientCommandResult::Addresses(_)
+            | HaneulClientCommandResult::Balance(_, _)
+            | HaneulClientCommandResult::ChainIdentifier(_)
+            | HaneulClientCommandResult::DynamicFieldQuery(_)
+            | HaneulClientCommandResult::Envs(_, _)
+            | HaneulClientCommandResult::Gas(_)
+            | HaneulClientCommandResult::NewAddress(_)
+            | HaneulClientCommandResult::NewEnv(_)
+            | HaneulClientCommandResult::NoOutput
+            | HaneulClientCommandResult::Object(_)
+            | HaneulClientCommandResult::Objects(_)
+            | HaneulClientCommandResult::RawObject(_)
+            | HaneulClientCommandResult::SerializedSignedTransaction(_)
+            | HaneulClientCommandResult::SerializedUnsignedTransaction(_)
+            | HaneulClientCommandResult::Switch(_)
+            | HaneulClientCommandResult::SyncClientState
+            | HaneulClientCommandResult::VerifyBytecodeMeter { .. }
+            | HaneulClientCommandResult::VerifySource => (),
+        }
+        self
+    }
 }
 
 #[derive(Serialize)]
@@ -2568,7 +2607,10 @@ pub async fn execute_dry_run(
         .dry_run_transaction_block(dry_run_tx_data)
         .await
         .map_err(|e| anyhow!("Dry run failed: {e}"))?;
-    Ok(HaneulClientCommandResult::DryRun(response))
+    let resp = HaneulClientCommandResult::DryRun(response)
+        .prerender_clever_errors(client.read_api())
+        .await;
+    Ok(resp)
 }
 
 /// Call a dry run with the transaction data to estimate the gas budget.
@@ -2718,17 +2760,32 @@ pub(crate) async fn dry_run_or_execute_or_serialize(
             ))
         } else {
             let transaction = Transaction::new(sender_signed_data);
-            let response = context.execute_transaction_may_fail(transaction).await?;
+            let mut response = context.execute_transaction_may_fail(transaction).await?;
+            if let Some(effects) = response.effects.as_mut() {
+                prerender_clever_errors(effects, client.read_api()).await;
+            }
             let effects = response.effects.as_ref().ok_or_else(|| {
                 anyhow!("Effects from HaneulTransactionBlockResult should not be empty")
             })?;
-            if matches!(effects.status(), HaneulExecutionStatus::Failure { .. }) {
+            if let HaneulExecutionStatus::Failure { error } = effects.status() {
                 return Err(anyhow!(
-                    "Error executing transaction: {:#?}",
-                    effects.status()
+                    "Error executing transaction '{}': {error}",
+                    response.digest
                 ));
             }
             Ok(HaneulClientCommandResult::TransactionBlock(response))
+        }
+    }
+}
+
+pub(crate) async fn prerender_clever_errors(
+    effects: &mut HaneulTransactionBlockEffects,
+    read_api: &ReadApi,
+) {
+    let HaneulTransactionBlockEffects::V1(effects) = effects;
+    if let HaneulExecutionStatus::Failure { error } = &mut effects.status {
+        if let Some(rendered) = render_clever_error_opt(error, read_api).await {
+            *error = rendered;
         }
     }
 }
