@@ -12,6 +12,8 @@
 # checkpoints_path: <path>
 # Number of concurrent operations
 # concurrency: 1
+# Bridge genesis checkpoint in HANEUL, for testnet = 43917829
+# bridge_genesis_checkpoint: <haneul bridge genesis checkpoint>
 # Ethereum to Haneul bridge contract address
 # eth_haneul_bridge_contract_address: <contract_address>
 # Starting block number

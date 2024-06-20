@@ -14,18 +14,17 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::Arc;
 use haneul_bridge::{eth_client::EthClient, eth_syncer::EthSyncer};
-use haneul_bridge_indexer::latest_eth_syncer::LatestEthSyncer;
-use haneul_bridge_indexer::postgres_manager::get_connection_pool;
-use haneul_bridge_indexer::postgres_manager::get_latest_eth_token_transfer;
-use haneul_bridge_indexer::haneul_worker::HaneulBridgeWorker;
 use haneul_bridge_indexer::{config::load_config, metrics::BridgeIndexerMetrics};
-use haneul_data_ingestion_core::{
-    DataIngestionMetrics, FileProgressStore, IndexerExecutor, ReaderOptions, WorkerPool,
-};
+use haneul_data_ingestion_core::{DataIngestionMetrics, IndexerExecutor, ReaderOptions, WorkerPool};
 use tokio::sync::oneshot;
 use tracing::info;
 
 use haneul_bridge_indexer::eth_worker::process_eth_events;
+use haneul_bridge_indexer::latest_eth_syncer::LatestEthSyncer;
+use haneul_bridge_indexer::postgres_manager::{
+    get_connection_pool, get_latest_eth_token_transfer, PgProgressStore,
+};
+use haneul_bridge_indexer::haneul_worker::HaneulBridgeWorker;
 
 #[derive(Parser, Clone, Debug)]
 struct Args {
@@ -84,7 +83,8 @@ async fn start_processing_haneul_checkpoints(
     let (_exit_sender, exit_receiver) = oneshot::channel();
     let metrics = DataIngestionMetrics::new(&Registry::new());
 
-    let progress_store = FileProgressStore::new(config.progress_store_file.clone().into());
+    let pg_pool = get_connection_pool(config.db_url.clone());
+    let progress_store = PgProgressStore::new(pg_pool, config.bridge_genesis_checkpoint);
     let mut executor = IndexerExecutor::new(progress_store, 1 /* workflow types */, metrics);
 
     let indexer_metrics_cloned = indexer_meterics.clone();
