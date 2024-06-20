@@ -24,6 +24,7 @@ haneul-data-ingestion-core.workspace = true
 haneul-types.workspace = true
 telemetry-subscribers.workspace = true
 tracing.workspace = true
+backoff.workspace = true
 
 [dev-dependencies]
 haneul-types = { workspace = true, features = ["test-utils"] }
