@@ -26,6 +26,9 @@ import { coinWithBalance, Transaction } from '@haneullabs/haneul/transactions';
 
 const tx = new Transaction();
 
+// Setting the sender is required for the CoinWithBalance intent to resolve coins when not using the gas coin
+tx.setSender(keypair.toHaneulAddress());
+
 tx.transferObjects(
 	[
 		// Create a HANEUL coin (balance is in GEUNHWA)
