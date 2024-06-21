@@ -617,6 +617,23 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
         );
     }
 
+    function testHaneulBridgeInvalidERC20Transfer() public {
+        vm.expectRevert(bytes("BridgeUtils: Insufficient amount provided"));
+        bridge.bridgeERC20(
+            BridgeUtils.USDC,
+            0,
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4",
+            0
+        );
+    }
+
+    function testHaneulBridgeInvalidETHTransfer() public {
+        vm.expectRevert(bytes("BridgeUtils: Insufficient amount provided"));
+        bridge.bridgeETH{value: 0}(
+            hex"06bb77410cd326430fa2036c8282dbb54a6f8640cea16ef5eff32d638718b3e4", 0
+        );
+    }
+
     // An e2e token transfer regression test covering message ser/de and signature verification
     function testTransferHaneulToEthRegressionTest() public {
         address[] memory _committee = new address[](4);
