@@ -2,19 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module coin_deny_list_v2::regulated_coin {
-    use std::option;
-    use haneul::coin::{Self, DenyCapV2};
-    use haneul::deny_list::DenyList;
-    use haneul::object::UID;
-    use haneul::transfer;
-    use haneul::tx_context;
-    use haneul::tx_context::TxContext;
+    use haneul::coin;
 
     public struct REGULATED_COIN has drop {}
-
-    public struct Wallet has key {
-        id: UID,
-    }
 
     fun init(otw: REGULATED_COIN, ctx: &mut TxContext) {
         let (treasury_cap, deny_cap, metadata) = coin::create_regulated_currency_v2(
