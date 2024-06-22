@@ -267,7 +267,7 @@ impl TryFrom<MoveTokenDepositedEvent> for EmittedHaneulToEthTokenBridgeV1 {
 
     fn try_from(event: MoveTokenDepositedEvent) -> BridgeResult<Self> {
         if event.amount_haneul_adjusted == 0 {
-            return Err(BridgeError::Generic(format!(
+            return Err(BridgeError::ZeroValueBridgeTransfer(format!(
                 "Failed to convert MoveTokenDepositedEvent to EmittedHaneulToEthTokenBridgeV1. Manual intervention is required. 0 value transfer should not be allowed in Move: {:?}",
                 event,
             )));
@@ -516,9 +516,7 @@ pub mod tests {
             amount_haneul_adjusted: 0,
         };
         match EmittedHaneulToEthTokenBridgeV1::try_from(emitted_event).unwrap_err() {
-            BridgeError::Generic(err) => {
-                assert!(err.contains("0 value transfer should not be allowed in Move"));
-            }
+            BridgeError::ZeroValueBridgeTransfer(_) => (),
             other => panic!("Expected Generic error, got: {:?}", other),
         }
     }

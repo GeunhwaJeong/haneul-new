@@ -10,7 +10,7 @@ use crate::abi::EthBridgeEvent;
 use crate::action_executor::{
     submit_to_executor, BridgeActionExecutionWrapper, BridgeActionExecutorTrait,
 };
-use crate::error::BridgeResult;
+use crate::error::BridgeError;
 use crate::events::HaneulBridgeEvent;
 use crate::metrics::BridgeMetrics;
 use crate::storage::BridgeOrchestratorTables;
@@ -120,9 +120,23 @@ where
                 .inc_by(events.len() as u64);
             let bridge_events = events
                 .iter()
-                .map(HaneulBridgeEvent::try_from_haneul_event)
-                .collect::<BridgeResult<Vec<_>>>()
-                .expect("Haneul Event could not be deserialzed to HaneulBridgeEvent");
+                .filter_map(|haneul_event| {
+                    match HaneulBridgeEvent::try_from_haneul_event(haneul_event) {
+                        Ok(bridge_event) => Some(bridge_event),
+                        // On testnet some early bridge transactions could have zero value (before we disallow it in Move)
+                        Err(BridgeError::ZeroValueBridgeTransfer(_)) => {
+                            error!("Zero value bridge transfer: {:?}", haneul_event);
+                            None
+                        }
+                        Err(e) => {
+                            panic!(
+                                "Haneul Event could not be deserialzed to HaneulBridgeEvent: {:?}",
+                                e
+                            );
+                        }
+                    }
+                })
+                .collect::<Vec<_>>();
 
             let mut actions = vec![];
             for (haneul_event, opt_bridge_event) in events.iter().zip(bridge_events) {
@@ -205,7 +219,7 @@ where
                 continue;
             }
 
-            info!("Received {} Eth events: {:?}", logs.len(), logs);
+            info!("Received {} Eth events", logs.len());
             metrics
                 .eth_watcher_received_events
                 .inc_by(logs.len() as u64);

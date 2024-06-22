@@ -151,6 +151,7 @@ async fn main() -> anyhow::Result<()> {
             let eth_action = make_action(chain_id, &cmd);
             println!("Action to execute on Eth: {:?}", eth_action);
             // Create Eth Signer Client
+            // TODO if a validator is blocklisted on eth, ignore their signatures?
             let certified_action = agg
                 .request_committee_signatures(eth_action)
                 .await
@@ -275,7 +276,11 @@ async fn main() -> anyhow::Result<()> {
             }
         }
 
-        BridgeCommand::PrintBridgeCommitteeInfo { haneul_rpc_url, ping } => {
+        BridgeCommand::PrintBridgeCommitteeInfo {
+            haneul_rpc_url,
+            hex,
+            ping,
+        } => {
             let haneul_bridge_client = HaneulClient::<HaneulSdkClient>::new(&haneul_rpc_url).await?;
             let bridge_summary = haneul_bridge_client
                 .get_bridge_summary()
@@ -371,6 +376,11 @@ async fn main() -> anyhow::Result<()> {
             for ((name, haneul_address, pubkey, eth_address, url, stake, blocklisted), ping_resp) in
                 authorities.into_iter().zip(ping_tasks_resp)
             {
+                let pubkey = if hex {
+                    Hex::encode(pubkey.as_bytes())
+                } else {
+                    pubkey.to_string()
+                };
                 match ping_resp {
                     Some(resp) => {
                         if resp {
@@ -381,7 +391,7 @@ async fn main() -> anyhow::Result<()> {
                             name,
                             haneul_address,
                             eth_address,
-                            Hex::encode(pubkey.as_bytes()),
+                            pubkey,
                             url,
                             stake,
                             blocklisted,
