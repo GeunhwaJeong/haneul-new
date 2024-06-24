@@ -63,6 +63,7 @@ uuid.workspace = true
 im.workspace = true
 downcast = "0.11.0"
 
+haneul-graphql-config.workspace = true
 haneul-graphql-rpc-headers.workspace = true
 haneul-graphql-rpc-client.workspace = true
 
