@@ -53,6 +53,11 @@ module bridge::committee {
         stake_participation_percentage: u64
     }
 
+    public struct CommitteeMemberUrlUpdateEvent has copy, drop {
+        member: vector<u8>,
+        new_url: vector<u8>,
+    }
+
     public struct CommitteeMember has copy, drop, store {
         /// The Haneul Address of the validator
         haneul_address: address,
@@ -274,6 +279,10 @@ module bridge::committee {
             let (_, member) = self.members.get_entry_by_idx_mut(idx);
             if (member.haneul_address == ctx.sender()) {
                 member.http_rest_url = new_url;
+                emit (CommitteeMemberUrlUpdateEvent {
+                    member: member.bridge_pubkey_bytes,
+                    new_url
+                });
                 return
             };
             idx = idx + 1;
