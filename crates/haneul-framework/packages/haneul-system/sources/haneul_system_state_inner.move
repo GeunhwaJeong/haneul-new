@@ -4,7 +4,7 @@
 module haneul_system::haneul_system_state_inner {
     use haneul::balance::{Self, Balance};
     use haneul::coin::Coin;
-    use haneul_system::staking_pool::{stake_activation_epoch, StakedHaneul};
+    use haneul_system::staking_pool::StakedHaneul;
     use haneul::haneul::HANEUL;
     use haneul_system::validator::{Self, Validator};
     use haneul_system::validator_set::{Self, ValidatorSet};
@@ -214,7 +214,6 @@ module haneul_system::haneul_system_state_inner {
     const ECannotReportOneself: u64 = 3;
     const EReportRecordNotFound: u64 = 4;
     const EBpsTooLarge: u64 = 5;
-    const EStakeWithdrawBeforeActivation: u64 = 6;
     const ESafeModeGasNotProcessed: u64 = 7;
     const EAdvancedToWrongEpoch: u64 = 8;
 
@@ -516,10 +515,6 @@ module haneul_system::haneul_system_state_inner {
         staked_haneul: StakedHaneul,
         ctx: &TxContext,
     ) : Balance<HANEUL> {
-        assert!(
-            stake_activation_epoch(&staked_haneul) <= ctx.epoch(),
-            EStakeWithdrawBeforeActivation
-        );
         self.validators.request_withdraw_stake(staked_haneul, ctx)
     }
 

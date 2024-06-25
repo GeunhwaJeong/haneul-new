@@ -9,7 +9,7 @@
 module haneul_system::haneul_system_tests {
     use haneul::test_scenario::{Self, Scenario};
     use haneul::haneul::HANEUL;
-    use haneul_system::governance_test_utils::{add_validator_full_flow, advance_epoch, remove_validator, set_up_haneul_system_state, create_haneul_system_state_for_testing};
+    use haneul_system::governance_test_utils::{add_validator_full_flow, advance_epoch, remove_validator, set_up_haneul_system_state, create_haneul_system_state_for_testing, stake_with, unstake};
     use haneul_system::haneul_system::HaneulSystemState;
     use haneul_system::haneul_system_state_inner;
     use haneul_system::validator::{Self, Validator};
@@ -1001,5 +1001,55 @@ module haneul_system::haneul_system_tests {
         assert_eq(system_state.get_stake_subsidy_distribution_counter(), prev_counter + (if (should_increment_counter) 1 else 0));
         test_scenario::return_shared(system_state);
         scenario.next_epoch(@0x0);
+    }
+
+    #[test]
+    fun test_withdraw_inactive_stake() {
+        let mut scenario_val = test_scenario::begin(@0x0);
+        let scenario = &mut scenario_val;
+        // Epoch duration is set to be 42 here.
+        set_up_haneul_system_state(vector[@0x1, @0x2]);
+
+        {
+            scenario.next_tx(@0x0);
+            let mut system_state = scenario.take_shared<HaneulSystemState>();
+            let staking_pool = system_state.active_validator_by_address(@0x1).get_staking_pool_ref();
+
+            assert!(staking_pool.pending_stake_amount() == 0, 0);
+            assert!(staking_pool.pending_stake_withdraw_amount() == 0, 0);
+            assert!(staking_pool.haneul_balance() == 100 * 1_000_000_000, 0);
+
+            test_scenario::return_shared(system_state);
+        };
+
+        stake_with(@0x0, @0x1, 1, scenario);
+
+        {
+            scenario.next_tx(@0x0);
+            let mut system_state = scenario.take_shared<HaneulSystemState>();
+            let staking_pool = system_state.active_validator_by_address(@0x1).get_staking_pool_ref();
+
+            assert!(staking_pool.pending_stake_amount() == 1_000_000_000, 0);
+            assert!(staking_pool.pending_stake_withdraw_amount() == 0, 0);
+            assert!(staking_pool.haneul_balance() == 100 * 1_000_000_000, 0);
+
+            test_scenario::return_shared(system_state);
+        };
+
+        unstake(@0x0, 0, scenario);
+
+        {
+            scenario.next_tx(@0x0);
+            let mut system_state = scenario.take_shared<HaneulSystemState>();
+            let staking_pool = system_state.active_validator_by_address(@0x1).get_staking_pool_ref();
+
+            assert!(staking_pool.pending_stake_amount() == 0, 0);
+            assert!(staking_pool.pending_stake_withdraw_amount() == 0, 0);
+            assert!(staking_pool.haneul_balance() == 100 * 1_000_000_000, 0);
+
+            test_scenario::return_shared(system_state);
+        };
+
+        scenario_val.end();
     }
 }

@@ -717,15 +717,6 @@ the epoch advancement transaction.
 
 
 
-<a name="0x3_haneul_system_state_inner_EStakeWithdrawBeforeActivation"></a>
-
-
-
-<pre><code><b>const</b> <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_EStakeWithdrawBeforeActivation">EStakeWithdrawBeforeActivation</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 6;
-</code></pre>
-
-
-
 <a name="0x3_haneul_system_state_inner_SYSTEM_STATE_VERSION_V1"></a>
 
 
@@ -1302,10 +1293,6 @@ Withdraw some portion of a stake from a validator's staking pool.
     staked_haneul: StakedHaneul,
     ctx: &TxContext,
 ) : Balance&lt;HANEUL&gt; {
-    <b>assert</b>!(
-        stake_activation_epoch(&staked_haneul) &lt;= ctx.<a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_epoch">epoch</a>(),
-        <a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_EStakeWithdrawBeforeActivation">EStakeWithdrawBeforeActivation</a>
-    );
     self.validators.<a href="haneul_system_state_inner.md#0x3_haneul_system_state_inner_request_withdraw_stake">request_withdraw_stake</a>(staked_haneul, ctx)
 }
 </code></pre>
