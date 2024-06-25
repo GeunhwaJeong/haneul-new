@@ -20,6 +20,7 @@ RUN cargo build --profile ${PROFILE} \
     --bin haneul-node \
     --bin stress \
     --bin haneul-bridge \
+    --bin bridge-indexer \
     --bin haneul-bridge-cli \
     --bin haneul-analytics-indexer \
     --bin haneul-proxy \
