@@ -14,8 +14,9 @@ use async_trait::async_trait;
 use haneullabs_metrics::spawn_monitored_task;
 use haneul_config::genesis::Genesis;
 use haneul_types::messages_grpc::{
-    HandleCertificateResponseV2, HandleTransactionResponse, ObjectInfoRequest, ObjectInfoResponse,
-    SystemStateRequest, TransactionInfoRequest, TransactionInfoResponse,
+    HandleCertificateResponseV2, HandleSoftBundleCertificatesRequestV3,
+    HandleSoftBundleCertificatesResponseV3, HandleTransactionResponse, ObjectInfoRequest,
+    ObjectInfoResponse, SystemStateRequest, TransactionInfoRequest, TransactionInfoResponse,
 };
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{
@@ -118,6 +119,14 @@ impl AuthorityAPI for LocalAuthorityClient {
         spawn_monitored_task!(Self::handle_certificate(state, request, fault_config))
             .await
             .unwrap()
+    }
+
+    async fn handle_soft_bundle_certificates_v3(
+        &self,
+        _request: HandleSoftBundleCertificatesRequestV3,
+        _client_addr: Option<SocketAddr>,
+    ) -> Result<HandleSoftBundleCertificatesResponseV3, HaneulError> {
+        unimplemented!()
     }
 
     async fn handle_object_info_request(
@@ -301,6 +310,14 @@ impl AuthorityAPI for MockAuthorityApi {
         unimplemented!()
     }
 
+    async fn handle_soft_bundle_certificates_v3(
+        &self,
+        _request: HandleSoftBundleCertificatesRequestV3,
+        _client_addr: Option<SocketAddr>,
+    ) -> Result<HandleSoftBundleCertificatesResponseV3, HaneulError> {
+        unimplemented!()
+    }
+
     /// Handle Object information requests for this account.
     async fn handle_object_info_request(
         &self,
@@ -390,6 +407,14 @@ impl AuthorityAPI for HandleTransactionTestAuthorityClient {
         _request: HandleCertificateRequestV3,
         _client_addr: Option<SocketAddr>,
     ) -> Result<HandleCertificateResponseV3, HaneulError> {
+        unimplemented!()
+    }
+
+    async fn handle_soft_bundle_certificates_v3(
+        &self,
+        _request: HandleSoftBundleCertificatesRequestV3,
+        _client_addr: Option<SocketAddr>,
+    ) -> Result<HandleSoftBundleCertificatesResponseV3, HaneulError> {
         unimplemented!()
     }
 

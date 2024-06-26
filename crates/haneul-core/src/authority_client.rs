@@ -23,6 +23,7 @@ use haneul_network::tonic::metadata::KeyAndValueRef;
 use haneul_network::tonic::transport::Channel;
 use haneul_types::messages_grpc::{
     HandleCertificateRequestV3, HandleCertificateResponseV2, HandleCertificateResponseV3,
+    HandleSoftBundleCertificatesRequestV3, HandleSoftBundleCertificatesResponseV3,
     HandleTransactionResponse, ObjectInfoRequest, ObjectInfoResponse, SystemStateRequest,
     TransactionInfoRequest, TransactionInfoResponse,
 };
@@ -49,6 +50,13 @@ pub trait AuthorityAPI {
         request: HandleCertificateRequestV3,
         client_addr: Option<SocketAddr>,
     ) -> Result<HandleCertificateResponseV3, HaneulError>;
+
+    /// Execute a Soft Bundle with multiple certificates.
+    async fn handle_soft_bundle_certificates_v3(
+        &self,
+        request: HandleSoftBundleCertificatesRequestV3,
+        client_addr: Option<SocketAddr>,
+    ) -> Result<HandleSoftBundleCertificatesResponseV3, HaneulError>;
 
     /// Handle Object information requests for this account.
     async fn handle_object_info_request(
@@ -157,6 +165,23 @@ impl AuthorityAPI for NetworkAuthorityClient {
         let response = self
             .client()
             .handle_certificate_v3(request)
+            .await
+            .map(tonic::Response::into_inner);
+
+        response.map_err(Into::into)
+    }
+
+    async fn handle_soft_bundle_certificates_v3(
+        &self,
+        request: HandleSoftBundleCertificatesRequestV3,
+        client_addr: Option<SocketAddr>,
+    ) -> Result<HandleSoftBundleCertificatesResponseV3, HaneulError> {
+        let mut request = request.into_request();
+        insert_metadata(&mut request, client_addr);
+
+        let response = self
+            .client()
+            .handle_soft_bundle_certificates_v3(request)
             .await
             .map(tonic::Response::into_inner);
 
