@@ -10,7 +10,7 @@ use haneul_test_transaction_builder::publish_package;
 use haneul_types::base_types::{ObjectID, ObjectRef};
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
-use haneul_types::error::HaneulError;
+use haneul_types::error::{HaneulError, UserInputError};
 use haneul_types::object::Owner;
 use haneul_types::transaction::{CallArg, ObjectArg, Transaction};
 use test_cluster::{TestCluster, TestClusterBuilder};
@@ -44,7 +44,12 @@ async fn receive_object_feature_deny() {
         .map(|_| ())
         .unwrap_err();
 
-    assert!(matches!(err, HaneulError::UnsupportedFeatureError { .. }));
+    assert!(matches!(
+        err,
+        HaneulError::UserInputError {
+            error: UserInputError::Unsupported(..)
+        }
+    ));
 }
 
 #[sim_test]

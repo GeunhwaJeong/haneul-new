@@ -48,7 +48,7 @@ use haneul_types::haneul_serde::{
 use haneul_types::transaction::{
     Argument, CallArg, ChangeEpoch, Command, EndOfEpochTransactionKind, GenesisObject,
     InputObjectKind, ObjectArg, ProgrammableMoveCall, ProgrammableTransaction, SenderSignedData,
-    TransactionData, TransactionDataAPI, TransactionKind, VersionedProtocolMessage,
+    TransactionData, TransactionDataAPI, TransactionKind,
 };
 use haneul_types::type_resolver::{get_layout_from_struct_tag, LayoutResolver};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
@@ -1447,9 +1447,7 @@ impl HaneulTransactionBlockData {
         data: TransactionData,
         module_cache: &impl GetModule,
     ) -> Result<Self, anyhow::Error> {
-        let message_version = data
-            .message_version()
-            .expect("TransactionData defines message_version()");
+        let message_version = data.message_version();
         let sender = data.sender();
         let gas_data = HaneulGasData {
             payment: data
@@ -1479,9 +1477,7 @@ impl HaneulTransactionBlockData {
         data: TransactionData,
         package_resolver: Arc<Resolver<impl PackageStore>>,
     ) -> Result<Self, anyhow::Error> {
-        let message_version = data
-            .message_version()
-            .expect("TransactionData defines message_version()");
+        let message_version = data.message_version();
         let sender = data.sender();
         let gas_data = HaneulGasData {
             payment: data

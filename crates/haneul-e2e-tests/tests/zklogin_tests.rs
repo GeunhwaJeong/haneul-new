@@ -12,7 +12,7 @@ use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::Signature;
-use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
 use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::Transaction;
 use haneul_types::utils::load_test_vectors;
@@ -78,7 +78,12 @@ async fn test_zklogin_feature_deny() {
         .await
         .unwrap_err();
 
-    assert!(matches!(err, HaneulError::UnsupportedFeatureError { .. }));
+    assert!(matches!(
+        err,
+        HaneulError::UserInputError {
+            error: UserInputError::Unsupported(..)
+        }
+    ));
 }
 
 #[sim_test]

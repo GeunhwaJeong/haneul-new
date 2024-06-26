@@ -8,6 +8,7 @@ use haneul_core::authority_client::AuthorityAPI;
 use haneul_macros::sim_test;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_test_transaction_builder::TestTransactionBuilder;
+use haneul_types::error::UserInputError;
 use haneul_types::multisig_legacy::MultiSigLegacy;
 use haneul_types::{
     base_types::HaneulAddress,
@@ -50,7 +51,12 @@ async fn test_upgraded_multisig_feature_deny() {
 
     let err = do_upgraded_multisig_test().await.unwrap_err();
 
-    assert!(matches!(err, HaneulError::UnsupportedFeatureError { .. }));
+    assert!(matches!(
+        err,
+        HaneulError::UserInputError {
+            error: UserInputError::Unsupported(..)
+        }
+    ));
 }
 
 #[sim_test]
