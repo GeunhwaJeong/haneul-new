@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module tto::tto {
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::{Self, TxContext};
     use haneul::transfer::{Self, Receiving};
 
     public struct A has key, store {

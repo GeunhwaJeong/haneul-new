@@ -6,7 +6,6 @@ module coin_metadata::test {
     use haneul::coin;
     use haneul::transfer;
     use haneul::url;
-    use haneul::tx_context::{Self, TxContext};
 
     public struct TEST has drop {}
 

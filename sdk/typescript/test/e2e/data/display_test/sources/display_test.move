@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module display_test::boars {
-    use haneul::object::{Self, UID};
-    use std::option::{Self, Option};
-    use haneul::tx_context::{TxContext, sender};
+    use haneul::tx_context::{sender};
     use haneul::transfer;
     use haneul::package;
     use haneul::url::{Self, Url};

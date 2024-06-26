@@ -2,12 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module serializer::serializer_tests {
-    use haneul::tx_context::{Self, TxContext};
     use haneul::transfer;
-    use haneul::object::{Self, UID};
     use haneul::clock::Clock;
     use std::option::Option;
-    use haneul::object::ID;
     use std::string::String;
     use std::ascii;
 

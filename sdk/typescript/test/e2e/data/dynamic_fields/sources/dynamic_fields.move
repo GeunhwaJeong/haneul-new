@@ -4,8 +4,6 @@
 module dynamic_fields::dynamic_fields_test {
     use haneul::dynamic_field as dfield;
     use haneul::dynamic_object_field as dof;
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::{Self, TxContext};
     use haneul::transfer;
 
     public struct Test has key {
