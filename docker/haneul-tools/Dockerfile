@@ -39,6 +39,7 @@ RUN apt-get update && apt-get install -y libpq5 libpq-dev ca-certificates
 COPY --from=builder /haneul/target/release/haneul-node /usr/local/bin
 COPY --from=builder /haneul/target/release/stress /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-bridge /usr/local/bin
+COPY --from=builder /haneul/target/release/bridge-indexer /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-bridge-cli /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-analytics-indexer /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-proxy /usr/local/bin
