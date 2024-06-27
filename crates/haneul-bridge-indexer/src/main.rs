@@ -3,6 +3,7 @@
 
 use anyhow::Result;
 use clap::*;
+use haneullabs_metrics::spawn_logged_monitored_task;
 use haneullabs_metrics::start_prometheus_server;
 use prometheus::Registry;
 use std::collections::{HashMap, HashSet};
@@ -12,11 +13,17 @@ use std::sync::Arc;
 use haneul_bridge::eth_client::EthClient;
 use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge_indexer::eth_worker::EthBridgeWorker;
-use haneul_bridge_indexer::postgres_manager::{get_connection_pool, PgProgressStore};
+use haneul_bridge_indexer::postgres_manager::{
+    get_connection_pool, read_haneul_progress_store, PgProgressStore,
+};
+use haneul_bridge_indexer::haneul_transaction_handler::handle_haneul_transcations_loop;
+use haneul_bridge_indexer::haneul_transaction_queries::start_haneul_tx_polling_task;
 use haneul_bridge_indexer::haneul_worker::HaneulBridgeWorker;
 use haneul_bridge_indexer::{config::load_config, metrics::BridgeIndexerMetrics};
 use haneul_data_ingestion_core::{DataIngestionMetrics, IndexerExecutor, ReaderOptions, WorkerPool};
+use haneul_sdk::HaneulClientBuilder;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
+use tokio::task::JoinHandle;
 
 use tokio::sync::oneshot;
 use tracing::info;
@@ -71,6 +78,7 @@ async fn main() -> Result<()> {
     // TODO: retry_with_max_elapsed_time
     let eth_worker = EthBridgeWorker::new(
         get_connection_pool(db_url.clone()),
+        bridge_metrics.clone(),
         indexer_meterics.clone(),
         config.clone(),
     )
@@ -80,24 +88,43 @@ async fn main() -> Result<()> {
         EthClient::<ethers::providers::Http>::new(
             &config.eth_rpc_url,
             HashSet::from_iter(vec![eth_worker.bridge_address()]),
-            bridge_metrics,
+            bridge_metrics.clone(),
         )
         .await
         .map_err(|e| anyhow::anyhow!(e.to_string()))?,
     );
 
-    let unfinalized_handle = eth_worker.start_indexing_unfinalized_events(eth_client.clone());
-    let finalized_handle = eth_worker.start_indexing_finalized_events(eth_client.clone());
+    let unfinalized_handle = eth_worker
+        .start_indexing_unfinalized_events(eth_client.clone())
+        .await
+        .unwrap();
+    let finalized_handle = eth_worker
+        .start_indexing_finalized_events(eth_client.clone())
+        .await
+        .unwrap();
+    let handles = vec![unfinalized_handle, finalized_handle];
 
-    // TODO: add retry_with_max_elapsed_time
-    let progress = start_processing_haneul_checkpoints(
-        &config_clone,
-        db_url,
-        indexer_meterics,
-        ingestion_metrics,
-    );
+    if let Some(haneul_rpc_url) = config.haneul_rpc_url.clone() {
+        start_processing_haneul_checkpoints_by_querying_txes(
+            haneul_rpc_url,
+            db_url.clone(),
+            indexer_meterics.clone(),
+            bridge_metrics,
+        )
+        .await
+        .unwrap();
+    } else {
+        let _ = start_processing_haneul_checkpoints(
+            &config_clone,
+            db_url,
+            indexer_meterics,
+            ingestion_metrics,
+        )
+        .await;
+    }
 
-    let _ = tokio::try_join!(finalized_handle, unfinalized_handle, progress);
+    // We are not waiting for the haneul tasks to finish here, which is ok.
+    let _ = futures::future::join_all(handles).await;
 
     Ok(())
 }
@@ -136,4 +163,33 @@ async fn start_processing_haneul_checkpoints(
             exit_receiver,
         )
         .await
+}
+
+async fn start_processing_haneul_checkpoints_by_querying_txes(
+    haneul_rpc_url: String,
+    db_url: String,
+    indexer_metrics: BridgeIndexerMetrics,
+    bridge_metrics: Arc<BridgeMetrics>,
+) -> Result<Vec<JoinHandle<()>>> {
+    let pg_pool = get_connection_pool(db_url.clone());
+    let (tx, rx) = haneullabs_metrics::metered_channel::channel(
+        100,
+        &haneullabs_metrics::get_metrics()
+            .unwrap()
+            .channel_inflight
+            .with_label_values(&["haneul_transaction_processing_queue"]),
+    );
+    let mut handles = vec![];
+    let cursor =
+        read_haneul_progress_store(&pg_pool).expect("Failed to read cursor from haneul progress store");
+    let haneul_client = HaneulClientBuilder::default().build(haneul_rpc_url).await?;
+    handles.push(spawn_logged_monitored_task!(
+        start_haneul_tx_polling_task(haneul_client, cursor, tx, bridge_metrics),
+        "start_haneul_tx_polling_task"
+    ));
+    handles.push(spawn_logged_monitored_task!(
+        handle_haneul_transcations_loop(pg_pool.clone(), rx, indexer_metrics.clone()),
+        "handle_haneul_transcations_loop"
+    ));
+    Ok(handles)
 }

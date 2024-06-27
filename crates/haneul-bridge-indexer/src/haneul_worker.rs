@@ -21,6 +21,7 @@ use haneul_types::{
     transaction::{TransactionDataAPI, TransactionKind},
     BRIDGE_ADDRESS, HANEUL_BRIDGE_OBJECT_ID,
 };
+use tap::tap::TapFallible;
 use tracing::info;
 
 pub struct HaneulBridgeWorker {
@@ -188,6 +189,11 @@ impl Worker for HaneulBridgeWorker {
                 Ok::<_, anyhow::Error>(result)
             })?;
 
-        write(&self.pg_pool, bridge_data)
+        write(&self.pg_pool, bridge_data).tap_ok(|_| {
+            info!("Processed checkpoint [{}] successfully", checkpoint_num,);
+            self.metrics
+                .last_committed_haneul_checkpoint
+                .set(checkpoint_num as i64);
+        })
     }
 }
