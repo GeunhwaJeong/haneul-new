@@ -23,6 +23,7 @@ use haneul_bridge::types::CertifiedBridgeAction;
 use haneul_bridge::types::VerifiedCertifiedBridgeAction;
 use haneul_bridge::utils::publish_and_register_coins_return_add_coins_on_haneul_action;
 use haneul_bridge::utils::wait_for_server_to_be_up;
+use haneul_config::genesis::Genesis;
 use haneul_config::local_ip_utils::get_available_port;
 use haneul_config::node::{AuthorityOverloadConfig, DBCheckpointConfig, RunWithRange};
 use haneul_config::{Config, HANEUL_CLIENT_CONFIG, HANEUL_NETWORK_CONFIG};
@@ -208,6 +209,10 @@ impl TestCluster {
 
     pub fn get_validator_pubkeys(&self) -> Vec<AuthorityName> {
         self.swarm.active_validators().map(|v| v.name()).collect()
+    }
+
+    pub fn get_genesis(&self) -> Genesis {
+        self.swarm.config().genesis.clone()
     }
 
     pub fn stop_node(&self, name: &AuthorityName) {
