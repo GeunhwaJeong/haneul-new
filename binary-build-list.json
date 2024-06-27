@@ -4,11 +4,11 @@
         "haneul-node",
         "haneul-tool",
         "haneul-faucet",
-        "haneul-test-validator",
         "haneul-data-ingestion",
         "haneul-bridge",
         "haneul-bridge-cli",
         "haneul-graphql-rpc",
+        "haneul-test-validator",
         "move-analyzer"
     ],
     "internal_binaries": [

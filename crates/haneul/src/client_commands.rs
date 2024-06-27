@@ -57,7 +57,8 @@ use haneul_sdk::{
     apis::ReadApi,
     haneul_client_config::{HaneulClientConfig, HaneulEnv},
     wallet_context::WalletContext,
-    HaneulClient, HANEUL_COIN_TYPE, HANEUL_DEVNET_URL, HANEUL_LOCAL_NETWORK_URL, HANEUL_TESTNET_URL,
+    HaneulClient, HANEUL_COIN_TYPE, HANEUL_DEVNET_URL, HANEUL_LOCAL_NETWORK_URL, HANEUL_LOCAL_NETWORK_URL_0,
+    HANEUL_TESTNET_URL,
 };
 use haneul_types::{
     base_types::{ObjectID, SequenceNumber, HaneulAddress},
@@ -1385,8 +1386,7 @@ impl HaneulClientCommands {
                         let network = match env.rpc.as_str() {
                             HANEUL_DEVNET_URL => "https://faucet.devnet.haneul.io/v1/gas",
                             HANEUL_TESTNET_URL => "https://faucet.testnet.haneul.io/v1/gas",
-                            // TODO when using haneul-test-validator, and 5003 when using haneul start
-                            HANEUL_LOCAL_NETWORK_URL => "http://127.0.0.1:9123/gas",
+                            HANEUL_LOCAL_NETWORK_URL | HANEUL_LOCAL_NETWORK_URL_0 => "http://127.0.0.1:9123/gas",
                             _ => bail!("Cannot recognize the active network. Please provide the gas faucet full URL.")
                         };
                         network.to_string()

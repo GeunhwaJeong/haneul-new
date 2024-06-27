@@ -108,6 +108,7 @@ pub mod wallet_context;
 
 pub const HANEUL_COIN_TYPE: &str = "0x2::haneul::HANEUL";
 pub const HANEUL_LOCAL_NETWORK_URL: &str = "http://127.0.0.1:9000";
+pub const HANEUL_LOCAL_NETWORK_URL_0: &str = "http://0.0.0.0:9000";
 pub const HANEUL_LOCAL_NETWORK_GAS_URL: &str = "http://127.0.0.1:5003/gas";
 pub const HANEUL_DEVNET_URL: &str = "https://fullnode.devnet.haneul.io:443";
 pub const HANEUL_TESTNET_URL: &str = "https://fullnode.testnet.haneul.io:443";

@@ -14,6 +14,8 @@ use move_package::{lock_file::schema::ManagedPackage, BuildConfig as MoveBuildCo
 use serde_json::json;
 use haneul::client_ptb::ptb::PTB;
 use haneul::key_identity::{get_identity_address, KeyIdentity};
+#[cfg(feature = "indexer")]
+use haneul::haneul_commands::IndexerFeatureArgs;
 use haneul_sdk::HaneulClient;
 use haneul_test_transaction_builder::batch_make_transfer_transactions;
 use haneul_types::object::Owner;
@@ -66,8 +68,14 @@ async fn test_genesis() -> Result<(), anyhow::Error> {
 
     // Start network without authorities
     let start = HaneulCommand::Start {
-        config: Some(config),
+        config_dir: Some(config),
+        force_regenesis: false,
+        with_faucet: None,
+        fullnode_rpc_port: 9000,
+        epoch_duration_ms: None,
         no_full_node: false,
+        #[cfg(feature = "indexer")]
+        indexer_feature_args: IndexerFeatureArgs::for_testing(),
     }
     .execute()
     .await;

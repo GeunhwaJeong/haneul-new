@@ -145,6 +145,7 @@ jobs:
         if: ${{ env.s3_archive_exist == '' }}
         shell: bash
         run: |
+          [ -f ~/.cargo/env ] && source ~/.cargo/env ; cargo build --bin haneul --release --features indexer && mv target/release/haneul target/release/haneul-pg
           [ -f ~/.cargo/env ] && source ~/.cargo/env ; cargo build --release && cargo build --profile=dev --bin haneul
 
       - name: Rename binaries for ${{ matrix.os }}
@@ -158,6 +159,10 @@ jobs:
             export binary=$(echo ${binary} | tr -d $'\r')
             mv ./target/release/${binary}${{ env.extention }} ${{ env.TMP_BUILD_DIR }}/${binary}${{ env.extention }}
           done
+
+          # haneul-pg is a special binary that is built with the indexer feature for haneul start cmd
+          export binary='haneul-pg' | tr -d $'\r')
+          mv ./target/release/${binary}${{ env.extention }} ${{ env.TMP_BUILD_DIR }}/${binary}${{ env.extention }}
 
           mv ./target/debug/haneul${{ env.extention }} ${{ env.TMP_BUILD_DIR }}/haneul-debug${{ env.extention }}
           tar -cvzf ./tmp/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz -C ${{ env.TMP_BUILD_DIR }} .

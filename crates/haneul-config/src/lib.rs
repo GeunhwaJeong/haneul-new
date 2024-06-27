@@ -52,6 +52,22 @@ pub fn haneul_config_dir() -> Result<PathBuf, anyhow::Error> {
     })
 }
 
+/// Check if the genesis blob exists in the given directory or the default directory.
+pub fn genesis_blob_exists(config_dir: Option<PathBuf>) -> bool {
+    if let Some(dir) = config_dir {
+        dir.join(HANEUL_GENESIS_FILENAME).exists()
+    } else if let Some(config_env) = std::env::var_os("HANEUL_CONFIG_DIR") {
+        Path::new(&config_env).join(HANEUL_GENESIS_FILENAME).exists()
+    } else if let Some(home) = dirs::home_dir() {
+        let mut config = PathBuf::new();
+        config.push(&home);
+        config.extend([HANEUL_DIR, HANEUL_CONFIG_DIR, HANEUL_GENESIS_FILENAME]);
+        config.exists()
+    } else {
+        false
+    }
+}
+
 pub fn validator_config_file(address: Multiaddr, i: usize) -> String {
     multiaddr_to_filename(address).unwrap_or(format!("validator-config-{}.yaml", i))
 }

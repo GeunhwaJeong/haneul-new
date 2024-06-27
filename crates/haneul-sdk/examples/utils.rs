@@ -40,7 +40,6 @@ struct FaucetResponse {
 
 pub const HANEUL_FAUCET: &str = "https://faucet.testnet.haneul.io/v1/gas"; // testnet faucet
 
-// if you use the haneul-test-validator and use the local network; if it does not work, try with port 5003.
 // const HANEUL_FAUCET: &str = "http://127.0.0.1:9123/gas";
 
 /// Return a haneul client to interact with the APIs,
