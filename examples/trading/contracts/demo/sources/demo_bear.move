@@ -3,9 +3,6 @@
 
 module demo::demo_bear {
     use std::string::{String, utf8};
-
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::{TxContext, sender};
     use haneul::package;
     use haneul::display;
 

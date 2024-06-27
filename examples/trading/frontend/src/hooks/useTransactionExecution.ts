@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-import { useSignTransactionBlock, useHaneulClient } from "@haneullabs/dapp-kit";
+import { useSignTransaction, useHaneulClient } from "@haneullabs/dapp-kit";
 import { HaneulTransactionBlockResponse } from "@haneullabs/haneul/client";
-import { TransactionBlock } from "@haneullabs/haneul/transactions";
+import { Transaction } from "@haneullabs/haneul/transactions";
 import toast from "react-hot-toast";
 
 /**
@@ -13,10 +13,10 @@ import toast from "react-hot-toast";
  */
 export function useTransactionExecution() {
   const client = useHaneulClient();
-  const { mutateAsync: signTransactionBlock } = useSignTransactionBlock();
+  const { mutateAsync: signTransactionBlock } = useSignTransaction();
 
   const executeTransaction = async (
-    txb: TransactionBlock,
+    txb: Transaction,
   ): Promise<HaneulTransactionBlockResponse | void> => {
     try {
       const signature = await signTransactionBlock({

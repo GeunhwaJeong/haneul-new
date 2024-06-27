@@ -4,7 +4,7 @@
 import { CONSTANTS, QueryKey } from "@/constants";
 import { useTransactionExecution } from "@/hooks/useTransactionExecution";
 import { useCurrentAccount } from "@haneullabs/dapp-kit";
-import { TransactionBlock } from "@haneullabs/haneul/transactions";
+import { Transaction } from "@haneullabs/haneul/transactions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 /**
@@ -19,7 +19,7 @@ export function useGenerateDemoData() {
     mutationFn: async () => {
       if (!account?.address)
         throw new Error("You need to connect your wallet!");
-      const txb = new TransactionBlock();
+      const txb = new Transaction();
 
       const bear = txb.moveCall({
         target: `${CONSTANTS.demoContract.packageId}::demo_bear::new`,
