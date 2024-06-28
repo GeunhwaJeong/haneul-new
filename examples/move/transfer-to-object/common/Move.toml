@@ -4,7 +4,7 @@ version = "0.0.1"
 edition = "2024.beta"
 
 [dependencies]
-Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir = "crates/haneul-framework/packages/haneul-framework", rev = "framework/devnet" }
+Haneul = { local = "../../../../crates/haneul-framework/packages/haneul-framework" }
 
 [addresses]
 common = "0x0"
