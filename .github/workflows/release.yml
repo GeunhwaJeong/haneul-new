@@ -161,7 +161,7 @@ jobs:
           done
 
           # haneul-pg is a special binary that is built with the indexer feature for haneul start cmd
-          export binary='haneul-pg' | tr -d $'\r')
+          export binary=$(echo "haneul-pg" | tr -d $'\r')
           mv ./target/release/${binary}${{ env.extention }} ${{ env.TMP_BUILD_DIR }}/${binary}${{ env.extention }}
 
           mv ./target/debug/haneul${{ env.extention }} ${{ env.TMP_BUILD_DIR }}/haneul-debug${{ env.extention }}
