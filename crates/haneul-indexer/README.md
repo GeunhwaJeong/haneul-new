@@ -26,7 +26,17 @@ brew services start postgresql@version
 
 ### Local Development(Recommended)
 
-Use [haneul-test-validator](../../crates/haneul-test-validator/README.md)
+See the [docs](https://docs.haneul.io/guides/developer/getting-started/local-network) for detailed information. Below is a quick start guide:
+
+Start a local network using the `haneul` binary:
+```sh
+cargo run --bin haneul -- start --with-faucet --force-regenesis 
+```
+
+If you want to run a local network with the indexer enabled (note that `libpq` is required), you can run the following command after following the steps in the next section to set up an indexer DB:
+```sh
+cargo run --bin haneul --features indexer -- start --with-faucet --force-regenesis --with-indexer --pg-port 5432 --pg-db-name haneul_indexer_v2
+```
 
 ### Running standalone indexer
 1. DB setup, under `haneul/crates/haneul-indexer` run:

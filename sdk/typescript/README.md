@@ -123,8 +123,8 @@ await client.getCoins({
 });
 ```
 
-For local development, you can run `cargo run --bin haneul-test-validator` to spin up a local network
-with a local validator, a fullnode, and a faucet server. Refer to
+For local development, you can run `cargo run --bin --with-faucet --force-regenesis` to spin up a
+local network with a local validator, a fullnode, and a faucet server. Refer to
 [this guide](https://docs.haneul.io/build/haneul-local-network) for more information.
 
 ```typescript

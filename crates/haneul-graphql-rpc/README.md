@@ -68,6 +68,6 @@ For local dev, it might be useful to spin up an indexer as well. Instructions ar
 
 ## Compatibility with json-rpc
 
-`cargo run --bin haneul-test-validator -- --with-indexer --pg-port 5432 --pg-db-name haneul_indexer_v2 --graphql-host 127.0.0.1 --graphql-port 9125`
+`cargo run --bin haneul --features indexer -- start --with-faucet --force-regenesis --with-indexer --pg-port 5432 --pg-db-name haneul_indexer_v2 --with-graphql`
 
 `pnpm --filter @haneullabs/graphql-transport test:e2e`
