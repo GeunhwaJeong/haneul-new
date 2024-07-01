@@ -38,6 +38,7 @@ rand.workspace = true
 rustls.workspace = true
 serde.workspace = true
 shared-crypto.workspace = true
+strum_macros.workspace = true
 haneul-macros.workspace = true
 haneul-protocol-config.workspace = true
 haneul-tls.workspace = true
