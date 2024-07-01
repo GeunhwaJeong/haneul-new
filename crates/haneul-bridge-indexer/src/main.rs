@@ -5,7 +5,6 @@ use anyhow::Result;
 use clap::*;
 use haneullabs_metrics::spawn_logged_monitored_task;
 use haneullabs_metrics::start_prometheus_server;
-use prometheus::Registry;
 use std::collections::{HashMap, HashSet};
 use std::env;
 use std::path::PathBuf;
@@ -13,18 +12,21 @@ use std::sync::Arc;
 use haneul_bridge::eth_client::EthClient;
 use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge_indexer::eth_worker::EthBridgeWorker;
+use haneul_bridge_indexer::metrics::BridgeIndexerMetrics;
 use haneul_bridge_indexer::postgres_manager::{
     get_connection_pool, read_haneul_progress_store, PgProgressStore,
 };
-use haneul_bridge_indexer::haneul_transaction_handler::handle_haneul_transcations_loop;
+use haneul_bridge_indexer::haneul_transaction_handler::handle_haneul_transactions_loop;
 use haneul_bridge_indexer::haneul_transaction_queries::start_haneul_tx_polling_task;
 use haneul_bridge_indexer::haneul_worker::HaneulBridgeWorker;
-use haneul_bridge_indexer::{config::load_config, metrics::BridgeIndexerMetrics};
 use haneul_data_ingestion_core::{DataIngestionMetrics, IndexerExecutor, ReaderOptions, WorkerPool};
 use haneul_sdk::HaneulClientBuilder;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use tokio::task::JoinHandle;
 
+use haneullabs_metrics::metered_channel::channel;
+use haneul_bridge_indexer::config::IndexerConfig;
+use haneul_config::Config;
 use tokio::sync::oneshot;
 use tracing::info;
 
@@ -51,7 +53,7 @@ async fn main() -> Result<()> {
             .expect("Couldn't get current directory")
             .join("config.yaml")
     };
-    let config = load_config(&config_path).unwrap();
+    let config = IndexerConfig::load(&config_path)?;
     let config_clone = config.clone();
 
     // Init metrics server
@@ -60,7 +62,7 @@ async fn main() -> Result<()> {
             .parse()
             .unwrap_or_else(|err| panic!("Failed to parse metric address: {}", err)),
     );
-    let registry: Registry = registry_service.default_registry();
+    let registry = registry_service.default_registry();
 
     haneullabs_metrics::init_metrics(&registry);
 
@@ -73,7 +75,7 @@ async fn main() -> Result<()> {
     let bridge_metrics = Arc::new(BridgeMetrics::new(&registry));
 
     // unwrap safe: db_url must be set in `load_config` above
-    let db_url = config.db_url.clone().unwrap();
+    let db_url = config.db_url.clone();
 
     // TODO: retry_with_max_elapsed_time
     let eth_worker = EthBridgeWorker::new(
@@ -81,8 +83,7 @@ async fn main() -> Result<()> {
         bridge_metrics.clone(),
         indexer_meterics.clone(),
         config.clone(),
-    )
-    .unwrap();
+    )?;
 
     let eth_client = Arc::new(
         EthClient::<ethers::providers::Http>::new(
@@ -90,47 +91,42 @@ async fn main() -> Result<()> {
             HashSet::from_iter(vec![eth_worker.bridge_address()]),
             bridge_metrics.clone(),
         )
-        .await
-        .map_err(|e| anyhow::anyhow!(e.to_string()))?,
+        .await?,
     );
 
     let unfinalized_handle = eth_worker
         .start_indexing_unfinalized_events(eth_client.clone())
-        .await
-        .unwrap();
+        .await?;
     let finalized_handle = eth_worker
         .start_indexing_finalized_events(eth_client.clone())
-        .await
-        .unwrap();
+        .await?;
     let handles = vec![unfinalized_handle, finalized_handle];
 
     if let Some(haneul_rpc_url) = config.haneul_rpc_url.clone() {
-        start_processing_haneul_checkpoints_by_querying_txes(
+        start_processing_haneul_checkpoints_by_querying_txns(
             haneul_rpc_url,
             db_url.clone(),
             indexer_meterics.clone(),
             bridge_metrics,
         )
-        .await
-        .unwrap();
+        .await?;
     } else {
-        let _ = start_processing_haneul_checkpoints(
+        start_processing_haneul_checkpoints(
             &config_clone,
             db_url,
             indexer_meterics,
             ingestion_metrics,
         )
-        .await;
+        .await?;
     }
-
     // We are not waiting for the haneul tasks to finish here, which is ok.
-    let _ = futures::future::join_all(handles).await;
+    futures::future::join_all(handles).await;
 
     Ok(())
 }
 
 async fn start_processing_haneul_checkpoints(
-    config: &haneul_bridge_indexer::config::Config,
+    config: &haneul_bridge_indexer::config::IndexerConfig,
     db_url: String,
     indexer_meterics: BridgeIndexerMetrics,
     ingestion_metrics: DataIngestionMetrics,
@@ -165,14 +161,14 @@ async fn start_processing_haneul_checkpoints(
         .await
 }
 
-async fn start_processing_haneul_checkpoints_by_querying_txes(
+async fn start_processing_haneul_checkpoints_by_querying_txns(
     haneul_rpc_url: String,
     db_url: String,
     indexer_metrics: BridgeIndexerMetrics,
     bridge_metrics: Arc<BridgeMetrics>,
 ) -> Result<Vec<JoinHandle<()>>> {
     let pg_pool = get_connection_pool(db_url.clone());
-    let (tx, rx) = haneullabs_metrics::metered_channel::channel(
+    let (tx, rx) = channel(
         100,
         &haneullabs_metrics::get_metrics()
             .unwrap()
@@ -188,7 +184,7 @@ async fn start_processing_haneul_checkpoints_by_querying_txes(
         "start_haneul_tx_polling_task"
     ));
     handles.push(spawn_logged_monitored_task!(
-        handle_haneul_transcations_loop(pg_pool.clone(), rx, indexer_metrics.clone()),
+        handle_haneul_transactions_loop(pg_pool.clone(), rx, indexer_metrics.clone()),
         "handle_haneul_transcations_loop"
     ));
     Ok(handles)

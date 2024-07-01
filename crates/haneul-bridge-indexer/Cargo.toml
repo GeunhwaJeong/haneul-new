@@ -29,10 +29,10 @@ haneul-types.workspace = true
 telemetry-subscribers.workspace = true
 tracing.workspace = true
 backoff.workspace = true
+haneul-config.workspace = true
 
 [dev-dependencies]
 haneul-types = { workspace = true, features = ["test-utils"] }
-haneul-config.workspace = true
 haneul-test-transaction-builder.workspace = true
 test-cluster.workspace = true
 hex-literal = "0.3.4"
