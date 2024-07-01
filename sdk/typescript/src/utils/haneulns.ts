@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 const HANEUL_NS_NAME_REGEX =
-	/^(?:[a-z0-9][a-z0-9-]{0,62}(?:\.[a-z0-9][a-z0-9-]{0,62})*)?@[a-z0-9][a-z0-9-]{0,62}$/i;
-const HANEUL_NS_DOMAIN_REGEX = /^(?:[a-z0-9][a-z0-9-]{0,62}\.)+haneul$/i;
+	/^(?!.*(^(?!@)|[-.@])($|[-.@]))(?:[a-z0-9-]{0,63}(?:\.[a-z0-9-]{0,63})*)?@[a-z0-9-]{0,63}$/i;
+const HANEUL_NS_DOMAIN_REGEX = /^(?!.*(^|[-.])($|[-.]))(?:[a-z0-9-]{0,63}\.)+haneul$/i;
 const MAX_HANEUL_NS_NAME_LENGTH = 235;
 
 export function isValidHaneulNSName(name: string): boolean {

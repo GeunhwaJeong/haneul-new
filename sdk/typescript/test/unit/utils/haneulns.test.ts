@@ -33,6 +33,20 @@ describe('isValidHaneulNSName', () => {
 		expect(isValidHaneulNSName('test.#.haneul')).toBe(false);
 		expect(isValidHaneulNSName('#.haneul')).toBe(false);
 		expect(isValidHaneulNSName('@.test.sue')).toBe(false);
+
+		expect(isValidHaneulNSName('hello-.haneul')).toBe(false);
+		expect(isValidHaneulNSName('hello--.haneul')).toBe(false);
+		expect(isValidHaneulNSName('hello.-haneul')).toBe(false);
+		expect(isValidHaneulNSName('hello.--haneul')).toBe(false);
+		expect(isValidHaneulNSName('hello.haneul-')).toBe(false);
+		expect(isValidHaneulNSName('hello.haneul--')).toBe(false);
+		expect(isValidHaneulNSName('hello-@haneul')).toBe(false);
+		expect(isValidHaneulNSName('hello--@haneul')).toBe(false);
+		expect(isValidHaneulNSName('hello@-haneul')).toBe(false);
+		expect(isValidHaneulNSName('hello@--haneul')).toBe(false);
+		expect(isValidHaneulNSName('hello@haneul-')).toBe(false);
+		expect(isValidHaneulNSName('hello@haneul--')).toBe(false);
+		expect(isValidHaneulNSName('hello--world@haneul')).toBe(false);
 	});
 });
 
