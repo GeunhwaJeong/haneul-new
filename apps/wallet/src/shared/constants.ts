@@ -4,6 +4,7 @@
 export const ToS_LINK = 'https://haneul-labs.com/legal#haneulwallettermsofservice';
 export const PRIVACY_POLICY_LINK = 'https://haneul-labs.com/legal#privacypolicy';
 export const FAQ_LINK = 'https://docs.haneul-labs.com/faq';
+export const DISCORD_LINK = 'https://discord.com/channels/1102609826707673098/1102651685601550427';
 
 // number of epochs before earning
 // Staking Rewards Redeemable
