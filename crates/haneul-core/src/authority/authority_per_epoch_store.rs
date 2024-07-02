@@ -29,7 +29,7 @@ use haneul_types::base_types::{ConciseableName, ObjectRef};
 use haneul_types::committee::Committee;
 use haneul_types::committee::CommitteeTrait;
 use haneul_types::crypto::{AuthoritySignInfo, AuthorityStrongQuorumSignInfo, RandomnessRound};
-use haneul_types::digests::ChainIdentifier;
+use haneul_types::digests::{ChainIdentifier, TransactionEffectsDigest};
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::signature::GenericSignature;
 use haneul_types::storage::{BackingPackageStore, InputKey, ObjectStore};
@@ -351,6 +351,13 @@ pub struct AuthorityEpochTables {
     /// that a user requests a signature for effects from a previous epoch. However, the
     /// signature is still epoch-specific and so is stored in the epoch store.
     effects_signatures: DBMap<TransactionDigest, AuthoritySignInfo>,
+
+    /// When we sign a TransactionEffects, we must record the digest of the effects in order
+    /// to detect and prevent equivocation when re-executing a transaction that may not have been
+    /// committed to disk.
+    /// Entries are removed from this table after the transaction in question has been committed
+    /// to disk.
+    signed_effects_digests: DBMap<TransactionDigest, TransactionEffectsDigest>,
 
     /// Signatures of transaction certificates that are executed locally.
     transaction_cert_signatures: DBMap<TransactionDigest, AuthorityStrongQuorumSignInfo>,
@@ -1171,6 +1178,7 @@ impl AuthorityPerEpochStore {
         &self,
         tx_key: &TransactionKey,
         tx_digest: &TransactionDigest,
+        effects_digest: &TransactionEffectsDigest,
         effects_signature: Option<&AuthoritySignInfo>,
     ) -> HaneulResult {
         let tables = self.tables()?;
@@ -1182,7 +1190,13 @@ impl AuthorityPerEpochStore {
 
         if let Some(effects_signature) = effects_signature {
             batch.insert_batch(&tables.effects_signatures, [(tx_digest, effects_signature)])?;
+
+            batch.insert_batch(
+                &tables.signed_effects_digests,
+                [(tx_digest, effects_digest)],
+            )?;
         }
+
         if !matches!(tx_key, TransactionKey::Digest(_)) {
             batch.insert_batch(&tables.transaction_key_to_digest, [(tx_key, tx_digest)])?;
         }
@@ -1194,15 +1208,20 @@ impl AuthorityPerEpochStore {
         Ok(())
     }
 
-    pub fn insert_effects_signature(
+    pub fn insert_effects_digest_and_signature(
         &self,
         tx_digest: &TransactionDigest,
+        effects_digest: &TransactionEffectsDigest,
         effects_signature: &AuthoritySignInfo,
     ) -> HaneulResult {
         let tables = self.tables()?;
-        tables
-            .effects_signatures
-            .insert(tx_digest, effects_signature)?;
+        let mut batch = tables.effects_signatures.batch();
+        batch.insert_batch(&tables.effects_signatures, [(tx_digest, effects_signature)])?;
+        batch.insert_batch(
+            &tables.signed_effects_digests,
+            [(tx_digest, effects_digest)],
+        )?;
+        batch.write()?;
         Ok(())
     }
 
@@ -1222,7 +1241,16 @@ impl AuthorityPerEpochStore {
         &self,
         tx_digest: &TransactionDigest,
     ) -> HaneulResult<Option<AuthoritySignInfo>> {
-        Ok(self.tables()?.effects_signatures.get(tx_digest)?)
+        let tables = self.tables()?;
+        Ok(tables.effects_signatures.get(tx_digest)?)
+    }
+
+    pub fn get_signed_effects_digest(
+        &self,
+        tx_digest: &TransactionDigest,
+    ) -> HaneulResult<Option<TransactionEffectsDigest>> {
+        let tables = self.tables()?;
+        Ok(tables.signed_effects_digests.get(tx_digest)?)
     }
 
     pub fn get_transaction_cert_sig(
@@ -1363,9 +1391,9 @@ impl AuthorityPerEpochStore {
             .collect())
     }
 
-    /// Deletes many pending certificates.
+    /// Called when transaction outputs are committed to disk
     #[instrument(level = "trace", skip_all)]
-    pub fn multi_remove_pending_execution(&self, digests: &[TransactionDigest]) -> HaneulResult<()> {
+    pub fn handle_committed_transactions(&self, digests: &[TransactionDigest]) -> HaneulResult<()> {
         let tables = match self.tables() {
             Ok(tables) => tables,
             // After Epoch ends, it is no longer necessary to remove pending transactions
@@ -1374,7 +1402,16 @@ impl AuthorityPerEpochStore {
             Err(e) => return Err(e),
         };
         let mut batch = tables.pending_execution.batch();
+        // pending_execution stores transactions received from consensus which may not have
+        // been executed yet. At this point, they have been committed to the db durably and
+        // can be removed.
+        // After end-to-end quarantining, we will not need pending_execution since the consensus
+        // log itself will be used for recovery.
         batch.delete_batch(&tables.pending_execution, digests)?;
+
+        // Now that the transaction effects are committed, we will never re-execute, so we
+        // don't need to worry about equivocating.
+        batch.delete_batch(&tables.signed_effects_digests, digests)?;
         batch.write()?;
         Ok(())
     }
