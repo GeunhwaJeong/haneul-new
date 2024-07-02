@@ -14,7 +14,10 @@
 		"sponsored-transactions",
 		"kiosk-demo",
 		"kiosk-cli",
-		"@haneullabs/sdk-docs"
+		"@haneullabs/sdk-docs",
+		"mev-bot",
+		"escrow-api-demo",
+		"trading-frontend-demo"
 	],
 	"___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
 		"onlyUpdatePeerDependentsWhenOutOfRange": true
