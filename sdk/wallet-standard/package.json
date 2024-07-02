@@ -1,6 +1,6 @@
 {
 	"name": "@haneullabs/wallet-standard",
-	"version": "0.12.10",
+	"version": "0.12.11",
 	"description": "A suite of standard utilities for implementing wallets based on the Wallet Standard.",
 	"license": "Apache-2.0",
 	"author": "Haneul Labs <build@haneul-labs.com>",
