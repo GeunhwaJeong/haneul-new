@@ -72,7 +72,7 @@ const concepts = [
 					'concepts/haneul-move-concepts/one-time-witness',
 					{
 						type: 'category',
-						label: 'Package Upgrades',
+						label: 'Packages',
 						link: {
 							type: 'doc',
 							id: 'concepts/haneul-move-concepts/packages',
@@ -80,6 +80,7 @@ const concepts = [
 						items: [
 							'concepts/haneul-move-concepts/packages/upgrade',
 							'concepts/haneul-move-concepts/packages/custom-policies',
+							'concepts/haneul-move-concepts/packages/automated-address-management',
 						],
 					},
 					'concepts/haneul-move-concepts/conventions',
