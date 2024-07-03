@@ -5,7 +5,7 @@ use anyhow::Result;
 use clap::*;
 use haneullabs_metrics::spawn_logged_monitored_task;
 use haneullabs_metrics::start_prometheus_server;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::env;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -13,21 +13,17 @@ use haneul_bridge::eth_client::EthClient;
 use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge_indexer::eth_worker::EthBridgeWorker;
 use haneul_bridge_indexer::metrics::BridgeIndexerMetrics;
-use haneul_bridge_indexer::postgres_manager::{
-    get_connection_pool, read_haneul_progress_store, PgProgressStore,
-};
+use haneul_bridge_indexer::postgres_manager::{get_connection_pool, read_haneul_progress_store};
 use haneul_bridge_indexer::haneul_transaction_handler::handle_haneul_transactions_loop;
 use haneul_bridge_indexer::haneul_transaction_queries::start_haneul_tx_polling_task;
-use haneul_bridge_indexer::haneul_worker::HaneulBridgeWorker;
-use haneul_data_ingestion_core::{DataIngestionMetrics, IndexerExecutor, ReaderOptions, WorkerPool};
+use haneul_data_ingestion_core::DataIngestionMetrics;
 use haneul_sdk::HaneulClientBuilder;
-use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use tokio::task::JoinHandle;
 
 use haneullabs_metrics::metered_channel::channel;
 use haneul_bridge_indexer::config::IndexerConfig;
+use haneul_bridge_indexer::haneul_checkpoint_ingestion::HaneulCheckpointSyncer;
 use haneul_config::Config;
-use tokio::sync::oneshot;
 use tracing::info;
 
 #[derive(Parser, Clone, Debug)]
@@ -111,54 +107,15 @@ async fn main() -> Result<()> {
         )
         .await?;
     } else {
-        start_processing_haneul_checkpoints(
-            &config_clone,
-            db_url,
-            indexer_meterics,
-            ingestion_metrics,
-        )
-        .await?;
+        let pg_pool = get_connection_pool(db_url.clone());
+        HaneulCheckpointSyncer::new(pg_pool, config.bridge_genesis_checkpoint)
+            .start(&config_clone, indexer_meterics, ingestion_metrics)
+            .await?;
     }
     // We are not waiting for the haneul tasks to finish here, which is ok.
     futures::future::join_all(handles).await;
 
     Ok(())
-}
-
-async fn start_processing_haneul_checkpoints(
-    config: &haneul_bridge_indexer::config::IndexerConfig,
-    db_url: String,
-    indexer_meterics: BridgeIndexerMetrics,
-    ingestion_metrics: DataIngestionMetrics,
-) -> Result<HashMap<String, CheckpointSequenceNumber>> {
-    // metrics init
-    let (_exit_sender, exit_receiver) = oneshot::channel();
-
-    let pg_pool = get_connection_pool(db_url.clone());
-    let progress_store = PgProgressStore::new(pg_pool, config.bridge_genesis_checkpoint);
-    let mut executor = IndexerExecutor::new(
-        progress_store,
-        1, /* workflow types */
-        ingestion_metrics,
-    );
-
-    let indexer_metrics_cloned = indexer_meterics.clone();
-
-    let worker_pool = WorkerPool::new(
-        HaneulBridgeWorker::new(vec![], db_url, indexer_metrics_cloned),
-        "bridge worker".into(),
-        config.concurrency as usize,
-    );
-    executor.register(worker_pool).await?;
-    executor
-        .run(
-            config.checkpoints_path.clone().into(),
-            Some(config.remote_store_url.clone()),
-            vec![], // optional remote store access options
-            ReaderOptions::default(),
-            exit_receiver,
-        )
-        .await
 }
 
 async fn start_processing_haneul_checkpoints_by_querying_txns(
