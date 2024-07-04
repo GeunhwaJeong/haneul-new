@@ -13445,6 +13445,7 @@ name = "haneul-package-management"
 version = "1.29.0"
 dependencies = [
  "anyhow",
+ "move-core-types",
  "move-package",
  "move-symbol-pool",
  "haneul-json-rpc-types",
