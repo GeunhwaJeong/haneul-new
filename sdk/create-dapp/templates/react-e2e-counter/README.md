@@ -12,6 +12,9 @@ Client dApp using the following tools:
   wallets and loading data
 - [pnpm](https://pnpm.io/) for package management
 
+For a full guide on how to build this dApp from scratch, visit this
+[guide](http://docs.haneul.io/guides/developer/app-examples/e2e-counter#frontend).
+
 ## Deploying your Move code
 
 ### Install Haneul cli
@@ -20,12 +23,12 @@ Before deploying your move code, ensure that you have installed the Haneul CLI. 
 can follow the [Haneul installation instruction](https://docs.haneul.io/build/install)
 to get everything set up.
 
-This template uses `devnet` by default, so we'll need to set up a devnet
+This template uses `testnet` by default, so we'll need to set up a testnet
 environment in the CLI:
 
 ```bash
-haneul client new-env --alias devnet --rpc https://fullnode.devnet.haneul.io:443
-haneul client switch --env devnet
+haneul client new-env --alias testnet --rpc https://fullnode.testnet.haneul.io:443
+haneul client switch --env testnet
 ```
 
 If you haven't set up an address in the haneul client yet, you can use the
@@ -47,7 +50,7 @@ We can ensure we have some Haneul in our new wallet by requesting Haneul from th
 faucet (make sure to replace the address with your address):
 
 ```bash
-curl --location --request POST 'https://faucet.devnet.haneul.io/gas' \
+curl --location --request POST 'https://faucet.testnet.haneul.io/gas' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "FixedAmountRequest": {
@@ -70,7 +73,7 @@ In the output there will be an object with a `"packageId"` property. You'll want
 to save that package ID to the `src/constants.ts` file as `PACKAGE_ID`:
 
 ```ts
-export const DEVNET_COUNTER_PACKAGE_ID = "<YOUR_PACKAGE_ID>";
+export const TESTNET_COUNTER_PACKAGE_ID = "<YOUR_PACKAGE_ID>";
 ```
 
 Now that we have published the move code, and update the package ID, we can
