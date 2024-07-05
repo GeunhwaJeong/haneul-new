@@ -753,6 +753,12 @@ impl From<&str> for HaneulError {
     }
 }
 
+impl From<String> for HaneulError {
+    fn from(error: String) -> Self {
+        HaneulError::GenericAuthorityError { error }
+    }
+}
+
 impl TryFrom<HaneulError> for UserInputError {
     type Error = anyhow::Error;
 

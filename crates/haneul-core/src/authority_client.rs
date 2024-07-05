@@ -16,7 +16,10 @@ use haneul_types::messages_checkpoint::{
 };
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::haneul_system_state::HaneulSystemState;
-use haneul_types::{error::HaneulError, transaction::*};
+use haneul_types::{
+    error::{HaneulError, HaneulResult},
+    transaction::*,
+};
 
 use crate::authority_client::tonic::IntoRequest;
 use haneul_network::tonic::metadata::KeyAndValueRef;
@@ -90,7 +93,7 @@ pub trait AuthorityAPI {
 
 #[derive(Clone)]
 pub struct NetworkAuthorityClient {
-    client: ValidatorClient<Channel>,
+    client: HaneulResult<ValidatorClient<Channel>>,
 }
 
 impl NetworkAuthorityClient {
@@ -101,19 +104,26 @@ impl NetworkAuthorityClient {
         Ok(Self::new(channel))
     }
 
-    pub fn connect_lazy(address: &Multiaddr) -> anyhow::Result<Self> {
-        let channel = haneullabs_network::client::connect_lazy(address)
-            .map_err(|err| anyhow!(err.to_string()))?;
-        Ok(Self::new(channel))
+    pub fn connect_lazy(address: &Multiaddr) -> Self {
+        let client: HaneulResult<_> = haneullabs_network::client::connect_lazy(address)
+            .map(ValidatorClient::new)
+            .map_err(|err| err.to_string().into());
+        Self { client }
     }
 
     pub fn new(channel: Channel) -> Self {
         Self {
-            client: ValidatorClient::new(channel),
+            client: Ok(ValidatorClient::new(channel)),
         }
     }
 
-    fn client(&self) -> ValidatorClient<Channel> {
+    fn new_lazy(client: HaneulResult<Channel>) -> Self {
+        Self {
+            client: client.map(ValidatorClient::new),
+        }
+    }
+
+    fn client(&self) -> HaneulResult<ValidatorClient<Channel>> {
         self.client.clone()
     }
 }
@@ -129,7 +139,7 @@ impl AuthorityAPI for NetworkAuthorityClient {
         let mut request = transaction.into_request();
         insert_metadata(&mut request, client_addr);
 
-        self.client()
+        self.client()?
             .transaction(request)
             .await
             .map(tonic::Response::into_inner)
@@ -146,7 +156,7 @@ impl AuthorityAPI for NetworkAuthorityClient {
         insert_metadata(&mut request, client_addr);
 
         let response = self
-            .client()
+            .client()?
             .handle_certificate_v2(request)
             .await
             .map(tonic::Response::into_inner);
@@ -163,7 +173,7 @@ impl AuthorityAPI for NetworkAuthorityClient {
         insert_metadata(&mut request, client_addr);
 
         let response = self
-            .client()
+            .client()?
             .handle_certificate_v3(request)
             .await
             .map(tonic::Response::into_inner);
@@ -180,7 +190,7 @@ impl AuthorityAPI for NetworkAuthorityClient {
         insert_metadata(&mut request, client_addr);
 
         let response = self
-            .client()
+            .client()?
             .handle_soft_bundle_certificates_v3(request)
             .await
             .map(tonic::Response::into_inner);
@@ -192,7 +202,7 @@ impl AuthorityAPI for NetworkAuthorityClient {
         &self,
         request: ObjectInfoRequest,
     ) -> Result<ObjectInfoResponse, HaneulError> {
-        self.client()
+        self.client()?
             .object_info(request)
             .await
             .map(tonic::Response::into_inner)
@@ -204,7 +214,7 @@ impl AuthorityAPI for NetworkAuthorityClient {
         &self,
         request: TransactionInfoRequest,
     ) -> Result<TransactionInfoResponse, HaneulError> {
-        self.client()
+        self.client()?
             .transaction_info(request)
             .await
             .map(tonic::Response::into_inner)
@@ -216,7 +226,7 @@ impl AuthorityAPI for NetworkAuthorityClient {
         &self,
         request: CheckpointRequest,
     ) -> Result<CheckpointResponse, HaneulError> {
-        self.client()
+        self.client()?
             .checkpoint(request)
             .await
             .map(tonic::Response::into_inner)
@@ -228,7 +238,7 @@ impl AuthorityAPI for NetworkAuthorityClient {
         &self,
         request: CheckpointRequestV2,
     ) -> Result<CheckpointResponseV2, HaneulError> {
-        self.client()
+        self.client()?
             .checkpoint_v2(request)
             .await
             .map(tonic::Response::into_inner)
@@ -239,7 +249,7 @@ impl AuthorityAPI for NetworkAuthorityClient {
         &self,
         request: SystemStateRequest,
     ) -> Result<HaneulSystemState, HaneulError> {
-        self.client()
+        self.client()?
             .get_system_state_object(request)
             .await
             .map(tonic::Response::into_inner)
@@ -261,15 +271,15 @@ pub fn make_network_authority_clients_with_network_config(
             })?
             .network_address;
         let address = address.rewrite_udp_to_tcp();
-        let channel = network_config.connect_lazy(&address).map_err(|e| {
+        let maybe_channel = network_config.connect_lazy(&address).map_err(|e| {
             tracing::error!(
                 address = %address,
                 name = %name,
                 "unable to create authority client: {e}"
             );
-            anyhow!(e.to_string())
-        })?;
-        let client = NetworkAuthorityClient::new(channel);
+            e.to_string().into()
+        });
+        let client = NetworkAuthorityClient::new_lazy(maybe_channel);
         authority_clients.insert(*name, client);
     }
     Ok(authority_clients)
