@@ -14092,19 +14092,6 @@ dependencies = [
 [[package]]
 name = "haneul-test-validator"
 version = "1.29.0"
-dependencies = [
- "anyhow",
- "axum",
- "clap",
- "http",
- "haneul-cluster-test",
- "haneul-faucet",
- "telemetry-subscribers",
- "tokio",
- "tower",
- "tower-http",
- "uuid 1.2.2",
-]
 
 [[package]]
 name = "haneul-tls"
