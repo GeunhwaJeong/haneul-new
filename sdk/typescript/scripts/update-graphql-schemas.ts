@@ -30,7 +30,7 @@ const result = execSync(`git branch --remote --list "origin/releases/haneul-grap
 					patch,
 					branch,
 					schema: `https://raw.githubusercontent.com/HaneulLabs/haneul/${branch}/crates/haneul-graphql-rpc/schema/current_progress_schema.graphql`,
-			  }
+				}
 			: null;
 	})
 	.filter((x): x is NonNullable<typeof x> => x !== null);

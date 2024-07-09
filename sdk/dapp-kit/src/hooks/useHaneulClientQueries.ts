@@ -11,18 +11,18 @@ type HaneulClientQueryOptions = HaneulRpcMethods[keyof HaneulRpcMethods] extends
 	? Method extends {
 			name: infer M extends keyof HaneulRpcMethods;
 			params?: infer P;
-	  }
+		}
 		? undefined extends P
 			? {
 					method: M;
 					params?: P;
 					options?: UseHaneulClientQueryOptions<M, unknown>;
-			  }
+				}
 			: {
 					method: M;
 					params: P;
 					options?: UseHaneulClientQueryOptions<M, unknown>;
-			  }
+				}
 		: never
 	: never;
 

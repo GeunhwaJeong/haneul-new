@@ -30,7 +30,7 @@ export function getKioskIdFromOwnerCap(object: HaneulObjectResponse | HaneulObje
 					for?: string;
 					kiosk?: string;
 					cap?: { fields: { for: string } };
-			  })
+				})
 			: null;
 	return fields?.for ?? fields?.kiosk ?? fields?.cap?.fields.for!;
 }

@@ -33,7 +33,7 @@ export type HaneulRpcPaginatedMethods = {
 				result: Result;
 				params: Params;
 				cursor: Cursor;
-		  }
+			}
 		: never;
 };
 
