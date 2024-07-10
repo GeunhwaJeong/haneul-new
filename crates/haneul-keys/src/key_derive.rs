@@ -63,7 +63,8 @@ pub fn derive_key_pair_from_path(
         }
         SignatureScheme::BLS12381
         | SignatureScheme::MultiSig
-        | SignatureScheme::ZkLoginAuthenticator => Err(HaneulError::UnsupportedFeatureError {
+        | SignatureScheme::ZkLoginAuthenticator
+        | SignatureScheme::PasskeyAuthenticator => Err(HaneulError::UnsupportedFeatureError {
             error: format!("key derivation not supported {:?}", key_scheme),
         }),
     }
@@ -160,7 +161,8 @@ pub fn validate_path(
         }
         SignatureScheme::BLS12381
         | SignatureScheme::MultiSig
-        | SignatureScheme::ZkLoginAuthenticator => Err(HaneulError::UnsupportedFeatureError {
+        | SignatureScheme::ZkLoginAuthenticator
+        | SignatureScheme::PasskeyAuthenticator => Err(HaneulError::UnsupportedFeatureError {
             error: format!("key derivation not supported {:?}", key_scheme),
         }),
     }

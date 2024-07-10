@@ -341,6 +341,10 @@ impl From<HaneulPublicKey> for PublicKey {
                 hex_bytes: Hex::from_bytes(&k.0),
                 curve_type: CurveType::ZkLogin, // inaccurate but added for completeness.
             },
+            HaneulPublicKey::Passkey(k) => PublicKey {
+                hex_bytes: Hex::from_bytes(&k.0),
+                curve_type: CurveType::Secp256r1,
+            },
         }
     }
 }

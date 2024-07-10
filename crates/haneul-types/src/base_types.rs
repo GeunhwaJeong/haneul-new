@@ -764,6 +764,7 @@ impl TryFrom<&GenericSignature> for HaneulAddress {
             GenericSignature::ZkLoginAuthenticator(zklogin) => {
                 HaneulAddress::try_from_unpadded(&zklogin.inputs)
             }
+            GenericSignature::PasskeyAuthenticator(s) => Ok(HaneulAddress::from(&s.get_pk()?)),
         }
     }
 }
