@@ -14,5 +14,6 @@ ROOT="$SCRIPT_DIR/.."
 cd "$ROOT/crates/haneul-protocol-config" && cargo insta test --review
 cd "$ROOT/crates/haneul-swarm-config" && cargo insta test --review
 cd "$ROOT/crates/haneul-open-rpc" && cargo run --example generate-json-rpc-spec -- record
+cd "$ROOT/crates/haneul-core" && cargo -q run --example generate-format -- print > tests/staged/haneul.yaml
 UPDATE=1 cargo test -p haneul-framework --test build-system-packages
 UPDATE=1 cargo test -p haneul-rest-api
