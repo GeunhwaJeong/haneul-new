@@ -205,7 +205,10 @@ impl Builder {
     fn committee(objects: &[Object]) -> Committee {
         let haneul_system_object =
             get_haneul_system_state(&objects).expect("Haneul System State object must always exist");
-        haneul_system_object.get_current_epoch_committee().committee
+        haneul_system_object
+            .get_current_epoch_committee()
+            .committee()
+            .clone()
     }
 
     pub fn protocol_version(&self) -> ProtocolVersion {
@@ -520,7 +523,7 @@ impl Builder {
             assert!(staked_haneul_objects.is_empty());
         }
 
-        let committee = system_state.get_current_epoch_committee().committee;
+        let committee = system_state.get_current_epoch_committee();
         for signature in self.signatures.values() {
             if self.validators.get(&signature.authority).is_none() {
                 panic!("found signature for unknown validator: {:#?}", signature);
@@ -530,7 +533,7 @@ impl Builder {
                 .verify_secure(
                     unsigned_genesis.checkpoint(),
                     Intent::haneul_app(IntentScope::CheckpointSummary),
-                    &committee,
+                    committee.committee(),
                 )
                 .expect("signature should be valid");
         }

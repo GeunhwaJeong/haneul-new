@@ -140,9 +140,9 @@ impl Genesis {
         self.haneul_system_object().reference_gas_price()
     }
 
-    // TODO: No need to return HaneulResult.
+    // TODO: No need to return HaneulResult. Also consider return &.
     pub fn committee(&self) -> HaneulResult<Committee> {
-        Ok(self.committee_with_network().committee)
+        Ok(self.committee_with_network().committee().clone())
     }
 
     pub fn haneul_system_wrapper_object(&self) -> HaneulSystemStateWrapper {

@@ -1,10 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use super::epoch_start_haneul_system_state::EpochStartValidatorInfoV1;
+use super::haneul_system_state_inner_v1::ValidatorV1;
+use super::haneul_system_state_summary::{HaneulSystemStateSummary, HaneulValidatorSummary};
+use super::{AdvanceEpochParams, HaneulSystemStateTrait};
 use crate::balance::Balance;
 use crate::base_types::HaneulAddress;
 use crate::collection_types::{Bag, Table, TableVec, VecMap, VecSet};
-use crate::committee::{Committee, CommitteeWithNetworkMetadata, NetworkMetadata};
+use crate::committee::{CommitteeWithNetworkMetadata, NetworkMetadata};
 use crate::error::HaneulError;
 use crate::storage::ObjectStore;
 use crate::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
@@ -13,12 +17,6 @@ use crate::haneul_system_state::haneul_system_state_inner_v1::{
     StakeSubsidyV1, StorageFundV1, ValidatorSetV1,
 };
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
-
-use super::epoch_start_haneul_system_state::EpochStartValidatorInfoV1;
-use super::haneul_system_state_inner_v1::ValidatorV1;
-use super::haneul_system_state_summary::{HaneulSystemStateSummary, HaneulValidatorSummary};
-use super::{AdvanceEpochParams, HaneulSystemStateTrait};
 
 /// Rust version of the Move haneul::haneul_system::SystemParametersV2 type
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
@@ -120,24 +118,26 @@ impl HaneulSystemStateTrait for HaneulSystemStateInnerV2 {
     }
 
     fn get_current_epoch_committee(&self) -> CommitteeWithNetworkMetadata {
-        let mut voting_rights = BTreeMap::new();
-        let mut network_metadata = BTreeMap::new();
-        for validator in &self.validators.active_validators {
-            let verified_metadata = validator.verified_metadata();
-            let name = verified_metadata.haneul_pubkey_bytes();
-            voting_rights.insert(name, validator.voting_power);
-            network_metadata.insert(
-                name,
-                NetworkMetadata {
-                    network_address: verified_metadata.net_address.clone(),
-                    narwhal_primary_address: verified_metadata.primary_address.clone(),
-                },
-            );
-        }
-        CommitteeWithNetworkMetadata {
-            committee: Committee::new(self.epoch, voting_rights),
-            network_metadata,
-        }
+        let validators = self
+            .validators
+            .active_validators
+            .iter()
+            .map(|validator| {
+                let verified_metadata = validator.verified_metadata();
+                let name = verified_metadata.haneul_pubkey_bytes();
+                (
+                    name,
+                    (
+                        validator.voting_power,
+                        NetworkMetadata {
+                            network_address: verified_metadata.net_address.clone(),
+                            narwhal_primary_address: verified_metadata.primary_address.clone(),
+                        },
+                    ),
+                )
+            })
+            .collect();
+        CommitteeWithNetworkMetadata::new(self.epoch, validators)
     }
 
     fn get_pending_active_validators<S: ObjectStore + ?Sized>(

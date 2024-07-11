@@ -3215,7 +3215,10 @@ async fn test_genesis_haneul_system_state_object() {
         .get_haneul_system_state_object_for_testing()
         .unwrap();
     assert_eq!(
-        &haneul_system_state.get_current_epoch_committee().committee,
+        &haneul_system_state
+            .get_current_epoch_committee()
+            .committee()
+            .clone(),
         authority_state
             .epoch_store_for_testing()
             .committee()

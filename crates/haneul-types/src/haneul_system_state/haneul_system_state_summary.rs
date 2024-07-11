@@ -1,8 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use super::{HaneulSystemState, HaneulSystemStateTrait};
 use crate::base_types::{AuthorityName, ObjectID, HaneulAddress};
-use crate::committee::{Committee, CommitteeWithNetworkMetadata, NetworkMetadata};
+use crate::committee::{CommitteeWithNetworkMetadata, NetworkMetadata};
 use crate::dynamic_field::get_dynamic_field_from_store;
 use crate::error::HaneulError;
 use crate::id::ID;
@@ -16,9 +17,6 @@ use fastcrypto::traits::ToFromBytes;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use std::collections::BTreeMap;
-
-use super::{HaneulSystemState, HaneulSystemStateTrait};
 
 /// This is the JSON-RPC type for the HANEUL system state object.
 /// It flattens all fields to make them top-level fields such that it as minimum
@@ -188,24 +186,28 @@ pub struct HaneulSystemStateSummary {
 
 impl HaneulSystemStateSummary {
     pub fn get_haneul_committee_for_benchmarking(&self) -> CommitteeWithNetworkMetadata {
-        let mut voting_rights = BTreeMap::new();
-        let mut network_metadata = BTreeMap::new();
-        for validator in &self.active_validators {
-            let name = AuthorityName::from_bytes(&validator.protocol_pubkey_bytes).unwrap();
-            voting_rights.insert(name, validator.voting_power);
-            network_metadata.insert(
-                name,
-                NetworkMetadata {
-                    network_address: Multiaddr::try_from(validator.net_address.clone()).unwrap(),
-                    narwhal_primary_address: Multiaddr::try_from(validator.primary_address.clone())
-                        .unwrap(),
-                },
-            );
-        }
-        CommitteeWithNetworkMetadata {
-            committee: Committee::new(self.epoch, voting_rights),
-            network_metadata,
-        }
+        let validators = self
+            .active_validators
+            .iter()
+            .map(|validator| {
+                let name = AuthorityName::from_bytes(&validator.protocol_pubkey_bytes).unwrap();
+                (
+                    name,
+                    (
+                        validator.voting_power,
+                        NetworkMetadata {
+                            network_address: Multiaddr::try_from(validator.net_address.clone())
+                                .unwrap(),
+                            narwhal_primary_address: Multiaddr::try_from(
+                                validator.primary_address.clone(),
+                            )
+                            .unwrap(),
+                        },
+                    ),
+                )
+            })
+            .collect();
+        CommitteeWithNetworkMetadata::new(self.epoch, validators)
     }
 }
 
