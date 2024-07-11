@@ -1,0 +1,9 @@
+[package]
+name = "tic_tac_toe"
+edition = "2024.beta"
+
+[dependencies]
+Haneul = { local = "../../../crates/haneul-framework/packages/haneul-framework" }
+
+[addresses]
+tic_tac_toe = "0x0"
