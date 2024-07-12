@@ -11,7 +11,7 @@ How to install/build the haneul binary IF:
   OR
     - build from source. This requires passing the indexer feature when building the haneul binary, as well as having libpq/postgresql dependencies installed (just as when using haneul-test-validator):
         - cargo build --bin haneul --features indexer
-        - cargo run --bin haneul -- start --with-faucet --force-regenesis --with-indexer --with-graphql
+        - cargo run --features indexer --bin haneul -- start --with-faucet --force-regenesis --with-indexer --with-graphql
 
 Running the local network:
  - (Preferred) In the simplest form, you can replace haneul-test-validator with haneul start --with-faucet --force-regenesis. This will create a network from a new genesis and start a faucet (127.0.0.1:9123). This will not persist state.
