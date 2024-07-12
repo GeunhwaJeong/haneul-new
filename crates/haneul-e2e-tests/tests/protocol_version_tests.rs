@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use haneul_protocol_config::{ProtocolConfig, ProtocolVersion, SupportedProtocolVersions};
+use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
+use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 use test_cluster::TestClusterBuilder;
 
 #[tokio::test]
@@ -66,7 +67,6 @@ mod sim_only_tests {
     use haneul_json_rpc_types::{HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI};
     use haneul_macros::*;
     use haneul_move_build::{BuildConfig, CompiledPackage};
-    use haneul_protocol_config::SupportedProtocolVersions;
     use haneul_types::base_types::ConciseableName;
     use haneul_types::base_types::{ObjectID, ObjectRef};
     use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
@@ -77,6 +77,7 @@ mod sim_only_tests {
         HaneulSystemState, HaneulSystemStateTrait, HANEUL_SYSTEM_STATE_SIM_TEST_DEEP_V2,
         HANEUL_SYSTEM_STATE_SIM_TEST_SHALLOW_V2, HANEUL_SYSTEM_STATE_SIM_TEST_V1,
     };
+    use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
     use haneul_types::transaction::{
         CallArg, Command, ObjectArg, ProgrammableMoveCall, ProgrammableTransaction,
         TransactionData, TEST_ONLY_GAS_UNIT_FOR_GENERIC,

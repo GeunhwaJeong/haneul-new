@@ -19,7 +19,7 @@ use haneul_config::node::{AuthorityOverloadConfig, DBCheckpointConfig, RunWithRa
 use haneul_config::NodeConfig;
 use haneul_macros::nondeterministic;
 use haneul_node::HaneulNodeHandle;
-use haneul_protocol_config::{ProtocolVersion, SupportedProtocolVersions};
+use haneul_protocol_config::ProtocolVersion;
 use haneul_swarm_config::genesis_config::{AccountConfig, GenesisConfig, ValidatorGenesisConfig};
 use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_swarm_config::network_config_builder::{
@@ -29,6 +29,7 @@ use haneul_swarm_config::network_config_builder::{
 use haneul_swarm_config::node_config_builder::FullnodeConfigBuilder;
 use haneul_types::base_types::AuthorityName;
 use haneul_types::object::Object;
+use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 use tempfile::TempDir;
 use tracing::info;
 

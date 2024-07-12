@@ -14,11 +14,11 @@ use haneul_config::node::RunWithRange;
 use haneul_config::{Config, NodeConfig};
 use haneul_core::runtime::HaneulRuntimes;
 use haneul_node::metrics;
-use haneul_protocol_config::SupportedProtocolVersions;
 use haneul_telemetry::send_telemetry_event;
 use haneul_types::committee::EpochId;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::multiaddr::Multiaddr;
+use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 
 // Define the `GIT_REVISION` and `VERSION` consts
 bin_version::bin_version!();

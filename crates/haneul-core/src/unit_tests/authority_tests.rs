@@ -30,10 +30,7 @@ use haneul_json_rpc_types::{
     HaneulArgument, HaneulExecutionResult, HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI, HaneulTypeTag,
 };
 use haneul_macros::sim_test;
-use haneul_protocol_config::{
-    Chain, PerObjectCongestionControlMode, ProtocolConfig, ProtocolVersion,
-    SupportedProtocolVersions,
-};
+use haneul_protocol_config::{Chain, PerObjectCongestionControlMode, ProtocolConfig, ProtocolVersion};
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::epoch_data::EpochData;
@@ -47,6 +44,7 @@ use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuild
 use haneul_types::randomness_state::get_randomness_state_obj_initial_shared_version;
 use haneul_types::storage::GetSharedLocks;
 use haneul_types::haneul_system_state::HaneulSystemStateWrapper;
+use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 use haneul_types::utils::{
     to_sender_signed_transaction, to_sender_signed_transaction_with_multi_signers,
 };
@@ -4959,7 +4957,7 @@ fn test_choose_next_system_packages() {
 
     macro_rules! make_capabilities {
         ($v: expr, $name: expr, $packages: expr) => {
-            AuthorityCapabilities::new(
+            AuthorityCapabilitiesV1::new(
                 $name,
                 SupportedProtocolVersions::new_for_testing(1, $v),
                 $packages,

@@ -112,7 +112,7 @@ use haneul_network::api::ValidatorServer;
 use haneul_network::discovery;
 use haneul_network::discovery::TrustedPeerChangeEvent;
 use haneul_network::state_sync;
-use haneul_protocol_config::{Chain, ProtocolConfig, SupportedProtocolVersions};
+use haneul_protocol_config::{Chain, ProtocolConfig};
 use haneul_snapshot::uploader::StateSnapshotUploader;
 use haneul_storage::{
     http_key_value_store::HttpKVStore,
@@ -125,12 +125,13 @@ use haneul_types::committee::Committee;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages_consensus::{
-    check_total_jwk_size, AuthorityCapabilities, ConsensusTransaction,
+    check_total_jwk_size, AuthorityCapabilitiesV1, ConsensusTransaction,
 };
 use haneul_types::quorum_driver_types::QuorumDriverEffectsQueueResult;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
+use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 use typed_store::rocks::default_db_options;
 use typed_store::DBMetrics;
 
@@ -1487,8 +1488,8 @@ impl HaneulNode {
 
                 let config = cur_epoch_store.protocol_config();
                 let binary_config = to_binary_config(config);
-                let transaction =
-                    ConsensusTransaction::new_capability_notification(AuthorityCapabilities::new(
+                let transaction = ConsensusTransaction::new_capability_notification(
+                    AuthorityCapabilitiesV1::new(
                         self.state.name,
                         self.config
                             .supported_protocol_versions
@@ -1496,7 +1497,8 @@ impl HaneulNode {
                         self.state
                             .get_available_system_packages(&binary_config)
                             .await,
-                    ));
+                    ),
+                );
                 info!(?transaction, "submitting capabilities to consensus");
                 components
                     .consensus_adapter

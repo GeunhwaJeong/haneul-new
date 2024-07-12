@@ -38,7 +38,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_node::HaneulNodeHandle;
-use haneul_protocol_config::{ProtocolVersion, SupportedProtocolVersions};
+use haneul_protocol_config::ProtocolVersion;
 use haneul_sdk::apis::QuorumDriverApi;
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::wallet_context::WalletContext;
@@ -70,6 +70,7 @@ use haneul_types::object::Object;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
+use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 use haneul_types::traffic_control::{PolicyConfig, RemoteFirewallConfig};
 use haneul_types::transaction::{
     CertifiedTransaction, ObjectArg, Transaction, TransactionData, TransactionDataAPI,

@@ -30,9 +30,7 @@ mod test {
         clear_fail_point, nondeterministic, register_fail_point_arg, register_fail_point_async,
         register_fail_point_if, register_fail_points, sim_test,
     };
-    use haneul_protocol_config::{
-        PerObjectCongestionControlMode, ProtocolConfig, ProtocolVersion, SupportedProtocolVersions,
-    };
+    use haneul_protocol_config::{PerObjectCongestionControlMode, ProtocolConfig, ProtocolVersion};
     use haneul_simulator::tempfile::TempDir;
     use haneul_simulator::{configs::*, SimConfig};
     use haneul_storage::blob::Blob;
@@ -41,6 +39,7 @@ mod test {
     use haneul_types::digests::TransactionDigest;
     use haneul_types::full_checkpoint_content::CheckpointData;
     use haneul_types::messages_checkpoint::VerifiedCheckpoint;
+    use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
     use haneul_types::transaction::{
         DEFAULT_VALIDATOR_GAS_PRICE, TEST_ONLY_GAS_UNIT_FOR_HEAVY_COMPUTATION_STORAGE,
     };

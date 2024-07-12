@@ -10,9 +10,9 @@ use std::{sync::Arc, time::Duration};
 
 use crate::authority::epoch_start_configuration::{EpochFlag, EpochStartConfiguration};
 use broadcast::{Receiver, Sender};
-use haneul_protocol_config::SupportedProtocolVersions;
 use haneul_types::committee::ProtocolVersion;
 use haneul_types::messages_checkpoint::{ECMHLiveObjectSetDigest, EndOfEpochData, VerifiedCheckpoint};
+use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 use tokio::{sync::broadcast, time::timeout};
 
 use crate::authority::test_authority_builder::TestAuthorityBuilder;

@@ -72,7 +72,6 @@ use haneul_json_rpc_types::{
     HaneulTransactionBlockEvents, TransactionFilter,
 };
 use haneul_macros::{fail_point, fail_point_async, fail_point_if};
-use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
 use haneul_storage::indexes::{CoinInfo, ObjectIndexChanges};
 use haneul_storage::key_value_store::{TransactionKeyValueStore, TransactionKeyValueStoreTrait};
 use haneul_storage::key_value_store_metrics::KeyValueStoreMetrics;
@@ -102,7 +101,7 @@ use haneul_types::messages_checkpoint::{
     CheckpointResponseV2, CheckpointSequenceNumber, CheckpointSummary, CheckpointSummaryResponse,
     CheckpointTimestamp, ECMHLiveObjectSetDigest, VerifiedCheckpoint,
 };
-use haneul_types::messages_consensus::AuthorityCapabilities;
+use haneul_types::messages_consensus::AuthorityCapabilitiesV1;
 use haneul_types::messages_grpc::{
     HandleTransactionResponse, LayoutGenerationOption, ObjectInfoRequest, ObjectInfoRequestKind,
     ObjectInfoResponse, TransactionInfoRequest, TransactionInfoResponse, TransactionStatus,
@@ -115,6 +114,7 @@ use haneul_types::storage::{
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::haneul_system_state::{get_haneul_system_state, HaneulSystemState};
+use haneul_types::supported_protocol_versions::{ProtocolConfig, SupportedProtocolVersions};
 use haneul_types::{
     base_types::*,
     committee::Committee,
@@ -4292,7 +4292,7 @@ impl AuthorityState {
         proposed_protocol_version: ProtocolVersion,
         protocol_config: &ProtocolConfig,
         committee: &Committee,
-        capabilities: Vec<AuthorityCapabilities>,
+        capabilities: Vec<AuthorityCapabilitiesV1>,
         mut buffer_stake_bps: u64,
     ) -> Option<(ProtocolVersion, Vec<ObjectRef>)> {
         if proposed_protocol_version > current_protocol_version + 1
@@ -4378,7 +4378,7 @@ impl AuthorityState {
         current_protocol_version: ProtocolVersion,
         protocol_config: &ProtocolConfig,
         committee: &Committee,
-        capabilities: Vec<AuthorityCapabilities>,
+        capabilities: Vec<AuthorityCapabilitiesV1>,
         buffer_stake_bps: u64,
     ) -> (ProtocolVersion, Vec<ObjectRef>) {
         let mut next_protocol_version = current_protocol_version;

@@ -9,11 +9,11 @@ use rand::rngs::OsRng;
 use haneul_config::genesis::{TokenAllocation, TokenDistributionScheduleBuilder};
 use haneul_config::node::AuthorityOverloadConfig;
 use haneul_macros::nondeterministic;
-use haneul_protocol_config::SupportedProtocolVersions;
 use haneul_types::base_types::{AuthorityName, HaneulAddress};
 use haneul_types::committee::{Committee, ProtocolVersion};
 use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair, KeypairTraits, PublicKey};
 use haneul_types::object::Object;
+use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 use haneul_types::traffic_control::{PolicyConfig, RemoteFirewallConfig};
 
 use crate::genesis_config::{AccountConfig, ValidatorGenesisConfigBuilder, DEFAULT_GAS_AMOUNT};

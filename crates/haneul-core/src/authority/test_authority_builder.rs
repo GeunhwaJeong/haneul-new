@@ -29,7 +29,7 @@ use haneul_config::transaction_deny_config::TransactionDenyConfig;
 use haneul_config::ExecutionCacheConfig;
 use haneul_macros::nondeterministic;
 use haneul_network::randomness;
-use haneul_protocol_config::{ProtocolConfig, SupportedProtocolVersions};
+use haneul_protocol_config::ProtocolConfig;
 use haneul_storage::IndexStore;
 use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_swarm_config::network_config::NetworkConfig;
@@ -39,6 +39,7 @@ use haneul_types::digests::ChainIdentifier;
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::object::Object;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
+use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 use haneul_types::transaction::VerifiedTransaction;
 
 use super::epoch_start_configuration::EpochFlag;

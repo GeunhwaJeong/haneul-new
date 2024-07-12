@@ -20,7 +20,6 @@ use std::sync::Arc;
 use std::time::Duration;
 use std::usize;
 use haneul_keys::keypair_file::{read_authority_keypair_from_file, read_keypair_from_file};
-use haneul_protocol_config::{Chain, SupportedProtocolVersions};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::AuthorityPublicKeyBytes;
@@ -28,6 +27,7 @@ use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::NetworkKeyPair;
 use haneul_types::crypto::HaneulKeyPair;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
+use haneul_types::supported_protocol_versions::{Chain, SupportedProtocolVersions};
 use haneul_types::traffic_control::{PolicyConfig, RemoteFirewallConfig};
 
 use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair};
