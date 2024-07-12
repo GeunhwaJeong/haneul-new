@@ -10,7 +10,7 @@ tokio = { version = "1.2", features = ["full"] }
 anyhow = "1.0"
 ```
 
-The main building block for the Haneul Rust SDK is the `HaneulClientBuilder`, which provides a simple and straightforward way of connecting to a Haneul network and having access to the different available APIs. 
+The main building block for the Haneul Rust SDK is the `HaneulClientBuilder`, which provides a simple and straightforward way of connecting to a Haneul network and having access to the different available APIs.
 
 In the following example, the application connects to the Haneul `testnet` and `devnet` networks and prints out their respective RPC API versions.
 
@@ -54,7 +54,7 @@ There are serveral files ending in `_api.rs` which provide code examples of the 
 
 ### Prerequisites
 
-Unless otherwise specified, most of these examples assume `Rust` and `cargo` are installed, and that there is an available internet connection. The examples connect to the Haneul testnet (`https://fullnode.testnet.haneul.io:443`) and execute different APIs using the active address from the local wallet. If there is no local wallet, it will create one, generate two addresses, set one of them to be active, and it will request 1 HANEUL from the testnet faucet for the active address. 
+Unless otherwise specified, most of these examples assume `Rust` and `cargo` are installed, and that there is an available internet connection. The examples connect to the Haneul testnet (`https://fullnode.testnet.haneul.io:443`) and execute different APIs using the active address from the local wallet. If there is no local wallet, it will create one, generate two addresses, set one of them to be active, and it will request 1 HANEUL from the testnet faucet for the active address.
 
 ### Running the existing examples
 
@@ -78,9 +78,9 @@ The `HaneulClientBuilder` struct provides a connection to the JSON-RPC server th
 - Testnet: https://fullnode.testnet.haneul.io:443
 - Mainnet: https://fullnode.mainnet.haneul.io:443
 
-For all available servers, see [here](https://haneul.io/networkinfo). 
+For all available servers, see [here](https://haneul.io/networkinfo).
 
-For running a local Haneul network, please follow [this guide](https://docs.haneul.io/build/haneul-local-network) for installing Haneul and [this guide](https://docs.haneul.io/build/haneul-local-network#start-the-local-network) for starting the local Haneul network. 
+For running a local Haneul network, please follow [this guide](https://docs.haneul.io/build/haneul-local-network) for installing Haneul and [this guide](https://docs.haneul.io/build/haneul-local-network#start-the-local-network) for starting the local Haneul network.
 
 
 ```rust
@@ -121,7 +121,7 @@ async fn main() -> Result<(), anyhow::Error> {
    println!("Haneul local network version: {}", haneul_local.api_version());
 
    let active_address = HaneulAddress::from_str("<YOUR HANEUL ADDRESS>")?; // change to your Haneul address
-   
+
    let total_balance = haneul_local
       .coin_read_api()
       .get_all_balances(active_address)
@@ -139,7 +139,7 @@ See the programmable transactions [example](https://github.com/GeunhwaJeong/hane
 
 ### Tic Tac Toe quick start
 
-1. Prepare the environment 
+1. Prepare the environment
    1. Install `haneul` binary following the [Haneul installation](https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/guides/developer/getting-started/haneul-install.mdx) docs.
    1. [Connect to Haneul Devnet](https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/guides/developer/getting-started/connect.mdx).
    1. [Make sure you have two addresses with gas](https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/guides/developer/getting-started/get-address.mdx) by using the `new-address` command to create new addresses:
@@ -152,32 +152,28 @@ See the programmable transactions [example](https://github.com/GeunhwaJeong/hane
 
 2. Publish the move contract
    1. [Download the Haneul source code](https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/guides/developer/getting-started/haneul-install.mdx).
-   1. Publish the [`games` package](https://github.com/GeunhwaJeong/haneul/tree/main/haneul_programmability/examples/games) 
+   1. Publish the [`tic-tac-toe` package](https://github.com/GeunhwaJeong/haneul/tree/main/examples/tic-tac-toe/move)
       using the Haneul client:
       ```shell
-      haneul client publish --path /path-to-haneul-source-code/haneul_programmability/examples/games --gas-budget 10000
+      haneul client publish --path /path-to-haneul-source-code/examples/tic-tac-toe/move
       ```
    1. Record the package object ID.
 
 3. Create a new tic-tac-toe game
-   1. Run the following command in the Haneul source code directory to start a new game, replacing the game package objects ID with the one you recorded:
+   1. Run the following command in the [`tic-tac-toe/cli` directory](https://github.com/GeunhwaJeong/haneul/tree/main/examples/tic-tac-toe/cli) to start a new game, replacing the game package objects ID with the one you recorded:
       ```shell
-      cargo run --example tic-tac-toe -- --game-package-id <<games package object ID>> new-game
+      cargo run -- new --package-id <<tic-tac-toe package object ID>> <<player O address>>
       ```
-      This will create a game for the first two addresses in your keystore by default. If you want to specify the identity of each player,
-      use the following command and replace the variables with the actual player's addresses:
-      ```shell
-      cargo run --example tic-tac-toe -- --game-package-id <<games package object ID>> new-game --player-x <<player X address>> --player-o <<player O address>>
-      ```
+      This will create a game between the active address in the keystore, and the specified Player O.
    1. Copy the game ID and pass it to your friend to join the game.
 
-4. Joining the game
+4. Making a move
 
-   Run the following command in the Haneul source code directory to join the game, replacing the game ID and address accordingly:
+   Run the following command in the [`tic-tac-toe/cli` directory](https://github.com/GeunhwaJeong/haneul/tree/main/examples/tic-tac-toe/cli) to make a move in an existing game, as the active address in the CLI, replacing the game ID and address accordingly:
    ```shell
-   cargo run --example tic-tac-toe -- --game-package-id <<games package object ID>> join-game --my-identity <<address>> --game-id <<game ID>>
+   cargo run -- move --package-id <<tic-tac-toe package object ID>> --row $R --col $C <<game ID>>
    ```
 
 ## License
 
-[SPDX-License-Identifier: Apache-2.0](https://github.com/GeunhwaJeong/haneul/blob/main/LICENSE) 
+[SPDX-License-Identifier: Apache-2.0](https://github.com/GeunhwaJeong/haneul/blob/main/LICENSE)
