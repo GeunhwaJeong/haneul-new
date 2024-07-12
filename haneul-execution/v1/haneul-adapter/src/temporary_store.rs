@@ -18,7 +18,7 @@ use haneul_types::execution::{
 use haneul_types::execution_config_utils::to_binary_config;
 use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::inner_temporary_store::InnerTemporaryStore;
-use haneul_types::storage::{BackingStore, PackageObject};
+use haneul_types::storage::{BackingStore, DenyListResult, PackageObject};
 use haneul_types::haneul_system_state::{get_haneul_system_state_wrapper, AdvanceEpochParams};
 use haneul_types::type_resolver::LayoutResolver;
 use haneul_types::{
@@ -1117,7 +1117,7 @@ impl<'backing> Storage for TemporaryStore<'backing> {
     fn check_coin_deny_list(
         &self,
         _written_objects: &BTreeMap<ObjectID, Object>,
-    ) -> (Result<(), ExecutionError>, u64) {
+    ) -> DenyListResult {
         unreachable!("Coin denylist v2 is not supported in haneul-execution v1");
     }
 }
