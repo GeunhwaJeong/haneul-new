@@ -1,6 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+const defaultTheme = require("tailwindcss/defaultTheme");
+
 module.exports = {
   corePlugins: {
     preflight: false, // disable Tailwind's reset
@@ -10,10 +12,12 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
+        sans: ["Inter", ...defaultTheme.fontFamily.sans],
         twkeverett: ["Twkeverett"],
       },
       colors: {
         "haneul-black": "var(--haneul-black)",
+        "haneul-blue-primary": "rgb(var(--haneul-blue-primary)/<alpha-value>)",
         "haneul-blue": "var(--haneul-blue)",
         "haneul-blue-bright": "var(--haneul-blue-bright)",
         "haneul-blue-light": "var(--haneul-blue-light)",
