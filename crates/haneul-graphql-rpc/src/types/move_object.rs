@@ -18,6 +18,7 @@ use super::haneul_address::HaneulAddress;
 use super::haneulns_registration::{DomainFormat, HaneulnsRegistration, HaneulnsRegistrationDowncastError};
 use super::transaction_block::{self, TransactionBlock, TransactionBlockFilter};
 use super::type_filter::ExactTypeFilter;
+use super::uint53::UInt53;
 use super::{coin::Coin, object::Object};
 use crate::data::Db;
 use crate::error::Error;
@@ -218,7 +219,7 @@ impl MoveObject {
             .await
     }
 
-    pub(crate) async fn version(&self) -> u64 {
+    pub(crate) async fn version(&self) -> UInt53 {
         ObjectImpl(&self.super_).version().await
     }
 

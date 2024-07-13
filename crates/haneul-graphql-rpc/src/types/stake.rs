@@ -17,6 +17,7 @@ use super::owner::OwnerImpl;
 use super::haneulns_registration::{DomainFormat, HaneulnsRegistration};
 use super::transaction_block::{self, TransactionBlock, TransactionBlockFilter};
 use super::type_filter::ExactTypeFilter;
+use super::uint53::UInt53;
 use super::{
     big_int::BigInt, epoch::Epoch, move_object::MoveObject, object, haneul_address::HaneulAddress,
 };
@@ -158,7 +159,7 @@ impl StakedHaneul {
             .await
     }
 
-    pub(crate) async fn version(&self) -> u64 {
+    pub(crate) async fn version(&self) -> UInt53 {
         ObjectImpl(&self.super_.super_).version().await
     }
 
