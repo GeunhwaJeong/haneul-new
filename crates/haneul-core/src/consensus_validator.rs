@@ -167,6 +167,8 @@ impl TransactionVerifier for HaneulTxValidator {
         _protocol_config: &ProtocolConfig,
         batch: &[&[u8]],
     ) -> Result<(), ValidationError> {
+        let _scope = monitored_scope("ValidateBatch");
+
         let txs = batch
             .iter()
             .map(|tx| {
