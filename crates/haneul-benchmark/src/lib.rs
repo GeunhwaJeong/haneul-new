@@ -17,9 +17,7 @@ use std::{
 use haneul_config::genesis::Genesis;
 use haneul_core::{
     authority_aggregator::{AuthorityAggregator, AuthorityAggregatorBuilder},
-    authority_client::{
-        make_authority_clients_with_timeout_config, AuthorityAPI, NetworkAuthorityClient,
-    },
+    authority_client::{AuthorityAPI, NetworkAuthorityClient},
     quorum_driver::{
         QuorumDriver, QuorumDriverHandler, QuorumDriverHandlerBuilder, QuorumDriverMetrics,
     },
@@ -28,7 +26,6 @@ use haneul_json_rpc_types::{
     HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulTransactionBlockEffects,
     HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponseOptions,
 };
-use haneul_network::{DEFAULT_CONNECT_TIMEOUT_SEC, DEFAULT_REQUEST_TIMEOUT_SEC};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::ConciseableName;
 use haneul_types::committee::CommitteeTrait;
@@ -256,24 +253,17 @@ impl LocalValidatorAggregatorProxy {
         registry: &Registry,
         reconfig_fullnode_rpc_url: Option<&str>,
     ) -> Self {
-        let (aggregator, _) = AuthorityAggregatorBuilder::from_genesis(genesis)
+        let (aggregator, clients) = AuthorityAggregatorBuilder::from_genesis(genesis)
             .with_registry(registry)
-            .build()
-            .unwrap();
-
-        let committee = genesis.committee_with_network();
-        let clients = make_authority_clients_with_timeout_config(
-            &committee,
-            DEFAULT_CONNECT_TIMEOUT_SEC,
-            DEFAULT_REQUEST_TIMEOUT_SEC,
-        );
+            .build_network_clients();
+        let committee = genesis.committee().unwrap();
 
         Self::new_impl(
             aggregator,
             registry,
             reconfig_fullnode_rpc_url,
             clients,
-            committee.committee().clone(),
+            committee,
         )
         .await
     }
