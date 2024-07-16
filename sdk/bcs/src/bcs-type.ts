@@ -102,7 +102,7 @@ export class BcsType<T, Input = T> {
 	}
 }
 
-const SERIALIZED_BCS_BRAND = Symbol.for('@haneullabs/serialized-bcs');
+const SERIALIZED_BCS_BRAND = Symbol.for('@haneullabs/serialized-bcs') as never;
 export function isSerializedBcs(obj: unknown): obj is SerializedBcs<unknown> {
 	return !!obj && typeof obj === 'object' && (obj as any)[SERIALIZED_BCS_BRAND] === true;
 }

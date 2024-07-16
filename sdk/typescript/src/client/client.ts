@@ -118,13 +118,11 @@ type NetworkOrTransport =
 			url?: never;
 	  };
 
-const HANEUL_CLIENT_BRAND = Symbol.for('@haneullabs/HaneulClient');
+const HANEUL_CLIENT_BRAND = Symbol.for('@haneullabs/HaneulClient') as never;
 
 export function isHaneulClient(client: unknown): client is HaneulClient {
 	return (
-		typeof client === 'object' &&
-		client !== null &&
-		(client as { [HANEUL_CLIENT_BRAND]: unknown })[HANEUL_CLIENT_BRAND] === true
+		typeof client === 'object' && client !== null && (client as any)[HANEUL_CLIENT_BRAND] === true
 	);
 }
 
