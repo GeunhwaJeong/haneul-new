@@ -6,6 +6,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_types::digests::TransactionDigest;
 
+#[derive(Clone)]
 pub struct RetrievedTransaction {
     pub tx_digest: TransactionDigest,
     pub events: HaneulTransactionBlockEvents,

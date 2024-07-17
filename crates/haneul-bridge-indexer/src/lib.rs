@@ -1,9 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::models::TokenTransfer as DBTokenTransfer;
 use crate::models::TokenTransferData as DBTokenTransferData;
+use crate::models::{HaneulErrorTransactions, TokenTransfer as DBTokenTransfer};
 use std::fmt::{Display, Formatter};
+use haneul_types::base_types::{HaneulAddress, TransactionDigest};
 
 pub mod config;
 pub mod eth_worker;
@@ -17,6 +18,21 @@ pub mod haneul_transaction_handler;
 pub mod haneul_transaction_queries;
 pub mod haneul_worker;
 pub mod types;
+
+#[derive(Clone)]
+pub enum ProcessedTxnData {
+    TokenTransfer(TokenTransfer),
+    Error(HaneulTxnError),
+}
+
+#[derive(Clone)]
+pub struct HaneulTxnError {
+    tx_digest: TransactionDigest,
+    sender: HaneulAddress,
+    timestamp_ms: u64,
+    failure_status: String,
+    cmd_idx: Option<u64>,
+}
 
 #[derive(Clone)]
 pub struct TokenTransfer {
@@ -69,6 +85,18 @@ impl TokenTransfer {
             token_id: data.token_id as i32,
             amount: data.amount as i64,
         })
+    }
+}
+
+impl HaneulTxnError {
+    fn to_db(&self) -> HaneulErrorTransactions {
+        HaneulErrorTransactions {
+            txn_digest: self.tx_digest.inner().to_vec(),
+            sender_address: self.sender.to_vec(),
+            timestamp_ms: self.timestamp_ms as i64,
+            failure_status: self.failure_status.clone(),
+            cmd_idx: self.cmd_idx.map(|idx| idx as i64),
+        }
     }
 }
 
