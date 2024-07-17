@@ -39,6 +39,7 @@ use haneul_rest_api::RestMetrics;
 use haneul_types::base_types::ConciseableName;
 use haneul_types::crypto::RandomnessRound;
 use haneul_types::digests::ChainIdentifier;
+use haneul_types::messages_consensus::AuthorityCapabilitiesV2;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use tap::tap::TapFallible;
 use tokio::runtime::Handle;
@@ -1509,8 +1510,23 @@ impl HaneulNode {
 
                 let config = cur_epoch_store.protocol_config();
                 let binary_config = to_binary_config(config);
-                let transaction = ConsensusTransaction::new_capability_notification(
-                    AuthorityCapabilitiesV1::new(
+                let transaction = if config.authority_capabilities_v2() {
+                    ConsensusTransaction::new_capability_notification_v2(
+                        AuthorityCapabilitiesV2::new(
+                            self.state.name,
+                            cur_epoch_store.get_chain_identifier().chain(),
+                            self.config
+                                .supported_protocol_versions
+                                .expect("Supported versions should be populated")
+                                // no need to send digests of versions less than the current version
+                                .truncate_below(config.version),
+                            self.state
+                                .get_available_system_packages(&binary_config)
+                                .await,
+                        ),
+                    )
+                } else {
+                    ConsensusTransaction::new_capability_notification(AuthorityCapabilitiesV1::new(
                         self.state.name,
                         self.config
                             .supported_protocol_versions
@@ -1518,8 +1534,8 @@ impl HaneulNode {
                         self.state
                             .get_available_system_packages(&binary_config)
                             .await,
-                    ),
-                );
+                    ))
+                };
                 info!(?transaction, "submitting capabilities to consensus");
                 components
                     .consensus_adapter

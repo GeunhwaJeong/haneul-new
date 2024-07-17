@@ -48,7 +48,6 @@ impl From<ProtocolConfigValue> for HaneulProtocolConfigValue {
             ProtocolConfigValue::u16(y) => HaneulProtocolConfigValue::U16(y),
             ProtocolConfigValue::u32(y) => HaneulProtocolConfigValue::U32(y),
             ProtocolConfigValue::u64(x) => HaneulProtocolConfigValue::U64(x),
-            ProtocolConfigValue::f64(z) => HaneulProtocolConfigValue::F64(z),
             ProtocolConfigValue::bool(z) => HaneulProtocolConfigValue::Bool(z),
         }
     }
