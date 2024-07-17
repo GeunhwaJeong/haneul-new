@@ -6,7 +6,7 @@ import './App.css';
 import { ConnectButton, useCurrentAccount, useHaneulClientContext } from '@haneullabs/dapp-kit';
 import { isValidHaneulObjectId, normalizeHaneulObjectId } from '@haneullabs/haneul/utils';
 import { FrameIcon } from '@radix-ui/react-icons';
-import { Box, Container, Flex, Heading, Link, Text } from '@radix-ui/themes';
+import { Box, Container, Flex, Heading, Link } from '@radix-ui/themes';
 import { Error } from 'components/Error';
 import { networkConfig, useNetworkVariable } from 'config';
 import Game from 'pages/Game';
