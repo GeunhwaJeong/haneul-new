@@ -1,5 +1,18 @@
 # @haneullabs/haneulns-toolkit
 
+## 0.5.11
+
+### Patch Changes
+
+- 0f27a97: Update dependencies
+- Updated dependencies [7fc464a]
+- Updated dependencies [086b2bc]
+- Updated dependencies [0fb0628]
+- Updated dependencies [cdedf69]
+- Updated dependencies [0f27a97]
+- Updated dependencies [beed646]
+  - @haneullabs/haneul@1.3.0
+
 ## 0.5.10
 
 ### Patch Changes
@@ -76,8 +89,10 @@
 
 ### Minor Changes
 
-- a92b03de42: The Typescript SDK has been renamed to `@haneullabs/haneul` and includes many new features and breaking changes.
-  See the [full migration guide](https://sdk.haneul-labs.com/typescript/migrations/haneul-1.0) for details on how to upgrade.
+- a92b03de42: The Typescript SDK has been renamed to `@haneullabs/haneul` and includes many new features
+  and breaking changes. See the
+  [full migration guide](https://sdk.haneul-labs.com/typescript/migrations/haneul-1.0) for details on
+  how to upgrade.
 
 ### Patch Changes
 
@@ -321,7 +336,8 @@
 - cc6441f46: Updated types and imports to use new modular exports from the `@haneullabs/haneul.js` refactor
 - 6d41059c7: Update to use modular imports from @haneullabs/haneul.js
 
-  Some methods now accept a `HaneulClient` imported from `@haneullabs/haneul.js/client` rather than a `JsonRpcProvider`
+  Some methods now accept a `HaneulClient` imported from `@haneullabs/haneul.js/client` rather than a
+  `JsonRpcProvider`
 
 ### Patch Changes
 
