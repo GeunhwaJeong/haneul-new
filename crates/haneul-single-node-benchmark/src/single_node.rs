@@ -16,7 +16,6 @@ use haneul_core::consensus_adapter::{
 };
 use haneul_core::mock_consensus::{ConsensusMode, MockConsensusClient};
 use haneul_core::state_accumulator::StateAccumulator;
-use haneul_core::traffic_controller::metrics::TrafficControllerMetrics;
 use haneul_test_transaction_builder::{PublishData, TestTransactionBuilder};
 use haneul_types::base_types::{AuthorityName, ObjectRef, HaneulAddress, TransactionDigest};
 use haneul_types::committee::Committee;
@@ -67,16 +66,13 @@ impl SingleValidator {
             ConsensusAdapterMetrics::new_test(),
             epoch_store.protocol_config().clone(),
         ));
-        let validator_service = Arc::new(ValidatorService::new(
+        // TODO: for validator benchmarking purposes, we should allow for traffic control
+        // to be configurable and introduce traffic control benchmarks to test
+        // against different policies
+        let validator_service = Arc::new(ValidatorService::new_for_tests(
             validator,
             consensus_adapter,
             Arc::new(ValidatorServiceMetrics::new_for_tests()),
-            TrafficControllerMetrics::new_for_tests(),
-            // TODO: for validator benchmarking purposes, we should allow for this
-            // to be configurable and introduce traffic control benchmarks to test
-            // against different policies
-            None, /* PolicyConfig */
-            None, /* RemoteFirewallConfig */
         ));
         Self {
             validator_service,
