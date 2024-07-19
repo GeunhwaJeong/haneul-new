@@ -1,5 +1,6 @@
 processed 1 task
 
-task 0 'publish'. lines 6-14:
+task 0, lines 6-14:
+//# publish
 Error: Transaction Effects Status: Haneul Move Bytecode Verification Error. Please run the Haneul Move Verifier for more information.
 Execution Error: ExecutionError: ExecutionError { inner: ExecutionErrorInner { kind: HaneulMoveVerificationError, source: Some("Invalid entry point parameter type. Clock must be passed by immutable reference. got: haneul::clock::Clock"), command: Some(0) } }

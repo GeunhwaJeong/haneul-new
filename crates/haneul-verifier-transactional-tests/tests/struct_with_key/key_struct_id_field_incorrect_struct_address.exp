@@ -1,5 +1,6 @@
 processed 1 task
 
-task 0 'publish'. lines 4-11:
+task 0, lines 4-11:
+//# publish
 Error: Transaction Effects Status: Haneul Move Bytecode Verification Error. Please run the Haneul Move Verifier for more information.
 Execution Error: ExecutionError: ExecutionError { inner: ExecutionErrorInner { kind: HaneulMoveVerificationError, source: Some("First field of struct S must be of type haneul::object::UID, _::object::UID type found"), command: Some(0) } }
