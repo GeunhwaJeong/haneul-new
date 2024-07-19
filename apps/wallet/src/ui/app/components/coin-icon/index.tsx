@@ -7,6 +7,8 @@ import { Haneul, Unstaked } from '@haneullabs/icons';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 
+import { useCoinMetadataOverrides } from '../../hooks/useCoinMetadataOverride';
+
 const imageStyle = cva(['rounded-full flex'], {
 	variants: {
 		size: {
@@ -38,11 +40,13 @@ type NonHaneulCoinProps = {
 
 function NonHaneulCoin({ coinType }: NonHaneulCoinProps) {
 	const { data: coinMeta } = useCoinMetadata(coinType);
+	const coinMetadataOverrides = useCoinMetadataOverrides();
+
 	return (
 		<div className="flex h-full w-full items-center justify-center text-white bg-steel rounded-full">
 			{coinMeta?.iconUrl ? (
 				<ImageIcon
-					src={coinMeta.iconUrl}
+					src={coinMetadataOverrides[coinType]?.iconUrl ?? coinMeta.iconUrl}
 					label={coinMeta.name || coinType}
 					fallback={coinMeta.name || coinType}
 					rounded="full"
