@@ -24,6 +24,7 @@ clap.workspace = true
 object_store.workspace = true
 reqwest.workspace = true
 
+consensus-config.workspace = true
 narwhal-config.workspace = true
 haneul-keys.workspace = true
 haneul-protocol-config.workspace = true
