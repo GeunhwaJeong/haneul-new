@@ -34,6 +34,7 @@ use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI, Transacti
 use haneul_types::error::{ExecutionError, HaneulError, HaneulResult};
 use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::gas::GasCostSummary;
+use haneul_types::layout_resolver::{get_layout_from_struct_tag, LayoutResolver};
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::messages_consensus::ConsensusDeterminedVersionAssignments;
 use haneul_types::object::Owner;
@@ -50,7 +51,6 @@ use haneul_types::transaction::{
     InputObjectKind, ObjectArg, ProgrammableMoveCall, ProgrammableTransaction, SenderSignedData,
     TransactionData, TransactionDataAPI, TransactionKind,
 };
-use haneul_types::type_resolver::{get_layout_from_struct_tag, LayoutResolver};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 
 use crate::balance_changes::BalanceChange;

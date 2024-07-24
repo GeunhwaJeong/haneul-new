@@ -13,13 +13,12 @@ use haneul_types::{
     digests::TransactionDigest,
     effects::TransactionEffects,
     error::{ExecutionError, HaneulError, HaneulResult},
-    execution::TypeLayoutStore,
-    execution_mode::{self, ExecutionResult},
+    execution::{ExecutionResult, TypeLayoutStore},
     gas::HaneulGasStatus,
     inner_temporary_store::InnerTemporaryStore,
+    layout_resolver::LayoutResolver,
     metrics::{BytecodeVerifierMetrics, LimitsMetrics},
     transaction::{CheckedInputObjects, ProgrammableTransaction, TransactionKind},
-    type_resolver::LayoutResolver,
 };
 
 use move_bytecode_verifier_meter::Meter;
@@ -28,6 +27,7 @@ use haneul_adapter_v0::adapter::{new_move_vm, run_metered_move_bytecode_verifier
 use haneul_adapter_v0::execution_engine::{
     execute_genesis_state_update, execute_transaction_to_effects,
 };
+use haneul_adapter_v0::execution_mode;
 use haneul_adapter_v0::type_layout_resolver::TypeLayoutResolver;
 use haneul_move_natives_v0::all_natives;
 use haneul_types::storage::BackingStore;

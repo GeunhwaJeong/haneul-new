@@ -5,6 +5,7 @@ pub use checked::*;
 
 #[haneul_macros::with_checked_arithmetic]
 mod checked {
+    use crate::execution_mode::{self, ExecutionMode};
     use crate::gas_charger::GasCharger;
     use crate::programmable_transactions;
     use crate::temporary_store::TemporaryStore;
@@ -23,7 +24,6 @@ mod checked {
     use haneul_types::error::{ExecutionError, ExecutionErrorKind};
     use haneul_types::execution::is_certificate_denied;
     use haneul_types::execution_config_utils::to_binary_config;
-    use haneul_types::execution_mode::{self, ExecutionMode};
     use haneul_types::execution_status::ExecutionStatus;
     use haneul_types::gas::GasCostSummary;
     use haneul_types::gas::HaneulGasStatus;

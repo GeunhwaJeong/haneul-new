@@ -8,7 +8,7 @@ use move_core_types::language_storage::TypeTag;
 use std::fmt::{Display, Formatter};
 use std::sync::Arc;
 use haneul_execution::Executor;
-use haneul_types::execution_mode::ExecutionResult;
+use haneul_types::execution::ExecutionResult;
 use haneul_types::object::bounded_visitor::BoundedVisitor;
 use haneul_types::transaction::CallArg::Pure;
 use haneul_types::transaction::{

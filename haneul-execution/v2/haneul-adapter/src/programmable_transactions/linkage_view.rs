@@ -7,6 +7,7 @@ use std::{
     str::FromStr,
 };
 
+use crate::execution_value::HaneulResolver;
 use move_core_types::{
     account_address::AccountAddress,
     identifier::{IdentStr, Identifier},
@@ -17,7 +18,6 @@ use haneul_types::storage::{get_module, PackageObject};
 use haneul_types::{
     base_types::ObjectID,
     error::{ExecutionError, HaneulError, HaneulResult},
-    execution::HaneulResolver,
     move_package::{MovePackage, TypeOrigin, UpgradeInfo},
     storage::BackingPackageStore,
 };

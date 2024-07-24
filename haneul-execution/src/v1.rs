@@ -13,13 +13,12 @@ use haneul_types::{
     digests::TransactionDigest,
     effects::TransactionEffects,
     error::{ExecutionError, HaneulError, HaneulResult},
-    execution::TypeLayoutStore,
-    execution_mode::{self, ExecutionResult},
+    execution::{ExecutionResult, TypeLayoutStore},
     gas::HaneulGasStatus,
     inner_temporary_store::InnerTemporaryStore,
+    layout_resolver::LayoutResolver,
     metrics::{BytecodeVerifierMetrics, LimitsMetrics},
     transaction::{CheckedInputObjects, ProgrammableTransaction, TransactionKind},
-    type_resolver::LayoutResolver,
 };
 
 use move_bytecode_verifier_meter::Meter;
@@ -35,6 +34,7 @@ use haneul_verifier_v1::meter::HaneulVerifierMeter;
 
 use crate::executor;
 use crate::verifier;
+use haneul_adapter_v1::execution_mode;
 
 pub(crate) struct Executor(Arc<MoveVM>);
 

@@ -15,7 +15,7 @@ use haneul_types::base_types::ObjectID;
 use haneul_types::error::HaneulResult;
 use haneul_types::execution::TypeLayoutStore;
 use haneul_types::storage::{BackingPackageStore, PackageObject};
-use haneul_types::{error::HaneulError, type_resolver::LayoutResolver};
+use haneul_types::{error::HaneulError, layout_resolver::LayoutResolver};
 
 /// Retrieve a `MoveStructLayout` from a `Type`.
 /// Invocation into the `Session` to leverage the `LinkageView` implementation

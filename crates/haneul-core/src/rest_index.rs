@@ -22,6 +22,7 @@ use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::dynamic_field::{DynamicFieldInfo, DynamicFieldType};
+use haneul_types::layout_resolver::LayoutResolver;
 use haneul_types::messages_checkpoint::CheckpointContents;
 use haneul_types::object::Object;
 use haneul_types::object::Owner;
@@ -29,7 +30,6 @@ use haneul_types::storage::error::Error as StorageError;
 use haneul_types::storage::BackingPackageStore;
 use haneul_types::storage::DynamicFieldIndexInfo;
 use haneul_types::storage::DynamicFieldKey;
-use haneul_types::type_resolver::LayoutResolver;
 use tracing::{debug, info};
 use typed_store::rocks::{DBMap, MetricConf};
 use typed_store::traits::Map;
@@ -670,7 +670,7 @@ fn try_create_dynamic_field_info(
     }
 
     let (name_value, dynamic_field_type, object_id) = {
-        let layout = haneul_types::type_resolver::into_struct_layout(
+        let layout = haneul_types::layout_resolver::into_struct_layout(
             resolver
                 .get_annotated_layout(&move_object.type_().clone().into())
                 .map_err(StorageError::custom)?,
