@@ -1,7 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::abi::{EthBridgeCommittee, EthHaneulBridge};
+use crate::abi::{
+    EthBridgeCommittee, EthBridgeConfig, EthBridgeLimiter, EthBridgeVault, EthHaneulBridge,
+};
 use crate::config::BridgeNodeConfig;
 use crate::config::EthConfig;
 use crate::config::HaneulConfig;
@@ -43,6 +45,14 @@ use haneul_types::transaction::{ObjectArg, TransactionData};
 use haneul_types::BRIDGE_PACKAGE_ID;
 
 pub type EthSigner = SignerMiddleware<Provider<Http>, Wallet<SigningKey>>;
+
+pub struct EthBridgeContracts<P> {
+    pub bridge: EthHaneulBridge<Provider<P>>,
+    pub committee: EthBridgeCommittee<Provider<P>>,
+    pub limiter: EthBridgeLimiter<Provider<P>>,
+    pub vault: EthBridgeVault<Provider<P>>,
+    pub config: EthBridgeConfig<Provider<P>>,
+}
 
 /// Generate Bridge Authority key (Secp256k1KeyPair) and write to a file as base64 encoded `privkey`.
 pub fn generate_bridge_authority_key_and_write_to_file(
@@ -107,6 +117,30 @@ pub async fn get_eth_contract_addresses<P: ethers::providers::JsonRpcClient + 's
         vault_address,
         config_address,
     ))
+}
+
+/// Given the address of HaneulBridge Proxy, return the contracts of the committee, limiter, vault, and config.
+pub async fn get_eth_contracts<P: ethers::providers::JsonRpcClient + 'static>(
+    bridge_proxy_address: EthAddress,
+    provider: &Arc<Provider<P>>,
+) -> anyhow::Result<EthBridgeContracts<P>> {
+    let haneul_bridge = EthHaneulBridge::new(bridge_proxy_address, provider.clone());
+    let committee_address: EthAddress = haneul_bridge.committee().call().await?;
+    let limiter_address: EthAddress = haneul_bridge.limiter().call().await?;
+    let vault_address: EthAddress = haneul_bridge.vault().call().await?;
+    let committee = EthBridgeCommittee::new(committee_address, provider.clone());
+    let config_address: EthAddress = committee.config().call().await?;
+
+    let limiter = EthBridgeLimiter::new(limiter_address, provider.clone());
+    let vault = EthBridgeVault::new(vault_address, provider.clone());
+    let config = EthBridgeConfig::new(config_address, provider.clone());
+    Ok(EthBridgeContracts {
+        bridge: haneul_bridge,
+        committee,
+        limiter,
+        vault,
+        config,
+    })
 }
 
 /// Read bridge key from a file and print the corresponding information.
