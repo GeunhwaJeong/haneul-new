@@ -8,7 +8,7 @@ publish = false
 
 [dependencies]
 anyhow = "1.0.79"
-axum = { version = "0.6.6", features = ["macros"] }
+axum = { version = "0.7", features = ["macros"] }
 haneullabs-service = { git = "https://github.com/GeunhwaJeong/haneul.git", branch = "main", package = "haneullabs-service" }
 prometheus = "0.13.3"
 tracing = "0.1.40"
