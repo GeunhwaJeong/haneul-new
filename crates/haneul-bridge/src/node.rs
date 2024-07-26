@@ -110,8 +110,12 @@ async fn start_client_components(
     let bridge_auth_agg = Arc::new(ArcSwap::from(Arc::new(BridgeAuthorityAggregator::new(
         committee,
     ))));
+    // TODO: should we use one query instead of two?
     let haneul_token_type_tags = haneul_client.get_token_id_map().await.unwrap();
+    let is_bridge_paused = haneul_client.is_bridge_paused().await.unwrap();
+
     let (token_type_tags_tx, token_type_tags_rx) = tokio::sync::watch::channel(haneul_token_type_tags);
+    let (bridge_pause_tx, bridge_pause_rx) = tokio::sync::watch::channel(is_bridge_paused);
 
     let (monitor_tx, monitor_rx) = haneullabs_metrics::metered_channel::channel(
         10000,
@@ -129,11 +133,17 @@ async fn start_client_components(
         client_config.haneul_address,
         client_config.gas_object_ref.0,
         token_type_tags_rx,
+        bridge_pause_rx,
         metrics.clone(),
     )
     .await;
 
-    let monitor = BridgeMonitor::new(haneul_client.clone(), monitor_rx, bridge_auth_agg.clone());
+    let monitor = BridgeMonitor::new(
+        haneul_client.clone(),
+        monitor_rx,
+        bridge_auth_agg.clone(),
+        bridge_pause_tx,
+    );
     all_handles.push(spawn_logged_monitored_task!(monitor.run()));
 
     let orchestrator = BridgeOrchestrator::new(
