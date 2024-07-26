@@ -85,6 +85,7 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
         .expect("Recipient should have received ETH coin now")
         .clone();
     assert_eq!(eth_coin.balance, haneul_amount);
+    info!("Eth to haneul bridge transfer finished");
 
     // Now let the recipient send the coin back to ETH
     let eth_address_1 = EthAddress::random();

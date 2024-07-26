@@ -31,6 +31,7 @@ pub struct BridgeOrchestrator<C> {
     eth_events_rx: haneullabs_metrics::metered_channel::Receiver<(EthAddress, u64, Vec<EthLog>)>,
     store: Arc<BridgeOrchestratorTables>,
     token_type_tags_tx: tokio::sync::watch::Sender<HashMap<u8, TypeTag>>,
+    monitor_tx: haneullabs_metrics::metered_channel::Sender<HaneulBridgeEvent>,
     metrics: Arc<BridgeMetrics>,
 }
 
@@ -44,6 +45,7 @@ where
         eth_events_rx: haneullabs_metrics::metered_channel::Receiver<(EthAddress, u64, Vec<EthLog>)>,
         store: Arc<BridgeOrchestratorTables>,
         token_type_tags_tx: tokio::sync::watch::Sender<HashMap<u8, TypeTag>>,
+        monitor_tx: haneullabs_metrics::metered_channel::Sender<HaneulBridgeEvent>,
         metrics: Arc<BridgeMetrics>,
     ) -> Self {
         Self {
@@ -52,6 +54,7 @@ where
             eth_events_rx,
             store,
             token_type_tags_tx,
+            monitor_tx,
             metrics,
         }
     }
@@ -74,6 +77,7 @@ where
             executor_sender_clone,
             self.haneul_events_rx,
             self.token_type_tags_tx,
+            self.monitor_tx,
             metrics_clone,
         )));
         let store_clone = self.store.clone();
@@ -106,6 +110,7 @@ where
         executor_tx: haneullabs_metrics::metered_channel::Sender<BridgeActionExecutionWrapper>,
         mut haneul_events_rx: haneullabs_metrics::metered_channel::Receiver<(Identifier, Vec<HaneulEvent>)>,
         token_type_tags_tx: tokio::sync::watch::Sender<HashMap<u8, TypeTag>>,
+        monitor_tx: haneullabs_metrics::metered_channel::Sender<HaneulBridgeEvent>,
         metrics: Arc<BridgeMetrics>,
     ) {
         info!("Starting haneul watcher task");
@@ -150,7 +155,14 @@ where
                 let bridge_event: HaneulBridgeEvent = opt_bridge_event.unwrap();
                 info!("Observed Haneul bridge event: {:?}", bridge_event);
 
+                // Send event to monitor
+                monitor_tx
+                    .send(bridge_event.clone())
+                    .await
+                    .expect("Sending event to monitor channel should not fail");
+
                 // Handle NewTokenEvent
+                // TODO: broadcast this event and let the downstream services handle it
                 if let HaneulBridgeEvent::NewTokenEvent(e) = &bridge_event {
                     if let std::collections::hash_map::Entry::Vacant(entry) =
                         latest_token_config.entry(e.token_id)
@@ -299,8 +311,16 @@ mod tests {
         // Note: this test may fail because of the following reasons:
         // the HaneulEvent's struct tag does not match the ones in events.rs
 
-        let (haneul_events_tx, haneul_events_rx, _eth_events_tx, eth_events_rx, haneul_client, store) =
-            setup();
+        let (
+            haneul_events_tx,
+            haneul_events_rx,
+            _eth_events_tx,
+            eth_events_rx,
+            monitor_tx,
+            _monitor_rx,
+            haneul_client,
+            store,
+        ) = setup();
         let (executor, mut executor_requested_action_rx) = MockExecutor::new();
         let (token_type_tags_tx, _token_type_tags_rx) = tokio::sync::watch::channel(HashMap::new());
         // start orchestrator
@@ -312,6 +332,7 @@ mod tests {
             eth_events_rx,
             store.clone(),
             token_type_tags_tx,
+            monitor_tx,
             metrics,
         )
         .run(executor)
@@ -352,8 +373,16 @@ mod tests {
 
     #[tokio::test]
     async fn test_haneul_watcher_task_add_new_token() {
-        let (haneul_events_tx, haneul_events_rx, _eth_events_tx, eth_events_rx, haneul_client, store) =
-            setup();
+        let (
+            haneul_events_tx,
+            haneul_events_rx,
+            _eth_events_tx,
+            eth_events_rx,
+            monitor_tx,
+            _monitor_rx,
+            haneul_client,
+            store,
+        ) = setup();
 
         let (executor, _executor_requested_action_rx) = MockExecutor::new();
         let (token_type_tags_tx, mut token_type_tags_rx) =
@@ -367,6 +396,7 @@ mod tests {
             eth_events_rx,
             store.clone(),
             token_type_tags_tx,
+            monitor_tx,
             metrics,
         )
         .run(executor)
@@ -418,8 +448,16 @@ mod tests {
         // 1. Log and BridgeAction returned from `get_test_log_and_action` are not in sync
         // 2. Log returned from `get_test_log_and_action` is not parseable log (not abigen!, check abi.rs)
 
-        let (_haneul_events_tx, haneul_events_rx, eth_events_tx, eth_events_rx, haneul_client, store) =
-            setup();
+        let (
+            _haneul_events_tx,
+            haneul_events_rx,
+            eth_events_tx,
+            eth_events_rx,
+            monitor_tx,
+            _monitor_rx,
+            haneul_client,
+            store,
+        ) = setup();
         let (token_type_tags_tx, _token_type_tags_rx) = tokio::sync::watch::channel(HashMap::new());
         let (executor, mut executor_requested_action_rx) = MockExecutor::new();
         // start orchestrator
@@ -431,6 +469,7 @@ mod tests {
             eth_events_rx,
             store.clone(),
             token_type_tags_tx,
+            monitor_tx,
             metrics,
         )
         .run(executor)
@@ -481,8 +520,16 @@ mod tests {
     #[tokio::test]
     /// Test that when orchestrator starts, all pending actions are sent to executor
     async fn test_resume_actions_in_pending_logs() {
-        let (_haneul_events_tx, haneul_events_rx, _eth_events_tx, eth_events_rx, haneul_client, store) =
-            setup();
+        let (
+            _haneul_events_tx,
+            haneul_events_rx,
+            _eth_events_tx,
+            eth_events_rx,
+            monitor_tx,
+            _monitor_rx,
+            haneul_client,
+            store,
+        ) = setup();
         let (executor, mut executor_requested_action_rx) = MockExecutor::new();
         let (token_type_tags_tx, _token_type_tags_rx) = tokio::sync::watch::channel(HashMap::new());
 
@@ -510,6 +557,7 @@ mod tests {
             eth_events_rx,
             store.clone(),
             token_type_tags_tx,
+            monitor_tx,
             metrics,
         )
         .run(executor)
@@ -530,6 +578,8 @@ mod tests {
         haneullabs_metrics::metered_channel::Receiver<(Identifier, Vec<HaneulEvent>)>,
         haneullabs_metrics::metered_channel::Sender<(EthAddress, u64, Vec<EthLog>)>,
         haneullabs_metrics::metered_channel::Receiver<(EthAddress, u64, Vec<EthLog>)>,
+        haneullabs_metrics::metered_channel::Sender<HaneulBridgeEvent>,
+        haneullabs_metrics::metered_channel::Receiver<HaneulBridgeEvent>,
         HaneulClient<HaneulMockClient>,
         Arc<BridgeOrchestratorTables>,
     ) {
@@ -560,12 +610,20 @@ mod tests {
                 .channel_inflight
                 .with_label_values(&["unit_test_haneul_events_queue"]),
         );
-
+        let (monitor_tx, monitor_rx) = haneullabs_metrics::metered_channel::channel(
+            10000,
+            &haneullabs_metrics::get_metrics()
+                .unwrap()
+                .channel_inflight
+                .with_label_values(&["monitor_queue"]),
+        );
         (
             haneul_events_tx,
             haneul_events_rx,
             eth_events_tx,
             eth_events_rx,
+            monitor_tx,
+            monitor_rx,
             haneul_client,
             store,
         )

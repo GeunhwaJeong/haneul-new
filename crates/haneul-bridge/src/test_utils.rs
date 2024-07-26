@@ -7,7 +7,8 @@ use crate::events::HaneulBridgeEvent;
 use crate::server::mock_handler::run_mock_server;
 use crate::haneul_transaction_builder::build_haneul_transaction;
 use crate::types::{
-    BridgeCommitteeValiditySignInfo, CertifiedBridgeAction, VerifiedCertifiedBridgeAction,
+    BridgeCommittee, BridgeCommitteeValiditySignInfo, CertifiedBridgeAction,
+    VerifiedCertifiedBridgeAction,
 };
 use crate::{
     crypto::{BridgeAuthorityKeyPair, BridgeAuthorityPublicKey, BridgeAuthoritySignInfo},
@@ -38,7 +39,9 @@ use haneul_sdk::wallet_context::WalletContext;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::SequenceNumber;
-use haneul_types::bridge::{BridgeChainId, TOKEN_ID_USDC};
+use haneul_types::bridge::MoveTypeCommitteeMember;
+use haneul_types::bridge::{BridgeChainId, BridgeCommitteeSummary, TOKEN_ID_USDC};
+use haneul_types::crypto::ToFromBytes;
 use haneul_types::object::Owner;
 use haneul_types::transaction::{CallArg, ObjectArg};
 use haneul_types::{base_types::HaneulAddress, crypto::get_key_pair, digests::TransactionDigest};
@@ -391,4 +394,30 @@ pub async fn approve_action_with_validator_secrets(
         "Didn't find the creted object owned by {}",
         expected_token_receiver
     );
+}
+
+pub fn bridge_committee_to_bridge_committee_summary(
+    committee: BridgeCommittee,
+) -> BridgeCommitteeSummary {
+    BridgeCommitteeSummary {
+        members: committee
+            .members()
+            .iter()
+            .map(|(k, v)| {
+                let bytes = k.as_bytes().to_vec();
+                (
+                    bytes.clone(),
+                    MoveTypeCommitteeMember {
+                        haneul_address: HaneulAddress::random_for_testing_only(),
+                        bridge_pubkey_bytes: bytes,
+                        voting_power: v.voting_power,
+                        http_rest_url: v.base_url.as_bytes().to_vec(),
+                        blocklisted: v.is_blocklisted,
+                    },
+                )
+            })
+            .collect(),
+        member_registration: vec![],
+        last_committee_update_epoch: 0,
+    }
 }

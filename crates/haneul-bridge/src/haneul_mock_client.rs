@@ -12,7 +12,9 @@ use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_json_rpc_types::{EventFilter, EventPage, HaneulEvent};
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::ObjectRef;
-use haneul_types::bridge::{BridgeSummary, MoveTypeParsedTokenTransferMessage};
+use haneul_types::bridge::{
+    BridgeCommitteeSummary, BridgeSummary, MoveTypeParsedTokenTransferMessage,
+};
 use haneul_types::digests::TransactionDigest;
 use haneul_types::event::EventID;
 use haneul_types::gas_coin::GasCoin;
@@ -40,7 +42,7 @@ pub struct HaneulMockClient {
     wildcard_transaction_response: Arc<Mutex<Option<BridgeResult<HaneulTransactionBlockResponse>>>>,
     get_object_info: Arc<Mutex<HashMap<ObjectID, (GasCoin, ObjectRef, Owner)>>>,
     onchain_status: Arc<Mutex<HashMap<(u8, u64), BridgeActionStatus>>>,
-
+    bridge_committee_summary: Arc<Mutex<Option<BridgeCommitteeSummary>>>,
     requested_transactions_tx: tokio::sync::broadcast::Sender<TransactionDigest>,
 }
 
@@ -56,6 +58,7 @@ impl HaneulMockClient {
             wildcard_transaction_response: Default::default(),
             get_object_info: Default::default(),
             onchain_status: Default::default(),
+            bridge_committee_summary: Default::default(),
             requested_transactions_tx: tokio::sync::broadcast::channel(10000).0,
         }
     }
@@ -103,6 +106,13 @@ impl HaneulMockClient {
             .lock()
             .unwrap()
             .insert((action.chain_id() as u8, action.seq_number()), status);
+    }
+
+    pub fn set_bridge_committee(&self, committee: BridgeCommitteeSummary) {
+        self.bridge_committee_summary
+            .lock()
+            .unwrap()
+            .replace(committee);
     }
 
     pub fn set_wildcard_transaction_response(
@@ -200,7 +210,12 @@ impl HaneulClientInner for HaneulMockClient {
             bridge_records_id: ObjectID::random(),
             is_frozen: false,
             limiter: Default::default(),
-            committee: Default::default(),
+            committee: self
+                .bridge_committee_summary
+                .lock()
+                .unwrap()
+                .clone()
+                .unwrap_or_default(),
             treasury: Default::default(),
         })
     }
