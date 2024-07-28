@@ -1,6 +1,7 @@
 [package]
 name = "BridgedUSDT"
 version = "0.0.1"
+edition = "legacy"
 
 [dependencies]
 MoveStdlib = { local = "../../../../crates/haneul-framework/packages/move-stdlib" }
@@ -8,4 +9,3 @@ Haneul = { local = "../../../../crates/haneul-framework/packages/haneul-framewor
 
 [addresses]
 bridged_usdt = "0x0"
-
