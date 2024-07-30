@@ -6,7 +6,7 @@
 //! only query from that block number onwards. The syncer also keeps track of the last
 //! block on Ethereum and will only query for events up to that block number.
 
-use ethers::providers::{Http, JsonRpcClient, Middleware, Provider};
+use ethers::providers::{JsonRpcClient, Middleware, Provider};
 use ethers::types::Address as EthAddress;
 use haneullabs_metrics::metered_channel::{channel, Receiver, Sender};
 use haneullabs_metrics::spawn_logged_monitored_task;
@@ -16,6 +16,7 @@ use std::sync::Arc;
 use std::time::Instant;
 use haneul_bridge::error::BridgeResult;
 use haneul_bridge::eth_client::EthClient;
+use haneul_bridge::metered_eth_provider::MeteredEthHttpProvier;
 use haneul_bridge::retry_with_max_elapsed_time;
 use haneul_bridge::types::RawEthLog;
 use tokio::task::JoinHandle;
@@ -30,7 +31,7 @@ const BLOCK_QUERY_INTERVAL: Duration = Duration::from_secs(2);
 
 pub struct LatestEthSyncer<P> {
     eth_client: Arc<EthClient<P>>,
-    provider: Arc<Provider<Http>>,
+    provider: Arc<Provider<MeteredEthHttpProvier>>,
     contract_addresses: EthTargetAddresses,
 }
 
@@ -44,7 +45,7 @@ where
 {
     pub fn new(
         eth_client: Arc<EthClient<P>>,
-        provider: Arc<Provider<Http>>,
+        provider: Arc<Provider<MeteredEthHttpProvier>>,
         contract_addresses: EthTargetAddresses,
     ) -> Self {
         Self {
@@ -92,7 +93,7 @@ where
     async fn run_event_listening_task(
         contract_address: EthAddress,
         mut start_block: u64,
-        provider: Arc<Provider<Http>>,
+        provider: Arc<Provider<MeteredEthHttpProvier>>,
         events_sender: Sender<(EthAddress, u64, Vec<RawEthLog>)>,
         eth_client: Arc<EthClient<P>>,
         metrics: BridgeIndexerMetrics,
