@@ -114,7 +114,6 @@ async fn start_client_components(
     let haneul_token_type_tags = haneul_client.get_token_id_map().await.unwrap();
     let is_bridge_paused = haneul_client.is_bridge_paused().await.unwrap();
 
-    let (token_type_tags_tx, token_type_tags_rx) = tokio::sync::watch::channel(haneul_token_type_tags);
     let (bridge_pause_tx, bridge_pause_rx) = tokio::sync::watch::channel(is_bridge_paused);
 
     let (monitor_tx, monitor_rx) = haneullabs_metrics::metered_channel::channel(
@@ -124,7 +123,7 @@ async fn start_client_components(
             .channel_inflight
             .with_label_values(&["monitor_queue"]),
     );
-
+    let haneul_token_type_tags = Arc::new(ArcSwap::from(Arc::new(haneul_token_type_tags)));
     let bridge_action_executor = BridgeActionExecutor::new(
         haneul_client.clone(),
         bridge_auth_agg.clone(),
@@ -132,7 +131,7 @@ async fn start_client_components(
         client_config.key,
         client_config.haneul_address,
         client_config.gas_object_ref.0,
-        token_type_tags_rx,
+        haneul_token_type_tags.clone(),
         bridge_pause_rx,
         metrics.clone(),
     )
@@ -143,6 +142,7 @@ async fn start_client_components(
         monitor_rx,
         bridge_auth_agg.clone(),
         bridge_pause_tx,
+        haneul_token_type_tags,
     );
     all_handles.push(spawn_logged_monitored_task!(monitor.run()));
 
@@ -151,7 +151,6 @@ async fn start_client_components(
         haneul_events_rx,
         eth_events_rx,
         store.clone(),
-        token_type_tags_tx,
         monitor_tx,
         metrics,
     );

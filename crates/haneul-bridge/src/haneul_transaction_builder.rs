@@ -669,7 +669,7 @@ mod tests {
         let id_token_map = haneul_client.get_token_id_map().await.unwrap();
 
         // 1. Test Eth -> Haneul Transfer approval
-        let action = get_test_eth_to_haneul_bridge_action(None, Some(usdc_amount), Some(sender));
+        let action = get_test_eth_to_haneul_bridge_action(None, Some(usdc_amount), Some(sender), None);
         // `approve_action_with_validator_secrets` covers transaction building
         let usdc_object_ref = approve_action_with_validator_secrets(
             context,

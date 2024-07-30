@@ -103,6 +103,7 @@ pub fn get_test_eth_to_haneul_bridge_action(
     nonce: Option<u64>,
     amount: Option<u64>,
     haneul_address: Option<HaneulAddress>,
+    token_id: Option<u8>,
 ) -> BridgeAction {
     BridgeAction::EthToHaneulBridgeAction(EthToHaneulBridgeAction {
         eth_tx_hash: TxHash::random(),
@@ -111,7 +112,7 @@ pub fn get_test_eth_to_haneul_bridge_action(
             eth_chain_id: BridgeChainId::EthCustom,
             nonce: nonce.unwrap_or_default(),
             haneul_chain_id: BridgeChainId::HaneulCustom,
-            token_id: TOKEN_ID_USDC,
+            token_id: token_id.unwrap_or(TOKEN_ID_USDC),
             haneul_adjusted_amount: amount.unwrap_or(100_000),
             haneul_address: haneul_address.unwrap_or_else(HaneulAddress::random_for_testing_only),
             eth_address: EthAddress::random(),
