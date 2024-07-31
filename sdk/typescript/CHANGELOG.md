@@ -1,5 +1,11 @@
 # @haneullabs/haneul.js
 
+## 1.4.0
+
+### Minor Changes
+
+- 4419234: Add setGasBudgetIfNotSet helper to Transaction class
+
 ## 1.3.1
 
 ### Patch Changes
