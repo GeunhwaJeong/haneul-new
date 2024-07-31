@@ -1,31 +1,32 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use anyhow::Result;
-use clap::*;
-use haneullabs_metrics::spawn_logged_monitored_task;
-use haneullabs_metrics::start_prometheus_server;
-use std::collections::HashSet;
 use std::env;
 use std::path::PathBuf;
 use std::sync::Arc;
-use haneul_bridge::eth_client::EthClient;
-use haneul_bridge::metered_eth_provider::MeteredEthHttpProvier;
-use haneul_bridge::metrics::BridgeMetrics;
-use haneul_bridge_indexer::eth_worker::EthBridgeWorker;
-use haneul_bridge_indexer::metrics::BridgeIndexerMetrics;
-use haneul_bridge_indexer::postgres_manager::{get_connection_pool, read_haneul_progress_store};
-use haneul_bridge_indexer::haneul_transaction_handler::handle_haneul_transactions_loop;
-use haneul_bridge_indexer::haneul_transaction_queries::start_haneul_tx_polling_task;
-use haneul_data_ingestion_core::DataIngestionMetrics;
-use haneul_sdk::HaneulClientBuilder;
+
+use anyhow::Result;
+use clap::*;
 use tokio::task::JoinHandle;
+use tracing::info;
 
 use haneullabs_metrics::metered_channel::channel;
+use haneullabs_metrics::spawn_logged_monitored_task;
+use haneullabs_metrics::start_prometheus_server;
+use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge_indexer::config::IndexerConfig;
-use haneul_bridge_indexer::haneul_checkpoint_ingestion::HaneulCheckpointSyncer;
+use haneul_bridge_indexer::eth_bridge_indexer::{
+    EthDataMapper, EthFinalizedDatasource, EthUnfinalizedDatasource,
+};
+use haneul_bridge_indexer::indexer_builder::{IndexerBuilder, HaneulCheckpointDatasource};
+use haneul_bridge_indexer::metrics::BridgeIndexerMetrics;
+use haneul_bridge_indexer::postgres_manager::{get_connection_pool, read_haneul_progress_store};
+use haneul_bridge_indexer::haneul_bridge_indexer::{PgBridgePersistent, HaneulBridgeDataMapper};
+use haneul_bridge_indexer::haneul_transaction_handler::handle_haneul_transactions_loop;
+use haneul_bridge_indexer::haneul_transaction_queries::start_haneul_tx_polling_task;
 use haneul_config::Config;
-use tracing::info;
+use haneul_data_ingestion_core::DataIngestionMetrics;
+use haneul_sdk::HaneulClientBuilder;
 
 #[derive(Parser, Clone, Debug)]
 struct Args {
@@ -51,7 +52,6 @@ async fn main() -> Result<()> {
             .join("config.yaml")
     };
     let config = IndexerConfig::load(&config_path)?;
-    let config_clone = config.clone();
 
     // Init metrics server
     let registry_service = start_prometheus_server(
@@ -71,35 +71,45 @@ async fn main() -> Result<()> {
     let ingestion_metrics = DataIngestionMetrics::new(&registry);
     let bridge_metrics = Arc::new(BridgeMetrics::new(&registry));
 
-    // unwrap safe: db_url must be set in `load_config` above
     let db_url = config.db_url.clone();
 
-    // TODO: retry_with_max_elapsed_time
-    let eth_worker = EthBridgeWorker::new(
-        get_connection_pool(db_url.clone()),
+    let datastore = PgBridgePersistent::new(get_connection_pool(db_url.clone()));
+    let eth_checkpoint_datasource = EthFinalizedDatasource::new(
+        config.eth_haneul_bridge_contract_address.clone(),
+        config.eth_rpc_url.clone(),
         bridge_metrics.clone(),
         indexer_meterics.clone(),
-        config.clone(),
     )?;
+    let eth_finalized_indexer = IndexerBuilder::new(
+        "FinalizedEthBridgeIndexer",
+        eth_checkpoint_datasource,
+        EthDataMapper {
+            finalized: true,
+            metrics: indexer_meterics.clone(),
+        },
+    )
+    .build(config.start_block, config.start_block, datastore.clone());
+    let finalized_indexer_fut = spawn_logged_monitored_task!(eth_finalized_indexer.start());
 
-    let eth_client = Arc::new(
-        EthClient::<MeteredEthHttpProvier>::new(
-            &config.eth_rpc_url,
-            HashSet::from_iter(vec![eth_worker.bridge_address()]),
-            bridge_metrics.clone(),
-        )
-        .await?,
-    );
-
-    let unfinalized_handle = eth_worker
-        .start_indexing_unfinalized_events(eth_client.clone())
-        .await?;
-    let finalized_handle = eth_worker
-        .start_indexing_finalized_events(eth_client.clone())
-        .await?;
-    let handles = vec![unfinalized_handle, finalized_handle];
+    let eth_unfinalized_datasource = EthUnfinalizedDatasource::new(
+        config.eth_haneul_bridge_contract_address.clone(),
+        config.eth_rpc_url.clone(),
+        bridge_metrics.clone(),
+        indexer_meterics.clone(),
+    )?;
+    let eth_unfinalized_indexer = IndexerBuilder::new(
+        "UnFinalizedEthBridgeIndexer",
+        eth_unfinalized_datasource,
+        EthDataMapper {
+            finalized: false,
+            metrics: indexer_meterics.clone(),
+        },
+    )
+    .build(config.start_block, config.start_block, datastore.clone());
+    let unfinalized_indexer_fut = spawn_logged_monitored_task!(eth_unfinalized_indexer.start());
 
     if let Some(haneul_rpc_url) = config.haneul_rpc_url.clone() {
+        // Todo: impl datasource for haneul RPC datasource
         start_processing_haneul_checkpoints_by_querying_txns(
             haneul_rpc_url,
             db_url.clone(),
@@ -108,13 +118,30 @@ async fn main() -> Result<()> {
         )
         .await?;
     } else {
-        let pg_pool = get_connection_pool(db_url.clone());
-        HaneulCheckpointSyncer::new(pg_pool, config.bridge_genesis_checkpoint)
-            .start(&config_clone, indexer_meterics, ingestion_metrics)
-            .await?;
+        let haneul_checkpoint_datasource = HaneulCheckpointDatasource::new(
+            config.remote_store_url,
+            config.concurrency as usize,
+            config.checkpoints_path.clone().into(),
+            ingestion_metrics.clone(),
+        );
+        let indexer = IndexerBuilder::new(
+            "HaneulBridgeIndexer",
+            haneul_checkpoint_datasource,
+            HaneulBridgeDataMapper {
+                metrics: indexer_meterics.clone(),
+            },
+        )
+        .build(
+            config
+                .resume_from_checkpoint
+                .unwrap_or(config.bridge_genesis_checkpoint),
+            config.bridge_genesis_checkpoint,
+            datastore,
+        );
+        indexer.start().await?;
     }
     // We are not waiting for the haneul tasks to finish here, which is ok.
-    futures::future::join_all(handles).await;
+    futures::future::join_all(vec![finalized_indexer_fut, unfinalized_indexer_fut]).await;
 
     Ok(())
 }
