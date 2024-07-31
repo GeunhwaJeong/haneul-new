@@ -421,13 +421,10 @@ impl FileBasedKeystore {
         Ok(())
     }
 
+    /// Keys saved as Base64 with 33 bytes `flag || privkey` ($BASE64_STR).
+    /// To see Bech32 format encoding, use `haneul keytool export $HANEUL_ADDRESS` where
+    /// $HANEUL_ADDRESS can be found with `haneul keytool list`. Or use `haneul keytool convert $BASE64_STR`
     pub fn save_keystore(&self) -> Result<(), anyhow::Error> {
-        eprintln!(
-            "Keys saved as Base64 with 33 bytes `flag || privkey` ($BASE64_STR). 
-        To see Bech32 format encoding, use `haneul keytool export $HANEUL_ADDRESS` where 
-        $HANEUL_ADDRESS can be found with `haneul keytool list`. Or use `haneul keytool convert $BASE64_STR`."
-        );
-
         if let Some(path) = &self.path {
             let store = serde_json::to_string_pretty(
                 &self
