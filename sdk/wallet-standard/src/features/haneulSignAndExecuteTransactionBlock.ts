@@ -37,8 +37,7 @@ export type HaneulSignAndExecuteTransactionBlockMethod = (
 /** Input for signing and sending transactions. */
 export interface HaneulSignAndExecuteTransactionBlockInput extends HaneulSignTransactionBlockInput {
 	/**
-	 * `WaitForEffectsCert` or `WaitForLocalExecution`, see details in `ExecuteTransactionRequestType`.
-	 * Defaults to `WaitForLocalExecution` if options.showEffects or options.showEvents is true
+	 * @deprecated requestType will be ignored by JSON RPC in the future
 	 */
 	requestType?: ExecuteTransactionRequestType;
 	/** specify which fields to return (e.g., transaction, effects, events, etc). By default, only the transaction digest will be returned. */
