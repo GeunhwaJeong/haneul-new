@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use parking_lot::RwLock;
-use rocksdb::Options;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -10,10 +9,11 @@ use haneul_types::base_types::ObjectID;
 use haneul_types::committee::{Committee, EpochId};
 use haneul_types::error::{HaneulError, HaneulResult};
 use typed_store::rocks::{default_db_options, DBMap, DBOptions, MetricConf};
+use typed_store::rocksdb::Options;
 use typed_store::traits::{TableSummary, TypedStoreDebug};
 
+use typed_store::DBMapUtils;
 use typed_store::Map;
-use typed_store_derive::DBMapUtils;
 
 use haneul_macros::nondeterministic;
 
