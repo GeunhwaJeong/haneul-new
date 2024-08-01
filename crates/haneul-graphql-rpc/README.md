@@ -71,3 +71,8 @@ For local dev, it might be useful to spin up an indexer as well. Instructions ar
 `cargo run --bin haneul --features indexer -- start --with-faucet --force-regenesis --with-indexer --pg-port 5432 --pg-db-name haneul_indexer_v2 --with-graphql`
 
 `pnpm --filter @haneullabs/graphql-transport test:e2e`
+
+## Testing
+The full gamut of graphql-specific tests are listed in the [rust.yml](../../.github/workflows/rust.yml).
+
+To run the tests in `haneul-graphql-rpc`, you will need to have postgres running locally.
