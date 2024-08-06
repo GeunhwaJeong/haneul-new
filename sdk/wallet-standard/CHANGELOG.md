@@ -1,5 +1,17 @@
 # @haneullabs/wallet-standard
 
+## 0.13.0
+
+### Minor Changes
+
+- 0851b31: Deprecate requestType option when executing transactions
+
+### Patch Changes
+
+- Updated dependencies [0851b31]
+- Updated dependencies [f37b3c2]
+  - @haneullabs/haneul@1.5.0
+
 ## 0.12.14
 
 ### Patch Changes
