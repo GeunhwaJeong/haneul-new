@@ -1,5 +1,12 @@
 # @haneullabs/deepbook
 
+## 0.8.15
+
+### Patch Changes
+
+- Updated dependencies [a3e32fe]
+  - @haneullabs/haneul@1.6.0
+
 ## 0.8.14
 
 ### Patch Changes

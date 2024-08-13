@@ -1,5 +1,12 @@
 # @haneullabs/deepbook-v3
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [a3e32fe]
+  - @haneullabs/haneul@1.6.0
+
 ## 0.2.0
 
 ### Minor Changes

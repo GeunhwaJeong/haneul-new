@@ -1,5 +1,12 @@
 # @haneullabs/wallet-standard
 
+## 0.13.1
+
+### Patch Changes
+
+- Updated dependencies [a3e32fe]
+  - @haneullabs/haneul@1.6.0
+
 ## 0.13.0
 
 ### Minor Changes
