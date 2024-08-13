@@ -18,16 +18,15 @@ use haneul_bridge::retry_with_max_elapsed_time;
 use tokio::task::JoinHandle;
 use tracing::info;
 
-use haneullabs_metrics::metered_channel::Receiver;
 use haneullabs_metrics::{metered_channel, spawn_monitored_task};
 use haneul_bridge::abi::{EthBridgeEvent, EthHaneulBridgeEvents};
 
 use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge::types::{EthEvent, RawEthLog};
 
-use crate::indexer_builder::{DataMapper, Datasource};
+use crate::indexer_builder::{CheckpointData, DataMapper, Datasource};
 use crate::metrics::BridgeIndexerMetrics;
-use crate::haneul_bridge_indexer::PgBridgePersistent;
+
 use crate::{
     BridgeDataSource, ProcessedTxnData, TokenTransfer, TokenTransferData, TokenTransferStatus,
 };
@@ -55,31 +54,17 @@ impl EthSubscriptionDatasource {
     }
 }
 #[async_trait]
-impl Datasource<RawEthData, PgBridgePersistent, ProcessedTxnData> for EthSubscriptionDatasource {
+impl Datasource<RawEthData> for EthSubscriptionDatasource {
     async fn start_data_retrieval(
         &self,
-        task_name: String,
         starting_checkpoint: u64,
         target_checkpoint: u64,
-    ) -> Result<
-        (
-            JoinHandle<Result<(), Error>>,
-            Receiver<(u64, Vec<RawEthData>)>,
-        ),
-        Error,
-    > {
+        data_sender: metered_channel::Sender<CheckpointData<RawEthData>>,
+    ) -> Result<JoinHandle<Result<(), Error>>, Error> {
         let filter = Filter::new()
             .address(self.bridge_address)
             .from_block(starting_checkpoint)
             .to_block(target_checkpoint);
-
-        let (data_sender, data_receiver) = metered_channel::channel(
-            1000,
-            &haneullabs_metrics::get_metrics()
-                .unwrap()
-                .channel_inflight
-                .with_label_values(&[&task_name]),
-        );
 
         let eth_ws_url = self.eth_ws_url.clone();
         let indexer_metrics: BridgeIndexerMetrics = self.indexer_metrics.clone();
@@ -142,7 +127,7 @@ impl Datasource<RawEthData, PgBridgePersistent, ProcessedTxnData> for EthSubscri
 
             Ok::<_, Error>(())
         });
-        Ok((handle, data_receiver))
+        Ok(handle)
     }
 }
 
@@ -170,19 +155,13 @@ impl EthSyncDatasource {
     }
 }
 #[async_trait]
-impl Datasource<RawEthData, PgBridgePersistent, ProcessedTxnData> for EthSyncDatasource {
+impl Datasource<RawEthData> for EthSyncDatasource {
     async fn start_data_retrieval(
         &self,
-        task_name: String,
         starting_checkpoint: u64,
         target_checkpoint: u64,
-    ) -> Result<
-        (
-            JoinHandle<Result<(), Error>>,
-            Receiver<(u64, Vec<RawEthData>)>,
-        ),
-        Error,
-    > {
+        data_sender: metered_channel::Sender<CheckpointData<RawEthData>>,
+    ) -> Result<JoinHandle<Result<(), Error>>, Error> {
         let client: Arc<EthClient<MeteredEthHttpProvier>> = Arc::new(
             EthClient::<MeteredEthHttpProvier>::new(
                 &self.eth_http_url,
@@ -195,14 +174,6 @@ impl Datasource<RawEthData, PgBridgePersistent, ProcessedTxnData> for EthSyncDat
         let provider = Arc::new(
             Provider::<Http>::try_from(&self.eth_http_url)?
                 .interval(std::time::Duration::from_millis(2000)),
-        );
-
-        let (data_sender, data_receiver) = metered_channel::channel(
-            1000,
-            &haneullabs_metrics::get_metrics()
-                .unwrap()
-                .channel_inflight
-                .with_label_values(&[&task_name]),
         );
 
         let bridge_address = self.bridge_address;
@@ -265,7 +236,7 @@ impl Datasource<RawEthData, PgBridgePersistent, ProcessedTxnData> for EthSyncDat
             Ok::<_, Error>(())
         });
 
-        Ok((handle, data_receiver))
+        Ok(handle)
     }
 }
 
