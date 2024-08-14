@@ -59,14 +59,14 @@ you can pass a custom `execute` function.
 ```ts
 import {
 	ConnectButton,
-	useClient,
+	useHaneulClient,
 	useCurrentAccount,
 	useSignAndExecuteTransaction,
 } from '@haneullabs/dapp-kit';
 import { useState } from 'react';
 
 function MyComponent() {
-	const client = useClient();
+	const client = useHaneulClient();
 	const { mutate: signAndExecuteTransaction } = useSignAndExecuteTransaction({
 		execute: async ({ bytes, signature }) =>
 			await client.executeTransactionBlock({
