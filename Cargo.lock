@@ -14037,6 +14037,7 @@ dependencies = [
  "haneul-json-rpc-types",
  "haneul-sdk 1.32.0",
  "haneul-types",
+ "thiserror",
  "tracing",
 ]
 
@@ -14475,6 +14476,7 @@ dependencies = [
  "rand 0.8.5",
  "haneul-json-rpc-types",
  "haneul-move-build",
+ "haneul-package-management",
  "haneul-sdk 1.32.0",
  "haneul-test-transaction-builder",
  "haneul-types",

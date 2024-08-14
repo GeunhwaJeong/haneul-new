@@ -34,7 +34,7 @@ use haneul_move_build::{BuildConfig, HaneulPackageHooks};
 use haneul_sdk::rpc_types::HaneulTransactionBlockEffects;
 use haneul_sdk::types::base_types::ObjectID;
 use haneul_sdk::HaneulClientBuilder;
-use haneul_source_validation::{BytecodeSourceVerifier, SourceMode};
+use haneul_source_validation::{BytecodeSourceVerifier, ValidationMode};
 
 pub const HOST_PORT_ENV: &str = "HOST_PORT";
 pub const HANEUL_SOURCE_VALIDATION_VERSION_HEADER: &str = "x-haneul-source-validation-version";
@@ -172,11 +172,7 @@ pub async fn verify_package(
     let compiled_package = build_config.build(package_path.as_ref())?;
 
     BytecodeSourceVerifier::new(client.read_api())
-        .verify_package(
-            &compiled_package,
-            /* verify_deps */ false,
-            SourceMode::Verify,
-        )
+        .verify(&compiled_package, ValidationMode::root())
         .await
         .map_err(|e| anyhow!("Network {network}: {e}"))?;
 
