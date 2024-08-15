@@ -12,7 +12,6 @@ use ethers::providers::Middleware;
 use ethers::providers::Provider;
 use haneul_bridge_indexer::eth_bridge_indexer::EthSubscriptionDatasource;
 use haneul_bridge_indexer::eth_bridge_indexer::EthSyncDatasource;
-use haneul_bridge_indexer::indexer_builder::BackfillStrategy;
 use tokio::task::JoinHandle;
 use tracing::info;
 
@@ -22,7 +21,6 @@ use haneullabs_metrics::start_prometheus_server;
 use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge_indexer::config::IndexerConfig;
 use haneul_bridge_indexer::eth_bridge_indexer::EthDataMapper;
-use haneul_bridge_indexer::indexer_builder::{IndexerBuilder, HaneulCheckpointDatasource};
 use haneul_bridge_indexer::metrics::BridgeIndexerMetrics;
 use haneul_bridge_indexer::postgres_manager::{get_connection_pool, read_haneul_progress_store};
 use haneul_bridge_indexer::haneul_bridge_indexer::{PgBridgePersistent, HaneulBridgeDataMapper};
@@ -30,6 +28,8 @@ use haneul_bridge_indexer::haneul_transaction_handler::handle_haneul_transaction
 use haneul_bridge_indexer::haneul_transaction_queries::start_haneul_tx_polling_task;
 use haneul_config::Config;
 use haneul_data_ingestion_core::DataIngestionMetrics;
+use haneul_indexer_builder::indexer_builder::{BackfillStrategy, IndexerBuilder};
+use haneul_indexer_builder::haneul_datasource::HaneulCheckpointDatasource;
 use haneul_sdk::HaneulClientBuilder;
 
 #[derive(Parser, Clone, Debug)]

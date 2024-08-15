@@ -12796,6 +12796,7 @@ dependencies = [
  "haneul-bridge",
  "haneul-config",
  "haneul-data-ingestion-core",
+ "haneul-indexer-builder",
  "haneul-json-rpc-types",
  "haneul-sdk 1.32.0",
  "haneul-test-transaction-builder",
@@ -13479,6 +13480,21 @@ dependencies = [
  "tokio-util 0.7.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "tracing",
  "url",
+]
+
+[[package]]
+name = "haneul-indexer-builder"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "haneullabs-metrics",
+ "prometheus",
+ "haneul-data-ingestion-core",
+ "haneul-types",
+ "telemetry-subscribers",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]

@@ -13,12 +13,9 @@ pub mod metrics;
 pub mod models;
 pub mod postgres_manager;
 pub mod schema;
-pub mod haneul_checkpoint_ingestion;
 pub mod haneul_transaction_handler;
 pub mod haneul_transaction_queries;
 pub mod types;
-
-pub mod indexer_builder;
 
 pub mod eth_bridge_indexer;
 pub mod haneul_bridge_indexer;
