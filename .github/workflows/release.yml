@@ -162,8 +162,7 @@ jobs:
           [[ ${{ env.haneul_tag }} == *"testnet"* ]] && aws s3 cp ./tmp/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz s3://haneul-releases/releases/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz || true
 
       - name: Publish Windows haneul binary to Chocolatey
-        if: ${{ matrix.os == 'windows-ghcloud' && contains( env.haneul_tag, 'testnet') }}
-        continue-on-error: true
+        if: ${{ matrix.os == 'windows-ghcloud' && contains(env.haneul_tag, 'testnet') }}
         shell: bash
         run: |
           choco install checksum
