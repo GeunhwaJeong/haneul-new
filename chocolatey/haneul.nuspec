@@ -5,7 +5,7 @@ enclosed in quotation marks, you should use an editor that supports UTF-8, not t
 	<metadata>
 		<id>haneul</id>
 		<version>$version$</version>
-		<owners>haneul</owners>
+		<owners>Haneul Foundation</owners>
 		<title>Main Haneul Binary</title>
 		<authors>haneul</authors>
 		<projectUrl>https://haneul.io/</projectUrl>
@@ -15,9 +15,9 @@ enclosed in quotation marks, you should use an editor that supports UTF-8, not t
 		<bugTrackerUrl>https://github.com/GeunhwaJeong/haneul/issues</bugTrackerUrl>
 		<tags>haneul</tags>
 		<packageSourceUrl>https://community.chocolatey.org/packages/haneul.portable</packageSourceUrl>
-		<summary>Run a local haneul binary</summary>
+		<summary>Haneul delivers the benefits of Web3 with the ease of Web2</summary>
 		<description>Haneul is the first internet-scale programmable blockchain platform</description>
-		<releaseNotes>https://github.com/GeunhwaJeong/haneul/releases/tag/mainnet-v$version$</releaseNotes>
+		<releaseNotes>See https://github.com/GeunhwaJeong/haneul/releases/tag/testnet-v$version$</releaseNotes>
 	</metadata>
 	<files>
 		<file src="../tmp/release/haneul.exe" target="bin/haneul.exe" />
