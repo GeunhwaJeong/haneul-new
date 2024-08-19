@@ -64,6 +64,7 @@ haneul-sdk.workspace = true
 haneul-keys.workspace = true
 haneul-rest-api.workspace = true
 shared-crypto.workspace = true
+haneul-sdk-types.workspace = true
 
 passkey-types.workspace = true
 passkey-client.workspace = true
