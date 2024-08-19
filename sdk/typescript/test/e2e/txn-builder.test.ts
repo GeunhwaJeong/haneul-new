@@ -220,6 +220,7 @@ async function validateTransaction(client: HaneulClient, signer: Keypair, tx: Tr
 			showEffects: true,
 		},
 	});
+	await client.waitForTransaction({ digest: result.digest });
 	expect(localDigest).toEqual(result.digest);
 	expect(result.effects?.status.status).toEqual('success');
 }
