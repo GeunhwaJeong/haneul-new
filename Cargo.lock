@@ -13093,7 +13093,6 @@ dependencies = [
  "haneul-move-build",
  "haneul-network",
  "haneul-protocol-config",
- "haneul-rest-api",
  "haneul-simulator",
  "haneul-storage",
  "haneul-swarm-config",
