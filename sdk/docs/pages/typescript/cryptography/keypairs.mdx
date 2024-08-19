@@ -118,6 +118,25 @@ if (publicKey.toHaneulAddress() !== keypair.getPublicKey().toHaneulAddress()) {
 }
 ```
 
+## Verifying zkLogin signatures
+
+ZkLogin signatures can't be verified purely on the client. When verifying a zkLogin signature, the
+SDK uses the GraphQL API to verify the signature. This will work for mainnet signatures without any
+additional configuration.
+
+For testnet signatures, you will need to provide a testnet GraphQL Client:
+
+```typescript
+import { HaneulGraphQLClient } from '@haneullabs/haneul/graphql';
+import { verifyPersonalMessageSignature } from '@haneullabs/haneul/verify';
+
+const publicKey = await verifyPersonalMessageSignature(message, zkSignature, {
+	client: new HaneulGraphQLClient({
+		url: 'https://haneul-testnet.haneul-labs.com/graphql',
+	}),
+});
+```
+
 ## Deriving a key pair from a mnemonic
 
 The Haneul TypeScript SDK supports deriving a key pair from a mnemonic phrase. This can be useful when
