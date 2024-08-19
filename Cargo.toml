@@ -130,6 +130,7 @@ members = [
     "crates/haneul-open-rpc",
     "crates/haneul-open-rpc-macros",
     "crates/haneul-oracle",
+    "crates/haneul-package-dump",
     "crates/haneul-package-management",
     "crates/haneul-package-resolver",
     "crates/haneul-proc-macros",
@@ -305,6 +306,8 @@ criterion = { version = "0.5.0", features = [
 ] }
 crossterm = "0.25.0"
 csv = "1.2.1"
+cynic = { version = "3.7.3", features = ["http-reqwest"] }
+cynic-codegen = "= 3.7.3"
 dashmap = "5.5.3"
 # datatest-stable = "0.1.2"
 datatest-stable = { git = "https://github.com/nextest-rs/datatest-stable.git", rev = "72db7f6d1bbe36a5407e96b9488a581f763e106f" }
@@ -628,6 +631,7 @@ haneul-network = { path = "crates/haneul-network" }
 haneul-node = { path = "crates/haneul-node" }
 haneul-open-rpc = { path = "crates/haneul-open-rpc" }
 haneul-open-rpc-macros = { path = "crates/haneul-open-rpc-macros" }
+haneul-package-dump = { path = "crates/haneul-package-dump" }
 haneul-package-management = { path = "crates/haneul-package-management" }
 haneul-package-resolver = { path = "crates/haneul-package-resolver" }
 haneul-proc-macros = { path = "crates/haneul-proc-macros" }
