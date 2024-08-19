@@ -29,7 +29,7 @@ const result = execSync(`git branch --remote --list "origin/releases/haneul-grap
 					minor,
 					patch,
 					branch,
-					schema: `https://raw.githubusercontent.com/HaneulLabs/haneul/${branch}/crates/haneul-graphql-rpc/schema/current_progress_schema.graphql`,
+					schema: `https://raw.githubusercontent.com/HaneulLabs/haneul/${branch}/crates/haneul-graphql-rpc/schema.graphql`,
 				}
 			: null;
 	})

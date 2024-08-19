@@ -62,7 +62,7 @@ const config = {
       "@graphql-markdown/docusaurus",
       {
         schema:
-          "../../crates/haneul-graphql-rpc/schema/current_progress_schema.graphql",
+          "../../crates/haneul-graphql-rpc/schema.graphql",
         rootPath: "../content", // docs will be generated under rootPath/baseURL
         baseURL: "references/haneul-api/haneul-graphql/reference",
         loaders: {
