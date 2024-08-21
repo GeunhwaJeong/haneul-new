@@ -3,9 +3,9 @@
 
 use diesel::{Insertable, Queryable, Selectable};
 
-use crate::errors::IndexerError;
 use crate::schema::epochs;
 use crate::types::IndexedEpochInfo;
+use crate::{errors::IndexerError, schema::feature_flags, schema::protocol_configs};
 use haneul_json_rpc_types::{EndOfEpochInfo, EpochInfo};
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
@@ -31,6 +31,22 @@ pub struct StoredEpochInfo {
     pub total_stake_rewards_distributed: Option<i64>,
     pub leftover_storage_fund_inflow: Option<i64>,
     pub epoch_commitments: Option<Vec<u8>>,
+}
+
+#[derive(Queryable, Insertable, Debug, Clone, Default)]
+#[diesel(table_name = protocol_configs)]
+pub struct StoredProtocolConfig {
+    pub protocol_version: i64,
+    pub config_name: String,
+    pub config_value: Option<String>,
+}
+
+#[derive(Queryable, Insertable, Debug, Clone, Default)]
+#[diesel(table_name = feature_flags)]
+pub struct StoredFeatureFlag {
+    pub protocol_version: i64,
+    pub flag_name: String,
+    pub flag_value: bool,
 }
 
 #[derive(Queryable, Selectable, Clone)]
