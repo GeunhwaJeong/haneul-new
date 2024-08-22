@@ -1,16 +1,19 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::abi::{eth_haneul_bridge, EthBridgeEvent, EthHaneulBridge};
+use crate::abi::{eth_haneul_bridge, EthBridgeEvent, EthERC20, EthHaneulBridge};
 use crate::client::bridge_authority_aggregator::BridgeAuthorityAggregator;
 use crate::e2e_tests::test_utils::BridgeTestCluster;
-use crate::e2e_tests::test_utils::{get_signatures, BridgeTestClusterBuilder};
+use crate::e2e_tests::test_utils::{
+    get_signatures, send_eth_tx_and_get_tx_receipt, BridgeTestClusterBuilder,
+};
+use crate::eth_transaction_builder::build_eth_transaction;
 use crate::events::{
     HaneulBridgeEvent, HaneulToEthTokenBridgeV1, TokenTransferApproved, TokenTransferClaimed,
 };
 use crate::haneul_client::HaneulBridgeClient;
 use crate::haneul_transaction_builder::build_add_tokens_on_haneul_transaction;
-use crate::types::{BridgeAction, BridgeActionStatus, HaneulToEthBridgeAction};
+use crate::types::{AddTokensOnEvmAction, BridgeAction, BridgeActionStatus, HaneulToEthBridgeAction};
 use crate::utils::publish_and_register_coins_return_add_coins_on_haneul_action;
 use crate::utils::EthSigner;
 use eth_haneul_bridge::EthHaneulBridgeEvents;
@@ -58,7 +61,7 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
     let amount = 42;
     let haneul_amount = amount * 100_000_000;
 
-    initiate_bridge_eth_to_haneul(&bridge_test_cluster, amount, haneul_amount, TOKEN_ID_ETH, 0)
+    initiate_bridge_eth_to_haneul(&bridge_test_cluster, amount, 0)
         .await
         .unwrap();
     let events = bridge_test_cluster
@@ -141,8 +144,9 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
         bridge_test_cluster.contracts().haneul_bridge,
         eth_signer.clone().into(),
     );
-    let tx = eth_haneul_bridge.transfer_bridged_tokens_with_signatures(signatures, message);
-    let _eth_claim_tx_receipt = tx.send().await.unwrap().await.unwrap().unwrap();
+    let call = eth_haneul_bridge.transfer_bridged_tokens_with_signatures(signatures, message);
+    let eth_claim_tx_receipt = send_eth_tx_and_get_tx_receipt(call).await;
+    assert_eq!(eth_claim_tx_receipt.status.unwrap().as_u64(), 1);
     info!("Haneul to Eth bridge transfer claimed");
     // Assert eth_address_1 has received ETH
     assert_eq!(
@@ -151,8 +155,10 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
     );
 }
 
+// Test add new coins on both Haneul and Eth
+// Also test bridge ndoe handling `NewTokenEvent``
 #[tokio::test(flavor = "multi_thread", worker_threads = 8)]
-async fn test_add_new_coins_on_haneul() {
+async fn test_add_new_coins_on_haneul_and_eth() {
     telemetry_subscribers::init_for_testing();
     let mut bridge_test_cluster = BridgeTestClusterBuilder::new()
         .with_eth_env(true)
@@ -163,12 +169,13 @@ async fn test_add_new_coins_on_haneul() {
 
     let bridge_arg = bridge_test_cluster.get_mut_bridge_arg().await.unwrap();
 
-    // Register tokens
-    let token_id = 42;
+    // Register tokens on Haneul
+    let token_id = 5;
+    let token_haneul_decimal = 9; // this needs to match ka.move
     let token_price = 10000;
     let sender = bridge_test_cluster.haneul_user_address();
     info!("Published new token");
-    let action = publish_and_register_coins_return_add_coins_on_haneul_action(
+    let haneul_action = publish_and_register_coins_return_add_coins_on_haneul_action(
         bridge_test_cluster.wallet(),
         bridge_arg,
         vec![Path::new("../../bridge/move/tokens/mock/ka").into()],
@@ -177,13 +184,23 @@ async fn test_add_new_coins_on_haneul() {
         1, // seq num
     )
     .await;
+    let new_token_erc_address = bridge_test_cluster.contracts().ka;
+    let eth_action = BridgeAction::AddTokensOnEvmAction(AddTokensOnEvmAction {
+        nonce: 0,
+        chain_id: BridgeChainId::EthCustom,
+        native: true,
+        token_ids: vec![token_id],
+        token_addresses: vec![new_token_erc_address],
+        token_haneul_decimals: vec![token_haneul_decimal],
+        token_prices: vec![token_price],
+    });
 
     info!("Starting bridge cluster");
 
     bridge_test_cluster.set_approved_governance_actions_for_next_start(vec![
-        vec![action.clone()],
-        vec![action.clone()],
-        vec![],
+        vec![haneul_action.clone(), eth_action.clone()],
+        vec![haneul_action.clone()],
+        vec![eth_action.clone()],
     ]);
     bridge_test_cluster.start_bridge_cluster().await;
     bridge_test_cluster
@@ -199,10 +216,14 @@ async fn test_add_new_coins_on_haneul() {
             .expect("Failed to get bridge committee"),
     );
     let agg = BridgeAuthorityAggregator::new(bridge_committee);
-    let certified_action = agg
-        .request_committee_signatures(action)
+    let certified_haneul_action = agg
+        .request_committee_signatures(haneul_action)
         .await
-        .expect("Failed to request committee signatures");
+        .expect("Failed to request committee signatures for AddTokensOnHaneulAction");
+    let certified_eth_action = agg
+        .request_committee_signatures(eth_action.clone())
+        .await
+        .expect("Failed to request committee signatures for AddTokensOnEvmAction");
 
     let tx = build_add_tokens_on_haneul_transaction(
         sender,
@@ -212,18 +233,26 @@ async fn test_add_new_coins_on_haneul() {
             .await
             .unwrap()
             .unwrap(),
-        certified_action,
+        certified_haneul_action,
         bridge_arg,
         1000,
     )
     .unwrap();
 
     let response = bridge_test_cluster.sign_and_execute_transaction(&tx).await;
-    assert_eq!(
-        response.effects.unwrap().status(),
-        &HaneulExecutionStatus::Success
-    );
-    info!("Approved new token");
+    let effects = response.effects.unwrap();
+    assert_eq!(effects.status(), &HaneulExecutionStatus::Success);
+    assert!(response.events.unwrap().data.iter().any(|e| {
+        let haneul_bridge_event = HaneulBridgeEvent::try_from_haneul_event(e).unwrap().unwrap();
+        match haneul_bridge_event {
+            HaneulBridgeEvent::NewTokenEvent(e) => {
+                assert_eq!(e.token_id, token_id);
+                true
+            }
+            _ => false,
+        }
+    }));
+    info!("Approved new token on Haneul");
 
     // Assert new token is correctly added
     let treasury_summary = bridge_test_cluster
@@ -251,6 +280,34 @@ async fn test_add_new_coins_on_haneul() {
             native_token: false,
         }
     );
+
+    // Add new token on EVM
+    let config_address = bridge_test_cluster.contracts().bridge_config;
+    let eth_signer = bridge_test_cluster.get_eth_signer().await;
+    let eth_call = build_eth_transaction(config_address, eth_signer, certified_eth_action)
+        .await
+        .unwrap();
+    let eth_receipt = send_eth_tx_and_get_tx_receipt(eth_call).await;
+    assert_eq!(eth_receipt.status.unwrap().as_u64(), 1);
+
+    // Verify new tokens are added on EVM
+    let (address, dp, price) = bridge_test_cluster
+        .eth_env()
+        .get_supported_token(token_id)
+        .await;
+    assert_eq!(address, new_token_erc_address);
+    assert_eq!(dp, 9);
+    assert_eq!(price, token_price);
+
+    initiate_bridge_erc20_to_haneul(
+        &bridge_test_cluster,
+        100,
+        new_token_erc_address,
+        token_id,
+        0,
+    )
+    .await
+    .unwrap();
 }
 
 pub(crate) async fn deposit_native_eth_to_sol_contract(
@@ -313,14 +370,100 @@ async fn deposit_eth_to_haneul_package(
     wallet_context.execute_transaction_may_fail(tx).await
 }
 
-pub async fn initiate_bridge_eth_to_haneul(
+pub async fn initiate_bridge_erc20_to_haneul(
     bridge_test_cluster: &BridgeTestCluster,
-    amount: u64,
-    haneul_amount: u64,
+    amount_u64: u64,
+    token_address: EthAddress,
     token_id: u8,
     nonce: u64,
 ) -> Result<(), anyhow::Error> {
-    info!("Depositing Eth to Solidity contract");
+    let (eth_signer, eth_address) = bridge_test_cluster
+        .get_eth_signer_and_address()
+        .await
+        .unwrap();
+
+    // First, mint ERC20 tokens to the signer
+    let contract = EthERC20::new(token_address, eth_signer.clone().into());
+    let decimal = contract.decimals().await? as usize;
+    let amount = U256::from(amount_u64) * U256::exp10(decimal);
+    let haneul_amount = amount.as_u64();
+    let mint_call = contract.mint(eth_address, amount);
+    let mint_tx_receipt = send_eth_tx_and_get_tx_receipt(mint_call).await;
+    assert_eq!(mint_tx_receipt.status.unwrap().as_u64(), 1);
+
+    // Second, set allowance
+    let allowance_call = contract.approve(bridge_test_cluster.contracts().haneul_bridge, amount);
+    let allowance_tx_receipt = send_eth_tx_and_get_tx_receipt(allowance_call).await;
+    assert_eq!(allowance_tx_receipt.status.unwrap().as_u64(), 1);
+
+    // Third, deposit to bridge
+    let haneul_recipient_address = bridge_test_cluster.haneul_user_address();
+    let haneul_chain_id = bridge_test_cluster.haneul_chain_id();
+    let eth_chain_id = bridge_test_cluster.eth_chain_id();
+
+    info!(
+        "Depositing ERC20 (token id:{}, token_address: {}) to Solidity contract",
+        token_id, token_address
+    );
+    let contract = EthHaneulBridge::new(
+        bridge_test_cluster.contracts().haneul_bridge,
+        eth_signer.clone().into(),
+    );
+    let deposit_call = contract.bridge_erc20(
+        token_id,
+        amount,
+        haneul_recipient_address.to_vec().into(),
+        haneul_chain_id as u8,
+    );
+    let tx_receipt = send_eth_tx_and_get_tx_receipt(deposit_call).await;
+    let eth_bridge_event = tx_receipt
+        .logs
+        .iter()
+        .find_map(EthBridgeEvent::try_from_log)
+        .unwrap();
+    let EthBridgeEvent::EthHaneulBridgeEvents(EthHaneulBridgeEvents::TokensDepositedFilter(
+        eth_bridge_event,
+    )) = eth_bridge_event
+    else {
+        unreachable!();
+    };
+    // assert eth log matches
+    assert_eq!(eth_bridge_event.source_chain_id, eth_chain_id as u8);
+    assert_eq!(eth_bridge_event.nonce, nonce);
+    assert_eq!(eth_bridge_event.destination_chain_id, haneul_chain_id as u8);
+    assert_eq!(eth_bridge_event.token_id, token_id);
+    assert_eq!(eth_bridge_event.haneul_adjusted_amount, haneul_amount);
+    assert_eq!(eth_bridge_event.sender_address, eth_address);
+    assert_eq!(
+        eth_bridge_event.recipient_address,
+        haneul_recipient_address.to_vec()
+    );
+    info!(
+        "Deposited ERC20 (token id:{}, token_address: {}) to Solidity contract",
+        token_id, token_address
+    );
+
+    wait_for_transfer_action_status(
+        bridge_test_cluster.bridge_client(),
+        eth_chain_id,
+        nonce,
+        BridgeActionStatus::Claimed,
+    )
+    .await
+    .tap_ok(|_| {
+        info!(
+            nonce,
+            token_id, amount_u64, "Eth to Haneul bridge transfer claimed"
+        );
+    })
+}
+
+pub async fn initiate_bridge_eth_to_haneul(
+    bridge_test_cluster: &BridgeTestCluster,
+    amount: u64,
+    nonce: u64,
+) -> Result<(), anyhow::Error> {
+    info!("Depositing native Ether to Solidity contract, nonce: {nonce}, amount: {amount}");
     let (eth_signer, eth_address) = bridge_test_cluster
         .get_eth_signer_and_address()
         .await
@@ -329,6 +472,9 @@ pub async fn initiate_bridge_eth_to_haneul(
     let haneul_address = bridge_test_cluster.haneul_user_address();
     let haneul_chain_id = bridge_test_cluster.haneul_chain_id();
     let eth_chain_id = bridge_test_cluster.eth_chain_id();
+    let token_id = TOKEN_ID_ETH;
+
+    let haneul_amount = (U256::from(amount) * U256::exp10(8)).as_u64(); // DP for Ether on Haneul
 
     let eth_tx = deposit_native_eth_to_sol_contract(
         &eth_signer,
@@ -338,8 +484,7 @@ pub async fn initiate_bridge_eth_to_haneul(
         amount,
     )
     .await;
-    let pending_tx = eth_tx.send().await.unwrap();
-    let tx_receipt = pending_tx.await.unwrap().unwrap();
+    let tx_receipt = send_eth_tx_and_get_tx_receipt(eth_tx).await;
     let eth_bridge_event = tx_receipt
         .logs
         .iter()
@@ -474,9 +619,16 @@ async fn wait_for_transfer_action_status(
         status, chain_id as u8
     );
     loop {
+        let timer = std::time::Instant::now();
         let res = haneul_bridge_client
             .get_token_transfer_action_onchain_status_until_success(chain_id as u8, nonce)
             .await;
+        info!(
+            "get_token_transfer_action_onchain_status_until_success took {:?}, status: {:?}",
+            timer.elapsed(),
+            res
+        );
+
         if res == status {
             info!(
                 "detected on chain status {:?}. chain: {:?}, nonce: {nonce}",
