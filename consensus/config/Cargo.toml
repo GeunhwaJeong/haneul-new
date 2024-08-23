@@ -6,6 +6,9 @@ authors = ["Haneul Labs <build@haneul-labs.com>"]
 edition = "2021"
 publish = false
 
+[lints]
+workspace = true
+
 [dependencies]
 fastcrypto.workspace = true
 haneullabs-network.workspace = true

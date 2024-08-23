@@ -17,6 +17,7 @@ use crate::{
 
 pub(crate) static VERSION_HEADER: HeaderName = HeaderName::from_static("x-haneul-rpc-version");
 
+#[allow(unused)]
 pub(crate) struct HaneulRpcVersion(Vec<u8>, Vec<Vec<u8>>);
 const NAMED_VERSIONS: [&str; 3] = ["beta", "legacy", "stable"];
 

@@ -19,7 +19,6 @@ use std::num::NonZeroUsize;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
-use std::usize;
 use haneul_keys::keypair_file::{read_authority_keypair_from_file, read_keypair_from_file};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::committee::EpochId;
