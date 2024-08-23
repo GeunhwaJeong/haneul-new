@@ -4,11 +4,12 @@
 
 use anyhow::Result;
 use async_trait::async_trait;
+use haneullabs_metrics::histogram::Histogram as HaneullabsHistogram;
 use haneullabs_metrics::spawn_monitored_task;
 use narwhal_worker::LazyNarwhalClient;
 use prometheus::{
-    register_histogram_with_registry, register_int_counter_vec_with_registry,
-    register_int_counter_with_registry, Histogram, IntCounter, IntCounterVec, Registry,
+    register_int_counter_vec_with_registry, register_int_counter_with_registry, IntCounter,
+    IntCounterVec, Registry,
 };
 use std::{
     io,
@@ -165,14 +166,14 @@ impl AuthorityServer {
 
 pub struct ValidatorServiceMetrics {
     pub signature_errors: IntCounter,
-    pub tx_verification_latency: Histogram,
-    pub cert_verification_latency: Histogram,
-    pub consensus_latency: Histogram,
-    pub handle_transaction_latency: Histogram,
-    pub submit_certificate_consensus_latency: Histogram,
-    pub handle_certificate_consensus_latency: Histogram,
-    pub handle_certificate_non_consensus_latency: Histogram,
-    pub handle_soft_bundle_certificates_consensus_latency: Histogram,
+    pub tx_verification_latency: HaneullabsHistogram,
+    pub cert_verification_latency: HaneullabsHistogram,
+    pub consensus_latency: HaneullabsHistogram,
+    pub handle_transaction_latency: HaneullabsHistogram,
+    pub submit_certificate_consensus_latency: HaneullabsHistogram,
+    pub handle_certificate_consensus_latency: HaneullabsHistogram,
+    pub handle_certificate_non_consensus_latency: HaneullabsHistogram,
+    pub handle_soft_bundle_certificates_consensus_latency: HaneullabsHistogram,
 
     num_rejected_tx_in_epoch_boundary: IntCounter,
     num_rejected_cert_in_epoch_boundary: IntCounter,
@@ -193,62 +194,46 @@ impl ValidatorServiceMetrics {
                 registry,
             )
             .unwrap(),
-            tx_verification_latency: register_histogram_with_registry!(
+            tx_verification_latency: HaneullabsHistogram::new_in_registry(
                 "validator_service_tx_verification_latency",
                 "Latency of verifying a transaction",
-                haneullabs_metrics::LATENCY_SEC_BUCKETS.to_vec(),
                 registry,
-            )
-            .unwrap(),
-            cert_verification_latency: register_histogram_with_registry!(
+            ),
+            cert_verification_latency: HaneullabsHistogram::new_in_registry(
                 "validator_service_cert_verification_latency",
                 "Latency of verifying a certificate",
-                haneullabs_metrics::LATENCY_SEC_BUCKETS.to_vec(),
                 registry,
-            )
-            .unwrap(),
-            consensus_latency: register_histogram_with_registry!(
+            ),
+            consensus_latency: HaneullabsHistogram::new_in_registry(
                 "validator_service_consensus_latency",
                 "Time spent between submitting a shared obj txn to consensus and getting result",
-                haneullabs_metrics::LATENCY_SEC_BUCKETS.to_vec(),
                 registry,
-            )
-            .unwrap(),
-            handle_transaction_latency: register_histogram_with_registry!(
+            ),
+            handle_transaction_latency: HaneullabsHistogram::new_in_registry(
                 "validator_service_handle_transaction_latency",
                 "Latency of handling a transaction",
-                haneullabs_metrics::LATENCY_SEC_BUCKETS.to_vec(),
                 registry,
-            )
-            .unwrap(),
-            handle_certificate_consensus_latency: register_histogram_with_registry!(
+            ),
+            handle_certificate_consensus_latency: HaneullabsHistogram::new_in_registry(
                 "validator_service_handle_certificate_consensus_latency",
                 "Latency of handling a consensus transaction certificate",
-                haneullabs_metrics::LATENCY_SEC_BUCKETS.to_vec(),
                 registry,
-            )
-            .unwrap(),
-            submit_certificate_consensus_latency: register_histogram_with_registry!(
+            ),
+            submit_certificate_consensus_latency: HaneullabsHistogram::new_in_registry(
                 "validator_service_submit_certificate_consensus_latency",
                 "Latency of submit_certificate RPC handler",
-                haneullabs_metrics::LATENCY_SEC_BUCKETS.to_vec(),
                 registry,
-            )
-            .unwrap(),
-            handle_certificate_non_consensus_latency: register_histogram_with_registry!(
+            ),
+            handle_certificate_non_consensus_latency: HaneullabsHistogram::new_in_registry(
                 "validator_service_handle_certificate_non_consensus_latency",
                 "Latency of handling a non-consensus transaction certificate",
-                haneullabs_metrics::LATENCY_SEC_BUCKETS.to_vec(),
                 registry,
-            )
-            .unwrap(),
-            handle_soft_bundle_certificates_consensus_latency: register_histogram_with_registry!(
+            ),
+            handle_soft_bundle_certificates_consensus_latency: HaneullabsHistogram::new_in_registry(
                 "validator_service_handle_soft_bundle_certificates_consensus_latency",
                 "Latency of handling a consensus soft bundle",
-                haneullabs_metrics::LATENCY_SEC_BUCKETS.to_vec(),
                 registry,
-            )
-            .unwrap(),
+            ),
             num_rejected_tx_in_epoch_boundary: register_int_counter_with_registry!(
                 "validator_service_num_rejected_tx_in_epoch_boundary",
                 "Number of rejected transaction during epoch transitioning",
