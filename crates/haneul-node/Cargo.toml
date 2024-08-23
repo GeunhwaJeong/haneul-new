@@ -19,6 +19,7 @@ prometheus.workspace = true
 tokio = { workspace = true, features = ["full"] }
 tracing.workspace = true
 futures.workspace = true
+parking_lot.workspace = true
 tower.workspace = true
 reqwest.workspace = true
 tap.workspace = true
@@ -43,6 +44,7 @@ haneul-snapshot.workspace = true
 haneul-telemetry.workspace = true
 haneul-types.workspace = true
 haneullabs-metrics.workspace = true
+haneullabs-service.workspace = true
 haneullabs-common.workspace = true
 narwhal-network.workspace = true
 narwhal-worker.workspace = true
