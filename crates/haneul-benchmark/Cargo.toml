@@ -48,7 +48,6 @@ fastcrypto-zkp.workspace = true
 
 move-core-types.workspace = true
 haneullabs-metrics.workspace = true
-narwhal-node.workspace = true
 test-cluster.workspace = true
 sysinfo.workspace = true
 
@@ -58,6 +57,3 @@ haneul-framework-snapshot.workspace = true
 haneul-macros.workspace = true
 haneul-simulator.workspace = true
 typed-store.workspace = true
-
-[features]
-benchmark = ["narwhal-node/benchmark"]

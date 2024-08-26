@@ -50,7 +50,6 @@ haneullabs-metrics.workspace = true
 haneullabs-service.workspace = true
 haneullabs-common.workspace = true
 narwhal-network.workspace = true
-narwhal-worker.workspace = true
 typed-store.workspace = true
 haneullabs-network.workspace = true
 telemetry-subscribers.workspace = true
