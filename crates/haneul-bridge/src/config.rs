@@ -30,7 +30,7 @@ use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::bridge::BridgeChainId;
 use haneul_types::crypto::KeypairTraits;
-use haneul_types::crypto::HaneulKeyPair;
+use haneul_types::crypto::{get_key_pair_from_rng, NetworkKeyPair, HaneulKeyPair};
 use haneul_types::digests::{get_mainnet_chain_identifier, get_testnet_chain_identifier};
 use haneul_types::event::EventID;
 use haneul_types::object::Owner;
@@ -93,7 +93,7 @@ pub struct HaneulConfig {
 }
 
 #[serde_as]
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
 pub struct BridgeNodeConfig {
     /// The port that the server listens on.
@@ -114,6 +114,13 @@ pub struct BridgeNodeConfig {
     pub haneul: HaneulConfig,
     /// Eth configuration
     pub eth: EthConfig,
+    /// Network key used for metrics pushing
+    #[serde(default = "default_ed25519_key_pair")]
+    pub metrics_key_pair: NetworkKeyPair,
+}
+
+pub fn default_ed25519_key_pair() -> NetworkKeyPair {
+    get_key_pair_from_rng(&mut rand::rngs::OsRng).1
 }
 
 impl Config for BridgeNodeConfig {}
