@@ -45,13 +45,18 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
 
     let eth_chain_id = BridgeChainId::EthCustom as u8;
     let haneul_chain_id = BridgeChainId::HaneulCustom as u8;
-
+    let timer = std::time::Instant::now();
     let mut bridge_test_cluster = BridgeTestClusterBuilder::new()
         .with_eth_env(true)
         .with_bridge_cluster(true)
+        .with_num_validators(3)
         .build()
         .await;
-
+    info!(
+        "[Timer] Bridge test cluster started in {:?}",
+        timer.elapsed()
+    );
+    let timer = std::time::Instant::now();
     let (eth_signer, _) = bridge_test_cluster
         .get_eth_signer_and_address()
         .await
@@ -88,7 +93,11 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
         .expect("Recipient should have received ETH coin now")
         .clone();
     assert_eq!(eth_coin.balance, haneul_amount);
-    info!("Eth to haneul bridge transfer finished");
+    info!(
+        "[Timer] Eth to Haneul bridge transfer finished in {:?}",
+        timer.elapsed()
+    );
+    let timer = std::time::Instant::now();
 
     // Now let the recipient send the coin back to ETH
     let eth_address_1 = EthAddress::random();
@@ -115,6 +124,11 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
         .await;
     // There are exactly 1 deposit and 1 approved event
     assert_eq!(events.len(), 2);
+    info!(
+        "[Timer] Haneul to Eth bridge transfer approved in {:?}",
+        timer.elapsed()
+    );
+    let timer = std::time::Instant::now();
 
     // Test `get_parsed_token_transfer_message`
     let parsed_msg = bridge_test_cluster
@@ -147,7 +161,10 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
     let call = eth_haneul_bridge.transfer_bridged_tokens_with_signatures(signatures, message);
     let eth_claim_tx_receipt = send_eth_tx_and_get_tx_receipt(call).await;
     assert_eq!(eth_claim_tx_receipt.status.unwrap().as_u64(), 1);
-    info!("Haneul to Eth bridge transfer claimed");
+    info!(
+        "[Timer] Haneul to Eth bridge transfer claimed in {:?}",
+        timer.elapsed()
+    );
     // Assert eth_address_1 has received ETH
     assert_eq!(
         eth_signer.get_balance(eth_address_1, None).await.unwrap(),
@@ -504,7 +521,10 @@ pub async fn initiate_bridge_eth_to_haneul(
     assert_eq!(eth_bridge_event.haneul_adjusted_amount, haneul_amount);
     assert_eq!(eth_bridge_event.sender_address, eth_address);
     assert_eq!(eth_bridge_event.recipient_address, haneul_address.to_vec());
-    info!("Deposited Eth to Solidity contract");
+    info!(
+        "Deposited Eth to Solidity contract, block: {:?}",
+        tx_receipt.block_number
+    );
 
     wait_for_transfer_action_status(
         bridge_test_cluster.bridge_client(),
