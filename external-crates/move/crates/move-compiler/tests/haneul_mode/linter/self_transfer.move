@@ -57,11 +57,12 @@ module a::test {
 }
 
 module haneul::object {
+    const ZERO: u64 = 0;
     struct UID has store {
         id: address,
     }
     public fun new(_: &mut haneul::tx_context::TxContext): UID {
-        abort 0
+        abort ZERO
     }
 }
 
@@ -73,11 +74,12 @@ module haneul::tx_context {
 }
 
 module haneul::transfer {
+    const ZERO: u64 = 0;
     public fun transfer<T: key>(_: T, _: address) {
-        abort 0
+        abort ZERO
     }
 
     public fun public_transfer<T: key>(_: T, _: address) {
-        abort 0
+        abort ZERO
     }
 }
