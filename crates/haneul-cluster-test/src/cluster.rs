@@ -7,7 +7,7 @@ use std::net::SocketAddr;
 use std::path::Path;
 use haneul_config::Config;
 use haneul_config::{PersistedConfig, HANEUL_KEYSTORE_FILENAME, HANEUL_NETWORK_CONFIG};
-use haneul_graphql_rpc::config::ConnectionConfig;
+use haneul_graphql_rpc::config::{ConnectionConfig, ServiceConfig};
 use haneul_graphql_rpc::test_infra::cluster::start_graphql_server_with_fn_rpc;
 use haneul_indexer::test_utils::{start_test_indexer, ReaderWriterConfig};
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
@@ -260,6 +260,7 @@ impl Cluster for LocalNewCluster {
                 graphql_connection_config.clone(),
                 Some(fullnode_url.clone()),
                 /* cancellation_token */ None,
+                ServiceConfig::test_defaults(),
             )
             .await;
         }
