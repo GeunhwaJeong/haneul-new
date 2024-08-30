@@ -18,6 +18,7 @@ use haneul_config::node::{
 };
 use haneul_config::node::{default_zklogin_oauth_providers, RunWithRange};
 use haneul_config::p2p::{P2pConfig, SeedPeer, StateSyncConfig};
+use haneul_config::verifier_signing_config::VerifierSigningConfig;
 use haneul_config::{
     local_ip_utils, ConsensusConfig, NodeConfig, AUTHORITIES_DB_NAME, CONSENSUS_DB_NAME,
     FULL_NODE_DB_PATH,
@@ -240,6 +241,7 @@ impl ValidatorConfigBuilder {
             state_accumulator_v2: self.state_accumulator_v2,
             enable_soft_bundle: true,
             enable_validator_tx_finalizer: true,
+            verifier_signing_config: VerifierSigningConfig::default(),
         }
     }
 
@@ -523,6 +525,7 @@ impl FullnodeConfigBuilder {
             enable_soft_bundle: true,
             // This is a validator specific feature.
             enable_validator_tx_finalizer: false,
+            verifier_signing_config: VerifierSigningConfig::default(),
         }
     }
 }

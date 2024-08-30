@@ -32,5 +32,6 @@ move-bytecode-verifier-meter.workspace = true
 move-cli.workspace = true
 move-package.workspace = true
 move-unit-test.workspace = true
+haneul-config.workspace = true
 
 [dependencies]

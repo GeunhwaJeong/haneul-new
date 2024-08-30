@@ -4,7 +4,9 @@
 use std::{collections::HashSet, sync::Arc};
 
 use anyhow::Result;
-use haneul_config::transaction_deny_config::TransactionDenyConfig;
+use haneul_config::{
+    transaction_deny_config::TransactionDenyConfig, verifier_signing_config::VerifierSigningConfig,
+};
 use haneul_execution::Executor;
 use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use haneul_types::{
@@ -91,6 +93,7 @@ impl EpochState {
         &self,
         store: &dyn SimulatorStore,
         deny_config: &TransactionDenyConfig,
+        verifier_signing_config: &VerifierSigningConfig,
         transaction: &VerifiedTransaction,
     ) -> Result<(
         InnerTemporaryStore,
@@ -127,6 +130,7 @@ impl EpochState {
             input_objects,
             &receiving_objects,
             &self.bytecode_verifier_metrics,
+            verifier_signing_config,
         )?;
 
         let transaction_data = transaction.data().transaction_data();
