@@ -13684,6 +13684,7 @@ dependencies = [
  "haneullabs-metrics",
  "prometheus",
  "haneul-data-ingestion-core",
+ "haneul-indexer-builder",
  "haneul-types",
  "tap",
  "telemetry-subscribers",
