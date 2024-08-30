@@ -13694,6 +13694,7 @@ dependencies = [
  "prometheus",
  "haneul-data-ingestion-core",
  "haneul-types",
+ "tap",
  "telemetry-subscribers",
  "tokio",
  "tracing",
