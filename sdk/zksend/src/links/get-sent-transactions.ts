@@ -5,15 +5,15 @@ import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul/client';
 import { normalizeHaneulAddress } from '@haneullabs/haneul/utils';
 
 import { ZkSendLink } from './claim.js';
+import { getContractIds } from './zk-bag.js';
 import type { ZkBagContractOptions } from './zk-bag.js';
-import { MAINNET_CONTRACT_IDS } from './zk-bag.js';
 
 export async function getSentTransactionsWithLinks({
 	address,
 	cursor,
 	limit = 10,
 	network = 'mainnet',
-	contract = MAINNET_CONTRACT_IDS,
+	contract = getContractIds(network),
 	client = new HaneulClient({ url: getFullnodeUrl(network) }),
 	loadClaimedAssets = false,
 	...linkOptions
