@@ -6,9 +6,11 @@ use anyhow::Error;
 use async_trait::async_trait;
 use haneullabs_metrics::{metered_channel, spawn_monitored_task};
 use std::path::PathBuf;
+use std::sync::Arc;
 use haneul_data_ingestion_core::{
     DataIngestionMetrics, IndexerExecutor, ProgressStore, ReaderOptions, Worker, WorkerPool,
 };
+use haneul_sdk::HaneulClient;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::full_checkpoint_content::CheckpointData as HaneulCheckpointData;
 use haneul_types::full_checkpoint_content::CheckpointTransaction;
@@ -20,22 +22,28 @@ use tracing::info;
 
 pub struct HaneulCheckpointDatasource {
     remote_store_url: String,
+    haneul_client: Arc<HaneulClient>,
     concurrency: usize,
     checkpoint_path: PathBuf,
+    genesis_checkpoint: u64,
     metrics: DataIngestionMetrics,
 }
 impl HaneulCheckpointDatasource {
     pub fn new(
         remote_store_url: String,
+        haneul_client: Arc<HaneulClient>,
         concurrency: usize,
         checkpoint_path: PathBuf,
+        genesis_checkpoint: u64,
         metrics: DataIngestionMetrics,
     ) -> Self {
         HaneulCheckpointDatasource {
             remote_store_url,
+            haneul_client,
             concurrency,
             checkpoint_path,
             metrics,
+            genesis_checkpoint,
         }
     }
 }
@@ -76,6 +84,18 @@ impl Datasource<CheckpointTxnData> for HaneulCheckpointDatasource {
                 .await?;
             Ok(())
         }))
+    }
+
+    async fn get_live_task_starting_checkpoint(&self) -> Result<u64, Error> {
+        self.haneul_client
+            .read_api()
+            .get_latest_checkpoint_sequence_number()
+            .await
+            .map_err(|e| anyhow::anyhow!("Failed to get last finalized block id: {:?}", e))
+    }
+
+    fn get_genesis_height(&self) -> u64 {
+        self.genesis_checkpoint
     }
 }
 
