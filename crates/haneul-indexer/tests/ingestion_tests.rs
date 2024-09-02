@@ -16,6 +16,8 @@ mod ingestion_tests {
     use haneul_indexer::models::{objects::StoredObject, transactions::StoredTransaction};
     use haneul_indexer::schema::{objects, transactions};
     use haneul_indexer::store::{indexer_store::IndexerStore, PgIndexerStore};
+    use haneul_indexer::tempdb::get_available_port;
+    use haneul_indexer::tempdb::TempDb;
     use haneul_indexer::test_utils::{start_test_indexer, ReaderWriterConfig};
     use haneul_types::base_types::HaneulAddress;
     use haneul_types::effects::TransactionEffectsAPI;
@@ -23,8 +25,6 @@ mod ingestion_tests {
     use haneul_types::HANEUL_FRAMEWORK_PACKAGE_ID;
     use tempfile::tempdir;
     use tokio::task::JoinHandle;
-    use haneul_indexer::tempdb::TempDb;
-    use haneul_indexer::tempdb::get_available_port;
 
     macro_rules! read_only_blocking {
         ($pool:expr, $query:expr) => {{
