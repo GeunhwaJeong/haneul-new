@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use haneullabs_metrics::histogram::Histogram;
+use haneullabs_metrics::histogram::Histogram as HaneullabsHistogram;
 use prometheus::{
-    register_int_counter_with_registry, register_int_gauge_with_registry, IntCounter, IntGauge,
-    Registry,
+    register_histogram_with_registry, register_int_counter_with_registry,
+    register_int_gauge_with_registry, Histogram, IntCounter, IntGauge, Registry,
 };
 use std::sync::Arc;
 
@@ -15,11 +15,15 @@ pub struct CheckpointExecutorMetrics {
     pub checkpoint_exec_errors: IntCounter,
     pub checkpoint_exec_epoch: IntGauge,
     pub checkpoint_exec_inflight: IntGauge,
-    pub checkpoint_exec_latency_us: Histogram,
-    pub checkpoint_prepare_latency_us: Histogram,
+    pub checkpoint_exec_latency: Histogram,
+    pub checkpoint_prepare_latency: Histogram,
     pub checkpoint_transaction_count: Histogram,
-    pub checkpoint_contents_age_ms: Histogram,
-    pub last_executed_checkpoint_age_ms: Histogram,
+    pub checkpoint_contents_age: Histogram,
+    // TODO: delete once users are migrated to non-Haneullabs histogram.
+    pub checkpoint_contents_age_ms: HaneullabsHistogram,
+    pub last_executed_checkpoint_age: Histogram,
+    // TODO: delete once users are migrated to non-Haneullabs histogram.
+    pub last_executed_checkpoint_age_ms: HaneullabsHistogram,
 }
 
 impl CheckpointExecutorMetrics {
@@ -61,30 +65,50 @@ impl CheckpointExecutorMetrics {
                 registry
             )
             .unwrap(),
-            checkpoint_exec_latency_us: Histogram::new_in_registry(
-                "checkpoint_exec_latency_us",
-                "Latency of executing a checkpoint from enqueue to all effects available, in microseconds",
+            checkpoint_exec_latency: register_histogram_with_registry!(
+                "checkpoint_exec_latency",
+                "Latency of executing a checkpoint from enqueue to all effects available",
+                haneullabs_metrics::SUBSECOND_LATENCY_SEC_BUCKETS.to_vec(),
                 registry,
-            ),
-            checkpoint_prepare_latency_us: Histogram::new_in_registry(
-                "checkpoint_prepare_latency_us",
-                "Latency of preparing a checkpoint to enqueue for execution, in microseconds",
+            )
+            .unwrap(),
+            checkpoint_prepare_latency: register_histogram_with_registry!(
+                "checkpoint_prepare_latency",
+                "Latency of preparing a checkpoint to enqueue for execution",
+                haneullabs_metrics::SUBSECOND_LATENCY_SEC_BUCKETS.to_vec(),
                 registry,
-            ),
-            checkpoint_transaction_count: Histogram::new_in_registry(
+            )
+            .unwrap(),
+            checkpoint_transaction_count: register_histogram_with_registry!(
                 "checkpoint_transaction_count",
                 "Number of transactions in the checkpoint",
+                haneullabs_metrics::COUNT_BUCKETS.to_vec(),
                 registry,
-            ),
-            checkpoint_contents_age_ms: Histogram::new_in_registry(
+            )
+            .unwrap(),
+            checkpoint_contents_age: register_histogram_with_registry!(
+                "checkpoint_contents_age",
+                "Age of checkpoints when they arrive for execution",
+                haneullabs_metrics::LATENCY_SEC_BUCKETS.to_vec(),
+                registry,
+            )
+            .unwrap(),
+            checkpoint_contents_age_ms: HaneullabsHistogram::new_in_registry(
                 "checkpoint_contents_age_ms",
                 "Age of checkpoints when they arrive for execution",
                 registry,
             ),
-            last_executed_checkpoint_age_ms: Histogram::new_in_registry(
+            last_executed_checkpoint_age: register_histogram_with_registry!(
+                "last_executed_checkpoint_age",
+                "Age of the last executed checkpoint",
+                haneullabs_metrics::LATENCY_SEC_BUCKETS.to_vec(),
+                registry
+            )
+            .unwrap(),
+            last_executed_checkpoint_age_ms: HaneullabsHistogram::new_in_registry(
                 "last_executed_checkpoint_age_ms",
                 "Age of the last executed checkpoint",
-                registry
+                registry,
             ),
         };
         Arc::new(this)
