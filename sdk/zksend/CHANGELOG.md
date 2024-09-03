@@ -1,5 +1,17 @@
 # @haneullabs/zksend
 
+## 0.11.0
+
+### Minor Changes
+
+- 4bdef4a: Add support for testnet in Stashed and zkSend SDKs.
+
+### Patch Changes
+
+- Updated dependencies [569511a]
+  - @haneullabs/haneul@1.8.0
+  - @haneullabs/wallet-standard@0.13.3
+
 ## 0.10.6
 
 ### Patch Changes

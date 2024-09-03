@@ -1,5 +1,11 @@
 # @haneullabs/haneul.js
 
+## 1.8.0
+
+### Minor Changes
+
+- 569511a: Add data to result of executeTransaction methods on Transaction executor classes
+
 ## 1.7.0
 
 ### Minor Changes
