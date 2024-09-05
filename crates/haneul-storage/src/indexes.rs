@@ -42,7 +42,7 @@ use typed_store::traits::{TableSummary, TypedStoreDebug};
 use typed_store::DBMapUtils;
 
 type OwnerIndexKey = (HaneulAddress, ObjectID);
-type CoinIndexKey = (HaneulAddress, String, ObjectID);
+pub type CoinIndexKey = (HaneulAddress, String, ObjectID);
 type DynamicFieldKey = (ObjectID, ObjectID);
 type EventId = (TxSequenceNumber, usize);
 type EventIndex = (TransactionEventsDigest, TransactionDigest, u64);
@@ -129,7 +129,7 @@ impl IndexStoreMetrics {
 pub struct IndexStoreCaches {
     per_coin_type_balance: ShardedLruCache<(HaneulAddress, TypeTag), HaneulResult<TotalBalance>>,
     all_balances: ShardedLruCache<HaneulAddress, HaneulResult<Arc<HashMap<TypeTag, TotalBalance>>>>,
-    locks: MutexTable<HaneulAddress>,
+    pub locks: MutexTable<HaneulAddress>,
 }
 
 #[derive(Default)]
@@ -229,7 +229,7 @@ impl IndexStoreTables {
 pub struct IndexStore {
     next_sequence_number: AtomicU64,
     tables: IndexStoreTables,
-    caches: IndexStoreCaches,
+    pub caches: IndexStoreCaches,
     metrics: Arc<IndexStoreMetrics>,
     max_type_length: u64,
     remove_deprecated_tables: bool,
