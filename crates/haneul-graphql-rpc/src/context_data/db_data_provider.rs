@@ -46,10 +46,7 @@ impl PgManager {
         &self,
         epoch_id: Option<u64>,
     ) -> Result<NativeHaneulSystemStateSummary, Error> {
-        let latest_haneul_system_state = self
-            .inner
-            .spawn_blocking(move |this| this.get_latest_haneul_system_state())
-            .await?;
+        let latest_haneul_system_state = self.inner.get_latest_haneul_system_state().await?;
 
         if let Some(epoch_id) = epoch_id {
             if epoch_id == latest_haneul_system_state.epoch {

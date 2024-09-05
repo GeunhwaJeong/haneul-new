@@ -39,9 +39,9 @@ impl TriggerExchangeRatesTask {
 
                 _ = self.epoch_rx.changed() => {
                     info!("Detected epoch boundary, triggering call to exchange rates");
-                    let latest_haneul_sytem_state = self.db.inner.spawn_blocking(move |this|
-                        this.get_latest_haneul_system_state()
-                    ).await.map_err(|_| error!("Failed to fetch latest Haneul system state"));
+                    let latest_haneul_sytem_state = self.db.inner
+                        .get_latest_haneul_system_state()
+                        .await.map_err(|_| error!("Failed to fetch latest Haneul system state"));
 
                     if let Ok(latest_haneul_sytem_state) = latest_haneul_sytem_state {
                         let db = self.db.clone();
