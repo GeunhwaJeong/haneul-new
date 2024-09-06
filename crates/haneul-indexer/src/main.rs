@@ -5,8 +5,7 @@ use clap::Parser;
 use haneul_indexer::config::Command;
 use haneul_indexer::database::ConnectionPool;
 use haneul_indexer::db::{
-    check_db_migration_consistency, new_connection_pool, reset_database,
-    run_migrations,
+    check_db_migration_consistency, new_connection_pool, reset_database, run_migrations,
 };
 use haneul_indexer::indexer::Indexer;
 use haneul_indexer::store::PgIndexerStore;
@@ -70,7 +69,7 @@ async fn main() -> anyhow::Result<()> {
         Command::JsonRpcService(json_rpc_config) => {
             check_db_migration_consistency(&mut pool.get().await?).await?;
 
-            Indexer::start_reader(&json_rpc_config, &registry, connection_pool, pool).await?;
+            Indexer::start_reader(&json_rpc_config, &registry, pool).await?;
         }
         Command::ResetDatabase { force } => {
             if !force {
