@@ -15,6 +15,7 @@ haneullabs-metrics.workspace = true
 haneul-types.workspace = true
 haneul-sdk.workspace = true
 haneul-data-ingestion-core.workspace = true
+futures.workspace = true
 tracing.workspace = true
 prometheus.workspace = true
 telemetry-subscribers.workspace = true

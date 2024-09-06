@@ -25,12 +25,12 @@ use haneul_bridge_indexer::eth_bridge_indexer::EthDataMapper;
 use haneul_bridge_indexer::metrics::BridgeIndexerMetrics;
 use haneul_bridge_indexer::postgres_manager::{get_connection_pool, read_haneul_progress_store};
 use haneul_bridge_indexer::haneul_bridge_indexer::{PgBridgePersistent, HaneulBridgeDataMapper};
+use haneul_bridge_indexer::haneul_datasource::HaneulCheckpointDatasource;
 use haneul_bridge_indexer::haneul_transaction_handler::handle_haneul_transactions_loop;
 use haneul_bridge_indexer::haneul_transaction_queries::start_haneul_tx_polling_task;
 use haneul_config::Config;
 use haneul_data_ingestion_core::DataIngestionMetrics;
 use haneul_indexer_builder::indexer_builder::{BackfillStrategy, IndexerBuilder};
-use haneul_indexer_builder::haneul_datasource::HaneulCheckpointDatasource;
 use haneul_sdk::HaneulClientBuilder;
 
 #[derive(Parser, Clone, Debug)]
@@ -137,6 +137,7 @@ async fn main() -> Result<()> {
         config.checkpoints_path.clone().into(),
         config.haneul_bridge_genesis_checkpoint,
         ingestion_metrics.clone(),
+        indexer_meterics.clone(),
     );
     let indexer = IndexerBuilder::new(
         "HaneulBridgeIndexer",

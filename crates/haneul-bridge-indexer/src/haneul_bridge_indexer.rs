@@ -15,7 +15,6 @@ use haneul_bridge::events::{
     MoveTokenDepositedEvent, MoveTokenTransferApproved, MoveTokenTransferClaimed,
 };
 use haneul_indexer_builder::indexer_builder::{DataMapper, IndexerProgressStore, Persistent};
-use haneul_indexer_builder::haneul_datasource::CheckpointTxnData;
 use haneul_indexer_builder::Task;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::event::Event;
@@ -27,6 +26,7 @@ use crate::metrics::BridgeIndexerMetrics;
 use crate::postgres_manager::PgPool;
 use crate::schema::progress_store::{columns, dsl};
 use crate::schema::{haneul_error_transactions, token_transfer, token_transfer_data};
+use crate::haneul_datasource::CheckpointTxnData;
 use crate::{
     models, schema, BridgeDataSource, ProcessedTxnData, HaneulTxnError, TokenTransfer,
     TokenTransferData, TokenTransferStatus,
