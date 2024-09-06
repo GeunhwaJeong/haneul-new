@@ -13,6 +13,7 @@ pub mod metrics;
 pub mod models;
 pub mod postgres_manager;
 pub mod schema;
+pub mod storage;
 pub mod haneul_transaction_handler;
 pub mod haneul_transaction_queries;
 pub mod types;
