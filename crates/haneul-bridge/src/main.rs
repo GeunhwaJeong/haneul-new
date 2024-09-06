@@ -9,6 +9,7 @@ use std::{
     path::PathBuf,
 };
 use haneul_bridge::config::BridgeNodeConfig;
+use haneul_bridge::metrics::start_metrics_push_task;
 use haneul_bridge::node::run_bridge_node;
 use haneul_bridge::server::BridgeNodePublicMetadata;
 use haneul_config::Config;
@@ -48,6 +49,11 @@ async fn main() -> anyhow::Result<()> {
     let metadata =
         BridgeNodePublicMetadata::new(VERSION.into(), config.metrics_key_pair.public().clone());
 
+    start_metrics_push_task(
+        &config.metrics,
+        config.metrics_key_pair.copy(),
+        registry_service.clone(),
+    );
     Ok(run_bridge_node(config, metadata, prometheus_registry)
         .await?
         .await?)
