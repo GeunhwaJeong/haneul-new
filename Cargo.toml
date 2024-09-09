@@ -99,6 +99,7 @@ members = [
     "crates/haneul-cost",
     "crates/haneul-data-ingestion",
     "crates/haneul-data-ingestion-core",
+    "crates/haneul-deepbook-indexer",
     "crates/haneul-e2e-tests",
     "crates/haneul-enum-compat-util",
     "crates/haneul-faucet",

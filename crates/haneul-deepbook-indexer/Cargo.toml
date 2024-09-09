@@ -1,0 +1,44 @@
+[package]
+name = "haneul-deepbook-indexer"
+version = "0.1.0"
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[dependencies]
+serde.workspace = true
+tap.workspace = true
+diesel = { workspace = true, features = ["serde_json"] }
+diesel-async = { workspace = true, features = ["bb8", "postgres"] }
+tokio = { workspace = true, features = ["full"] }
+anyhow.workspace = true
+futures.workspace = true
+async-trait.workspace = true
+bcs.workspace = true
+bin-version.workspace = true
+clap.workspace = true
+haneullabs-metrics.workspace = true
+prometheus.workspace = true
+serde_yaml.workspace = true
+haneul-bridge.workspace = true
+haneul-sdk.workspace = true
+haneul-json-rpc-types.workspace = true
+haneul-data-ingestion-core.workspace = true
+haneul-types.workspace = true
+telemetry-subscribers.workspace = true
+tracing.workspace = true
+backoff.workspace = true
+haneul-config.workspace = true
+haneul-indexer-builder.workspace = true
+bigdecimal = "0.4.0"
+
+[dev-dependencies]
+haneul-types = { workspace = true, features = ["test-utils"] }
+haneul-test-transaction-builder.workspace = true
+test-cluster.workspace = true
+hex-literal = "0.3.4"
+
+[[bin]]
+name = "deepbook-indexer"
+path = "src/main.rs"
