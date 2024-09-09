@@ -1,0 +1,9 @@
+[package]
+name = "test_coin"
+edition = "2024.beta" # edition = "legacy" to use legacy (pre-2024) Move
+
+[dependencies]
+Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir = "crates/haneul-framework/packages/haneul-framework", rev = "framework/testnet" }
+
+[addresses]
+test_coin = "0x0"

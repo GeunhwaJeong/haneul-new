@@ -1,18 +1,19 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::time::Duration;
-
 use serde_json::json;
+use std::time::Duration;
 
 use rosetta_client::start_rosetta_test_server;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_rosetta::operations::Operations;
+use haneul_rosetta::types::Currencies;
 use haneul_rosetta::types::{
-    AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, NetworkIdentifier,
+    AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, Currency, NetworkIdentifier,
     SubAccount, SubAccountType, HaneulEnv,
 };
+use haneul_rosetta::CoinMetadataCache;
 use haneul_sdk::rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI};
 use haneul_swarm_config::genesis_config::{DEFAULT_GAS_AMOUNT, DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT};
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
@@ -46,7 +47,7 @@ async fn test_get_staked_haneul() {
             sub_account: None,
         },
         block_identifier: Default::default(),
-        currencies: vec![],
+        currencies: Currencies(vec![Currency::default()]),
     };
 
     let response: AccountBalanceResponse = rosetta_client
@@ -67,7 +68,7 @@ async fn test_get_staked_haneul() {
             }),
         },
         block_identifier: Default::default(),
-        currencies: vec![],
+        currencies: Currencies(vec![Currency::default()]),
     };
     let response: AccountBalanceResponse = rosetta_client
         .call(RosettaEndpoint::Balance, &request)
@@ -146,7 +147,7 @@ async fn test_stake() {
             "operation_identifier":{"index":0},
             "type":"Stake",
             "account": { "address" : sender.to_string() },
-            "amount" : { "value": "-1000000000" , "currency": { "symbol": "HANEUL", "decimals": 9}},
+            "amount" : { "value": "-1000000000" },
             "metadata": { "Stake" : {"validator": validator.to_string()} }
         }]
     ))
@@ -174,7 +175,8 @@ async fn test_stake() {
         tx.effects.as_ref().unwrap().status()
     );
 
-    let ops2 = Operations::try_from(tx).unwrap();
+    let con_cache = CoinMetadataCache::new(client);
+    let ops2 = Operations::try_from_response(tx, &con_cache).await.unwrap();
     assert!(
         ops2.contains(&ops),
         "Operation mismatch. expecting:{}, got:{}",
@@ -234,7 +236,10 @@ async fn test_stake_all() {
         tx.effects.as_ref().unwrap().status()
     );
 
-    let ops2 = Operations::try_from(tx).unwrap();
+    let coin_cache = CoinMetadataCache::new(client);
+    let ops2 = Operations::try_from_response(tx, &coin_cache)
+        .await
+        .unwrap();
     assert!(
         ops2.contains(&ops),
         "Operation mismatch. expecting:{}, got:{}",
@@ -273,7 +278,7 @@ async fn test_withdraw_stake() {
             "operation_identifier":{"index":0},
             "type":"Stake",
             "account": { "address" : sender.to_string() },
-            "amount" : { "value": "-1000000000" , "currency": { "symbol": "HANEUL", "decimals": 9}},
+            "amount" : { "value": "-1000000000" },
             "metadata": { "Stake" : {"validator": validator.to_string()} }
         }]
     ))
@@ -349,8 +354,10 @@ async fn test_withdraw_stake() {
         tx.effects.as_ref().unwrap().status()
     );
     println!("Haneul TX: {tx:?}");
-
-    let ops2 = Operations::try_from(tx).unwrap();
+    let coin_cache = CoinMetadataCache::new(client);
+    let ops2 = Operations::try_from_response(tx, &coin_cache)
+        .await
+        .unwrap();
     assert!(
         ops2.contains(&ops),
         "Operation mismatch. expecting:{}, got:{}",
@@ -388,12 +395,12 @@ async fn test_pay_haneul() {
             "operation_identifier":{"index":0},
             "type":"PayHaneul",
             "account": { "address" : recipient.to_string() },
-            "amount" : { "value": "1000000000" , "currency": { "symbol": "HANEUL", "decimals": 9}}
+            "amount" : { "value": "1000000000" }
         },{
             "operation_identifier":{"index":1},
             "type":"PayHaneul",
             "account": { "address" : sender.to_string() },
-            "amount" : { "value": "-1000000000" , "currency": { "symbol": "HANEUL", "decimals": 9}}
+            "amount" : { "value": "-1000000000" }
         }]
     ))
     .unwrap();
@@ -418,8 +425,10 @@ async fn test_pay_haneul() {
         tx.effects.as_ref().unwrap().status()
     );
     println!("Haneul TX: {tx:?}");
-
-    let ops2 = Operations::try_from(tx).unwrap();
+    let coin_cache = CoinMetadataCache::new(client);
+    let ops2 = Operations::try_from_response(tx, &coin_cache)
+        .await
+        .unwrap();
     assert!(
         ops2.contains(&ops),
         "Operation mismatch. expecting:{}, got:{}",
@@ -440,6 +449,7 @@ async fn test_pay_haneul_multiple_times() {
     let keystore = &test_cluster.wallet.config.keystore;
 
     let (rosetta_client, _handle) = start_rosetta_test_server(client.clone()).await;
+    let coin_cache = CoinMetadataCache::new(client.clone());
 
     for i in 1..20 {
         println!("Iteration: {}", i);
@@ -448,12 +458,12 @@ async fn test_pay_haneul_multiple_times() {
                 "operation_identifier":{"index":0},
                 "type":"PayHaneul",
                 "account": { "address" : recipient.to_string() },
-                "amount" : { "value": "1000000000" , "currency": { "symbol": "HANEUL", "decimals": 9}}
+                "amount" : { "value": "1000000000" }
             },{
                 "operation_identifier":{"index":1},
                 "type":"PayHaneul",
                 "account": { "address" : sender.to_string() },
-                "amount" : { "value": "-1000000000" , "currency": { "symbol": "HANEUL", "decimals": 9}}
+                "amount" : { "value": "-1000000000" }
             }]
         ))
         .unwrap();
@@ -477,8 +487,9 @@ async fn test_pay_haneul_multiple_times() {
             &HaneulExecutionStatus::Success,
             tx.effects.as_ref().unwrap().status()
         );
-
-        let ops2 = Operations::try_from(tx).unwrap();
+        let ops2 = Operations::try_from_response(tx, &coin_cache)
+            .await
+            .unwrap();
         assert!(
             ops2.contains(&ops),
             "Operation mismatch. expecting:{}, got:{}",
