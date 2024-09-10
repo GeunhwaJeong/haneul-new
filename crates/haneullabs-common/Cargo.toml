@@ -7,6 +7,15 @@ edition = "2021"
 publish = false
 
 [dependencies]
+snap.workspace = true
 tokio.workspace = true
 futures.workspace = true
 parking_lot.workspace = true
+reqwest.workspace = true
+fastcrypto.workspace = true
+haneullabs-metrics.workspace = true
+haneul-tls.workspace = true
+haneul-types.workspace = true
+tracing.workspace = true
+prometheus.workspace = true
+anyhow.workspace = true

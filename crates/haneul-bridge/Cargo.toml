@@ -8,7 +8,6 @@ edition = "2021"
 
 [dependencies]
 ethers = "2.0"
-snap = "1.1.0"
 tokio = { workspace = true, features = ["full"] }
 haneul-types.workspace = true
 haneul-authority-aggregation.workspace = true
@@ -26,7 +25,6 @@ haneullabs-metrics.workspace = true
 haneul-sdk.workspace = true
 haneul-keys.workspace = true
 haneul-config.workspace = true
-haneul-tls.workspace = true
 clap.workspace = true
 tracing.workspace = true
 bin-version.workspace = true
@@ -46,6 +44,7 @@ rand.workspace = true
 lru.workspace = true
 shared-crypto.workspace = true
 backoff.workspace = true
+haneullabs-common.workspace = true
 enum_dispatch.workspace = true
 haneul-json-rpc-api.workspace = true
 haneul-test-transaction-builder.workspace = true
