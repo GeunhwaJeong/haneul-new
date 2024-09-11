@@ -1,3 +1,5 @@
-full_node_url: "http://ord-mnt-rpcbig-06.mainnet.haneul.io:9000"
+full_node_url: "https://fullnode.mainnet.haneul.io:443"
 checkpoint_summary_dir: "checkpoints_dir"
 genesis_filename: "genesis.blob"
+object_store_url: "https://checkpoints.mainnet.haneul.io"
+graphql_url: "https://haneul-mainnet.haneul-labs.com/graphql"
