@@ -27,3 +27,5 @@ export {
 	HANEUL_TYPE_ARG,
 	HANEUL_SYSTEM_STATE_OBJECT_ID,
 } from './constants.js';
+
+export { isValidNamedPackage, isValidNamedType } from './move-registry.js';
