@@ -3,7 +3,7 @@
 	"author": "Haneul Labs <build@haneul-labs.com>",
 	"description": "Haneul TypeScript API(Work in Progress)",
 	"homepage": "https://sdk.haneul-labs.com",
-	"version": "1.8.0",
+	"version": "1.9.0",
 	"license": "Apache-2.0",
 	"sideEffects": false,
 	"files": [
