@@ -63,10 +63,6 @@ move-binary-format.workspace = true
 diesel_migrations.workspace = true
 cached.workspace = true
 
-[features]
-default = []
-pg_integration = []
-
 [dev-dependencies]
 haneul-keys.workspace = true
 haneul-move-build.workspace = true
