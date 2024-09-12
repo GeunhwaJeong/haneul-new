@@ -21,6 +21,7 @@ RUN cargo build --profile ${PROFILE} \
     --bin stress \
     --bin haneul-bridge \
     --bin bridge-indexer \
+    --bin deepbook-indexer \
     --bin haneul-bridge-cli \
     --bin haneul-analytics-indexer \
     --bin haneul-proxy \
@@ -40,6 +41,7 @@ COPY --from=builder /haneul/target/release/haneul-node /usr/local/bin
 COPY --from=builder /haneul/target/release/stress /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-bridge /usr/local/bin
 COPY --from=builder /haneul/target/release/bridge-indexer /usr/local/bin
+COPY --from=builder /haneul/target/release/deepbook-indexer /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-bridge-cli /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-analytics-indexer /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-proxy /usr/local/bin
