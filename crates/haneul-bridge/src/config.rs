@@ -158,7 +158,8 @@ impl BridgeNodeConfig {
 
         // we do this check here instead of `prepare_for_haneul` below because
         // that is only called when `run_client` is true.
-        let haneul_client = Arc::new(HaneulClient::<HaneulSdkClient>::new(&self.haneul.haneul_rpc_url).await?);
+        let haneul_client =
+            Arc::new(HaneulClient::<HaneulSdkClient>::new(&self.haneul.haneul_rpc_url, metrics.clone()).await?);
         let bridge_committee = haneul_client
             .get_bridge_committee()
             .await

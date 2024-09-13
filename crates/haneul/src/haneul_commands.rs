@@ -20,6 +20,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::{fs, io};
 use haneul_bridge::config::BridgeCommitteeConfig;
+use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge::haneul_client::HaneulBridgeClient;
 use haneul_bridge::haneul_transaction_builder::build_committee_register_transaction;
 use haneul_config::node::Genesis;
@@ -504,7 +505,8 @@ impl HaneulCommand {
                 let rgp = context.get_reference_gas_price().await?;
                 let rpc_url = &context.config.get_active_env()?.rpc;
                 println!("rpc_url: {}", rpc_url);
-                let haneul_bridge_client = HaneulBridgeClient::new(rpc_url).await?;
+                let bridge_metrics = Arc::new(BridgeMetrics::new_for_testing());
+                let haneul_bridge_client = HaneulBridgeClient::new(rpc_url, bridge_metrics).await?;
                 let bridge_arg = haneul_bridge_client
                     .get_mutable_bridge_object_arg_must_succeed()
                     .await;
