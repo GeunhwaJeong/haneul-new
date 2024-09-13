@@ -51,25 +51,27 @@ module haneul::tx_context {
 }
 
 module haneul::object {
+    const ZERO: u64 = 0;
     struct UID has store {
         id: address,
     }
     public fun delete(_: UID) {
-        loop {}
+        abort ZERO
     }
     public fun new(_: &mut haneul::tx_context::TxContext): UID {
-        loop {}
+        abort ZERO
     }
 }
 
 module haneul::transfer {
+    const ZERO: u64 = 0;
     public fun transfer<T: key>(_: T, _: address) {
-        loop {}
+        abort ZERO
     }
     public fun share_object<T: key>(_: T) {
-        loop {}
+        abort ZERO
     }
     public fun public_share_object<T: key>(_: T) {
-        loop {}
+        abort ZERO
     }
 }
