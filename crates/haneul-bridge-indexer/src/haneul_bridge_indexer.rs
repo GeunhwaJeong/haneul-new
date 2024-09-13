@@ -99,12 +99,14 @@ fn process_haneul_event(
                     status: TokenTransferStatus::Deposited,
                     gas_usage: tx.effects.gas_cost_summary().net_gas_usage(),
                     data_source: BridgeDataSource::Haneul,
+                    is_finalized: true,
                     data: Some(TokenTransferData {
                         destination_chain: move_event.target_chain,
                         sender_address: move_event.sender_address.clone(),
                         recipient_address: move_event.target_address.clone(),
                         token_id: move_event.token_type,
                         amount: move_event.amount_haneul_adjusted,
+                        is_finalized: true,
                     }),
                 }))
             }
@@ -123,6 +125,7 @@ fn process_haneul_event(
                     gas_usage: tx.effects.gas_cost_summary().net_gas_usage(),
                     data_source: BridgeDataSource::Haneul,
                     data: None,
+                    is_finalized: true,
                 }))
             }
             "TokenTransferClaimed" => {
@@ -140,6 +143,7 @@ fn process_haneul_event(
                     gas_usage: tx.effects.gas_cost_summary().net_gas_usage(),
                     data_source: BridgeDataSource::Haneul,
                     data: None,
+                    is_finalized: true,
                 }))
             }
             _ => {
