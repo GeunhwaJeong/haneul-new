@@ -71,6 +71,7 @@ use haneul_types::storage::ObjectStore;
 use haneul_types::storage::ReadStore;
 use haneul_types::transaction::Command;
 use haneul_types::transaction::ProgrammableTransaction;
+use haneul_types::utils::to_sender_signed_transaction_with_multi_signers;
 use haneul_types::HANEUL_SYSTEM_ADDRESS;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress, HANEUL_ADDRESS_LENGTH},
@@ -735,6 +736,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter {
             }
             HaneulSubcommand::ProgrammableTransaction(ProgrammableTransactionCommand {
                 sender,
+                sponsor,
                 gas_budget,
                 gas_price,
                 dev_inspect,
@@ -782,15 +784,17 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter {
                 let summary = if !dev_inspect {
                     let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
                     let gas_price = gas_price.unwrap_or(self.gas_price);
-                    let transaction = self.sign_txn(sender, |sender, gas| {
-                        TransactionData::new_programmable(
-                            sender,
-                            vec![gas],
-                            ProgrammableTransaction { inputs, commands },
-                            gas_budget,
-                            gas_price,
-                        )
-                    });
+                    let transaction =
+                        self.sign_sponsor_txn(sender, sponsor, |sender, sponsor, gas| {
+                            TransactionData::new_programmable_allow_sponsor(
+                                sender,
+                                vec![gas],
+                                ProgrammableTransaction { inputs, commands },
+                                gas_budget,
+                                gas_price,
+                                sponsor,
+                            )
+                        });
                     self.execute_txn(transaction).await?
                 } else {
                     assert!(
@@ -1360,13 +1364,36 @@ impl<'a> HaneulTestAdapter {
         sender: Option<String>,
         txn_data: impl FnOnce(/* sender */ HaneulAddress, /* gas */ ObjectRef) -> TransactionData,
     ) -> Transaction {
-        let test_account = self.get_sender(sender);
+        self.sign_sponsor_txn(sender, None, move |sender, _, gas| txn_data(sender, gas))
+    }
+
+    fn sign_sponsor_txn(
+        &self,
+        sender: Option<String>,
+        sponsor: Option<String>,
+        txn_data: impl FnOnce(
+            /* sender */ HaneulAddress,
+            /* sponsor */ HaneulAddress,
+            /* gas */ ObjectRef,
+        ) -> TransactionData,
+    ) -> Transaction {
+        let sender = self.get_sender(sender);
+        let sponsor = sponsor.map_or(sender, |a| self.get_sender(Some(a)));
+
         let gas_payment = self
-            .get_object(&test_account.gas, None)
+            .get_object(&sender.gas, None)
             .unwrap()
             .compute_object_reference();
-        let data = txn_data(test_account.address, gas_payment);
-        to_sender_signed_transaction(data, &test_account.key_pair)
+
+        let data = txn_data(sender.address, sponsor.address, gas_payment);
+        if sender.address == sponsor.address {
+            to_sender_signed_transaction(data, &sender.key_pair)
+        } else {
+            to_sender_signed_transaction_with_multi_signers(
+                data,
+                vec![&sender.key_pair, &sponsor.key_pair],
+            )
+        }
     }
 
     fn get_sender(&self, sender: Option<String>) -> &TestAccount {
