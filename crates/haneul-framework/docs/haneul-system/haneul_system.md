@@ -77,6 +77,7 @@ the HaneulSystemStateInner version, or vice versa.
 -  [Function `update_candidate_validator_worker_pubkey`](#0x3_haneul_system_update_candidate_validator_worker_pubkey)
 -  [Function `update_validator_next_epoch_network_pubkey`](#0x3_haneul_system_update_validator_next_epoch_network_pubkey)
 -  [Function `update_candidate_validator_network_pubkey`](#0x3_haneul_system_update_candidate_validator_network_pubkey)
+-  [Function `validator_address_by_pool_id`](#0x3_haneul_system_validator_address_by_pool_id)
 -  [Function `pool_exchange_rates`](#0x3_haneul_system_pool_exchange_rates)
 -  [Function `active_validator_addresses`](#0x3_haneul_system_active_validator_addresses)
 -  [Function `advance_epoch`](#0x3_haneul_system_advance_epoch)
@@ -1287,6 +1288,31 @@ Update candidate validator's public key of network key.
 ) {
     <b>let</b> self = <a href="haneul_system.md#0x3_haneul_system_load_system_state_mut">load_system_state_mut</a>(self);
     self.<a href="haneul_system.md#0x3_haneul_system_update_candidate_validator_network_pubkey">update_candidate_validator_network_pubkey</a>(network_pubkey, ctx)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_haneul_system_validator_address_by_pool_id"></a>
+
+## Function `validator_address_by_pool_id`
+
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="haneul_system.md#0x3_haneul_system_validator_address_by_pool_id">validator_address_by_pool_id</a>(wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>, pool_id: &<a href="../haneul-framework/object.md#0x2_object_ID">object::ID</a>): <b>address</b>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="haneul_system.md#0x3_haneul_system_validator_address_by_pool_id">validator_address_by_pool_id</a>(wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a>, pool_id: &ID): <b>address</b> {
+    <b>let</b> self = <a href="haneul_system.md#0x3_haneul_system_load_system_state_mut">load_system_state_mut</a>(wrapper);
+    self.<a href="haneul_system.md#0x3_haneul_system_validator_address_by_pool_id">validator_address_by_pool_id</a>(pool_id)
 }
 </code></pre>
 

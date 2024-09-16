@@ -1023,6 +1023,10 @@ module haneul_system::haneul_system_state_inner {
         self.storage_fund.total_object_storage_rebates()
     }
 
+    public(package) fun validator_address_by_pool_id(self: &mut HaneulSystemStateInnerV2, pool_id: &ID): address {
+        self.validators.validator_address_by_pool_id(pool_id)
+    }
+
     public(package) fun pool_exchange_rates(
         self: &mut HaneulSystemStateInnerV2,
         pool_id: &ID
