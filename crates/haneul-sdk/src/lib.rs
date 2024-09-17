@@ -91,14 +91,16 @@ use haneul_json_rpc_api::{
 pub use haneul_json_rpc_types as rpc_types;
 use haneul_json_rpc_types::{
     ObjectsPage, HaneulObjectDataFilter, HaneulObjectDataOptions, HaneulObjectResponse,
-    HaneulObjectResponseQuery,
+    HaneulObjectResponseQuery, HaneulTransactionBlockResponse,
 };
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
 pub use haneul_types as types;
 use haneul_types::base_types::{ObjectID, ObjectInfo, HaneulAddress};
+use types::transaction::Transaction;
 
 use crate::apis::{CoinReadApi, EventApi, GovernanceApi, QuorumDriverApi, ReadApi};
 use crate::error::{Error, HaneulRpcResult};
+use crate::rpc_types::HaneulTransactionBlockResponseOptions;
 
 pub mod apis;
 pub mod error;
@@ -112,6 +114,10 @@ pub const HANEUL_LOCAL_NETWORK_URL_0: &str = "http://0.0.0.0:9000";
 pub const HANEUL_LOCAL_NETWORK_GAS_URL: &str = "http://127.0.0.1:5003/gas";
 pub const HANEUL_DEVNET_URL: &str = "https://fullnode.devnet.haneul.io:443";
 pub const HANEUL_TESTNET_URL: &str = "https://fullnode.testnet.haneul.io:443";
+
+const WAIT_FOR_LOCAL_EXECUTION_TIMEOUT: Duration = Duration::from_secs(90);
+const WAIT_FOR_LOCAL_EXECUTION_DELAY: Duration = Duration::from_millis(200);
+const WAIT_FOR_LOCAL_EXECUTION_INTERVAL: Duration = Duration::from_secs(2);
 
 /// A Haneul client builder for connecting to the Haneul network
 ///
@@ -531,6 +537,58 @@ impl HaneulClient {
     /// Returns a reference to the underlying WebSocket client, if any.
     pub fn ws(&self) -> Option<&WsClient> {
         self.api.ws.as_ref()
+    }
+
+    /// Execute a transaction and wait for the effects cert.
+    /// The transaction execution is not guaranteed to succeed and may fail. This is usually only
+    /// needed in non-test environment or the caller is explicitly testing some failure behavior.
+    ///
+    // Used mostly in the CLI as it needs to wait for the effects cert instead of local execution.
+    // Use the `execute_transaction_may_fail` from WalletContext
+    // for most cases where read-after write consistency is needed.
+    pub async fn execute_tx(
+        &self,
+        tx: Transaction,
+    ) -> Result<HaneulTransactionBlockResponse, anyhow::Error> {
+        let tx_clone = tx.clone();
+        let resp = self
+        .quorum_driver_api()
+        .execute_transaction_block(
+            tx,
+            HaneulTransactionBlockResponseOptions::new()
+                .with_effects()
+                .with_input()
+                .with_events()
+                .with_object_changes()
+                .with_balance_changes(),
+            Some(haneul_types::quorum_driver_types::ExecuteTransactionRequestType::WaitForEffectsCert),
+        )
+        .await?;
+
+        // poll for tx to simulate wait for local execution
+        tokio::time::timeout(WAIT_FOR_LOCAL_EXECUTION_TIMEOUT, async {
+            // Apply a short delay to give the full node a chance to catch up.
+            tokio::time::sleep(WAIT_FOR_LOCAL_EXECUTION_DELAY).await;
+
+            let mut interval = tokio::time::interval(WAIT_FOR_LOCAL_EXECUTION_INTERVAL);
+            loop {
+                interval.tick().await;
+
+                if let Ok(poll_response) = self
+                    .read_api()
+                    .get_transaction_with_options(
+                        *tx_clone.digest(),
+                        HaneulTransactionBlockResponseOptions::default(),
+                    )
+                    .await
+                {
+                    break poll_response;
+                }
+            }
+        })
+        .await?;
+
+        Ok(resp)
     }
 }
 
