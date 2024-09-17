@@ -1,0 +1,3 @@
+FROM gcr.io/distroless/cc-debian12
+
+COPY --chmod=755 haneul-proxy /opt/haneul/bin/haneul-proxy

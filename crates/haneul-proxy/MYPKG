@@ -1,0 +1,15 @@
+rust_binary(
+    name="haneul-proxy",
+    command="cargo build",
+    profile="release",
+)
+mypkg(
+    name="haneul-proxy",
+    version="bf9f49ff50ff1c4b3378319dfb16dd0a",
+)
+podman_build(
+    name="haneul-proxy-image",
+    registry="docker//us-central1-docker.pkg.dev/cryptic-bolt-398315/haneul-proxy",
+    dockerfile="haneul_proxy_dockerfile",
+    resources=[":haneul-proxy"],
+)
