@@ -47,6 +47,24 @@ impl From<anyhow::Error> for RestError {
     }
 }
 
+impl From<haneul_types::haneul_sdk2_conversions::SdkTypeConversionError> for RestError {
+    fn from(value: haneul_types::haneul_sdk2_conversions::SdkTypeConversionError) -> Self {
+        Self {
+            status: StatusCode::INTERNAL_SERVER_ERROR,
+            message: Some(value.to_string()),
+        }
+    }
+}
+
+impl From<bcs::Error> for RestError {
+    fn from(value: bcs::Error) -> Self {
+        Self {
+            status: StatusCode::INTERNAL_SERVER_ERROR,
+            message: Some(value.to_string()),
+        }
+    }
+}
+
 impl From<haneul_types::quorum_driver_types::QuorumDriverError> for RestError {
     fn from(error: haneul_types::quorum_driver_types::QuorumDriverError) -> Self {
         use itertools::Itertools;
