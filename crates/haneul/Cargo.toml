@@ -56,8 +56,8 @@ haneul-cluster-test.workspace = true
 haneul-execution = { path = "../../haneul-execution" }
 haneul-faucet.workspace = true
 haneul-swarm-config.workspace = true
-haneul-graphql-rpc = {workspace = true, optional = true}
-haneul-indexer = { workspace = true, optional = true }
+haneul-graphql-rpc = {workspace = true }
+haneul-indexer = { workspace = true }
 haneul-genesis-builder.workspace = true
 haneul-types.workspace = true
 haneul-json.workspace = true
@@ -133,4 +133,3 @@ gas-profiler = [
     "haneul-types/gas-profiler",
     "haneul-execution/gas-profiler",
 ]
-indexer = ["dep:haneul-indexer", "dep:haneul-graphql-rpc"]

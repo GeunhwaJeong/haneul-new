@@ -7,11 +7,11 @@ fn main() {
 How to install/build the haneul binary IF:
     A: you only need the basic functionality, so just faucet and no persistence (no indexer, no GraphQL service), build from source as usual (cargo build --bin haneul) or download latest archive from release archives (starting from testnet v1.28.1 or devnet v1.29) and use haneul binary.
     B: you need to also start an indexer (--with-indexer ), or a GraphQL service (--with-graphql), you either:
-    - download latest archive from release archives (starting from testnet v1.28.1 or devnet v1.29) and use haneul-pg binary.
+    - download latest archive from release archives (starting from testnet v1.28.1 or devnet v1.29) and use haneul-pg binary (note that with v1.34.0 haneul-pg no longer exists in the release. Use `haneul` binary instead).
   OR
-    - build from source. This requires passing the indexer feature when building the haneul binary, as well as having libpq/postgresql dependencies installed (just as when using haneul-test-validator):
-        - cargo build --bin haneul --features indexer
-        - cargo run --features indexer --bin haneul -- start --with-faucet --force-regenesis --with-indexer --with-graphql
+    - build from source. This requires to have libpq/postgresql dependencies installed (just as when using haneul-test-validator):
+        - cargo build --bin haneul
+        - cargo run --bin haneul -- start --with-faucet --force-regenesis --with-indexer --with-graphql
 
 Running the local network:
  - (Preferred) In the simplest form, you can replace haneul-test-validator with haneul start --with-faucet --force-regenesis. This will create a network from a new genesis and start a faucet (127.0.0.1:9123). This will not persist state.

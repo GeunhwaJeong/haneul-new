@@ -29,7 +29,11 @@ runs:
     - name: cargo build
       if: env.s3_file_exist == '' # if empty, we have not built and uploaded this binary to s3 yet
       run: |
-        cargo build --bin haneul --features indexer
+        if [[ "${{ inputs.ref }}" == 'devnet' || "${{ inputs.ref }}" == 'testnet' ]]; then
+          cargo build --bin haneul --features indexer
+        else
+          cargo build --bin haneul
+        fi
       shell: bash
 
     - name: Dowload from S3
@@ -37,7 +41,7 @@ runs:
       working-directory: ./target/debug
       run: |
         mkdir -p $PWD/target/debug
-        wget -O target/debug/haneul https://haneul-releases.s3.us-east-1.amazonaws.com/${{ github.sha }}/debug/haneul-pg
+        wget -O target/debug/haneul https://haneul-releases.s3.us-east-1.amazonaws.com/${{ github.sha }}/debug/haneul
         chmod +x $PWD/target/debug/haneul
       shell: bash
 

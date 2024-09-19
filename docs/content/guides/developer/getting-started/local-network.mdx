@@ -2,7 +2,7 @@
 title: Connect to a Local Network
 ---
 
-Use a Haneul local network to test your dApps against the latest changes to Haneul, and to prepare for the next Haneul release to the Devnet or Testnet network. Haneul CLI provides the `haneul start` command to start a local network. There are several services that can be started when using `haneul start`, such as an indexer, a faucet, or a local instance of the GraphQL service (including the online GraphiQL IDE). You can use the included faucet to get test HANEUL to use on the local network.
+Use a Haneul local network to test your dApps against the latest changes to Haneul, and to prepare for the next Haneul release to the Devnet or Testnet network. Haneul CLI provides the `haneul start` command to start a local network. There are several services that can be started when using `haneul start`, such as an indexer, a faucet, or a local instance of the GraphQL service (including the web-based GraphiQL IDE). You can use the included faucet to get test HANEUL to use on the local network.
 
 If you haven't already, you need to [install Haneul CLI](./haneul-install.mdx) on your system.
 
@@ -27,7 +27,7 @@ Each time you start the network by passing `--force-regenesis`, the local networ
 To customize your local Haneul network, such as starting other services or changing default ports and hosts, include additional flags or options in the `haneul start` command.
 
 :::info
-Options and flags like `with-indexer`,  `with-graphql`, and related require you to use the `haneul-pg` binary from the [GitHub release archive](https://github.com/GeunhwaJeong/haneul/releases), or to build the `haneul` binary with the indexer feature enabled: `cargo build --bin haneul --features indexer`.
+Options and flags like `with-indexer`,  `with-graphql`, and related require you to have Postgresq/libpq installed. Check out the list of possible options below to find which is the default expected DB, or how to pass a different DB.
 :::
 
 The following is a list of possible options and flags to pass to `haneul start`:
