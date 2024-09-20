@@ -13,7 +13,7 @@ use haneul_graphql_config::GraphQLConfig;
 use haneul_json_rpc::name_service::NameServiceConfig;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 
-pub(crate) const RPC_TIMEOUT_ERR_SLEEP_RETRY_PERIOD: Duration = Duration::from_millis(10_000);
+pub(crate) const RPC_TIMEOUT_ERR_SLEEP_RETRY_PERIOD: Duration = Duration::from_millis(30_000);
 pub(crate) const MAX_CONCURRENT_REQUESTS: usize = 1_000;
 
 // Move Registry constants
