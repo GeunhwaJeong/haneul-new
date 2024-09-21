@@ -10,7 +10,6 @@ import "./interfaces/IHaneulBridge.sol";
 import "./interfaces/IBridgeVault.sol";
 import "./interfaces/IBridgeLimiter.sol";
 import "./interfaces/IBridgeConfig.sol";
-import "./interfaces/IWETH9.sol";
 
 /// @title HaneulBridge
 /// @notice This contract implements a token bridge that enables users to deposit and withdraw
@@ -121,7 +120,8 @@ contract HaneulBridge is IHaneulBridge, CommitteeUpgradeable, PausableUpgradeabl
 
         if (isFreezing) _pause();
         else _unpause();
-        // pausing event emitted in 'PausableUpgradeable.sol'
+
+        emit EmergencyOperation(message.nonce, isFreezing);
     }
 
     /// @notice Enables the caller to deposit supported tokens to be bridged to a given
