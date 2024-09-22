@@ -456,6 +456,8 @@ impl DataMapper<RawEthData, ProcessedTxnData> for EthDataMapper {
                     })
                 }
                 EthHaneulBridgeEvents::PausedFilter(_)
+                | EthHaneulBridgeEvents::ContractUpgradedFilter(_)
+                | EthHaneulBridgeEvents::EmergencyOperationFilter(_)
                 | EthHaneulBridgeEvents::UnpausedFilter(_)
                 | EthHaneulBridgeEvents::UpgradedFilter(_)
                 | EthHaneulBridgeEvents::InitializedFilter(_) => {
