@@ -46,6 +46,8 @@ contract BridgeBaseTest is Test {
     uint64 ETH_PRICE = 2596_96000000;
     uint64 USDC_PRICE = 1_00000000;
     uint64[] tokenPrices;
+    uint8[] haneulDecimals;
+    uint8[] tokenIds;
     address[] supportedTokens;
     uint8[] supportedChains;
 
@@ -117,17 +119,29 @@ contract BridgeBaseTest is Test {
         supportedChains = new uint8[](1);
         supportedChains[0] = 0;
         tokenPrices = new uint64[](5);
+        haneulDecimals = new uint8[](5);
+        tokenIds = new uint8[](5);
+        haneulDecimals[0] = 9;
+        haneulDecimals[1] = 8;
+        haneulDecimals[2] = 8;
+        haneulDecimals[3] = 6;
+        haneulDecimals[4] = 6;
         tokenPrices[0] = HANEUL_PRICE;
         tokenPrices[1] = BTC_PRICE;
         tokenPrices[2] = ETH_PRICE;
         tokenPrices[3] = USDC_PRICE;
         tokenPrices[4] = USDC_PRICE;
+        tokenIds[0] = 0;
+        tokenIds[1] = 1;
+        tokenIds[2] = 2;
+        tokenIds[3] = 3;
+        tokenIds[4] = 4;
 
         address _config = Upgrades.deployUUPSProxy(
             "BridgeConfig.sol",
             abi.encodeCall(
                 BridgeConfig.initialize,
-                (address(committee), chainID, supportedTokens, tokenPrices, supportedChains)
+                (address(committee), chainID, supportedTokens, tokenPrices, tokenIds, haneulDecimals, supportedChains)
             ),
             opts
         );

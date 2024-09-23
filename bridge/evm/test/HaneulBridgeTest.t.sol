@@ -677,7 +677,7 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
             "BridgeConfig.sol",
             abi.encodeCall(
                 BridgeConfig.initialize,
-                (address(committee), 11, _supportedTokens, tokenPrices, _supportedDestinationChains)
+                (address(committee), 11, _supportedTokens, tokenPrices, tokenIds, haneulDecimals, _supportedDestinationChains)
             ),
             opts
         );
@@ -791,6 +791,8 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
                     _chainID,
                     _supportedTokens,
                     tokenPrices,
+                    tokenIds,
+                    haneulDecimals,
                     _supportedDestinationChains
                 )
             ),
@@ -869,7 +871,7 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
             "BridgeConfig.sol",
             abi.encodeCall(
                 BridgeConfig.initialize,
-                (address(committee), chainID, supportedTokens, tokenPrices, supportedChains)
+                (address(committee), chainID, supportedTokens, tokenPrices, tokenIds, haneulDecimals, supportedChains)
             ),
             opts
         );
@@ -1020,6 +1022,8 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
                     _chainID,
                     _supportedTokens,
                     tokenPrices,
+                    tokenIds,
+                    haneulDecimals,
                     _supportedDestinationChains
                 )
             ),
