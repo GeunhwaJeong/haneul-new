@@ -631,7 +631,7 @@ async fn start(
         swarm_builder = swarm_builder.with_epoch_duration_ms(epoch_duration_ms);
     } else {
         if config.is_none() && !haneul_config_dir()?.join(HANEUL_NETWORK_CONFIG).exists() {
-            genesis(None, None, None, false, epoch_duration_ms, None, false).await?;
+            genesis(None, None, None, false, epoch_duration_ms, None, false).await.map_err(|_| anyhow!("Cannot run genesis with non-empty Haneul config directory: {}.\n\nIf you are trying to run a local network without persisting the data (so a new genesis that is randomly generated and will not be saved once the network is shut down), use --force-regenesis flag.\nIf you are trying to persist the network data and start from a new genesis, use haneul genesis --help to see how to generate a new genesis.", haneul_config_dir().unwrap().display()))?;
         }
 
         // Load the config of the Haneul authority.
