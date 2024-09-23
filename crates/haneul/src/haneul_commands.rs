@@ -427,8 +427,8 @@ impl HaneulCommand {
             } => {
                 let config_path = config.unwrap_or(haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG));
                 prompt_if_no_config(&config_path, accept_defaults).await?;
-                let mut context = WalletContext::new(&config_path, None, None)?;
                 if let Some(cmd) = cmd {
+                    let mut context = WalletContext::new(&config_path, None, None)?;
                     cmd.execute(&mut context).await?.print(!json);
                 } else {
                     // Print help
