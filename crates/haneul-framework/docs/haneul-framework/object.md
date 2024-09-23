@@ -330,7 +330,7 @@ This should only be called once from <code><a href="../haneul-framework/clock.md
 
 <pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul-framework/clock.md#0x2_clock">clock</a>(): <a href="../haneul-framework/object.md#0x2_object_UID">UID</a> {
     <a href="../haneul-framework/object.md#0x2_object_UID">UID</a> {
-        id: <a href="../haneul-framework/object.md#0x2_object_ID">ID</a> { bytes: <a href="../haneul-framework/object.md#0x2_object_HANEUL_CLOCK_OBJECT_ID">HANEUL_CLOCK_OBJECT_ID</a> }
+        id: <a href="../haneul-framework/object.md#0x2_object_ID">ID</a> { bytes: <a href="../haneul-framework/object.md#0x2_object_HANEUL_CLOCK_OBJECT_ID">HANEUL_CLOCK_OBJECT_ID</a> },
     }
 }
 </code></pre>
@@ -358,7 +358,7 @@ This should only be called once from <code><a href="../haneul-framework/authenti
 
 <pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul-framework/authenticator_state.md#0x2_authenticator_state">authenticator_state</a>(): <a href="../haneul-framework/object.md#0x2_object_UID">UID</a> {
     <a href="../haneul-framework/object.md#0x2_object_UID">UID</a> {
-        id: <a href="../haneul-framework/object.md#0x2_object_ID">ID</a> { bytes: <a href="../haneul-framework/object.md#0x2_object_HANEUL_AUTHENTICATOR_STATE_ID">HANEUL_AUTHENTICATOR_STATE_ID</a> }
+        id: <a href="../haneul-framework/object.md#0x2_object_ID">ID</a> { bytes: <a href="../haneul-framework/object.md#0x2_object_HANEUL_AUTHENTICATOR_STATE_ID">HANEUL_AUTHENTICATOR_STATE_ID</a> },
     }
 }
 </code></pre>
@@ -386,7 +386,7 @@ This should only be called once from <code><a href="../haneul-framework/random.m
 
 <pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul-framework/object.md#0x2_object_randomness_state">randomness_state</a>(): <a href="../haneul-framework/object.md#0x2_object_UID">UID</a> {
     <a href="../haneul-framework/object.md#0x2_object_UID">UID</a> {
-        id: <a href="../haneul-framework/object.md#0x2_object_ID">ID</a> { bytes: <a href="../haneul-framework/object.md#0x2_object_HANEUL_RANDOM_ID">HANEUL_RANDOM_ID</a> }
+        id: <a href="../haneul-framework/object.md#0x2_object_ID">ID</a> { bytes: <a href="../haneul-framework/object.md#0x2_object_HANEUL_RANDOM_ID">HANEUL_RANDOM_ID</a> },
     }
 }
 </code></pre>
@@ -414,7 +414,7 @@ This should only be called once from <code><a href="../haneul-framework/deny_lis
 
 <pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul-framework/object.md#0x2_object_haneul_deny_list_object_id">haneul_deny_list_object_id</a>(): <a href="../haneul-framework/object.md#0x2_object_UID">UID</a> {
     <a href="../haneul-framework/object.md#0x2_object_UID">UID</a> {
-        id: <a href="../haneul-framework/object.md#0x2_object_ID">ID</a> { bytes: <a href="../haneul-framework/object.md#0x2_object_HANEUL_DENY_LIST_OBJECT_ID">HANEUL_DENY_LIST_OBJECT_ID</a> }
+        id: <a href="../haneul-framework/object.md#0x2_object_ID">ID</a> { bytes: <a href="../haneul-framework/object.md#0x2_object_HANEUL_DENY_LIST_OBJECT_ID">HANEUL_DENY_LIST_OBJECT_ID</a> },
     }
 }
 </code></pre>
@@ -442,7 +442,7 @@ This should only be called once from <code>bridge</code>.
 
 <pre><code><b>fun</b> <a href="../haneul-framework/object.md#0x2_object_bridge">bridge</a>(): <a href="../haneul-framework/object.md#0x2_object_UID">UID</a> {
     <a href="../haneul-framework/object.md#0x2_object_UID">UID</a> {
-        id: <a href="../haneul-framework/object.md#0x2_object_ID">ID</a> { bytes: <a href="../haneul-framework/object.md#0x2_object_HANEUL_BRIDGE_ID">HANEUL_BRIDGE_ID</a> }
+        id: <a href="../haneul-framework/object.md#0x2_object_ID">ID</a> { bytes: <a href="../haneul-framework/object.md#0x2_object_HANEUL_BRIDGE_ID">HANEUL_BRIDGE_ID</a> },
     }
 }
 </code></pre>
