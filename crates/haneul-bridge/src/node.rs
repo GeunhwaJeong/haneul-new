@@ -116,11 +116,14 @@ async fn start_client_components(
             .expect("Failed to start eth syncer");
     all_handles.extend(task_handles);
 
-    let (task_handles, haneul_events_rx) =
-        HaneulSyncer::new(client_config.haneul_client, haneul_modules_to_watch)
-            .run(Duration::from_secs(2))
-            .await
-            .expect("Failed to start haneul syncer");
+    let (task_handles, haneul_events_rx) = HaneulSyncer::new(
+        client_config.haneul_client,
+        haneul_modules_to_watch,
+        metrics.clone(),
+    )
+    .run(Duration::from_secs(2))
+    .await
+    .expect("Failed to start haneul syncer");
     all_handles.extend(task_handles);
 
     let committee = Arc::new(

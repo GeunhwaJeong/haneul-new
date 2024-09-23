@@ -196,7 +196,6 @@ async fn start_processing_haneul_checkpoints_by_querying_txns(
     haneul_rpc_url: String,
     db_url: String,
     indexer_metrics: BridgeIndexerMetrics,
-    bridge_metrics: Arc<BridgeMetrics>,
 ) -> Result<Vec<JoinHandle<()>>> {
     let pg_pool = get_connection_pool(db_url.clone()).await;
     let (tx, rx) = channel(
@@ -212,7 +211,7 @@ async fn start_processing_haneul_checkpoints_by_querying_txns(
         .expect("Failed to read cursor from haneul progress store");
     let haneul_client = HaneulClientBuilder::default().build(haneul_rpc_url).await?;
     handles.push(spawn_logged_monitored_task!(
-        start_haneul_tx_polling_task(haneul_client, cursor, tx, bridge_metrics),
+        start_haneul_tx_polling_task(haneul_client, cursor, tx),
         "start_haneul_tx_polling_task"
     ));
     handles.push(spawn_logged_monitored_task!(
