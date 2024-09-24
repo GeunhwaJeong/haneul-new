@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { TransactionBlock } from '@haneullabs/haneul/transactions';
+import { Transaction } from '@haneullabs/haneul/transactions';
 
 import { CONFIG } from '../config';
 import { getActiveAddress, getClient, signAndExecute } from '../haneul-utils';
@@ -77,7 +77,7 @@ const createEscrows = async (total: number) => {
 		});
 	}
 
-	const txb = new TransactionBlock();
+	const txb = new Transaction();
 
 	for (const tuple of tuples) {
 		if (!tuple.bear) break;

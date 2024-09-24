@@ -7,6 +7,23 @@
  @tailwind components;
  @tailwind utilities;
 
+ @layer utilities {
+  .bg-checkerboard {
+    background-image: linear-gradient(45deg, var(--haneul-black) 25%, transparent 25%, transparent 75%, var(--haneul-black) 75%, var(--haneul-black)),
+                      linear-gradient(45deg, var(--haneul-black) 25%, transparent 25%, transparent 75%, var(--haneul-black) 75%, var(--haneul-black));
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+    border-right: 1px solid var(--haneul-blue);
+  }
+  .bg-checkerboard-dark {
+    background-image: linear-gradient(45deg, rgb(var(--haneul-blue-dark)) 25%, transparent 25%, transparent 75%, rgb(var(--haneul-blue-dark)) 75%, rgb(var(--haneul-blue-dark))),
+                      linear-gradient(45deg, rgb(var(--haneul-blue-dark)) 25%, transparent 25%, transparent 75%, rgb(var(--haneul-blue-dark)) 75%, rgb(var(--haneul-blue-dark)));
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+    border-right: 1px solid rgb(var(--haneul-blue-dark));
+  }
+}
+
 /* You can override the default Infima variables here. */
 :root {
   --ifm-color-primary: #4ca2ff;
@@ -354,7 +371,21 @@ h4 {
   color: var(--haneul-white);
   text-decoration: none;
 }
+/*
+details {
+  @apply !bg-haneul-gray-45 !border-haneul-gray-65 relative before:content-["Click\20to\20toggle"] before:absolute before:-top-3 before:-left-1 before:text-xs before:bg-white before:px-2 before:py-0.5 before:rounded before:border before:border-haneul-gray-65 before:border-solid before:opacity-0 hover:before:opacity-100 before:duration-300 before:transition-opacity;
+}
+[data-theme='dark'] details {
+  @apply !bg-haneul-gray-90 !border-haneul-gray-65;
+}
+*/
+summary::before {
+  @apply !border-l-haneul-gray-65;
+}
 
+details > div > div {
+  @apply !border-t-haneul-gray-65;
+}
 @media (max-width: 1050px) {
   .navbar .button-cta {
     display: none;

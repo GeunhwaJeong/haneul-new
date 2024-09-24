@@ -1,6 +1,5 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-
 import { useCurrentAccount, useHaneulClientInfiniteQuery } from "@haneullabs/dapp-kit";
 import { HaneulObjectDisplay } from "@/components/HaneulObjectDisplay";
 import { Button } from "@radix-ui/themes";
@@ -48,7 +47,7 @@ export function LockOwnedObjects() {
     >
       {data?.map((obj) => (
         <HaneulObjectDisplay object={obj.data!}>
-          <div className="text-right flex items-center justify-between">
+          <div className="p-4 pt-1 text-right flex items-center justify-between">
             <p className="text-sm">
               Lock the item so it can be used for escrows.
             </p>
