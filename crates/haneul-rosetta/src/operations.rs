@@ -299,7 +299,7 @@ impl Operations {
                 .map(|amount| {
                     let value: u64 = match *amount {
                         HaneulArgument::Input(i) => {
-                            u64::from_str(inputs[i as usize].pure()?.to_json_value().as_str()?)
+                            u64::from_str(inputs.get(i as usize)?.pure()?.to_json_value().as_str()?)
                                 .ok()?
                         }
                         HaneulArgument::GasCoin
@@ -319,7 +319,7 @@ impl Operations {
             recipient: HaneulArgument,
         ) -> Option<Vec<KnownValue>> {
             let addr = match recipient {
-                HaneulArgument::Input(i) => inputs[i as usize].pure()?.to_haneul_address().ok()?,
+                HaneulArgument::Input(i) => inputs.get(i as usize)?.pure()?.to_haneul_address().ok()?,
                 HaneulArgument::GasCoin | HaneulArgument::Result(_) | HaneulArgument::NestedResult(_, _) => {
                     return None
                 }
@@ -361,7 +361,7 @@ impl Operations {
                         // We use the position of the validator arg as a indicator of if the rosetta stake
                         // transaction is staking the whole wallet or not, if staking whole wallet,
                         // we have to omit the amount value in the final operation output.
-                        HaneulArgument::Input(i) => (*i==1, inputs[*i as usize].pure().map(|v|v.to_haneul_address()).transpose()),
+                        HaneulArgument::Input(i) => (*i==1, inputs.get(*i as usize).and_then(|input| input.pure()).map(|v|v.to_haneul_address()).transpose()),
                         _=> return Ok(None),
                     };
                     (some_amount.then_some(*amount), validator)
@@ -380,7 +380,7 @@ impl Operations {
                 [_, stake_id] => {
                     match stake_id {
                         HaneulArgument::Input(i) => {
-                            let id = inputs[*i as usize].object().ok_or_else(|| anyhow!("Cannot find stake id from input args."))?;
+                            let id = inputs.get(*i as usize).and_then(|input| input.object()).ok_or_else(|| anyhow!("Cannot find stake id from input args."))?;
                             // [WORKAROUND] - this is a hack to work out if the withdraw stake ops is for a selected stake or None (all stakes).
                             // this hack is similar to the one in stake_call.
                             let some_id = i % 2 == 1;
