@@ -2,8 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { HaneulClient } from '@haneullabs/haneul/client';
-import type { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
-import { useQuery } from '@tanstack/react-query';
+import type {
+	UndefinedInitialDataOptions,
+	UseQueryOptions,
+	UseQueryResult,
+} from '@tanstack/react-query';
+import { queryOptions, useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 
 import type { PartialBy } from '../types/utilityTypes.js';
 import { useHaneulClientContext } from './useHaneulClient.js';
@@ -35,6 +40,34 @@ export type UseHaneulClientQueryOptions<T extends keyof HaneulRpcMethods, TData>
 	'queryKey'
 >;
 
+export type GetHaneulClientQueryOptions<T extends keyof HaneulRpcMethods> = {
+	client: HaneulClient;
+	network: string;
+	method: T;
+	options?: PartialBy<
+		Omit<UndefinedInitialDataOptions<HaneulRpcMethods[T]['result']>, 'queryFn'>,
+		'queryKey'
+	>;
+} & (undefined extends HaneulRpcMethods[T]['params']
+	? { params?: HaneulRpcMethods[T]['params'] }
+	: { params: HaneulRpcMethods[T]['params'] });
+
+export function getHaneulClientQuery<T extends keyof HaneulRpcMethods>({
+	client,
+	network,
+	method,
+	params,
+	options,
+}: GetHaneulClientQueryOptions<T>) {
+	return queryOptions<HaneulRpcMethods[T]['result']>({
+		...options,
+		queryKey: [network, method, params],
+		queryFn: async () => {
+			return await client[method](params as never);
+		},
+	});
+}
+
 export function useHaneulClientQuery<
 	T extends keyof HaneulRpcMethods,
 	TData = HaneulRpcMethods[T]['result'],
@@ -58,4 +91,33 @@ export function useHaneulClientQuery<
 			return await haneulContext.client[method](params as never);
 		},
 	});
+}
+
+export function useHaneulClientSuspenseQuery<
+	T extends keyof HaneulRpcMethods,
+	TData = HaneulRpcMethods[T]['result'],
+>(
+	...args: undefined extends HaneulRpcMethods[T]['params']
+		? [method: T, params?: HaneulRpcMethods[T]['params'], options?: UndefinedInitialDataOptions<TData>]
+		: [method: T, params: HaneulRpcMethods[T]['params'], options?: UndefinedInitialDataOptions<TData>]
+) {
+	const [method, params, options = {}] = args as [
+		method: T,
+		params?: HaneulRpcMethods[T]['params'],
+		options?: UndefinedInitialDataOptions<TData>,
+	];
+
+	const haneulContext = useHaneulClientContext();
+
+	const query = useMemo(() => {
+		return getHaneulClientQuery<T>({
+			client: haneulContext.client,
+			network: haneulContext.network,
+			method,
+			params,
+			options,
+		});
+	}, [haneulContext.client, haneulContext.network, method, params, options]);
+
+	return useSuspenseQuery(query);
 }
