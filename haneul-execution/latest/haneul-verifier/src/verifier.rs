@@ -56,7 +56,7 @@ pub fn haneul_verify_module_unmetered(
     fn_info_map: &FnInfoMap,
     verifier_config: &VerifierConfig,
 ) -> Result<(), ExecutionError> {
-    haneul_verify_module_metered(module, fn_info_map, &mut DummyMeter, verifier_config).map_err(
+    haneul_verify_module_metered(module, fn_info_map, &mut DummyMeter, verifier_config).inspect_err(
         |err| {
             // We must never see timeout error in execution
             debug_assert!(
@@ -66,7 +66,6 @@ pub fn haneul_verify_module_unmetered(
             ),
                 "Unexpected timeout error in execution"
             );
-            err
         },
     )
 }
