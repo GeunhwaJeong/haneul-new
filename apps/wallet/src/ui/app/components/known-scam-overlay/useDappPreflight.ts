@@ -3,7 +3,7 @@
 import { useAppsBackend } from '@haneullabs/core';
 import { useHaneulClient } from '@haneullabs/dapp-kit';
 import { type Transaction } from '@haneullabs/haneul/transactions';
-import { toB64 } from '@haneullabs/haneul/utils';
+import { toBase64 } from '@haneullabs/haneul/utils';
 import { useQuery } from '@tanstack/react-query';
 
 import {
@@ -45,7 +45,7 @@ export function useDappPreflight({
 
 			if (requestType === RequestType.SIGN_TRANSACTION && transaction) {
 				const transactionBytes = await transaction.build({ client });
-				body.transactionBytes = toB64(transactionBytes);
+				body.transactionBytes = toBase64(transactionBytes);
 			}
 
 			return request<DappPreflightResponse>(

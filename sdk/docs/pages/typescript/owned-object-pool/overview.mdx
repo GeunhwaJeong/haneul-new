@@ -77,7 +77,7 @@ transaction. If you need HANEUL for a test network, you can
 import { HaneulClient } from '@haneullabs/haneul/client';
 import { Ed25519Keypair } from '@haneullabs/haneul/keypairs/ed25519';
 import { Transaction } from '@haneullabs/haneul/transactions';
-import { fromB64 } from '@haneullabs/haneul/utils';
+import { fromBase64 } from '@haneullabs/haneul/utils';
 
 /* HERE ARE DEFINED THE PREPARATORY STEPS IF YOU WANT TO CODE ALONG*/
 // Define the transaction
@@ -92,7 +92,7 @@ function createPaymenttx(recipient: string): Transaction {
 }
 // Define your admin keypair and client
 const ADMIN_SECRET_KEY: string = '<your-address-secret-key>';
-const adminPrivateKeyArray = Uint8Array.from(Array.from(fromB64(ADMIN_SECRET_KEY)));
+const adminPrivateKeyArray = Uint8Array.from(Array.from(fromBase64(ADMIN_SECRET_KEY)));
 const adminKeypair = Ed25519Keypair.fromSecretKey(adminPrivateKeyArray.slice(1));
 
 const client = new HaneulClient({

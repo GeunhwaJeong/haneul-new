@@ -1,6 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-import { fromB58, toB64, toHEX } from '@haneullabs/bcs';
+import { fromBase58, toBase64, toHex } from '@haneullabs/bcs';
 
 import type { Signer } from '../cryptography/index.js';
 import type { Transaction } from '../transactions/index.js';
@@ -415,7 +415,7 @@ export class HaneulClient {
 		const result: HaneulTransactionBlockResponse = await this.transport.request({
 			method: 'haneul_executeTransactionBlock',
 			params: [
-				typeof transactionBlock === 'string' ? transactionBlock : toB64(transactionBlock),
+				typeof transactionBlock === 'string' ? transactionBlock : toBase64(transactionBlock),
 				Array.isArray(signature) ? signature : [signature],
 				options,
 			],
@@ -580,7 +580,7 @@ export class HaneulClient {
 		let devInspectTxBytes;
 		if (isTransaction(input.transactionBlock)) {
 			input.transactionBlock.setSenderIfNotSet(input.sender);
-			devInspectTxBytes = toB64(
+			devInspectTxBytes = toBase64(
 				await input.transactionBlock.build({
 					client: this,
 					onlyTransactionKind: true,
@@ -589,7 +589,7 @@ export class HaneulClient {
 		} else if (typeof input.transactionBlock === 'string') {
 			devInspectTxBytes = input.transactionBlock;
 		} else if (input.transactionBlock instanceof Uint8Array) {
-			devInspectTxBytes = toB64(input.transactionBlock);
+			devInspectTxBytes = toBase64(input.transactionBlock);
 		} else {
 			throw new Error('Unknown transaction block format.');
 		}
@@ -611,7 +611,7 @@ export class HaneulClient {
 			params: [
 				typeof input.transactionBlock === 'string'
 					? input.transactionBlock
-					: toB64(input.transactionBlock),
+					: toBase64(input.transactionBlock),
 			],
 		});
 	}
@@ -743,8 +743,8 @@ export class HaneulClient {
 	// TODO: Migrate this to `haneul_getChainIdentifier` once it is widely available.
 	async getChainIdentifier(): Promise<string> {
 		const checkpoint = await this.getCheckpoint({ id: '0' });
-		const bytes = fromB58(checkpoint.digest);
-		return toHEX(bytes.slice(0, 4));
+		const bytes = fromBase58(checkpoint.digest);
+		return toHex(bytes.slice(0, 4));
 	}
 
 	async resolveNameServiceAddress(input: ResolveNameServiceAddressParams): Promise<string | null> {

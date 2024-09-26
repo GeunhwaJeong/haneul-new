@@ -8,7 +8,7 @@ import type { Keypair, Signer } from '@haneullabs/haneul/cryptography';
 import { Ed25519Keypair } from '@haneullabs/haneul/keypairs/ed25519';
 import type { TransactionObjectArgument, TransactionObjectInput } from '@haneullabs/haneul/transactions';
 import { Transaction } from '@haneullabs/haneul/transactions';
-import { normalizeStructTag, normalizeHaneulAddress, HANEUL_TYPE_ARG, toB64 } from '@haneullabs/haneul/utils';
+import { normalizeStructTag, normalizeHaneulAddress, HANEUL_TYPE_ARG, toBase64 } from '@haneullabs/haneul/utils';
 
 import type { ZkBagContractOptions } from './zk-bag.js';
 import { getContractIds, ZkBag } from './zk-bag.js';
@@ -106,7 +106,7 @@ export class ZkSendLinkBuilder {
 	getLink(): string {
 		const link = new URL(this.#host);
 		link.pathname = this.#path;
-		link.hash = `${this.#contract ? '$' : ''}${toB64(
+		link.hash = `${this.#contract ? '$' : ''}${toBase64(
 			decodeHaneulPrivateKey(this.keypair.getSecretKey()).secretKey,
 		)}`;
 

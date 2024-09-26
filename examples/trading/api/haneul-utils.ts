@@ -8,7 +8,7 @@ import path from 'path';
 import { getFullnodeUrl, HaneulClient } from '@haneullabs/haneul/client';
 import { Ed25519Keypair } from '@haneullabs/haneul/keypairs/ed25519';
 import { Transaction } from '@haneullabs/haneul/transactions';
-import { fromB64 } from '@haneullabs/haneul/utils';
+import { fromBase64 } from '@haneullabs/haneul/utils';
 
 export type Network = 'mainnet' | 'testnet' | 'devnet' | 'localnet';
 
@@ -29,7 +29,7 @@ export const getSigner = () => {
 	);
 
 	for (const priv of keystore) {
-		const raw = fromB64(priv);
+		const raw = fromBase64(priv);
 		if (raw[0] !== 0) {
 			continue;
 		}

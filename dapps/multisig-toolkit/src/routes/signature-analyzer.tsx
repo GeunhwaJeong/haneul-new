@@ -3,7 +3,7 @@
 
 import { parseSerializedSignature, PublicKey, SignatureScheme } from '@haneullabs/haneul/cryptography';
 import { parsePartialSignatures } from '@haneullabs/haneul/multisig';
-import { toB64 } from '@haneullabs/haneul/utils';
+import { toBase64 } from '@haneullabs/haneul/utils';
 import { publicKeyFromRawBytes } from '@haneullabs/haneul/verify';
 import { AlertCircle } from 'lucide-react';
 import { useState } from 'react';
@@ -47,7 +47,7 @@ function Signature({ signature, index }: { signature: SignaturePubkeyPair; index
 		{ label: 'Signature Public Key', value: pubkey },
 		{ label: 'Haneul Format Public Key ( flag | pk )', value: pubkey_base64_haneul_format },
 		{ label: 'Haneul Address', value: haneulAddress },
-		{ label: 'Signature', value: toB64(signature.signature) },
+		{ label: 'Signature', value: toBase64(signature.signature) },
 	];
 
 	return (

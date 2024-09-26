@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Transaction } from '@haneullabs/haneul/transactions';
-import { toB64 } from '@haneullabs/haneul/utils';
+import { toBase64 } from '@haneullabs/haneul/utils';
 import type {
 	StandardConnectFeature,
 	StandardConnectMethod,
@@ -170,7 +170,7 @@ export class StashedWallet implements Wallet {
 			origin: this.#origin,
 			network: this.#network,
 		});
-		const bytes = toB64(message);
+		const bytes = toBase64(message);
 
 		const response = await popup.send({
 			type: 'sign-personal-message',

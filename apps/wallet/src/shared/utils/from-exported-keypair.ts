@@ -10,7 +10,7 @@ import {
 import { Ed25519Keypair } from '@haneullabs/haneul/keypairs/ed25519';
 import { Secp256k1Keypair } from '@haneullabs/haneul/keypairs/secp256k1';
 import { Secp256r1Keypair } from '@haneullabs/haneul/keypairs/secp256r1';
-import { fromB64 } from '@haneullabs/haneul/utils';
+import { fromBase64 } from '@haneullabs/haneul/utils';
 
 /**
  * Wallet stored data might contain imported accounts with their keys stored in the previous format.
@@ -31,7 +31,7 @@ export function fromExportedKeypair(
 		if (!legacySupport) {
 			throw new Error('Invalid type of secret key. A string value was expected.');
 		}
-		secretKey = fromB64(secret.privateKey);
+		secretKey = fromBase64(secret.privateKey);
 		schema = secret.schema;
 	} else {
 		const decoded = decodeHaneulPrivateKey(secret);

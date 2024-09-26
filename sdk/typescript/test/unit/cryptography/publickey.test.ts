@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { toB64 } from '@haneullabs/bcs';
+import { toBase64 } from '@haneullabs/bcs';
 import { blake2b } from '@noble/hashes/blake2b';
 import { bytesToHex } from '@noble/hashes/utils';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -56,12 +56,12 @@ describe('Publickey', () => {
 	});
 
 	it('`toBase64()` should return a valid base-64 representation', async () => {
-		expect(pk2.toBase64()).toEqual(toB64(pk2.toRawBytes()));
+		expect(pk2.toBase64()).toEqual(toBase64(pk2.toRawBytes()));
 		expect(pk2.toBase64()).toEqual('Ah0VIwfGtysO0EGLDnDNgOf1KVuNhvVyLT9SE/vSOU82');
 	});
 
 	it('`toHaneulPublicKey()` should return a valid haneul representation', async () => {
-		expect(pk2.toHaneulPublicKey()).toEqual(toB64(pk2.toHaneulBytes()));
+		expect(pk2.toHaneulPublicKey()).toEqual(toBase64(pk2.toHaneulBytes()));
 		expect(pk2.toHaneulPublicKey()).toEqual('AQIdFSMHxrcrDtBBiw5wzYDn9SlbjYb1ci0/UhP70jlPNg==');
 	});
 

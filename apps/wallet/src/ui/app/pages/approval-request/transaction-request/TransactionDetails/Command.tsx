@@ -4,7 +4,7 @@
 import { Text } from '_src/ui/app/shared/text';
 import { ChevronDown12, ChevronRight12 } from '@haneullabs/icons';
 import { type Argument, type Commands, type TransactionData } from '@haneullabs/haneul/transactions';
-import { toB64 } from '@haneullabs/haneul/utils';
+import { toBase64 } from '@haneullabs/haneul/utils';
 import { useState } from 'react';
 
 type TransactionType = TransactionData['commands'][0];
@@ -34,7 +34,7 @@ function convertCommandArgumentToString(
 	if (Array.isArray(arg)) {
 		// Publish transaction special casing:
 		if (typeof arg[0] === 'number') {
-			return toB64(new Uint8Array(arg as number[]));
+			return toBase64(new Uint8Array(arg as number[]));
 		}
 
 		return `[${arg.map((argVal) => convertCommandArgumentToString(argVal)).join(', ')}]`;

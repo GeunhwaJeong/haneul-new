@@ -5,7 +5,7 @@ import type { HaneulClient } from '@haneullabs/haneul/client';
 import { decodeHaneulPrivateKey } from '@haneullabs/haneul/cryptography';
 import { Ed25519Keypair } from '@haneullabs/haneul/keypairs/ed25519';
 import type { Transaction } from '@haneullabs/haneul/transactions';
-import { fromB64, toB64 } from '@haneullabs/haneul/utils';
+import { fromBase64, toBase64 } from '@haneullabs/haneul/utils';
 import type { ZkLoginSignatureInputs } from '@haneullabs/haneul/zklogin';
 import { decodeJwt } from 'jose';
 import type { WritableAtom } from 'nanostores';
@@ -163,7 +163,7 @@ export class EnokiFlow {
 			expiresAt: estimatedExpiration,
 			maxEpoch,
 			randomness,
-			ephemeralKeyPair: toB64(decodeHaneulPrivateKey(ephemeralKeyPair.getSecretKey()).secretKey),
+			ephemeralKeyPair: toBase64(decodeHaneulPrivateKey(ephemeralKeyPair.getSecretKey()).secretKey),
 		});
 
 		return oauthUrl;
@@ -273,7 +273,7 @@ export class EnokiFlow {
 			throw new Error('Missing required parameters for proof generation');
 		}
 
-		const ephemeralKeyPair = Ed25519Keypair.fromSecretKey(fromB64(zkp.ephemeralKeyPair));
+		const ephemeralKeyPair = Ed25519Keypair.fromSecretKey(fromBase64(zkp.ephemeralKeyPair));
 
 		const proof = await this.#enokiClient.createZkLoginZkp({
 			network,
@@ -311,7 +311,7 @@ export class EnokiFlow {
 			address,
 			maxEpoch: zkp.maxEpoch,
 			proof: zkp.proof,
-			ephemeralKeypair: Ed25519Keypair.fromSecretKey(fromB64(zkp.ephemeralKeyPair)),
+			ephemeralKeypair: Ed25519Keypair.fromSecretKey(fromBase64(zkp.ephemeralKeyPair)),
 		});
 	}
 
@@ -338,7 +338,7 @@ export class EnokiFlow {
 		return await this.#enokiClient.createSponsoredTransaction({
 			jwt: session.jwt,
 			network,
-			transactionKindBytes: toB64(transactionKindBytes),
+			transactionKindBytes: toBase64(transactionKindBytes),
 		});
 	}
 
@@ -354,7 +354,7 @@ export class EnokiFlow {
 		client: HaneulClient;
 	}) {
 		const keypair = await this.getKeypair({ network });
-		const userSignature = await keypair.signTransaction(fromB64(bytes));
+		const userSignature = await keypair.signTransaction(fromBase64(bytes));
 
 		await this.#enokiClient.executeSponsoredTransaction({
 			digest,

@@ -13,7 +13,18 @@ export {
 	HANEUL_ADDRESS_LENGTH,
 } from './haneul-types.js';
 
-export { fromB64, toB64, fromHEX, toHEX } from '@haneullabs/bcs';
+export {
+	fromB64,
+	toB64,
+	fromHEX,
+	toHex,
+	toHEX,
+	fromHex,
+	fromBase64,
+	toBase64,
+	fromBase58,
+	toBase58,
+} from '@haneullabs/bcs';
 export { isValidHaneulNSName, normalizeHaneulNSName } from './haneulns.js';
 
 export {

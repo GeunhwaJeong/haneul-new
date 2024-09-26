@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { HaneulClient } from '@haneullabs/haneul/client';
-import { fromB64, isValidHaneulAddress } from '@haneullabs/haneul/utils';
+import { fromBase64, isValidHaneulAddress } from '@haneullabs/haneul/utils';
 
 import '../bcs.js';
 
@@ -50,7 +50,7 @@ export async function queryTransferPolicy(
 				throw new Error(`Invalid policy: ${policy?.objectId}, expected object, got package`);
 			}
 
-			const parsed = TransferPolicyType.parse(fromB64(policy.bcs.bcsBytes));
+			const parsed = TransferPolicyType.parse(fromBase64(policy.bcs.bcsBytes));
 
 			return {
 				id: policy?.objectId,

@@ -5,7 +5,7 @@ import { bcs } from '@haneullabs/haneul/bcs';
 import type { HaneulClient } from '@haneullabs/haneul/client';
 import { HaneulGraphQLClient } from '@haneullabs/haneul/graphql';
 import { graphql } from '@haneullabs/haneul/graphql/schemas/2024.4';
-import { fromB64, normalizeHaneulAddress } from '@haneullabs/haneul/utils';
+import { fromBase64, normalizeHaneulAddress } from '@haneullabs/haneul/utils';
 
 import { ZkSendLink } from './claim.js';
 import type { ZkBagContractOptions } from './zk-bag.js';
@@ -85,7 +85,7 @@ export async function listCreatedLinks({
 					return null;
 				}
 
-				const kind = bcs.SenderSignedData.parse(fromB64(node.bcs))?.[0]?.intentMessage.value.V1
+				const kind = bcs.SenderSignedData.parse(fromBase64(node.bcs))?.[0]?.intentMessage.value.V1
 					.kind;
 
 				if (!kind.ProgrammableTransaction) {

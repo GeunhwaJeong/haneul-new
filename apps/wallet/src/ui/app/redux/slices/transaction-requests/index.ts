@@ -12,7 +12,7 @@ import {
 import type { AppThunkConfig } from '_store/thunk-extras';
 import { type HaneulTransactionBlockResponse } from '@haneullabs/haneul/client';
 import { Transaction } from '@haneullabs/haneul/transactions';
-import { fromB64 } from '@haneullabs/haneul/utils';
+import { fromBase64 } from '@haneullabs/haneul/utils';
 import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
@@ -56,7 +56,7 @@ export const respondToTransactionRequest = createAsyncThunk<
 				if (txRequest.tx.type === 'sign-message') {
 					txResult = await signer.signMessage(
 						{
-							message: fromB64(txRequest.tx.message),
+							message: fromBase64(txRequest.tx.message),
 						},
 						clientIdentifier,
 					);

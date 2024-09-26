@@ -4,7 +4,7 @@
 import type { HaneulClient } from '@haneullabs/haneul/client';
 import { Ed25519Keypair } from '@haneullabs/haneul/keypairs/ed25519';
 import { Transaction } from '@haneullabs/haneul/transactions';
-import { toB64 } from '@haneullabs/haneul/utils';
+import { toBase64 } from '@haneullabs/haneul/utils';
 import type {
 	StandardConnectFeature,
 	StandardConnectMethod,
@@ -198,7 +198,7 @@ function registerUnsafeBurnerWallet(haneulClient: HaneulClient) {
 				bytes,
 				signature,
 				digest,
-				effects: toB64(new Uint8Array(rawEffects!)),
+				effects: toBase64(new Uint8Array(rawEffects!)),
 			};
 		};
 	}

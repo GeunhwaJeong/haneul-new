@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { toB64 } from '@haneullabs/bcs';
+import { toBase64 } from '@haneullabs/bcs';
 
 import { bcs } from '../../bcs/index.js';
 import type { HaneulClient, HaneulTransactionBlockResponseOptions } from '../../client/index.js';
@@ -109,7 +109,7 @@ export class SerialTransactionExecutor {
 
 			return {
 				digest: results.digest,
-				effects: toB64(effectsBytes),
+				effects: toBase64(effectsBytes),
 				data: results,
 			};
 		});

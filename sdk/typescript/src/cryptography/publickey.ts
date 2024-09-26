@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { toB64 } from '@haneullabs/bcs';
+import { toBase64 } from '@haneullabs/bcs';
 import { blake2b } from '@noble/hashes/blake2b';
 import { bytesToHex } from '@noble/hashes/utils';
 
@@ -45,7 +45,7 @@ export abstract class PublicKey {
 	 * Return the base-64 representation of the public key
 	 */
 	toBase64() {
-		return toB64(this.toRawBytes());
+		return toBase64(this.toRawBytes());
 	}
 
 	toString(): never {
@@ -61,7 +61,7 @@ export abstract class PublicKey {
 	 */
 	toHaneulPublicKey(): string {
 		const bytes = this.toHaneulBytes();
-		return toB64(bytes);
+		return toBase64(bytes);
 	}
 
 	verifyWithIntent(

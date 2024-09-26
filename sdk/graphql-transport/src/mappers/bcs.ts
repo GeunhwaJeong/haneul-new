@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { toB64 } from '@haneullabs/bcs';
+import { toBase64 } from '@haneullabs/bcs';
 import type { BcsType } from '@haneullabs/bcs';
 import { bcs } from '@haneullabs/haneul/bcs';
 
@@ -57,5 +57,5 @@ export function layoutToBcs(layout: MoveTypeLayout): BcsType<any> {
 
 export function mapJsonToBcs(json: unknown, layout: MoveTypeLayout) {
 	const schema = layoutToBcs(layout);
-	return toB64(schema.serialize(json).toBytes());
+	return toBase64(schema.serialize(json).toBytes());
 }

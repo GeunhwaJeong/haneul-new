@@ -30,7 +30,7 @@ import { type SignMessageRequest } from '_src/shared/messaging/messages/payloads
 import { isWalletStatusChangePayload } from '_src/shared/messaging/messages/payloads/wallet-status-change';
 import { bcs } from '@haneullabs/haneul/bcs';
 import { isTransaction } from '@haneullabs/haneul/transactions';
-import { fromB64, toB64 } from '@haneullabs/haneul/utils';
+import { fromBase64, toBase64 } from '@haneullabs/haneul/utils';
 import {
 	ReadonlyWalletAccount,
 	HANEUL_CHAINS,
@@ -171,7 +171,7 @@ export class HaneulWallet implements Wallet {
 				new ReadonlyWalletAccount({
 					address,
 					label: nickname || undefined,
-					publicKey: publicKey ? fromB64(publicKey) : new Uint8Array(),
+					publicKey: publicKey ? fromBase64(publicKey) : new Uint8Array(),
 					chains: this.#activeChain ? [this.#activeChain] : [],
 					features: ['haneul:signAndExecuteTransaction'],
 				}),
@@ -334,7 +334,7 @@ export class HaneulWallet implements Wallet {
 						txSignatures: [signature],
 						intentMessage: { value: bcsTransaction },
 					},
-				] = bcs.SenderSignedData.parse(fromB64(rawTransaction!));
+				] = bcs.SenderSignedData.parse(fromBase64(rawTransaction!));
 
 				const bytes = bcs.TransactionData.serialize(bcsTransaction).toBase64();
 
@@ -342,7 +342,7 @@ export class HaneulWallet implements Wallet {
 					digest,
 					signature,
 					bytes,
-					effects: toB64(new Uint8Array(rawEffects!)),
+					effects: toBase64(new Uint8Array(rawEffects!)),
 				};
 			},
 		);
@@ -353,7 +353,7 @@ export class HaneulWallet implements Wallet {
 			this.#send<SignMessageRequest, SignMessageRequest>({
 				type: 'sign-message-request',
 				args: {
-					message: toB64(message),
+					message: toBase64(message),
 					accountAddress: account.address,
 				},
 			}),
@@ -371,7 +371,7 @@ export class HaneulWallet implements Wallet {
 			this.#send<SignMessageRequest, SignMessageRequest>({
 				type: 'sign-message-request',
 				args: {
-					message: toB64(message),
+					message: toBase64(message),
 					accountAddress: account.address,
 				},
 			}),
