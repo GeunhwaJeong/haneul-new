@@ -4,12 +4,13 @@
 use crate::authority::authority_per_epoch_store::{AuthorityPerEpochStore, LockDetails};
 use dashmap::mapref::entry::Entry as DashMapEntry;
 use dashmap::DashMap;
+use haneullabs_common::*;
 use haneul_types::base_types::{ObjectID, ObjectRef};
 use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
 use haneul_types::object::Object;
 use haneul_types::storage::ObjectStore;
 use haneul_types::transaction::VerifiedSignedTransaction;
-use tracing::{debug, error, info, instrument, trace};
+use tracing::{debug, info, instrument, trace};
 
 use super::writeback_cache::WritebackCache;
 
@@ -144,11 +145,7 @@ impl ObjectLocks {
             let entry = self.locked_transactions.entry(*obj_ref);
             let mut occupied = match entry {
                 DashMapEntry::Vacant(_) => {
-                    if cfg!(debug_assertions) {
-                        panic!("lock must exist");
-                    } else {
-                        error!(?obj_ref, "lock should exist");
-                    }
+                    debug_fatal!("lock must exist for object: {:?}", obj_ref);
                     continue;
                 }
                 DashMapEntry::Occupied(occupied) => occupied,
