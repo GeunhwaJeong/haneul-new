@@ -1,9 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
-use clap::Parser;
-use tokio_util::sync::CancellationToken;
-use tracing::warn;
 
+use clap::Parser;
+use haneul_indexer::backfill::backfill_runner::BackfillRunner;
 use haneul_indexer::config::{Command, UploadOptions};
 use haneul_indexer::database::ConnectionPool;
 use haneul_indexer::db::{check_db_migration_consistency, reset_database, run_migrations};
@@ -12,8 +11,9 @@ use haneul_indexer::metrics::{
     spawn_connection_pool_metric_collector, start_prometheus_server, IndexerMetrics,
 };
 use haneul_indexer::restorer::formal_snapshot::IndexerFormalSnapshotRestorer;
-use haneul_indexer::sql_backfill::run_sql_backfill;
 use haneul_indexer::store::PgIndexerStore;
+use tokio_util::sync::CancellationToken;
+use tracing::warn;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -74,22 +74,14 @@ async fn main() -> anyhow::Result<()> {
         Command::RunMigrations => {
             run_migrations(pool.dedicated_connection().await?).await?;
         }
-        Command::SqlBackFill {
-            sql,
-            checkpoint_column_name,
-            first_checkpoint,
-            last_checkpoint,
+        Command::RunBackFill {
+            start,
+            end,
+            runner_kind,
             backfill_config,
         } => {
-            run_sql_backfill(
-                &sql,
-                &checkpoint_column_name,
-                first_checkpoint,
-                last_checkpoint,
-                pool,
-                backfill_config,
-            )
-            .await;
+            let total_range = start..=end;
+            BackfillRunner::run(runner_kind, pool, backfill_config, total_range).await;
         }
         Command::Restore(restore_config) => {
             let store =
