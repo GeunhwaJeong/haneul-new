@@ -18,6 +18,8 @@ title: Module `0x3::validator_set`
 -  [Function `request_remove_validator`](#0x3_validator_set_request_remove_validator)
 -  [Function `request_add_stake`](#0x3_validator_set_request_add_stake)
 -  [Function `request_withdraw_stake`](#0x3_validator_set_request_withdraw_stake)
+-  [Function `convert_to_fungible_staked_haneul`](#0x3_validator_set_convert_to_fungible_staked_haneul)
+-  [Function `redeem_fungible_staked_haneul`](#0x3_validator_set_redeem_fungible_staked_haneul)
 -  [Function `request_set_commission_rate`](#0x3_validator_set_request_set_commission_rate)
 -  [Function `advance_epoch`](#0x3_validator_set_advance_epoch)
 -  [Function `update_and_process_low_stake_departures`](#0x3_validator_set_update_and_process_low_stake_departures)
@@ -944,6 +946,85 @@ the stake and any rewards corresponding to it will be immediately processed.
             wrapper.load_validator_maybe_upgrade()
         };
     <a href="validator.md#0x3_validator">validator</a>.<a href="validator_set.md#0x3_validator_set_request_withdraw_stake">request_withdraw_stake</a>(staked_haneul, ctx)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_validator_set_convert_to_fungible_staked_haneul"></a>
+
+## Function `convert_to_fungible_staked_haneul`
+
+
+
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="validator_set.md#0x3_validator_set_convert_to_fungible_staked_haneul">convert_to_fungible_staked_haneul</a>(self: &<b>mut</b> <a href="validator_set.md#0x3_validator_set_ValidatorSet">validator_set::ValidatorSet</a>, staked_haneul: <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>, ctx: &<b>mut</b> <a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">staking_pool::FungibleStakedHaneul</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(package) <b>fun</b> <a href="validator_set.md#0x3_validator_set_convert_to_fungible_staked_haneul">convert_to_fungible_staked_haneul</a>(
+    self: &<b>mut</b> <a href="validator_set.md#0x3_validator_set_ValidatorSet">ValidatorSet</a>,
+    staked_haneul: StakedHaneul,
+    ctx: &<b>mut</b> TxContext,
+) : FungibleStakedHaneul {
+    <b>let</b> staking_pool_id = pool_id(&staked_haneul);
+    <b>let</b> <a href="validator.md#0x3_validator">validator</a> =
+        <b>if</b> (self.staking_pool_mappings.contains(staking_pool_id)) { // This is an active <a href="validator.md#0x3_validator">validator</a>.
+            <b>let</b> validator_address = self.staking_pool_mappings[staking_pool_id];
+            <a href="validator_set.md#0x3_validator_set_get_candidate_or_active_validator_mut">get_candidate_or_active_validator_mut</a>(self, validator_address)
+        } <b>else</b> { // This is an inactive pool.
+            <b>assert</b>!(self.inactive_validators.contains(staking_pool_id), <a href="validator_set.md#0x3_validator_set_ENoPoolFound">ENoPoolFound</a>);
+            <b>let</b> wrapper = &<b>mut</b> self.inactive_validators[staking_pool_id];
+            wrapper.load_validator_maybe_upgrade()
+        };
+
+    <a href="validator.md#0x3_validator">validator</a>.<a href="validator_set.md#0x3_validator_set_convert_to_fungible_staked_haneul">convert_to_fungible_staked_haneul</a>(staked_haneul, ctx)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_validator_set_redeem_fungible_staked_haneul"></a>
+
+## Function `redeem_fungible_staked_haneul`
+
+
+
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="validator_set.md#0x3_validator_set_redeem_fungible_staked_haneul">redeem_fungible_staked_haneul</a>(self: &<b>mut</b> <a href="validator_set.md#0x3_validator_set_ValidatorSet">validator_set::ValidatorSet</a>, fungible_staked_haneul: <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">staking_pool::FungibleStakedHaneul</a>, ctx: &<a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="../haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(package) <b>fun</b> <a href="validator_set.md#0x3_validator_set_redeem_fungible_staked_haneul">redeem_fungible_staked_haneul</a>(
+    self: &<b>mut</b> <a href="validator_set.md#0x3_validator_set_ValidatorSet">ValidatorSet</a>,
+    fungible_staked_haneul: FungibleStakedHaneul,
+    ctx: &TxContext,
+) : Balance&lt;HANEUL&gt; {
+    <b>let</b> staking_pool_id = fungible_staked_haneul_pool_id(&fungible_staked_haneul);
+
+    <b>let</b> <a href="validator.md#0x3_validator">validator</a> =
+        <b>if</b> (self.staking_pool_mappings.contains(staking_pool_id)) { // This is an active <a href="validator.md#0x3_validator">validator</a>.
+            <b>let</b> validator_address = self.staking_pool_mappings[staking_pool_id];
+            <a href="validator_set.md#0x3_validator_set_get_candidate_or_active_validator_mut">get_candidate_or_active_validator_mut</a>(self, validator_address)
+        } <b>else</b> { // This is an inactive pool.
+            <b>assert</b>!(self.inactive_validators.contains(staking_pool_id), <a href="validator_set.md#0x3_validator_set_ENoPoolFound">ENoPoolFound</a>);
+            <b>let</b> wrapper = &<b>mut</b> self.inactive_validators[staking_pool_id];
+            wrapper.load_validator_maybe_upgrade()
+        };
+
+    <a href="validator.md#0x3_validator">validator</a>.<a href="validator_set.md#0x3_validator_set_redeem_fungible_staked_haneul">redeem_fungible_staked_haneul</a>(fungible_staked_haneul, ctx)
 }
 </code></pre>
 

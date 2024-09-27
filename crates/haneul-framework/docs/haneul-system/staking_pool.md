@@ -7,10 +7,16 @@ title: Module `0x3::staking_pool`
 -  [Resource `StakingPool`](#0x3_staking_pool_StakingPool)
 -  [Struct `PoolTokenExchangeRate`](#0x3_staking_pool_PoolTokenExchangeRate)
 -  [Resource `StakedHaneul`](#0x3_staking_pool_StakedHaneul)
+-  [Resource `FungibleStakedHaneul`](#0x3_staking_pool_FungibleStakedHaneul)
+-  [Resource `FungibleStakedHaneulData`](#0x3_staking_pool_FungibleStakedHaneulData)
+-  [Struct `FungibleStakedHaneulDataKey`](#0x3_staking_pool_FungibleStakedHaneulDataKey)
 -  [Constants](#@Constants_0)
 -  [Function `new`](#0x3_staking_pool_new)
 -  [Function `request_add_stake`](#0x3_staking_pool_request_add_stake)
 -  [Function `request_withdraw_stake`](#0x3_staking_pool_request_withdraw_stake)
+-  [Function `redeem_fungible_staked_haneul`](#0x3_staking_pool_redeem_fungible_staked_haneul)
+-  [Function `calculate_fungible_staked_haneul_withdraw_amount`](#0x3_staking_pool_calculate_fungible_staked_haneul_withdraw_amount)
+-  [Function `convert_to_fungible_staked_haneul`](#0x3_staking_pool_convert_to_fungible_staked_haneul)
 -  [Function `withdraw_from_principal`](#0x3_staking_pool_withdraw_from_principal)
 -  [Function `unwrap_staked_haneul`](#0x3_staking_pool_unwrap_staked_haneul)
 -  [Function `deposit_rewards`](#0x3_staking_pool_deposit_rewards)
@@ -22,10 +28,14 @@ title: Module `0x3::staking_pool`
 -  [Function `deactivate_staking_pool`](#0x3_staking_pool_deactivate_staking_pool)
 -  [Function `haneul_balance`](#0x3_staking_pool_haneul_balance)
 -  [Function `pool_id`](#0x3_staking_pool_pool_id)
+-  [Function `fungible_staked_haneul_pool_id`](#0x3_staking_pool_fungible_staked_haneul_pool_id)
 -  [Function `staked_haneul_amount`](#0x3_staking_pool_staked_haneul_amount)
 -  [Function `stake_activation_epoch`](#0x3_staking_pool_stake_activation_epoch)
 -  [Function `is_preactive`](#0x3_staking_pool_is_preactive)
 -  [Function `is_inactive`](#0x3_staking_pool_is_inactive)
+-  [Function `fungible_staked_haneul_value`](#0x3_staking_pool_fungible_staked_haneul_value)
+-  [Function `split_fungible_staked_haneul`](#0x3_staking_pool_split_fungible_staked_haneul)
+-  [Function `join_fungible_staked_haneul`](#0x3_staking_pool_join_fungible_staked_haneul)
 -  [Function `split`](#0x3_staking_pool_split)
 -  [Function `split_staked_haneul`](#0x3_staking_pool_split_staked_haneul)
 -  [Function `join_staked_haneul`](#0x3_staking_pool_join_staked_haneul)
@@ -230,6 +240,116 @@ A self-custodial object holding the staked HANEUL tokens.
 
 </details>
 
+<a name="0x3_staking_pool_FungibleStakedHaneul"></a>
+
+## Resource `FungibleStakedHaneul`
+
+An alternative to <code><a href="staking_pool.md#0x3_staking_pool_StakedHaneul">StakedHaneul</a></code> that holds the pool token amount instead of the HANEUL balance.
+StakedHaneul objects can be converted to FungibleStakedHaneuls after the initial warmup period.
+The advantage of this is that you can now merge multiple StakedHaneul objects from different
+activation epochs into a single FungibleStakedHaneul object.
+
+
+<pre><code><b>struct</b> <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a> <b>has</b> store, key
+</code></pre>
+
+
+
+<details>
+<summary>Fields</summary>
+
+
+<dl>
+<dt>
+<code>id: <a href="../haneul-framework/object.md#0x2_object_UID">object::UID</a></code>
+</dt>
+<dd>
+
+</dd>
+<dt>
+<code>pool_id: <a href="../haneul-framework/object.md#0x2_object_ID">object::ID</a></code>
+</dt>
+<dd>
+ ID of the staking pool we are staking with.
+</dd>
+<dt>
+<code>value: <a href="../move-stdlib/u64.md#0x1_u64">u64</a></code>
+</dt>
+<dd>
+ The pool token amount.
+</dd>
+</dl>
+
+
+</details>
+
+<a name="0x3_staking_pool_FungibleStakedHaneulData"></a>
+
+## Resource `FungibleStakedHaneulData`
+
+Holds useful information
+
+
+<pre><code><b>struct</b> <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneulData">FungibleStakedHaneulData</a> <b>has</b> store, key
+</code></pre>
+
+
+
+<details>
+<summary>Fields</summary>
+
+
+<dl>
+<dt>
+<code>id: <a href="../haneul-framework/object.md#0x2_object_UID">object::UID</a></code>
+</dt>
+<dd>
+
+</dd>
+<dt>
+<code>total_supply: <a href="../move-stdlib/u64.md#0x1_u64">u64</a></code>
+</dt>
+<dd>
+ fungible_staked_haneul supply
+</dd>
+<dt>
+<code>principal: <a href="../haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;</code>
+</dt>
+<dd>
+ principal balance. Rewards are withdrawn from the reward pool
+</dd>
+</dl>
+
+
+</details>
+
+<a name="0x3_staking_pool_FungibleStakedHaneulDataKey"></a>
+
+## Struct `FungibleStakedHaneulDataKey`
+
+
+
+<pre><code><b>struct</b> <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneulDataKey">FungibleStakedHaneulDataKey</a> <b>has</b> <b>copy</b>, drop, store
+</code></pre>
+
+
+
+<details>
+<summary>Fields</summary>
+
+
+<dl>
+<dt>
+<code>dummy_field: bool</code>
+</dt>
+<dd>
+
+</dd>
+</dl>
+
+
+</details>
+
 <a name="@Constants_0"></a>
 
 ## Constants
@@ -240,6 +360,15 @@ A self-custodial object holding the staked HANEUL tokens.
 
 
 <pre><code><b>const</b> <a href="staking_pool.md#0x3_staking_pool_EActivationOfInactivePool">EActivationOfInactivePool</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 16;
+</code></pre>
+
+
+
+<a name="0x3_staking_pool_ECannotMintFungibleStakedHaneulYet"></a>
+
+
+
+<pre><code><b>const</b> <a href="staking_pool.md#0x3_staking_pool_ECannotMintFungibleStakedHaneulYet">ECannotMintFungibleStakedHaneulYet</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 19;
 </code></pre>
 
 
@@ -312,6 +441,15 @@ A self-custodial object holding the staked HANEUL tokens.
 
 
 <pre><code><b>const</b> <a href="staking_pool.md#0x3_staking_pool_EInsufficientHaneulTokenBalance">EInsufficientHaneulTokenBalance</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 3;
+</code></pre>
+
+
+
+<a name="0x3_staking_pool_EInvariantFailure"></a>
+
+
+
+<pre><code><b>const</b> <a href="staking_pool.md#0x3_staking_pool_EInvariantFailure">EInvariantFailure</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 20;
 </code></pre>
 
 
@@ -543,6 +681,193 @@ A proportional amount of pool token withdraw is recorded and processed at epoch 
     // TODO: implement withdraw bonding period here.
     principal_withdraw.join(rewards_withdraw);
     principal_withdraw
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_staking_pool_redeem_fungible_staked_haneul"></a>
+
+## Function `redeem_fungible_staked_haneul`
+
+
+
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_redeem_fungible_staked_haneul">redeem_fungible_staked_haneul</a>(pool: &<b>mut</b> <a href="staking_pool.md#0x3_staking_pool_StakingPool">staking_pool::StakingPool</a>, fungible_staked_haneul: <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">staking_pool::FungibleStakedHaneul</a>, ctx: &<a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="../haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(package) <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_redeem_fungible_staked_haneul">redeem_fungible_staked_haneul</a>(
+    pool: &<b>mut</b> <a href="staking_pool.md#0x3_staking_pool_StakingPool">StakingPool</a>,
+    fungible_staked_haneul: <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a>,
+    ctx: &TxContext
+) : Balance&lt;HANEUL&gt; {
+    <b>let</b> <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a> { id, pool_id, value } = fungible_staked_haneul;
+    <b>assert</b>!(pool_id == <a href="../haneul-framework/object.md#0x2_object_id">object::id</a>(pool), <a href="staking_pool.md#0x3_staking_pool_EWrongPool">EWrongPool</a>);
+
+    <a href="../haneul-framework/object.md#0x2_object_delete">object::delete</a>(id);
+
+    <b>let</b> latest_exchange_rate = <a href="staking_pool.md#0x3_staking_pool_pool_token_exchange_rate_at_epoch">pool_token_exchange_rate_at_epoch</a>(pool, <a href="../haneul-framework/tx_context.md#0x2_tx_context_epoch">tx_context::epoch</a>(ctx));
+    <b>let</b> fungible_staked_haneul_data: &<b>mut</b> <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneulData">FungibleStakedHaneulData</a> = <a href="../haneul-framework/bag.md#0x2_bag_borrow_mut">bag::borrow_mut</a>(
+        &<b>mut</b> pool.extra_fields,
+        <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneulDataKey">FungibleStakedHaneulDataKey</a> {}
+    );
+
+    <b>let</b> (principal_amount, rewards_amount) = <a href="staking_pool.md#0x3_staking_pool_calculate_fungible_staked_haneul_withdraw_amount">calculate_fungible_staked_haneul_withdraw_amount</a>(
+        latest_exchange_rate,
+        value,
+        <a href="../haneul-framework/balance.md#0x2_balance_value">balance::value</a>(&fungible_staked_haneul_data.principal),
+        fungible_staked_haneul_data.total_supply
+    );
+
+    fungible_staked_haneul_data.total_supply = fungible_staked_haneul_data.total_supply - value;
+
+    <b>let</b> <b>mut</b> haneul_out = <a href="../haneul-framework/balance.md#0x2_balance_split">balance::split</a>(&<b>mut</b> fungible_staked_haneul_data.principal, principal_amount);
+    <a href="../haneul-framework/balance.md#0x2_balance_join">balance::join</a>(
+        &<b>mut</b> haneul_out,
+        <a href="../haneul-framework/balance.md#0x2_balance_split">balance::split</a>(&<b>mut</b> pool.rewards_pool, rewards_amount)
+    );
+
+    pool.pending_total_haneul_withdraw = pool.pending_total_haneul_withdraw + <a href="../haneul-framework/balance.md#0x2_balance_value">balance::value</a>(&haneul_out);
+    pool.pending_pool_token_withdraw = pool.pending_pool_token_withdraw + value;
+
+    haneul_out
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_staking_pool_calculate_fungible_staked_haneul_withdraw_amount"></a>
+
+## Function `calculate_fungible_staked_haneul_withdraw_amount`
+
+written in separate function so i can test with random values
+returns (principal_withdraw_amount, rewards_withdraw_amount)
+
+
+<pre><code><b>fun</b> <a href="staking_pool.md#0x3_staking_pool_calculate_fungible_staked_haneul_withdraw_amount">calculate_fungible_staked_haneul_withdraw_amount</a>(latest_exchange_rate: <a href="staking_pool.md#0x3_staking_pool_PoolTokenExchangeRate">staking_pool::PoolTokenExchangeRate</a>, fungible_staked_haneul_value: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>, fungible_staked_haneul_data_principal_amount: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>, fungible_staked_haneul_data_total_supply: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>): (<a href="../move-stdlib/u64.md#0x1_u64">u64</a>, <a href="../move-stdlib/u64.md#0x1_u64">u64</a>)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>fun</b> <a href="staking_pool.md#0x3_staking_pool_calculate_fungible_staked_haneul_withdraw_amount">calculate_fungible_staked_haneul_withdraw_amount</a>(
+    latest_exchange_rate: <a href="staking_pool.md#0x3_staking_pool_PoolTokenExchangeRate">PoolTokenExchangeRate</a>,
+    fungible_staked_haneul_value: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>,
+    fungible_staked_haneul_data_principal_amount: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>, // fungible_staked_haneul_data.principal.value()
+    fungible_staked_haneul_data_total_supply: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>, // fungible_staked_haneul_data.total_supply
+) : (<a href="../move-stdlib/u64.md#0x1_u64">u64</a>, <a href="../move-stdlib/u64.md#0x1_u64">u64</a>) {
+    // 1. <b>if</b> the entire <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneulData">FungibleStakedHaneulData</a> supply is redeemed, how much <a href="../haneul-framework/haneul.md#0x2_haneul">haneul</a> should we receive?
+    <b>let</b> total_haneul_amount = <a href="staking_pool.md#0x3_staking_pool_get_haneul_amount">get_haneul_amount</a>(&latest_exchange_rate, fungible_staked_haneul_data_total_supply);
+
+    // <b>min</b> <b>with</b> total_haneul_amount <b>to</b> prevent underflow
+    <b>let</b> fungible_staked_haneul_data_principal_amount = std::u64::min(
+        fungible_staked_haneul_data_principal_amount,
+        total_haneul_amount
+    );
+
+    // 2. how much do we need <b>to</b> withdraw from the rewards pool?
+    <b>let</b> total_rewards = total_haneul_amount - fungible_staked_haneul_data_principal_amount;
+
+    // 3. proportionally withdraw from both wrt the fungible_staked_haneul_value.
+    <b>let</b> principal_withdraw_amount = ((fungible_staked_haneul_value <b>as</b> u128)
+        * (fungible_staked_haneul_data_principal_amount <b>as</b> u128)
+        / (fungible_staked_haneul_data_total_supply <b>as</b> u128)) <b>as</b> <a href="../move-stdlib/u64.md#0x1_u64">u64</a>;
+
+    <b>let</b> rewards_withdraw_amount = ((fungible_staked_haneul_value <b>as</b> u128)
+        * (total_rewards <b>as</b> u128)
+        / (fungible_staked_haneul_data_total_supply <b>as</b> u128)) <b>as</b> <a href="../move-stdlib/u64.md#0x1_u64">u64</a>;
+
+    // <b>invariant</b> check, just in case
+    <b>let</b> expected_haneul_amount = <a href="staking_pool.md#0x3_staking_pool_get_haneul_amount">get_haneul_amount</a>(&latest_exchange_rate, fungible_staked_haneul_value);
+    <b>assert</b>!(principal_withdraw_amount + rewards_withdraw_amount &lt;= expected_haneul_amount, <a href="staking_pool.md#0x3_staking_pool_EInvariantFailure">EInvariantFailure</a>);
+
+    (principal_withdraw_amount, rewards_withdraw_amount)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_staking_pool_convert_to_fungible_staked_haneul"></a>
+
+## Function `convert_to_fungible_staked_haneul`
+
+Convert the given staked HANEUL to an FungibleStakedHaneul object
+
+
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_convert_to_fungible_staked_haneul">convert_to_fungible_staked_haneul</a>(pool: &<b>mut</b> <a href="staking_pool.md#0x3_staking_pool_StakingPool">staking_pool::StakingPool</a>, staked_haneul: <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>, ctx: &<b>mut</b> <a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">staking_pool::FungibleStakedHaneul</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(package) <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_convert_to_fungible_staked_haneul">convert_to_fungible_staked_haneul</a>(
+    pool: &<b>mut</b> <a href="staking_pool.md#0x3_staking_pool_StakingPool">StakingPool</a>,
+    staked_haneul: <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">StakedHaneul</a>,
+    ctx: &<b>mut</b> TxContext
+) : <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a> {
+    <b>let</b> <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">StakedHaneul</a> { id, pool_id, stake_activation_epoch, principal } = staked_haneul;
+
+    <b>assert</b>!(pool_id == <a href="../haneul-framework/object.md#0x2_object_id">object::id</a>(pool), <a href="staking_pool.md#0x3_staking_pool_EWrongPool">EWrongPool</a>);
+    <b>assert</b>!(
+        <a href="../haneul-framework/tx_context.md#0x2_tx_context_epoch">tx_context::epoch</a>(ctx) &gt;= stake_activation_epoch,
+        <a href="staking_pool.md#0x3_staking_pool_ECannotMintFungibleStakedHaneulYet">ECannotMintFungibleStakedHaneulYet</a>
+    );
+
+    <a href="../haneul-framework/object.md#0x2_object_delete">object::delete</a>(id);
+
+
+    <b>let</b> exchange_rate_at_staking_epoch = <a href="staking_pool.md#0x3_staking_pool_pool_token_exchange_rate_at_epoch">pool_token_exchange_rate_at_epoch</a>(
+        pool,
+        stake_activation_epoch
+    );
+
+    <b>let</b> pool_token_amount = <a href="staking_pool.md#0x3_staking_pool_get_token_amount">get_token_amount</a>(
+        &exchange_rate_at_staking_epoch,
+        <a href="../haneul-framework/balance.md#0x2_balance_value">balance::value</a>(&principal)
+    );
+
+    <b>if</b> (!<a href="../haneul-framework/bag.md#0x2_bag_contains">bag::contains</a>(&pool.extra_fields, <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneulDataKey">FungibleStakedHaneulDataKey</a> {})) {
+        <a href="../haneul-framework/bag.md#0x2_bag_add">bag::add</a>(
+            &<b>mut</b> pool.extra_fields,
+            <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneulDataKey">FungibleStakedHaneulDataKey</a> {},
+            <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneulData">FungibleStakedHaneulData</a> {
+                id: <a href="../haneul-framework/object.md#0x2_object_new">object::new</a>(ctx),
+                total_supply: pool_token_amount,
+                principal
+            }
+        );
+    }
+    <b>else</b> {
+        <b>let</b> fungible_staked_haneul_data: &<b>mut</b> <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneulData">FungibleStakedHaneulData</a> = <a href="../haneul-framework/bag.md#0x2_bag_borrow_mut">bag::borrow_mut</a>(
+            &<b>mut</b> pool.extra_fields,
+            <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneulDataKey">FungibleStakedHaneulDataKey</a> {}
+        );
+        fungible_staked_haneul_data.total_supply = fungible_staked_haneul_data.total_supply + pool_token_amount;
+        <a href="../haneul-framework/balance.md#0x2_balance_join">balance::join</a>(&<b>mut</b> fungible_staked_haneul_data.principal, principal);
+    };
+
+    <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a> {
+        id: <a href="../haneul-framework/object.md#0x2_object_new">object::new</a>(ctx),
+        pool_id,
+        value: pool_token_amount,
+    }
 }
 </code></pre>
 
@@ -894,6 +1219,28 @@ withdraws can be made to the pool.
 
 </details>
 
+<a name="0x3_staking_pool_fungible_staked_haneul_pool_id"></a>
+
+## Function `fungible_staked_haneul_pool_id`
+
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_fungible_staked_haneul_pool_id">fungible_staked_haneul_pool_id</a>(fungible_staked_haneul: &<a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">staking_pool::FungibleStakedHaneul</a>): <a href="../haneul-framework/object.md#0x2_object_ID">object::ID</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_fungible_staked_haneul_pool_id">fungible_staked_haneul_pool_id</a>(fungible_staked_haneul: &<a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a>): ID { fungible_staked_haneul.pool_id }
+</code></pre>
+
+
+
+</details>
+
 <a name="0x3_staking_pool_staked_haneul_amount"></a>
 
 ## Function `staked_haneul_amount`
@@ -983,6 +1330,93 @@ Returns true if the input staking pool is inactive.
 
 <pre><code><b>public</b> <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_is_inactive">is_inactive</a>(pool: &<a href="staking_pool.md#0x3_staking_pool_StakingPool">StakingPool</a>): bool {
     pool.deactivation_epoch.is_some()
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_staking_pool_fungible_staked_haneul_value"></a>
+
+## Function `fungible_staked_haneul_value`
+
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_fungible_staked_haneul_value">fungible_staked_haneul_value</a>(fungible_staked_haneul: &<a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">staking_pool::FungibleStakedHaneul</a>): <a href="../move-stdlib/u64.md#0x1_u64">u64</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_fungible_staked_haneul_value">fungible_staked_haneul_value</a>(fungible_staked_haneul: &<a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a>): <a href="../move-stdlib/u64.md#0x1_u64">u64</a> { fungible_staked_haneul.value }
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_staking_pool_split_fungible_staked_haneul"></a>
+
+## Function `split_fungible_staked_haneul`
+
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_split_fungible_staked_haneul">split_fungible_staked_haneul</a>(fungible_staked_haneul: &<b>mut</b> <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">staking_pool::FungibleStakedHaneul</a>, split_amount: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>, ctx: &<b>mut</b> <a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">staking_pool::FungibleStakedHaneul</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_split_fungible_staked_haneul">split_fungible_staked_haneul</a>(
+    fungible_staked_haneul: &<b>mut</b> <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a>,
+    split_amount: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>,
+    ctx: &<b>mut</b> TxContext
+): <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a> {
+    <b>assert</b>!(split_amount &lt;= fungible_staked_haneul.value, <a href="staking_pool.md#0x3_staking_pool_EInsufficientPoolTokenBalance">EInsufficientPoolTokenBalance</a>);
+
+    fungible_staked_haneul.value = fungible_staked_haneul.value - split_amount;
+
+    <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a> {
+        id: <a href="../haneul-framework/object.md#0x2_object_new">object::new</a>(ctx),
+        pool_id: fungible_staked_haneul.pool_id,
+        value: split_amount,
+    }
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_staking_pool_join_fungible_staked_haneul"></a>
+
+## Function `join_fungible_staked_haneul`
+
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_join_fungible_staked_haneul">join_fungible_staked_haneul</a>(self: &<b>mut</b> <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">staking_pool::FungibleStakedHaneul</a>, other: <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">staking_pool::FungibleStakedHaneul</a>)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="staking_pool.md#0x3_staking_pool_join_fungible_staked_haneul">join_fungible_staked_haneul</a>(self: &<b>mut</b> <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a>, other: <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a>) {
+    <b>let</b> <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a> { id, pool_id, value } = other;
+    <b>assert</b>!(self.pool_id == pool_id, <a href="staking_pool.md#0x3_staking_pool_EWrongPool">EWrongPool</a>);
+
+    <a href="../haneul-framework/object.md#0x2_object_delete">object::delete</a>(id);
+
+    self.value = self.value + value;
 }
 </code></pre>
 

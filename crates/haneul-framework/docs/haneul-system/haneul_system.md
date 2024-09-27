@@ -55,6 +55,8 @@ the HaneulSystemStateInner version, or vice versa.
 -  [Function `request_add_stake_non_entry`](#0x3_haneul_system_request_add_stake_non_entry)
 -  [Function `request_add_stake_mul_coin`](#0x3_haneul_system_request_add_stake_mul_coin)
 -  [Function `request_withdraw_stake`](#0x3_haneul_system_request_withdraw_stake)
+-  [Function `convert_to_fungible_staked_haneul`](#0x3_haneul_system_convert_to_fungible_staked_haneul)
+-  [Function `redeem_fungible_staked_haneul`](#0x3_haneul_system_redeem_fungible_staked_haneul)
 -  [Function `request_withdraw_stake_non_entry`](#0x3_haneul_system_request_withdraw_stake_non_entry)
 -  [Function `report_validator`](#0x3_haneul_system_report_validator)
 -  [Function `undo_report_validator`](#0x3_haneul_system_undo_report_validator)
@@ -611,6 +613,66 @@ Withdraw stake from a validator's staking pool.
 ) {
     <b>let</b> withdrawn_stake = <a href="haneul_system.md#0x3_haneul_system_request_withdraw_stake_non_entry">request_withdraw_stake_non_entry</a>(wrapper, staked_haneul, ctx);
     <a href="../haneul-framework/transfer.md#0x2_transfer_public_transfer">transfer::public_transfer</a>(withdrawn_stake.into_coin(ctx), ctx.sender());
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_haneul_system_convert_to_fungible_staked_haneul"></a>
+
+## Function `convert_to_fungible_staked_haneul`
+
+Convert StakedHaneul into a FungibleStakedHaneul object.
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="haneul_system.md#0x3_haneul_system_convert_to_fungible_staked_haneul">convert_to_fungible_staked_haneul</a>(wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>, staked_haneul: <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>, ctx: &<b>mut</b> <a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">staking_pool::FungibleStakedHaneul</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="haneul_system.md#0x3_haneul_system_convert_to_fungible_staked_haneul">convert_to_fungible_staked_haneul</a>(
+    wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a>,
+    staked_haneul: StakedHaneul,
+    ctx: &<b>mut</b> TxContext,
+): FungibleStakedHaneul {
+    <b>let</b> self = <a href="haneul_system.md#0x3_haneul_system_load_system_state_mut">load_system_state_mut</a>(wrapper);
+    self.<a href="haneul_system.md#0x3_haneul_system_convert_to_fungible_staked_haneul">convert_to_fungible_staked_haneul</a>(staked_haneul, ctx)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_haneul_system_redeem_fungible_staked_haneul"></a>
+
+## Function `redeem_fungible_staked_haneul`
+
+Convert FungibleStakedHaneul into a StakedHaneul object.
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="haneul_system.md#0x3_haneul_system_redeem_fungible_staked_haneul">redeem_fungible_staked_haneul</a>(wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>, fungible_staked_haneul: <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">staking_pool::FungibleStakedHaneul</a>, ctx: &<a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="../haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="haneul_system.md#0x3_haneul_system_redeem_fungible_staked_haneul">redeem_fungible_staked_haneul</a>(
+    wrapper: &<b>mut</b> <a href="haneul_system.md#0x3_haneul_system_HaneulSystemState">HaneulSystemState</a>,
+    fungible_staked_haneul: FungibleStakedHaneul,
+    ctx: &TxContext,
+): Balance&lt;HANEUL&gt; {
+    <b>let</b> self = <a href="haneul_system.md#0x3_haneul_system_load_system_state_mut">load_system_state_mut</a>(wrapper);
+    self.<a href="haneul_system.md#0x3_haneul_system_redeem_fungible_staked_haneul">redeem_fungible_staked_haneul</a>(fungible_staked_haneul, ctx)
 }
 </code></pre>
 

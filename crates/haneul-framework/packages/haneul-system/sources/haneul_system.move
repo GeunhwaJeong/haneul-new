@@ -42,7 +42,7 @@ module haneul_system::haneul_system {
     use haneul::balance::Balance;
 
     use haneul::coin::Coin;
-    use haneul_system::staking_pool::StakedHaneul;
+    use haneul_system::staking_pool::{StakedHaneul, FungibleStakedHaneul};
     use haneul::haneul::HANEUL;
     use haneul::table::Table;
     use haneul_system::validator::Validator;
@@ -263,6 +263,26 @@ module haneul_system::haneul_system {
     ) {
         let withdrawn_stake = request_withdraw_stake_non_entry(wrapper, staked_haneul, ctx);
         transfer::public_transfer(withdrawn_stake.into_coin(ctx), ctx.sender());
+    }
+
+    /// Convert StakedHaneul into a FungibleStakedHaneul object.
+    public fun convert_to_fungible_staked_haneul(
+        wrapper: &mut HaneulSystemState,
+        staked_haneul: StakedHaneul,
+        ctx: &mut TxContext,
+    ): FungibleStakedHaneul {
+        let self = load_system_state_mut(wrapper);
+        self.convert_to_fungible_staked_haneul(staked_haneul, ctx)
+    }
+
+    /// Convert FungibleStakedHaneul into a StakedHaneul object.
+    public fun redeem_fungible_staked_haneul(
+        wrapper: &mut HaneulSystemState,
+        fungible_staked_haneul: FungibleStakedHaneul,
+        ctx: &TxContext,
+    ): Balance<HANEUL> {
+        let self = load_system_state_mut(wrapper);
+        self.redeem_fungible_staked_haneul(fungible_staked_haneul, ctx)
     }
 
     /// Non-entry version of `request_withdraw_stake` that returns the withdrawn HANEUL instead of transferring it to the sender.

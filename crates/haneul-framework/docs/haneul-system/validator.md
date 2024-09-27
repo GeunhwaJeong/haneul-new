@@ -8,6 +8,8 @@ title: Module `0x3::validator`
 -  [Struct `Validator`](#0x3_validator_Validator)
 -  [Struct `StakingRequestEvent`](#0x3_validator_StakingRequestEvent)
 -  [Struct `UnstakingRequestEvent`](#0x3_validator_UnstakingRequestEvent)
+-  [Struct `ConvertingToFungibleStakedHaneulEvent`](#0x3_validator_ConvertingToFungibleStakedHaneulEvent)
+-  [Struct `RedeemingFungibleStakedHaneulEvent`](#0x3_validator_RedeemingFungibleStakedHaneulEvent)
 -  [Constants](#@Constants_0)
 -  [Function `new_metadata`](#0x3_validator_new_metadata)
 -  [Function `new`](#0x3_validator_new)
@@ -15,6 +17,8 @@ title: Module `0x3::validator`
 -  [Function `activate`](#0x3_validator_activate)
 -  [Function `adjust_stake_and_gas_price`](#0x3_validator_adjust_stake_and_gas_price)
 -  [Function `request_add_stake`](#0x3_validator_request_add_stake)
+-  [Function `convert_to_fungible_staked_haneul`](#0x3_validator_convert_to_fungible_staked_haneul)
+-  [Function `redeem_fungible_staked_haneul`](#0x3_validator_redeem_fungible_staked_haneul)
 -  [Function `request_add_stake_at_genesis`](#0x3_validator_request_add_stake_at_genesis)
 -  [Function `request_withdraw_stake`](#0x3_validator_request_withdraw_stake)
 -  [Function `request_set_gas_price`](#0x3_validator_request_set_gas_price)
@@ -452,6 +456,92 @@ Event emitted when a new unstake request is received.
 </dd>
 <dt>
 <code>reward_amount: <a href="../move-stdlib/u64.md#0x1_u64">u64</a></code>
+</dt>
+<dd>
+
+</dd>
+</dl>
+
+
+</details>
+
+<a name="0x3_validator_ConvertingToFungibleStakedHaneulEvent"></a>
+
+## Struct `ConvertingToFungibleStakedHaneulEvent`
+
+Event emitted when a staked HANEUL is converted to a fungible staked HANEUL.
+
+
+<pre><code><b>struct</b> <a href="validator.md#0x3_validator_ConvertingToFungibleStakedHaneulEvent">ConvertingToFungibleStakedHaneulEvent</a> <b>has</b> <b>copy</b>, drop
+</code></pre>
+
+
+
+<details>
+<summary>Fields</summary>
+
+
+<dl>
+<dt>
+<code>pool_id: <a href="../haneul-framework/object.md#0x2_object_ID">object::ID</a></code>
+</dt>
+<dd>
+
+</dd>
+<dt>
+<code>stake_activation_epoch: <a href="../move-stdlib/u64.md#0x1_u64">u64</a></code>
+</dt>
+<dd>
+
+</dd>
+<dt>
+<code>staked_haneul_principal_amount: <a href="../move-stdlib/u64.md#0x1_u64">u64</a></code>
+</dt>
+<dd>
+
+</dd>
+<dt>
+<code>fungible_staked_haneul_amount: <a href="../move-stdlib/u64.md#0x1_u64">u64</a></code>
+</dt>
+<dd>
+
+</dd>
+</dl>
+
+
+</details>
+
+<a name="0x3_validator_RedeemingFungibleStakedHaneulEvent"></a>
+
+## Struct `RedeemingFungibleStakedHaneulEvent`
+
+Event emitted when a fungible staked HANEUL is redeemed.
+
+
+<pre><code><b>struct</b> <a href="validator.md#0x3_validator_RedeemingFungibleStakedHaneulEvent">RedeemingFungibleStakedHaneulEvent</a> <b>has</b> <b>copy</b>, drop
+</code></pre>
+
+
+
+<details>
+<summary>Fields</summary>
+
+
+<dl>
+<dt>
+<code>pool_id: <a href="../haneul-framework/object.md#0x2_object_ID">object::ID</a></code>
+</dt>
+<dd>
+
+</dd>
+<dt>
+<code>fungible_staked_haneul_amount: <a href="../move-stdlib/u64.md#0x1_u64">u64</a></code>
+</dt>
+<dd>
+
+</dd>
+<dt>
+<code>haneul_amount: <a href="../move-stdlib/u64.md#0x1_u64">u64</a></code>
 </dt>
 <dd>
 
@@ -913,6 +1003,88 @@ Request to add stake to the validator's staking pool, processed at the end of th
         }
     );
     staked_haneul
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_validator_convert_to_fungible_staked_haneul"></a>
+
+## Function `convert_to_fungible_staked_haneul`
+
+
+
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="validator.md#0x3_validator_convert_to_fungible_staked_haneul">convert_to_fungible_staked_haneul</a>(self: &<b>mut</b> <a href="validator.md#0x3_validator_Validator">validator::Validator</a>, staked_haneul: <a href="staking_pool.md#0x3_staking_pool_StakedHaneul">staking_pool::StakedHaneul</a>, ctx: &<b>mut</b> <a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">staking_pool::FungibleStakedHaneul</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(package) <b>fun</b> <a href="validator.md#0x3_validator_convert_to_fungible_staked_haneul">convert_to_fungible_staked_haneul</a>(
+    self: &<b>mut</b> <a href="validator.md#0x3_validator_Validator">Validator</a>,
+    staked_haneul: StakedHaneul,
+    ctx: &<b>mut</b> TxContext,
+) : FungibleStakedHaneul {
+    <b>let</b> stake_activation_epoch = staked_haneul.stake_activation_epoch();
+    <b>let</b> staked_haneul_principal_amount = staked_haneul.staked_haneul_amount();
+
+    <b>let</b> fungible_staked_haneul = self.<a href="staking_pool.md#0x3_staking_pool">staking_pool</a>.<a href="validator.md#0x3_validator_convert_to_fungible_staked_haneul">convert_to_fungible_staked_haneul</a>(staked_haneul, ctx);
+
+    <a href="../haneul-framework/event.md#0x2_event_emit">event::emit</a>(
+        <a href="validator.md#0x3_validator_ConvertingToFungibleStakedHaneulEvent">ConvertingToFungibleStakedHaneulEvent</a> {
+            pool_id: self.<a href="validator.md#0x3_validator_staking_pool_id">staking_pool_id</a>(),
+            stake_activation_epoch,
+            staked_haneul_principal_amount,
+            fungible_staked_haneul_amount: fungible_staked_haneul.value(),
+        }
+    );
+
+    fungible_staked_haneul
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x3_validator_redeem_fungible_staked_haneul"></a>
+
+## Function `redeem_fungible_staked_haneul`
+
+
+
+<pre><code><b>public</b>(<b>friend</b>) <b>fun</b> <a href="validator.md#0x3_validator_redeem_fungible_staked_haneul">redeem_fungible_staked_haneul</a>(self: &<b>mut</b> <a href="validator.md#0x3_validator_Validator">validator::Validator</a>, fungible_staked_haneul: <a href="staking_pool.md#0x3_staking_pool_FungibleStakedHaneul">staking_pool::FungibleStakedHaneul</a>, ctx: &<a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="../haneul-framework/balance.md#0x2_balance_Balance">balance::Balance</a>&lt;<a href="../haneul-framework/haneul.md#0x2_haneul_HANEUL">haneul::HANEUL</a>&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(package) <b>fun</b> <a href="validator.md#0x3_validator_redeem_fungible_staked_haneul">redeem_fungible_staked_haneul</a>(
+    self: &<b>mut</b> <a href="validator.md#0x3_validator_Validator">Validator</a>,
+    fungible_staked_haneul: FungibleStakedHaneul,
+    ctx: &TxContext,
+) : Balance&lt;HANEUL&gt; {
+    <b>let</b> fungible_staked_haneul_amount = fungible_staked_haneul.value();
+
+    <b>let</b> <a href="../haneul-framework/haneul.md#0x2_haneul">haneul</a> = self.<a href="staking_pool.md#0x3_staking_pool">staking_pool</a>.<a href="validator.md#0x3_validator_redeem_fungible_staked_haneul">redeem_fungible_staked_haneul</a>(fungible_staked_haneul, ctx);
+
+    <a href="../haneul-framework/event.md#0x2_event_emit">event::emit</a>(
+        <a href="validator.md#0x3_validator_RedeemingFungibleStakedHaneulEvent">RedeemingFungibleStakedHaneulEvent</a> {
+            pool_id: self.<a href="validator.md#0x3_validator_staking_pool_id">staking_pool_id</a>(),
+            fungible_staked_haneul_amount,
+            haneul_amount: <a href="../haneul-framework/haneul.md#0x2_haneul">haneul</a>.value(),
+        }
+    );
+
+    <a href="../haneul-framework/haneul.md#0x2_haneul">haneul</a>
 }
 </code></pre>
 

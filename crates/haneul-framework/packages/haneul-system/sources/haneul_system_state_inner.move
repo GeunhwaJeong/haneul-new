@@ -4,7 +4,7 @@
 module haneul_system::haneul_system_state_inner {
     use haneul::balance::{Self, Balance};
     use haneul::coin::Coin;
-    use haneul_system::staking_pool::StakedHaneul;
+    use haneul_system::staking_pool::{StakedHaneul, FungibleStakedHaneul};
     use haneul::haneul::HANEUL;
     use haneul_system::validator::{Self, Validator};
     use haneul_system::validator_set::{Self, ValidatorSet};
@@ -516,6 +516,22 @@ module haneul_system::haneul_system_state_inner {
         ctx: &TxContext,
     ) : Balance<HANEUL> {
         self.validators.request_withdraw_stake(staked_haneul, ctx)
+    }
+
+    public(package) fun convert_to_fungible_staked_haneul(
+        self: &mut HaneulSystemStateInnerV2,
+        staked_haneul: StakedHaneul,
+        ctx: &mut TxContext,
+    ) : FungibleStakedHaneul {
+        self.validators.convert_to_fungible_staked_haneul(staked_haneul, ctx)
+    }
+
+    public(package) fun redeem_fungible_staked_haneul(
+        self: &mut HaneulSystemStateInnerV2,
+        fungible_staked_haneul: FungibleStakedHaneul,
+        ctx: &TxContext,
+    ) : Balance<HANEUL> {
+        self.validators.redeem_fungible_staked_haneul(fungible_staked_haneul, ctx)
     }
 
     /// Report a validator as a bad or non-performant actor in the system.

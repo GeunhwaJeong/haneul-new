@@ -7,7 +7,7 @@ module haneul_system::validator_set {
     use haneul::haneul::HANEUL;
     use haneul_system::validator::{Validator, staking_pool_id, haneul_address};
     use haneul_system::validator_cap::{Self, UnverifiedValidatorOperationCap, ValidatorOperationCap};
-    use haneul_system::staking_pool::{PoolTokenExchangeRate, StakedHaneul, pool_id};
+    use haneul_system::staking_pool::{PoolTokenExchangeRate, StakedHaneul, pool_id, FungibleStakedHaneul, fungible_staked_haneul_pool_id};
     use haneul::priority_queue as pq;
     use haneul::vec_map::{Self, VecMap};
     use haneul::vec_set::VecSet;
@@ -307,6 +307,45 @@ module haneul_system::validator_set {
                 wrapper.load_validator_maybe_upgrade()
             };
         validator.request_withdraw_stake(staked_haneul, ctx)
+    }
+
+    public(package) fun convert_to_fungible_staked_haneul(
+        self: &mut ValidatorSet,
+        staked_haneul: StakedHaneul,
+        ctx: &mut TxContext,
+    ) : FungibleStakedHaneul {
+        let staking_pool_id = pool_id(&staked_haneul);
+        let validator =
+            if (self.staking_pool_mappings.contains(staking_pool_id)) { // This is an active validator.
+                let validator_address = self.staking_pool_mappings[staking_pool_id];
+                get_candidate_or_active_validator_mut(self, validator_address)
+            } else { // This is an inactive pool.
+                assert!(self.inactive_validators.contains(staking_pool_id), ENoPoolFound);
+                let wrapper = &mut self.inactive_validators[staking_pool_id];
+                wrapper.load_validator_maybe_upgrade()
+            };
+
+        validator.convert_to_fungible_staked_haneul(staked_haneul, ctx)
+    }
+
+    public(package) fun redeem_fungible_staked_haneul(
+        self: &mut ValidatorSet,
+        fungible_staked_haneul: FungibleStakedHaneul,
+        ctx: &TxContext,
+    ) : Balance<HANEUL> {
+        let staking_pool_id = fungible_staked_haneul_pool_id(&fungible_staked_haneul);
+
+        let validator =
+            if (self.staking_pool_mappings.contains(staking_pool_id)) { // This is an active validator.
+                let validator_address = self.staking_pool_mappings[staking_pool_id];
+                get_candidate_or_active_validator_mut(self, validator_address)
+            } else { // This is an inactive pool.
+                assert!(self.inactive_validators.contains(staking_pool_id), ENoPoolFound);
+                let wrapper = &mut self.inactive_validators[staking_pool_id];
+                wrapper.load_validator_maybe_upgrade()
+            };
+
+        validator.redeem_fungible_staked_haneul(fungible_staked_haneul, ctx)
     }
 
     // ==== validator config setting functions ====

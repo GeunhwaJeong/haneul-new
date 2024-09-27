@@ -8,7 +8,7 @@ module haneul_system::validator {
     use haneul::balance::Balance;
     use haneul::haneul::HANEUL;
     use haneul_system::validator_cap::{Self, ValidatorOperationCap};
-    use haneul_system::staking_pool::{Self, PoolTokenExchangeRate, StakedHaneul, StakingPool};
+    use haneul_system::staking_pool::{Self, PoolTokenExchangeRate, StakedHaneul, StakingPool, FungibleStakedHaneul};
     use std::string::String;
     use haneul::url::Url;
     use haneul::url;
@@ -160,6 +160,21 @@ module haneul_system::validator {
         reward_amount: u64,
     }
 
+    /// Event emitted when a staked HANEUL is converted to a fungible staked HANEUL.
+    public struct ConvertingToFungibleStakedHaneulEvent has copy, drop {
+        pool_id: ID,
+        stake_activation_epoch: u64,
+        staked_haneul_principal_amount: u64,
+        fungible_staked_haneul_amount: u64,
+    }
+
+    /// Event emitted when a fungible staked HANEUL is redeemed.
+    public struct RedeemingFungibleStakedHaneulEvent has copy, drop {
+        pool_id: ID,
+        fungible_staked_haneul_amount: u64,
+        haneul_amount: u64,
+    }
+
     public(package) fun new_metadata(
         haneul_address: address,
         protocol_pubkey_bytes: vector<u8>,
@@ -304,6 +319,48 @@ module haneul_system::validator {
             }
         );
         staked_haneul
+    }
+
+    public(package) fun convert_to_fungible_staked_haneul(
+        self: &mut Validator,
+        staked_haneul: StakedHaneul,
+        ctx: &mut TxContext,
+    ) : FungibleStakedHaneul {
+        let stake_activation_epoch = staked_haneul.stake_activation_epoch();
+        let staked_haneul_principal_amount = staked_haneul.staked_haneul_amount();
+
+        let fungible_staked_haneul = self.staking_pool.convert_to_fungible_staked_haneul(staked_haneul, ctx);
+
+        event::emit(
+            ConvertingToFungibleStakedHaneulEvent {
+                pool_id: self.staking_pool_id(),
+                stake_activation_epoch,
+                staked_haneul_principal_amount,
+                fungible_staked_haneul_amount: fungible_staked_haneul.value(),
+            }
+        );
+
+        fungible_staked_haneul
+    }
+
+    public(package) fun redeem_fungible_staked_haneul(
+        self: &mut Validator,
+        fungible_staked_haneul: FungibleStakedHaneul,
+        ctx: &TxContext,
+    ) : Balance<HANEUL> {
+        let fungible_staked_haneul_amount = fungible_staked_haneul.value();
+
+        let haneul = self.staking_pool.redeem_fungible_staked_haneul(fungible_staked_haneul, ctx);
+
+        event::emit(
+            RedeemingFungibleStakedHaneulEvent {
+                pool_id: self.staking_pool_id(),
+                fungible_staked_haneul_amount,
+                haneul_amount: haneul.value(),
+            }
+        );
+
+        haneul
     }
 
     /// Request to add stake to the validator's staking pool at genesis
