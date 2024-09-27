@@ -170,7 +170,7 @@ impl BridgeNodeConfig {
             ));
         }
 
-        let (eth_client, eth_contracts) = self.prepare_for_eth(metrics).await?;
+        let (eth_client, eth_contracts) = self.prepare_for_eth(metrics.clone()).await?;
         let bridge_summary = haneul_client
             .get_bridge_summary()
             .await
@@ -208,7 +208,7 @@ impl BridgeNodeConfig {
 
         // If client is enabled, prepare client config
         let (bridge_client_key, client_haneul_address, gas_object_ref) =
-            self.prepare_for_haneul(haneul_client.clone()).await?;
+            self.prepare_for_haneul(haneul_client.clone(), metrics).await?;
 
         let db_path = self
             .db_path
@@ -314,6 +314,7 @@ impl BridgeNodeConfig {
     async fn prepare_for_haneul(
         &self,
         haneul_client: Arc<HaneulClient<HaneulSdkClient>>,
+        metrics: Arc<BridgeMetrics>,
     ) -> anyhow::Result<(HaneulKeyPair, HaneulAddress, ObjectRef)> {
         let bridge_client_key = match &self.haneul.bridge_client_key_path {
             None => read_key(&self.bridge_authority_key_path, true),
@@ -351,7 +352,6 @@ impl BridgeNodeConfig {
 
         let client_haneul_address = HaneulAddress::from(&bridge_client_key.public());
 
-        // TODO: decide a minimal amount here
         let gas_object_id = match self.haneul.bridge_client_gas_object {
             Some(id) => id,
             None => {
@@ -359,7 +359,8 @@ impl BridgeNodeConfig {
                     .build(&self.haneul.haneul_rpc_url)
                     .await?;
                 let coin =
-                    pick_highest_balance_coin(haneul_client.coin_read_api(), client_haneul_address, 0)
+                    // Minimum balance for gas object is 10 HANEUL
+                    pick_highest_balance_coin(haneul_client.coin_read_api(), client_haneul_address, 10_000_000_000)
                         .await?;
                 coin.coin_object_id
             }
@@ -370,11 +371,11 @@ impl BridgeNodeConfig {
         if owner != Owner::AddressOwner(client_haneul_address) {
             return Err(anyhow!("Gas object {:?} is not owned by bridge client key's associated haneul address {:?}, but {:?}", gas_object_id, client_haneul_address, owner));
         }
+        let balance = gas_coin.value();
+        metrics.gas_coin_balance.set(balance as i64);
         info!(
             "Starting bridge client with address: {:?}, gas object {:?}, balance: {}",
-            client_haneul_address,
-            gas_object_ref.0,
-            gas_coin.value()
+            client_haneul_address, gas_object_ref.0, balance,
         );
 
         Ok((bridge_client_key, client_haneul_address, gas_object_ref))
@@ -391,7 +392,6 @@ pub struct BridgeServerConfig {
     pub approved_governance_actions: Vec<BridgeAction>,
 }
 
-// TODO: add gas balance alert threshold
 pub struct BridgeClientConfig {
     pub haneul_address: HaneulAddress,
     pub key: HaneulKeyPair,
