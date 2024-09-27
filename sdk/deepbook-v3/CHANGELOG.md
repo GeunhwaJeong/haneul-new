@@ -1,5 +1,13 @@
 # @haneullabs/deepbook-v3
 
+## 0.8.1
+
+### Patch Changes
+
+- Updated dependencies [489f421]
+- Updated dependencies [489f421]
+  - @haneullabs/haneul@1.11.0
+
 ## 0.8.0
 
 ### Minor Changes
