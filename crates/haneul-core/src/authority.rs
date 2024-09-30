@@ -45,11 +45,13 @@ use std::{
 use haneul_config::node::{AuthorityOverloadConfig, StateDebugDumpConfig};
 use haneul_config::NodeConfig;
 use haneul_types::crypto::RandomnessRound;
+use haneul_types::dynamic_field::visitor as DFV;
 use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::inner_temporary_store::PackageStoreWithFallback;
 use haneul_types::layout_resolver::into_struct_layout;
 use haneul_types::layout_resolver::LayoutResolver;
 use haneul_types::messages_consensus::{AuthorityCapabilitiesV1, AuthorityCapabilitiesV2};
+use haneul_types::object::bounded_visitor::BoundedVisitor;
 use tap::{TapFallible, TapOptional};
 use tokio::sync::mpsc::unbounded_channel;
 use tokio::sync::{mpsc, oneshot, RwLock};
@@ -83,7 +85,7 @@ use haneul_types::crypto::{default_hash, AuthoritySignInfo, Signer};
 use haneul_types::deny_list_v1::check_coin_deny_list_v1;
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::digests::TransactionEventsDigest;
-use haneul_types::dynamic_field::{DynamicFieldInfo, DynamicFieldName, DynamicFieldType};
+use haneul_types::dynamic_field::{DynamicFieldInfo, DynamicFieldName};
 use haneul_types::effects::{
     InputSharedObject, SignedTransactionEffects, TransactionEffects, TransactionEffectsAPI,
     TransactionEvents, VerifiedCertifiedTransactionEffects, VerifiedSignedTransactionEffects,
@@ -2381,34 +2383,59 @@ impl AuthorityState {
         let Some(move_object) = o.data.try_as_move().cloned() else {
             return Ok(None);
         };
+
         // We only index dynamic field objects
         if !move_object.type_().is_dynamic_field() {
             return Ok(None);
         }
 
-        let layout = into_struct_layout(
-            resolver.get_annotated_layout(&move_object.type_().clone().into())?,
-        )?;
-        let move_struct = move_object.to_move_struct(&layout)?;
+        let layout = resolver
+            .get_annotated_layout(&move_object.type_().clone().into())?
+            .into_layout();
 
-        let (name_value, type_, object_id) =
-            DynamicFieldInfo::parse_move_object(&move_struct).tap_err(|e| warn!("{e}"))?;
+        let field =
+            DFV::FieldVisitor::deserialize(move_object.contents(), &layout).map_err(|e| {
+                HaneulError::ObjectDeserializationError {
+                    error: e.to_string(),
+                }
+            })?;
 
-        let name_type = move_object.type_().try_extract_field_name(&type_)?;
+        let type_ = field.kind;
+        let name_type: TypeTag = field.name_layout.into();
+        let bcs_name = field.name_bytes.to_owned();
 
-        let bcs_name = bcs::to_bytes(&name_value.clone().undecorate()).map_err(|e| {
-            HaneulError::ObjectSerializationError {
-                error: format!("{e}"),
-            }
-        })?;
+        let name_value = BoundedVisitor::deserialize_value(field.name_bytes, field.name_layout)
+            .map_err(|e| {
+                warn!("{e}");
+                HaneulError::ObjectDeserializationError {
+                    error: e.to_string(),
+                }
+            })?;
 
         let name = DynamicFieldName {
             type_: name_type,
             value: HaneulMoveValue::from(name_value).to_json_value(),
         };
 
-        Ok(Some(match type_ {
-            DynamicFieldType::DynamicObject => {
+        let value_metadata = field.value_metadata().map_err(|e| {
+            warn!("{e}");
+            HaneulError::ObjectDeserializationError {
+                error: e.to_string(),
+            }
+        })?;
+
+        Ok(Some(match value_metadata {
+            DFV::ValueMetadata::DynamicField(object_type) => DynamicFieldInfo {
+                name,
+                bcs_name,
+                type_,
+                object_type: object_type.to_canonical_string(/* with_prefix */ true),
+                object_id: o.id(),
+                version: o.version(),
+                digest: o.digest(),
+            },
+
+            DFV::ValueMetadata::DynamicObjectField(object_id) => {
                 // Find the actual object from storage using the object id obtained from the wrapper.
 
                 // Try to find the object in the written objects first.
@@ -2431,6 +2458,7 @@ impl AuthorityState {
                     let object_type = object.data.type_().unwrap().clone();
                     (version, digest, object_type)
                 };
+
                 DynamicFieldInfo {
                     name,
                     bcs_name,
@@ -2441,15 +2469,6 @@ impl AuthorityState {
                     digest,
                 }
             }
-            DynamicFieldType::DynamicField { .. } => DynamicFieldInfo {
-                name,
-                bcs_name,
-                type_,
-                object_type: move_object.into_type().into_type_params()[1].to_string(),
-                object_id: o.id(),
-                version: o.version(),
-                digest: o.digest(),
-            },
         }))
     }
 
