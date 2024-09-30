@@ -12,7 +12,7 @@ use haneul_types::base_types::{ObjectDigest, SequenceNumber};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::crypto::AggregateAuthoritySignature;
 use haneul_types::digests::TransactionDigest;
-use haneul_types::dynamic_field::DynamicFieldInfo;
+use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::event::SystemEpochInfoEvent;
 use haneul_types::messages_checkpoint::{
@@ -347,19 +347,19 @@ pub enum DynamicFieldKind {
 pub struct IndexedObject {
     pub checkpoint_sequence_number: CheckpointSequenceNumber,
     pub object: Object,
-    pub df_info: Option<DynamicFieldInfo>,
+    pub df_kind: Option<DynamicFieldType>,
 }
 
 impl IndexedObject {
     pub fn from_object(
         checkpoint_sequence_number: CheckpointSequenceNumber,
         object: Object,
-        df_info: Option<DynamicFieldInfo>,
+        df_kind: Option<DynamicFieldType>,
     ) -> Self {
         Self {
             checkpoint_sequence_number,
             object,
-            df_info,
+            df_kind,
         }
     }
 }
