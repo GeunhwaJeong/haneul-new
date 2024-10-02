@@ -4,7 +4,7 @@
 import { ImageIcon } from '_app/shared/image-icon';
 import { useCoinMetadata } from '@haneullabs/core';
 import { Haneul, Unstaked } from '@haneullabs/icons';
-import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
+import { normalizeStructTag, HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { useCoinMetadataOverrides } from '../../hooks/useCoinMetadataOverride';
@@ -63,9 +63,13 @@ export interface CoinIconProps extends VariantProps<typeof imageStyle> {
 }
 
 export function CoinIcon({ coinType, ...styleProps }: CoinIconProps) {
+	const isHaneul = coinType
+		? normalizeStructTag(coinType) === normalizeStructTag(HANEUL_TYPE_ARG)
+		: false;
+
 	return (
 		<div className={imageStyle(styleProps)}>
-			{coinType === HANEUL_TYPE_ARG ? <HaneulCoin /> : <NonHaneulCoin coinType={coinType} />}
+			{isHaneul ? <HaneulCoin /> : <NonHaneulCoin coinType={coinType} />}
 		</div>
 	);
 }
