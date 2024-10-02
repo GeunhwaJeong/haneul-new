@@ -9,7 +9,7 @@ use crate::{
     RestService, Result,
 };
 use axum::extract::{Path, State};
-use haneul_sdk2::types::{EpochId, ValidatorCommittee};
+use haneul_sdk_types::types::{EpochId, ValidatorCommittee};
 use haneul_types::storage::ReadStore;
 use tap::Pipe;
 

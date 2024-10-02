@@ -4,19 +4,19 @@
 use reqwest::header::HeaderValue;
 use reqwest::StatusCode;
 use reqwest::Url;
-use haneul_sdk2::types::Address;
-use haneul_sdk2::types::CheckpointData;
-use haneul_sdk2::types::CheckpointDigest;
-use haneul_sdk2::types::CheckpointSequenceNumber;
-use haneul_sdk2::types::EpochId;
-use haneul_sdk2::types::Object;
-use haneul_sdk2::types::ObjectId;
-use haneul_sdk2::types::SignedCheckpointSummary;
-use haneul_sdk2::types::SignedTransaction;
-use haneul_sdk2::types::StructTag;
-use haneul_sdk2::types::TransactionDigest;
-use haneul_sdk2::types::ValidatorCommittee;
-use haneul_sdk2::types::Version;
+use haneul_sdk_types::types::Address;
+use haneul_sdk_types::types::CheckpointData;
+use haneul_sdk_types::types::CheckpointDigest;
+use haneul_sdk_types::types::CheckpointSequenceNumber;
+use haneul_sdk_types::types::EpochId;
+use haneul_sdk_types::types::Object;
+use haneul_sdk_types::types::ObjectId;
+use haneul_sdk_types::types::SignedCheckpointSummary;
+use haneul_sdk_types::types::SignedTransaction;
+use haneul_sdk_types::types::StructTag;
+use haneul_sdk_types::types::TransactionDigest;
+use haneul_sdk_types::types::ValidatorCommittee;
+use haneul_sdk_types::types::Version;
 use tap::Pipe;
 
 use crate::accounts::AccountOwnedObjectInfo;
@@ -667,8 +667,8 @@ impl From<url::ParseError> for Error {
     }
 }
 
-impl From<haneul_types::haneul_sdk2_conversions::SdkTypeConversionError> for Error {
-    fn from(value: haneul_types::haneul_sdk2_conversions::SdkTypeConversionError) -> Self {
+impl From<haneul_types::haneul_sdk_types_conversions::SdkTypeConversionError> for Error {
+    fn from(value: haneul_types::haneul_sdk_types_conversions::SdkTypeConversionError) -> Self {
         Self::from_error(value)
     }
 }

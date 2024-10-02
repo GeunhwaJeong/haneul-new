@@ -3,8 +3,10 @@
 
 use std::sync::Arc;
 
-use haneul_sdk2::types::{CheckpointSequenceNumber, EpochId, SignedTransaction, ValidatorCommittee};
-use haneul_sdk2::types::{Object, ObjectId, Version};
+use haneul_sdk_types::types::{
+    CheckpointSequenceNumber, EpochId, SignedTransaction, ValidatorCommittee,
+};
+use haneul_sdk_types::types::{Object, ObjectId, Version};
 use haneul_types::storage::error::{Error as StorageError, Result};
 use haneul_types::storage::ObjectStore;
 use haneul_types::storage::RestStateReader;
@@ -62,11 +64,11 @@ impl StateReader {
 
     pub fn get_transaction(
         &self,
-        digest: haneul_sdk2::types::TransactionDigest,
+        digest: haneul_sdk_types::types::TransactionDigest,
     ) -> crate::Result<(
-        haneul_sdk2::types::SignedTransaction,
-        haneul_sdk2::types::TransactionEffects,
-        Option<haneul_sdk2::types::TransactionEvents>,
+        haneul_sdk_types::types::SignedTransaction,
+        haneul_sdk_types::types::TransactionEffects,
+        Option<haneul_sdk_types::types::TransactionEvents>,
     )> {
         use super::transactions::TransactionNotFoundError;
         use haneul_types::effects::TransactionEffectsAPI;
@@ -101,7 +103,7 @@ impl StateReader {
 
     pub fn get_transaction_response(
         &self,
-        digest: haneul_sdk2::types::TransactionDigest,
+        digest: haneul_sdk_types::types::TransactionDigest,
     ) -> crate::Result<super::transactions::TransactionResponse> {
         let (
             SignedTransaction {

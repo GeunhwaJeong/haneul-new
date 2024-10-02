@@ -47,8 +47,8 @@ impl From<anyhow::Error> for RestError {
     }
 }
 
-impl From<haneul_types::haneul_sdk2_conversions::SdkTypeConversionError> for RestError {
-    fn from(value: haneul_types::haneul_sdk2_conversions::SdkTypeConversionError) -> Self {
+impl From<haneul_types::haneul_sdk_types_conversions::SdkTypeConversionError> for RestError {
+    fn from(value: haneul_types::haneul_sdk_types_conversions::SdkTypeConversionError) -> Self {
         Self {
             status: StatusCode::INTERNAL_SERVER_ERROR,
             message: Some(value.to_string()),

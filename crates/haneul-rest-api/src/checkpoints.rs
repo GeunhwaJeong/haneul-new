@@ -3,7 +3,7 @@
 
 use axum::extract::Query;
 use axum::extract::{Path, State};
-use haneul_sdk2::types::{
+use haneul_sdk_types::types::{
     CheckpointData, CheckpointDigest, CheckpointSequenceNumber, SignedCheckpointSummary,
 };
 use haneul_types::storage::ReadStore;

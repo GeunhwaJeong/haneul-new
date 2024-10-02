@@ -76,7 +76,7 @@ pub mod randomness_state;
 pub mod signature;
 pub mod signature_verification;
 pub mod storage;
-pub mod haneul_sdk2_conversions;
+pub mod haneul_sdk_types_conversions;
 pub mod haneul_serde;
 pub mod haneul_system_state;
 pub mod supported_protocol_versions;

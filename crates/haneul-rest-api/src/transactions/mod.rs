@@ -9,9 +9,11 @@ pub use execution::TransactionExecutionResponse;
 
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
-use haneul_sdk2::types::CheckpointSequenceNumber;
-use haneul_sdk2::types::Transaction;
-use haneul_sdk2::types::{TransactionDigest, TransactionEffects, TransactionEvents, UserSignature};
+use haneul_sdk_types::types::CheckpointSequenceNumber;
+use haneul_sdk_types::types::Transaction;
+use haneul_sdk_types::types::{
+    TransactionDigest, TransactionEffects, TransactionEvents, UserSignature,
+};
 use tap::Pipe;
 
 use crate::openapi::ApiEndpoint;
