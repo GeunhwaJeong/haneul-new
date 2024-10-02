@@ -12,17 +12,17 @@ export default function BetaTag(props) {
   }
 
   const beta = props.beta.toLowerCase();
-
+  // If `props.slim` is included, do not add spacing because the box is inline with
+  // content as opposed to at top of topic based on `beta` frontmatter.
   return (
     <Admonition
       title="Beta Feature"
       icon="⚙️"
-      className="!my-12 bg-haneul-blue-light border-haneul-blue-dark dark:bg-haneul-blue-dark dark:border-haneul-blue-light"
+      className={`${props.slim ? "" : "!my-12"} bg-haneul-blue-light border-haneul-blue-dark dark:bg-haneul-blue-dark dark:border-haneul-blue-light`}
     >
       <p className="pt-2">
-        The content in this topic describes a beta feature or service. Beta
-        features and services are in active development, so details are likely
-        to change.
+        This content describes a beta feature or service. Beta features and
+        services are in active development, so details are likely to change.
       </p>
       {(beta.includes("testnet") ||
         beta.includes("devnet") ||
