@@ -41,6 +41,7 @@ url.workspace = true
 
 fastcrypto = { workspace = true, features = ["copy_key"] }
 haneullabs-metrics.workspace = true
+simulacrum.workspace = true
 haneul-config.workspace = true
 haneul-archival.workspace = true
 haneul-core.workspace = true
@@ -76,7 +77,6 @@ haneul-test-transaction-builder.workspace = true
 test-cluster.workspace = true
 ntest.workspace = true
 criterion.workspace = true
-simulacrum.workspace = true
 
 [[bin]]
 name = "haneul-indexer"

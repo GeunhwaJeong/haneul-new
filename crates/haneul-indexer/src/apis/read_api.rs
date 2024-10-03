@@ -24,7 +24,7 @@ use haneul_types::digests::{ChainIdentifier, TransactionDigest};
 use haneul_types::haneul_serde::BigInt;
 
 #[derive(Clone)]
-pub(crate) struct ReadApi {
+pub struct ReadApi {
     inner: IndexerReader,
 }
 
