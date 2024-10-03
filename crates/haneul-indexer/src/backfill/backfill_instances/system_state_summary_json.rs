@@ -10,7 +10,7 @@ use diesel_async::{AsyncConnection, RunQueryDsl};
 use std::ops::RangeInclusive;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 
-pub struct SystemStateSummaryJsonBackfill {}
+pub struct SystemStateSummaryJsonBackfill;
 
 #[async_trait]
 impl BackfillTask for SystemStateSummaryJsonBackfill {
