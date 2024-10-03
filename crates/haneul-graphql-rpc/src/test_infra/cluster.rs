@@ -16,7 +16,6 @@ use std::time::Duration;
 use haneul_graphql_rpc_client::simple_client::SimpleClient;
 pub use haneul_indexer::config::SnapshotLagConfig;
 use haneul_indexer::errors::IndexerError;
-use haneul_indexer::store::indexer_store::IndexerStore;
 use haneul_indexer::store::PgIndexerStore;
 use haneul_indexer::tempdb::get_available_port;
 use haneul_indexer::tempdb::TempDb;
