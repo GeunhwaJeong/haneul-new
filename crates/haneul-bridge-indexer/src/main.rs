@@ -5,6 +5,7 @@ use anyhow::Result;
 use clap::*;
 use ethers::providers::{Http, Provider};
 use ethers::types::Address as EthAddress;
+use prometheus::Registry;
 use std::collections::HashSet;
 use std::env;
 use std::net::IpAddr;
@@ -13,10 +14,12 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::Arc;
 use haneul_bridge::eth_client::EthClient;
-use haneul_bridge::metered_eth_provider::MeteredEthHttpProvier;
+use haneul_bridge::metered_eth_provider::{new_metered_eth_provider, MeteredEthHttpProvier};
+use haneul_bridge::haneul_client::HaneulBridgeClient;
 use haneul_bridge::utils::get_eth_contract_addresses;
 use haneul_bridge_indexer::eth_bridge_indexer::EthFinalizedSyncDatasource;
 use haneul_bridge_indexer::eth_bridge_indexer::EthSubscriptionDatasource;
+use haneul_config::Config;
 use tokio::task::JoinHandle;
 use tracing::info;
 
@@ -34,7 +37,10 @@ use haneul_bridge_indexer::haneul_bridge_indexer::HaneulBridgeDataMapper;
 use haneul_bridge_indexer::haneul_datasource::HaneulCheckpointDatasource;
 use haneul_bridge_indexer::haneul_transaction_handler::handle_haneul_transactions_loop;
 use haneul_bridge_indexer::haneul_transaction_queries::start_haneul_tx_polling_task;
-use haneul_config::Config;
+use haneul_bridge_watchdog::{
+    eth_bridge_status::EthBridgeStatus, eth_vault_balance::EthVaultBalance,
+    metrics::WatchdogMetrics, haneul_bridge_status::HaneulBridgeStatus, BridgeWatchDog,
+};
 use haneul_data_ingestion_core::DataIngestionMetrics;
 use haneul_indexer_builder::indexer_builder::{BackfillStrategy, IndexerBuilder};
 use haneul_indexer_builder::progress::{
@@ -101,7 +107,7 @@ async fn main() -> Result<()> {
         )
         .await?,
     );
-
+    let eth_bridge_proxy_address = EthAddress::from_str(&config.eth_haneul_bridge_contract_address)?;
     let mut tasks = vec![];
     if Some(true) == config.disable_eth {
         info!("Eth indexer is disabled");
@@ -174,11 +180,12 @@ async fn main() -> Result<()> {
             .await?,
     );
     let haneul_checkpoint_datasource = HaneulCheckpointDatasource::new(
-        config.remote_store_url,
+        config.remote_store_url.clone(),
         haneul_client,
         config.concurrency as usize,
         config
             .checkpoints_path
+            .clone()
             .map(|p| p.into())
             .unwrap_or(tempfile::tempdir()?.into_path()),
         config.haneul_bridge_genesis_checkpoint,
@@ -196,9 +203,59 @@ async fn main() -> Result<()> {
     .build();
     tasks.push(spawn_logged_monitored_task!(indexer.start()));
 
+    let haneul_bridge_client =
+        Arc::new(HaneulBridgeClient::new(&config.haneul_rpc_url, bridge_metrics.clone()).await?);
+    start_watchdog(
+        config,
+        eth_bridge_proxy_address,
+        haneul_bridge_client,
+        &registry,
+        bridge_metrics.clone(),
+    )
+    .await?;
+
     // Wait for tasks in `tasks` to finish. Return when anyone of them returns an error.
     futures::future::try_join_all(tasks).await?;
     unreachable!("Indexer tasks finished unexpectedly");
+}
+
+async fn start_watchdog(
+    config: IndexerConfig,
+    eth_bridge_proxy_address: EthAddress,
+    haneul_client: Arc<HaneulBridgeClient>,
+    registry: &Registry,
+    bridge_metrics: Arc<BridgeMetrics>,
+) -> Result<()> {
+    let watchdog_metrics = WatchdogMetrics::new(registry);
+    let eth_provider =
+        Arc::new(new_metered_eth_provider(&config.eth_rpc_url, bridge_metrics.clone()).unwrap());
+    let (_committee_address, _limiter_address, vault_address, _config_address, weth_address) =
+        get_eth_contract_addresses(eth_bridge_proxy_address, &eth_provider).await?;
+
+    let eth_vault_balance = EthVaultBalance::new(
+        eth_provider.clone(),
+        vault_address,
+        weth_address,
+        watchdog_metrics.eth_vault_balance.clone(),
+    );
+
+    let eth_bridge_status = EthBridgeStatus::new(
+        eth_provider,
+        eth_bridge_proxy_address,
+        watchdog_metrics.eth_bridge_paused.clone(),
+    );
+
+    let haneul_bridge_status =
+        HaneulBridgeStatus::new(haneul_client, watchdog_metrics.haneul_bridge_paused.clone());
+
+    BridgeWatchDog::new(vec![
+        Arc::new(eth_vault_balance),
+        Arc::new(eth_bridge_status),
+        Arc::new(haneul_bridge_status),
+    ])
+    .run()
+    .await;
+    Ok(())
 }
 
 #[allow(unused)]
