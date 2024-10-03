@@ -11,10 +11,10 @@ use axum::{
     http::StatusCode,
     response::IntoResponse,
 };
+use documented::Documented;
 use std::time::{Duration, SystemTime};
 use haneul_types::storage::ReadStore;
 use tap::Pipe;
-use documented::Documented;
 
 /// Perform a service health check
 ///
