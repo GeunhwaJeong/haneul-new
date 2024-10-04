@@ -14,13 +14,13 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 use haneul_graphql_rpc_client::simple_client::SimpleClient;
+use haneul_indexer::config::PruningOptions;
 pub use haneul_indexer::config::SnapshotLagConfig;
 use haneul_indexer::errors::IndexerError;
 use haneul_indexer::store::PgIndexerStore;
 use haneul_indexer::tempdb::get_available_port;
 use haneul_indexer::tempdb::TempDb;
-use haneul_indexer::test_utils::start_test_indexer_impl;
-use haneul_indexer::test_utils::ReaderWriterConfig;
+use haneul_indexer::test_utils::start_indexer_writer_for_testing;
 use haneul_swarm_config::genesis_config::{AccountConfig, DEFAULT_GAS_AMOUNT};
 use haneul_types::storage::RestStateReader;
 use tempfile::tempdir;
@@ -126,12 +126,12 @@ pub async fn start_network_cluster() -> NetworkCluster {
     let val_fn = start_validator_with_fullnode(data_ingestion_path.path().to_path_buf()).await;
 
     // Starts indexer
-    let (pg_store, pg_handle) = start_test_indexer_impl(
+    let (pg_store, pg_handle, _) = start_indexer_writer_for_testing(
         db_url,
-        val_fn.rpc_url().to_string(),
-        ReaderWriterConfig::writer_mode(None, None),
+        None,
+        None,
         Some(data_ingestion_path.path().to_path_buf()),
-        cancellation_token.clone(),
+        Some(cancellation_token.clone()),
     )
     .await;
 
@@ -179,12 +179,14 @@ pub async fn serve_executor(
             .await;
     });
 
-    let (pg_store, pg_handle) = start_test_indexer_impl(
+    let snapshot_config = snapshot_config.unwrap_or_default();
+
+    let (pg_store, pg_handle, _) = start_indexer_writer_for_testing(
         db_url,
-        format!("http://{}", executor_server_url),
-        ReaderWriterConfig::writer_mode(snapshot_config.clone(), epochs_to_keep),
+        Some(snapshot_config.clone()),
+        Some(PruningOptions { epochs_to_keep }),
         Some(data_ingestion_path),
-        cancellation_token.clone(),
+        Some(cancellation_token.clone()),
     )
     .await;
 
@@ -211,7 +213,7 @@ pub async fn serve_executor(
         indexer_join_handle: pg_handle,
         graphql_server_join_handle: graphql_server_handle,
         graphql_client: client,
-        snapshot_config: snapshot_config.unwrap_or_default(),
+        snapshot_config,
         graphql_connection_config,
         cancellation_token,
         database,
