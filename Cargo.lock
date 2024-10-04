@@ -1877,7 +1877,7 @@ checksum = "230c5f1ca6a325a32553f8640d31ac9b49f2411e901e427570154868b46da4f7"
 
 [[package]]
 name = "bin-version"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "const-str",
  "git-version",
@@ -12426,7 +12426,7 @@ checksum = "734676eb262c623cec13c3155096e08d1f8f29adce39ba17948b18dad1e54142"
 
 [[package]]
 name = "haneul"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anemo",
  "anyhow",
@@ -12496,7 +12496,7 @@ dependencies = [
  "haneul-package-management",
  "haneul-protocol-config",
  "haneul-replay",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-simulator",
  "haneul-source-validation",
  "haneul-swarm",
@@ -12640,7 +12640,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-analytics-indexer"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "arrow",
@@ -12692,7 +12692,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-analytics-indexer-derive"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "proc-macro2 1.0.78",
  "quote 1.0.35",
@@ -12701,7 +12701,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-archival"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -12808,7 +12808,7 @@ dependencies = [
  "haneul-macros",
  "haneul-network",
  "haneul-protocol-config",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-simulator",
  "haneul-storage",
  "haneul-surfer",
@@ -12826,7 +12826,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-bridge"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -12861,7 +12861,7 @@ dependencies = [
  "haneul-json-rpc-api",
  "haneul-json-rpc-types",
  "haneul-keys",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-test-transaction-builder",
  "haneul-types",
  "tap",
@@ -12876,7 +12876,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-bridge-cli"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -12893,7 +12893,7 @@ dependencies = [
  "haneul-config",
  "haneul-json-rpc-types",
  "haneul-keys",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-types",
  "telemetry-subscribers",
  "tokio",
@@ -12928,7 +12928,7 @@ dependencies = [
  "haneul-data-ingestion-core",
  "haneul-indexer-builder",
  "haneul-json-rpc-types",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-test-transaction-builder",
  "haneul-types",
  "tap",
@@ -12956,7 +12956,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-cluster-test"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -12979,7 +12979,7 @@ dependencies = [
  "haneul-json",
  "haneul-json-rpc-types",
  "haneul-keys",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-swarm",
  "haneul-swarm-config",
  "haneul-test-transaction-builder",
@@ -13147,7 +13147,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-data-ingestion"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -13231,7 +13231,7 @@ dependencies = [
  "haneul-data-ingestion-core",
  "haneul-indexer-builder",
  "haneul-json-rpc-types",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-test-transaction-builder",
  "haneul-types",
  "tap",
@@ -13244,7 +13244,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-e2e-tests"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -13288,7 +13288,7 @@ dependencies = [
  "haneul-node",
  "haneul-protocol-config",
  "haneul-rest-api",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-simulator",
  "haneul-storage",
  "haneul-swarm",
@@ -13361,7 +13361,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-faucet"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -13380,7 +13380,7 @@ dependencies = [
  "haneul-config",
  "haneul-json-rpc-types",
  "haneul-keys",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-types",
  "tap",
  "telemetry-subscribers",
@@ -13418,7 +13418,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-framework-snapshot"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "bcs",
@@ -13482,7 +13482,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-graphql-config"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "quote 1.0.35",
  "syn 1.0.107",
@@ -13502,7 +13502,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-graphql-rpc"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "async-graphql",
@@ -13561,7 +13561,7 @@ dependencies = [
  "haneul-package-resolver",
  "haneul-protocol-config",
  "haneul-rest-api",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-swarm-config",
  "haneul-test-transaction-builder",
  "haneul-types",
@@ -13601,7 +13601,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -13652,7 +13652,7 @@ dependencies = [
  "haneul-package-resolver",
  "haneul-protocol-config",
  "haneul-rest-api",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-snapshot",
  "haneul-storage",
  "haneul-test-transaction-builder",
@@ -13681,7 +13681,7 @@ dependencies = [
  "prometheus",
  "haneul-data-ingestion-core",
  "haneul-indexer-builder",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-types",
  "tap",
  "telemetry-subscribers",
@@ -13810,7 +13810,7 @@ dependencies = [
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
  "haneul-protocol-config",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-simulator",
  "haneul-swarm-config",
  "haneul-test-transaction-builder",
@@ -13871,7 +13871,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-light-client"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -13891,7 +13891,7 @@ dependencies = [
  "haneul-json-rpc-types",
  "haneul-package-resolver",
  "haneul-rest-api",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-types",
  "tokio",
  "url",
@@ -13909,7 +13909,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-metric-checker"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "backoff",
@@ -13930,7 +13930,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-move"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -13972,7 +13972,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-move-build"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "datatest-stable",
@@ -13996,7 +13996,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-move-lsp"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "bin-version",
  "clap",
@@ -14128,7 +14128,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-node"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anemo",
  "anemo-tower",
@@ -14179,7 +14179,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-open-rpc"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "bcs",
@@ -14215,7 +14215,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-oracle"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "bcs",
@@ -14235,7 +14235,7 @@ dependencies = [
  "haneul-json-rpc-types",
  "haneul-keys",
  "haneul-move-build",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-types",
  "tap",
  "telemetry-subscribers",
@@ -14245,7 +14245,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-package-dump"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "bcs",
@@ -14262,14 +14262,14 @@ dependencies = [
 
 [[package]]
 name = "haneul-package-management"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "move-core-types",
  "move-package",
  "move-symbol-pool",
  "haneul-json-rpc-types",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-types",
  "thiserror",
  "tracing",
@@ -14415,7 +14415,7 @@ dependencies = [
  "haneul-json-rpc-api",
  "haneul-json-rpc-types",
  "haneul-protocol-config",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-storage",
  "haneul-transaction-checks",
  "haneul-types",
@@ -14460,7 +14460,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-rosetta"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -14490,7 +14490,7 @@ dependencies = [
  "haneul-keys",
  "haneul-move-build",
  "haneul-node",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-swarm-config",
  "haneul-types",
  "telemetry-subscribers",
@@ -14504,7 +14504,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-rpc-loadgen"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -14522,7 +14522,7 @@ dependencies = [
  "haneul-json-rpc",
  "haneul-json-rpc-types",
  "haneul-keys",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-types",
  "telemetry-subscribers",
  "test-cluster",
@@ -14553,7 +14553,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-sdk"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -14589,7 +14589,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-security-watchdog"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "arrow-array",
@@ -14636,7 +14636,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-single-node-benchmark"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "async-trait",
  "bcs",
@@ -14699,7 +14699,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-source-validation"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "colored",
@@ -14717,7 +14717,7 @@ dependencies = [
  "haneul-json-rpc-types",
  "haneul-move-build",
  "haneul-package-management",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-test-transaction-builder",
  "haneul-types",
  "tar",
@@ -14753,7 +14753,7 @@ dependencies = [
  "haneul-json-rpc-types",
  "haneul-move",
  "haneul-move-build",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-source-validation",
  "telemetry-subscribers",
  "tempfile",
@@ -14825,7 +14825,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-surfer"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "async-trait",
  "bcs",
@@ -14923,13 +14923,13 @@ dependencies = [
  "shared-crypto",
  "haneul-genesis-builder",
  "haneul-move-build",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-types",
 ]
 
 [[package]]
 name = "haneul-test-validator"
-version = "1.35.0"
+version = "1.36.0"
 
 [[package]]
 name = "haneul-tls"
@@ -14954,7 +14954,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-tool"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anemo",
  "anemo-cli",
@@ -14986,7 +14986,7 @@ dependencies = [
  "haneul-package-dump",
  "haneul-protocol-config",
  "haneul-replay",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-snapshot",
  "haneul-storage",
  "haneul-types",
@@ -15236,7 +15236,7 @@ dependencies = [
 
 [[package]]
 name = "haneulns-indexer"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -15276,7 +15276,7 @@ dependencies = [
 
 [[package]]
 name = "haneulop-cli"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "axum 0.7.5",
@@ -15627,7 +15627,7 @@ dependencies = [
  "haneul-macros",
  "haneul-node",
  "haneul-protocol-config",
- "haneul-sdk 1.35.0",
+ "haneul-sdk 1.36.0",
  "haneul-simulator",
  "haneul-swarm",
  "haneul-swarm-config",
@@ -17490,7 +17490,7 @@ dependencies = [
 
 [[package]]
 name = "x"
-version = "1.35.0"
+version = "1.36.0"
 dependencies = [
  "anyhow",
  "camino",
