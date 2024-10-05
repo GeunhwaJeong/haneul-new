@@ -254,6 +254,7 @@ where
                 ""
             });
             authorities.push(BridgeAuthority {
+                haneul_address,
                 pubkey,
                 voting_power,
                 base_url: base_url.into(),
