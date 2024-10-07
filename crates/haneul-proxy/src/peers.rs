@@ -10,12 +10,14 @@ use once_cell::sync::Lazy;
 use prometheus::{register_counter_vec, register_histogram_vec};
 use prometheus::{CounterVec, HistogramVec};
 use serde::Deserialize;
+use std::collections::BTreeMap;
 use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
     time::Duration,
 };
 use haneul_tls::Allower;
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::bridge::BridgeSummary;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 use tracing::{debug, error, info, warn};
@@ -269,9 +271,24 @@ impl HaneulNodeProvider {
     }
 
     async fn update_bridge_validator_set(&self, metrics_keys: MetricsPubKeys) {
+        let haneul_system = match Self::get_validators(self.rpc_url.to_owned()).await {
+            Ok(summary) => summary,
+            Err(error) => {
+                JSON_RPC_STATE
+                    .with_label_values(&["update_bridge_peer_count", "failed"])
+                    .inc();
+                error!("unable to get haneul system state: {error}");
+                return;
+            }
+        };
         match Self::get_bridge_validators(self.rpc_url.to_owned()).await {
             Ok(summary) => {
-                let validators = extract_bridge(summary, metrics_keys).await;
+                let names = haneul_system
+                    .active_validators
+                    .into_iter()
+                    .map(|v| (v.haneul_address, v.name))
+                    .collect();
+                let validators = extract_bridge(summary, Arc::new(names), metrics_keys).await;
                 let mut allow = self.bridge_nodes.write().unwrap();
                 allow.clear();
                 allow.extend(validators);
@@ -288,6 +305,7 @@ impl HaneulNodeProvider {
             }
         };
     }
+
     /// poll_peer_list will act as a refresh interval for our cache
     pub fn poll_peer_list(&self) {
         info!("Started polling for peers using rpc: {}", self.rpc_url);
@@ -345,6 +363,7 @@ fn extract(
 
 async fn extract_bridge(
     summary: BridgeSummary,
+    names: Arc<BTreeMap<HaneulAddress, String>>,
     metrics_keys: MetricsPubKeys,
 ) -> Vec<(Ed25519PublicKey, AllowedPeer)> {
     {
@@ -366,6 +385,7 @@ async fn extract_bridge(
         .filter_map(|(_, cm)| {
             let client = client.clone();
             let metrics_keys = metrics_keys.clone();
+            let names = names.clone();
             async move {
                 debug!(
                     address =% cm.haneul_address,
@@ -401,7 +421,15 @@ async fn extract_bridge(
                         return None;
                     }
                 };
-                let bridge_name = String::from(bridge_host);
+                let bridge_name = names.get(&cm.haneul_address).cloned().unwrap_or_else(|| {
+                    warn!(
+                        address =% cm.haneul_address,
+                        "Bridge node not found in haneul committee, using base URL as the name",
+                    );
+                    String::from(bridge_host)
+                });
+                let bridge_name = format!("bridge-{}", bridge_name);
+
                 let bridge_request_url = bridge_url.as_str();
 
                 let metrics_pub_key = match client.get(bridge_request_url).send().await {
@@ -565,7 +593,7 @@ mod tests {
                 Ed25519PublicKey::from_bytes(&[1u8; 32]).unwrap(),
             );
         }
-        let result = extract_bridge(summary, metrics_keys.clone()).await;
+        let result = extract_bridge(summary, Arc::new(BTreeMap::new()), metrics_keys.clone()).await;
 
         assert_eq!(
             result.len(),
@@ -599,7 +627,7 @@ mod tests {
                 Ed25519PublicKey::from_bytes(&[1u8; 32]).unwrap(),
             );
         }
-        let result = extract_bridge(summary, metrics_keys.clone()).await;
+        let result = extract_bridge(summary, Arc::new(BTreeMap::new()), metrics_keys.clone()).await;
 
         assert_eq!(
             result.len(),
