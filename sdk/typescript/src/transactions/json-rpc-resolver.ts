@@ -473,7 +473,7 @@ function isReceivingType(type: OpenMoveTypeSignature): boolean {
 export function getClient(options: BuildTransactionOptions): HaneulClient {
 	if (!options.client) {
 		throw new Error(
-			`No provider passed to Transaction#build, but transaction data was not sufficient to build offline.`,
+			`No haneul client passed to Transaction#build, but transaction data was not sufficient to build offline.`,
 		);
 	}
 
