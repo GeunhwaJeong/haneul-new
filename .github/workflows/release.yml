@@ -3,7 +3,7 @@ run-name: Attach Haneul binaries to a ${{ inputs.haneul_tag }} release
 
 on:
   release:
-    types: [ published, prereleased ]
+    types: created
   workflow_dispatch:
     inputs:
       haneul_tag:
