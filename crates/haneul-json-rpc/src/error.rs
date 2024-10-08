@@ -554,8 +554,9 @@ mod tests {
 
         #[test]
         fn test_quorum_driver_internal_error() {
-            let quorum_driver_error =
-                QuorumDriverError::QuorumDriverInternalError(HaneulError::UnexpectedMessage);
+            let quorum_driver_error = QuorumDriverError::QuorumDriverInternalError(
+                HaneulError::UnexpectedMessage("test".to_string()),
+            );
 
             let rpc_error: RpcError = Error::QuorumDriverError(quorum_driver_error).into();
 
@@ -570,7 +571,7 @@ mod tests {
         fn test_system_overload() {
             let quorum_driver_error = QuorumDriverError::SystemOverload {
                 overloaded_stake: 10,
-                errors: vec![(HaneulError::UnexpectedMessage, 0, vec![])],
+                errors: vec![(HaneulError::UnexpectedMessage("test".to_string()), 0, vec![])],
             };
 
             let rpc_error: RpcError = Error::QuorumDriverError(quorum_driver_error).into();
