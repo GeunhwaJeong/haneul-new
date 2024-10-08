@@ -11,7 +11,10 @@ use haneul_indexer::models::{
     objects::StoredObject, objects::StoredObjectSnapshot, transactions::StoredTransaction,
 };
 use haneul_indexer::schema::{objects, objects_snapshot, transactions};
+use haneul_indexer::store::indexer_store::IndexerStore;
 use haneul_indexer::test_utils::{set_up, wait_for_checkpoint, wait_for_objects_snapshot};
+use haneul_indexer::types::EventIndex;
+use haneul_indexer::types::TxIndex;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::gas_coin::GasCoin;
@@ -172,5 +175,41 @@ pub async fn test_objects_snapshot() -> Result<(), IndexerError> {
     );
     assert_eq!(snapshot_object.owner_type, Some(1));
     assert_eq!(snapshot_object.owner_id, Some(gas_owner_id.to_vec()));
+    Ok(())
+}
+
+// test insert large batch of tx_indices
+#[tokio::test]
+pub async fn test_insert_large_batch_tx_indices() -> Result<(), IndexerError> {
+    let tempdir = tempdir().unwrap();
+    let mut sim = Simulacrum::new();
+    let data_ingestion_path = tempdir.path().to_path_buf();
+    sim.set_data_ingestion_path(data_ingestion_path.clone());
+
+    let (_, pg_store, _, _database) = set_up(Arc::new(sim), data_ingestion_path).await;
+
+    let mut v = Vec::new();
+    for _ in 0..1000 {
+        v.push(TxIndex::random());
+    }
+    pg_store.persist_tx_indices(v).await?;
+    Ok(())
+}
+
+// test insert large batch of event_indices
+#[tokio::test]
+pub async fn test_insert_large_batch_event_indices() -> Result<(), IndexerError> {
+    let tempdir = tempdir().unwrap();
+    let mut sim = Simulacrum::new();
+    let data_ingestion_path = tempdir.path().to_path_buf();
+    sim.set_data_ingestion_path(data_ingestion_path.clone());
+
+    let (_, pg_store, _, _database) = set_up(Arc::new(sim), data_ingestion_path).await;
+
+    let mut v = Vec::new();
+    for _ in 0..1000 {
+        v.push(EventIndex::random());
+    }
+    pg_store.persist_event_indices(v).await?;
     Ok(())
 }
