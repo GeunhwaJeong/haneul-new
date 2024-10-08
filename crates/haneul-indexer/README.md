@@ -32,7 +32,7 @@ See the [docs](https://docs.haneul.io/guides/developer/getting-started/local-net
 
 Start a local network using the `haneul` binary:
 ```sh
-cargo run --bin haneul -- start --with-faucet --force-regenesis 
+cargo run --bin haneul -- start --with-faucet --force-regenesis
 ```
 
 If you want to run a local network with the indexer enabled (note that `libpq` is required), you can run the following command after following the steps in the next section to set up an indexer DB:
@@ -65,11 +65,12 @@ cargo run --bin haneul-indexer -- --db-url "<DATABASE_URL>" --rpc-client-url "ht
 ```
 cargo run --bin haneul-indexer -- --db-url "<DATABASE_URL>" --rpc-client-url "https://fullnode.devnet.haneul.io:443" --rpc-server-worker
 ```
-More flags info can be found in this [file](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-indexer/src/lib.rs#L83-L123).
+More flags info can be found in this [file](src/main.rs#L41).
+
 ### DB reset
-Run this command under `haneul/crates/haneul-indexer`, which will wipe DB; In case of schema changes in `.sql` files, this will also update corresponding `schema.rs` file.
+When making db-related changes, you may find yourself having to run migrations and reset dbs often. The commands below are how you can invoke these actions.
 ```sh
-diesel database reset --database-url="<DATABASE_URL>"
+cargo run --bin haneul-indexer -- --database-url "<DATABASE_URL>" reset-database --force
 ```
 
 ## Steps to run locally (TiDB)

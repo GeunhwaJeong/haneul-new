@@ -14,7 +14,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 use haneul_graphql_rpc_client::simple_client::SimpleClient;
-use haneul_indexer::config::PruningOptions;
+pub use haneul_indexer::config::RetentionConfig;
 pub use haneul_indexer::config::SnapshotLagConfig;
 use haneul_indexer::errors::IndexerError;
 use haneul_indexer::store::PgIndexerStore;
@@ -151,7 +151,7 @@ pub async fn start_network_cluster() -> NetworkCluster {
 pub async fn serve_executor(
     executor: Arc<dyn RestStateReader + Send + Sync>,
     snapshot_config: Option<SnapshotLagConfig>,
-    epochs_to_keep: Option<u64>,
+    retention_config: Option<RetentionConfig>,
     data_ingestion_path: PathBuf,
 ) -> ExecutorCluster {
     let database = TempDb::new().unwrap();
@@ -184,7 +184,7 @@ pub async fn serve_executor(
     let (pg_store, pg_handle, _) = start_indexer_writer_for_testing(
         db_url,
         Some(snapshot_config.clone()),
-        Some(PruningOptions { epochs_to_keep }),
+        retention_config,
         Some(data_ingestion_path),
         Some(cancellation_token.clone()),
     )
