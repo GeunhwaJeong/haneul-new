@@ -6,13 +6,17 @@ use std::collections::BTreeMap;
 use haneul_json_rpc_types::ObjectChange;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
 use haneul_types::effects::ObjectRemoveKind;
+use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::object::Owner;
 use haneul_types::storage::WriteKind;
+use tracing::instrument;
 
 use crate::ObjectProvider;
 
+#[instrument(skip_all, fields(transaction_digest = %effects.transaction_digest()))]
 pub async fn get_object_changes<P: ObjectProvider<Error = E>, E>(
     object_provider: &P,
+    effects: &TransactionEffects,
     sender: HaneulAddress,
     modified_at_versions: Vec<(ObjectID, SequenceNumber)>,
     all_changed_objects: Vec<(ObjectRef, Owner, WriteKind)>,
