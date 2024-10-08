@@ -117,6 +117,9 @@ impl SimpleFaucet {
             .filter(|coin| coin.0.balance.value() >= (config.amount * config.num_coins as u64))
             .collect::<Vec<GasCoin>>();
         let metrics = FaucetMetrics::new(prometheus_registry);
+        // set initial balance when faucet starts
+        let balance = coins.iter().map(|coin| coin.0.balance.value()).sum::<u64>();
+        metrics.balance.set(balance as i64);
 
         let wal = WriteAheadLog::open(wal_path);
         let mut pending = vec![];
@@ -482,6 +485,17 @@ impl SimpleFaucet {
                 } else {
                     self.recycle_gas_coin(coin_id, uuid).await;
                 }
+
+                if let Some(ref balances) = result.balance_changes {
+                    let haneul_used = balances
+                        .iter()
+                        .find(|balance| balance.owner == self.active_address)
+                        .map(|b| b.amount)
+                        .unwrap_or_else(|| 0);
+                    info!("HANEUL used in this tx {}: {}", tx_digest, haneul_used);
+                    self.metrics.balance.add(haneul_used as i64);
+                }
+
                 Ok(result)
             }
         }
@@ -618,11 +632,14 @@ impl SimpleFaucet {
 
         let tx_digest = tx.digest();
         let client = self.wallet.get_client().await?;
+
         Ok(client
             .quorum_driver_api()
             .execute_transaction_block(
                 tx.clone(),
-                HaneulTransactionBlockResponseOptions::new().with_effects(),
+                HaneulTransactionBlockResponseOptions::new()
+                    .with_effects()
+                    .with_balance_changes(),
                 Some(ExecuteTransactionRequestType::WaitForLocalExecution),
             )
             .await
