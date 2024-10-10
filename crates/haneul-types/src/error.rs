@@ -809,6 +809,7 @@ impl HaneulError {
             HaneulError::ValidatorHaltedAtEpochEnd => true,
             HaneulError::MissingCommitteeAtEpoch(..) => true,
             HaneulError::WrongEpoch { .. } => true,
+            HaneulError::EpochEnded(..) => true,
 
             HaneulError::UserInputError { error } => {
                 match error {
