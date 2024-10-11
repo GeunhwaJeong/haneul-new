@@ -90,6 +90,7 @@ use haneul_core::epoch::committee_store::CommitteeStore;
 use haneul_core::epoch::consensus_store_pruner::ConsensusStorePruner;
 use haneul_core::epoch::epoch_metrics::EpochMetrics;
 use haneul_core::epoch::reconfiguration::ReconfigurationInitiator;
+use haneul_core::jsonrpc_index::IndexStore;
 use haneul_core::module_cache_metrics::ResolverMetrics;
 use haneul_core::overload_monitor::overload_monitor;
 use haneul_core::rest_index::RestIndexStore;
@@ -122,7 +123,7 @@ use haneul_storage::{
     key_value_store::{FallbackTransactionKVStore, TransactionKeyValueStore},
     key_value_store_metrics::KeyValueStoreMetrics,
 };
-use haneul_storage::{FileCompression, IndexStore, StorageFormat};
+use haneul_storage::{FileCompression, StorageFormat};
 use haneul_types::base_types::{AuthorityName, EpochId};
 use haneul_types::committee::Committee;
 use haneul_types::crypto::KeypairTraits;

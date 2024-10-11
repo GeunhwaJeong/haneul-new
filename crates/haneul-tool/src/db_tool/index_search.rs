@@ -11,7 +11,7 @@ use typed_store::traits::Map;
 use crate::get_db_entries;
 use move_core_types::language_storage::ModuleId;
 use std::fmt::Debug;
-use haneul_storage::IndexStoreTables;
+use haneul_core::jsonrpc_index::IndexStoreTables;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress, TxSequenceNumber},
     Identifier, TypeTag,

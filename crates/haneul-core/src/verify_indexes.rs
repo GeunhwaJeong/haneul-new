@@ -3,8 +3,8 @@
 
 use std::{collections::BTreeMap, sync::Arc};
 
+use crate::jsonrpc_index::{CoinInfo, IndexStore};
 use anyhow::{anyhow, bail, Result};
-use haneul_storage::{indexes::CoinInfo, IndexStore};
 use haneul_types::{base_types::ObjectInfo, object::Owner};
 use tracing::info;
 use typed_store::traits::Map;

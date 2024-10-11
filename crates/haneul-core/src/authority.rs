@@ -64,6 +64,8 @@ use self::authority_store_pruner::AuthorityStorePruningMetrics;
 pub use authority_store::{AuthorityStore, ResolverWrapper, UpdateType};
 use haneullabs_metrics::{monitored_scope, spawn_monitored_task};
 
+use crate::jsonrpc_index::IndexStore;
+use crate::jsonrpc_index::{CoinInfo, ObjectIndexChanges};
 use once_cell::sync::OnceCell;
 use shared_crypto::intent::{AppId, Intent, IntentMessage, IntentScope, IntentVersion};
 use haneul_archival::reader::ArchiveReaderBalancer;
@@ -76,10 +78,8 @@ use haneul_json_rpc_types::{
     HaneulTransactionBlockEvents, TransactionFilter,
 };
 use haneul_macros::{fail_point, fail_point_async, fail_point_if};
-use haneul_storage::indexes::{CoinInfo, ObjectIndexChanges};
 use haneul_storage::key_value_store::{TransactionKeyValueStore, TransactionKeyValueStoreTrait};
 use haneul_storage::key_value_store_metrics::KeyValueStoreMetrics;
-use haneul_storage::IndexStore;
 use haneul_types::authenticator_state::get_authenticator_state;
 use haneul_types::committee::{EpochId, ProtocolVersion};
 use haneul_types::crypto::{default_hash, AuthoritySignInfo, Signer};

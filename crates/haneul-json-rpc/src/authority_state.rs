@@ -10,12 +10,12 @@ use std::sync::Arc;
 use haneul_core::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use haneul_core::authority::AuthorityState;
 use haneul_core::execution_cache::ObjectCacheRead;
+use haneul_core::jsonrpc_index::TotalBalance;
 use haneul_core::subscription_handler::SubscriptionHandler;
 use haneul_json_rpc_types::{
     Coin as HaneulCoin, DevInspectResults, DryRunTransactionBlockResponse, EventFilter, HaneulEvent,
     HaneulObjectDataFilter, TransactionFilter,
 };
-use haneul_storage::indexes::TotalBalance;
 use haneul_storage::key_value_store::{
     KVStoreCheckpointData, KVStoreTransactionData, TransactionKeyValueStore,
     TransactionKeyValueStoreTrait,
