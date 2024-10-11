@@ -21,9 +21,10 @@ use haneul_json_rpc_types::{
 use haneul_macros::sim_test;
 use haneul_move_build::BuildConfig;
 use haneul_swarm_config::genesis_config::{DEFAULT_GAS_AMOUNT, DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT};
+use haneul_test_transaction_builder::make_transfer_haneul_transaction;
 use haneul_types::balance::Supply;
-use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::SequenceNumber;
+use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::coin::{TreasuryCap, COIN_MODULE_NAME};
 use haneul_types::digests::ObjectDigest;
 use haneul_types::gas_coin::GAS;
@@ -400,6 +401,46 @@ async fn test_get_coins() -> Result<(), anyhow::Error> {
     assert!(!result.has_next_page);
 
     Ok(())
+}
+
+#[sim_test]
+async fn test_sorted_get_coin_response() {
+    let cluster = TestClusterBuilder::new().build().await;
+    let http_client = cluster.rpc_client();
+
+    let address = HaneulAddress::random_for_testing_only();
+
+    // send 5 coins to address `address` with different values
+    let amounts = [1, 2, 3, 4, 5];
+    for amount in amounts {
+        let tx = make_transfer_haneul_transaction(&cluster.wallet, Some(address), Some(amount)).await;
+        let (tx_bytes, signatures) = tx.to_tx_bytes_and_signatures();
+
+        http_client
+            .execute_transaction_block(
+                tx_bytes,
+                signatures,
+                None,
+                Some(ExecuteTransactionRequestType::WaitForLocalExecution),
+            )
+            .await
+            .unwrap();
+    }
+
+    let coins: CoinPage = http_client
+        .get_coins(address, None, None, None)
+        .await
+        .unwrap();
+    assert_eq!(amounts.len(), coins.data.len());
+
+    let balances = coins
+        .data
+        .iter()
+        .map(|coin| coin.balance)
+        .collect::<Vec<_>>();
+    let mut sorted_amounts = amounts;
+    sorted_amounts.reverse();
+    assert_eq!(sorted_amounts.as_slice(), balances.as_slice());
 }
 
 #[sim_test]
