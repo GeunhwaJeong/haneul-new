@@ -124,13 +124,13 @@
     "menus": {
       "commandPalette": [
         {
-          "command": "haneul.serverVersion"
+          "command": "move.serverVersion"
         },
         {
-          "command": "haneul.build"
+          "command": "move.build"
         },
         {
-          "command": "haneul.test"
+          "command": "move.test"
         }
       ]
     }
