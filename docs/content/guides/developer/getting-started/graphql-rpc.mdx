@@ -161,7 +161,7 @@ This example finds the balance changes of all the transactions where a given add
 query ($address: HaneulAddress!) {
   transactionBlocks(filter: {
     function: "0x3::haneul_system::request_add_stake"
-    signAddress: $address
+    sentAddress: $address
   }) {
     nodes {
       digest
@@ -370,7 +370,7 @@ Examples in the repository are designed to work with the version of GraphQL buil
 ## Related links
 
 - [GraphQL migration](../advanced/graphql-migration.mdx): Migrating to GraphQL guides you through migrating Haneul RPC projects from JSON-RPC to GraphQL.
-- [GraphQL concepts](../../../concepts/graphql-rpc.mdx): GraphQL for Haneul RPC examines the elements of GraphQL that you should know to get the most from the service.  
+- [GraphQL concepts](../../../concepts/graphql-rpc.mdx): GraphQL for Haneul RPC examines the elements of GraphQL that you should know to get the most from the service.
 - [GraphQL reference](../../../references/haneul-graphql.mdx): Auto-generated GraphQL reference for Haneul RPC.
-- [Haneul Testnet GraphiQL](https://haneul-testnet.haneul-labs.com/graphql): Haneul GraphiQL IDE for the Testnet network. 
+- [Haneul Testnet GraphiQL](https://haneul-testnet.haneul-labs.com/graphql): Haneul GraphiQL IDE for the Testnet network.
 - [Haneul Mainnet GraphiQL](https://haneul-mainnet.haneul-labs.com/graphql): Haneul GraphiQL IDE for the Mainnet network.
