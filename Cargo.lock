@@ -13788,8 +13788,13 @@ name = "haneul-indexer-alt"
 version = "1.37.0"
 dependencies = [
  "anyhow",
+ "bcs",
  "clap",
+ "reqwest 0.12.5",
+ "serde",
+ "haneul-storage",
  "haneul-types",
+ "tokio",
  "url",
 ]
 
