@@ -14,6 +14,7 @@ use haneul_data_ingestion_core::DataIngestionMetrics;
 use haneul_deepbook_indexer::config::IndexerConfig;
 use haneul_deepbook_indexer::metrics::DeepBookIndexerMetrics;
 use haneul_deepbook_indexer::postgres_manager::get_connection_pool;
+use haneul_deepbook_indexer::server::run_server;
 use haneul_deepbook_indexer::haneul_datasource::HaneulCheckpointDatasource;
 use haneul_deepbook_indexer::haneul_deepbook_indexer::PgDeepbookPersistent;
 use haneul_deepbook_indexer::haneul_deepbook_indexer::HaneulDeepBookDataMapper;
@@ -84,6 +85,11 @@ async fn main() -> Result<()> {
         ingestion_metrics.clone(),
         indexer_meterics.clone(),
     );
+
+    let service_address =
+        SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), config.service_port);
+    run_server(service_address, datastore.clone());
+
     let indexer = IndexerBuilder::new(
         "HaneulDeepBookIndexer",
         haneul_checkpoint_datasource,

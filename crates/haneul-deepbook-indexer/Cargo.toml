@@ -21,7 +21,6 @@ clap.workspace = true
 haneullabs-metrics.workspace = true
 prometheus.workspace = true
 serde_yaml.workspace = true
-haneul-bridge.workspace = true
 haneul-sdk.workspace = true
 haneul-json-rpc-types.workspace = true
 haneul-data-ingestion-core.workspace = true
@@ -32,12 +31,11 @@ backoff.workspace = true
 haneul-config.workspace = true
 haneul-indexer-builder.workspace = true
 tempfile.workspace = true
-bigdecimal = "0.4.0"
+axum.workspace = true
+bigdecimal = { version = "0.4.5" }
 
 [dev-dependencies]
 haneul-types = { workspace = true, features = ["test-utils"] }
-haneul-test-transaction-builder.workspace = true
-test-cluster.workspace = true
 hex-literal = "0.3.4"
 
 [[bin]]
