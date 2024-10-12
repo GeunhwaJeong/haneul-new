@@ -13788,7 +13788,9 @@ name = "haneul-indexer-alt"
 version = "1.37.0"
 dependencies = [
  "anyhow",
+ "clap",
  "haneul-types",
+ "url",
 ]
 
 [[package]]
