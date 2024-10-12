@@ -1,0 +1,15 @@
+[package]
+name = "haneul-indexer-alt"
+version.workspace = true
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[[bin]]
+name = "haneul-indexer-alt"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+haneul-types.workspace = true

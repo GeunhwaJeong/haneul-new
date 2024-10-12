@@ -13784,6 +13784,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-indexer-alt"
+version = "1.37.0"
+dependencies = [
+ "anyhow",
+ "haneul-types",
+]
+
+[[package]]
 name = "haneul-indexer-builder"
 version = "0.1.0"
 dependencies = [
