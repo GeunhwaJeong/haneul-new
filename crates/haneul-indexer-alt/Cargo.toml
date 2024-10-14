@@ -32,4 +32,7 @@ haneul-storage.workspace = true
 haneul-types.workspace = true
 
 [dev-dependencies]
+rand.workspace = true
 wiremock.workspace = true
+
+haneul-types = { workspace = true, features = ["test-utils"] }
