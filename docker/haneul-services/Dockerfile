@@ -23,7 +23,9 @@ RUN find /haneul/target/release/ -maxdepth 1 -type f -executable -print | xargs 
 # Production Image
 FROM debian:bullseye-slim AS runtime
 WORKDIR haneul
-COPY --from=builder /haneul/bin/* /usr/local/bin
+COPY --from=builder /haneul/bin /tmp/haneul-bin
+RUN find /tmp/haneul-bin -maxdepth 1 -type f -executable -print | xargs cp -t /usr/local/bin/
+RUN rm -rf /tmp/haneul-bin
 RUN apt update && apt install -y libpq5 libpq-dev postgresql
 
 ARG BUILD_DATE
