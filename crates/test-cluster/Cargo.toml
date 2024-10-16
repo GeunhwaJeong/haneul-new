@@ -31,7 +31,6 @@ haneul-swarm.workspace = true
 haneul-types = { workspace = true, features = ["test-utils"] }
 prometheus.workspace = true
 haneul-keys.workspace = true
-haneul-bridge.workspace = true
 haneul-sdk.workspace = true
 haneul-test-transaction-builder.workspace = true
 

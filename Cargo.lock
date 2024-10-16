@@ -15687,7 +15687,6 @@ dependencies = [
  "move-binary-format",
  "prometheus",
  "rand 0.8.5",
- "haneul-bridge",
  "haneul-config",
  "haneul-core",
  "haneul-framework",

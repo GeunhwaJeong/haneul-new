@@ -3,10 +3,11 @@
 
 use crate::abi::{eth_haneul_bridge, EthBridgeEvent, EthERC20, EthHaneulBridge};
 use crate::client::bridge_authority_aggregator::BridgeAuthorityAggregator;
-use crate::e2e_tests::test_utils::BridgeTestCluster;
+use crate::crypto::BridgeAuthorityKeyPair;
 use crate::e2e_tests::test_utils::{
     get_signatures, send_eth_tx_and_get_tx_receipt, BridgeTestClusterBuilder,
 };
+use crate::e2e_tests::test_utils::{BridgeTestCluster, TestClusterWrapperBuilder};
 use crate::eth_transaction_builder::build_eth_transaction;
 use crate::events::{
     HaneulBridgeEvent, HaneulToEthTokenBridgeV1, TokenTransferApproved, TokenTransferClaimed,
@@ -16,11 +17,15 @@ use crate::haneul_transaction_builder::build_add_tokens_on_haneul_transaction;
 use crate::types::{AddTokensOnEvmAction, BridgeAction, BridgeActionStatus, HaneulToEthBridgeAction};
 use crate::utils::publish_and_register_coins_return_add_coins_on_haneul_action;
 use crate::utils::EthSigner;
+use crate::BRIDGE_ENABLE_PROTOCOL_VERSION;
 use eth_haneul_bridge::EthHaneulBridgeEvents;
 use ethers::prelude::*;
 use ethers::types::Address as EthAddress;
 use move_core_types::ident_str;
 use std::collections::{HashMap, HashSet};
+use haneul_json_rpc_api::BridgeReadApiClient;
+use haneul_types::crypto::get_key_pair;
+use test_cluster::TestClusterBuilder;
 
 use std::path::Path;
 
@@ -32,10 +37,12 @@ use haneul_json_rpc_types::{
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::{ObjectRef, HaneulAddress};
-use haneul_types::bridge::{BridgeChainId, BridgeTokenMetadata, BRIDGE_MODULE_NAME, TOKEN_ID_ETH};
+use haneul_types::bridge::{
+    get_bridge, BridgeChainId, BridgeTokenMetadata, BridgeTrait, BRIDGE_MODULE_NAME, TOKEN_ID_ETH,
+};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{ObjectArg, TransactionData};
-use haneul_types::{TypeTag, BRIDGE_PACKAGE_ID};
+use haneul_types::{TypeTag, BRIDGE_PACKAGE_ID, HANEUL_BRIDGE_OBJECT_ID};
 use tap::TapFallible;
 use tracing::info;
 
@@ -325,6 +332,100 @@ async fn test_add_new_coins_on_haneul_and_eth() {
     )
     .await
     .unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 8)]
+async fn test_create_bridge_state_object() {
+    let test_cluster = TestClusterBuilder::new()
+        .with_protocol_version((BRIDGE_ENABLE_PROTOCOL_VERSION - 1).into())
+        .with_epoch_duration_ms(20000)
+        .build()
+        .await;
+
+    let handles = test_cluster.all_node_handles();
+
+    // no node has the bridge state object yet
+    for h in &handles {
+        h.with(|node| {
+            assert!(node
+                .state()
+                .get_object_cache_reader()
+                .get_latest_object_ref_or_tombstone(HANEUL_BRIDGE_OBJECT_ID)
+                .unwrap()
+                .is_none());
+        });
+    }
+
+    // wait until feature is enabled
+    test_cluster
+        .wait_for_protocol_version(BRIDGE_ENABLE_PROTOCOL_VERSION.into())
+        .await;
+    // wait until next epoch - authenticator state object is created at the end of the first epoch
+    // in which it is supported.
+    test_cluster.wait_for_epoch_all_nodes(2).await; // protocol upgrade completes in epoch 1
+
+    for h in &handles {
+        h.with(|node| {
+            node.state()
+                .get_object_cache_reader()
+                .get_latest_object_ref_or_tombstone(HANEUL_BRIDGE_OBJECT_ID)
+                .unwrap()
+                .expect("auth state object should exist");
+        });
+    }
+}
+
+#[tokio::test]
+async fn test_committee_registration() {
+    telemetry_subscribers::init_for_testing();
+    let mut bridge_keys = vec![];
+    for _ in 0..=3 {
+        let (_, kp): (_, BridgeAuthorityKeyPair) = get_key_pair();
+        bridge_keys.push(kp);
+    }
+    let test_cluster = TestClusterWrapperBuilder::new()
+        .with_bridge_authority_keys(bridge_keys)
+        .build()
+        .await;
+
+    let bridge = get_bridge(
+        test_cluster
+            .inner
+            .fullnode_handle
+            .haneul_node
+            .state()
+            .get_object_store(),
+    )
+    .unwrap();
+
+    // Member should be empty before end of epoch
+    assert!(bridge.committee().members.contents.is_empty());
+    assert_eq!(
+        test_cluster.inner.swarm.active_validators().count(),
+        bridge.committee().member_registrations.contents.len()
+    );
+
+    test_cluster
+        .trigger_reconfiguration_if_not_yet_and_assert_bridge_committee_initialized()
+        .await;
+}
+
+#[tokio::test]
+async fn test_bridge_api_compatibility() {
+    let test_cluster: test_cluster::TestCluster = TestClusterBuilder::new()
+        .with_protocol_version(BRIDGE_ENABLE_PROTOCOL_VERSION.into())
+        .build()
+        .await;
+
+    test_cluster.trigger_reconfiguration().await;
+    let client = test_cluster.rpc_client();
+    client.get_latest_bridge().await.unwrap();
+    // TODO: assert fields in summary
+
+    client
+        .get_bridge_object_initial_shared_version()
+        .await
+        .unwrap();
 }
 
 pub(crate) async fn deposit_native_eth_to_sol_contract(
