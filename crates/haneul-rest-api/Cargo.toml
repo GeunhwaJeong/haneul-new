@@ -33,6 +33,7 @@ haneul-types.workspace = true
 haneullabs-network.workspace = true
 haneul-protocol-config.workspace = true
 move-binary-format.workspace = true
+move-core-types.workspace = true
 
 [dev-dependencies]
 diffy = "0.3"
