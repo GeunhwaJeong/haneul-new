@@ -14,6 +14,7 @@ use move_core_types::language_storage::{StructTag, TypeTag};
 use haneullabs_metrics::{get_metrics, spawn_monitored_task};
 use haneul_data_ingestion_core::Worker;
 use haneul_rest_api::{CheckpointData, CheckpointTransaction};
+use haneul_synthetic_ingestion::IndexerProgress;
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::effects::{ObjectChange, TransactionEffectsAPI};
 use haneul_types::event::SystemEpochInfoEvent;
@@ -24,6 +25,7 @@ use haneul_types::object::Object;
 use haneul_types::object::Owner;
 use haneul_types::haneul_system_state::{get_haneul_system_state, HaneulSystemStateTrait};
 use haneul_types::transaction::TransactionDataAPI;
+use tokio::sync::watch;
 
 use crate::errors::IndexerError;
 use crate::handlers::committer::start_tx_checkpoint_commit_task;
@@ -50,6 +52,7 @@ pub async fn new_handlers(
     metrics: IndexerMetrics,
     next_checkpoint_sequence_number: CheckpointSequenceNumber,
     cancel: CancellationToken,
+    committed_checkpoints_tx: Option<watch::Sender<Option<IndexerProgress>>>,
 ) -> Result<CheckpointHandler, IndexerError> {
     let checkpoint_queue_size = std::env::var("CHECKPOINT_QUEUE_SIZE")
         .unwrap_or(CHECKPOINT_QUEUE_SIZE.to_string())
@@ -71,7 +74,8 @@ pub async fn new_handlers(
         metrics_clone,
         indexed_checkpoint_receiver,
         next_checkpoint_sequence_number,
-        cancel.clone()
+        cancel.clone(),
+        committed_checkpoints_tx
     ));
     Ok(CheckpointHandler::new(
         state,

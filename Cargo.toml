@@ -155,6 +155,7 @@ members = [
     "crates/haneul-surfer",
     "crates/haneul-swarm",
     "crates/haneul-swarm-config",
+    "crates/haneul-synthetic-ingestion",
     "crates/haneul-telemetry",
     "crates/haneul-test-transaction-builder",
     "crates/haneul-test-validator",
@@ -671,6 +672,7 @@ haneul-storage = { path = "crates/haneul-storage" }
 haneul-surfer = { path = "crates/haneul-surfer" }
 haneul-swarm = { path = "crates/haneul-swarm" }
 haneul-swarm-config = { path = "crates/haneul-swarm-config" }
+haneul-synthetic-ingestion = { path = "crates/haneul-synthetic-ingestion" }
 haneul-telemetry = { path = "crates/haneul-telemetry" }
 haneul-test-transaction-builder = { path = "crates/haneul-test-transaction-builder" }
 haneul-test-validator = { path = "crates/haneul-test-validator" }

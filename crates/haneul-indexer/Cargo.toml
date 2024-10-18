@@ -8,7 +8,7 @@ edition = "2021"
 
 [dependencies]
 anyhow.workspace = true
-rand = "0.8.5" 
+rand = "0.8.5"
 async-trait.workspace = true
 axum.workspace = true
 backoff.workspace = true
@@ -64,6 +64,7 @@ haneul-protocol-config.workspace = true
 telemetry-subscribers.workspace = true
 haneul-rest-api.workspace = true
 haneul-transaction-builder.workspace = true
+haneul-synthetic-ingestion.workspace = true
 
 move-core-types.workspace = true
 move-bytecode-utils.workspace = true

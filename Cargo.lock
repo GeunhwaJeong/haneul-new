@@ -13860,6 +13860,7 @@ dependencies = [
  "haneul-sdk",
  "haneul-snapshot",
  "haneul-storage",
+ "haneul-synthetic-ingestion",
  "haneul-test-transaction-builder",
  "haneul-transaction-builder",
  "haneul-types",
@@ -15144,6 +15145,19 @@ dependencies = [
  "haneul-simulator",
  "haneul-types",
  "tempfile",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-synthetic-ingestion"
+version = "0.0.0"
+dependencies = [
+ "async-trait",
+ "simulacrum",
+ "haneul-test-transaction-builder",
+ "haneul-types",
+ "tempfile",
+ "tokio",
  "tracing",
 ]
 
