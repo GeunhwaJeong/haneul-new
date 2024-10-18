@@ -36,7 +36,6 @@ backoff.workspace = true
 haneul-config.workspace = true
 tempfile.workspace = true
 haneul-indexer-builder.workspace = true
-haneul-bridge-watchdog.workspace = true
 
 [dev-dependencies]
 haneul-types = { workspace = true, features = ["test-utils"] }

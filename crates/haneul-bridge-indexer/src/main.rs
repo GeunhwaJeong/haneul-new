@@ -15,6 +15,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 use haneul_bridge::eth_client::EthClient;
 use haneul_bridge::metered_eth_provider::{new_metered_eth_provider, MeteredEthHttpProvier};
+use haneul_bridge::haneul_bridge_watchdog::Observable;
 use haneul_bridge::haneul_client::HaneulBridgeClient;
 use haneul_bridge::utils::get_eth_contract_addresses;
 use haneul_bridge_indexer::eth_bridge_indexer::EthFinalizedSyncDatasource;
@@ -28,6 +29,10 @@ use haneullabs_metrics::spawn_logged_monitored_task;
 use haneullabs_metrics::start_prometheus_server;
 
 use haneul_bridge::metrics::BridgeMetrics;
+use haneul_bridge::haneul_bridge_watchdog::{
+    eth_bridge_status::EthBridgeStatus, eth_vault_balance::EthVaultBalance,
+    metrics::WatchdogMetrics, haneul_bridge_status::HaneulBridgeStatus, BridgeWatchDog,
+};
 use haneul_bridge_indexer::config::IndexerConfig;
 use haneul_bridge_indexer::eth_bridge_indexer::EthDataMapper;
 use haneul_bridge_indexer::metrics::BridgeIndexerMetrics;
@@ -37,10 +42,6 @@ use haneul_bridge_indexer::haneul_bridge_indexer::HaneulBridgeDataMapper;
 use haneul_bridge_indexer::haneul_datasource::HaneulCheckpointDatasource;
 use haneul_bridge_indexer::haneul_transaction_handler::handle_haneul_transactions_loop;
 use haneul_bridge_indexer::haneul_transaction_queries::start_haneul_tx_polling_task;
-use haneul_bridge_watchdog::{
-    eth_bridge_status::EthBridgeStatus, eth_vault_balance::EthVaultBalance,
-    metrics::WatchdogMetrics, haneul_bridge_status::HaneulBridgeStatus, BridgeWatchDog,
-};
 use haneul_data_ingestion_core::DataIngestionMetrics;
 use haneul_indexer_builder::indexer_builder::{BackfillStrategy, IndexerBuilder};
 use haneul_indexer_builder::progress::{
@@ -247,14 +248,12 @@ async fn start_watchdog(
 
     let haneul_bridge_status =
         HaneulBridgeStatus::new(haneul_client, watchdog_metrics.haneul_bridge_paused.clone());
-
-    BridgeWatchDog::new(vec![
-        Arc::new(eth_vault_balance),
-        Arc::new(eth_bridge_status),
-        Arc::new(haneul_bridge_status),
-    ])
-    .run()
-    .await;
+    let observables: Vec<Box<dyn Observable + Send + Sync>> = vec![
+        Box::new(eth_vault_balance),
+        Box::new(eth_bridge_status),
+        Box::new(haneul_bridge_status),
+    ];
+    BridgeWatchDog::new(observables).run().await;
     Ok(())
 }
 

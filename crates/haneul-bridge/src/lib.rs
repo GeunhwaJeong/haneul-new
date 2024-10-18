@@ -19,6 +19,7 @@ pub mod node;
 pub mod orchestrator;
 pub mod server;
 pub mod storage;
+pub mod haneul_bridge_watchdog;
 pub mod haneul_client;
 pub mod haneul_syncer;
 pub mod haneul_transaction_builder;
