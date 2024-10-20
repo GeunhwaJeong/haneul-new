@@ -13844,6 +13844,7 @@ dependencies = [
  "haneul-sdk",
  "haneul-snapshot",
  "haneul-storage",
+ "haneul-swarm-config",
  "haneul-synthetic-ingestion",
  "haneul-test-transaction-builder",
  "haneul-transaction-builder",
@@ -15863,6 +15864,7 @@ dependencies = [
  "haneul-config",
  "haneul-core",
  "haneul-framework",
+ "haneul-indexer",
  "haneul-json-rpc",
  "haneul-json-rpc-api",
  "haneul-json-rpc-types",
@@ -15876,7 +15878,9 @@ dependencies = [
  "haneul-swarm-config",
  "haneul-test-transaction-builder",
  "haneul-types",
+ "tempfile",
  "tokio",
+ "tokio-util 0.7.10",
  "tracing",
 ]
 
