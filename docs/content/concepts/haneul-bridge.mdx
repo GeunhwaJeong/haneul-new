@@ -1,0 +1,87 @@
+---
+title: Haneul Bridge
+draft: true
+---
+
+[Haneul Bridge](https://bridge.haneul.io/) is the native bridge for the Haneul network. Unlike third-party solutions, a native bridge is typically built into the core architecture of a blockchain, ensuring optimal integration and operation. The bridge allows users to move digital assets from one chain to another, preserving security and maintaining interoperability between diverse ecosystems. Haneul Bridge is the native bridge on Haneul, designed to enhance interoperability between Haneul and Ethereum. Haneul Bridge enables users to securely and efficiently transfer native and wrapped ETH to and from Haneul. The bridge leverages the unique capabilities of the Haneul network to offer fast transaction speeds, lower transaction costs, and a decentralized architecture.
+
+You can bridge tokens in the official Haneul Bridge website: https://bridge.haneul.io/.
+
+## Operation and governance
+
+Haneul Bridge is operated and governed by Haneul network validators, the same set of validators that secure the Haneul network. Bridge transfers and other actions require validator signatures with a minimal threshold of voting power.
+
+Similar to the Haneul network, all governance related to the Haneul Bridge is done via validator voting.
+
+## Architecture
+
+WIP
+
+## Supported chains and tokens
+
+Haneul Bridge supports token bridging between Haneul and Ethereum Mainnet with the following supported assets:
+
+| Asset | Description |
+| --- | --- |
+| Ethereum (ETH) | The native cryptocurrency of the Ethereum network, widely used for transactions and smart contract interactions. |
+| Wrapped Ethereum (WETH) | Tokenized representation of native ETH. |
+
+You can transfer these assets both to and from the Haneul network, utilizing the bridge’s capabilities to provide fast, secure, and efficient cross-chain transactions.
+
+## Package IDs and contract addresses
+
+The following package IDs and addresses are reserved for the Haneul Bridge.
+
+| Asset | Address/ID |
+| --- | --- |
+| Haneul Bridge Package on Haneul | [`0xb`](https://haneulscan.xyz/mainnet/object/0x000000000000000000000000000000000000000000000000000000000000000b/txs) |
+| Haneul Bridge Object on Haneul | [`0x9`](https://haneulscan.xyz/mainnet/object/0x0000000000000000000000000000000000000000000000000000000000000009) |
+| Haneul Bridge Proxy on Etheruem Mainnet | [`0xda3bD1fE1973470312db04551B65f401Bc8a92fD`](https://etherscan.io/address/0xda3bd1fe1973470312db04551b65f401bc8a92fd) |
+| ETH on Haneul | [`0xd0e89b2af5e4910726fbcd8b8dd37bb79b29e5f83f7491bca830e94f7f226d29::eth::ETH`](https://haneulscan.xyz/mainnet/coin/0xd0e89b2af5e4910726fbcd8b8dd37bb79b29e5f83f7491bca830e94f7f226d29::eth::ETH/txs) |
+| ETH on Ethereum | Native Ether |
+| WETH on Ethereum | [`0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2`](https://etherscan.io/address/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2) |
+
+## Source code
+
+The source code for Haneul Bridge is open-source and found in the following locations:
+
+- Move: https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/packages/bridge
+- Solidity: https://github.com/GeunhwaJeong/haneul/tree/main/bridge/evm
+- Bridged ETH (Move): https://github.com/GeunhwaJeong/haneul/tree/main/bridge/move/tokens/eth
+- Bridge Node: https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-bridge
+- Bridge Indexer: https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-bridge-indexer
+
+## Audits
+
+There are two audit reports available for Haneul Bridge:
+- [OtterSec](https://github.com/haneul-foundation/security-audits/blob/main/docs/Haneul_bridge_v1_OtterSec.pdf)
+- [Zellic](https://github.com/haneul-foundation/security-audits/blob/main/docs/Haneul_Bridge_v1_Zellic.pdf)
+
+## Global limiter {#global-limiter}
+
+A limiter protects the user's funds by constraining the total value of assets leaving Haneul Bridge in any 24-hour window. It tracks total value hourly and aggregates values from the previous 24 hours. Therefore, when the limiter cools down, it refreshes every hour.
+
+The limit applies globally and varies per direction. For example, the amount might be different between Ethereum to Haneul and Haneul to Ethereum.
+
+The limit also impacts the maximal amount of single transfer. Simply put, in one bridge transfer, you cannot move assets worth more than the limit. The bridge frontend might apply stricter restrictions to protect user assets.
+
+The limit per route is governed by the validator committee through voting.
+
+The global limit is currently $8 million from Ethereum to Haneul and $5 million from Haneul to Etheruem every 24 hours.
+
+## Asset price
+
+Haneul Bridge v1 uses static pricing to calculate limits. The price for ETH is configured at $2,600.00. Namely, bridging one ETH consumes $2,600 USD in limit calculation.
+
+The validator committee governs the pricing through voting. It works together with the global limiter to protect user funds.
+
+## Transfer limit
+
+There is no minimal limit for transfer but a tiny fraction might be rounded down. Particularly for native Ethereum (ETH) and wrapped Ethereum (WETH) because of reduced precision of eight decimal places, the value of 10.0000000000000001 (W)ETH is rounded down to 10 (W)ETH.
+
+| Token | Minimal value | 
+| --- | --- |
+| ETH | 0.00000001 ETH (eight decimal places of precision) |
+| WETH | 0.00000001 ETH (eight decimal places of precision) |
+
+The maximum limit per transfer is the global limit in USD value. Namely a user cannot claim assets on the destination chain if the USD value is higher than the global limit. See the [Global limiter section](#global-limiter) for details.

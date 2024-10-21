@@ -178,6 +178,7 @@ const concepts = [
 			'concepts/tokenomics/gas-in-haneul',
 		],
 	},
+	'concepts/haneul-bridge',
 	'concepts/research-papers',
 ];
 module.exports = concepts;
