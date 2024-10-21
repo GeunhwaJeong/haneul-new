@@ -13884,6 +13884,7 @@ dependencies = [
  "haneul-storage",
  "haneul-types",
  "telemetry-subscribers",
+ "tempfile",
  "thiserror",
  "tokio",
  "tokio-stream",
