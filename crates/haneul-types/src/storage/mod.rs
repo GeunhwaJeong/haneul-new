@@ -609,5 +609,5 @@ pub trait GetSharedLocks: Send + Sync {
     fn get_shared_locks(
         &self,
         key: &TransactionKey,
-    ) -> Result<Vec<(ObjectID, SequenceNumber)>, HaneulError>;
+    ) -> HaneulResult<Option<Vec<(ObjectID, SequenceNumber)>>>;
 }
