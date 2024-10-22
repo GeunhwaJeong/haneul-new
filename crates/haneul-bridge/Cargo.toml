@@ -48,12 +48,15 @@ haneullabs-common.workspace = true
 enum_dispatch.workspace = true
 haneul-json-rpc-api.workspace = true
 haneul-test-transaction-builder.workspace = true
+hex-literal = { version = "0.3.4", optional = true }
+test-cluster = { workspace = true, optional = true }
 
 [dev-dependencies]
 haneul-types = { workspace = true, features = ["test-utils"] }
 haneul-json-rpc-types = { workspace = true, features = ["test-utils"] }
 haneul-config.workspace = true
 haneul-test-transaction-builder.workspace = true
-test-cluster.workspace = true
-hex-literal = "0.3.4"
 maplit = "1.0.2"
+
+[features]
+test-utils = ["hex-literal", "test-cluster"]
