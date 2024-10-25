@@ -5,7 +5,6 @@ use shared_crypto::intent::Intent;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::sim_test;
 use haneul_rest_api::client::reqwest::StatusCode;
-use haneul_rest_api::client::BalanceChange;
 use haneul_rest_api::transactions::ResolveTransactionQueryParameters;
 use haneul_rest_api::Client;
 use haneul_rest_api::ExecuteTransactionQueryParameters;
@@ -17,54 +16,9 @@ use haneul_sdk_types::types::UnresolvedInputArgument;
 use haneul_sdk_types::types::UnresolvedProgrammableTransaction;
 use haneul_sdk_types::types::UnresolvedTransaction;
 use haneul_sdk_types::types::UnresolvedValue;
-use haneul_test_transaction_builder::make_transfer_haneul_transaction;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::transaction::TransactionDataAPI;
 use test_cluster::TestClusterBuilder;
-
-#[sim_test]
-async fn execute_transaction_transfer() {
-    let test_cluster = TestClusterBuilder::new().build().await;
-
-    let client = Client::new(test_cluster.rpc_url());
-    let address = HaneulAddress::random_for_testing_only();
-    let amount = 9;
-
-    let txn =
-        make_transfer_haneul_transaction(&test_cluster.wallet, Some(address), Some(amount)).await;
-    let sender = txn.transaction_data().sender();
-
-    let request = ExecuteTransactionQueryParameters {
-        events: false,
-        balance_changes: true,
-        input_objects: true,
-        output_objects: true,
-    };
-
-    let response = client.execute_transaction(&request, &txn).await.unwrap();
-
-    let gas = response.effects.gas_cost_summary().net_gas_usage();
-
-    let mut expected = vec![
-        BalanceChange {
-            address: sender,
-            coin_type: haneul_types::gas_coin::GAS::type_tag(),
-            amount: -(amount as i128 + gas as i128),
-        },
-        BalanceChange {
-            address,
-            coin_type: haneul_types::gas_coin::GAS::type_tag(),
-            amount: amount as i128,
-        },
-    ];
-    expected.sort_by_key(|e| e.address);
-
-    let mut actual = response.balance_changes.unwrap();
-    actual.sort_by_key(|e| e.address);
-
-    assert_eq!(actual, expected);
-}
 
 #[sim_test]
 async fn resolve_transaction_simple_transfer() {
