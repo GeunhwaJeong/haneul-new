@@ -384,7 +384,7 @@ mod tests {
     #[test]
     fn test_parse_haneul_struct_tag_long_account_addr() {
         let result = parse_haneul_struct_tag(
-            "0x00000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL",
+            "0x0000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL",
         )
         .expect("should not error");
 
