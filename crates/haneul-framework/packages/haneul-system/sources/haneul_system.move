@@ -726,6 +726,17 @@ module haneul_system::haneul_system {
         self.get_stake_subsidy_distribution_counter()
     }
 
+    #[test_only]
+    public fun set_stake_subsidy_distribution_counter(wrapper: &mut HaneulSystemState, counter: u64) {
+        let self = load_system_state_mut(wrapper);
+        self.set_stake_subsidy_distribution_counter(counter)
+    }
+
+    #[test_only]
+    public fun inner_mut_for_testing(wrapper: &mut HaneulSystemState): &mut HaneulSystemStateInnerV2 {
+        wrapper.load_system_state_mut()
+    }
+
     // CAUTION: THIS CODE IS ONLY FOR TESTING AND THIS MACRO MUST NEVER EVER BE REMOVED.  Creates a
     // candidate validator - bypassing the proof of possession check and other metadata validation
     // in the process.

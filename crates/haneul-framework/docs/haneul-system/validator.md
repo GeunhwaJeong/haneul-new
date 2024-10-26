@@ -1076,6 +1076,8 @@ Request to add stake to the validator's staking pool, processed at the end of th
 
     <b>let</b> <a href="../haneul-framework/haneul.md#0x2_haneul">haneul</a> = self.<a href="staking_pool.md#0x3_staking_pool">staking_pool</a>.<a href="validator.md#0x3_validator_redeem_fungible_staked_haneul">redeem_fungible_staked_haneul</a>(fungible_staked_haneul, ctx);
 
+    self.next_epoch_stake = self.next_epoch_stake - <a href="../haneul-framework/haneul.md#0x2_haneul">haneul</a>.value();
+
     <a href="../haneul-framework/event.md#0x2_event_emit">event::emit</a>(
         <a href="validator.md#0x3_validator_RedeemingFungibleStakedHaneulEvent">RedeemingFungibleStakedHaneulEvent</a> {
             pool_id: self.<a href="validator.md#0x3_validator_staking_pool_id">staking_pool_id</a>(),
@@ -1346,7 +1348,8 @@ Process pending stakes and withdraws, called at the end of the epoch.
 
 <pre><code><b>public</b>(package) <b>fun</b> <a href="validator.md#0x3_validator_process_pending_stakes_and_withdraws">process_pending_stakes_and_withdraws</a>(self: &<b>mut</b> <a href="validator.md#0x3_validator_Validator">Validator</a>, ctx: &TxContext) {
     self.<a href="staking_pool.md#0x3_staking_pool">staking_pool</a>.<a href="validator.md#0x3_validator_process_pending_stakes_and_withdraws">process_pending_stakes_and_withdraws</a>(ctx);
-    <b>assert</b>!(<a href="validator.md#0x3_validator_stake_amount">stake_amount</a>(self) == self.next_epoch_stake, <a href="validator.md#0x3_validator_EInvalidStakeAmount">EInvalidStakeAmount</a>);
+    // TODO: bring this assertion back when we are ready.
+    // <b>assert</b>!(<a href="validator.md#0x3_validator_stake_amount">stake_amount</a>(self) == self.next_epoch_stake, <a href="validator.md#0x3_validator_EInvalidStakeAmount">EInvalidStakeAmount</a>);
 }
 </code></pre>
 

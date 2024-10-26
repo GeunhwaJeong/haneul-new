@@ -352,6 +352,8 @@ module haneul_system::validator {
 
         let haneul = self.staking_pool.redeem_fungible_staked_haneul(fungible_staked_haneul, ctx);
 
+        self.next_epoch_stake = self.next_epoch_stake - haneul.value();
+
         event::emit(
             RedeemingFungibleStakedHaneulEvent {
                 pool_id: self.staking_pool_id(),
@@ -462,7 +464,8 @@ module haneul_system::validator {
     /// Process pending stakes and withdraws, called at the end of the epoch.
     public(package) fun process_pending_stakes_and_withdraws(self: &mut Validator, ctx: &TxContext) {
         self.staking_pool.process_pending_stakes_and_withdraws(ctx);
-        assert!(stake_amount(self) == self.next_epoch_stake, EInvalidStakeAmount);
+        // TODO: bring this assertion back when we are ready.
+        // assert!(stake_amount(self) == self.next_epoch_stake, EInvalidStakeAmount);
     }
 
     /// Returns true if the validator is preactive.

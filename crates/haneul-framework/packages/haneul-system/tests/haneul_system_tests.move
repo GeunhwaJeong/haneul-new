@@ -1095,8 +1095,8 @@ module haneul_system::haneul_system_tests {
         let mut system_state = scenario.take_shared<HaneulSystemState>();
 
         let staked_haneul = system_state.request_add_stake_non_entry(
-            coin::mint_for_testing(100_000_000_000, scenario.ctx()), 
-            @0x1, 
+            coin::mint_for_testing(100_000_000_000, scenario.ctx()),
+            @0x1,
             scenario.ctx()
         );
 
@@ -1107,20 +1107,23 @@ module haneul_system::haneul_system_tests {
 
         let mut system_state = scenario.take_shared<HaneulSystemState>();
         let fungible_staked_haneul = system_state.convert_to_fungible_staked_haneul(
-            staked_haneul, 
+            staked_haneul,
             scenario.ctx()
         );
 
         assert!(fungible_staked_haneul.value() == 100_000_000_000, 0);
 
         let haneul = system_state.redeem_fungible_staked_haneul(
-            fungible_staked_haneul, 
+            fungible_staked_haneul,
             scenario.ctx()
         );
 
         assert!(haneul.value() == 100_000_000_000, 0);
 
         test_scenario::return_shared(system_state);
+
+        advance_epoch(scenario);
+
         haneul::test_utils::destroy(haneul);
         scenario_val.end();
     }
