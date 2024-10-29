@@ -66,5 +66,5 @@ pretty_assertions.workspace = true
 once_cell.workspace = true
 haneul-test-transaction-builder.workspace = true
 haneul-types = { workspace = true, features = ["test-utils"] }
-haneul-macros = { workspace = true }
-haneul-simulator = { workspace = true }
+haneul-macros.workspace = true
+haneul-simulator.workspace = true
