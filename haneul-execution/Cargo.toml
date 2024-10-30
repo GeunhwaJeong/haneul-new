@@ -51,16 +51,16 @@ petgraph = "0.5.1"
 
 [features]
 default = []
-gas-profiler = [
-    "haneul-adapter-latest/gas-profiler",
-    "haneul-adapter-v0/gas-profiler",
-    "haneul-adapter-v1/gas-profiler",
-  "haneul-adapter-v2/gas-profiler",
-#   "haneul-adapter-$CUT/gas-profiler",
-    "move-vm-runtime-v0/gas-profiler",
-    "move-vm-runtime-v1/gas-profiler",
-    "move-vm-runtime-latest/gas-profiler",
-  "move-vm-runtime-v2/gas-profiler",
-#   "move-vm-runtime-$CUT/gas-profiler",
-    "move-vm-config/gas-profiler",
+tracing = [
+    "haneul-adapter-latest/tracing",
+    "haneul-adapter-v0/tracing",
+    "haneul-adapter-v1/tracing",
+  "haneul-adapter-v2/tracing",
+#   "haneul-adapter-$CUT/tracing",
+    "move-vm-runtime-v0/tracing",
+    "move-vm-runtime-v1/tracing",
+    "move-vm-runtime-latest/tracing",
+  "move-vm-runtime-v2/tracing",
+#   "move-vm-runtime-$CUT/tracing",
+    "move-vm-config/tracing",
 ]

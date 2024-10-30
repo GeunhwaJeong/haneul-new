@@ -131,7 +131,7 @@ name = "ptb_files_tests"
 harness = false
 
 [features]
-gas-profiler = [
-    "haneul-types/gas-profiler",
-    "haneul-execution/gas-profiler",
+tracing = [
+    "haneul-types/tracing",
+    "haneul-execution/tracing",
 ]
