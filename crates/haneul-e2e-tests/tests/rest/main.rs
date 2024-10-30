@@ -5,6 +5,7 @@ mod checkpoints;
 mod execute;
 mod objects;
 mod resolve;
+mod transactions;
 
 async fn transfer_coin(
     context: &haneul_sdk::wallet_context::WalletContext,
