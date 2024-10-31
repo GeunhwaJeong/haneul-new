@@ -6,21 +6,21 @@ use diesel::ExpressionMethods;
 use diesel::QueryDsl;
 use diesel_async::RunQueryDsl;
 use simulacrum::Simulacrum;
-use haneul_indexer::errors::IndexerError;
-use haneul_indexer::handlers::TransactionObjectChangesToCommit;
-use haneul_indexer::models::{
+use haneul_mvr_indexer::errors::IndexerError;
+use haneul_mvr_indexer::handlers::TransactionObjectChangesToCommit;
+use haneul_mvr_indexer::models::{
     checkpoints::StoredCheckpoint, objects::StoredObject, objects::StoredObjectSnapshot,
     transactions::StoredTransaction,
 };
-use haneul_indexer::schema::{checkpoints, objects, objects_snapshot, transactions};
-use haneul_indexer::store::indexer_store::IndexerStore;
-use haneul_indexer::test_utils::{
+use haneul_mvr_indexer::schema::{checkpoints, objects, objects_snapshot, transactions};
+use haneul_mvr_indexer::store::indexer_store::IndexerStore;
+use haneul_mvr_indexer::test_utils::{
     set_up, set_up_with_start_and_end_checkpoints, wait_for_checkpoint, wait_for_objects_snapshot,
 };
-use haneul_indexer::types::EventIndex;
-use haneul_indexer::types::IndexedDeletedObject;
-use haneul_indexer::types::IndexedObject;
-use haneul_indexer::types::TxIndex;
+use haneul_mvr_indexer::types::EventIndex;
+use haneul_mvr_indexer::types::IndexedDeletedObject;
+use haneul_mvr_indexer::types::IndexedObject;
+use haneul_mvr_indexer::types::TxIndex;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::gas_coin::GasCoin;

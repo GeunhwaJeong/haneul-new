@@ -4,10 +4,10 @@
 use jsonrpsee::core::RpcResult;
 use simulacrum::Simulacrum;
 use std::sync::Arc;
-use haneul_indexer::apis::read_api::ReadApi;
-use haneul_indexer::indexer_reader::IndexerReader;
-use haneul_indexer::test_utils::{set_up, wait_for_checkpoint};
 use haneul_json_rpc_api::ReadApiServer;
+use haneul_mvr_indexer::apis::read_api::ReadApi;
+use haneul_mvr_indexer::indexer_reader::IndexerReader;
+use haneul_mvr_indexer::test_utils::{set_up, wait_for_checkpoint};
 use tempfile::tempdir;
 
 #[tokio::test]

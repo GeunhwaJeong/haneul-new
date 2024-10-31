@@ -2,26 +2,26 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use clap::Parser;
-use haneul_indexer::backfill::backfill_runner::BackfillRunner;
-use haneul_indexer::benchmark::run_indexer_benchmark;
-use haneul_indexer::config::{Command, UploadOptions};
-use haneul_indexer::database::ConnectionPool;
-use haneul_indexer::db::setup_postgres::clear_database;
-use haneul_indexer::db::{
+use haneul_mvr_indexer::backfill::backfill_runner::BackfillRunner;
+use haneul_mvr_indexer::benchmark::run_indexer_benchmark;
+use haneul_mvr_indexer::config::{Command, UploadOptions};
+use haneul_mvr_indexer::database::ConnectionPool;
+use haneul_mvr_indexer::db::setup_postgres::clear_database;
+use haneul_mvr_indexer::db::{
     check_db_migration_consistency, check_prunable_tables_valid, reset_database, run_migrations,
 };
-use haneul_indexer::indexer::Indexer;
-use haneul_indexer::metrics::{
+use haneul_mvr_indexer::indexer::Indexer;
+use haneul_mvr_indexer::metrics::{
     spawn_connection_pool_metric_collector, start_prometheus_server, IndexerMetrics,
 };
-use haneul_indexer::restorer::formal_snapshot::IndexerFormalSnapshotRestorer;
-use haneul_indexer::store::PgIndexerStore;
+use haneul_mvr_indexer::restorer::formal_snapshot::IndexerFormalSnapshotRestorer;
+use haneul_mvr_indexer::store::PgIndexerStore;
 use tokio_util::sync::CancellationToken;
 use tracing::warn;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let opts = haneul_indexer::config::IndexerConfig::parse();
+    let opts = haneul_mvr_indexer::config::IndexerConfig::parse();
 
     // NOTE: this is to print out tracing like info, warn & error.
     let _guard = telemetry_subscribers::TelemetryConfig::new()
