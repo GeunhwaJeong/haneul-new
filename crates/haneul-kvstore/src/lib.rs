@@ -6,7 +6,7 @@ use async_trait::async_trait;
 pub use bigtable::client::BigTableClient;
 pub use bigtable::worker::KvWorker;
 use haneul_types::crypto::AuthorityStrongQuorumSignInfo;
-use haneul_types::digests::TransactionDigest;
+use haneul_types::digests::{CheckpointDigest, TransactionDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::messages_checkpoint::{
@@ -27,6 +27,10 @@ pub trait KeyValueStoreReader {
         &mut self,
         sequence_numbers: &[CheckpointSequenceNumber],
     ) -> Result<Vec<Checkpoint>>;
+    async fn get_checkpoint_by_digest(
+        &mut self,
+        digest: CheckpointDigest,
+    ) -> Result<Option<Checkpoint>>;
 }
 
 #[async_trait]
