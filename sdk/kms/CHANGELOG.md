@@ -1,0 +1,9 @@
+# @haneullabs/kms
+
+## 0.0.2
+
+### Patch Changes
+
+- b3f3925: Introduces @haneullabs/kms which initially exposes a Haneul AWS KMS signer
+- Updated dependencies [c24814b]
+  - @haneullabs/haneul@1.14.0

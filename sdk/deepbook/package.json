@@ -2,7 +2,7 @@
 	"name": "@haneullabs/deepbook",
 	"author": "Haneul Labs <build@haneul-labs.com>",
 	"description": "Haneul Deepbook SDK",
-	"version": "0.8.22",
+	"version": "0.8.23",
 	"license": "Apache-2.0",
 	"type": "commonjs",
 	"main": "./dist/cjs/index.js",

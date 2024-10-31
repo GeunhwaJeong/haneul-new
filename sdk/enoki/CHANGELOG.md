@@ -1,5 +1,13 @@
 # @haneullabs/enoki
 
+## 0.4.7
+
+### Patch Changes
+
+- Updated dependencies [c24814b]
+  - @haneullabs/haneul@1.14.0
+  - @haneullabs/zklogin@0.7.24
+
 ## 0.4.6
 
 ### Patch Changes
