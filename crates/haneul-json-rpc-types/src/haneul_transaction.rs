@@ -2345,7 +2345,7 @@ impl From<EffectsWithInput> for HaneulTransactionBlockEffects {
 #[serde_as]
 #[derive(Clone, Debug, JsonSchema, Serialize, Deserialize)]
 pub enum TransactionFilter {
-    /// Query by checkpoint.
+    /// CURRENTLY NOT SUPPORTED. Query by checkpoint.
     Checkpoint(
         #[schemars(with = "BigInt<u64>")]
         #[serde_as(as = "Readable<BigInt<u64>, _>")]
@@ -2369,7 +2369,7 @@ pub enum TransactionFilter {
     ToAddress(HaneulAddress),
     /// Query by sender and recipient address.
     FromAndToAddress { from: HaneulAddress, to: HaneulAddress },
-    /// Query txs that have a given address as sender or recipient.
+    /// CURRENTLY NOT SUPPORTED. Query txs that have a given address as sender or recipient.
     FromOrToAddress { addr: HaneulAddress },
     /// Query by transaction kind
     TransactionKind(String),
