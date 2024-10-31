@@ -1,0 +1,11 @@
+[package]
+name = "haneul-field-count"
+version.workspace = true
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[dependencies]
+haneul-field-count-derive.workspace = true
+haneul-field-count-main.workspace = true
