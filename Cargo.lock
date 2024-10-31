@@ -13393,6 +13393,7 @@ dependencies = [
  "serde_yaml 0.8.26",
  "haneul-archival",
  "haneul-data-ingestion-core",
+ "haneul-kvstore",
  "haneul-storage",
  "haneul-types",
  "telemetry-subscribers",

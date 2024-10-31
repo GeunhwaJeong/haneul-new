@@ -31,6 +31,7 @@ tracing.workspace = true
 haneul-archival.workspace = true
 haneul-storage.workspace = true
 haneul-data-ingestion-core.workspace = true
+haneul-kvstore.workspace = true
 haneul-types.workspace = true
 tempfile.workspace = true
 url.workspace = true

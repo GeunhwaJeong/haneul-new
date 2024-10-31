@@ -4,6 +4,7 @@ mod bigtable;
 use anyhow::Result;
 use async_trait::async_trait;
 pub use bigtable::client::BigTableClient;
+pub use bigtable::worker::KvWorker;
 use haneul_types::crypto::AuthorityStrongQuorumSignInfo;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::{TransactionEffects, TransactionEvents};

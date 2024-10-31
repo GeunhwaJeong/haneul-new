@@ -646,6 +646,7 @@ haneul-json-rpc = { path = "crates/haneul-json-rpc" }
 haneul-json-rpc-api = { path = "crates/haneul-json-rpc-api" }
 haneul-json-rpc-types = { path = "crates/haneul-json-rpc-types" }
 haneul-keys = { path = "crates/haneul-keys" }
+haneul-kvstore = {path = "crates/haneul-kvstore"}
 haneul-macros = { path = "crates/haneul-macros" }
 haneul-metric-checker = { path = "crates/haneul-metric-checker" }
 haneul-move = { path = "crates/haneul-move" }
