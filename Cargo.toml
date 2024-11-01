@@ -105,7 +105,6 @@ members = [
     "crates/haneul-faucet",
     "crates/haneul-field-count",
     "crates/haneul-field-count-derive",
-    "crates/haneul-field-count-main",
     "crates/haneul-framework",
     "crates/haneul-framework-snapshot",
     "crates/haneul-framework-tests",
@@ -636,7 +635,6 @@ haneul-e2e-tests = { path = "crates/haneul-e2e-tests" }
 haneul-enum-compat-util = { path = "crates/haneul-enum-compat-util" }
 haneul-faucet = { path = "crates/haneul-faucet" }
 haneul-field-count = { path = "crates/haneul-field-count" }
-haneul-field-count-main = { path = "crates/haneul-field-count-main" }
 haneul-field-count-derive = { path = "crates/haneul-field-count-derive" }
 haneul-framework = { path = "crates/haneul-framework" }
 haneul-framework-snapshot = { path = "crates/haneul-framework-snapshot" }

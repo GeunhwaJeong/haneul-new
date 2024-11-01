@@ -1,7 +1,0 @@
-[package]
-name = "haneul-field-count-main"
-version.workspace = true
-authors = ["Haneul Labs <build@haneul-labs.com>"]
-license = "Apache-2.0"
-publish = false
-edition = "2021"
