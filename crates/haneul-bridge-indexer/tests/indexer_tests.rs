@@ -18,8 +18,8 @@ use haneul_bridge_indexer::storage::PgBridgePersistent;
 use haneul_bridge_indexer::{create_haneul_indexer, schema};
 use haneul_data_ingestion_core::DataIngestionMetrics;
 use haneul_indexer::database::Connection;
-use haneul_indexer::tempdb::TempDb;
 use haneul_indexer_builder::indexer_builder::IndexerProgressStore;
+use haneul_pg_temp_db::TempDb;
 
 const MIGRATIONS: EmbeddedMigrations = embed_migrations!("src/migrations");
 

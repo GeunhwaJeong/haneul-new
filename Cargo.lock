@@ -13164,6 +13164,7 @@ dependencies = [
  "haneul-indexer",
  "haneul-indexer-builder",
  "haneul-json-rpc-types",
+ "haneul-pg-temp-db",
  "haneul-sdk",
  "haneul-test-transaction-builder",
  "haneul-types",
@@ -13200,6 +13201,7 @@ dependencies = [
  "haneul-json",
  "haneul-json-rpc-types",
  "haneul-keys",
+ "haneul-pg-temp-db",
  "haneul-sdk",
  "haneul-swarm",
  "haneul-swarm-config",
@@ -13807,6 +13809,7 @@ dependencies = [
  "haneul-json-rpc-types",
  "haneul-move-build",
  "haneul-package-resolver",
+ "haneul-pg-temp-db",
  "haneul-protocol-config",
  "haneul-rest-api",
  "haneul-sdk",
@@ -13901,6 +13904,7 @@ dependencies = [
  "haneul-move-build",
  "haneul-open-rpc",
  "haneul-package-resolver",
+ "haneul-pg-temp-db",
  "haneul-protocol-config",
  "haneul-rest-api",
  "haneul-sdk",
@@ -13946,6 +13950,7 @@ dependencies = [
  "reqwest 0.12.5",
  "serde",
  "haneul-field-count",
+ "haneul-pg-temp-db",
  "haneul-storage",
  "haneul-types",
  "telemetry-subscribers",
@@ -14686,6 +14691,19 @@ dependencies = [
  "thiserror",
  "tokio",
  "tower 0.4.13",
+]
+
+[[package]]
+name = "haneul-pg-temp-db"
+version = "1.38.0"
+dependencies = [
+ "anyhow",
+ "diesel",
+ "diesel-async",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "url",
 ]
 
 [[package]]
@@ -16040,6 +16058,7 @@ dependencies = [
  "haneul-keys",
  "haneul-macros",
  "haneul-node",
+ "haneul-pg-temp-db",
  "haneul-protocol-config",
  "haneul-sdk",
  "haneul-simulator",

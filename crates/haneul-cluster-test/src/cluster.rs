@@ -10,11 +10,11 @@ use haneul_config::Config;
 use haneul_config::{PersistedConfig, HANEUL_KEYSTORE_FILENAME, HANEUL_NETWORK_CONFIG};
 use haneul_graphql_rpc::config::{ConnectionConfig, ServiceConfig};
 use haneul_graphql_rpc::test_infra::cluster::start_graphql_server_with_fn_rpc;
-use haneul_indexer::tempdb::TempDb;
 use haneul_indexer::test_utils::{
     start_indexer_jsonrpc_for_testing, start_indexer_writer_for_testing,
 };
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
+use haneul_pg_temp_db::TempDb;
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_swarm::memory::Swarm;

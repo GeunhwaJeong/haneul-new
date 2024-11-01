@@ -247,8 +247,9 @@ mod tests {
     use haneul_framework::BuiltInFramework;
     use haneul_indexer::{
         database::Connection, db::reset_database, models::objects::StoredObject, schema::objects,
-        tempdb::TempDb, types::IndexedObject,
+        types::IndexedObject,
     };
+    use haneul_pg_temp_db::TempDb;
 
     #[tokio::test]
     async fn test_query_cost() {

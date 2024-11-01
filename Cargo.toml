@@ -140,6 +140,7 @@ members = [
     "crates/haneul-package-dump",
     "crates/haneul-package-management",
     "crates/haneul-package-resolver",
+    "crates/haneul-pg-temp-db",
     "crates/haneul-proc-macros",
     "crates/haneul-protocol-config",
     "crates/haneul-protocol-config-macros",
@@ -666,6 +667,7 @@ haneul-open-rpc-macros = { path = "crates/haneul-open-rpc-macros" }
 haneul-package-dump = { path = "crates/haneul-package-dump" }
 haneul-package-management = { path = "crates/haneul-package-management" }
 haneul-package-resolver = { path = "crates/haneul-package-resolver" }
+haneul-pg-temp-db = { path = "crates/haneul-pg-temp-db" }
 haneul-proc-macros = { path = "crates/haneul-proc-macros" }
 haneul-protocol-config = { path = "crates/haneul-protocol-config" }
 haneul-protocol-config-macros = { path = "crates/haneul-protocol-config-macros" }

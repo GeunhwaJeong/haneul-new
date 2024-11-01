@@ -5,11 +5,11 @@ use jsonrpsee::http_client::{HttpClient, HttpClientBuilder};
 use std::path::PathBuf;
 use std::time::Duration;
 use haneul_config::local_ip_utils::new_local_tcp_socket_for_testing_string;
-use haneul_indexer::tempdb::TempDb;
 use haneul_indexer::test_utils::{
     start_indexer_jsonrpc_for_testing, start_indexer_writer_for_testing,
 };
 use haneul_json_rpc_api::ReadApiClient;
+use haneul_pg_temp_db::TempDb;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use tempfile::TempDir;
 use tokio::time::sleep;

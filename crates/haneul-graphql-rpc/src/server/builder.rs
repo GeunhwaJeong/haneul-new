@@ -692,7 +692,7 @@ pub mod tests {
     use serde_json::json;
     use std::sync::Arc;
     use std::time::Duration;
-    use haneul_indexer::tempdb::get_available_port;
+    use haneul_pg_temp_db::get_available_port;
     use haneul_sdk::HaneulClient;
     use haneul_types::digests::get_mainnet_chain_identifier;
     use haneul_types::transaction::TransactionData;
