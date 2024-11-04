@@ -1,5 +1,12 @@
 # @haneullabs/graphql-transport
 
+## 0.2.26
+
+### Patch Changes
+
+- Updated dependencies [69ef100]
+  - @haneullabs/haneul@1.14.1
+
 ## 0.2.25
 
 ### Patch Changes
