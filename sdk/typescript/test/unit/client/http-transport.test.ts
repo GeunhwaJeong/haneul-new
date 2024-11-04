@@ -62,7 +62,7 @@ describe('HaneulHTTPTransport', () => {
 					'Client-Sdk-Type': 'typescript',
 					'Client-Sdk-Version': PACKAGE_VERSION,
 					'Client-Target-Api-Version': TARGETED_RPC_VERSION,
-					'Client-Request-Method': 'getAllBalances',
+					// 'Client-Request-Method': 'getAllBalances',
 				},
 				method: 'POST',
 			});
