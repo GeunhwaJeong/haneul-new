@@ -13949,6 +13949,7 @@ dependencies = [
  "serde",
  "haneul-field-count",
  "haneul-pg-temp-db",
+ "haneul-protocol-config",
  "haneul-storage",
  "haneul-types",
  "telemetry-subscribers",

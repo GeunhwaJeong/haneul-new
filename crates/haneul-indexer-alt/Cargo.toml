@@ -38,6 +38,7 @@ url.workspace = true
 haneullabs-metrics.workspace = true
 haneul-field-count.workspace = true
 haneul-pg-temp-db.workspace = true
+haneul-protocol-config.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
 
