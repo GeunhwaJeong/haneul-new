@@ -38,7 +38,7 @@ export default function FooterLayout({ style, links, logo, copyright }) {
                 />
               </svg>
             </Link>
-            <Link to="https://twitter.com/Haneul_Labs">
+            <Link to="https://x.com/haneulnetwork">
               <svg
                 width="32"
                 height="32"
@@ -54,7 +54,7 @@ export default function FooterLayout({ style, links, logo, copyright }) {
                 />
               </svg>
             </Link>
-            <Link to="https://medium.com/haneullabs-labs">
+            <Link to="https://www.youtube.com/@Haneul-Network">
               <svg
                 width="32"
                 height="32"
@@ -70,7 +70,7 @@ export default function FooterLayout({ style, links, logo, copyright }) {
                 />
               </svg>
             </Link>
-            <Link to="https://www.linkedin.com/company/haneullabs-labs/">
+            <Link to="https://www.linkedin.com/company/haneul-foundation/">
               <svg
                 width="32"
                 height="32"
