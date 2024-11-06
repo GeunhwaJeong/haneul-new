@@ -416,6 +416,13 @@ impl PoolTokenExchangeRate {
             self.pool_token_amount as f64 / self.haneul_amount as f64
         }
     }
+
+    pub fn new(haneul_amount: u64, pool_token_amount: u64) -> Self {
+        Self {
+            haneul_amount,
+            pool_token_amount,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
