@@ -1,5 +1,13 @@
 # @haneullabs/zksend
 
+## 0.11.11
+
+### Patch Changes
+
+- Updated dependencies [e7bc63e]
+  - @haneullabs/haneul@1.14.2
+  - @haneullabs/wallet-standard@0.13.11
+
 ## 0.11.10
 
 ### Patch Changes

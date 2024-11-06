@@ -1,5 +1,13 @@
 # @haneullabs/deepbook-v3
 
+## 0.12.4
+
+### Patch Changes
+
+- 6a571f1: Deep conversion
+- Updated dependencies [e7bc63e]
+  - @haneullabs/haneul@1.14.2
+
 ## 0.12.3
 
 ### Patch Changes
