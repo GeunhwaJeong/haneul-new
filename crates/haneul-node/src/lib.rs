@@ -1348,7 +1348,8 @@ impl HaneulNode {
                 epoch_store.clone(),
                 consensus_handler_initializer,
                 HaneulTxValidator::new(
-                    epoch_store.clone(),
+                    state.clone(),
+                    consensus_adapter.clone(),
                     checkpoint_service.clone(),
                     state.transaction_manager().clone(),
                     haneul_tx_validator_metrics.clone(),

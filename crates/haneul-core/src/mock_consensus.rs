@@ -9,8 +9,9 @@ use crate::consensus_handler::SequencedConsensusTransaction;
 use prometheus::Registry;
 use std::sync::{Arc, Weak};
 use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::messages_consensus::{ConsensusTransaction, ConsensusTransactionKind};
-use haneul_types::transaction::VerifiedCertificate;
+use haneul_types::transaction::{VerifiedCertificate, VerifiedTransaction};
 use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
 use tracing::debug;
@@ -73,10 +74,21 @@ impl MockConsensusClient {
                         .unwrap();
                 }
             }
-            if let ConsensusTransactionKind::CertifiedTransaction(tx) = tx.kind {
+            if let ConsensusTransactionKind::CertifiedTransaction(tx) = &tx.kind {
                 if tx.contains_shared_object() {
                     validator.enqueue_certificates_for_execution(
-                        vec![VerifiedCertificate::new_unchecked(*tx)],
+                        vec![VerifiedCertificate::new_unchecked(*tx.clone())],
+                        &epoch_store,
+                    );
+                }
+            }
+            if let ConsensusTransactionKind::UserTransaction(tx) = &tx.kind {
+                if tx.contains_shared_object() {
+                    validator.enqueue_transactions_for_execution(
+                        vec![VerifiedExecutableTransaction::new_from_consensus(
+                            VerifiedTransaction::new_unchecked(*tx.clone()),
+                            0,
+                        )],
                         &epoch_store,
                     );
                 }
