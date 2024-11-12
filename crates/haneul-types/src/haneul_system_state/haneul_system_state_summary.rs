@@ -4,7 +4,6 @@
 use super::{HaneulSystemState, HaneulSystemStateTrait};
 use crate::base_types::{AuthorityName, ObjectID, HaneulAddress};
 use crate::committee::{CommitteeWithNetworkMetadata, NetworkMetadata};
-use crate::crypto::NetworkPublicKey;
 use crate::dynamic_field::get_dynamic_field_from_store;
 use crate::error::HaneulError;
 use crate::id::ID;
@@ -203,10 +202,6 @@ impl HaneulSystemStateSummary {
                                 validator.primary_address.clone(),
                             )
                             .unwrap(),
-                            network_public_key: NetworkPublicKey::from_bytes(
-                                &validator.network_pubkey_bytes,
-                            )
-                            .ok(),
                         },
                     ),
                 )

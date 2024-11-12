@@ -25,7 +25,6 @@ haneul-swarm-config.workspace = true
 haneul-macros.workspace = true
 haneul-node.workspace = true
 haneul-protocol-config.workspace = true
-haneul-tls.workspace = true
 haneul-types.workspace = true
 haneullabs-metrics.workspace = true
 haneullabs-network.workspace = true
