@@ -9,7 +9,5 @@ pub mod models;
 pub mod postgres_manager;
 pub mod schema;
 pub mod server;
-pub mod types;
-
-pub mod haneul_datasource;
 pub mod haneul_deepbook_indexer;
+pub mod types;

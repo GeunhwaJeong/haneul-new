@@ -15,11 +15,11 @@ use haneul_deepbook_indexer::config::IndexerConfig;
 use haneul_deepbook_indexer::metrics::DeepBookIndexerMetrics;
 use haneul_deepbook_indexer::postgres_manager::get_connection_pool;
 use haneul_deepbook_indexer::server::run_server;
-use haneul_deepbook_indexer::haneul_datasource::HaneulCheckpointDatasource;
 use haneul_deepbook_indexer::haneul_deepbook_indexer::PgDeepbookPersistent;
 use haneul_deepbook_indexer::haneul_deepbook_indexer::HaneulDeepBookDataMapper;
 use haneul_indexer_builder::indexer_builder::IndexerBuilder;
 use haneul_indexer_builder::progress::{OutOfOrderSaveAfterDurationPolicy, ProgressSavingPolicy};
+use haneul_indexer_builder::haneul_datasource::HaneulCheckpointDatasource;
 use haneul_sdk::HaneulClientBuilder;
 use haneul_types::base_types::ObjectID;
 use tracing::info;
@@ -83,7 +83,7 @@ async fn main() -> Result<()> {
             .unwrap_or(tempfile::tempdir()?.into_path()),
         config.deepbook_genesis_checkpoint,
         ingestion_metrics.clone(),
-        indexer_meterics.clone(),
+        Box::new(indexer_meterics.clone()),
     );
 
     let service_address =

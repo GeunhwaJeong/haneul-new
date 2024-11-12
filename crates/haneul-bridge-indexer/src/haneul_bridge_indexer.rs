@@ -10,6 +10,7 @@ use haneul_bridge::events::{
     UpdateRouteLimitEvent, UpdateTokenPriceEvent,
 };
 use haneul_indexer_builder::indexer_builder::DataMapper;
+use haneul_indexer_builder::haneul_datasource::CheckpointTxnData;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::event::Event;
 use haneul_types::execution_status::ExecutionStatus;
@@ -17,7 +18,6 @@ use haneul_types::full_checkpoint_content::CheckpointTransaction;
 use haneul_types::{BRIDGE_ADDRESS, HANEUL_BRIDGE_OBJECT_ID};
 
 use crate::metrics::BridgeIndexerMetrics;
-use crate::haneul_datasource::CheckpointTxnData;
 use crate::{
     BridgeDataSource, GovernanceAction, GovernanceActionType, ProcessedTxnData, HaneulTxnError,
     TokenTransfer, TokenTransferData, TokenTransferStatus,

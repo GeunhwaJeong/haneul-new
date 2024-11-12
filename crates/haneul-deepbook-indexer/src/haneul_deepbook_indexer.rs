@@ -15,6 +15,7 @@ use haneul_types::transaction::{Command, TransactionDataAPI};
 use tracing::info;
 
 use haneul_indexer_builder::indexer_builder::{DataMapper, IndexerProgressStore, Persistent};
+use haneul_indexer_builder::haneul_datasource::CheckpointTxnData;
 use haneul_indexer_builder::{Task, Tasks, LIVE_TASK_TARGET_CHECKPOINT};
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::event::Event;
@@ -33,7 +34,6 @@ use crate::schema::{
     balances, flashloans, order_fills, order_updates, pool_prices, proposals, rebates, stakes,
     haneul_error_transactions, trade_params_update, votes,
 };
-use crate::haneul_datasource::CheckpointTxnData;
 use crate::types::{
     Balances, Flashloan, OrderFill, OrderUpdate, OrderUpdateStatus, PoolPrice, ProcessedTxnData,
     Proposals, Rebates, Stakes, HaneulTxnError, TradeParamsUpdate, Votes,

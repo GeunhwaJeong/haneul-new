@@ -12,7 +12,6 @@ use crate::models::{HaneulErrorTransactions, TokenTransfer as DBTokenTransfer};
 use crate::postgres_manager::PgPool;
 use crate::storage::PgBridgePersistent;
 use crate::haneul_bridge_indexer::HaneulBridgeDataMapper;
-use crate::haneul_datasource::HaneulCheckpointDatasource;
 use ethers::providers::{Http, Provider};
 use ethers::types::Address as EthAddress;
 use std::fmt::{Display, Formatter};
@@ -25,9 +24,11 @@ use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge::utils::get_eth_contract_addresses;
 use haneul_data_ingestion_core::DataIngestionMetrics;
 use haneul_indexer_builder::indexer_builder::{BackfillStrategy, Datasource, Indexer, IndexerBuilder};
+use haneul_indexer_builder::metrics::IndexerMetricProvider;
 use haneul_indexer_builder::progress::{
     OutOfOrderSaveAfterDurationPolicy, ProgressSavingPolicy, SaveAfterDurationPolicy,
 };
+use haneul_indexer_builder::haneul_datasource::HaneulCheckpointDatasource;
 use haneul_sdk::HaneulClientBuilder;
 use haneul_types::base_types::{HaneulAddress, TransactionDigest};
 
@@ -43,7 +44,6 @@ pub mod types;
 
 pub mod eth_bridge_indexer;
 pub mod haneul_bridge_indexer;
-pub mod haneul_datasource;
 
 #[derive(Clone)]
 pub enum ProcessedTxnData {
@@ -234,7 +234,7 @@ pub async fn create_haneul_indexer(
             .unwrap_or(tempfile::tempdir()?.into_path()),
         config.haneul_bridge_genesis_checkpoint,
         ingestion_metrics,
-        metrics.clone(),
+        metrics.clone().boxed(),
     );
 
     Ok(IndexerBuilder::new(
@@ -259,7 +259,7 @@ pub async fn create_eth_sync_indexer(
         bridge_addresses,
         eth_client.clone(),
         config.eth_rpc_url.clone(),
-        metrics.clone(),
+        metrics.clone().boxed(),
         bridge_metrics.clone(),
         config.eth_bridge_genesis_block,
     )
@@ -288,7 +288,7 @@ pub async fn create_eth_subscription_indexer(
         bridge_addresses.clone(),
         eth_client.clone(),
         config.eth_ws_url.clone(),
-        metrics.clone(),
+        metrics.clone().boxed(),
         config.eth_bridge_genesis_block,
     )
     .await?;

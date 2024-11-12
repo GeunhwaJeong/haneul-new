@@ -1,19 +1,18 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::indexer_builder::{DataSender, Datasource};
+use crate::metrics::IndexerMetricProvider;
+use crate::Task;
 use anyhow::Error;
 use async_trait::async_trait;
 use haneullabs_metrics::{metered_channel, spawn_monitored_task};
-use prometheus::IntCounterVec;
 use prometheus::IntGauge;
-use prometheus::IntGaugeVec;
 use std::path::PathBuf;
 use std::sync::Arc;
 use haneul_data_ingestion_core::{
     DataIngestionMetrics, IndexerExecutor, ProgressStore, ReaderOptions, Worker, WorkerPool,
 };
-use haneul_indexer_builder::indexer_builder::{DataSender, Datasource};
-use haneul_indexer_builder::Task;
 use haneul_sdk::HaneulClient;
 use haneul_types::full_checkpoint_content::CheckpointData as HaneulCheckpointData;
 use haneul_types::full_checkpoint_content::CheckpointTransaction;
@@ -21,8 +20,6 @@ use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use tokio::sync::oneshot;
 use tokio::sync::oneshot::Sender;
 use tokio::task::JoinHandle;
-
-use crate::metrics::BridgeIndexerMetrics;
 
 const BACKFILL_TASK_INGESTION_READER_BATCH_SIZE: usize = 300;
 const LIVE_TASK_INGESTION_READER_BATCH_SIZE: usize = 10;
@@ -33,8 +30,8 @@ pub struct HaneulCheckpointDatasource {
     concurrency: usize,
     checkpoint_path: PathBuf,
     genesis_checkpoint: u64,
-    metrics: DataIngestionMetrics,
-    indexer_metrics: BridgeIndexerMetrics,
+    ingestion_metrics: DataIngestionMetrics,
+    metrics: Box<dyn IndexerMetricProvider>,
 }
 impl HaneulCheckpointDatasource {
     pub fn new(
@@ -43,17 +40,17 @@ impl HaneulCheckpointDatasource {
         concurrency: usize,
         checkpoint_path: PathBuf,
         genesis_checkpoint: u64,
-        metrics: DataIngestionMetrics,
-        indexer_metrics: BridgeIndexerMetrics,
+        ingestion_metrics: DataIngestionMetrics,
+        metrics: Box<dyn IndexerMetricProvider>,
     ) -> Self {
         HaneulCheckpointDatasource {
             remote_store_url,
             haneul_client,
             concurrency,
             checkpoint_path,
-            metrics,
-            indexer_metrics,
             genesis_checkpoint,
+            ingestion_metrics,
+            metrics,
         }
     }
 }
@@ -85,10 +82,10 @@ impl Datasource<CheckpointTxnData> for HaneulCheckpointDatasource {
             "Starting Haneul checkpoint data retrieval with batch size {}",
             ingestion_reader_batch_size
         );
-        let mut executor = IndexerExecutor::new(progress_store, 1, self.metrics.clone());
+        let mut executor = IndexerExecutor::new(progress_store, 1, self.ingestion_metrics.clone());
         let progress_metric = self
-            .indexer_metrics
-            .tasks_latest_retrieved_checkpoints
+            .metrics
+            .get_tasks_latest_retrieved_checkpoints()
             .with_label_values(&[task.name_prefix(), task.type_str()]);
         let worker = IndexerWorker::new(data_sender, progress_metric);
         let worker_pool = WorkerPool::new(worker, task.task_name.clone(), self.concurrency);
@@ -124,16 +121,8 @@ impl Datasource<CheckpointTxnData> for HaneulCheckpointDatasource {
         self.genesis_checkpoint
     }
 
-    fn get_tasks_remaining_checkpoints_metric(&self) -> &IntGaugeVec {
-        &self.indexer_metrics.backfill_tasks_remaining_checkpoints
-    }
-
-    fn get_tasks_processed_checkpoints_metric(&self) -> &IntCounterVec {
-        &self.indexer_metrics.tasks_processed_checkpoints
-    }
-
-    fn get_inflight_live_tasks_metrics(&self) -> &IntGaugeVec {
-        &self.indexer_metrics.inflight_live_tasks
+    fn metric_provider(&self) -> &dyn IndexerMetricProvider {
+        self.metrics.as_ref()
     }
 }
 
