@@ -5,9 +5,6 @@
 //! (likely already owned) shareable which would lead to an abort. A typical patterns is to create a
 //! fresh object and share it within the same function
 
-use move_ir_types::location::*;
-use move_proc_macros::growing_stack;
-
 use crate::{
     cfgir::{
         absint::JoinResult,
@@ -36,19 +33,21 @@ use crate::{
     },
     haneul_mode::{
         info::{HaneulInfo, TransferKind},
-        HANEUL_ADDR_NAME, TX_CONTEXT_MODULE_NAME, TX_CONTEXT_TYPE_NAME,
+        linters::{
+            type_abilities, LinterDiagnosticCategory, LinterDiagnosticCode, LINT_WARNING_PREFIX,
+            PUBLIC_SHARE_FUN, SHARE_FUN, TRANSFER_MOD_NAME,
+        },
+        HANEUL_ADDR_VALUE, TX_CONTEXT_MODULE_NAME, TX_CONTEXT_TYPE_NAME,
     },
 };
+use move_core_types::account_address::AccountAddress;
+use move_ir_types::location::*;
+use move_proc_macros::growing_stack;
 use std::collections::BTreeMap;
 
-use super::{
-    type_abilities, LinterDiagnosticCategory, LinterDiagnosticCode, LINT_WARNING_PREFIX,
-    PUBLIC_SHARE_FUN, SHARE_FUN, HANEUL_PKG_NAME, TRANSFER_MOD_NAME,
-};
-
-const SHARE_FUNCTIONS: &[(&str, &str, &str)] = &[
-    (HANEUL_PKG_NAME, TRANSFER_MOD_NAME, PUBLIC_SHARE_FUN),
-    (HANEUL_PKG_NAME, TRANSFER_MOD_NAME, SHARE_FUN),
+const SHARE_FUNCTIONS: &[(AccountAddress, &str, &str)] = &[
+    (HANEUL_ADDR_VALUE, TRANSFER_MOD_NAME, PUBLIC_SHARE_FUN),
+    (HANEUL_ADDR_VALUE, TRANSFER_MOD_NAME, SHARE_FUN),
 ];
 
 const SHARE_OWNED_DIAG: DiagnosticInfo = custom(
@@ -238,7 +237,11 @@ impl<'a> ShareOwnedVerifierAI<'a> {
         match bt_ {
             // special case TxContext as not holding an object
             BaseType_::Apply(_, sp!(_, tn), _)
-                if tn.is(HANEUL_ADDR_NAME, TX_CONTEXT_MODULE_NAME, TX_CONTEXT_TYPE_NAME) =>
+                if tn.is(
+                    &HANEUL_ADDR_VALUE,
+                    TX_CONTEXT_MODULE_NAME,
+                    TX_CONTEXT_TYPE_NAME,
+                ) =>
             {
                 false
             }

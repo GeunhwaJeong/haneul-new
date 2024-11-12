@@ -4,6 +4,7 @@
 //! This analysis flags transfers of an object to tx_context::sender(). Such objects should be
 //! returned from the function instead
 
+use move_core_types::account_address::AccountAddress;
 use move_ir_types::location::*;
 
 use crate::{
@@ -23,17 +24,18 @@ use crate::{
     },
     hlir::ast::{Label, ModuleCall, Type, Type_, Var},
     parser::ast::Ability_,
+    haneul_mode::{HANEUL_ADDR_VALUE, TX_CONTEXT_MODULE_NAME},
 };
 use std::collections::BTreeMap;
 
 use super::{
     type_abilities, LinterDiagnosticCategory, LinterDiagnosticCode, INVALID_LOC,
-    LINT_WARNING_PREFIX, PUBLIC_TRANSFER_FUN, HANEUL_PKG_NAME, TRANSFER_FUN, TRANSFER_MOD_NAME,
+    LINT_WARNING_PREFIX, PUBLIC_TRANSFER_FUN, TRANSFER_FUN, TRANSFER_MOD_NAME,
 };
 
-const TRANSFER_FUNCTIONS: &[(&str, &str, &str)] = &[
-    (HANEUL_PKG_NAME, TRANSFER_MOD_NAME, PUBLIC_TRANSFER_FUN),
-    (HANEUL_PKG_NAME, TRANSFER_MOD_NAME, TRANSFER_FUN),
+const TRANSFER_FUNCTIONS: &[(AccountAddress, &str, &str)] = &[
+    (HANEUL_ADDR_VALUE, TRANSFER_MOD_NAME, PUBLIC_TRANSFER_FUN),
+    (HANEUL_ADDR_VALUE, TRANSFER_MOD_NAME, TRANSFER_FUN),
 ];
 
 const SELF_TRANSFER_DIAG: DiagnosticInfo = custom(
@@ -166,7 +168,7 @@ impl SimpleAbsInt for SelfTransferVerifierAI {
             }
             return Some(vec![]);
         }
-        if f.is("haneul", "tx_context", "sender") {
+        if f.is(&HANEUL_ADDR_VALUE, TX_CONTEXT_MODULE_NAME, "sender") {
             return Some(vec![Value::SenderAddress(*loc)]);
         }
         Some(match &return_ty.value {

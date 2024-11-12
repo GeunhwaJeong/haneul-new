@@ -1,9 +1,6 @@
 // Copyright (c) The Move Contributors
 // SPDX-License-Identifier: Apache-2.0
 
-use move_ir_types::location::*;
-use move_symbol_pool::Symbol;
-
 use crate::{
     cfgir::{
         absint::JoinResult,
@@ -21,42 +18,44 @@ use crate::{
     hlir::ast::{self as H, Exp, Label, ModuleCall, SingleType, Type, Type_, Var},
     parser::ast::Ability_,
     shared::{program_info::TypingProgramInfo, Identifier},
-    haneul_mode::{OBJECT_NEW, TEST_SCENARIO_MODULE_NAME, TS_NEW_OBJECT},
+    haneul_mode::{
+        AUTHENTICATOR_STATE_CREATE, AUTHENTICATOR_STATE_MODULE_NAME, BRIDGE_ADDR_VALUE,
+        BRIDGE_CREATE, BRIDGE_MODULE_NAME, CLOCK_MODULE_NAME, DENY_LIST_CREATE,
+        DENY_LIST_MODULE_NAME, ID_LEAK_DIAG, OBJECT_MODULE_NAME, OBJECT_NEW,
+        OBJECT_NEW_UID_FROM_HASH, RANDOMNESS_MODULE_NAME, RANDOMNESS_STATE_CREATE, HANEUL_ADDR_NAME,
+        HANEUL_ADDR_VALUE, HANEUL_CLOCK_CREATE, HANEUL_SYSTEM_ADDR_VALUE, HANEUL_SYSTEM_CREATE,
+        HANEUL_SYSTEM_MODULE_NAME, TEST_SCENARIO_MODULE_NAME, TS_NEW_OBJECT, UID_TYPE_NAME,
+    },
 };
+use move_core_types::account_address::AccountAddress;
+use move_ir_types::location::*;
+use move_symbol_pool::Symbol;
 use std::collections::BTreeMap;
 
-use super::{
-    AUTHENTICATOR_STATE_CREATE, AUTHENTICATOR_STATE_MODULE_NAME, BRIDGE_ADDR_NAME, BRIDGE_CREATE,
-    BRIDGE_MODULE_NAME, CLOCK_MODULE_NAME, DENY_LIST_CREATE, DENY_LIST_MODULE_NAME, ID_LEAK_DIAG,
-    OBJECT_MODULE_NAME, OBJECT_NEW_UID_FROM_HASH, RANDOMNESS_MODULE_NAME, RANDOMNESS_STATE_CREATE,
-    HANEUL_ADDR_NAME, HANEUL_CLOCK_CREATE, HANEUL_SYSTEM_ADDR_NAME, HANEUL_SYSTEM_CREATE,
-    HANEUL_SYSTEM_MODULE_NAME, UID_TYPE_NAME,
-};
-
-pub const FRESH_ID_FUNCTIONS: &[(Symbol, Symbol, Symbol)] = &[
-    (HANEUL_ADDR_NAME, OBJECT_MODULE_NAME, OBJECT_NEW),
-    (HANEUL_ADDR_NAME, OBJECT_MODULE_NAME, OBJECT_NEW_UID_FROM_HASH),
-    (HANEUL_ADDR_NAME, TEST_SCENARIO_MODULE_NAME, TS_NEW_OBJECT),
+pub const FRESH_ID_FUNCTIONS: &[(AccountAddress, Symbol, Symbol)] = &[
+    (HANEUL_ADDR_VALUE, OBJECT_MODULE_NAME, OBJECT_NEW),
+    (HANEUL_ADDR_VALUE, OBJECT_MODULE_NAME, OBJECT_NEW_UID_FROM_HASH),
+    (HANEUL_ADDR_VALUE, TEST_SCENARIO_MODULE_NAME, TS_NEW_OBJECT),
 ];
-pub const FUNCTIONS_TO_SKIP: &[(Symbol, Symbol, Symbol)] = &[
+pub const FUNCTIONS_TO_SKIP: &[(AccountAddress, Symbol, Symbol)] = &[
     (
-        HANEUL_SYSTEM_ADDR_NAME,
+        HANEUL_SYSTEM_ADDR_VALUE,
         HANEUL_SYSTEM_MODULE_NAME,
         HANEUL_SYSTEM_CREATE,
     ),
-    (HANEUL_ADDR_NAME, CLOCK_MODULE_NAME, HANEUL_CLOCK_CREATE),
+    (HANEUL_ADDR_VALUE, CLOCK_MODULE_NAME, HANEUL_CLOCK_CREATE),
     (
-        HANEUL_ADDR_NAME,
+        HANEUL_ADDR_VALUE,
         AUTHENTICATOR_STATE_MODULE_NAME,
         AUTHENTICATOR_STATE_CREATE,
     ),
     (
-        HANEUL_ADDR_NAME,
+        HANEUL_ADDR_VALUE,
         RANDOMNESS_MODULE_NAME,
         RANDOMNESS_STATE_CREATE,
     ),
-    (HANEUL_ADDR_NAME, DENY_LIST_MODULE_NAME, DENY_LIST_CREATE),
-    (BRIDGE_ADDR_NAME, BRIDGE_MODULE_NAME, BRIDGE_CREATE),
+    (HANEUL_ADDR_VALUE, DENY_LIST_MODULE_NAME, DENY_LIST_CREATE),
+    (BRIDGE_ADDR_VALUE, BRIDGE_MODULE_NAME, BRIDGE_CREATE),
 ];
 
 //**************************************************************************************************
@@ -119,7 +118,7 @@ impl SimpleAbsIntConstructor for IDLeakVerifier {
         if let MemberName::Function(n) = &context.member {
             let should_skip = FUNCTIONS_TO_SKIP
                 .iter()
-                .any(|to_skip| module.value.is(to_skip.0, to_skip.1) && n.value == to_skip.2);
+                .any(|to_skip| module.value.is(&to_skip.0, to_skip.1) && n.value == to_skip.2);
             if should_skip {
                 return None;
             }
@@ -223,7 +222,7 @@ impl<'a> SimpleAbsInt for IDLeakVerifierAI<'a> {
     ) -> Option<Vec<Value>> {
         if FRESH_ID_FUNCTIONS
             .iter()
-            .any(|makes_fresh| f.is(makes_fresh.0, makes_fresh.1, makes_fresh.2))
+            .any(|makes_fresh| f.is(&makes_fresh.0, makes_fresh.1, makes_fresh.2))
         {
             return Some(vec![Value::FreshID(*loc)]);
         }
@@ -236,7 +235,7 @@ impl<'a> SimpleAbsInt for IDLeakVerifierAI<'a> {
 }
 
 fn value_for_ty(loc: &Loc, sp!(_, t): &SingleType) -> Value {
-    if t.is_apply(HANEUL_ADDR_NAME, OBJECT_MODULE_NAME, UID_TYPE_NAME)
+    if t.is_apply(&HANEUL_ADDR_VALUE, OBJECT_MODULE_NAME, UID_TYPE_NAME)
         .is_some()
     {
         Value::NotFresh(*loc)
