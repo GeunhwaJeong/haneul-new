@@ -9,6 +9,7 @@ use haneul_config::NodeConfig;
 use haneul_node::HaneulNodeHandle;
 use haneul_types::base_types::AuthorityName;
 use haneul_types::base_types::ConciseableName;
+use haneul_types::crypto::KeypairTraits;
 use tap::TapFallible;
 use tracing::{error, info};
 
@@ -106,7 +107,12 @@ impl Node {
 
         if is_validator {
             let network_address = self.config().network_address().clone();
-            let channel = haneullabs_network::client::connect(&network_address)
+            let tls_config = haneul_tls::create_rustls_client_config(
+                self.config().network_key_pair().public().to_owned(),
+                haneul_tls::HANEUL_VALIDATOR_SERVER_NAME.to_string(),
+                None,
+            );
+            let channel = haneullabs_network::client::connect(&network_address, Some(tls_config))
                 .await
                 .map_err(|err| anyhow!(err.to_string()))
                 .map_err(HealthCheckError::Failure)

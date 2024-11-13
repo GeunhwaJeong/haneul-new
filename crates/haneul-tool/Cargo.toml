@@ -47,4 +47,5 @@ haneul-storage.workspace = true
 haneul-types.workspace = true
 haneul-archival.workspace = true
 haneul-package-dump.workspace = true
+haneul-tls.workspace = true
 bin-version.workspace = true
