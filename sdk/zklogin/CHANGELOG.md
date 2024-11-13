@@ -1,5 +1,12 @@
 # @haneullabs/zklogin
 
+## 0.7.27
+
+### Patch Changes
+
+- Updated dependencies [d5a23d7]
+  - @haneullabs/haneul@1.14.3
+
 ## 0.7.26
 
 ### Patch Changes
