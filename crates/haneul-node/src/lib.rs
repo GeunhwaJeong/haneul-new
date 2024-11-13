@@ -27,8 +27,8 @@ use haneul_core::authority::authority_store_tables::AuthorityPerpetualTablesOpti
 use haneul_core::authority::epoch_start_configuration::EpochFlag;
 use haneul_core::authority::RandomnessRoundReceiver;
 use haneul_core::authority::CHAIN_IDENTIFIER;
-use haneul_core::consensus_adapter::SubmitToConsensus;
-use haneul_core::consensus_manager::ConsensusClient;
+use haneul_core::consensus_adapter::ConsensusClient;
+use haneul_core::consensus_manager::UpdatableConsensusClient;
 use haneul_core::epoch::randomness::RandomnessManager;
 use haneul_core::execution_cache::build_execution_cache;
 use haneul_core::state_accumulator::StateAccumulatorMetrics;
@@ -1197,7 +1197,7 @@ impl HaneulNode {
             .as_mut()
             .ok_or_else(|| anyhow!("Validator is missing consensus config"))?;
 
-        let client = Arc::new(ConsensusClient::new());
+        let client = Arc::new(UpdatableConsensusClient::new());
         let consensus_adapter = Arc::new(Self::construct_consensus_adapter(
             &committee,
             consensus_config,
@@ -1433,7 +1433,7 @@ impl HaneulNode {
         connection_monitor_status: Arc<ConnectionMonitorStatus>,
         prometheus_registry: &Registry,
         protocol_config: ProtocolConfig,
-        consensus_client: Arc<dyn SubmitToConsensus>,
+        consensus_client: Arc<dyn ConsensusClient>,
     ) -> ConsensusAdapter {
         let ca_metrics = ConsensusAdapterMetrics::new(prometheus_registry);
         // The consensus adapter allows the authority to send user certificates through consensus.
