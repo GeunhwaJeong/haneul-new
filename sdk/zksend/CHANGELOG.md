@@ -1,5 +1,11 @@
 # @haneullabs/zksend
 
+## 0.12.1
+
+### Patch Changes
+
+- 1765780: fix zksend link network detection
+
 ## 0.12.0
 
 ### Minor Changes
