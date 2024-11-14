@@ -5,8 +5,8 @@ use colored::Colorize;
 use itertools::Itertools;
 use move_binary_format::file_format::{Ability, AbilitySet, DatatypeTyParameter, Visibility};
 use move_binary_format::normalized::{
-    Field as NormalizedField, Function as HaneulNormalizedFunction, Module as NormalizedModule,
-    Struct as NormalizedStruct, Type as NormalizedType,
+    Enum as NormalizedEnum, Field as NormalizedField, Function as HaneulNormalizedFunction,
+    Module as NormalizedModule, Struct as NormalizedStruct, Type as NormalizedType,
 };
 use move_core_types::annotated_value::{MoveStruct, MoveValue, MoveVariant};
 use move_core_types::identifier::Identifier;
@@ -73,6 +73,14 @@ pub struct HaneulMoveNormalizedStruct {
 }
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct HaneulMoveNormalizedEnum {
+    pub abilities: HaneulMoveAbilitySet,
+    pub type_parameters: Vec<HaneulMoveStructTypeParameter>,
+    pub variants: BTreeMap<String, Vec<HaneulMoveNormalizedField>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, JsonSchema)]
 pub enum HaneulMoveNormalizedType {
     Bool,
     U8,
@@ -120,6 +128,8 @@ pub struct HaneulMoveNormalizedModule {
     pub name: String,
     pub friends: Vec<HaneulMoveModuleId>,
     pub structs: BTreeMap<String, HaneulMoveNormalizedStruct>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub enums: BTreeMap<String, HaneulMoveNormalizedEnum>,
     pub exposed_functions: BTreeMap<String, HaneulMoveNormalizedFunction>,
 }
 
@@ -150,6 +160,11 @@ impl From<NormalizedModule> for HaneulMoveNormalizedModule {
                 .into_iter()
                 .map(|(name, struct_)| (name.to_string(), HaneulMoveNormalizedStruct::from(struct_)))
                 .collect::<BTreeMap<String, HaneulMoveNormalizedStruct>>(),
+            enums: module
+                .enums
+                .into_iter()
+                .map(|(name, enum_)| (name.to_string(), HaneulMoveNormalizedEnum::from(enum_)))
+                .collect(),
             exposed_functions: module
                 .functions
                 .into_iter()
@@ -205,6 +220,33 @@ impl From<NormalizedStruct> for HaneulMoveNormalizedStruct {
                 .into_iter()
                 .map(HaneulMoveNormalizedField::from)
                 .collect::<Vec<HaneulMoveNormalizedField>>(),
+        }
+    }
+}
+
+impl From<NormalizedEnum> for HaneulMoveNormalizedEnum {
+    fn from(value: NormalizedEnum) -> Self {
+        Self {
+            abilities: value.abilities.into(),
+            type_parameters: value
+                .type_parameters
+                .into_iter()
+                .map(HaneulMoveStructTypeParameter::from)
+                .collect::<Vec<HaneulMoveStructTypeParameter>>(),
+            variants: value
+                .variants
+                .into_iter()
+                .map(|variant| {
+                    (
+                        variant.name.to_string(),
+                        variant
+                            .fields
+                            .into_iter()
+                            .map(HaneulMoveNormalizedField::from)
+                            .collect::<Vec<HaneulMoveNormalizedField>>(),
+                    )
+                })
+                .collect::<BTreeMap<String, Vec<HaneulMoveNormalizedField>>>(),
         }
     }
 }

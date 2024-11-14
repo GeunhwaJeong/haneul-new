@@ -8736,6 +8736,34 @@
           }
         }
       },
+      "HaneulMoveNormalizedEnum": {
+        "type": "object",
+        "required": [
+          "abilities",
+          "typeParameters",
+          "variants"
+        ],
+        "properties": {
+          "abilities": {
+            "$ref": "#/components/schemas/HaneulMoveAbilitySet"
+          },
+          "typeParameters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HaneulMoveStructTypeParameter"
+            }
+          },
+          "variants": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/HaneulMoveNormalizedField"
+              }
+            }
+          }
+        }
+      },
       "HaneulMoveNormalizedField": {
         "type": "object",
         "required": [
@@ -8800,6 +8828,12 @@
         "properties": {
           "address": {
             "type": "string"
+          },
+          "enums": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/HaneulMoveNormalizedEnum"
+            }
           },
           "exposedFunctions": {
             "type": "object",
