@@ -14,7 +14,6 @@ use haneul_types::base_types::{EpochId, ObjectID};
 use haneul_types::digests::{CheckpointContentsDigest, TransactionDigest};
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::messages_checkpoint::{CheckpointDigest, CheckpointSequenceNumber};
-use haneul_types::storage::ObjectStore;
 use typed_store::rocks::MetricConf;
 pub mod db_dump;
 mod index_search;
@@ -296,9 +295,9 @@ pub fn print_object(path: &Path, opt: PrintObjectOptions) -> anyhow::Result<()> 
     let perpetual_db = AuthorityPerpetualTables::open(&path.join("store"), None);
 
     let obj = if let Some(version) = opt.version {
-        perpetual_db.get_object_by_key(&opt.id, version.into())?
+        perpetual_db.get_object_by_key_fallible(&opt.id, version.into())?
     } else {
-        perpetual_db.get_object(&opt.id)?
+        perpetual_db.get_object_fallible(&opt.id)?
     };
 
     if let Some(obj) = obj {

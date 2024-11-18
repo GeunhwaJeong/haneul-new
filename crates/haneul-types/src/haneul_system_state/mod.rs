@@ -225,7 +225,7 @@ pub fn get_haneul_system_state_wrapper(
     object_store: &dyn ObjectStore,
 ) -> Result<HaneulSystemStateWrapper, HaneulError> {
     let wrapper = object_store
-        .get_object(&HANEUL_SYSTEM_STATE_OBJECT_ID)?
+        .get_object(&HANEUL_SYSTEM_STATE_OBJECT_ID)
         // Don't panic here on None because object_store is a generic store.
         .ok_or_else(|| {
             HaneulError::HaneulSystemStateReadError("HaneulSystemStateWrapper object not found".to_owned())

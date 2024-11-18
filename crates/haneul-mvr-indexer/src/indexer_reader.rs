@@ -1492,20 +1492,17 @@ impl ConnectionAsObjectStore {
 }
 
 impl haneul_types::storage::ObjectStore for ConnectionAsObjectStore {
-    fn get_object(
-        &self,
-        object_id: &ObjectID,
-    ) -> Result<Option<haneul_types::object::Object>, haneul_types::storage::error::Error> {
+    fn get_object(&self, object_id: &ObjectID) -> Option<haneul_types::object::Object> {
         self.get_object(object_id, None)
-            .map_err(haneul_types::storage::error::Error::custom)
+            .expect("Error getting object")
     }
 
     fn get_object_by_key(
         &self,
         object_id: &ObjectID,
         version: haneul_types::base_types::VersionNumber,
-    ) -> Result<Option<haneul_types::object::Object>, haneul_types::storage::error::Error> {
+    ) -> Option<haneul_types::object::Object> {
         self.get_object(object_id, Some(version))
-            .map_err(haneul_types::storage::error::Error::custom)
+            .expect("Error getting object by key")
     }
 }
