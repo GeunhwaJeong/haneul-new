@@ -1,5 +1,12 @@
 # @haneullabs/kms
 
+## 0.0.7
+
+### Patch Changes
+
+- Updated dependencies [938fb6e]
+  - @haneullabs/haneul@1.14.4
+
 ## 0.0.6
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @haneullabs/dapp-kit
 
+## 0.14.34
+
+### Patch Changes
+
+- ec919a0: Ensure wallet-icon is a non-empty string before rendering
+- Updated dependencies [4bac808]
+- Updated dependencies [4bac808]
+- Updated dependencies [938fb6e]
+  - @haneullabs/zksend@0.12.2
+  - @haneullabs/haneul@1.14.4
+  - @haneullabs/wallet-standard@0.13.13
+
 ## 0.14.33
 
 ### Patch Changes
