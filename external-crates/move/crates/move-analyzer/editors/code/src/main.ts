@@ -79,11 +79,13 @@ async function haneulMoveCmd(context: Readonly<Context>, cmd: string): Promise<v
             }
             terminal.show(true);
             terminal.sendText('cd ' + pkgRoot, true);
-            terminal.sendText(`haneul move ${cmd}`, true);
+            terminal.sendText(`${context.configuration.haneulPath} move ${cmd}`, true);
         }
     } else {
         await vscode.window.showErrorMessage(
-            `A problem occurred when executing the Haneul command: '${context.configuration.haneulPath}'`,
+            `A problem occurred when executing the Haneul command: '${context.configuration.haneulPath}'`
+            + 'Make sure that Haneul CLI is installed and available, either in your global PATH, '
+            + 'or on a path set via `move.haneul.path` configuration option.',
         );
     }
 }
@@ -96,10 +98,37 @@ async function buildProject(context: Readonly<Context>): Promise<void> {
 }
 
 /**
- * An extension command that that builds the current Move project.
+ * An extension command that that tests the current Move project.
  */
 async function testProject(context: Readonly<Context>): Promise<void> {
-    return haneulMoveCmd(context, 'test');
+    const filter = await vscode.window.showInputBox({
+        title: 'Testing Move package',
+        prompt: 'Enter filter string to only run tests whose names contain the string'
+            + '(leave empty to run all tests)',
+        ignoreFocusOut: true, // Keeps the input box open when it loses focus
+    });
+    if (filter !== undefined) {
+        const cmd = filter.length > 0 ? `test ${filter}` : 'test';
+        return haneulMoveCmd(context, cmd);
+    }
+    return Promise.resolve();
+}
+
+/**
+ * An extension command that that traces the current Move project.
+ */
+async function traceProject(context: Readonly<Context>): Promise<void> {
+    const filter = await vscode.window.showInputBox({
+        title: 'Tracing Move package',
+        prompt: 'Enter filter string to only trace tests whose names contain the string'
+            + '(leave empty to trace all tests)',
+        ignoreFocusOut: true, // Keeps the input box open when it loses focus
+    });
+    if (filter !== undefined) {
+        const cmd = filter.length > 0 ? `test ${filter} --trace-execution` : 'test --trace-execution';
+        return haneulMoveCmd(context, cmd);
+    }
+    return Promise.resolve();
 }
 
 /**
@@ -132,6 +161,7 @@ export async function activate(extensionContext: Readonly<vscode.ExtensionContex
     context.registerCommand('serverVersion', serverVersion);
     context.registerCommand('build', buildProject);
     context.registerCommand('test', testProject);
+    context.registerCommand('trace', traceProject);
 
     // Configure other language features.
     context.configureLanguage();

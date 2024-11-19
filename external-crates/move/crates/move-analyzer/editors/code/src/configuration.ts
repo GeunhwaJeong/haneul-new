@@ -59,7 +59,7 @@ export class Configuration {
     /** The path to the Haneul binary. */
     get haneulPath(): string {
         const haneulBin = process.platform === 'win32' ? 'haneul.exe' : 'haneul';
-        const haneulPath = this.configuration.get<string | null >(HANEUL_PATH_OPT) ?? haneulBin;
+        const haneulPath = this.configuration.get<string | null>(HANEUL_PATH_OPT) ?? haneulBin;
 
         if (haneulPath === haneulBin) {
             return haneulPath;
