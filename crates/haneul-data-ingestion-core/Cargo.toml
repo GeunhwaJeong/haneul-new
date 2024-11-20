@@ -32,4 +32,3 @@ haneul-rest-api.workspace = true
 
 [dev-dependencies]
 rand.workspace = true
-haneul-types = { workspace = true, features = ["test-utils"] }

@@ -11,7 +11,7 @@ async-trait.workspace = true
 clap.workspace = true
 simulacrum.workspace = true
 haneul-test-transaction-builder.workspace = true
-haneul-types = { workspace = true, features = ["test-utils"] }
+haneul-types.workspace = true
 telemetry-subscribers.workspace = true
 tokio.workspace = true
 tracing.workspace = true

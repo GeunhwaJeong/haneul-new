@@ -39,7 +39,6 @@ tempfile.workspace = true
 haneul-indexer-builder.workspace = true
 
 [dev-dependencies]
-haneul-types = { workspace = true, features = ["test-utils"] }
 haneul-test-transaction-builder.workspace = true
 test-cluster.workspace = true
 hex-literal = "0.3.4"

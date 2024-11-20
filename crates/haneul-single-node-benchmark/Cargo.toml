@@ -16,7 +16,7 @@ haneul-core = { workspace = true, features = ["test-utils"] }
 haneul-move-build.workspace = true
 haneul-test-transaction-builder.workspace = true
 haneul-transaction-checks.workspace = true
-haneul-types = { workspace = true, features = ["test-utils"] }
+haneul-types.workspace = true
 haneul-storage.workspace = true
 
 async-trait.workspace = true

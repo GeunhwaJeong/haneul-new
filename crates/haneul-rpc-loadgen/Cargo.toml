@@ -21,7 +21,7 @@ itertools.workspace = true
 
 shellexpand.workspace = true
 
-haneul-types = { workspace = true, features = ["test-utils"]}
+haneul-types.workspace = true
 haneul-keys.workspace = true
 haneul-sdk.workspace = true
 telemetry-subscribers.workspace = true

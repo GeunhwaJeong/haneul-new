@@ -28,4 +28,3 @@ haneul-move-build.workspace = true
 [dev-dependencies]
 haneul-core = { workspace = true, features = ["test-utils"] }
 haneul-protocol-config.workspace = true
-haneul-types = { workspace = true, features = ["test-utils"] }

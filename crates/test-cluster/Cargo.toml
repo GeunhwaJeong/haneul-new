@@ -32,7 +32,7 @@ haneul-node.workspace = true
 haneul-pg-temp-db.workspace = true
 haneul-protocol-config.workspace = true
 haneul-swarm.workspace = true
-haneul-types = { workspace = true, features = ["test-utils"] }
+haneul-types.workspace = true
 prometheus.workspace = true
 haneul-keys.workspace = true
 haneul-sdk.workspace = true

@@ -22,6 +22,5 @@ fastcrypto.workspace = true
 
 [dev-dependencies]
 test-fuzz.workspace = true
-haneul-types = { workspace = true, features = ["test-utils"] }
 haneul-move-build.workspace = true
 haneul-framework.workspace = true

@@ -26,7 +26,7 @@ haneul-json-rpc.workspace = true
 haneul-json-rpc-api.workspace = true
 haneul-json-rpc-types.workspace = true
 haneul-json.workspace = true
-haneul-types = { workspace = true, features = ["test-utils"] }
+haneul-types.workspace = true
 haneul-protocol-config.workspace = true
 rand.workspace = true
 

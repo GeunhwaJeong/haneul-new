@@ -915,7 +915,6 @@ impl HaneulTransactionBlockEffectsAPI for HaneulTransactionBlockEffectsV1 {
 }
 
 impl HaneulTransactionBlockEffects {
-    #[cfg(any(feature = "test-utils", test))]
     pub fn new_for_testing(
         transaction_digest: TransactionDigest,
         status: HaneulExecutionStatus,
