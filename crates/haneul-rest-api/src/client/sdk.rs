@@ -4,6 +4,7 @@
 use reqwest::header::HeaderValue;
 use reqwest::StatusCode;
 use reqwest::Url;
+use haneul_sdk_types::types::unresolved::Transaction as UnresolvedTransaction;
 use haneul_sdk_types::types::Address;
 use haneul_sdk_types::types::CheckpointData;
 use haneul_sdk_types::types::CheckpointDigest;
@@ -16,7 +17,6 @@ use haneul_sdk_types::types::SignedTransaction;
 use haneul_sdk_types::types::StructTag;
 use haneul_sdk_types::types::Transaction;
 use haneul_sdk_types::types::TransactionDigest;
-use haneul_sdk_types::types::UnresolvedTransaction;
 use haneul_sdk_types::types::ValidatorCommittee;
 use haneul_sdk_types::types::Version;
 use tap::Pipe;
