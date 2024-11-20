@@ -44,7 +44,7 @@ haneul-graphql-rpc.workspace = true
 haneul-rest-api.workspace = true
 haneul-swarm-config.workspace = true
 haneul-config.workspace = true
-haneul-core = { workspace = true, features = ["test-utils"] }
+haneul-core.workspace = true
 haneul-framework.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
