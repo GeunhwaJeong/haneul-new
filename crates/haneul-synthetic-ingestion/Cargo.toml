@@ -8,11 +8,14 @@ edition = "2021"
 
 [dependencies]
 async-trait.workspace = true
+clap.workspace = true
 simulacrum.workspace = true
 haneul-test-transaction-builder.workspace = true
 haneul-types = { workspace = true, features = ["test-utils"] }
+telemetry-subscribers.workspace = true
 tokio.workspace = true
 tracing.workspace = true
 
 [dev-dependencies]
+haneul-storage.workspace = true
 tempfile.workspace = true
