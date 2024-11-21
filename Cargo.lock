@@ -14104,6 +14104,7 @@ dependencies = [
  "haneul-pg-temp-db",
  "haneul-protocol-config",
  "haneul-storage",
+ "haneul-synthetic-ingestion",
  "haneul-types",
  "telemetry-subscribers",
  "tempfile",
@@ -15555,6 +15556,7 @@ dependencies = [
 name = "haneul-synthetic-ingestion"
 version = "0.0.0"
 dependencies = [
+ "anyhow",
  "async-trait",
  "clap",
  "simulacrum",

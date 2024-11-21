@@ -42,8 +42,13 @@ haneul-pg-temp-db.workspace = true
 haneul-protocol-config.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
+haneul-synthetic-ingestion = { workspace = true, optional = true }
 
 [dev-dependencies]
 rand.workspace = true
 tempfile.workspace = true
 wiremock.workspace = true
+
+[features]
+default = []
+benchmark = ["haneul-synthetic-ingestion"]  # This will be used to enable benchmark mode
