@@ -3,96 +3,101 @@
 
 /// This example illustrates how to use the `Token` without a `TokenPolicy`. And
 /// only rely on `TreasuryCap` for minting and burning tokens.
-module examples::coffee {
-    use haneul::tx_context::{sender};
-    use haneul::coin::{Self, TreasuryCap, Coin};
-    use haneul::balance::{Self, Balance};
-    use haneul::token::{Self, Token};
-    use haneul::haneul::HANEUL;
+module examples::coffee;
 
-    /// Error code for incorrect amount.
-    const EIncorrectAmount: u64 = 0;
-    /// Trying to claim a free coffee without enough points.
-    /// Or trying to transfer but not enough points to pay the commission.
-    const ENotEnoughPoints: u64 = 1;
+use haneul::{
+    balance::{Self, Balance},
+    coin::{Self, TreasuryCap, Coin},
+    haneul::HANEUL,
+    token::{Self, Token},
+    tx_context::sender
+};
 
-    /// 10 HANEUL for a coffee.
-    const COFFEE_PRICE: u64 = 10_000_000_000;
+/// Error code for incorrect amount.
+const EIncorrectAmount: u64 = 0;
+/// Trying to claim a free coffee without enough points.
+/// Or trying to transfer but not enough points to pay the commission.
+const ENotEnoughPoints: u64 = 1;
 
-    /// OTW for the Token.
-    public struct COFFEE has drop {}
+/// 10 HANEUL for a coffee.
+const COFFEE_PRICE: u64 = 10_000_000_000;
 
-    /// The shop that sells Coffee and allows to buy a Coffee if the customer
-    /// has 10 COFFEE points.
-    public struct CoffeeShop has key {
-        id: UID,
-        /// The treasury cap for the `COFFEE` points.
-        coffee_points: TreasuryCap<COFFEE>,
-        /// The HANEUL balance of the shop; the shop can sell Coffee for HANEUL.
-        balance: Balance<HANEUL>,
-    }
+/// OTW for the Token.
+public struct COFFEE has drop {}
 
-    /// Event marking that a Coffee was purchased; transaction sender serves as
-    /// the customer ID.
-    public struct CoffeePurchased has copy, store, drop {}
+/// The shop that sells Coffee and allows to buy a Coffee if the customer
+/// has 10 COFFEE points.
+public struct CoffeeShop has key {
+    id: UID,
+    /// The treasury cap for the `COFFEE` points.
+    coffee_points: TreasuryCap<COFFEE>,
+    /// The HANEUL balance of the shop; the shop can sell Coffee for HANEUL.
+    balance: Balance<HANEUL>,
+}
 
-    // Create and share the `CoffeeShop` object.
-    fun init(otw: COFFEE, ctx: &mut TxContext) {
-        let (coffee_points, metadata) = coin::create_currency(
-            otw, 0, b"COFFEE", b"Coffee Point",
-            b"Buy 4 coffees and get 1 free",
-            std::option::none(),
-            ctx
-        );
+/// Event marking that a Coffee was purchased; transaction sender serves as
+/// the customer ID.
+public struct CoffeePurchased has copy, store, drop {}
 
-        haneul::transfer::public_freeze_object(metadata);
-        haneul::transfer::share_object(CoffeeShop {
-            coffee_points,
-            id: object::new(ctx),
-            balance: balance::zero(),
-        });
-    }
+// Create and share the `CoffeeShop` object.
+fun init(otw: COFFEE, ctx: &mut TxContext) {
+    let (coffee_points, metadata) = coin::create_currency(
+        otw,
+        0,
+        b"COFFEE",
+        b"Coffee Point",
+        b"Buy 4 coffees and get 1 free",
+        std::option::none(),
+        ctx,
+    );
 
-    /// Buy a coffee from the shop. Emitted event is tracked by the real coffee
-    /// shop and the customer gets a free coffee after 4 purchases.
-    public fun buy_coffee(app: &mut CoffeeShop, payment: Coin<HANEUL>, ctx: &mut TxContext) {
-        // Check if the customer has enough HANEUL to pay for the coffee.
-        assert!(coin::value(&payment) > COFFEE_PRICE, EIncorrectAmount);
+    haneul::transfer::public_freeze_object(metadata);
+    haneul::transfer::share_object(CoffeeShop {
+        coffee_points,
+        id: object::new(ctx),
+        balance: balance::zero(),
+    });
+}
 
-        let token = token::mint(&mut app.coffee_points, 1, ctx);
-        let request = token::transfer(token, ctx.sender(), ctx);
+/// Buy a coffee from the shop. Emitted event is tracked by the real coffee
+/// shop and the customer gets a free coffee after 4 purchases.
+public fun buy_coffee(app: &mut CoffeeShop, payment: Coin<HANEUL>, ctx: &mut TxContext) {
+    // Check if the customer has enough HANEUL to pay for the coffee.
+    assert!(coin::value(&payment) > COFFEE_PRICE, EIncorrectAmount);
 
-        token::confirm_with_treasury_cap(&mut app.coffee_points, request, ctx);
-        coin::put(&mut app.balance, payment);
-        haneul::event::emit(CoffeePurchased {})
-    }
+    let token = token::mint(&mut app.coffee_points, 1, ctx);
+    let request = token::transfer(token, ctx.sender(), ctx);
 
-    /// Claim a free coffee from the shop. Emitted event is tracked by the real
-    /// coffee shop and the customer gets a free coffee after 4 purchases. The
-    /// `COFFEE` tokens are spent.
-    public fun claim_free(app: &mut CoffeeShop, points: Token<COFFEE>, ctx: &mut TxContext) {
-        // Check if the customer has enough `COFFEE` points to claim a free one.
-        assert!(token::value(&points) == 4, EIncorrectAmount);
+    token::confirm_with_treasury_cap(&mut app.coffee_points, request, ctx);
+    coin::put(&mut app.balance, payment);
+    haneul::event::emit(CoffeePurchased {})
+}
 
-        // While we could use `burn`, spend illustrates another way of doing this
-        let request = token::spend(points, ctx);
-        token::confirm_with_treasury_cap(&mut app.coffee_points, request, ctx);
-        haneul::event::emit(CoffeePurchased {})
-    }
+/// Claim a free coffee from the shop. Emitted event is tracked by the real
+/// coffee shop and the customer gets a free coffee after 4 purchases. The
+/// `COFFEE` tokens are spent.
+public fun claim_free(app: &mut CoffeeShop, points: Token<COFFEE>, ctx: &mut TxContext) {
+    // Check if the customer has enough `COFFEE` points to claim a free one.
+    assert!(token::value(&points) == 4, EIncorrectAmount);
 
-    /// We allow transfer of `COFFEE` points to other customers but we charge 1
-    /// `COFFEE` point for the transfer.
-    public fun transfer(
-        app: &mut CoffeeShop,
-        mut points: Token<COFFEE>,
-        recipient: address,
-        ctx: &mut TxContext
-    ) {
-        assert!(token::value(&points) > 1, ENotEnoughPoints);
-        let commission = token::split(&mut points, 1, ctx);
-        let request = token::transfer(points, recipient, ctx);
+    // While we could use `burn`, spend illustrates another way of doing this
+    let request = token::spend(points, ctx);
+    token::confirm_with_treasury_cap(&mut app.coffee_points, request, ctx);
+    haneul::event::emit(CoffeePurchased {})
+}
 
-        token::confirm_with_treasury_cap(&mut app.coffee_points, request, ctx);
-        token::burn(&mut app.coffee_points, commission);
-    }
+/// We allow transfer of `COFFEE` points to other customers but we charge 1
+/// `COFFEE` point for the transfer.
+public fun transfer(
+    app: &mut CoffeeShop,
+    mut points: Token<COFFEE>,
+    recipient: address,
+    ctx: &mut TxContext,
+) {
+    assert!(token::value(&points) > 1, ENotEnoughPoints);
+    let commission = token::split(&mut points, 1, ctx);
+    let request = token::transfer(points, recipient, ctx);
+
+    token::confirm_with_treasury_cap(&mut app.coffee_points, request, ctx);
+    token::burn(&mut app.coffee_points, commission);
 }
