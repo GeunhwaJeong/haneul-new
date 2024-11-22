@@ -440,9 +440,7 @@ mod tests {
     use haneul_types::error::{HaneulError, HaneulResult};
     use haneul_types::gas_coin::GAS;
     use haneul_types::id::UID;
-    use haneul_types::messages_checkpoint::{
-        CheckpointContentsDigest, CheckpointDigest, CheckpointSequenceNumber,
-    };
+    use haneul_types::messages_checkpoint::{CheckpointDigest, CheckpointSequenceNumber};
     use haneul_types::object::MoveObject;
     use haneul_types::object::Object;
     use haneul_types::object::Owner;
@@ -465,7 +463,6 @@ mod tests {
                 checkpoint_summaries: &[CheckpointSequenceNumber],
                 checkpoint_contents: &[CheckpointSequenceNumber],
                 checkpoint_summaries_by_digest: &[CheckpointDigest],
-                checkpoint_contents_by_digest: &[CheckpointContentsDigest],
             ) -> HaneulResult<KVStoreCheckpointData>;
 
             async fn deprecated_get_transaction_checkpoint(
