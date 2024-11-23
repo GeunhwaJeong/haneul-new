@@ -13609,6 +13609,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-default-config"
+version = "1.39.0"
+dependencies = [
+ "quote 1.0.35",
+ "syn 1.0.107",
+]
+
+[[package]]
 name = "haneul-e2e-tests"
 version = "1.39.0"
 dependencies = [
@@ -13892,14 +13900,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "haneul-graphql-config"
-version = "1.39.0"
-dependencies = [
- "quote 1.0.35",
- "syn 1.0.107",
-]
-
-[[package]]
 name = "haneul-graphql-e2e-tests"
 version = "0.1.0"
 dependencies = [
@@ -13961,8 +13961,8 @@ dependencies = [
  "shared-crypto",
  "similar",
  "simulacrum",
+ "haneul-default-config",
  "haneul-framework",
- "haneul-graphql-config",
  "haneul-graphql-rpc-client",
  "haneul-graphql-rpc-headers",
  "haneul-indexer",
@@ -14616,8 +14616,8 @@ dependencies = [
  "shared-crypto",
  "similar",
  "simulacrum",
+ "haneul-default-config",
  "haneul-framework",
- "haneul-graphql-config",
  "haneul-graphql-rpc-client",
  "haneul-graphql-rpc-headers",
  "haneul-indexer",

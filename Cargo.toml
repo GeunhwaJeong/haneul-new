@@ -100,6 +100,7 @@ members = [
     "crates/haneul-data-ingestion",
     "crates/haneul-data-ingestion-core",
     "crates/haneul-deepbook-indexer",
+    "crates/haneul-default-config",
     "crates/haneul-e2e-tests",
     "crates/haneul-edge-proxy",
     "crates/haneul-enum-compat-util",
@@ -110,7 +111,6 @@ members = [
     "crates/haneul-framework-snapshot",
     "crates/haneul-framework-tests",
     "crates/haneul-genesis-builder",
-    "crates/haneul-graphql-config",
     "crates/haneul-graphql-e2e-tests",
     "crates/haneul-graphql-rpc",
     "crates/haneul-graphql-rpc-client",
@@ -632,6 +632,7 @@ haneul-core = { path = "crates/haneul-core" }
 haneul-cost = { path = "crates/haneul-cost" }
 haneul-data-ingestion = { path = "crates/haneul-data-ingestion" }
 haneul-data-ingestion-core = { path = "crates/haneul-data-ingestion-core" }
+haneul-default-config = { path = "crates/haneul-default-config" }
 haneul-e2e-tests = { path = "crates/haneul-e2e-tests" }
 haneul-enum-compat-util = { path = "crates/haneul-enum-compat-util" }
 haneul-faucet = { path = "crates/haneul-faucet" }
@@ -640,7 +641,6 @@ haneul-field-count-derive = { path = "crates/haneul-field-count-derive" }
 haneul-framework = { path = "crates/haneul-framework" }
 haneul-framework-snapshot = { path = "crates/haneul-framework-snapshot" }
 haneul-framework-tests = { path = "crates/haneul-framework-tests" }
-haneul-graphql-config = { path = "crates/haneul-graphql-config" }
 haneul-graphql-rpc = { path = "crates/haneul-graphql-rpc" }
 haneul-graphql-rpc-client = { path = "crates/haneul-graphql-rpc-client" }
 haneul-graphql-rpc-headers = { path = "crates/haneul-graphql-rpc-headers" }
