@@ -16,7 +16,6 @@ use std::sync::Arc;
 
 use anyhow::{anyhow, Result};
 use fastcrypto::traits::Signer;
-use move_core_types::language_storage::StructTag;
 use rand::rngs::OsRng;
 use haneul_config::verifier_signing_config::VerifierSigningConfig;
 use haneul_config::{genesis, transaction_deny_config::TransactionDenyConfig};
@@ -550,15 +549,6 @@ impl<T, V: store::SimulatorStore> ReadStore for Simulacrum<T, V> {
 }
 
 impl<T: Send + Sync, V: store::SimulatorStore + Send + Sync> RpcStateReader for Simulacrum<T, V> {
-    fn get_transaction_checkpoint(
-        &self,
-        _digest: &haneul_types::digests::TransactionDigest,
-    ) -> haneul_types::storage::error::Result<
-        Option<haneul_types::messages_checkpoint::CheckpointSequenceNumber>,
-    > {
-        todo!()
-    }
-
     fn get_lowest_available_checkpoint_objects(
         &self,
     ) -> haneul_types::storage::error::Result<CheckpointSequenceNumber> {
@@ -577,38 +567,8 @@ impl<T: Send + Sync, V: store::SimulatorStore + Send + Sync> RpcStateReader for 
             .into())
     }
 
-    fn account_owned_objects_info_iter(
-        &self,
-        _owner: HaneulAddress,
-        _cursor: Option<ObjectID>,
-    ) -> haneul_types::storage::error::Result<
-        Box<dyn Iterator<Item = haneul_types::storage::AccountOwnedObjectInfo> + '_>,
-    > {
-        todo!()
-    }
-
-    fn dynamic_field_iter(
-        &self,
-        _parent: ObjectID,
-        _cursor: Option<ObjectID>,
-    ) -> haneul_types::storage::error::Result<
-        Box<
-            dyn Iterator<
-                    Item = (
-                        haneul_types::storage::DynamicFieldKey,
-                        haneul_types::storage::DynamicFieldIndexInfo,
-                    ),
-                > + '_,
-        >,
-    > {
-        todo!()
-    }
-
-    fn get_coin_info(
-        &self,
-        _coin_type: &StructTag,
-    ) -> haneul_types::storage::error::Result<Option<haneul_types::storage::CoinInfo>> {
-        todo!()
+    fn indexes(&self) -> Option<&dyn haneul_types::storage::RpcIndexes> {
+        None
     }
 }
 
