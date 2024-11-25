@@ -26,7 +26,7 @@ use haneul_types::storage::CoinInfo;
 use haneul_types::storage::DynamicFieldIndexInfo;
 use haneul_types::storage::DynamicFieldKey;
 use haneul_types::storage::ObjectStore;
-use haneul_types::storage::RestStateReader;
+use haneul_types::storage::RpcStateReader;
 use haneul_types::storage::WriteStore;
 use haneul_types::storage::{ObjectKey, ReadStore};
 use haneul_types::transaction::VerifiedTransaction;
@@ -445,7 +445,7 @@ impl ReadStore for RestReadStore {
     }
 }
 
-impl RestStateReader for RestReadStore {
+impl RpcStateReader for RestReadStore {
     fn get_transaction_checkpoint(
         &self,
         digest: &TransactionDigest,
