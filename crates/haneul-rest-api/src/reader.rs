@@ -54,7 +54,7 @@ impl StateReader {
             .map(|committee| (*committee).clone().into())
     }
 
-    pub fn get_system_state_summary(&self) -> Result<super::system::SystemStateSummary> {
+    pub fn get_system_state_summary(&self) -> Result<super::rest::system::SystemStateSummary> {
         use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 
         let system_state = haneul_types::haneul_system_state::get_haneul_system_state(self.inner())
@@ -72,7 +72,7 @@ impl StateReader {
         haneul_sdk_types::types::TransactionEffects,
         Option<haneul_sdk_types::types::TransactionEvents>,
     )> {
-        use super::transactions::TransactionNotFoundError;
+        use super::rest::transactions::TransactionNotFoundError;
         use haneul_types::effects::TransactionEffectsAPI;
 
         let transaction_digest = digest.into();
@@ -116,7 +116,7 @@ impl StateReader {
     pub fn get_transaction_response(
         &self,
         digest: haneul_sdk_types::types::TransactionDigest,
-    ) -> crate::Result<super::transactions::TransactionResponse> {
+    ) -> crate::Result<super::rest::transactions::TransactionResponse> {
         let (
             SignedTransaction {
                 transaction,
@@ -135,7 +135,7 @@ impl StateReader {
             None
         };
 
-        Ok(crate::transactions::TransactionResponse {
+        Ok(crate::rest::transactions::TransactionResponse {
             digest: transaction.digest(),
             transaction,
             signatures,

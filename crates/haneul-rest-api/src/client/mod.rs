@@ -6,7 +6,7 @@ use sdk::Result;
 
 pub use reqwest;
 
-use crate::transactions::ExecuteTransactionQueryParameters;
+use crate::rest::transactions::ExecuteTransactionQueryParameters;
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
 use haneul_types::crypto::AuthorityStrongQuorumSignInfo;
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
@@ -122,7 +122,7 @@ impl Client {
             .client()
             .post(url)
             .query(parameters)
-            .header(reqwest::header::CONTENT_TYPE, crate::APPLICATION_BCS)
+            .header(reqwest::header::CONTENT_TYPE, crate::rest::APPLICATION_BCS)
             .body(body);
 
         self.inner.bcs(request).await.map(Response::into_inner)

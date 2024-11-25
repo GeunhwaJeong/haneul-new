@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use haneul_rest_api::openapi;
-use haneul_rest_api::ENDPOINTS;
-use haneul_rest_api::info;
+use haneul_rest_api::rest::info;
+use haneul_rest_api::rest::openapi;
+use haneul_rest_api::rest::ENDPOINTS;
 
 #[test]
 fn openapi_spec() {
