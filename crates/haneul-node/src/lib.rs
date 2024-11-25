@@ -91,7 +91,7 @@ use haneul_core::epoch::reconfiguration::ReconfigurationInitiator;
 use haneul_core::jsonrpc_index::IndexStore;
 use haneul_core::module_cache_metrics::ResolverMetrics;
 use haneul_core::overload_monitor::overload_monitor;
-use haneul_core::rest_index::RestIndexStore;
+use haneul_core::rpc_index::RpcIndexStore;
 use haneul_core::signature_verifier::SignatureVerifierMetrics;
 use haneul_core::state_accumulator::StateAccumulator;
 use haneul_core::storage::RocksDbStore;
@@ -588,12 +588,12 @@ impl HaneulNode {
             None
         };
 
-        let rest_index = if is_full_node
+        let rpc_index = if is_full_node
             && config.enable_experimental_rest_api
             && config.enable_index_processing
         {
-            Some(Arc::new(RestIndexStore::new(
-                config.db_path().join("rest_index"),
+            Some(Arc::new(RpcIndexStore::new(
+                &config.db_path(),
                 &store,
                 &checkpoint_store,
                 &epoch_store,
@@ -696,7 +696,7 @@ impl HaneulNode {
             epoch_store.clone(),
             committee_store.clone(),
             index_store.clone(),
-            rest_index,
+            rpc_index,
             checkpoint_store.clone(),
             &prometheus_registry,
             genesis.objects(),
