@@ -438,7 +438,7 @@ impl ChildObjectResolver for PersistedStore {
             return Err(HaneulError::InvalidChildObjectAccess {
                 object: *child,
                 given_parent: parent,
-                actual_owner: child_object.owner,
+                actual_owner: child_object.owner.clone(),
             });
         }
 

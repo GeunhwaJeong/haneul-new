@@ -249,7 +249,7 @@ impl ChildObjectResolver for InMemoryStore {
             return Err(HaneulError::InvalidChildObjectAccess {
                 object: *child,
                 given_parent: parent,
-                actual_owner: child_object.owner,
+                actual_owner: child_object.owner.clone(),
             });
         }
 

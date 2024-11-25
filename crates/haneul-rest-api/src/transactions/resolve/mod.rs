@@ -572,7 +572,7 @@ fn resolve_object(
             }
             .pipe(Ok)
         }
-        haneul_types::object::Owner::Shared { .. } => {
+        haneul_types::object::Owner::Shared { .. } | haneul_types::object::Owner::ConsensusV2 { .. } => {
             resolve_shared_input_with_object(called_packages, commands, arg_idx, object)
         }
         haneul_types::object::Owner::ObjectOwner(_) => Err(RestError::new(
@@ -678,13 +678,17 @@ fn resolve_shared_input_with_object(
     let object_id = object.id();
     let initial_shared_version = if let haneul_types::object::Owner::Shared {
         initial_shared_version,
+    }
+    | haneul_types::object::Owner::ConsensusV2 {
+        start_version: initial_shared_version,
+        ..
     } = object.owner()
     {
         *initial_shared_version
     } else {
         return Err(RestError::new(
             axum::http::StatusCode::BAD_REQUEST,
-            format!("object {object_id} is not a shared object"),
+            format!("object {object_id} is not a shared or consensus object"),
         ));
     };
     let mut mutable = false;
