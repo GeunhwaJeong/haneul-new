@@ -6,7 +6,7 @@ use haneullabs_metrics::get_metrics;
 use haneullabs_metrics::metered_channel::Sender;
 use haneullabs_metrics::spawn_monitored_task;
 use haneul_data_ingestion_core::Worker;
-use haneul_rest_api::CheckpointData;
+use haneul_rpc_api::CheckpointData;
 use tokio_util::sync::CancellationToken;
 use tracing::info;
 

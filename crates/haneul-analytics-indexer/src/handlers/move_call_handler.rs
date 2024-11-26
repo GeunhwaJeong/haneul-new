@@ -5,7 +5,7 @@ use anyhow::Result;
 use haneul_data_ingestion_core::Worker;
 use tokio::sync::Mutex;
 
-use haneul_rest_api::CheckpointData;
+use haneul_rpc_api::CheckpointData;
 use haneul_types::base_types::ObjectID;
 use haneul_types::transaction::TransactionDataAPI;
 

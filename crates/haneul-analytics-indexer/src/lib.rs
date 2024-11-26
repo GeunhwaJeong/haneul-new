@@ -19,7 +19,7 @@ use tracing::info;
 
 use haneul_config::object_storage_config::ObjectStoreConfig;
 use haneul_data_ingestion_core::Worker;
-use haneul_rest_api::CheckpointData;
+use haneul_rpc_api::CheckpointData;
 use haneul_storage::object_store::util::{
     find_all_dirs_with_epoch_prefix, find_all_files_with_epoch_prefix,
 };

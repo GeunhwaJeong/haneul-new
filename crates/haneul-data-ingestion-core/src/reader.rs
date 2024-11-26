@@ -16,7 +16,7 @@ use std::fs;
 use std::path::PathBuf;
 use std::time::Duration;
 use std::{collections::BTreeMap, sync::Arc};
-use haneul_rest_api::Client;
+use haneul_rpc_api::Client;
 use haneul_storage::blob::Blob;
 use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
@@ -71,8 +71,8 @@ impl Default for ReaderOptions {
 
 enum RemoteStore {
     ObjectStore(Box<dyn ObjectStore>),
-    Rest(haneul_rest_api::Client),
-    Hybrid(Box<dyn ObjectStore>, haneul_rest_api::Client),
+    Rest(haneul_rpc_api::Client),
+    Hybrid(Box<dyn ObjectStore>, haneul_rpc_api::Client),
 }
 
 impl CheckpointReader {
@@ -187,9 +187,9 @@ impl CheckpointReader {
                 self.options.timeout_secs,
             )
             .expect("failed to create remote store client");
-            RemoteStore::Hybrid(object_store, haneul_rest_api::Client::new(fn_url))
+            RemoteStore::Hybrid(object_store, haneul_rpc_api::Client::new(fn_url))
         } else if url.ends_with("/rest") {
-            RemoteStore::Rest(haneul_rest_api::Client::new(url))
+            RemoteStore::Rest(haneul_rpc_api::Client::new(url))
         } else {
             let object_store = create_remote_store_client(
                 url,

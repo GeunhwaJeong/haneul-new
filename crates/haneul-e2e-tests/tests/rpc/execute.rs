@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_macros::sim_test;
-use haneul_rest_api::client::BalanceChange;
-use haneul_rest_api::Client;
-use haneul_rest_api::ExecuteTransactionQueryParameters;
+use haneul_rpc_api::client::BalanceChange;
+use haneul_rpc_api::Client;
+use haneul_rpc_api::ExecuteTransactionQueryParameters;
 use haneul_test_transaction_builder::make_transfer_haneul_transaction;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::effects::TransactionEffectsAPI;

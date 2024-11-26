@@ -6,7 +6,7 @@ use async_trait::async_trait;
 use move_core_types::account_address::AccountAddress;
 use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulTransactionBlockResponseOptions};
 
-use haneul_rest_api::CheckpointData;
+use haneul_rpc_api::CheckpointData;
 use haneul_types::{
     base_types::ObjectID,
     committee::Committee,

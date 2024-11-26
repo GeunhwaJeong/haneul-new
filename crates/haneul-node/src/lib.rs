@@ -38,7 +38,7 @@ use haneul_core::traffic_controller::metrics::TrafficControllerMetrics;
 use haneul_json_rpc::bridge_api::BridgeReadApi;
 use haneul_json_rpc_api::JsonRpcMetrics;
 use haneul_network::randomness;
-use haneul_rest_api::RpcMetrics;
+use haneul_rpc_api::RpcMetrics;
 use haneul_types::base_types::ConciseableName;
 use haneul_types::crypto::RandomnessRound;
 use haneul_types::digests::ChainIdentifier;
@@ -2094,7 +2094,7 @@ pub async fn build_http_server(
     router = router.merge(json_rpc_router);
 
     if config.enable_experimental_rest_api {
-        let mut rest_service = haneul_rest_api::RpcService::new(
+        let mut rest_service = haneul_rpc_api::RpcService::new(
             Arc::new(RestReadStore::new(state.clone(), store)),
             software_version,
         );
@@ -2112,7 +2112,7 @@ pub async fn build_http_server(
         router = router.merge(rest_service.into_router());
     }
     // TODO: Remove this health check when experimental REST API becomes default
-    // This is a copy of the health check in crates/haneul-rest-api/src/health.rs
+    // This is a copy of the health check in crates/haneul-rpc-api/src/health.rs
     router = router
         .route("/health", axum::routing::get(health_check_handler))
         .route_layer(axum::Extension(state));

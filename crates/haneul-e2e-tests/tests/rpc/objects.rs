@@ -3,9 +3,9 @@
 
 use prost::Message;
 use haneul_macros::sim_test;
-use haneul_rest_api::client::sdk::Client;
-use haneul_rest_api::client::Client as CoreClient;
-use haneul_rest_api::ObjectResponse;
+use haneul_rpc_api::client::sdk::Client;
+use haneul_rpc_api::client::Client as CoreClient;
+use haneul_rpc_api::ObjectResponse;
 use haneul_sdk_types::types::Object;
 use test_cluster::TestClusterBuilder;
 
@@ -37,10 +37,7 @@ async fn get_object() {
         // Make sure list works with json
         let _object = client
             .get(url)
-            .header(
-                reqwest::header::ACCEPT,
-                haneul_rest_api::rest::APPLICATION_JSON,
-            )
+            .header(reqwest::header::ACCEPT, haneul_rpc_api::rest::APPLICATION_JSON)
             .send()
             .await
             .unwrap()
@@ -53,7 +50,7 @@ async fn get_object() {
             .get(url)
             .header(
                 reqwest::header::ACCEPT,
-                haneul_rest_api::rest::APPLICATION_PROTOBUF,
+                haneul_rpc_api::rest::APPLICATION_PROTOBUF,
             )
             .send()
             .await
@@ -61,13 +58,13 @@ async fn get_object() {
             .bytes()
             .await
             .unwrap();
-        let _object = haneul_rest_api::proto::GetObjectResponse::decode(bytes).unwrap();
+        let _object = haneul_rpc_api::proto::GetObjectResponse::decode(bytes).unwrap();
 
         // TODO remove this once the BCS format is no longer accepted and clients have migrated to the
         // protobuf version
         let bytes = client
             .get(url)
-            .header(reqwest::header::ACCEPT, haneul_rest_api::rest::APPLICATION_BCS)
+            .header(reqwest::header::ACCEPT, haneul_rpc_api::rest::APPLICATION_BCS)
             .send()
             .await
             .unwrap()

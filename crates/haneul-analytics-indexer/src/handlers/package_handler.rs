@@ -4,7 +4,7 @@
 use anyhow::Result;
 use fastcrypto::encoding::{Base64, Encoding};
 use haneul_data_ingestion_core::Worker;
-use haneul_rest_api::CheckpointData;
+use haneul_rpc_api::CheckpointData;
 use haneul_types::full_checkpoint_content::CheckpointTransaction;
 use haneul_types::object::Object;
 use tokio::sync::Mutex;

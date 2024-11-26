@@ -4,10 +4,10 @@
 use shared_crypto::intent::Intent;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::sim_test;
-use haneul_rest_api::client::reqwest::StatusCode;
-use haneul_rest_api::rest::transactions::ResolveTransactionQueryParameters;
-use haneul_rest_api::Client;
-use haneul_rest_api::ExecuteTransactionQueryParameters;
+use haneul_rpc_api::client::reqwest::StatusCode;
+use haneul_rpc_api::rest::transactions::ResolveTransactionQueryParameters;
+use haneul_rpc_api::Client;
+use haneul_rpc_api::ExecuteTransactionQueryParameters;
 use haneul_sdk_types::types::unresolved;
 use haneul_sdk_types::types::Argument;
 use haneul_sdk_types::types::Command;

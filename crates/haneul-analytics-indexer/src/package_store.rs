@@ -9,7 +9,7 @@ use move_core_types::account_address::AccountAddress;
 use haneul_package_resolver::{
     error::Error as PackageResolverError, Package, PackageStore, PackageStoreWithLruCache, Result,
 };
-use haneul_rest_api::Client;
+use haneul_rpc_api::Client;
 use haneul_types::base_types::ObjectID;
 use haneul_types::object::Object;
 use thiserror::Error;

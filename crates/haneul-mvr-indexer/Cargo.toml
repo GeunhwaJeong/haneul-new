@@ -62,7 +62,7 @@ haneul-types.workspace = true
 haneul-package-resolver.workspace = true
 haneul-protocol-config.workspace = true
 telemetry-subscribers.workspace = true
-haneul-rest-api.workspace = true
+haneul-rpc-api.workspace = true
 haneul-transaction-builder.workspace = true
 haneul-synthetic-ingestion.workspace = true
 

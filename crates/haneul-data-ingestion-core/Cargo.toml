@@ -28,7 +28,7 @@ url.workspace = true
 tempfile.workspace = true
 tap.workspace = true
 haneul-protocol-config.workspace = true
-haneul-rest-api.workspace = true
+haneul-rpc-api.workspace = true
 
 [dev-dependencies]
 rand.workspace = true

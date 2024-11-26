@@ -9,7 +9,7 @@ use haneul_data_ingestion_core::Worker;
 use tokio::sync::Mutex;
 use tracing::error;
 
-use haneul_rest_api::{CheckpointData, CheckpointTransaction};
+use haneul_rpc_api::{CheckpointData, CheckpointTransaction};
 use haneul_types::effects::TransactionEffects;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::transaction::{Command, TransactionDataAPI, TransactionKind};

@@ -148,8 +148,8 @@ members = [
     "crates/haneul-protocol-config-macros",
     "crates/haneul-proxy",
     "crates/haneul-replay",
-    "crates/haneul-rest-api",
     "crates/haneul-rosetta",
+    "crates/haneul-rpc-api",
     "crates/haneul-rpc-loadgen",
     "crates/haneul-sdk",
     "crates/haneul-security-watchdog",
@@ -691,7 +691,7 @@ haneul-telemetry = { path = "crates/haneul-telemetry" }
 haneul-test-transaction-builder = { path = "crates/haneul-test-transaction-builder" }
 haneul-test-validator = { path = "crates/haneul-test-validator" }
 haneul-tls = { path = "crates/haneul-tls" }
-haneul-rest-api = { path = "crates/haneul-rest-api" }
+haneul-rpc-api = { path = "crates/haneul-rpc-api" }
 haneul-tool = { path = "crates/haneul-tool" }
 haneul-transaction-builder = { path = "crates/haneul-transaction-builder" }
 haneul-transaction-checks = { path = "crates/haneul-transaction-checks" }

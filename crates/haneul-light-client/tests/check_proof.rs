@@ -10,7 +10,7 @@ use haneul_types::event::{Event, EventID};
 
 use haneul_types::{committee::Committee, effects::TransactionEffectsAPI, object::Object};
 
-use haneul_rest_api::CheckpointData;
+use haneul_rpc_api::CheckpointData;
 
 use std::io::Read;
 use std::{fs, path::PathBuf};

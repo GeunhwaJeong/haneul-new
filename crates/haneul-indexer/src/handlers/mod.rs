@@ -7,7 +7,7 @@ use async_trait::async_trait;
 use futures::{FutureExt, StreamExt};
 
 use serde::{Deserialize, Serialize};
-use haneul_rest_api::CheckpointData;
+use haneul_rpc_api::CheckpointData;
 use tokio_util::sync::CancellationToken;
 
 use crate::{

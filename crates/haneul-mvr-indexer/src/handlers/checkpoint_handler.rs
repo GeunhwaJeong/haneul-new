@@ -13,7 +13,7 @@ use tracing::{info, warn};
 use move_core_types::language_storage::{StructTag, TypeTag};
 use haneullabs_metrics::{get_metrics, spawn_monitored_task};
 use haneul_data_ingestion_core::Worker;
-use haneul_rest_api::{CheckpointData, CheckpointTransaction};
+use haneul_rpc_api::{CheckpointData, CheckpointTransaction};
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::effects::{ObjectChange, TransactionEffectsAPI};
 use haneul_types::event::SystemEpochInfoEvent;
