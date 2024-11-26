@@ -58,6 +58,15 @@ const references = [
 	},
 	{
 		type: 'category',
+		label: 'Haneul IDE Support',
+		collapsed: false,
+		items: [
+			'references/ide/move',
+			'references/ide/debugger',
+		],
+	},
+	{
+		type: 'category',
 		label: 'Haneul SDKs',
 		collapsed: false,
 		link: {
