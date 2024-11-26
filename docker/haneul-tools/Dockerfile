@@ -24,7 +24,7 @@ RUN cargo build --profile ${PROFILE} \
     --bin deepbook-indexer \
     --bin haneul-bridge-cli \
     --bin haneul-analytics-indexer \
-    --bin haneul-proxy \
+    --bin haneul-edge-proxy \
     --bin haneul \
     --bin haneul-faucet \
     --bin haneul-cluster-test \
