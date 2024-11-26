@@ -38,7 +38,7 @@ use haneul_core::traffic_controller::metrics::TrafficControllerMetrics;
 use haneul_json_rpc::bridge_api::BridgeReadApi;
 use haneul_json_rpc_api::JsonRpcMetrics;
 use haneul_network::randomness;
-use haneul_rest_api::RestMetrics;
+use haneul_rest_api::RpcMetrics;
 use haneul_types::base_types::ConciseableName;
 use haneul_types::crypto::RandomnessRound;
 use haneul_types::digests::ChainIdentifier;
@@ -2103,7 +2103,7 @@ pub async fn build_http_server(
             rest_service.with_config(config);
         }
 
-        rest_service.with_metrics(RestMetrics::new(prometheus_registry));
+        rest_service.with_metrics(RpcMetrics::new(prometheus_registry));
 
         if let Some(transaction_orchestrator) = transaction_orchestrator {
             rest_service.with_executor(transaction_orchestrator.clone())
