@@ -25,7 +25,7 @@ mod test {
         LocalValidatorAggregatorProxy, ValidatorProxy,
     };
     use haneul_config::node::AuthorityOverloadConfig;
-    use haneul_config::{AUTHORITIES_DB_NAME, HANEUL_KEYSTORE_FILENAME};
+    use haneul_config::{ExecutionCacheConfig, AUTHORITIES_DB_NAME, HANEUL_KEYSTORE_FILENAME};
     use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
     use haneul_core::authority::framework_injection;
     use haneul_core::authority::AuthorityState;
