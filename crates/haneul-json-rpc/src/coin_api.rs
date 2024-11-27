@@ -436,7 +436,7 @@ mod tests {
     use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
     use haneul_types::coin::TreasuryCap;
     use haneul_types::digests::{ObjectDigest, TransactionDigest, TransactionEventsDigest};
-    use haneul_types::effects::TransactionEffects;
+    use haneul_types::effects::{TransactionEffects, TransactionEvents};
     use haneul_types::error::{HaneulError, HaneulResult};
     use haneul_types::gas_coin::GAS;
     use haneul_types::id::UID;
@@ -476,6 +476,8 @@ mod tests {
                 &self,
                 digests: &[TransactionDigest],
             ) -> HaneulResult<Vec<Option<CheckpointSequenceNumber>>>;
+
+            async fn multi_get_events_by_tx_digests(&self,digests: &[TransactionDigest]) -> HaneulResult<Vec<Option<TransactionEvents>>>;
         }
     }
 
