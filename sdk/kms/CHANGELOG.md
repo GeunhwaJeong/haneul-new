@@ -1,5 +1,11 @@
 # @haneullabs/kms
 
+## 0.0.9
+
+### Patch Changes
+
+- @haneullabs/haneul@1.15.1
+
 ## 0.0.8
 
 ### Patch Changes

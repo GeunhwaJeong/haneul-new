@@ -1,5 +1,12 @@
 # @haneullabs/zksend
 
+## 0.12.5
+
+### Patch Changes
+
+- @haneullabs/haneul@1.15.1
+- @haneullabs/wallet-standard@0.13.15
+
 ## 0.12.4
 
 ### Patch Changes

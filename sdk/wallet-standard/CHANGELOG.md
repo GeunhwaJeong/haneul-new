@@ -1,5 +1,11 @@
 # @haneullabs/wallet-standard
 
+## 0.13.15
+
+### Patch Changes
+
+- @haneullabs/haneul@1.15.1
+
 ## 0.13.14
 
 ### Patch Changes

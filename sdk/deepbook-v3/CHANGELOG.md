@@ -1,5 +1,11 @@
 # @haneullabs/deepbook-v3
 
+## 0.12.14
+
+### Patch Changes
+
+- @haneullabs/haneul@1.15.1
+
 ## 0.12.13
 
 ### Patch Changes
