@@ -6,7 +6,7 @@ import { type NetworkEnvType } from '_src/shared/api-env';
 import { deobfuscate, obfuscate } from '_src/shared/cryptography/keystore';
 import { fromExportedKeypair } from '_src/shared/utils/from-exported-keypair';
 import { toSerializedSignature, type PublicKey } from '@haneullabs/haneul/cryptography';
-import { computeZkLoginAddress, genAddressSeed, getZkLoginSignature } from '@haneullabs/zklogin';
+import { computeZkLoginAddress, genAddressSeed, getZkLoginSignature } from '@haneullabs/haneul/zklogin';
 import { blake2b } from '@noble/hashes/blake2b';
 import { decodeJwt } from 'jose';
 

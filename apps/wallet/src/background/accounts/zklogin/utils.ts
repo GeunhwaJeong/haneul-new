@@ -10,7 +10,7 @@ import {
 	generateRandomness,
 	getExtendedEphemeralPublicKey,
 	type getZkLoginSignature,
-} from '@haneullabs/zklogin';
+} from '@haneullabs/haneul/zklogin';
 import { randomBytes } from '@noble/hashes/utils';
 import { base64url } from 'jose';
 import { v4 as uuidV4 } from 'uuid';

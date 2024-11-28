@@ -5,7 +5,7 @@ import type { SignatureWithBytes } from '@haneullabs/haneul/cryptography';
 import { Keypair, PublicKey, SIGNATURE_SCHEME_TO_FLAG } from '@haneullabs/haneul/cryptography';
 import type { Ed25519Keypair, Ed25519PublicKey } from '@haneullabs/haneul/keypairs/ed25519';
 import type { ZkLoginSignatureInputs } from '@haneullabs/haneul/zklogin';
-import { getZkLoginSignature } from '@haneullabs/zklogin';
+import { getZkLoginSignature } from '@haneullabs/haneul/zklogin';
 
 export class EnokiPublicKey extends PublicKey {
 	#address: string;
