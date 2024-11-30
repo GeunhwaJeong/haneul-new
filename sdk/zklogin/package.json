@@ -1,6 +1,6 @@
 {
 	"name": "@haneullabs/zklogin",
-	"version": "0.7.30",
+	"version": "0.8.0",
 	"description": "Deprecated: use @haneullabs/haneul/zklogin instead",
 	"license": "Apache-2.0",
 	"author": "Haneul Labs <build@haneul-labs.com>",
