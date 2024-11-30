@@ -3,7 +3,7 @@
 
 use haneul_macros::sim_test;
 use haneul_rpc_api::client::sdk::Client;
-use haneul_rpc_api::rest::transactions::ListTransactionsQueryParameters;
+use haneul_rpc_api::rest::transactions::ListTransactionsCursorParameters;
 use test_cluster::TestClusterBuilder;
 
 use crate::transfer_coin;
@@ -28,7 +28,7 @@ async fn list_checkpoint() {
     let client = Client::new(test_cluster.rpc_url()).unwrap();
 
     let transactions = client
-        .list_transactions(&ListTransactionsQueryParameters::default())
+        .list_transactions(&ListTransactionsCursorParameters::default())
         .await
         .unwrap()
         .into_inner();
