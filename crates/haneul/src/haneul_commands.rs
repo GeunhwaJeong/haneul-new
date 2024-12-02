@@ -486,20 +486,24 @@ impl HaneulCommand {
             } => {
                 match &mut cmd {
                     haneul_move::Command::Build(build) if build.dump_bytecode_as_base64 => {
-                        // `haneul move build` does not ordinarily require a network connection.
-                        // The exception is when --dump-bytecode-as-base64 is specified: In this
-                        // case, we should resolve the correct addresses for the respective chain
-                        // (e.g., testnet, mainnet) from the Move.lock under automated address management.
-                        let config =
-                            client_config.unwrap_or(haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG));
-                        prompt_if_no_config(&config, false).await?;
-                        let context = WalletContext::new(&config, None, None)?;
-                        if let Err(e) = context.get_client().await?.check_api_version() {
-                            eprintln!("{}", format!("[warning] {e}").yellow().bold());
+                        if build.ignore_chain {
+                            build.chain_id = None;
+                        } else {
+                            // `haneul move build` does not ordinarily require a network connection.
+                            // The exception is when --dump-bytecode-as-base64 is specified: In this
+                            // case, we should resolve the correct addresses for the respective chain
+                            // (e.g., testnet, mainnet) from the Move.lock under automated address management.
+                            let config =
+                                client_config.unwrap_or(haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG));
+                            prompt_if_no_config(&config, false).await?;
+                            let context = WalletContext::new(&config, None, None)?;
+                            if let Err(e) = context.get_client().await?.check_api_version() {
+                                eprintln!("{}", format!("[warning] {e}").yellow().bold());
+                            }
+                            let client = context.get_client().await?;
+                            let chain_id = client.read_api().get_chain_identifier().await.ok();
+                            build.chain_id = chain_id.clone();
                         }
-                        let client = context.get_client().await?;
-                        let chain_id = client.read_api().get_chain_identifier().await.ok();
-                        build.chain_id = chain_id.clone();
                     }
                     _ => (),
                 };
