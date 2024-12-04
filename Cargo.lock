@@ -13594,6 +13594,7 @@ dependencies = [
  "haneullabs-metrics",
  "prometheus",
  "serde",
+ "serde_json",
  "serde_yaml 0.8.26",
  "haneul-config",
  "haneul-data-ingestion-core",
