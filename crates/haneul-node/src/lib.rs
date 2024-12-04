@@ -2065,7 +2065,15 @@ pub async fn build_http_server(
                     reverse_registry_id,
                 )
             } else {
-                haneul_json_rpc::name_service::NameServiceConfig::default()
+                match CHAIN_IDENTIFIER
+                    .get()
+                    .expect("chain_id should be initialized")
+                    .chain()
+                {
+                    Chain::Mainnet => haneul_json_rpc::name_service::NameServiceConfig::mainnet(),
+                    Chain::Testnet => haneul_json_rpc::name_service::NameServiceConfig::testnet(),
+                    Chain::Unknown => haneul_json_rpc::name_service::NameServiceConfig::default(),
+                }
             };
 
         server.register_module(IndexerApi::new(
