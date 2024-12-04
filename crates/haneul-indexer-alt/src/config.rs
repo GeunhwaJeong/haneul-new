@@ -4,9 +4,7 @@
 use std::mem;
 
 use haneul_default_config::DefaultConfig;
-use tracing::warn;
-
-use crate::{
+use haneul_indexer_alt_framework::{
     ingestion::IngestionConfig,
     pipeline::{
         concurrent::{ConcurrentConfig, PrunerConfig},
@@ -14,6 +12,7 @@ use crate::{
         CommitterConfig,
     },
 };
+use tracing::warn;
 
 /// Trait for merging configuration structs together.
 pub trait Merge {
