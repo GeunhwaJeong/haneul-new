@@ -8,6 +8,7 @@ import { IconTooltip } from '_src/ui/app/shared/tooltip';
 import { useFormatCoin, useGetTimeBeforeEpochNumber } from '@haneullabs/core';
 import { type StakeObject } from '@haneullabs/haneul/client';
 import { HANEUL_TYPE_ARG } from '@haneullabs/haneul/utils';
+import BigNumber from 'bignumber.js';
 import { cva, cx, type VariantProps } from 'class-variance-authority';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
@@ -127,7 +128,7 @@ export function StakeCard({
 
 	// For inactive validator, show principal + rewards
 	const [principalStaked, symbol] = useFormatCoin(
-		inactiveValidator ? principal + rewards : principal,
+		inactiveValidator ? new BigNumber(principal).plus(rewards.toString()).toString() : principal,
 		HANEUL_TYPE_ARG,
 	);
 	const [rewardsStaked] = useFormatCoin(rewards, HANEUL_TYPE_ARG);
