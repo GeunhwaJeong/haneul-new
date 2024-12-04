@@ -1,0 +1,17 @@
+[package]
+name = "haneul-indexer-alt-schema"
+version.workspace = true
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[dependencies]
+anyhow.workspace = true
+diesel = {workspace = true, features = ["postgres_backend", "chrono"]}
+diesel_migrations.workspace = true
+serde.workspace = true
+
+haneul-field-count.workspace = true
+haneul-protocol-config.workspace = true
+haneul-types.workspace = true

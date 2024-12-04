@@ -12,8 +12,8 @@ use haneul_indexer_alt_framework::{
 };
 use haneul_types::full_checkpoint_content::CheckpointData;
 
-use crate::{
-    models::objects::{StoredObjectUpdate, StoredSumObjType, StoredWalObjType},
+use haneul_indexer_alt_schema::{
+    objects::{StoredObjectUpdate, StoredSumObjType, StoredWalObjType},
     schema::wal_obj_types,
 };
 

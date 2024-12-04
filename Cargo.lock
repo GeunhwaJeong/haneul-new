@@ -14161,6 +14161,7 @@ dependencies = [
  "haneul-default-config",
  "haneul-field-count",
  "haneul-indexer-alt-framework",
+ "haneul-indexer-alt-schema",
  "haneul-protocol-config",
  "haneul-synthetic-ingestion",
  "haneul-types",
@@ -14205,6 +14206,19 @@ dependencies = [
  "tracing",
  "url",
  "wiremock",
+]
+
+[[package]]
+name = "haneul-indexer-alt-schema"
+version = "1.40.0"
+dependencies = [
+ "anyhow",
+ "diesel",
+ "diesel_migrations",
+ "serde",
+ "haneul-field-count",
+ "haneul-protocol-config",
+ "haneul-types",
 ]
 
 [[package]]

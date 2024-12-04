@@ -12,7 +12,9 @@ use haneul_indexer_alt_framework::{
 };
 use haneul_types::{full_checkpoint_content::CheckpointData, object::Owner};
 
-use crate::{models::transactions::StoredTxAffectedAddress, schema::tx_affected_addresses};
+use haneul_indexer_alt_schema::{
+    schema::tx_affected_addresses, transactions::StoredTxAffectedAddress,
+};
 
 pub(crate) struct TxAffectedAddresses;
 

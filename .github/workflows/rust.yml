@@ -165,7 +165,7 @@ jobs:
           ./scripts/generate_indexer_schema.sh
       - name: Indexer Alt schema
         run: |
-          ./crates/haneul-indexer-alt/generate_schema.sh
+          ./crates/haneul-indexer-alt-schema/generate_schema.sh
       - name: Indexer Alt Framework schema
         run: |
           ./crates/haneul-indexer-alt-framework/generate_schema.sh

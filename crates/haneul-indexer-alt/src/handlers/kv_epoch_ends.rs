@@ -15,7 +15,7 @@ use haneul_types::{
     transaction::{TransactionDataAPI, TransactionKind},
 };
 
-use crate::{models::epochs::StoredEpochEnd, schema::kv_epoch_ends};
+use haneul_indexer_alt_schema::{epochs::StoredEpochEnd, schema::kv_epoch_ends};
 
 pub(crate) struct KvEpochEnds;
 

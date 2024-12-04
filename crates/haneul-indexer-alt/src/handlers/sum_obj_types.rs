@@ -20,8 +20,8 @@ use haneul_types::{
     object::Owner,
 };
 
-use crate::{
-    models::objects::{StoredObjectUpdate, StoredOwnerKind, StoredSumObjType},
+use haneul_indexer_alt_schema::{
+    objects::{StoredObjectUpdate, StoredOwnerKind, StoredSumObjType},
     schema::sum_obj_types,
 };
 

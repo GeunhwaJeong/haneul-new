@@ -11,9 +11,9 @@ use haneul_indexer_alt_framework::{
 };
 use haneul_types::full_checkpoint_content::CheckpointData;
 
-use crate::{
-    models::transactions::{StoredKind, StoredTxKind},
+use haneul_indexer_alt_schema::{
     schema::tx_kinds,
+    transactions::{StoredKind, StoredTxKind},
 };
 
 pub(crate) struct TxKinds;

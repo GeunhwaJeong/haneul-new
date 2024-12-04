@@ -20,8 +20,8 @@ use haneul_types::{
     object::Owner,
 };
 
-use crate::{
-    models::objects::{StoredObjectUpdate, StoredSumCoinBalance},
+use haneul_indexer_alt_schema::{
+    objects::{StoredObjectUpdate, StoredSumCoinBalance},
     schema::sum_coin_balances,
 };
 

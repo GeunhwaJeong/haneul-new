@@ -11,7 +11,7 @@ use haneul_indexer_alt_framework::{
 };
 use haneul_types::full_checkpoint_content::CheckpointData;
 
-use crate::{models::transactions::StoredTransaction, schema::kv_transactions};
+use haneul_indexer_alt_schema::{schema::kv_transactions, transactions::StoredTransaction};
 
 pub(crate) struct KvTransactions;
 

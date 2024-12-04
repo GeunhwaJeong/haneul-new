@@ -67,11 +67,11 @@ done
 # Run all migrations on the new database
 diesel migration run                                                          \
   --database-url "postgres://postgres:postgrespw@localhost:$PORT"             \
-  --migration-dir "$REPO/crates/haneul-indexer-alt/migrations"
+  --migration-dir "$REPO/crates/haneul-indexer-alt-schema/migrations"
 
 # Generate the schema.rs file, excluding partition tables and including the
 # copyright notice.
 diesel print-schema                                                           \
   --database-url "postgres://postgres:postgrespw@localhost:$PORT"             \
-  --patch-file "$REPO/crates/haneul-indexer-alt/schema.patch"                    \
-  > "$REPO/crates/haneul-indexer-alt/src/schema.rs"
+  --patch-file "$REPO/crates/haneul-indexer-alt-schema/schema.patch"             \
+  > "$REPO/crates/haneul-indexer-alt-schema/src/schema.rs"

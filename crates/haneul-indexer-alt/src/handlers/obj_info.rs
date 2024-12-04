@@ -16,8 +16,8 @@ use haneul_types::{
     object::{Object, Owner},
 };
 
-use crate::{
-    models::objects::{StoredObjInfo, StoredOwnerKind},
+use haneul_indexer_alt_schema::{
+    objects::{StoredObjInfo, StoredOwnerKind},
     schema::obj_info,
 };
 

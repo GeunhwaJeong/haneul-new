@@ -11,7 +11,7 @@ use haneul_indexer_alt_framework::{
 };
 use haneul_types::{effects::TransactionEffectsAPI, full_checkpoint_content::CheckpointData};
 
-use crate::{models::transactions::StoredTxAffectedObject, schema::tx_affected_objects};
+use haneul_indexer_alt_schema::{schema::tx_affected_objects, transactions::StoredTxAffectedObject};
 
 pub(crate) struct TxAffectedObjects;
 

@@ -11,7 +11,7 @@ use haneul_indexer_alt_framework::{
 };
 use haneul_types::full_checkpoint_content::CheckpointData;
 
-use crate::{models::objects::StoredObjVersion, schema::obj_versions};
+use haneul_indexer_alt_schema::{objects::StoredObjVersion, schema::obj_versions};
 
 pub(crate) struct ObjVersions;
 

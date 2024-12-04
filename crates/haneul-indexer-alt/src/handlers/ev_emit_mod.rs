@@ -11,7 +11,8 @@ use haneul_indexer_alt_framework::{
 };
 use haneul_types::full_checkpoint_content::CheckpointData;
 
-use crate::{models::events::StoredEvEmitMod, schema::ev_emit_mod};
+use haneul_indexer_alt_schema::{events::StoredEvEmitMod, schema::ev_emit_mod};
+
 pub(crate) struct EvEmitMod;
 
 impl Processor for EvEmitMod {

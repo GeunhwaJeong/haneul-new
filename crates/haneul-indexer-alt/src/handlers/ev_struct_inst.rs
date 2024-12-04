@@ -11,7 +11,7 @@ use haneul_indexer_alt_framework::{
 };
 use haneul_types::full_checkpoint_content::CheckpointData;
 
-use crate::{models::events::StoredEvStructInst, schema::ev_struct_inst};
+use haneul_indexer_alt_schema::{events::StoredEvStructInst, schema::ev_struct_inst};
 
 pub(crate) struct EvStructInst;
 
