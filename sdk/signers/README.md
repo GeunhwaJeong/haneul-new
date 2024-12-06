@@ -19,7 +19,7 @@ The AWS KMS Signer allows you to leverage AWS's Key Management Service to sign H
 ### Usage
 
 ```typescript
-import { AwsKmsSigner } from '@haneullabs/kms/aws';
+import { AwsKmsSigner } from '@haneullabs/signers/aws';
 
 const prepareSigner = async () => {
 	const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_KMS_KEY_ID } = process.env;

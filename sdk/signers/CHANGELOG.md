@@ -1,4 +1,4 @@
-# @haneullabs/kms
+# @haneullabs/signers
 
 ## 0.0.10
 
