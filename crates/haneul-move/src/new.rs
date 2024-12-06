@@ -34,7 +34,12 @@ impl New {
             r#"/*
 /// Module: {name}
 module {name}::{name};
-*/"#,
+*/
+
+// For Move coding conventions, see
+// https://docs.haneul.io/concepts/haneul-move-concepts/conventions
+
+"#,
             name = name
         )?;
 
