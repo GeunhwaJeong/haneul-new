@@ -4,15 +4,12 @@
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
+use haneul_pg_db::{self as db, Db};
 use haneul_types::full_checkpoint_content::CheckpointData;
 use tokio::{sync::mpsc, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
 
-use crate::{
-    db::{self, Db},
-    metrics::IndexerMetrics,
-    watermarks::CommitterWatermark,
-};
+use crate::{metrics::IndexerMetrics, watermarks::CommitterWatermark};
 
 use super::{processor::processor, CommitterConfig, Processor, PIPELINE_BUFFER};
 

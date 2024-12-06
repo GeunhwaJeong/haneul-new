@@ -6,11 +6,9 @@ use std::{collections::BTreeMap, sync::Arc};
 use anyhow::Result;
 use diesel::ExpressionMethods;
 use diesel_async::RunQueryDsl;
-use haneul_indexer_alt_framework::{
-    db,
-    pipeline::{concurrent::Handler, Processor},
-};
+use haneul_indexer_alt_framework::pipeline::{concurrent::Handler, Processor};
 use haneul_indexer_alt_schema::schema::obj_info;
+use haneul_pg_db as db;
 use haneul_types::full_checkpoint_content::CheckpointData;
 
 use super::obj_info::{ObjInfo, ProcessedObjInfo, ProcessedObjInfoUpdate};

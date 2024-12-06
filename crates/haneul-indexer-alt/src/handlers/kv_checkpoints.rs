@@ -5,13 +5,10 @@ use std::sync::Arc;
 
 use anyhow::{Context, Result};
 use diesel_async::RunQueryDsl;
-use haneul_indexer_alt_framework::{
-    db,
-    pipeline::{concurrent::Handler, Processor},
-};
-use haneul_types::full_checkpoint_content::CheckpointData;
-
+use haneul_indexer_alt_framework::pipeline::{concurrent::Handler, Processor};
 use haneul_indexer_alt_schema::{checkpoints::StoredCheckpoint, schema::kv_checkpoints};
+use haneul_pg_db as db;
+use haneul_types::full_checkpoint_content::CheckpointData;
 
 pub(crate) struct KvCheckpoints;
 

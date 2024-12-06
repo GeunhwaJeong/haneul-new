@@ -15,7 +15,6 @@ use handlers::{
     tx_balance_changes::TxBalanceChanges, tx_calls::TxCalls, tx_digests::TxDigests,
     tx_kinds::TxKinds, wal_coin_balances::WalCoinBalances, wal_obj_types::WalObjTypes,
 };
-use haneul_indexer_alt_framework::db::DbArgs;
 use haneul_indexer_alt_framework::ingestion::{ClientArgs, IngestionConfig};
 use haneul_indexer_alt_framework::pipeline::{
     concurrent::{ConcurrentConfig, PrunerConfig},
@@ -24,6 +23,7 @@ use haneul_indexer_alt_framework::pipeline::{
 };
 use haneul_indexer_alt_framework::{Indexer, IndexerArgs};
 use haneul_indexer_alt_schema::MIGRATIONS;
+use haneul_pg_db::DbArgs;
 use tokio_util::sync::CancellationToken;
 
 pub mod args;

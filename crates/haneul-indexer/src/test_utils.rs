@@ -11,7 +11,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 use haneul_json_rpc_types::HaneulTransactionBlockResponse;
-use haneul_pg_temp_db::{get_available_port, TempDb};
+use haneul_pg_db::temp::{get_available_port, TempDb};
 
 use crate::config::{IngestionConfig, RetentionConfig, SnapshotLagConfig, UploadOptions};
 use crate::database::Connection;

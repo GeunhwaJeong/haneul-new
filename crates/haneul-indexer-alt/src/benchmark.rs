@@ -3,12 +3,9 @@
 
 use std::{path::PathBuf, time::Instant};
 
-use haneul_indexer_alt_framework::{
-    db::{reset_database, DbArgs},
-    ingestion::ClientArgs,
-    IndexerArgs,
-};
+use haneul_indexer_alt_framework::{ingestion::ClientArgs, Indexer, IndexerArgs};
 use haneul_indexer_alt_schema::MIGRATIONS;
+use haneul_pg_db::{reset_database, DbArgs};
 use haneul_synthetic_ingestion::synthetic_ingestion::read_ingestion_data;
 
 use crate::{config::IndexerConfig, start_indexer};
@@ -40,7 +37,7 @@ pub async fn run_benchmark(
     let last_checkpoint = *ingestion_data.keys().last().unwrap();
     let num_transactions: usize = ingestion_data.values().map(|c| c.transactions.len()).sum();
 
-    reset_database(db_args.clone(), Some(&MIGRATIONS)).await?;
+    reset_database(db_args.clone(), Some(Indexer::migrations(&MIGRATIONS))).await?;
 
     let indexer_args = IndexerArgs {
         first_checkpoint: Some(first_checkpoint),

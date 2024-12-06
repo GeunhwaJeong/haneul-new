@@ -5,17 +5,14 @@ use std::sync::Arc;
 
 use anyhow::{bail, Context, Result};
 use diesel_async::RunQueryDsl;
-use haneul_indexer_alt_framework::{
-    db,
-    pipeline::{concurrent::Handler, Processor},
-};
+use haneul_indexer_alt_framework::pipeline::{concurrent::Handler, Processor};
+use haneul_indexer_alt_schema::{epochs::StoredEpochStart, schema::kv_epoch_starts};
+use haneul_pg_db as db;
 use haneul_types::{
     full_checkpoint_content::CheckpointData,
     haneul_system_state::{get_haneul_system_state, HaneulSystemStateTrait},
     transaction::{TransactionDataAPI, TransactionKind},
 };
-
-use haneul_indexer_alt_schema::{epochs::StoredEpochStart, schema::kv_epoch_starts};
 
 pub(crate) struct KvEpochStarts;
 

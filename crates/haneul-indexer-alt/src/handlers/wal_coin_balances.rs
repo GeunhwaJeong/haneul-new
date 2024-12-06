@@ -6,16 +6,13 @@ use std::sync::Arc;
 use anyhow::Result;
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
-use haneul_indexer_alt_framework::{
-    db,
-    pipeline::{concurrent::Handler, Processor},
-};
-use haneul_types::full_checkpoint_content::CheckpointData;
-
+use haneul_indexer_alt_framework::pipeline::{concurrent::Handler, Processor};
 use haneul_indexer_alt_schema::{
     objects::{StoredObjectUpdate, StoredSumCoinBalance, StoredWalCoinBalance},
     schema::wal_coin_balances,
 };
+use haneul_pg_db as db;
+use haneul_types::full_checkpoint_content::CheckpointData;
 
 use super::sum_coin_balances::SumCoinBalances;
 

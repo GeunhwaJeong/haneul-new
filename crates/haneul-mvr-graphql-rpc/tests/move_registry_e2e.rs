@@ -15,7 +15,7 @@ use haneul_mvr_graphql_rpc::{
         wait_for_graphql_checkpoint_catchup, wait_for_graphql_server, NetworkCluster,
     },
 };
-use haneul_pg_temp_db::get_available_port;
+use haneul_pg_db::temp::get_available_port;
 use haneul_types::{
     base_types::{ObjectID, SequenceNumber},
     digests::ObjectDigest,

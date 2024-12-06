@@ -8,13 +8,10 @@ use diesel::{upsert::excluded, ExpressionMethods};
 use diesel_async::RunQueryDsl;
 use futures::future::try_join_all;
 use haneul_field_count::FieldCount;
-use haneul_indexer_alt_framework::{
-    db,
-    pipeline::{sequential::Handler, Processor},
-};
-use haneul_types::{display::DisplayVersionUpdatedEvent, full_checkpoint_content::CheckpointData};
-
+use haneul_indexer_alt_framework::pipeline::{sequential::Handler, Processor};
 use haneul_indexer_alt_schema::{displays::StoredDisplay, schema::sum_displays};
+use haneul_pg_db as db;
+use haneul_types::{display::DisplayVersionUpdatedEvent, full_checkpoint_content::CheckpointData};
 
 const MAX_INSERT_CHUNK_ROWS: usize = i16::MAX as usize / StoredDisplay::FIELD_COUNT;
 

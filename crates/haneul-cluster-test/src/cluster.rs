@@ -14,7 +14,7 @@ use haneul_indexer::test_utils::{
     start_indexer_jsonrpc_for_testing, start_indexer_writer_for_testing,
 };
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
-use haneul_pg_temp_db::TempDb;
+use haneul_pg_db::temp::TempDb;
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_swarm::memory::Swarm;

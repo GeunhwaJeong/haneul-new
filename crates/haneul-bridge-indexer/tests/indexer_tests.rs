@@ -19,7 +19,7 @@ use haneul_bridge_indexer::{create_haneul_indexer, schema};
 use haneul_data_ingestion_core::DataIngestionMetrics;
 use haneul_indexer::database::Connection;
 use haneul_indexer_builder::indexer_builder::IndexerProgressStore;
-use haneul_pg_temp_db::TempDb;
+use haneul_pg_db::temp::TempDb;
 
 const MIGRATIONS: EmbeddedMigrations = embed_migrations!("src/migrations");
 

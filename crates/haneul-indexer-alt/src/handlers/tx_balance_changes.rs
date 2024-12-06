@@ -5,20 +5,17 @@ use std::{collections::BTreeMap, sync::Arc};
 
 use anyhow::{Context, Result};
 use diesel_async::RunQueryDsl;
-use haneul_indexer_alt_framework::{
-    db,
-    pipeline::{concurrent::Handler, Processor},
+use haneul_indexer_alt_framework::pipeline::{concurrent::Handler, Processor};
+use haneul_indexer_alt_schema::{
+    schema::tx_balance_changes,
+    transactions::{BalanceChange, StoredTxBalanceChange},
 };
+use haneul_pg_db as db;
 use haneul_types::{
     coin::Coin,
     effects::TransactionEffectsAPI,
     full_checkpoint_content::{CheckpointData, CheckpointTransaction},
     gas_coin::GAS,
-};
-
-use haneul_indexer_alt_schema::{
-    schema::tx_balance_changes,
-    transactions::{BalanceChange, StoredTxBalanceChange},
 };
 
 pub(crate) struct TxBalanceChanges;

@@ -19,7 +19,7 @@ pub use haneul_indexer::config::SnapshotLagConfig;
 use haneul_indexer::errors::IndexerError;
 use haneul_indexer::store::PgIndexerStore;
 use haneul_indexer::test_utils::start_indexer_writer_for_testing;
-use haneul_pg_temp_db::{get_available_port, TempDb};
+use haneul_pg_db::temp::{get_available_port, TempDb};
 use haneul_swarm_config::genesis_config::{AccountConfig, DEFAULT_GAS_AMOUNT};
 use haneul_types::storage::RpcStateReader;
 use tempfile::tempdir;

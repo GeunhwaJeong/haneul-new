@@ -9,7 +9,7 @@ use haneul_indexer::test_utils::{
     start_indexer_jsonrpc_for_testing, start_indexer_writer_for_testing,
 };
 use haneul_json_rpc_api::ReadApiClient;
-use haneul_pg_temp_db::TempDb;
+use haneul_pg_db::temp::TempDb;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use tempfile::TempDir;
 use tokio::time::sleep;

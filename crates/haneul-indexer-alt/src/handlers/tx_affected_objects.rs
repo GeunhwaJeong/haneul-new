@@ -5,13 +5,10 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use diesel_async::RunQueryDsl;
-use haneul_indexer_alt_framework::{
-    db,
-    pipeline::{concurrent::Handler, Processor},
-};
-use haneul_types::{effects::TransactionEffectsAPI, full_checkpoint_content::CheckpointData};
-
+use haneul_indexer_alt_framework::pipeline::{concurrent::Handler, Processor};
 use haneul_indexer_alt_schema::{schema::tx_affected_objects, transactions::StoredTxAffectedObject};
+use haneul_pg_db as db;
+use haneul_types::{effects::TransactionEffectsAPI, full_checkpoint_content::CheckpointData};
 
 pub(crate) struct TxAffectedObjects;
 
