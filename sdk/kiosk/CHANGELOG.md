@@ -1,5 +1,11 @@
 # @haneullabs/kiosk
 
+## 0.9.31
+
+### Patch Changes
+
+- @haneullabs/haneul@1.16.1
+
 ## 0.9.30
 
 ### Patch Changes

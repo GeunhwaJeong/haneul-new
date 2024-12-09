@@ -1,5 +1,12 @@
 # @haneullabs/enoki
 
+## 0.4.15
+
+### Patch Changes
+
+- @haneullabs/haneul@1.16.1
+- @haneullabs/zklogin@0.8.1
+
 ## 0.4.14
 
 ### Patch Changes

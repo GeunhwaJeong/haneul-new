@@ -1,5 +1,11 @@
 # @haneullabs/zklogin
 
+## 0.8.1
+
+### Patch Changes
+
+- @haneullabs/haneul@1.16.1
+
 ## 0.8.0
 
 ### Minor Changes

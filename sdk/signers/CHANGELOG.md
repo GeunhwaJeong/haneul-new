@@ -1,5 +1,16 @@
 # @haneullabs/signers
 
+## 0.1.0
+
+### Minor Changes
+
+- 2349920: Introduces GCP KMS signer at `@haneullabs/signers/gcp`
+- e0885ca: renamed package to @haneullabs/signers and inlines aws4fetch
+
+### Patch Changes
+
+- @haneullabs/haneul@1.16.1
+
 ## 0.0.10
 
 ### Patch Changes
