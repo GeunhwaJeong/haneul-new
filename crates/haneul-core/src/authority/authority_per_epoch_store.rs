@@ -1,6 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
+use std::future::Future;
+use std::path::{Path, PathBuf};
+use std::str::FromStr;
+use std::sync::Arc;
+
 use arc_swap::ArcSwapOption;
 use enum_dispatch::enum_dispatch;
 use fastcrypto::groups::bls12381;
@@ -11,15 +17,20 @@ use fastcrypto_zkp::bn254::zk_login_api::ZkLoginEnv;
 use futures::future::{join_all, select, Either};
 use futures::FutureExt;
 use itertools::{izip, Itertools};
+use move_bytecode_utils::module_cache::SyncModuleCache;
+use haneullabs_common::sync::notify_once::NotifyOnce;
+use haneullabs_common::sync::notify_read::NotifyRead;
+use haneullabs_metrics::monitored_scope;
 use parking_lot::RwLock;
 use parking_lot::{Mutex, RwLockReadGuard, RwLockWriteGuard};
+use prometheus::IntCounter;
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
-use std::future::Future;
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
 use haneul_config::node::ExpensiveSafetyCheckConfig;
+use haneul_execution::{self, Executor};
+use haneul_macros::fail_point;
 use haneul_macros::fail_point_arg;
+use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
+use haneul_storage::mutex_table::{MutexGuard, MutexTable};
 use haneul_types::accumulator::Accumulator;
 use haneul_types::authenticator_state::{get_authenticator_state, ActiveJwk};
 use haneul_types::base_types::{AuthorityName, EpochId, ObjectID, SequenceNumber, TransactionDigest};
@@ -30,18 +41,39 @@ use haneul_types::crypto::{
     AuthorityPublicKeyBytes, AuthoritySignInfo, AuthorityStrongQuorumSignInfo, RandomnessRound,
 };
 use haneul_types::digests::{ChainIdentifier, TransactionEffectsDigest};
+use haneul_types::effects::TransactionEffects;
 use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::executable_transaction::{
+    TrustedExecutableTransaction, VerifiedExecutableTransaction,
+};
+use haneul_types::message_envelope::TrustedEnvelope;
+use haneul_types::messages_checkpoint::{
+    CheckpointContents, CheckpointSequenceNumber, CheckpointSignatureMessage, CheckpointSummary,
+};
+use haneul_types::messages_consensus::{
+    check_total_jwk_size, AuthorityCapabilitiesV1, AuthorityCapabilitiesV2, ConsensusTransaction,
+    ConsensusTransactionKey, ConsensusTransactionKind, Round, TimestampMs,
+    VersionedDkgConfirmation,
+};
 use haneul_types::signature::GenericSignature;
+use haneul_types::storage::GetSharedLocks;
 use haneul_types::storage::{BackingPackageStore, InputKey, ObjectStore};
+use haneul_types::haneul_system_state::epoch_start_haneul_system_state::{
+    EpochStartSystemState, EpochStartSystemStateTrait,
+};
 use haneul_types::transaction::{
     AuthenticatorStateUpdate, CertifiedTransaction, InputObjectKind, SenderSignedData, Transaction,
     TransactionDataAPI, TransactionKey, TransactionKind, VerifiedCertificate,
     VerifiedSignedTransaction, VerifiedTransaction,
 };
+use tap::TapOptional;
 use tokio::sync::OnceCell;
+use tokio::time::Instant;
 use tracing::{debug, error, info, instrument, trace, warn};
 use typed_store::rocks::{read_size_from_env, ReadWriteOptions};
 use typed_store::rocksdb::Options;
+use typed_store::DBMapUtils;
+use typed_store::{retry_transaction_forever, Map};
 use typed_store::{
     rocks::{default_db_options, DBBatch, DBMap, DBOptions, MetricConf},
     traits::{TableSummary, TypedStoreDebug},
@@ -55,15 +87,14 @@ use super::shared_object_congestion_tracker::{
 };
 use super::transaction_deferral::{transaction_deferral_within_limit, DeferralKey, DeferralReason};
 use crate::authority::epoch_start_configuration::{EpochFlag, EpochStartConfiguration};
+use crate::authority::shared_object_version_manager::{
+    AssignedTxAndVersions, ConsensusSharedObjVerAssignment, SharedObjVerManager,
+};
 use crate::authority::AuthorityMetrics;
 use crate::authority::ResolverWrapper;
 use crate::checkpoints::{
     BuilderCheckpointSummary, CheckpointHeight, CheckpointServiceNotify, EpochStats,
     PendingCheckpoint, PendingCheckpointInfo, PendingCheckpointV2, PendingCheckpointV2Contents,
-};
-
-use crate::authority::shared_object_version_manager::{
-    AssignedTxAndVersions, ConsensusSharedObjVerAssignment, SharedObjVerManager,
 };
 use crate::consensus_handler::{
     ConsensusCommitInfo, SequencedConsensusTransaction, SequencedConsensusTransactionKey,
@@ -80,38 +111,6 @@ use crate::module_cache_metrics::ResolverMetrics;
 use crate::post_consensus_tx_reorder::PostConsensusTxReorder;
 use crate::signature_verifier::*;
 use crate::stake_aggregator::{GenericMultiStakeAggregator, StakeAggregator};
-use move_bytecode_utils::module_cache::SyncModuleCache;
-use haneullabs_common::sync::notify_once::NotifyOnce;
-use haneullabs_common::sync::notify_read::NotifyRead;
-use haneullabs_metrics::monitored_scope;
-use narwhal_types::{Round, TimestampMs};
-use prometheus::IntCounter;
-use std::str::FromStr;
-use haneul_execution::{self, Executor};
-use haneul_macros::fail_point;
-use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
-use haneul_storage::mutex_table::{MutexGuard, MutexTable};
-use haneul_types::effects::TransactionEffects;
-use haneul_types::executable_transaction::{
-    TrustedExecutableTransaction, VerifiedExecutableTransaction,
-};
-use haneul_types::message_envelope::TrustedEnvelope;
-use haneul_types::messages_checkpoint::{
-    CheckpointContents, CheckpointSequenceNumber, CheckpointSignatureMessage, CheckpointSummary,
-};
-use haneul_types::messages_consensus::VersionedDkgConfirmation;
-use haneul_types::messages_consensus::{
-    check_total_jwk_size, AuthorityCapabilitiesV1, AuthorityCapabilitiesV2, ConsensusTransaction,
-    ConsensusTransactionKey, ConsensusTransactionKind,
-};
-use haneul_types::storage::GetSharedLocks;
-use haneul_types::haneul_system_state::epoch_start_haneul_system_state::{
-    EpochStartSystemState, EpochStartSystemStateTrait,
-};
-use tap::TapOptional;
-use tokio::time::Instant;
-use typed_store::DBMapUtils;
-use typed_store::{retry_transaction_forever, Map};
 
 /// The key where the latest consensus index is stored in the database.
 // TODO: Make a single table (e.g., called `variables`) storing all our lonely variables in one place.
@@ -571,7 +570,7 @@ pub struct AuthorityEpochTables {
 
     /// This table is no longer used (can be removed when DBMap supports removing tables)
     #[allow(dead_code)]
-    randomness_rounds_written: DBMap<narwhal_types::RandomnessRound, ()>,
+    randomness_rounds_written: DBMap<(), ()>,
 
     /// Tables for recording state for RandomnessManager.
 

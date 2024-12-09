@@ -31,9 +31,10 @@ haneul-framework.workspace = true
 haneul-framework-snapshot.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
-[target.'cfg(msim)'.dependencies]
-haneul-simulator.workspace = true
 
 [dev-dependencies]
 insta.workspace = true
 tempfile.workspace = true
+
+[target.'cfg(msim)'.dependencies]
+haneul-simulator.workspace = true

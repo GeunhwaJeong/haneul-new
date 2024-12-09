@@ -4,13 +4,13 @@
 use super::authority_per_epoch_store::AuthorityEpochTables;
 use crate::authority::transaction_deferral::DeferralKey;
 use crate::consensus_handler::VerifiedSequencedConsensusTransaction;
-use narwhal_types::Round;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use haneul_protocol_config::{PerObjectCongestionControlMode, ProtocolConfig};
 use haneul_types::base_types::{ObjectID, TransactionDigest};
 use haneul_types::error::HaneulResult;
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
+use haneul_types::messages_consensus::Round;
 use haneul_types::transaction::{Argument, SharedInputObject, TransactionDataAPI};
 use tracing::trace;
 

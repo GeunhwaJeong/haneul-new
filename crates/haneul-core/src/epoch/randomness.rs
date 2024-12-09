@@ -10,7 +10,6 @@ use fastcrypto::traits::{KeyPair, ToFromBytes};
 use fastcrypto_tbls::{dkg_v1, dkg_v1::Output, nodes, nodes::PartyId};
 use futures::stream::FuturesUnordered;
 use futures::StreamExt;
-use narwhal_types::{Round, TimestampMs};
 use parking_lot::Mutex;
 use rand::rngs::{OsRng, StdRng};
 use rand::SeedableRng;
@@ -24,8 +23,9 @@ use haneul_types::base_types::AuthorityName;
 use haneul_types::committee::{Committee, EpochId, StakeUnit};
 use haneul_types::crypto::{AuthorityKeyPair, RandomnessRound};
 use haneul_types::error::{HaneulError, HaneulResult};
-use haneul_types::messages_consensus::VersionedDkgMessage;
-use haneul_types::messages_consensus::{ConsensusTransaction, VersionedDkgConfirmation};
+use haneul_types::messages_consensus::{
+    ConsensusTransaction, Round, TimestampMs, VersionedDkgConfirmation, VersionedDkgMessage,
+};
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use tokio::sync::OnceCell;
 use tokio::task::JoinHandle;

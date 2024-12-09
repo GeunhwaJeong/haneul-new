@@ -1,6 +1,2 @@
-# WIP: Haneul Consensus 2.0
-
-This directory contains a WIP implementation of Haneul Consensus 2.0.
-It is based on [Mysticeti](https://github.com/GeunhwaJeong/mysticeti),
-and Haneul Consensus 1.0 which is
-[Narwhal](https://github.com/GeunhwaJeong/haneul/tree/main/narwhal).
+This directory contains the implementation of Haneul Consensus,
+based on the [Mysticeti consensus protocol](https://arxiv.org/pdf/2310.14821).

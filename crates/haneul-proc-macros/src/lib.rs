@@ -67,16 +67,15 @@ pub fn init_static_initializers(_args: TokenStream, item: TokenStream) -> TokenS
                         .get_package_bytes(/* with_unpublished_deps */ false);
                 }
 
+                use std::sync::Arc;
 
                 use ::haneul_simulator::anemo_tower::callback::CallbackLayer;
                 use ::haneul_simulator::anemo_tower::trace::DefaultMakeSpan;
                 use ::haneul_simulator::anemo_tower::trace::DefaultOnFailure;
                 use ::haneul_simulator::anemo_tower::trace::TraceLayer;
-                use ::haneul_simulator::narwhal_network::metrics::MetricsMakeCallbackHandler;
-                use ::haneul_simulator::narwhal_network::metrics::NetworkMetrics;
-
-                use std::sync::Arc;
                 use ::haneul_simulator::fastcrypto::traits::KeyPair;
+                use ::haneul_simulator::haneullabs_network::metrics::MetricsMakeCallbackHandler;
+                use ::haneul_simulator::haneullabs_network::metrics::NetworkMetrics;
                 use ::haneul_simulator::rand_crate::rngs::{StdRng, OsRng};
                 use ::haneul_simulator::rand::SeedableRng;
                 use ::haneul_simulator::tower::ServiceBuilder;
