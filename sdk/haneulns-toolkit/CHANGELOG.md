@@ -1,5 +1,12 @@
 # @haneullabs/haneulns-toolkit
 
+## 0.5.32
+
+### Patch Changes
+
+- Updated dependencies [100207f]
+  - @haneullabs/haneul@1.16.2
+
 ## 0.5.31
 
 ### Patch Changes
