@@ -124,7 +124,6 @@
 		"@haneullabs/ledgerjs-hw-app-haneul": "workspace:*",
 		"@haneullabs/haneul": "workspace:*",
 		"@haneullabs/wallet-standard": "workspace:*",
-		"@haneullabs/zklogin": "workspace:*",
 		"@noble/hashes": "^1.4.0",
 		"@radix-ui/react-checkbox": "^1.0.4",
 		"@radix-ui/react-collapsible": "^1.0.3",

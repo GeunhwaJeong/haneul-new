@@ -31,7 +31,6 @@
 		"@haneullabs/kiosk": "workspace:*",
 		"@haneullabs/haneul": "workspace:*",
 		"@haneullabs/wallet-standard": "workspace:*",
-		"@haneullabs/zklogin": "workspace:*",
 		"@haneullabs/zksend": "workspace:*",
 		"@tanstack/react-query": "^5.50.1",
 		"@types/node": "^20.14.10",
