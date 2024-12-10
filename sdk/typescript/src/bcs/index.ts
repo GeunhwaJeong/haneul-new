@@ -20,6 +20,7 @@ import {
 	MultiSigPublicKey,
 	ObjectArg,
 	ObjectDigest,
+	PasskeyAuthenticator,
 	ProgrammableMoveCall,
 	ProgrammableTransaction,
 	PublicKey,
@@ -82,6 +83,7 @@ const haneulBcs = {
 	TransactionKind,
 	TypeTag,
 	TransactionEffects,
+	PasskeyAuthenticator,
 };
 
 export { haneulBcs as bcs };
