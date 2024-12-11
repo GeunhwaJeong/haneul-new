@@ -1,5 +1,12 @@
 # @haneullabs/enoki
 
+## 0.4.18
+
+### Patch Changes
+
+- Updated dependencies [20af12d]
+  - @haneullabs/haneul@1.17.0
+
 ## 0.4.17
 
 ### Patch Changes
