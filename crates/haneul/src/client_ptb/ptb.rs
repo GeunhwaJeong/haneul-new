@@ -173,6 +173,10 @@ impl PTB {
                 return Ok(());
             }
             HaneulClientCommandResult::TransactionBlock(response) => response,
+            HaneulClientCommandResult::DevInspect(response) => {
+                println!("{}", Pretty(&response));
+                return Ok(());
+            }
             _ => anyhow::bail!("Internal error, unexpected response from PTB execution."),
         };
 
