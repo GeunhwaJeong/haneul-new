@@ -17,7 +17,6 @@ This module provides handy functionality for wallets and <code>haneul::Coin</cod
 
 
 <pre><code><b>use</b> <a href="../haneul-framework/coin.md#0x2_coin">0x2::coin</a>;
-<b>use</b> <a href="../haneul-framework/transfer.md#0x2_transfer">0x2::transfer</a>;
 <b>use</b> <a href="../haneul-framework/tx_context.md#0x2_tx_context">0x2::tx_context</a>;
 </code></pre>
 
