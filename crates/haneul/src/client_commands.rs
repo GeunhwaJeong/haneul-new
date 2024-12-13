@@ -42,11 +42,11 @@ use haneul_source_validation::{BytecodeSourceVerifier, ValidationMode};
 use shared_crypto::intent::Intent;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    Coin, DevInspectArgs, DevInspectResults, DryRunTransactionBlockResponse, DynamicFieldPage,
-    HaneulCoinMetadata, HaneulData, HaneulExecutionStatus, HaneulObjectData, HaneulObjectDataOptions,
-    HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedData, HaneulProtocolConfigValue, HaneulRawData,
-    HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
-    HaneulTransactionBlockResponseOptions,
+    Coin, DevInspectArgs, DevInspectResults, DryRunTransactionBlockResponse, DynamicFieldInfo,
+    DynamicFieldPage, HaneulCoinMetadata, HaneulData, HaneulExecutionStatus, HaneulObjectData,
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedData,
+    HaneulProtocolConfigValue, HaneulRawData, HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI,
+    HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_move_build::{
@@ -66,7 +66,6 @@ use haneul_types::{
     base_types::{ObjectID, SequenceNumber, HaneulAddress},
     crypto::{EmptySignInfo, SignatureScheme},
     digests::TransactionDigest,
-    dynamic_field::DynamicFieldInfo,
     error::HaneulError,
     gas::GasCostSummary,
     gas_coin::GasCoin,

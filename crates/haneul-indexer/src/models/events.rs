@@ -7,7 +7,7 @@ use std::sync::Arc;
 use diesel::prelude::*;
 use move_core_types::identifier::Identifier;
 
-use haneul_json_rpc_types::{type_and_fields_from_move_event_data, HaneulEvent};
+use haneul_json_rpc_types::{type_and_fields_from_move_event_data, BcsEvent, HaneulEvent};
 use haneul_package_resolver::{PackageStore, Resolver};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::digests::TransactionDigest;
@@ -115,7 +115,7 @@ impl StoredEvent {
             transaction_module: Identifier::from_str(&self.module)?,
             sender,
             type_,
-            bcs: self.bcs,
+            bcs: BcsEvent::new(self.bcs),
             parsed_json,
             timestamp_ms: Some(self.timestamp_ms as u64),
         })

@@ -360,7 +360,7 @@ mod tests {
         types::{EmergencyAction, EmergencyActionType, LimitUpdateAction},
     };
     use ethers::types::{Address as EthAddress, TransactionReceipt};
-    use haneul_json_rpc_types::HaneulEvent;
+    use haneul_json_rpc_types::{BcsEvent, HaneulEvent};
     use haneul_types::bridge::{BridgeChainId, TOKEN_ID_USDC};
     use haneul_types::{base_types::HaneulAddress, crypto::get_key_pair};
 
@@ -456,12 +456,12 @@ mod tests {
 
         let mut haneul_event_1 = HaneulEvent::random_for_testing();
         haneul_event_1.type_ = HaneulToEthTokenBridgeV1.get().unwrap().clone();
-        haneul_event_1.bcs = bcs::to_bytes(&emitted_event_1).unwrap();
+        haneul_event_1.bcs = BcsEvent::new(bcs::to_bytes(&emitted_event_1).unwrap());
         let haneul_tx_digest = haneul_event_1.id.tx_digest;
 
         let mut haneul_event_2 = HaneulEvent::random_for_testing();
         haneul_event_2.type_ = HaneulToEthTokenBridgeV1.get().unwrap().clone();
-        haneul_event_2.bcs = bcs::to_bytes(&emitted_event_1).unwrap();
+        haneul_event_2.bcs = BcsEvent::new(bcs::to_bytes(&emitted_event_1).unwrap());
         let haneul_event_idx_2 = 1;
         haneul_client_mock.add_events_by_tx_digest(haneul_tx_digest, vec![haneul_event_2.clone()]);
 

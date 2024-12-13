@@ -18,6 +18,7 @@ use serde_json::json;
 
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc::error::Error;
+use haneul_json_rpc_types::BcsEvent;
 use haneul_json_rpc_types::DevInspectArgs;
 use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, CheckpointPage, Coin, CoinPage, DelegatedStake,
@@ -780,7 +781,7 @@ impl RpcExampleProvider {
             sender: HaneulAddress::from(ObjectID::new(self.rng.gen())),
             type_: parse_haneul_struct_tag("0x9::test::TestEvent").unwrap(),
             parsed_json: json!({"test": "example value"}),
-            bcs: vec![],
+            bcs: BcsEvent::new(vec![]),
             timestamp_ms: None,
         };
 
@@ -1163,6 +1164,7 @@ impl RpcExampleProvider {
                 version: SequenceNumber::from_u64(1),
                 digest: ObjectDigest::new(self.rng.gen()),
             })
+            .map(Into::into)
             .collect::<Vec<_>>();
 
         let next_cursor = ObjectID::new(self.rng.gen());
@@ -1316,7 +1318,7 @@ impl RpcExampleProvider {
                 sender: HaneulAddress::from(ObjectID::new(self.rng.gen())),
                 type_: StructTag::from_str("0x3::test::Test<0x3::test::Test>").unwrap(),
                 parsed_json: serde_json::Value::String("some_value".to_string()),
-                bcs: vec![],
+                bcs: BcsEvent::new(vec![]),
                 timestamp_ms: None,
             })
             .collect();
