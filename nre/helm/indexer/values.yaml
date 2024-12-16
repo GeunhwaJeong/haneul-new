@@ -30,7 +30,7 @@ env:
   RPC_CLIENT:
     value: "https://public-rpc.mainnet.haneul.io"
   REMOTE_STORE:
-    value: "https://checkpoints.mainnet.haneul.io"
+    value: "https://storage.googleapis/haneullabs-mainnet-checkpoints"
   DB_URL:
     valueFrom:
       secretKeyRef:

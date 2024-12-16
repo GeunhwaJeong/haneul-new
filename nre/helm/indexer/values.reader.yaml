@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-args: ["--db-url", "$(DB_URL)", "--rpc-client-url", "https://public-rpc.mainnet.haneul.io", "--remote-store-url", "https://checkpoints.mainnet.haneul.io", "--rpc-server-worker"]
+args: ["--db-url", "$(DB_URL)", "--rpc-client-url", "https://public-rpc.mainnet.haneul.io", "--remote-store-url", "https://storage.googleapis/haneullabs-mainnet-checkpoints", "--rpc-server-worker"]
 
 podAnnotations:
     app: haneul-indexer-reader
