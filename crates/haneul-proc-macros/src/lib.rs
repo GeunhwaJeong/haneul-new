@@ -200,7 +200,7 @@ pub fn sim_test(args: TokenStream, item: TokenStream) -> TokenStream {
         let return_type = &sig.output;
         let body = &input.block;
         quote! {
-            #[::haneul_simulator::sim_test(crate = "haneul_simulator", #(#args)*)]
+            #[::haneul_simulator::sim_test(crate = "haneul_simulator", #(#args),*)]
             #[::haneul_macros::init_static_initializers]
             #ignore
             #sig {
