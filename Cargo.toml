@@ -118,6 +118,7 @@ members = [
     "crates/haneul-indexer",
     "crates/haneul-indexer-alt",
     "crates/haneul-indexer-alt-framework",
+    "crates/haneul-indexer-alt-jsonrpc",
     "crates/haneul-indexer-alt-schema",
     "crates/haneul-indexer-builder",
     "crates/haneul-json",
@@ -641,6 +642,7 @@ haneul-graphql-rpc-headers = { path = "crates/haneul-graphql-rpc-headers" }
 haneul-genesis-builder = { path = "crates/haneul-genesis-builder" }
 haneul-indexer = { path = "crates/haneul-indexer" }
 haneul-indexer-alt-framework = { path = "crates/haneul-indexer-alt-framework" }
+haneul-indexer-alt-jsonrpc = { path = "crates/haneul-indexer-alt-jsonrpc" }
 haneul-indexer-alt-schema = { path = "crates/haneul-indexer-alt-schema" }
 haneul-indexer-builder = { path = "crates/haneul-indexer-builder" }
 haneul-json = { path = "crates/haneul-json" }
