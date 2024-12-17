@@ -32,8 +32,15 @@ async fn main() -> Result<(), anyhow::Error> {
     let haneul_testnet = HaneulClientBuilder::default().build_testnet().await?;
     println!("Haneul testnet version: {}", haneul_testnet.api_version());
 
-    println!("{:?}", haneul_local.available_rpc_methods());
-    println!("{:?}", haneul_local.available_subscriptions());
+    // Haneul mainnet -- https://fullnode.mainnet.haneul.io:443
+    let haneul_mainnet = HaneulClientBuilder::default().build_mainnet().await?;
+    println!("Haneul mainnet version: {}", haneul_mainnet.api_version());
+
+    println!("rpc methods: {:?}", haneul_testnet.available_rpc_methods());
+    println!(
+        "available subscriptions: {:?}",
+        haneul_testnet.available_subscriptions()
+    );
 
     Ok(())
 }

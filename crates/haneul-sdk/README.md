@@ -27,6 +27,10 @@ async fn main() -> Result<(), anyhow::Error> {
     let haneul_devnet = HaneulClientBuilder::default().build_devnet().await?;
     println!("Haneul devnet version: {}", haneul_devnet.api_version());
 
+    // Haneul mainnet -- https://fullnode.mainnet.haneul.io:443
+    let haneul_mainnet = HaneulClientBuilder::default().build_mainnet().await?;
+    println!("Haneul mainnet version: {}", haneul_mainnet.api_version());
+
     Ok(())
 }
 

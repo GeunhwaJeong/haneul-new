@@ -112,6 +112,7 @@ pub const HANEUL_LOCAL_NETWORK_URL_0: &str = "http://0.0.0.0:9000";
 pub const HANEUL_LOCAL_NETWORK_GAS_URL: &str = "http://127.0.0.1:5003/gas";
 pub const HANEUL_DEVNET_URL: &str = "https://fullnode.devnet.haneul.io:443";
 pub const HANEUL_TESTNET_URL: &str = "https://fullnode.testnet.haneul.io:443";
+pub const HANEUL_MAINNET_URL: &str = "https://fullnode.mainnet.haneul.io:443";
 
 /// A Haneul client builder for connecting to the Haneul network
 ///
@@ -342,6 +343,29 @@ impl HaneulClientBuilder {
     /// ```
     pub async fn build_testnet(self) -> HaneulRpcResult<HaneulClient> {
         self.build(HANEUL_TESTNET_URL).await
+    }
+
+    /// Returns a [HaneulClient] object that is ready to interact with the Haneul mainnet.
+    ///
+    /// For connecting to a custom URI, use the `build` function instead.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use haneul_sdk::HaneulClientBuilder;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), anyhow::Error> {
+    ///     let haneul = HaneulClientBuilder::default()
+    ///         .build_mainnet()
+    ///         .await?;
+    ///
+    ///     println!("{:?}", haneul.api_version());
+    ///     Ok(())
+    /// }
+    /// ```
+    pub async fn build_mainnet(self) -> HaneulRpcResult<HaneulClient> {
+        self.build(HANEUL_MAINNET_URL).await
     }
 
     /// Return the server information as a `ServerInfo` structure.
