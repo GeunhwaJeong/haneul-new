@@ -27,6 +27,8 @@ tabled.workspace = true
 move-binary-format.workspace = true
 move-core-types.workspace = true
 move-bytecode-utils.workspace = true
+move-disassembler.workspace = true
+move-ir-types.workspace = true
 
 haneullabs-metrics.workspace = true
 haneul-types.workspace = true
