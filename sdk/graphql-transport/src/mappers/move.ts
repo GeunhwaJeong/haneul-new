@@ -5,6 +5,7 @@ import type {
 	MoveStruct,
 	MoveValue,
 	HaneulMoveAbility,
+	HaneulMoveNormalizedEnum,
 	HaneulMoveNormalizedFunction,
 	HaneulMoveNormalizedModule,
 	HaneulMoveNormalizedStruct,
@@ -13,6 +14,7 @@ import type {
 import { normalizeHaneulAddress, parseStructTag } from '@haneullabs/haneul/utils';
 
 import type {
+	Rpc_Move_Enum_FieldsFragment,
 	Rpc_Move_Function_FieldsFragment,
 	Rpc_Move_Module_FieldsFragment,
 	Rpc_Move_Struct_FieldsFragment,
@@ -156,6 +158,7 @@ export function mapNormalizedMoveModule(
 ): HaneulMoveNormalizedModule {
 	const exposedFunctions: Record<string, HaneulMoveNormalizedFunction> = {};
 	const structs: Record<string, HaneulMoveNormalizedStruct> = {};
+	const enums: Record<string, HaneulMoveNormalizedEnum> = {};
 
 	module.functions?.nodes
 		.filter((func) => func.visibility === 'PUBLIC' || func.isEntry || func.visibility === 'FRIEND')
@@ -165,6 +168,10 @@ export function mapNormalizedMoveModule(
 
 	module.structs?.nodes.forEach((struct) => {
 		structs[struct.name] = mapNormalizedMoveStruct(struct);
+	});
+
+	module.enums?.nodes.forEach((enumNode) => {
+		enums[enumNode.name] = mapNormalizedMoveEnum(enumNode);
 	});
 
 	return {
@@ -177,6 +184,7 @@ export function mapNormalizedMoveModule(
 				name: friend.name,
 			})) ?? [],
 		structs,
+		enums: module.enums ? enums : undefined,
 		exposedFunctions,
 	};
 }
@@ -294,4 +302,37 @@ export function moveDataToRpcContent(data: MoveData, layout: MoveTypeLayout): Mo
 	}
 
 	throw new Error('Invalid move data: ' + JSON.stringify(data));
+}
+
+export function mapNormalizedMoveEnum(
+	enumNode: Rpc_Move_Enum_FieldsFragment,
+): HaneulMoveNormalizedEnum {
+	return {
+		abilities: {
+			abilities:
+				enumNode.abilities?.map(
+					(ability) => `${ability[0]}${ability.slice(1).toLowerCase()}` as HaneulMoveAbility,
+				) ?? [],
+		},
+		typeParameters:
+			enumNode.typeParameters?.map((param) => ({
+				isPhantom: param.isPhantom!,
+				constraints: {
+					abilities:
+						param.constraints?.map(
+							(constraint) =>
+								`${constraint[0]}${constraint.slice(1).toLowerCase()}` as HaneulMoveAbility,
+						) ?? [],
+				},
+			})) ?? [],
+		variants: Object.fromEntries(
+			enumNode.variants?.map((variant) => [
+				variant.name,
+				variant.fields?.map((field) => ({
+					name: field.name,
+					type: mapOpenMoveType(field.type?.signature),
+				})) ?? [],
+			]) ?? [],
+		),
+	};
 }
