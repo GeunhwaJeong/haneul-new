@@ -83,9 +83,27 @@ const { signature } = await keypair.signPersonalMessage(message);
 
 const publicKey = await verifyPersonalMessageSignature(message, signature);
 
-if (publicKey.toHaneulAddress() !== keypair.getPublicKey().toHaneulAddress()) {
+if (publicKey.verifyAddress(keypair.getPublicKey().toHaneulAddress())) {
 	throw new Error('Signature was valid, but was signed by a different key pair');
 }
+```
+
+## Verifying that a signature is valid for a specific address
+
+`verifyPersonalMessageSignature` and `verifyTransactionSignature` accept an optional `address`, and
+will throw an error if the signature is not valid for the provided address.
+
+```typescript
+import { Ed25519Keypair } from '@haneullabs/haneul/keypairs/ed25519';
+import { verifyPersonalMessageSignature } from '@haneullabs/haneul/verify';
+
+const keypair = new Ed25519Keypair();
+const message = new TextEncoder().encode('hello world');
+const { signature } = await keypair.signPersonalMessage(message);
+
+await verifyPersonalMessageSignature(message, signature, {
+	address: keypair.getPublicKey().toHaneulAddress(),
+});
 ```
 
 ## Verifying transaction signatures
@@ -108,14 +126,10 @@ const bytes = await tx.build({ client });
 const keypair = new Ed25519Keypair();
 const { signature } = await keypair.signTransaction(bytes);
 
-// if you have a public key, you can verify it
-//   const isValid = await publicKey.verifyTransaction(bytes, signature);
-// or get the public key from the transaction
-const publicKey = await verifyTransactionSignature(bytes, signature);
-
-if (publicKey.toHaneulAddress() !== keypair.getPublicKey().toHaneulAddress()) {
-	throw new Error('Signature was valid, but was signed by a different keyPair');
-}
+await verifyTransactionSignature(bytes, signature, {
+	// optionally verify that the signature is valid for a specific address
+	address: keypair.getPublicKey().toHaneulAddress(),
+});
 ```
 
 ## Verifying zkLogin signatures
@@ -136,6 +150,34 @@ const publicKey = await verifyPersonalMessageSignature(message, zkSignature, {
 	}),
 });
 ```
+
+For some zklogin accounts, there are 2 valid addresses for a given set of inputs. This means you may
+run into issues if you try to compare the address returned by `publicKey.toHaneulAddress()` directly
+with an expected address.
+
+Instead, you can either pass in the expected address during verification, or use the
+`publicKey.verifyAddress(address)` method:
+
+```typescript
+import { HaneulGraphQLClient } from '@haneullabs/haneul/graphql';
+import { verifyPersonalMessageSignature } from '@haneullabs/haneul/verify';
+
+const publicKey = await verifyPersonalMessageSignature(message, zkSignature, {
+	client: new HaneulGraphQLClient({
+		url: 'https://haneul-testnet.haneul-labs.com/graphql',
+	}),
+	// Pass in the expected address, and the verification method will throw an error if the signature is not valid for the provided address
+	address: '0x...expectedAddress',
+});
+// or
+
+if (!publicKey.verifyAddress('0x...expectedAddress')) {
+	throw new Error('Signature was valid, but was signed by a different key pair');
+}
+```
+
+Both of these methods will check the signature against both the standard and
+[legacy versions of the zklogin address](https://sdk.haneul-labs.com/typescript/zklogin#legacy-addresses).
 
 ## Deriving a key pair from a mnemonic
 

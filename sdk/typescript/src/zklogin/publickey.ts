@@ -55,16 +55,20 @@ export class ZkLoginPublicIdentifier extends PublicKey {
 
 	override toHaneulAddress(): string {
 		if (this.#legacyAddress) {
-			const legacyBytes = normalizeZkLoginPublicKeyBytes(this.#data, true);
-			const addressBytes = new Uint8Array(legacyBytes.length + 1);
-			addressBytes[0] = this.flag();
-			addressBytes.set(legacyBytes, 1);
-			return normalizeHaneulAddress(
-				bytesToHex(blake2b(addressBytes, { dkLen: 32 })).slice(0, HANEUL_ADDRESS_LENGTH * 2),
-			);
+			return this.#toLegacyAddress();
 		}
 
 		return super.toHaneulAddress();
+	}
+
+	#toLegacyAddress() {
+		const legacyBytes = normalizeZkLoginPublicKeyBytes(this.#data, true);
+		const addressBytes = new Uint8Array(legacyBytes.length + 1);
+		addressBytes[0] = this.flag();
+		addressBytes.set(legacyBytes, 1);
+		return normalizeHaneulAddress(
+			bytesToHex(blake2b(addressBytes, { dkLen: 32 })).slice(0, HANEUL_ADDRESS_LENGTH * 2),
+		);
 	}
 
 	/**
@@ -117,6 +121,13 @@ export class ZkLoginPublicIdentifier extends PublicKey {
 			intentScope: 'TRANSACTION_DATA',
 			client: this.#client,
 		});
+	}
+
+	/**
+	 * Verifies that the public key is associated with the provided address
+	 */
+	override verifyAddress(address: string): boolean {
+		return address === super.toHaneulAddress() || address === this.#toLegacyAddress();
 	}
 }
 
