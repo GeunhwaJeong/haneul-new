@@ -3,10 +3,12 @@
 
 use std::{path::PathBuf, time::Instant};
 
+use prometheus::Registry;
 use haneul_indexer_alt_framework::{ingestion::ClientArgs, Indexer, IndexerArgs};
 use haneul_indexer_alt_schema::MIGRATIONS;
 use haneul_pg_db::{reset_database, DbArgs};
 use haneul_synthetic_ingestion::synthetic_ingestion::read_ingestion_data;
+use tokio_util::sync::CancellationToken;
 
 use crate::{config::IndexerConfig, start_indexer};
 
@@ -59,7 +61,10 @@ pub async fn run_benchmark(
         client_args,
         indexer_config,
         false, /* with_genesis */
+        &Registry::new(),
+        CancellationToken::new(),
     )
+    .await?
     .await?;
 
     let elapsed = Instant::now().duration_since(cur_time);

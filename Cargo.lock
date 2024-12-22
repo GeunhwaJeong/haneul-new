@@ -14031,11 +14031,13 @@ dependencies = [
  "futures",
  "hex",
  "itertools 0.13.0",
+ "prometheus",
  "rand 0.8.5",
  "serde",
  "haneul-default-config",
  "haneul-field-count",
  "haneul-indexer-alt-framework",
+ "haneul-indexer-alt-metrics",
  "haneul-indexer-alt-schema",
  "haneul-pg-db",
  "haneul-protocol-config",
@@ -14111,6 +14113,19 @@ dependencies = [
  "tower-layer",
  "tracing",
  "url",
+]
+
+[[package]]
+name = "haneul-indexer-alt-metrics"
+version = "1.42.0"
+dependencies = [
+ "anyhow",
+ "axum 0.7.5",
+ "clap",
+ "prometheus",
+ "tokio",
+ "tokio-util 0.7.10",
+ "tracing",
 ]
 
 [[package]]

@@ -1,0 +1,16 @@
+[package]
+name = "haneul-indexer-alt-metrics"
+version.workspace = true
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[dependencies]
+anyhow.workspace = true
+axum.workspace = true
+clap.workspace = true
+prometheus.workspace = true
+tokio.workspace = true
+tokio-util.workspace = true
+tracing.workspace = true

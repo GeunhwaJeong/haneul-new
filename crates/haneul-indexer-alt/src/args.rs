@@ -8,6 +8,7 @@ use crate::benchmark::BenchmarkArgs;
 use crate::IndexerArgs;
 use clap::Subcommand;
 use haneul_indexer_alt_framework::ingestion::ClientArgs;
+use haneul_indexer_alt_metrics::MetricsArgs;
 use haneul_pg_db::DbArgs;
 
 #[derive(clap::Parser, Debug, Clone)]
@@ -29,6 +30,9 @@ pub enum Command {
 
         #[command(flatten)]
         indexer_args: IndexerArgs,
+
+        #[command(flatten)]
+        metrics_args: MetricsArgs,
 
         /// Path to the indexer's configuration TOML file.
         #[arg(long)]

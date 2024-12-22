@@ -7,15 +7,18 @@ use anyhow::bail;
 use anyhow::Context;
 use anyhow::Result;
 use clap::Parser;
+use prometheus::Registry;
 use haneul_indexer_alt::args::Args;
 use haneul_indexer_alt::args::Command;
 use haneul_indexer_alt::config::IndexerConfig;
 use haneul_indexer_alt::config::Merge;
 use haneul_indexer_alt::start_indexer;
 use haneul_indexer_alt_framework::Indexer;
+use haneul_indexer_alt_metrics::MetricsService;
 use haneul_indexer_alt_schema::MIGRATIONS;
 use haneul_pg_db::reset_database;
 use tokio::fs;
+use tokio_util::sync::CancellationToken;
 use tracing::info;
 
 #[tokio::main]
@@ -31,19 +34,37 @@ async fn main() -> Result<()> {
         Command::Indexer {
             client_args,
             indexer_args,
+            metrics_args,
             config,
         } => {
             let indexer_config = read_config(&config).await?;
             info!("Starting indexer with config: {:?}", indexer_config);
 
-            start_indexer(
+            let cancel = CancellationToken::new();
+
+            let registry = Registry::new_custom(Some("indexer_alt".into()), None)
+                .context("Failed to create Prometheus registry.")?;
+
+            let metrics = MetricsService::new(metrics_args, registry, cancel.child_token());
+
+            let h_indexer = start_indexer(
                 args.db_args,
                 indexer_args,
                 client_args,
                 indexer_config,
                 true,
+                metrics.registry(),
+                cancel.child_token(),
             )
             .await?;
+
+            let h_metrics = metrics.run().await?;
+
+            // Wait for the indexer to finish, then force the supporting services to shut down
+            // using the cancellation token.
+            let _ = h_indexer.await;
+            cancel.cancel();
+            let _ = h_metrics.await;
         }
 
         Command::GenerateConfig => {
