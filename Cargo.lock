@@ -14101,6 +14101,7 @@ dependencies = [
  "prometheus",
  "reqwest 0.12.5",
  "serde_json",
+ "haneul-indexer-alt-metrics",
  "haneul-indexer-alt-schema",
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
