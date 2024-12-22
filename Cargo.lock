@@ -14100,6 +14100,8 @@ dependencies = [
  "reqwest 0.12.5",
  "serde_json",
  "haneul-indexer-alt-schema",
+ "haneul-open-rpc",
+ "haneul-open-rpc-macros",
  "haneul-pg-db",
  "haneul-types",
  "telemetry-subscribers",
