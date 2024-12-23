@@ -435,7 +435,7 @@ mod tests {
     use haneul_types::balance::Supply;
     use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
     use haneul_types::coin::TreasuryCap;
-    use haneul_types::digests::{ObjectDigest, TransactionDigest, TransactionEventsDigest};
+    use haneul_types::digests::{ObjectDigest, TransactionDigest};
     use haneul_types::effects::{TransactionEffects, TransactionEvents};
     use haneul_types::error::{HaneulError, HaneulResult};
     use haneul_types::gas_coin::GAS;
@@ -455,7 +455,6 @@ mod tests {
                 &self,
                 transactions: &[TransactionDigest],
                 effects: &[TransactionDigest],
-                events: &[TransactionEventsDigest],
             ) -> HaneulResult<KVStoreTransactionData>;
 
             async fn multi_get_checkpoints(
@@ -1399,7 +1398,7 @@ mod tests {
                 .return_once(move |_| Ok(transaction_digest));
             mock_state
                 .expect_multi_get()
-                .return_once(move |_, _, _| Ok((vec![], vec![Some(transaction_effects)], vec![])));
+                .return_once(move |_, _| Ok((vec![], vec![Some(transaction_effects)])));
 
             let coin_read_api = CoinReadApi::new_for_tests(Arc::new(mock_state), None);
             let response = coin_read_api.get_total_supply(coin_name.clone()).await;

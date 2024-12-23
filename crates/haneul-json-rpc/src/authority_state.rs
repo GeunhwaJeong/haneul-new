@@ -24,7 +24,7 @@ use haneul_types::base_types::{
 };
 use haneul_types::bridge::Bridge;
 use haneul_types::committee::{Committee, EpochId};
-use haneul_types::digests::{ChainIdentifier, TransactionDigest, TransactionEventsDigest};
+use haneul_types::digests::{ChainIdentifier, TransactionDigest};
 use haneul_types::dynamic_field::DynamicFieldInfo;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::error::{HaneulError, UserInputError};
@@ -57,7 +57,6 @@ pub trait StateRead: Send + Sync {
         &self,
         transactions: &[TransactionDigest],
         effects: &[TransactionDigest],
-        events: &[TransactionEventsDigest],
     ) -> StateReadResult<KVStoreTransactionData>;
 
     fn get_object_read(&self, object_id: &ObjectID) -> StateReadResult<ObjectRead>;
@@ -235,14 +234,12 @@ impl StateRead for AuthorityState {
         &self,
         transactions: &[TransactionDigest],
         effects: &[TransactionDigest],
-        events: &[TransactionEventsDigest],
     ) -> StateReadResult<KVStoreTransactionData> {
         Ok(
             <AuthorityState as TransactionKeyValueStoreTrait>::multi_get(
                 self,
                 transactions,
                 effects,
-                events,
             )
             .await?,
         )
