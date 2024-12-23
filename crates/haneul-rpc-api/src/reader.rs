@@ -3,10 +3,8 @@
 
 use std::sync::Arc;
 
-use haneul_sdk_types::types::{
-    CheckpointSequenceNumber, EpochId, SignedTransaction, ValidatorCommittee,
-};
-use haneul_sdk_types::types::{Object, ObjectId, Version};
+use haneul_sdk_types::{CheckpointSequenceNumber, EpochId, SignedTransaction, ValidatorCommittee};
+use haneul_sdk_types::{Object, ObjectId, Version};
 use haneul_types::storage::error::{Error as StorageError, Result};
 use haneul_types::storage::ObjectStore;
 use haneul_types::storage::RpcStateReader;
@@ -66,11 +64,11 @@ impl StateReader {
 
     pub fn get_transaction(
         &self,
-        digest: haneul_sdk_types::types::TransactionDigest,
+        digest: haneul_sdk_types::TransactionDigest,
     ) -> crate::Result<(
-        haneul_sdk_types::types::SignedTransaction,
-        haneul_sdk_types::types::TransactionEffects,
-        Option<haneul_sdk_types::types::TransactionEvents>,
+        haneul_sdk_types::SignedTransaction,
+        haneul_sdk_types::TransactionEffects,
+        Option<haneul_sdk_types::TransactionEvents>,
     )> {
         use super::rest::transactions::TransactionNotFoundError;
         use haneul_types::effects::TransactionEffectsAPI;
@@ -115,7 +113,7 @@ impl StateReader {
 
     pub fn get_transaction_read(
         &self,
-        digest: haneul_sdk_types::types::TransactionDigest,
+        digest: haneul_sdk_types::TransactionDigest,
     ) -> crate::Result<TransactionRead> {
         let (
             SignedTransaction {
@@ -165,11 +163,11 @@ impl StateReader {
 
 #[derive(Debug)]
 pub struct TransactionRead {
-    pub digest: haneul_sdk_types::types::TransactionDigest,
-    pub transaction: haneul_sdk_types::types::Transaction,
-    pub signatures: Vec<haneul_sdk_types::types::UserSignature>,
-    pub effects: haneul_sdk_types::types::TransactionEffects,
-    pub events: Option<haneul_sdk_types::types::TransactionEvents>,
+    pub digest: haneul_sdk_types::TransactionDigest,
+    pub transaction: haneul_sdk_types::Transaction,
+    pub signatures: Vec<haneul_sdk_types::UserSignature>,
+    pub effects: haneul_sdk_types::TransactionEffects,
+    pub events: Option<haneul_sdk_types::TransactionEvents>,
     pub checkpoint: Option<u64>,
     pub timestamp_ms: Option<u64>,
 }

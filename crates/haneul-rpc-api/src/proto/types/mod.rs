@@ -18,15 +18,15 @@ mod transaction_convert;
 // Address
 //
 
-impl From<haneul_sdk_types::types::Address> for Address {
-    fn from(value: haneul_sdk_types::types::Address) -> Self {
+impl From<haneul_sdk_types::Address> for Address {
+    fn from(value: haneul_sdk_types::Address) -> Self {
         Self {
             address: Some(value.as_bytes().to_vec().into()),
         }
     }
 }
 
-impl TryFrom<&Address> for haneul_sdk_types::types::Address {
+impl TryFrom<&Address> for haneul_sdk_types::Address {
     type Error = TryFromProtoError;
 
     fn try_from(Address { address }: &Address) -> Result<Self, Self::Error> {
@@ -44,15 +44,15 @@ impl TryFrom<&Address> for haneul_sdk_types::types::Address {
 // ObjectId
 //
 
-impl From<haneul_sdk_types::types::ObjectId> for ObjectId {
-    fn from(value: haneul_sdk_types::types::ObjectId) -> Self {
+impl From<haneul_sdk_types::ObjectId> for ObjectId {
+    fn from(value: haneul_sdk_types::ObjectId) -> Self {
         Self {
             object_id: Some(value.as_bytes().to_vec().into()),
         }
     }
 }
 
-impl TryFrom<&ObjectId> for haneul_sdk_types::types::ObjectId {
+impl TryFrom<&ObjectId> for haneul_sdk_types::ObjectId {
     type Error = TryFromProtoError;
 
     fn try_from(ObjectId { object_id }: &ObjectId) -> Result<Self, Self::Error> {
@@ -70,15 +70,15 @@ impl TryFrom<&ObjectId> for haneul_sdk_types::types::ObjectId {
 // Digest
 //
 
-impl From<haneul_sdk_types::types::Digest> for Digest {
-    fn from(value: haneul_sdk_types::types::Digest) -> Self {
+impl From<haneul_sdk_types::Digest> for Digest {
+    fn from(value: haneul_sdk_types::Digest) -> Self {
         Self {
             digest: Some(value.as_bytes().to_vec().into()),
         }
     }
 }
 
-impl TryFrom<&Digest> for haneul_sdk_types::types::Digest {
+impl TryFrom<&Digest> for haneul_sdk_types::Digest {
     type Error = TryFromProtoError;
 
     fn try_from(Digest { digest }: &Digest) -> Result<Self, Self::Error> {
@@ -94,17 +94,17 @@ impl TryFrom<&Digest> for haneul_sdk_types::types::Digest {
 
 macro_rules! impl_digest_proto {
     ($t:ident) => {
-        impl From<haneul_sdk_types::types::$t> for Digest {
-            fn from(value: haneul_sdk_types::types::$t) -> Self {
-                haneul_sdk_types::types::Digest::from(value).into()
+        impl From<haneul_sdk_types::$t> for Digest {
+            fn from(value: haneul_sdk_types::$t) -> Self {
+                haneul_sdk_types::Digest::from(value).into()
             }
         }
 
-        impl TryFrom<&Digest> for haneul_sdk_types::types::$t {
+        impl TryFrom<&Digest> for haneul_sdk_types::$t {
             type Error = TryFromProtoError;
 
             fn try_from(digest: &Digest) -> Result<Self, Self::Error> {
-                haneul_sdk_types::types::Digest::try_from(digest).map(Into::into)
+                haneul_sdk_types::Digest::try_from(digest).map(Into::into)
             }
         }
     };

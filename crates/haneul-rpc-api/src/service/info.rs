@@ -3,7 +3,7 @@
 
 use crate::Result;
 use crate::{types::NodeInfo, RpcService};
-use haneul_sdk_types::types::CheckpointDigest;
+use haneul_sdk_types::CheckpointDigest;
 use tap::Pipe;
 
 impl RpcService {

@@ -4,7 +4,7 @@
 use haneul_macros::sim_test;
 use haneul_rpc_api::types::ExecuteTransactionOptions;
 use haneul_rpc_api::Client;
-use haneul_sdk_types::types::BalanceChange;
+use haneul_sdk_types::BalanceChange;
 use haneul_test_transaction_builder::make_transfer_haneul_transaction;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::effects::TransactionEffectsAPI;

@@ -15,8 +15,8 @@ pub use resolve::ResolveTransactionResponse;
 
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
-use haneul_sdk_types::types::CheckpointSequenceNumber;
-use haneul_sdk_types::types::TransactionDigest;
+use haneul_sdk_types::CheckpointSequenceNumber;
+use haneul_sdk_types::TransactionDigest;
 use tap::Pipe;
 
 use crate::rest::openapi::ApiEndpoint;

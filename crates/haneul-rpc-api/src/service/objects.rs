@@ -5,8 +5,8 @@ use crate::types::GetObjectOptions;
 use crate::types::ObjectResponse;
 use crate::Result;
 use crate::RpcService;
-use haneul_sdk_types::types::ObjectId;
-use haneul_sdk_types::types::Version;
+use haneul_sdk_types::ObjectId;
+use haneul_sdk_types::Version;
 use tap::Pipe;
 
 impl RpcService {

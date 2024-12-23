@@ -5,10 +5,10 @@ use tap::Pipe;
 // TransactionEffects
 //
 
-impl From<haneul_sdk_types::types::TransactionEffects> for super::TransactionEffects {
-    fn from(value: haneul_sdk_types::types::TransactionEffects) -> Self {
+impl From<haneul_sdk_types::TransactionEffects> for super::TransactionEffects {
+    fn from(value: haneul_sdk_types::TransactionEffects) -> Self {
         use super::transaction_effects::Version;
-        use haneul_sdk_types::types::TransactionEffects::*;
+        use haneul_sdk_types::TransactionEffects::*;
 
         let version = match value {
             V1(v1) => Version::V1((*v1).into()),
@@ -21,7 +21,7 @@ impl From<haneul_sdk_types::types::TransactionEffects> for super::TransactionEff
     }
 }
 
-impl TryFrom<&super::TransactionEffects> for haneul_sdk_types::types::TransactionEffects {
+impl TryFrom<&super::TransactionEffects> for haneul_sdk_types::TransactionEffects {
     type Error = TryFromProtoError;
 
     fn try_from(value: &super::TransactionEffects) -> Result<Self, Self::Error> {
@@ -43,9 +43,9 @@ impl TryFrom<&super::TransactionEffects> for haneul_sdk_types::types::Transactio
 // TransactionEffectsV1
 //
 
-impl From<haneul_sdk_types::types::TransactionEffectsV1> for super::TransactionEffectsV1 {
+impl From<haneul_sdk_types::TransactionEffectsV1> for super::TransactionEffectsV1 {
     fn from(
-        haneul_sdk_types::types::TransactionEffectsV1 {
+        haneul_sdk_types::TransactionEffectsV1 {
             status,
             epoch,
             gas_used,
@@ -61,7 +61,7 @@ impl From<haneul_sdk_types::types::TransactionEffectsV1> for super::TransactionE
             gas_object,
             events_digest,
             dependencies,
-        }: haneul_sdk_types::types::TransactionEffectsV1,
+        }: haneul_sdk_types::TransactionEffectsV1,
     ) -> Self {
         Self {
             status: Some(status.into()),
@@ -83,7 +83,7 @@ impl From<haneul_sdk_types::types::TransactionEffectsV1> for super::TransactionE
     }
 }
 
-impl TryFrom<&super::TransactionEffectsV1> for haneul_sdk_types::types::TransactionEffectsV1 {
+impl TryFrom<&super::TransactionEffectsV1> for haneul_sdk_types::TransactionEffectsV1 {
     type Error = TryFromProtoError;
 
     fn try_from(
@@ -196,9 +196,9 @@ impl TryFrom<&super::TransactionEffectsV1> for haneul_sdk_types::types::Transact
 // TransactionEffectsV2
 //
 
-impl From<haneul_sdk_types::types::TransactionEffectsV2> for super::TransactionEffectsV2 {
+impl From<haneul_sdk_types::TransactionEffectsV2> for super::TransactionEffectsV2 {
     fn from(
-        haneul_sdk_types::types::TransactionEffectsV2 {
+        haneul_sdk_types::TransactionEffectsV2 {
             status,
             epoch,
             gas_used,
@@ -210,7 +210,7 @@ impl From<haneul_sdk_types::types::TransactionEffectsV2> for super::TransactionE
             changed_objects,
             unchanged_shared_objects,
             auxiliary_data_digest,
-        }: haneul_sdk_types::types::TransactionEffectsV2,
+        }: haneul_sdk_types::TransactionEffectsV2,
     ) -> Self {
         Self {
             status: Some(status.into()),
@@ -231,7 +231,7 @@ impl From<haneul_sdk_types::types::TransactionEffectsV2> for super::TransactionE
     }
 }
 
-impl TryFrom<&super::TransactionEffectsV2> for haneul_sdk_types::types::TransactionEffectsV2 {
+impl TryFrom<&super::TransactionEffectsV2> for haneul_sdk_types::TransactionEffectsV2 {
     type Error = TryFromProtoError;
 
     fn try_from(
@@ -310,8 +310,8 @@ impl TryFrom<&super::TransactionEffectsV2> for haneul_sdk_types::types::Transact
 // ModifiedAtVersion
 //
 
-impl From<haneul_sdk_types::types::ModifiedAtVersion> for super::ModifiedAtVersion {
-    fn from(value: haneul_sdk_types::types::ModifiedAtVersion) -> Self {
+impl From<haneul_sdk_types::ModifiedAtVersion> for super::ModifiedAtVersion {
+    fn from(value: haneul_sdk_types::ModifiedAtVersion) -> Self {
         Self {
             object_id: Some(value.object_id.into()),
             version: Some(value.version),
@@ -319,7 +319,7 @@ impl From<haneul_sdk_types::types::ModifiedAtVersion> for super::ModifiedAtVersi
     }
 }
 
-impl TryFrom<&super::ModifiedAtVersion> for haneul_sdk_types::types::ModifiedAtVersion {
+impl TryFrom<&super::ModifiedAtVersion> for haneul_sdk_types::ModifiedAtVersion {
     type Error = TryFromProtoError;
 
     fn try_from(value: &super::ModifiedAtVersion) -> Result<Self, Self::Error> {
@@ -340,8 +340,8 @@ impl TryFrom<&super::ModifiedAtVersion> for haneul_sdk_types::types::ModifiedAtV
 // ObjectReferenceWithOwner
 //
 
-impl From<haneul_sdk_types::types::ObjectReferenceWithOwner> for super::ObjectReferenceWithOwner {
-    fn from(value: haneul_sdk_types::types::ObjectReferenceWithOwner) -> Self {
+impl From<haneul_sdk_types::ObjectReferenceWithOwner> for super::ObjectReferenceWithOwner {
+    fn from(value: haneul_sdk_types::ObjectReferenceWithOwner) -> Self {
         Self {
             reference: Some(value.reference.into()),
             owner: Some(value.owner.into()),
@@ -349,7 +349,7 @@ impl From<haneul_sdk_types::types::ObjectReferenceWithOwner> for super::ObjectRe
     }
 }
 
-impl TryFrom<&super::ObjectReferenceWithOwner> for haneul_sdk_types::types::ObjectReferenceWithOwner {
+impl TryFrom<&super::ObjectReferenceWithOwner> for haneul_sdk_types::ObjectReferenceWithOwner {
     type Error = TryFromProtoError;
 
     fn try_from(value: &super::ObjectReferenceWithOwner) -> Result<Self, Self::Error> {
@@ -373,18 +373,18 @@ impl TryFrom<&super::ObjectReferenceWithOwner> for haneul_sdk_types::types::Obje
 // ChangedObject
 //
 
-impl From<haneul_sdk_types::types::ChangedObject> for super::ChangedObject {
-    fn from(value: haneul_sdk_types::types::ChangedObject) -> Self {
+impl From<haneul_sdk_types::ChangedObject> for super::ChangedObject {
+    fn from(value: haneul_sdk_types::ChangedObject) -> Self {
         Self {
             object_id: Some(value.object_id.into()),
-            input_state: Some(value.change.input_state.into()),
-            output_state: Some(value.change.output_state.into()),
-            id_operation: Some(value.change.id_operation.into()),
+            input_state: Some(value.input_state.into()),
+            output_state: Some(value.output_state.into()),
+            id_operation: Some(value.id_operation.into()),
         }
     }
 }
 
-impl TryFrom<&super::ChangedObject> for haneul_sdk_types::types::ChangedObject {
+impl TryFrom<&super::ChangedObject> for haneul_sdk_types::ChangedObject {
     type Error = TryFromProtoError;
 
     fn try_from(value: &super::ChangedObject) -> Result<Self, Self::Error> {
@@ -414,11 +414,9 @@ impl TryFrom<&super::ChangedObject> for haneul_sdk_types::types::ChangedObject {
 
         Ok(Self {
             object_id,
-            change: haneul_sdk_types::types::EffectsObjectChange {
-                input_state,
-                output_state,
-                id_operation,
-            },
+            input_state,
+            output_state,
+            id_operation,
         })
     }
 }
@@ -427,11 +425,11 @@ impl TryFrom<&super::ChangedObject> for haneul_sdk_types::types::ChangedObject {
 // InputState
 //
 
-impl From<haneul_sdk_types::types::ObjectIn> for super::changed_object::InputState {
-    fn from(value: haneul_sdk_types::types::ObjectIn) -> Self {
+impl From<haneul_sdk_types::ObjectIn> for super::changed_object::InputState {
+    fn from(value: haneul_sdk_types::ObjectIn) -> Self {
         match value {
-            haneul_sdk_types::types::ObjectIn::NotExist => Self::NotExist(()),
-            haneul_sdk_types::types::ObjectIn::Exist {
+            haneul_sdk_types::ObjectIn::NotExist => Self::NotExist(()),
+            haneul_sdk_types::ObjectIn::Exist {
                 version,
                 digest,
                 owner,
@@ -444,7 +442,7 @@ impl From<haneul_sdk_types::types::ObjectIn> for super::changed_object::InputSta
     }
 }
 
-impl TryFrom<&super::changed_object::InputState> for haneul_sdk_types::types::ObjectIn {
+impl TryFrom<&super::changed_object::InputState> for haneul_sdk_types::ObjectIn {
     type Error = TryFromProtoError;
 
     fn try_from(value: &super::changed_object::InputState) -> Result<Self, Self::Error> {
@@ -476,9 +474,9 @@ impl TryFrom<&super::changed_object::InputState> for haneul_sdk_types::types::Ob
 // OutputState
 //
 
-impl From<haneul_sdk_types::types::ObjectOut> for super::changed_object::OutputState {
-    fn from(value: haneul_sdk_types::types::ObjectOut) -> Self {
-        use haneul_sdk_types::types::ObjectOut::*;
+impl From<haneul_sdk_types::ObjectOut> for super::changed_object::OutputState {
+    fn from(value: haneul_sdk_types::ObjectOut) -> Self {
+        use haneul_sdk_types::ObjectOut::*;
         match value {
             NotExist => Self::Removed(()),
             ObjectWrite { digest, owner } => Self::ObjectWrite(super::ObjectWrite {
@@ -493,7 +491,7 @@ impl From<haneul_sdk_types::types::ObjectOut> for super::changed_object::OutputS
     }
 }
 
-impl TryFrom<&super::changed_object::OutputState> for haneul_sdk_types::types::ObjectOut {
+impl TryFrom<&super::changed_object::OutputState> for haneul_sdk_types::ObjectOut {
     type Error = TryFromProtoError;
 
     fn try_from(value: &super::changed_object::OutputState) -> Result<Self, Self::Error> {
@@ -528,9 +526,9 @@ impl TryFrom<&super::changed_object::OutputState> for haneul_sdk_types::types::O
 // IdOperation
 //
 
-impl From<haneul_sdk_types::types::IdOperation> for super::changed_object::IdOperation {
-    fn from(value: haneul_sdk_types::types::IdOperation) -> Self {
-        use haneul_sdk_types::types::IdOperation::*;
+impl From<haneul_sdk_types::IdOperation> for super::changed_object::IdOperation {
+    fn from(value: haneul_sdk_types::IdOperation) -> Self {
+        use haneul_sdk_types::IdOperation::*;
 
         match value {
             None => Self::None(()),
@@ -540,7 +538,7 @@ impl From<haneul_sdk_types::types::IdOperation> for super::changed_object::IdOpe
     }
 }
 
-impl TryFrom<&super::changed_object::IdOperation> for haneul_sdk_types::types::IdOperation {
+impl TryFrom<&super::changed_object::IdOperation> for haneul_sdk_types::IdOperation {
     type Error = TryFromProtoError;
 
     fn try_from(value: &super::changed_object::IdOperation) -> Result<Self, Self::Error> {
@@ -559,8 +557,8 @@ impl TryFrom<&super::changed_object::IdOperation> for haneul_sdk_types::types::I
 // UnchangedSharedObject
 //
 
-impl From<haneul_sdk_types::types::UnchangedSharedObject> for super::UnchangedSharedObject {
-    fn from(value: haneul_sdk_types::types::UnchangedSharedObject) -> Self {
+impl From<haneul_sdk_types::UnchangedSharedObject> for super::UnchangedSharedObject {
+    fn from(value: haneul_sdk_types::UnchangedSharedObject) -> Self {
         Self {
             object_id: Some(value.object_id.into()),
             kind: Some(value.kind.into()),
@@ -568,7 +566,7 @@ impl From<haneul_sdk_types::types::UnchangedSharedObject> for super::UnchangedSh
     }
 }
 
-impl TryFrom<&super::UnchangedSharedObject> for haneul_sdk_types::types::UnchangedSharedObject {
+impl TryFrom<&super::UnchangedSharedObject> for haneul_sdk_types::UnchangedSharedObject {
     type Error = TryFromProtoError;
 
     fn try_from(value: &super::UnchangedSharedObject) -> Result<Self, Self::Error> {
@@ -592,9 +590,9 @@ impl TryFrom<&super::UnchangedSharedObject> for haneul_sdk_types::types::Unchang
 // UnchangedSharedKind
 //
 
-impl From<haneul_sdk_types::types::UnchangedSharedKind> for super::unchanged_shared_object::Kind {
-    fn from(value: haneul_sdk_types::types::UnchangedSharedKind) -> Self {
-        use haneul_sdk_types::types::UnchangedSharedKind::*;
+impl From<haneul_sdk_types::UnchangedSharedKind> for super::unchanged_shared_object::Kind {
+    fn from(value: haneul_sdk_types::UnchangedSharedKind) -> Self {
+        use haneul_sdk_types::UnchangedSharedKind::*;
 
         match value {
             ReadOnlyRoot { version, digest } => Self::ReadOnlyRoot(super::ReadOnlyRoot {
@@ -609,7 +607,7 @@ impl From<haneul_sdk_types::types::UnchangedSharedKind> for super::unchanged_sha
     }
 }
 
-impl TryFrom<&super::unchanged_shared_object::Kind> for haneul_sdk_types::types::UnchangedSharedKind {
+impl TryFrom<&super::unchanged_shared_object::Kind> for haneul_sdk_types::UnchangedSharedKind {
     type Error = TryFromProtoError;
 
     fn try_from(value: &super::unchanged_shared_object::Kind) -> Result<Self, Self::Error> {

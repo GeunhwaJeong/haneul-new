@@ -21,13 +21,12 @@ use axum::extract::State;
 use axum::Json;
 use itertools::Itertools;
 use move_binary_format::normalized;
-use schemars::JsonSchema;
 use haneul_protocol_config::ProtocolConfig;
-use haneul_sdk_types::types::unresolved;
-use haneul_sdk_types::types::Argument;
-use haneul_sdk_types::types::Command;
-use haneul_sdk_types::types::ObjectId;
-use haneul_sdk_types::types::Transaction;
+use haneul_sdk_transaction_builder::unresolved;
+use haneul_sdk_types::Argument;
+use haneul_sdk_types::Command;
+use haneul_sdk_types::ObjectId;
+use haneul_sdk_types::Transaction;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::HaneulAddress;
@@ -184,7 +183,7 @@ async fn resolve_transaction(
 }
 
 /// Query parameters for the resolve transaction endpoint
-#[derive(Debug, Default, serde::Serialize, serde::Deserialize, JsonSchema)]
+#[derive(Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct ResolveTransactionQueryParameters {
     /// Request that the fully resolved transaction be simulated and have its results sent back in
     /// the response.
@@ -298,7 +297,7 @@ fn resolve_unresolved_transaction(
 }
 
 /// Response type for the execute transaction endpoint
-#[derive(Debug, serde::Serialize, serde::Deserialize, JsonSchema)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct ResolveTransactionResponse {
     pub transaction: Transaction,
     pub simulation: Option<TransactionSimulationResponse>,
@@ -409,7 +408,7 @@ fn resolve_arg(
 ) -> Result<CallArg> {
     use fastcrypto::encoding::Base64;
     use fastcrypto::encoding::Encoding;
-    use haneul_sdk_types::types::unresolved::InputKind::*;
+    use haneul_sdk_transaction_builder::unresolved::InputKind::*;
 
     let unresolved::Input {
         kind,
@@ -508,8 +507,8 @@ fn resolve_object(
     commands: &[Command],
     arg_idx: usize,
     object_id: ObjectId,
-    version: Option<haneul_sdk_types::types::Version>,
-    digest: Option<haneul_sdk_types::types::ObjectDigest>,
+    version: Option<haneul_sdk_types::Version>,
+    digest: Option<haneul_sdk_types::ObjectDigest>,
     _mutable: Option<bool>,
 ) -> Result<ObjectArg> {
     let id = object_id.into();
@@ -614,7 +613,7 @@ fn is_input_argument_receiving(
 // real type needs to be lookedup from the provided type args in the MoveCall itself
 fn arg_type_of_move_call_input<'a>(
     called_packages: &'a HashMap<ObjectId, NormalizedPackage>,
-    move_call: &haneul_sdk_types::types::MoveCall,
+    move_call: &haneul_sdk_types::MoveCall,
     idx: usize,
 ) -> Result<&'a move_binary_format::normalized::Type> {
     let function = called_packages

@@ -1,5 +1,5 @@
 use super::types as proto;
-use haneul_sdk_types::types::*;
+use haneul_sdk_types::*;
 use test_strategy::proptest;
 
 macro_rules! protobuf_roundtrip_test {
