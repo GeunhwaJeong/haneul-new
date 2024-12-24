@@ -116,6 +116,7 @@ members = [
     "crates/haneul-http",
     "crates/haneul-indexer",
     "crates/haneul-indexer-alt",
+    "crates/haneul-indexer-alt-e2e-tests",
     "crates/haneul-indexer-alt-framework",
     "crates/haneul-indexer-alt-jsonrpc",
     "crates/haneul-indexer-alt-metrics",
@@ -640,6 +641,7 @@ haneul-graphql-rpc-headers = { path = "crates/haneul-graphql-rpc-headers" }
 haneul-genesis-builder = { path = "crates/haneul-genesis-builder" }
 haneul-http = { path = "crates/haneul-http" }
 haneul-indexer = { path = "crates/haneul-indexer" }
+haneul-indexer-alt = { path = "crates/haneul-indexer-alt" }
 haneul-indexer-alt-framework = { path = "crates/haneul-indexer-alt-framework" }
 haneul-indexer-alt-jsonrpc = { path = "crates/haneul-indexer-alt-jsonrpc" }
 haneul-indexer-alt-metrics = { path = "crates/haneul-indexer-alt-metrics" }

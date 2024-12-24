@@ -14054,6 +14054,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-indexer-alt-e2e-tests"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "datatest-stable",
+ "diesel",
+ "diesel-async",
+ "msim",
+ "prometheus",
+ "reqwest 0.12.5",
+ "serde_json",
+ "haneul-indexer-alt",
+ "haneul-indexer-alt-framework",
+ "haneul-indexer-alt-jsonrpc",
+ "haneul-pg-db",
+ "haneul-transactional-test-runner",
+ "telemetry-subscribers",
+ "tokio",
+ "tokio-util 0.7.10",
+ "url",
+]
+
+[[package]]
 name = "haneul-indexer-alt-framework"
 version = "1.42.0"
 dependencies = [
