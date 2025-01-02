@@ -642,6 +642,7 @@ haneul-graphql-rpc = { path = "crates/haneul-graphql-rpc" }
 haneul-graphql-rpc-client = { path = "crates/haneul-graphql-rpc-client" }
 haneul-graphql-rpc-headers = { path = "crates/haneul-graphql-rpc-headers" }
 haneul-genesis-builder = { path = "crates/haneul-genesis-builder" }
+haneul-http = { path = "crates/haneul-http" }
 haneul-indexer = { path = "crates/haneul-indexer" }
 haneul-indexer-alt-framework = { path = "crates/haneul-indexer-alt-framework" }
 haneul-indexer-alt-jsonrpc = { path = "crates/haneul-indexer-alt-jsonrpc" }
