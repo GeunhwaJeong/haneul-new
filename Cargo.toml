@@ -115,6 +115,7 @@ members = [
     "crates/haneul-graphql-rpc",
     "crates/haneul-graphql-rpc-client",
     "crates/haneul-graphql-rpc-headers",
+    "crates/haneul-http",
     "crates/haneul-indexer",
     "crates/haneul-indexer-alt",
     "crates/haneul-indexer-alt-framework",
