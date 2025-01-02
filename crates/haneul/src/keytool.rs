@@ -191,7 +191,7 @@ pub enum KeyToolCommand {
     /// [enum HaneulKeyPair] (Base64 encoded of 33-byte `flag || privkey`) or `type AuthorityKeyPair`
     /// (Base64 encoded `privkey`). It prints its Base64 encoded public key and the key scheme flag.
     Show { file: PathBuf },
-    /// Create signature using the private key for for the given address (or its alias) in haneul keystore.
+    /// Create signature using the private key for the given address (or its alias) in haneul keystore.
     /// Any signature commits to a [struct IntentMessage] consisting of the Base64 encoded
     /// of the BCS serialized transaction bytes itself and its intent. If intent is absent,
     /// default will be used.

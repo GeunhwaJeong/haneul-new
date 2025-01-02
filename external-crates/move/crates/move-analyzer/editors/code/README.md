@@ -26,7 +26,7 @@ binary stored in a different location.
 If you want to build, test, and trace Move code using the extension, you must install the `haneul` binary on
 your machine - see [here](https://docs.haneul.io/guides/developer/getting-started/haneul-install) for
 instructions. The extension assumes that the `haneul` binary is in your system path, but you can set
-its custom location location using VSCode's settings (`⌘` + `,` on macOS, or use the menu item *Code >
+its custom location using VSCode's settings (`⌘` + `,` on macOS, or use the menu item *Code >
 Preferences > Settings*). Search for the `move.haneul.path` user setting, set it to the new location of
 the `haneul` binary, and restart VSCode.
 
