@@ -14673,6 +14673,7 @@ dependencies = [
  "haneul-archival",
  "haneul-config",
  "haneul-core",
+ "haneul-http",
  "haneul-json-rpc",
  "haneul-json-rpc-api",
  "haneul-macros",
