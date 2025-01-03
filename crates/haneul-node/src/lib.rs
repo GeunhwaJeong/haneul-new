@@ -28,7 +28,6 @@ use haneul_core::authority::authority_store_tables::AuthorityPerpetualTablesOpti
 use haneul_core::authority::backpressure::BackpressureManager;
 use haneul_core::authority::epoch_start_configuration::EpochFlag;
 use haneul_core::authority::RandomnessRoundReceiver;
-use haneul_core::authority::CHAIN_IDENTIFIER;
 use haneul_core::consensus_adapter::ConsensusClient;
 use haneul_core::consensus_manager::UpdatableConsensusClient;
 use haneul_core::epoch::randomness::RandomnessManager;
@@ -608,8 +607,6 @@ impl HaneulNode {
         };
 
         let chain_identifier = ChainIdentifier::from(*genesis.checkpoint().digest());
-        // It's ok if the value is already set due to data races.
-        let _ = CHAIN_IDENTIFIER.set(chain_identifier);
 
         info!("creating archive reader");
         // Create network
@@ -659,8 +656,12 @@ impl HaneulNode {
 
         info!("start snapshot upload");
         // Start uploading state snapshot to remote store
-        let state_snapshot_handle =
-            Self::start_state_snapshot(&config, &prometheus_registry, checkpoint_store.clone())?;
+        let state_snapshot_handle = Self::start_state_snapshot(
+            &config,
+            &prometheus_registry,
+            checkpoint_store.clone(),
+            chain_identifier,
+        )?;
 
         // Start uploading db checkpoints to remote store
         info!("start db checkpoint");
@@ -709,6 +710,7 @@ impl HaneulNode {
             config.indirect_objects_threshold,
             archive_readers,
             validator_tx_finalizer,
+            chain_identifier,
         )
         .await;
         // ensure genesis txn was executed
@@ -961,6 +963,7 @@ impl HaneulNode {
         config: &NodeConfig,
         prometheus_registry: &Registry,
         checkpoint_store: Arc<CheckpointStore>,
+        chain_identifier: ChainIdentifier,
     ) -> Result<Option<tokio::sync::broadcast::Sender<()>>> {
         if let Some(remote_store_config) = &config.state_snapshot_write_config.object_store_config {
             let snapshot_uploader = StateSnapshotUploader::new(
@@ -970,6 +973,7 @@ impl HaneulNode {
                 60,
                 prometheus_registry,
                 checkpoint_store,
+                chain_identifier,
             )?;
             Ok(Some(snapshot_uploader.start()))
         } else {
@@ -1989,8 +1993,8 @@ fn build_kv_store(
         )
     })?;
 
-    let network_str = match state.get_chain_identifier().map(|c| c.chain()) {
-        Some(Chain::Mainnet) => "/mainnet",
+    let network_str = match state.get_chain_identifier().chain() {
+        Chain::Mainnet => "/mainnet",
         _ => {
             info!("using local db only for kv store");
             return Ok(Arc::new(db_store));
@@ -2078,11 +2082,7 @@ pub async fn build_http_server(
                     reverse_registry_id,
                 )
             } else {
-                match CHAIN_IDENTIFIER
-                    .get()
-                    .expect("chain_id should be initialized")
-                    .chain()
-                {
+                match state.get_chain_identifier().chain() {
                     Chain::Mainnet => haneul_json_rpc::name_service::NameServiceConfig::mainnet(),
                     Chain::Testnet => haneul_json_rpc::name_service::NameServiceConfig::testnet(),
                     Chain::Unknown => haneul_json_rpc::name_service::NameServiceConfig::default(),

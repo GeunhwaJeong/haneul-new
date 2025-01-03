@@ -462,12 +462,8 @@ impl RpcStateReader for RestReadStore {
         }
     }
 
-    fn get_chain_identifier(
-        &self,
-    ) -> haneul_types::storage::error::Result<haneul_types::digests::ChainIdentifier> {
-        self.state
-            .get_chain_identifier()
-            .ok_or_else(|| StorageError::missing("unable to query chain identifier"))
+    fn get_chain_identifier(&self) -> Result<haneul_types::digests::ChainIdentifier> {
+        Ok(self.state.get_chain_identifier())
     }
 
     fn indexes(&self) -> Option<&dyn RpcIndexes> {
