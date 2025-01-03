@@ -214,5 +214,4 @@ github = [
     "bmwill",
     "haneullabs",
     "nextest-rs",
-    "wlmyng", # jsonrpsee fork
 ]

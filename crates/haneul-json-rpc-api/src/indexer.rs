@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use jsonrpsee::core::RpcResult;
+use jsonrpsee::core::{RpcResult, SubscriptionResult};
 use jsonrpsee::proc_macros::rpc;
 
 use haneul_json_rpc_types::HaneulTransactionBlockEffects;
@@ -71,11 +71,11 @@ pub trait IndexerApi {
         &self,
         /// The filter criteria of the event stream. See [Event filter](https://docs.haneul.io/build/event_api#event-filters) documentation for examples.
         filter: EventFilter,
-    );
+    ) -> SubscriptionResult;
 
     /// Subscribe to a stream of Haneul transaction effects
     #[subscription(name = "subscribeTransaction", item = HaneulTransactionBlockEffects)]
-    fn subscribe_transaction(&self, filter: TransactionFilter);
+    fn subscribe_transaction(&self, filter: TransactionFilter) -> SubscriptionResult;
 
     /// Return the list of dynamic field objects owned by an object.
     #[method(name = "getDynamicFields")]

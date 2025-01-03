@@ -30,7 +30,7 @@ pub type HaneulMoveTypeParameterIndex = u16;
 #[path = "unit_tests/haneul_move_tests.rs"]
 mod haneul_move_tests;
 
-#[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
 pub enum HaneulMoveAbility {
     Copy,
     Drop,
@@ -38,33 +38,33 @@ pub enum HaneulMoveAbility {
     Key,
 }
 
-#[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
 pub struct HaneulMoveAbilitySet {
     pub abilities: Vec<HaneulMoveAbility>,
 }
 
-#[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
 pub enum HaneulMoveVisibility {
     Private,
     Public,
     Friend,
 }
 
-#[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct HaneulMoveStructTypeParameter {
     pub constraints: HaneulMoveAbilitySet,
     pub is_phantom: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
 pub struct HaneulMoveNormalizedField {
     pub name: String,
     #[serde(rename = "type")]
     pub type_: HaneulMoveNormalizedType,
 }
 
-#[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct HaneulMoveNormalizedStruct {
     pub abilities: HaneulMoveAbilitySet,
@@ -72,7 +72,7 @@ pub struct HaneulMoveNormalizedStruct {
     pub fields: Vec<HaneulMoveNormalizedField>,
 }
 
-#[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct HaneulMoveNormalizedEnum {
     pub abilities: HaneulMoveAbilitySet,
@@ -80,7 +80,7 @@ pub struct HaneulMoveNormalizedEnum {
     pub variants: BTreeMap<String, Vec<HaneulMoveNormalizedField>>,
 }
 
-#[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
 pub enum HaneulMoveNormalizedType {
     Bool,
     U8,
@@ -104,7 +104,7 @@ pub enum HaneulMoveNormalizedType {
     MutableReference(Box<HaneulMoveNormalizedType>),
 }
 
-#[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct HaneulMoveNormalizedFunction {
     pub visibility: HaneulMoveVisibility,
@@ -114,13 +114,13 @@ pub struct HaneulMoveNormalizedFunction {
     pub return_: Vec<HaneulMoveNormalizedType>,
 }
 
-#[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
 pub struct HaneulMoveModuleId {
     address: String,
     name: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct HaneulMoveNormalizedModule {
     pub file_format_version: u32,
@@ -325,14 +325,14 @@ impl From<AbilitySet> for HaneulMoveAbilitySet {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
 pub enum ObjectValueKind {
     ByImmutableReference,
     ByMutableReference,
     ByValue,
 }
 
-#[derive(Serialize, Deserialize, Debug, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
 pub enum MoveFunctionArgType {
     Pure,
     Object(ObjectValueKind),
