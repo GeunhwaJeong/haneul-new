@@ -140,7 +140,6 @@ impl AuthorityServer {
         let tls_config = haneul_tls::create_rustls_server_config(
             self.state.config.network_key_pair().copy().private(),
             HANEUL_TLS_SERVER_NAME.to_string(),
-            haneul_tls::AllowAll,
         );
         let server = haneullabs_network::config::Config::new()
             .server_builder()
