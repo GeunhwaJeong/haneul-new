@@ -54,7 +54,7 @@ url.workspace = true
 haneul-config.workspace = true
 haneul-bridge.workspace = true
 haneul-cluster-test.workspace = true
-haneul-execution = { path = "../../haneul-execution" }
+haneul-execution.workspace = true
 haneul-faucet.workspace = true
 haneul-swarm-config.workspace = true
 haneul-graphql-rpc.workspace = true

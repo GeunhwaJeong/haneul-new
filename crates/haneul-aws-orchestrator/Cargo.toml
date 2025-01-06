@@ -28,9 +28,9 @@ tokio = { workspace = true, features = ["full"] }
 prometheus-parse.workspace = true
 
 haneullabs-metrics.workspace = true
-haneul-config = { path = "../haneul-config" }
-haneul-types = { path = "../haneul-types" }
-haneul-swarm-config = { path = "../haneul-swarm-config" }
+haneul-config.workspace = true
+haneul-types.workspace = true
+haneul-swarm-config.workspace = true
 
 [dev-dependencies]
 tempfile = "3.6.0"

@@ -21,17 +21,17 @@ chrono.workspace = true
 tap.workspace = true
 bcs.workspace = true
 
-haneul-config = { path = "../haneul-config" }
-haneul-json-rpc-types = { path = "../haneul-json-rpc-types" }
-haneul-sdk = { path = "../haneul-sdk" }
-haneul-types = { path = "../haneul-types" }
-haneullabs-metrics = { path = "../haneullabs-metrics" }
+haneul-config.workspace = true
+haneul-json-rpc-types.workspace = true
+haneul-sdk.workspace = true
+haneul-types.workspace = true
+haneullabs-metrics.workspace = true
 telemetry-subscribers.workspace = true
 
 [dev-dependencies]
-haneul-keys = { path = "../haneul-keys" }
-haneul-move-build = { path = "../haneul-move-build" }
-shared-crypto = { path = "../shared-crypto" }
+haneul-keys.workspace = true
+haneul-move-build.workspace = true
+shared-crypto.workspace = true
 bcs = "0.1.5"
 rand = "0.8.5"
 dirs = "4.0.0"

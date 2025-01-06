@@ -70,7 +70,7 @@ shared-crypto.workspace = true
 haneul-archival.workspace = true
 haneul-config.workspace = true
 haneul-authority-aggregation.workspace = true
-haneul-execution = { path = "../../haneul-execution" }
+haneul-execution.workspace = true
 haneul-framework.workspace = true
 haneul-swarm-config.workspace = true
 haneul-genesis-builder.workspace = true
