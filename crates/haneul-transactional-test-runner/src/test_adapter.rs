@@ -66,6 +66,7 @@ use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI, Transacti
 use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointContentsDigest, CheckpointSequenceNumber, VerifiedCheckpoint,
 };
+use haneul_types::messages_consensus::ConsensusDeterminedVersionAssignments;
 use haneul_types::object::bounded_visitor::BoundedVisitor;
 use haneul_types::storage::ReadStore;
 use haneul_types::storage::{ObjectStore, RpcStateReader};
@@ -768,7 +769,7 @@ impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter {
                     0,
                     timestamp_ms,
                     ConsensusCommitDigest::default(),
-                    Vec::new(),
+                    ConsensusDeterminedVersionAssignments::empty_for_testing(),
                 );
                 let summary = self.execute_txn(transaction.into()).await?;
                 let output = self.object_summary_output(&summary, /* summarize */ false);

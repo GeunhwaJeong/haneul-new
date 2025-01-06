@@ -19,6 +19,7 @@ use move_core_types::ident_str;
 use std::sync::Arc;
 use haneul_macros::{register_fail_point_arg, sim_test};
 use haneul_protocol_config::{Chain, PerObjectCongestionControlMode, ProtocolConfig, ProtocolVersion};
+use haneul_types::base_types::ConsensusObjectSequenceKey;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::{InputSharedObject, TransactionEffectsAPI};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
@@ -200,8 +201,8 @@ async fn update_objects(
     sender: &HaneulAddress,
     sender_key: &AccountKeyPair,
     gas_object_id: &ObjectID,
-    shared_object_1: &(ObjectID, SequenceNumber),
-    shared_object_2: &(ObjectID, SequenceNumber),
+    shared_object_1: &ConsensusObjectSequenceKey,
+    shared_object_2: &ConsensusObjectSequenceKey,
     owned_object: &ObjectRef,
 ) -> (Transaction, TransactionEffects) {
     let mut txn_builder = ProgrammableTransactionBuilder::new();

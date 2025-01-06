@@ -27,6 +27,7 @@ use haneul_swarm_config::network_config_builder::ConfigBuilder;
 use haneul_types::base_types::{AuthorityName, ObjectID, VersionNumber};
 use haneul_types::crypto::AuthoritySignature;
 use haneul_types::digests::ConsensusCommitDigest;
+use haneul_types::messages_consensus::ConsensusDeterminedVersionAssignments;
 use haneul_types::object::Object;
 use haneul_types::storage::{ObjectStore, ReadStore, RpcStateReader};
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
@@ -234,7 +235,7 @@ impl<R, S: store::SimulatorStore> Simulacrum<R, S> {
                 round,
                 timestamp_ms,
                 ConsensusCommitDigest::default(),
-                Vec::new(),
+                ConsensusDeterminedVersionAssignments::empty_for_testing(),
             );
 
         self.execute_transaction(consensus_commit_prologue_transaction.into())

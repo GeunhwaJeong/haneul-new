@@ -27,6 +27,7 @@ use haneul_types::execution_status::{
 };
 use haneul_types::full_checkpoint_content::{CheckpointData, CheckpointTransaction};
 use haneul_types::messages_checkpoint::CertifiedCheckpointSummary;
+use haneul_types::messages_consensus::ConsensusDeterminedVersionAssignments;
 use haneul_types::messages_grpc::ObjectInfoRequestKind;
 use haneul_types::move_package::TypeOrigin;
 use haneul_types::object::Object;
@@ -204,6 +205,9 @@ fn get_registry() -> Result<Registry> {
         .trace_type::<ObjectInfoRequestKind>(&samples)
         .unwrap();
     tracer.trace_type::<TransactionKind>(&samples).unwrap();
+    tracer
+        .trace_type::<ConsensusDeterminedVersionAssignments>(&samples)
+        .unwrap();
     tracer.trace_type::<MoveObjectType>(&samples).unwrap();
     tracer.trace_type::<MoveObjectType_>(&samples).unwrap();
     tracer
