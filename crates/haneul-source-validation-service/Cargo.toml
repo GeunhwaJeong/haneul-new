@@ -25,7 +25,7 @@ tracing = "0.1.36"
 serde = { version = "1.0.144", features = ["derive"] }
 url = "2.3.1"
 
-haneul-move.workspace = true 
+haneul-move.workspace = true
 haneul-move-build.workspace = true
 haneul-sdk.workspace = true
 haneul-source-validation.workspace = true
@@ -48,6 +48,6 @@ fs_extra = "1.3.0"
 reqwest.workspace = true
 
 haneul.workspace = true
-haneul-move = { workspace = true, features = ["all"] }
+haneul-move.workspace = true
 haneul-json-rpc-types.workspace = true
 test-cluster.workspace = true

@@ -67,7 +67,7 @@ haneul-json-rpc-types.workspace = true
 haneul-sdk.workspace = true
 haneul-keys.workspace = true
 haneul-source-validation.workspace = true
-haneul-move = { workspace = true, features = ["all"] }
+haneul-move.workspace = true
 haneul-move-build.workspace = true
 haneul-package-management.workspace = true
 haneul-protocol-config.workspace = true

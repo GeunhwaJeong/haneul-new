@@ -19,7 +19,7 @@ datatest-stable.workspace = true
 prometheus.workspace = true
 
 haneul-framework.workspace = true
-haneul-move = { workspace = true, features = ["unit_test"] }
+haneul-move.workspace = true
 haneul-move-build.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
