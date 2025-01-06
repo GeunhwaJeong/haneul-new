@@ -15218,6 +15218,7 @@ dependencies = [
  "serde_json",
  "haneul-config",
  "haneul-core",
+ "haneul-indexer-alt-framework",
  "haneul-protocol-config",
  "haneul-storage",
  "haneul-types",
