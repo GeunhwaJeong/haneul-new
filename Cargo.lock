@@ -13187,6 +13187,7 @@ dependencies = [
  "haneul-json",
  "haneul-json-rpc-types",
  "haneul-keys",
+ "haneul-move-build",
  "haneul-pg-db",
  "haneul-sdk",
  "haneul-swarm",

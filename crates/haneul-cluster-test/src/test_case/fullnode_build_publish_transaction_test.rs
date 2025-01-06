@@ -4,8 +4,8 @@
 use crate::{TestCaseImpl, TestContext};
 use async_trait::async_trait;
 use jsonrpsee::rpc_params;
-use haneul_core::test_utils::compile_basics_package;
 use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
+use haneul_move_build::test_utils::compile_basics_package;
 use haneul_types::{base_types::ObjectID, object::Owner};
 
 pub struct FullNodeBuildPublishTransactionTest;
