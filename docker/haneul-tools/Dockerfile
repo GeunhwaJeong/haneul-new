@@ -33,8 +33,8 @@ RUN cargo build --profile ${PROFILE} \
 FROM debian:bullseye-slim AS runtime
 WORKDIR "$WORKDIR/haneul"
 
-# haneul-tool needs libpq at runtime
-RUN apt-get update && apt-get install -y libpq5 libpq-dev ca-certificates
+# haneul-tool needs libpq at runtime and uses git when fetching move dependencies during build
+RUN apt-get update && apt-get install -y libpq5 libpq-dev ca-certificates git
 
 COPY --from=builder /haneul/target/release/haneul-node /usr/local/bin
 COPY --from=builder /haneul/target/release/stress /usr/local/bin
