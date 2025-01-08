@@ -117,60 +117,61 @@ As you have learned, the function fails when the `ColorObject` is immutable.
 
 First, view the objects you own:
 
-```shell
-export ADDR=`haneul client active-address`
-
-haneul client objects $ADDR
+```sh
+$ export ADDR=`haneul client active-address`
+```
+```sh
+$ haneul client objects $ADDR
 ```
 
 Publish the `ColorObject` code on-chain using the Haneul Client CLI:
 
 {@include: ../../snippets/info-gas-budget.mdx}
 
-```shell
-haneul client publish $ROOT/examples/move/color_object --gas-budget <GAS-AMOUNT>
+```sh
+$ haneul client publish $ROOT/examples/move/color_object --gas-budget <GAS-AMOUNT>
 ```
 
 Set the package object ID to the `$PACKAGE` environment variable, if you have it set. Then create a new `ColorObject`:
 
-```shell
-haneul client call --gas-budget <GAS-AMOUNT> --package $PACKAGE --module "color_object" --function "create" --args 0 255 0
+```sh
+$ haneul client call --gas-budget <GAS-AMOUNT> --package $PACKAGE --module "color_object" --function "create" --args 0 255 0
 ```
 
 Set the newly created object ID to `$OBJECT`. To view the objects in the current active address:
 
-```shell
-haneul client objects $ADDR
+```sh
+$ haneul client objects $ADDR
 ```
 
 You should see an object with the ID you used for `$OBJECT`. To turn it into an immutable object:
 
-```shell
-haneul client call --gas-budget <GAS-AMOUNT> --package $PACKAGE --module "color_object" --function "freeze_object" --args \"$OBJECT\"
+```sh
+$ haneul client call --gas-budget <GAS-AMOUNT> --package $PACKAGE --module "color_object" --function "freeze_object" --args \"$OBJECT\"
 ```
 
 View the list of objects again:
 
-```shell
-haneul client objects $ADDR
+```sh
+$ haneul client objects $ADDR
 ```
 
 `$OBJECT` is no longer listed. It's no longer owned by anyone. You can see that it's now immutable by querying the object information:
 
-```shell
-haneul client object $OBJECT
+```sh
+$ haneul client object $OBJECT
 ```
 
 The response includes:
 
-```shell
+```sh
 Owner: Immutable
 ```
 
 If you try to mutate it:
 
-```shell
-haneul client call --gas-budget <GAS-AMOUNT> --package $PACKAGE --module "color_object" --function "update" --args \"$OBJECT\" 0 0 0
+```sh
+$ haneul client call --gas-budget <GAS-AMOUNT> --package $PACKAGE --module "color_object" --function "update" --args \"$OBJECT\" 0 0 0
 ```
 
 The response indicates that you can't pass an immutable object to a mutable argument.

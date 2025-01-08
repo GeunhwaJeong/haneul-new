@@ -30,8 +30,8 @@ First, [Install Haneul](./haneul-install.mdx#install-binaries). After you instal
 
 To check whether Haneul is already installed, run the following command:
 
-```shell
-which haneul
+```sh
+$ which haneul
 ```
 
 If Haneul is installed, the command returns the path to the Haneul binary. If Haneul is not installed, it returns `haneul not found`.
@@ -44,8 +44,8 @@ If you previously ran `haneul genesis` to create a local network, it created a H
 
 To connect the Haneul client to a network, run the following command:
 
-```shell
-haneul client
+```sh
+$ haneul client
 ```
 
 If you receive the `haneul-client` help output in the console, you already have a client.yaml file. See [Connect to a custom RPC endpoint](#connect-to-a-custom-rpc-endpoint) to add a new environment alias or to switch the currently active network.
@@ -93,7 +93,7 @@ If you previously installed a Haneul client that connected to a Haneul network, 
 To check currently available environment aliases, run the following command: 
 
 ```sh
-haneul client envs
+$ haneul client envs
 ```
 
 The command outputs the available environment aliases, with `(active)` denoting the currently active network.
@@ -104,14 +104,14 @@ devnet => https://fullnode.devnet.haneul.io:443
 
 To add a new alias for a custom RPC endpoint, run the following command. Replace values in `<` `>` with values for your installation:
 
-```shell
-haneul client new-env --alias <ALIAS> --rpc <RPC-SERVER-URL>
+```sh
+$ haneul client new-env --alias <ALIAS> --rpc <RPC-SERVER-URL>
 ```
 
 To switch the active network, run the following command:
 
-```shell
-haneul client switch --env <ALIAS>
+```sh
+$ haneul client switch --env <ALIAS>
 ```
 
 If you encounter an issue, delete the Haneul configuration directory (`~/.haneul/haneul_config`) and reinstall the latest [Haneul binaries](./haneul-install.mdx#install-haneul-binaries).

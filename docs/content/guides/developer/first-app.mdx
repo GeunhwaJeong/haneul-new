@@ -9,13 +9,13 @@ You use Move to write packages that live on chain, meaning they exist on the Han
 
 You use the `move` Haneul CLI command for some instructions. The Haneul CLI installs with the binaries, so you have it on your system if you follow the install instructions. To verify you have it installed, run the following command in a terminal or console.
 
-```shell
+```sh
 $ haneul --version
 ```
 
 If the console does not respond with a version number similar to the following, see the instructions to install Haneul.
 
-```shell
+```sh
 $ haneul 1.xx.x-abc123xyz
 ```
 
@@ -28,7 +28,7 @@ After installing Haneul, you can connect to a network. Haneul has three public n
 If you already have a network config set up, switch your active environment to Testnet. The following instruction is for the initial set up. 
 
 1. In your terminal or console, use the following command to begin the configuration:
-    ```shell
+    ```sh
     $ haneul client
     ```
 1. At the prompt, type <kbd>y</kbd> and press <kbd>Enter</kbd> to connect to a Haneul Full node server.
@@ -37,11 +37,11 @@ If you already have a network config set up, switch your active environment to T
 1. At the following prompt, type `0` and press <kbd>Enter</kbd>. The selection creates an address in the `ed25519` signing scheme.
 1. The response provides an alias for your address, the actual address ID, and a secret recovery phrase. Be sure to save this information for later reference. Because this is on the Testnet network, the security of this information is not as important as if it were on Mainnet.
 1. In your terminal or console, use the following command to get HANEUL for your account.
-    ```shell
+    ```sh
     $ haneul client faucet
     ```
 1. You can confirm that you received HANEUL by using the following command. There may be a delay in receiving coins depending on the activity of the network.
-    ```shell
+    ```sh
     $ haneul client gas
     ```
 You are now connected to the Haneul Testnet network and should have an account with available HANEUL.  

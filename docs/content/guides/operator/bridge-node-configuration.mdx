@@ -9,10 +9,12 @@ Running a Bridge Validator Node (Bridge Node) requires registering your node wit
 
 To set up and run a Bridge Node, you need to install `haneul` and `haneul-bridge-cli`. You can install them using one of the following options: 
 
+Install from tip of `main`:
 ```sh
-# install from tip of `main`
 $ cargo install --locked --git "https://github.com/GeunhwaJeong/haneul.git" haneul haneul-bridge-cli
-# install with a commit sha
+```
+Install with a commit sha:
+```sh
 $ cargo install --locked --git "https://github.com/GeunhwaJeong/haneul.git" --rev {SHA} haneul haneul-bridge-cli
 ```
 
@@ -182,7 +184,7 @@ haneul:
 To create a `BridgeClient` key pair, run
 
 ```sh
-haneul-bridge-cli create-bridge-client-key <PATH_TO_BRIDGE_CLIENT_KEY>
+$ haneul-bridge-cli create-bridge-client-key <PATH_TO_BRIDGE_CLIENT_KEY>
 ```
 This prints the newly created Haneul Address. Then we need to fund this address with some HANEUL for operations.
 
@@ -194,20 +196,30 @@ Build or install Bridge Node in one of the following ways:
 - Use `cargo install`.
     ```sh
     $ cargo install --locked --git "https://github.com/GeunhwaJeong/haneul.git" --branch {BRANCH-NAME} haneul-bridge
-    # OR
+    ```
+    Or
+    ```sh
     $ cargo install --locked --git "https://github.com/GeunhwaJeong/haneul.git" --rev {SHA-NAME} haneul-bridge
     ```
 - Compile from source code
     ```sh
     $ git clone https://github.com/GeunhwaJeong/haneul.git
+    ```
+    ```sh
     $ cd haneul
+    ```
+    ```sh
     $ git fetch origin {BRANCH-NAME|SHA}
+    ```
+    ```sh
     $ git checkout {BRANCH-NAME|SHA}
+    ```
+    ```sh
     $ cargo build --release --bin haneul-bridge
     ```
 - Use `curl`/`wget` pre-built binaries (for Linux/AMD64 only).
-    ```
-    curl https://haneul-releases.s3.us-east-1.amazonaws.com/{SHA}/haneul-bridge -o haneul-bridge
+    ```sh
+    $ curl https://haneul-releases.s3.us-east-1.amazonaws.com/{SHA}/haneul-bridge -o haneul-bridge
     ```
 - Use pre-built Docker image. Pull from Docker Hub: `haneullabs/haneul-tools:{SHA}`
 

@@ -219,7 +219,7 @@ When using the [Haneul CLI](/references/cli.mdx) for the first time, it creates 
 
 There are three ways to initialize a key:
 
-```shell
+```sh
 # generate randomly.
 haneul client new-address ed25519
 haneul client new-address secp256k1
@@ -242,11 +242,17 @@ Create a transfer transaction in the CLI. Set the `$HANEUL_ADDRESS` to the one c
 
 {@include: ../../../snippets/info-gas-budget.mdx}
 
-```shell
-haneul client gas
-haneul client transfer-haneul --to $HANEUL_ADDRESS --haneul-coin-object-id $GAS_COIN_ID --gas-budget $GAS_BUDGET --serialize-unsigned-transaction
-haneul keytool sign --address $HANEUL_ADDRESS --data $TX_BYTES
-haneul client execute-signed-tx --tx-bytes $TX_BYTES --signatures $SERIALIZED_SIGNATURE
+```sh
+$ haneul client gas
+```
+```sh
+$ haneul client transfer-haneul --to $HANEUL_ADDRESS --haneul-coin-object-id $GAS_COIN_ID --gas-budget $GAS_BUDGET --serialize-unsigned-transaction
+```
+```sh
+$ haneul keytool sign --address $HANEUL_ADDRESS --data $TX_BYTES
+```
+```sh
+$ haneul client execute-signed-tx --tx-bytes $TX_BYTES --signatures $SERIALIZED_SIGNATURE
 ```
 
 </TabItem>

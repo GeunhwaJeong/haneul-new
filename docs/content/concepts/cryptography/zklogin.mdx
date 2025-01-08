@@ -313,7 +313,7 @@ The following options support a zkLogin signature over either transaction data o
 1. Use the [Haneul Keytool CLI](../../references/cli/keytool.mdx). This is recommended for debug usage. 
 
    ```sh
-   $HANEUL_BINARY keytool zk-login-sig-verify --sig $ZKLOGIN_SIG --bytes $BYTES --intent-scope 3 --network devnet --curr-epoch 3
+   $ haneul keytool zk-login-sig-verify --sig $ZKLOGIN_SIG --bytes $BYTES --intent-scope 3 --network devnet --curr-epoch 3
    ```
 
 1. Use a self-hosted server endpoint and call this endpoint, as described in [zklogin-verifier](https://github.com/GeunhwaJeong/zklogin-verifier). This provides logic flexibility.

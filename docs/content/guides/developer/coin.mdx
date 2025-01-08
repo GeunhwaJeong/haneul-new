@@ -21,13 +21,13 @@ If you published the previous example to a Haneul network, you can use the `hane
 
 {@include: ../../snippets/info-gas-budget.mdx}
 
-```shell
-haneul client call --function mint --module mycoin --package <PACKAGE-ID> --args <TREASURY-CAP-ID> <COIN-AMOUNT> <RECIPIENT-ADDRESS> --gas-budget <GAS-AMOUNT>
+```sh
+$ haneul client call --function mint --module mycoin --package <PACKAGE-ID> --args <TREASURY-CAP-ID> <COIN-AMOUNT> <RECIPIENT-ADDRESS> --gas-budget <GAS-AMOUNT>
 ```
 
 If the call is successful your console displays the result, which includes a **Balance Changes** section with the following information included:
 
-```shell
+```sh
 ...
 
 Owner: Account Address ( <RECIPIENT-ADDRESS> ) 

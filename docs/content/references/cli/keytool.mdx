@@ -71,8 +71,10 @@ The following examples demonstrate some of the most often used commands.
 Use the `haneul keytool list` command to output all the Haneul addresses that exist in the `~/.haneul/haneul_config/haneul.keystore` file in a readable format. 
 
 
-```shell
+```sh
 $ haneul keytool list
+```
+```sh
 ╭────────────────────────────────────────────────────────────────────────────────────────────╮
 │ ╭─────────────────┬──────────────────────────────────────────────────────────────────────╮ │
 │ │ haneulAddress      │  0x3047f142a84297a42a65fb0a8c7a716d9d1b0bd0413d6bfa5ddfec45df175235  │ │
@@ -95,8 +97,10 @@ $ haneul keytool list
 
 To generate a new key pair with the `ed25519` scheme, use the `haneul keytool generate ed25519` command. For other schemes, see `haneul keytool generate –help`. The key pair file is saved to the current directory with its filename being the address. The content of the file is a Base64 encoded string of 33-byte `flag || privkey`. 
 
-```shell
+```sh
 $ haneul keytool generate ed25519
+```
+```sh
 ╭─────────────────┬───────────────────────────────────────────────────────────────────────────────────╮
 │ haneulAddress      │  0x5d8aa70f17d9343813d3ba6a59ecf5e8a23ffb487938e860999a722989eaef25               │
 │ publicBase64Key │  AKTAGf9iv0JqeLXXlsr4PUzBXb9VY8lK7xiZMS50GSu6                                     │
@@ -111,8 +115,10 @@ $ haneul keytool generate ed25519
 
 Use `haneul keytool show [filename]` to show the key pair data that is stored in a file. For example, the previous command generated a file named `0x5d8aa70f17d9343813d3ba6a59ecf5e8a23ffb487938e860999a722989eaef25.key`. 
 
-```shell
+```sh
 $ haneul keytool show 0x5d8aa70f17d9343813d3ba6a59ecf5e8a23ffb487938e860999a722989eaef25.key
+```
+```sh
 ╭─────────────────┬──────────────────────────────────────────────────────────────────────╮
 │ haneulAddress      │  0x5d8aa70f17d9343813d3ba6a59ecf5e8a23ffb487938e860999a722989eaef25  │
 │ publicBase64Key │  AC+AKTAGf9iv0JqeLXXlsr4PUzBXb9VY8lK7xiZMS50GSu6                     │
@@ -124,9 +130,10 @@ $ haneul keytool show 0x5d8aa70f17d9343813d3ba6a59ecf5e8a23ffb487938e860999a7229
 
 ### Sign a transaction
 
-```shell
+```sh
 $ haneul keytool sign --data AAABACBRRpLwgknD6ZV3mc4pB0aVhAQiVkv/heQktW3kYpE+DQEBAQABAAAwR/FCqEKXpCpl+wqMenFtnRsL0EE9a/pd3+xF3xdSNQEaEUeErlBmGWxz3Bh+9BZh2mzayodzsri7xIZNDHRA3wIAAAAAAAAAILsR2d1FIZ5+ADDYZtJ2e9CWlpAxsGd4Y2rZrjlyTUF1MEfxQqhCl6QqZfsKjHpxbZ0bC9BBPWv6Xd/sRd8XUjXoAwAAAAAAAICWmAAAAAAAAA== --address 0x3047f142a84297a42a65fb0a8c7a716d9d1b0bd0413d6bfa5ddfec45df175235
-
+```
+```sh
 ╭──────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ haneulAddress   │ 0x3047f142a84297a42a65fb0a8c7a716d9d1b0bd0413d6bfa5ddfec45df175235                                                                                               │
 │ rawTxData    │ AAABACBRRpLwgknD6ZV3mc4pB0aVhAQiVkv/heQktW3kYpE+DQEBAQABAAAwR/FCqEKXpCpl+wqMenFtnRsL0EE9a/pd3+xF3xdSNQEaEUeErlBmGWxz3Bh+9BZh2mzayodzsri7xIZNDHRA3wIAAAAAAAAAILsR │
@@ -147,8 +154,10 @@ $ haneul keytool sign --data AAABACBRRpLwgknD6ZV3mc4pB0aVhAQiVkv/heQktW3kYpE+DQE
 
 Each command has its own help section. For example `haneul keytool sign –help` displays the following prompt:
 
-```shell
+```sh
 $ haneul keytool sign --help
+```
+```sh
 Create signature using the private key for the given address in haneul keystore. Any signature commits to a [struct IntentMessage] consisting of the Base64 encoded of the BCS serialized
 transaction bytes itself and its intent. If intent is absent, default will be used
 
