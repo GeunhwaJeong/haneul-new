@@ -125,6 +125,7 @@ impl Worker for HaneulnsIndexerWorker {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let _guard = haneullabs_service::logging::init();
     dotenv().ok();
     let (remote_storage, registry_id, subdomain_wrapper_type, name_record_type) = (
         env::var("REMOTE_STORAGE").ok(),
@@ -174,5 +175,6 @@ async fn main() -> Result<()> {
             exit_receiver,
         )
         .await?;
+    drop(_guard);
     Ok(())
 }
