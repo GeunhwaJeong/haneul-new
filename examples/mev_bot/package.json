@@ -9,8 +9,8 @@
 		"start": "npx ts-node --esm src/index.ts"
 	},
 	"dependencies": {
-		"@haneullabs/bcs": "workspace:*",
-		"@haneullabs/haneul": "workspace:*",
+		"@haneullabs/bcs": "^1.2.0",
+		"@haneullabs/haneul": "^1.18.0",
 		"p-limit": "^6.1.0"
 	},
 	"devDependencies": {

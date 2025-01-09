@@ -24,6 +24,3 @@ CHANGELOG.md
 /crates/haneul-core/src/consensus_adapter.rs @HaneulLabs/consensus
 
 apps/ @HaneulLabs/fe-and-apps
-sdk/ @HaneulLabs/sdk-reviewers
-sdk/kiosk @HaneulLabs/kiosk-sdk-reviewers
-sdk/wallet-standard @HaneulLabs/wallet-kit-reviewers

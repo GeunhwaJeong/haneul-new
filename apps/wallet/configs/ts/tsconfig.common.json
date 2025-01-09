@@ -42,15 +42,7 @@
 			"_values": ["./src/ui/styles/values"],
 			"_values/*": ["./src/ui/styles/values/*"],
 			"_utils": ["./src/ui/styles/utils"],
-			"_utils/*": ["./src/ui/styles/utils/*"],
-			"@haneullabs/haneul/*": ["../../sdk/typescript/src/*"],
-			"@haneullabs/haneul": ["../../sdk/typescript/src/"],
-			"@haneullabs/kiosk": ["../../sdk/kiosk/src/index.ts"],
-			"@haneullabs/bcs": ["../../sdk/bcs/src/"],
-			"@haneullabs/dapp-kit": ["../../sdk/dapp-kit/src/"],
-			"@haneullabs/ledgerjs-hw-app-haneul": ["../../sdk/ledgerjs-hw-app-haneul/src/Haneul.ts"],
-			"@haneullabs/wallet-standard": ["../../sdk/wallet-standard/src/"],
-			"@haneullabs/deepbook": ["../../sdk/deepbook/src/"]
+			"_utils/*": ["./src/ui/styles/utils/*"]
 		}
 	},
 	"include": ["../../src", "../../tests"],

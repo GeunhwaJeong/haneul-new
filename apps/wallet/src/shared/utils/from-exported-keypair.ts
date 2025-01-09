@@ -1,12 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { type Keypair, type SignatureScheme } from '@haneullabs/haneul/cryptography';
 import {
 	decodeHaneulPrivateKey,
 	LEGACY_PRIVATE_KEY_SIZE,
 	PRIVATE_KEY_SIZE,
-} from '@haneullabs/haneul/cryptography/keypair';
+	type Keypair,
+	type SignatureScheme,
+} from '@haneullabs/haneul/cryptography';
 import { Ed25519Keypair } from '@haneullabs/haneul/keypairs/ed25519';
 import { Secp256k1Keypair } from '@haneullabs/haneul/keypairs/secp256k1';
 import { Secp256r1Keypair } from '@haneullabs/haneul/keypairs/secp256r1';

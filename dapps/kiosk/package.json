@@ -17,9 +17,9 @@
 	},
 	"dependencies": {
 		"@headlessui/react": "^1.7.15",
-		"@haneullabs/dapp-kit": "workspace:*",
-		"@haneullabs/kiosk": "workspace:*",
-		"@haneullabs/haneul": "workspace:*",
+		"@haneullabs/dapp-kit": "^0.14.44",
+		"@haneullabs/kiosk": "^0.9.34",
+		"@haneullabs/haneul": "^1.18.0",
 		"@tanstack/react-query": "^5.50.1",
 		"clsx": "^2.1.1",
 		"react": "^18.3.1",
