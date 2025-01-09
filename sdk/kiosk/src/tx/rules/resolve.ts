@@ -1,23 +1,62 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import { bcs } from '@haneullabs/haneul/bcs';
+import type { TransactionArgument } from '@haneullabs/haneul/transactions';
+import { Transaction } from '@haneullabs/haneul/transactions';
+import { normalizeHaneulAddress } from '@haneullabs/haneul/utils';
+
 import type { RuleResolvingParams } from '../../types/index.js';
 import { lock } from '../kiosk.js';
 
 /**
  * A helper to resolve the royalty rule.
  */
-export function resolveRoyaltyRule(params: RuleResolvingParams) {
-	const { transaction: tx, itemType, price, packageId, transferRequest, policyId } = params;
+export async function resolveRoyaltyRule(params: RuleResolvingParams) {
+	const {
+		kioskClient,
+		transaction: tx,
+		itemType,
+		price,
+		packageId,
+		transferRequest,
+		policyId,
+	} = params;
 
 	const policyObj = tx.object(policyId);
 
+	// We attempt to resolve the fee amount outside of the PTB so that the split amount is known before the transaction is sent.
+	// This improves the display of the transaction within the wallet.
+
+	const feeTx = new Transaction();
 	// calculates the amount
-	const [amount] = tx.moveCall({
+	feeTx.moveCall({
 		target: `${packageId}::royalty_rule::fee_amount`,
 		typeArguments: [itemType],
 		arguments: [policyObj, tx.pure.u64(price || '0')],
 	});
+
+	const { results } = await kioskClient.client.devInspectTransactionBlock({
+		sender: tx.getData().sender || normalizeHaneulAddress('0x0'),
+		transactionBlock: feeTx,
+	});
+
+	let amount: TransactionArgument | bigint | null = null;
+	if (results) {
+		const returnedAmount = results?.[0].returnValues?.[0]?.[0];
+		if (returnedAmount) {
+			amount = BigInt(bcs.U64.parse(new Uint8Array(returnedAmount as number[])));
+		}
+	}
+
+	// We were not able to calculate the amount outside of the transaction, so fall back to resolving it within the PTB
+	if (!amount) {
+		[amount] = tx.moveCall({
+			target: `${packageId}::royalty_rule::fee_amount`,
+			typeArguments: [itemType],
+			arguments: [policyObj, tx.pure.u64(price || '0')],
+		});
+	}
 
 	// splits the coin.
 	const feeCoin = tx.splitCoins(tx.gas, [amount]);
