@@ -1,0 +1,10 @@
+[package]
+name = "global_write_ref"
+edition = "2024.beta"
+
+[dependencies]
+Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir = "crates/haneul-framework/packages/haneul-framework", rev = "framework/mainnet" }
+
+[addresses]
+global_write_ref = "0x0"
+Haneul = "0x2"
