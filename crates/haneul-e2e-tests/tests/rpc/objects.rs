@@ -4,7 +4,7 @@
 use haneul_macros::sim_test;
 use haneul_rpc_api::client::sdk::Client;
 use haneul_rpc_api::client::Client as CoreClient;
-use haneul_rpc_api::proto::node::node_client::NodeClient;
+use haneul_rpc_api::proto::node::node_service_client::NodeServiceClient;
 use haneul_rpc_api::proto::node::GetObjectOptions;
 use haneul_rpc_api::proto::node::GetObjectRequest;
 use haneul_rpc_api::proto::node::GetObjectResponse;
@@ -19,7 +19,7 @@ async fn get_object() {
 
     let client = Client::new(test_cluster.rpc_url()).unwrap();
     let core_client = CoreClient::new(test_cluster.rpc_url()).unwrap();
-    let mut grpc_client = NodeClient::connect(test_cluster.rpc_url().to_owned())
+    let mut grpc_client = NodeServiceClient::connect(test_cluster.rpc_url().to_owned())
         .await
         .unwrap();
 
