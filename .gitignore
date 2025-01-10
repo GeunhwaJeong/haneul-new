@@ -73,3 +73,5 @@ docs/content/references/haneul-api/haneul-graphql/*
 docs/content/references/framework/**
 
 lcov.info
+
+.sparse
