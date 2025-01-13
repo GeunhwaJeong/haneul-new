@@ -13,15 +13,19 @@ modules:
         DIRECTORY_SAME_PACKAGE:
           - proto/haneul.types.proto
           - proto/haneul.node.v2.proto
+          - proto/haneul.node.v2alpha.proto
         PACKAGE_DIRECTORY_MATCH:
           - proto/haneul.types.proto
           - proto/haneul.node.v2.proto
+          - proto/haneul.node.v2alpha.proto
         PACKAGE_SAME_DIRECTORY:
           - proto/haneul.types.proto
           - proto/haneul.node.v2.proto
+          - proto/haneul.node.v2alpha.proto
         FILE_LOWER_SNAKE_CASE:
           - proto/haneul.types.proto
           - proto/haneul.node.v2.proto
+          - proto/haneul.node.v2alpha.proto
 
       disallow_comment_ignores: false
       enum_zero_value_suffix: _UNKNOWN

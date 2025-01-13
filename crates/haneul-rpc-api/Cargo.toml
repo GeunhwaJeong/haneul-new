@@ -26,6 +26,9 @@ haneul-sdk-transaction-builder.workspace = true
 prometheus.workspace = true
 http.workspace = true
 tower.workspace = true
+tracing.workspace = true
+tokio-stream.workspace = true
+async-stream.workspace = true
 
 fastcrypto.workspace = true
 haneul-types.workspace = true
