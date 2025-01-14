@@ -4,10 +4,10 @@
 use haneul_macros::sim_test;
 use haneul_rpc_api::client::sdk::Client;
 use haneul_rpc_api::client::Client as CoreClient;
-use haneul_rpc_api::proto::node::node_service_client::NodeServiceClient;
-use haneul_rpc_api::proto::node::GetObjectOptions;
-use haneul_rpc_api::proto::node::GetObjectRequest;
-use haneul_rpc_api::proto::node::GetObjectResponse;
+use haneul_rpc_api::proto::node::v2::node_service_client::NodeServiceClient;
+use haneul_rpc_api::proto::node::v2::GetObjectOptions;
+use haneul_rpc_api::proto::node::v2::GetObjectRequest;
+use haneul_rpc_api::proto::node::v2::GetObjectResponse;
 use haneul_sdk_types::ObjectId;
 use test_cluster::TestClusterBuilder;
 

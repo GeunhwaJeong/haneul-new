@@ -4,8 +4,8 @@
 use haneul_macros::sim_test;
 use haneul_rpc_api::client::sdk::Client;
 use haneul_rpc_api::client::Client as CoreClient;
-use haneul_rpc_api::proto::node::node_service_client::NodeServiceClient;
-use haneul_rpc_api::proto::node::{
+use haneul_rpc_api::proto::node::v2::node_service_client::NodeServiceClient;
+use haneul_rpc_api::proto::node::v2::{
     FullCheckpointObject, FullCheckpointTransaction, GetCheckpointOptions, GetCheckpointRequest,
     GetCheckpointResponse, GetFullCheckpointOptions, GetFullCheckpointRequest,
     GetFullCheckpointResponse,
@@ -183,7 +183,7 @@ async fn get_full_checkpoint() {
 
     // A Checkpoint that we know has a transaction that emitted an event
     let checkpoint = grpc_client
-        .get_transaction(haneul_rpc_api::proto::node::GetTransactionRequest::new(
+        .get_transaction(haneul_rpc_api::proto::node::v2::GetTransactionRequest::new(
             transaction_digest,
         ))
         .await

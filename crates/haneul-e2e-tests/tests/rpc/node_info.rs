@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_macros::sim_test;
-use haneul_rpc_api::proto::node::node_service_client::NodeServiceClient;
-use haneul_rpc_api::proto::node::GetNodeInfoRequest;
-use haneul_rpc_api::proto::node::GetNodeInfoResponse;
+use haneul_rpc_api::proto::node::v2::node_service_client::NodeServiceClient;
+use haneul_rpc_api::proto::node::v2::GetNodeInfoRequest;
+use haneul_rpc_api::proto::node::v2::GetNodeInfoResponse;
 use test_cluster::TestClusterBuilder;
 
 #[sim_test]
