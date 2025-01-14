@@ -61,6 +61,7 @@ const guides = [
 					'guides/developer/haneul-101/access-time',
 					'guides/developer/haneul-101/sign-and-send-txn',
 					'guides/developer/haneul-101/sponsor-txn',
+					'guides/developer/haneul-101/avoid-equivocation',
 					{
 						type: 'category',
 						label: 'Working with PTBs',

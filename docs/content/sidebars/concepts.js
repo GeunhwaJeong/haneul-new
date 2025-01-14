@@ -168,12 +168,8 @@ const concepts = [
 			id: 'concepts/tokenomics',
 		},
 		items: [
-			'concepts/tokenomics/proof-of-stake',
-			'concepts/tokenomics/validators-staking',
 			'concepts/tokenomics/staking-unstaking',
-			'concepts/tokenomics/haneul-coin',
 			'concepts/tokenomics/haneul-bridging',
-			'concepts/tokenomics/storage-fund',
 			'concepts/tokenomics/gas-pricing',
 			'concepts/tokenomics/gas-in-haneul',
 		],
