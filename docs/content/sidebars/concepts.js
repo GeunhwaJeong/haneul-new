@@ -63,11 +63,6 @@ const concepts = [
 					id: 'concepts/haneul-move-concepts',
 				},
 				items: [
-					'concepts/haneul-move-concepts/strings',
-					'concepts/haneul-move-concepts/collections',
-					'concepts/haneul-move-concepts/init',
-					'concepts/haneul-move-concepts/entry-functions',
-					'concepts/haneul-move-concepts/one-time-witness',
 					{
 						type: 'category',
 						label: 'Packages',

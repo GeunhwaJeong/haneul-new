@@ -112,6 +112,11 @@
       { "source": "/concepts/tokenomics/haneul-coin", "destination": "/concepts/tokenomics#haneul-coin", "permanent": true },
       { "source": "/concepts/tokenomics/storage-fund", "destination": "/concepts/tokenomics#storage-fund", "permanent": true },
       { "source": "/concepts/tokenomics/proof-of-stake", "destination": "/concepts/tokenomics#proof-of-stake", "permanent": true },
-      { "source": "/concepts/tokenomics/validators-staking", "destination": "/concepts/tokenomics#validators-and-staking-pools", "permanent": true }
+      { "source": "/concepts/tokenomics/validators-staking", "destination": "/concepts/tokenomics#validators-and-staking-pools", "permanent": true },
+      { "source": "/concepts/haneul-move-concepts/strings", "destination": "/concepts/haneul-move-concepts", "permanent": true },
+      { "source": "/concepts/haneul-move-concepts/collections", "destination": "/concepts/haneul-move-concepts", "permanent": true },
+      { "source": "/concepts/haneul-move-concepts/init", "destination": "/concepts/haneul-move-concepts", "permanent": true },
+      { "source": "/concepts/haneul-move-concepts/entry-functions", "destination": "/concepts/haneul-move-concepts", "permanent": true },
+      { "source": "/concepts/haneul-move-concepts/one-time-witness", "destination": "/concepts/haneul-move-concepts", "permanent": true }
     ]
   }
