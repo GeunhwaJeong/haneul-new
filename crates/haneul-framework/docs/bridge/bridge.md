@@ -1,75 +1,109 @@
 ---
-title: Module `0xb::bridge`
+title: Module `bridge::bridge`
 ---
 
 
 
--  [Resource `Bridge`](#0xb_bridge_Bridge)
--  [Struct `BridgeInner`](#0xb_bridge_BridgeInner)
--  [Struct `TokenDepositedEvent`](#0xb_bridge_TokenDepositedEvent)
--  [Struct `EmergencyOpEvent`](#0xb_bridge_EmergencyOpEvent)
--  [Struct `BridgeRecord`](#0xb_bridge_BridgeRecord)
--  [Struct `TokenTransferApproved`](#0xb_bridge_TokenTransferApproved)
--  [Struct `TokenTransferClaimed`](#0xb_bridge_TokenTransferClaimed)
--  [Struct `TokenTransferAlreadyApproved`](#0xb_bridge_TokenTransferAlreadyApproved)
--  [Struct `TokenTransferAlreadyClaimed`](#0xb_bridge_TokenTransferAlreadyClaimed)
--  [Struct `TokenTransferLimitExceed`](#0xb_bridge_TokenTransferLimitExceed)
+-  [Struct `Bridge`](#bridge_bridge_Bridge)
+-  [Struct `BridgeInner`](#bridge_bridge_BridgeInner)
+-  [Struct `TokenDepositedEvent`](#bridge_bridge_TokenDepositedEvent)
+-  [Struct `EmergencyOpEvent`](#bridge_bridge_EmergencyOpEvent)
+-  [Struct `BridgeRecord`](#bridge_bridge_BridgeRecord)
+-  [Struct `TokenTransferApproved`](#bridge_bridge_TokenTransferApproved)
+-  [Struct `TokenTransferClaimed`](#bridge_bridge_TokenTransferClaimed)
+-  [Struct `TokenTransferAlreadyApproved`](#bridge_bridge_TokenTransferAlreadyApproved)
+-  [Struct `TokenTransferAlreadyClaimed`](#bridge_bridge_TokenTransferAlreadyClaimed)
+-  [Struct `TokenTransferLimitExceed`](#bridge_bridge_TokenTransferLimitExceed)
 -  [Constants](#@Constants_0)
--  [Function `create`](#0xb_bridge_create)
--  [Function `init_bridge_committee`](#0xb_bridge_init_bridge_committee)
--  [Function `committee_registration`](#0xb_bridge_committee_registration)
--  [Function `update_node_url`](#0xb_bridge_update_node_url)
--  [Function `register_foreign_token`](#0xb_bridge_register_foreign_token)
--  [Function `send_token`](#0xb_bridge_send_token)
--  [Function `approve_token_transfer`](#0xb_bridge_approve_token_transfer)
--  [Function `claim_token`](#0xb_bridge_claim_token)
--  [Function `claim_and_transfer_token`](#0xb_bridge_claim_and_transfer_token)
--  [Function `execute_system_message`](#0xb_bridge_execute_system_message)
--  [Function `get_token_transfer_action_status`](#0xb_bridge_get_token_transfer_action_status)
--  [Function `get_token_transfer_action_signatures`](#0xb_bridge_get_token_transfer_action_signatures)
--  [Function `load_inner`](#0xb_bridge_load_inner)
--  [Function `load_inner_mut`](#0xb_bridge_load_inner_mut)
--  [Function `claim_token_internal`](#0xb_bridge_claim_token_internal)
--  [Function `execute_emergency_op`](#0xb_bridge_execute_emergency_op)
--  [Function `execute_update_bridge_limit`](#0xb_bridge_execute_update_bridge_limit)
--  [Function `execute_update_asset_price`](#0xb_bridge_execute_update_asset_price)
--  [Function `execute_add_tokens_on_haneul`](#0xb_bridge_execute_add_tokens_on_haneul)
--  [Function `get_current_seq_num_and_increment`](#0xb_bridge_get_current_seq_num_and_increment)
--  [Function `get_parsed_token_transfer_message`](#0xb_bridge_get_parsed_token_transfer_message)
+-  [Function `create`](#bridge_bridge_create)
+-  [Function `init_bridge_committee`](#bridge_bridge_init_bridge_committee)
+-  [Function `committee_registration`](#bridge_bridge_committee_registration)
+-  [Function `update_node_url`](#bridge_bridge_update_node_url)
+-  [Function `register_foreign_token`](#bridge_bridge_register_foreign_token)
+-  [Function `send_token`](#bridge_bridge_send_token)
+-  [Function `approve_token_transfer`](#bridge_bridge_approve_token_transfer)
+-  [Function `claim_token`](#bridge_bridge_claim_token)
+-  [Function `claim_and_transfer_token`](#bridge_bridge_claim_and_transfer_token)
+-  [Function `execute_system_message`](#bridge_bridge_execute_system_message)
+-  [Function `get_token_transfer_action_status`](#bridge_bridge_get_token_transfer_action_status)
+-  [Function `get_token_transfer_action_signatures`](#bridge_bridge_get_token_transfer_action_signatures)
+-  [Function `load_inner`](#bridge_bridge_load_inner)
+-  [Function `load_inner_mut`](#bridge_bridge_load_inner_mut)
+-  [Function `claim_token_internal`](#bridge_bridge_claim_token_internal)
+-  [Function `execute_emergency_op`](#bridge_bridge_execute_emergency_op)
+-  [Function `execute_update_bridge_limit`](#bridge_bridge_execute_update_bridge_limit)
+-  [Function `execute_update_asset_price`](#bridge_bridge_execute_update_asset_price)
+-  [Function `execute_add_tokens_on_haneul`](#bridge_bridge_execute_add_tokens_on_haneul)
+-  [Function `get_current_seq_num_and_increment`](#bridge_bridge_get_current_seq_num_and_increment)
+-  [Function `get_parsed_token_transfer_message`](#bridge_bridge_get_parsed_token_transfer_message)
 
 
-<pre><code><b>use</b> <a href="../move-stdlib/ascii.md#0x1_ascii">0x1::ascii</a>;
-<b>use</b> <a href="../move-stdlib/option.md#0x1_option">0x1::option</a>;
-<b>use</b> <a href="../haneul-framework/address.md#0x2_address">0x2::address</a>;
-<b>use</b> <a href="../haneul-framework/balance.md#0x2_balance">0x2::balance</a>;
-<b>use</b> <a href="../haneul-framework/clock.md#0x2_clock">0x2::clock</a>;
-<b>use</b> <a href="../haneul-framework/coin.md#0x2_coin">0x2::coin</a>;
-<b>use</b> <a href="../haneul-framework/event.md#0x2_event">0x2::event</a>;
-<b>use</b> <a href="../haneul-framework/linked_table.md#0x2_linked_table">0x2::linked_table</a>;
-<b>use</b> <a href="../haneul-framework/object.md#0x2_object">0x2::object</a>;
-<b>use</b> <a href="../haneul-framework/package.md#0x2_package">0x2::package</a>;
-<b>use</b> <a href="../haneul-framework/transfer.md#0x2_transfer">0x2::transfer</a>;
-<b>use</b> <a href="../haneul-framework/tx_context.md#0x2_tx_context">0x2::tx_context</a>;
-<b>use</b> <a href="../haneul-framework/vec_map.md#0x2_vec_map">0x2::vec_map</a>;
-<b>use</b> <a href="../haneul-framework/versioned.md#0x2_versioned">0x2::versioned</a>;
-<b>use</b> <a href="../haneul-system/haneul_system.md#0x3_haneul_system">0x3::haneul_system</a>;
-<b>use</b> <a href="chain_ids.md#0xb_chain_ids">0xb::chain_ids</a>;
-<b>use</b> <a href="committee.md#0xb_committee">0xb::committee</a>;
-<b>use</b> <a href="limiter.md#0xb_limiter">0xb::limiter</a>;
-<b>use</b> <a href="message.md#0xb_message">0xb::message</a>;
-<b>use</b> <a href="message_types.md#0xb_message_types">0xb::message_types</a>;
-<b>use</b> <a href="treasury.md#0xb_treasury">0xb::treasury</a>;
+<pre><code><b>use</b> <a href="../bridge/chain_ids.md#bridge_chain_ids">bridge::chain_ids</a>;
+<b>use</b> <a href="../bridge/committee.md#bridge_committee">bridge::committee</a>;
+<b>use</b> <a href="../bridge/crypto.md#bridge_crypto">bridge::crypto</a>;
+<b>use</b> <a href="../bridge/limiter.md#bridge_limiter">bridge::limiter</a>;
+<b>use</b> <a href="../bridge/message.md#bridge_message">bridge::message</a>;
+<b>use</b> <a href="../bridge/message_types.md#bridge_message_types">bridge::message_types</a>;
+<b>use</b> <a href="../bridge/treasury.md#bridge_treasury">bridge::treasury</a>;
+<b>use</b> <a href="../std/address.md#std_address">std::address</a>;
+<b>use</b> <a href="../std/ascii.md#std_ascii">std::ascii</a>;
+<b>use</b> <a href="../std/bcs.md#std_bcs">std::bcs</a>;
+<b>use</b> <a href="../std/option.md#std_option">std::option</a>;
+<b>use</b> <a href="../std/string.md#std_string">std::string</a>;
+<b>use</b> <a href="../std/type_name.md#std_type_name">std::type_name</a>;
+<b>use</b> <a href="../std/u64.md#std_u64">std::u64</a>;
+<b>use</b> <a href="../std/vector.md#std_vector">std::vector</a>;
+<b>use</b> <a href="../haneul/address.md#haneul_address">haneul::address</a>;
+<b>use</b> <a href="../haneul/bag.md#haneul_bag">haneul::bag</a>;
+<b>use</b> <a href="../haneul/balance.md#haneul_balance">haneul::balance</a>;
+<b>use</b> <a href="../haneul/bcs.md#haneul_bcs">haneul::bcs</a>;
+<b>use</b> <a href="../haneul/clock.md#haneul_clock">haneul::clock</a>;
+<b>use</b> <a href="../haneul/coin.md#haneul_coin">haneul::coin</a>;
+<b>use</b> <a href="../haneul/config.md#haneul_config">haneul::config</a>;
+<b>use</b> <a href="../haneul/deny_list.md#haneul_deny_list">haneul::deny_list</a>;
+<b>use</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field">haneul::dynamic_field</a>;
+<b>use</b> <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field">haneul::dynamic_object_field</a>;
+<b>use</b> <a href="../haneul/ecdsa_k1.md#haneul_ecdsa_k1">haneul::ecdsa_k1</a>;
+<b>use</b> <a href="../haneul/event.md#haneul_event">haneul::event</a>;
+<b>use</b> <a href="../haneul/hash.md#haneul_hash">haneul::hash</a>;
+<b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
+<b>use</b> <a href="../haneul/linked_table.md#haneul_linked_table">haneul::linked_table</a>;
+<b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;
+<b>use</b> <a href="../haneul/object_bag.md#haneul_object_bag">haneul::object_bag</a>;
+<b>use</b> <a href="../haneul/package.md#haneul_package">haneul::package</a>;
+<b>use</b> <a href="../haneul/pay.md#haneul_pay">haneul::pay</a>;
+<b>use</b> <a href="../haneul/priority_queue.md#haneul_priority_queue">haneul::priority_queue</a>;
+<b>use</b> <a href="../haneul/haneul.md#haneul_haneul">haneul::haneul</a>;
+<b>use</b> <a href="../haneul/table.md#haneul_table">haneul::table</a>;
+<b>use</b> <a href="../haneul/table_vec.md#haneul_table_vec">haneul::table_vec</a>;
+<b>use</b> <a href="../haneul/transfer.md#haneul_transfer">haneul::transfer</a>;
+<b>use</b> <a href="../haneul/tx_context.md#haneul_tx_context">haneul::tx_context</a>;
+<b>use</b> <a href="../haneul/types.md#haneul_types">haneul::types</a>;
+<b>use</b> <a href="../haneul/url.md#haneul_url">haneul::url</a>;
+<b>use</b> <a href="../haneul/vec_map.md#haneul_vec_map">haneul::vec_map</a>;
+<b>use</b> <a href="../haneul/vec_set.md#haneul_vec_set">haneul::vec_set</a>;
+<b>use</b> <a href="../haneul/versioned.md#haneul_versioned">haneul::versioned</a>;
+<b>use</b> <a href="../haneul_system/stake_subsidy.md#haneul_system_stake_subsidy">haneul_system::stake_subsidy</a>;
+<b>use</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool">haneul_system::staking_pool</a>;
+<b>use</b> <a href="../haneul_system/storage_fund.md#haneul_system_storage_fund">haneul_system::storage_fund</a>;
+<b>use</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system">haneul_system::haneul_system</a>;
+<b>use</b> <a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner">haneul_system::haneul_system_state_inner</a>;
+<b>use</b> <a href="../haneul_system/validator.md#haneul_system_validator">haneul_system::validator</a>;
+<b>use</b> <a href="../haneul_system/validator_cap.md#haneul_system_validator_cap">haneul_system::validator_cap</a>;
+<b>use</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set">haneul_system::validator_set</a>;
+<b>use</b> <a href="../haneul_system/validator_wrapper.md#haneul_system_validator_wrapper">haneul_system::validator_wrapper</a>;
+<b>use</b> <a href="../haneul_system/voting_power.md#haneul_system_voting_power">haneul_system::voting_power</a>;
 </code></pre>
 
 
 
-<a name="0xb_bridge_Bridge"></a>
+<a name="bridge_bridge_Bridge"></a>
 
-## Resource `Bridge`
+## Struct `Bridge`
 
 
 
-<pre><code><b>struct</b> <a href="bridge.md#0xb_bridge_Bridge">Bridge</a> <b>has</b> key
+<pre><code><b>public</b> <b>struct</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a> <b>has</b> key
 </code></pre>
 
 
@@ -80,29 +114,27 @@ title: Module `0xb::bridge`
 
 <dl>
 <dt>
-<code>id: <a href="../haneul-framework/object.md#0x2_object_UID">object::UID</a></code>
+<code>id: <a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a></code>
 </dt>
 <dd>
-
 </dd>
 <dt>
-<code>inner: <a href="../haneul-framework/versioned.md#0x2_versioned_Versioned">versioned::Versioned</a></code>
+<code>inner: <a href="../haneul/versioned.md#haneul_versioned_Versioned">haneul::versioned::Versioned</a></code>
 </dt>
 <dd>
-
 </dd>
 </dl>
 
 
 </details>
 
-<a name="0xb_bridge_BridgeInner"></a>
+<a name="bridge_bridge_BridgeInner"></a>
 
 ## Struct `BridgeInner`
 
 
 
-<pre><code><b>struct</b> <a href="bridge.md#0xb_bridge_BridgeInner">BridgeInner</a> <b>has</b> store
+<pre><code><b>public</b> <b>struct</b> <a href="../bridge/bridge.md#bridge_bridge_BridgeInner">BridgeInner</a> <b>has</b> store
 </code></pre>
 
 
@@ -113,71 +145,62 @@ title: Module `0xb::bridge`
 
 <dl>
 <dt>
-<code>bridge_version: <a href="../move-stdlib/u64.md#0x1_u64">u64</a></code>
+<code>bridge_version: u64</code>
 </dt>
 <dd>
-
 </dd>
 <dt>
 <code>message_version: u8</code>
 </dt>
 <dd>
-
 </dd>
 <dt>
 <code>chain_id: u8</code>
 </dt>
 <dd>
-
 </dd>
 <dt>
-<code>sequence_nums: <a href="../haneul-framework/vec_map.md#0x2_vec_map_VecMap">vec_map::VecMap</a>&lt;u8, <a href="../move-stdlib/u64.md#0x1_u64">u64</a>&gt;</code>
+<code>sequence_nums: <a href="../haneul/vec_map.md#haneul_vec_map_VecMap">haneul::vec_map::VecMap</a>&lt;u8, u64&gt;</code>
 </dt>
 <dd>
-
 </dd>
 <dt>
-<code><a href="committee.md#0xb_committee">committee</a>: <a href="committee.md#0xb_committee_BridgeCommittee">committee::BridgeCommittee</a></code>
+<code><a href="../bridge/committee.md#bridge_committee">committee</a>: <a href="../bridge/committee.md#bridge_committee_BridgeCommittee">bridge::committee::BridgeCommittee</a></code>
 </dt>
 <dd>
-
 </dd>
 <dt>
-<code><a href="treasury.md#0xb_treasury">treasury</a>: <a href="treasury.md#0xb_treasury_BridgeTreasury">treasury::BridgeTreasury</a></code>
+<code><a href="../bridge/treasury.md#bridge_treasury">treasury</a>: <a href="../bridge/treasury.md#bridge_treasury_BridgeTreasury">bridge::treasury::BridgeTreasury</a></code>
 </dt>
 <dd>
-
 </dd>
 <dt>
-<code>token_transfer_records: <a href="../haneul-framework/linked_table.md#0x2_linked_table_LinkedTable">linked_table::LinkedTable</a>&lt;<a href="message.md#0xb_message_BridgeMessageKey">message::BridgeMessageKey</a>, <a href="bridge.md#0xb_bridge_BridgeRecord">bridge::BridgeRecord</a>&gt;</code>
+<code>token_transfer_records: <a href="../haneul/linked_table.md#haneul_linked_table_LinkedTable">haneul::linked_table::LinkedTable</a>&lt;<a href="../bridge/message.md#bridge_message_BridgeMessageKey">bridge::message::BridgeMessageKey</a>, <a href="../bridge/bridge.md#bridge_bridge_BridgeRecord">bridge::bridge::BridgeRecord</a>&gt;</code>
 </dt>
 <dd>
-
 </dd>
 <dt>
-<code><a href="limiter.md#0xb_limiter">limiter</a>: <a href="limiter.md#0xb_limiter_TransferLimiter">limiter::TransferLimiter</a></code>
+<code><a href="../bridge/limiter.md#bridge_limiter">limiter</a>: <a href="../bridge/limiter.md#bridge_limiter_TransferLimiter">bridge::limiter::TransferLimiter</a></code>
 </dt>
 <dd>
-
 </dd>
 <dt>
 <code>paused: bool</code>
 </dt>
 <dd>
-
 </dd>
 </dl>
 
 
 </details>
 
-<a name="0xb_bridge_TokenDepositedEvent"></a>
+<a name="bridge_bridge_TokenDepositedEvent"></a>
 
 ## Struct `TokenDepositedEvent`
 
 
 
-<pre><code><b>struct</b> <a href="bridge.md#0xb_bridge_TokenDepositedEvent">TokenDepositedEvent</a> <b>has</b> <b>copy</b>, drop
+<pre><code><b>public</b> <b>struct</b> <a href="../bridge/bridge.md#bridge_bridge_TokenDepositedEvent">TokenDepositedEvent</a> <b>has</b> <b>copy</b>, drop
 </code></pre>
 
 
@@ -188,59 +211,52 @@ title: Module `0xb::bridge`
 
 <dl>
 <dt>
-<code>seq_num: <a href="../move-stdlib/u64.md#0x1_u64">u64</a></code>
+<code>seq_num: u64</code>
 </dt>
 <dd>
-
 </dd>
 <dt>
 <code>source_chain: u8</code>
 </dt>
 <dd>
-
 </dd>
 <dt>
-<code>sender_address: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
+<code>sender_address: vector&lt;u8&gt;</code>
 </dt>
 <dd>
-
 </dd>
 <dt>
 <code>target_chain: u8</code>
 </dt>
 <dd>
-
 </dd>
 <dt>
-<code>target_address: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;</code>
+<code>target_address: vector&lt;u8&gt;</code>
 </dt>
 <dd>
-
 </dd>
 <dt>
 <code>token_type: u8</code>
 </dt>
 <dd>
-
 </dd>
 <dt>
-<code>amount: <a href="../move-stdlib/u64.md#0x1_u64">u64</a></code>
+<code>amount: u64</code>
 </dt>
 <dd>
-
 </dd>
 </dl>
 
 
 </details>
 
-<a name="0xb_bridge_EmergencyOpEvent"></a>
+<a name="bridge_bridge_EmergencyOpEvent"></a>
 
 ## Struct `EmergencyOpEvent`
 
 
 
-<pre><code><b>struct</b> <a href="bridge.md#0xb_bridge_EmergencyOpEvent">EmergencyOpEvent</a> <b>has</b> <b>copy</b>, drop
+<pre><code><b>public</b> <b>struct</b> <a href="../bridge/bridge.md#bridge_bridge_EmergencyOpEvent">EmergencyOpEvent</a> <b>has</b> <b>copy</b>, drop
 </code></pre>
 
 
@@ -254,20 +270,19 @@ title: Module `0xb::bridge`
 <code>frozen: bool</code>
 </dt>
 <dd>
-
 </dd>
 </dl>
 
 
 </details>
 
-<a name="0xb_bridge_BridgeRecord"></a>
+<a name="bridge_bridge_BridgeRecord"></a>
 
 ## Struct `BridgeRecord`
 
 
 
-<pre><code><b>struct</b> <a href="bridge.md#0xb_bridge_BridgeRecord">BridgeRecord</a> <b>has</b> drop, store
+<pre><code><b>public</b> <b>struct</b> <a href="../bridge/bridge.md#bridge_bridge_BridgeRecord">BridgeRecord</a> <b>has</b> drop, store
 </code></pre>
 
 
@@ -278,35 +293,32 @@ title: Module `0xb::bridge`
 
 <dl>
 <dt>
-<code><a href="message.md#0xb_message">message</a>: <a href="message.md#0xb_message_BridgeMessage">message::BridgeMessage</a></code>
+<code><a href="../bridge/message.md#bridge_message">message</a>: <a href="../bridge/message.md#bridge_message_BridgeMessage">bridge::message::BridgeMessage</a></code>
 </dt>
 <dd>
-
 </dd>
 <dt>
-<code>verified_signatures: <a href="../move-stdlib/option.md#0x1_option_Option">option::Option</a>&lt;<a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;&gt;&gt;</code>
+<code>verified_signatures: <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;vector&lt;vector&lt;u8&gt;&gt;&gt;</code>
 </dt>
 <dd>
-
 </dd>
 <dt>
 <code>claimed: bool</code>
 </dt>
 <dd>
-
 </dd>
 </dl>
 
 
 </details>
 
-<a name="0xb_bridge_TokenTransferApproved"></a>
+<a name="bridge_bridge_TokenTransferApproved"></a>
 
 ## Struct `TokenTransferApproved`
 
 
 
-<pre><code><b>struct</b> <a href="bridge.md#0xb_bridge_TokenTransferApproved">TokenTransferApproved</a> <b>has</b> <b>copy</b>, drop
+<pre><code><b>public</b> <b>struct</b> <a href="../bridge/bridge.md#bridge_bridge_TokenTransferApproved">TokenTransferApproved</a> <b>has</b> <b>copy</b>, drop
 </code></pre>
 
 
@@ -317,23 +329,22 @@ title: Module `0xb::bridge`
 
 <dl>
 <dt>
-<code>message_key: <a href="message.md#0xb_message_BridgeMessageKey">message::BridgeMessageKey</a></code>
+<code>message_key: <a href="../bridge/message.md#bridge_message_BridgeMessageKey">bridge::message::BridgeMessageKey</a></code>
 </dt>
 <dd>
-
 </dd>
 </dl>
 
 
 </details>
 
-<a name="0xb_bridge_TokenTransferClaimed"></a>
+<a name="bridge_bridge_TokenTransferClaimed"></a>
 
 ## Struct `TokenTransferClaimed`
 
 
 
-<pre><code><b>struct</b> <a href="bridge.md#0xb_bridge_TokenTransferClaimed">TokenTransferClaimed</a> <b>has</b> <b>copy</b>, drop
+<pre><code><b>public</b> <b>struct</b> <a href="../bridge/bridge.md#bridge_bridge_TokenTransferClaimed">TokenTransferClaimed</a> <b>has</b> <b>copy</b>, drop
 </code></pre>
 
 
@@ -344,23 +355,22 @@ title: Module `0xb::bridge`
 
 <dl>
 <dt>
-<code>message_key: <a href="message.md#0xb_message_BridgeMessageKey">message::BridgeMessageKey</a></code>
+<code>message_key: <a href="../bridge/message.md#bridge_message_BridgeMessageKey">bridge::message::BridgeMessageKey</a></code>
 </dt>
 <dd>
-
 </dd>
 </dl>
 
 
 </details>
 
-<a name="0xb_bridge_TokenTransferAlreadyApproved"></a>
+<a name="bridge_bridge_TokenTransferAlreadyApproved"></a>
 
 ## Struct `TokenTransferAlreadyApproved`
 
 
 
-<pre><code><b>struct</b> <a href="bridge.md#0xb_bridge_TokenTransferAlreadyApproved">TokenTransferAlreadyApproved</a> <b>has</b> <b>copy</b>, drop
+<pre><code><b>public</b> <b>struct</b> <a href="../bridge/bridge.md#bridge_bridge_TokenTransferAlreadyApproved">TokenTransferAlreadyApproved</a> <b>has</b> <b>copy</b>, drop
 </code></pre>
 
 
@@ -371,23 +381,22 @@ title: Module `0xb::bridge`
 
 <dl>
 <dt>
-<code>message_key: <a href="message.md#0xb_message_BridgeMessageKey">message::BridgeMessageKey</a></code>
+<code>message_key: <a href="../bridge/message.md#bridge_message_BridgeMessageKey">bridge::message::BridgeMessageKey</a></code>
 </dt>
 <dd>
-
 </dd>
 </dl>
 
 
 </details>
 
-<a name="0xb_bridge_TokenTransferAlreadyClaimed"></a>
+<a name="bridge_bridge_TokenTransferAlreadyClaimed"></a>
 
 ## Struct `TokenTransferAlreadyClaimed`
 
 
 
-<pre><code><b>struct</b> <a href="bridge.md#0xb_bridge_TokenTransferAlreadyClaimed">TokenTransferAlreadyClaimed</a> <b>has</b> <b>copy</b>, drop
+<pre><code><b>public</b> <b>struct</b> <a href="../bridge/bridge.md#bridge_bridge_TokenTransferAlreadyClaimed">TokenTransferAlreadyClaimed</a> <b>has</b> <b>copy</b>, drop
 </code></pre>
 
 
@@ -398,23 +407,22 @@ title: Module `0xb::bridge`
 
 <dl>
 <dt>
-<code>message_key: <a href="message.md#0xb_message_BridgeMessageKey">message::BridgeMessageKey</a></code>
+<code>message_key: <a href="../bridge/message.md#bridge_message_BridgeMessageKey">bridge::message::BridgeMessageKey</a></code>
 </dt>
 <dd>
-
 </dd>
 </dl>
 
 
 </details>
 
-<a name="0xb_bridge_TokenTransferLimitExceed"></a>
+<a name="bridge_bridge_TokenTransferLimitExceed"></a>
 
 ## Struct `TokenTransferLimitExceed`
 
 
 
-<pre><code><b>struct</b> <a href="bridge.md#0xb_bridge_TokenTransferLimitExceed">TokenTransferLimitExceed</a> <b>has</b> <b>copy</b>, drop
+<pre><code><b>public</b> <b>struct</b> <a href="../bridge/bridge.md#bridge_bridge_TokenTransferLimitExceed">TokenTransferLimitExceed</a> <b>has</b> <b>copy</b>, drop
 </code></pre>
 
 
@@ -425,10 +433,9 @@ title: Module `0xb::bridge`
 
 <dl>
 <dt>
-<code>message_key: <a href="message.md#0xb_message_BridgeMessageKey">message::BridgeMessageKey</a></code>
+<code>message_key: <a href="../bridge/message.md#bridge_message_BridgeMessageKey">bridge::message::BridgeMessageKey</a></code>
 </dt>
 <dd>
-
 </dd>
 </dl>
 
@@ -440,256 +447,256 @@ title: Module `0xb::bridge`
 ## Constants
 
 
-<a name="0xb_bridge_ENotSystemAddress"></a>
+<a name="bridge_bridge_CURRENT_VERSION"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_ENotSystemAddress">ENotSystemAddress</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 5;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_CURRENT_VERSION">CURRENT_VERSION</a>: u64 = 1;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EWrongInnerVersion"></a>
+<a name="bridge_bridge_EBridgeAlreadyPaused"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EWrongInnerVersion">EWrongInnerVersion</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 7;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EBridgeAlreadyPaused">EBridgeAlreadyPaused</a>: u64 = 13;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EInvalidBridgeRoute"></a>
+<a name="bridge_bridge_EBridgeNotPaused"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EInvalidBridgeRoute">EInvalidBridgeRoute</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 16;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EBridgeNotPaused">EBridgeNotPaused</a>: u64 = 14;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EMustBeTokenMessage"></a>
+<a name="bridge_bridge_EBridgeUnavailable"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EMustBeTokenMessage">EMustBeTokenMessage</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 17;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EBridgeUnavailable">EBridgeUnavailable</a>: u64 = 8;
 </code></pre>
 
 
 
-<a name="0xb_bridge_CURRENT_VERSION"></a>
+<a name="bridge_bridge_EInvalidBridgeRoute"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_CURRENT_VERSION">CURRENT_VERSION</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 1;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EInvalidBridgeRoute">EInvalidBridgeRoute</a>: u64 = 16;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EBridgeAlreadyPaused"></a>
+<a name="bridge_bridge_EInvalidEvmAddress"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EBridgeAlreadyPaused">EBridgeAlreadyPaused</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 13;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EInvalidEvmAddress">EInvalidEvmAddress</a>: u64 = 18;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EBridgeNotPaused"></a>
+<a name="bridge_bridge_EInvariantHaneulInitializedTokenTransferShouldNotBeClaimed"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EBridgeNotPaused">EBridgeNotPaused</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 14;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EInvariantHaneulInitializedTokenTransferShouldNotBeClaimed">EInvariantHaneulInitializedTokenTransferShouldNotBeClaimed</a>: u64 = 10;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EBridgeUnavailable"></a>
+<a name="bridge_bridge_EMalformedMessageError"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EBridgeUnavailable">EBridgeUnavailable</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 8;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EMalformedMessageError">EMalformedMessageError</a>: u64 = 2;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EInvalidEvmAddress"></a>
+<a name="bridge_bridge_EMessageNotFoundInRecords"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EInvalidEvmAddress">EInvalidEvmAddress</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 18;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EMessageNotFoundInRecords">EMessageNotFoundInRecords</a>: u64 = 11;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EInvariantHaneulInitializedTokenTransferShouldNotBeClaimed"></a>
+<a name="bridge_bridge_EMustBeTokenMessage"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EInvariantHaneulInitializedTokenTransferShouldNotBeClaimed">EInvariantHaneulInitializedTokenTransferShouldNotBeClaimed</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 10;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EMustBeTokenMessage">EMustBeTokenMessage</a>: u64 = 17;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EMalformedMessageError"></a>
+<a name="bridge_bridge_ENotSystemAddress"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EMalformedMessageError">EMalformedMessageError</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 2;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_ENotSystemAddress">ENotSystemAddress</a>: u64 = 5;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EMessageNotFoundInRecords"></a>
+<a name="bridge_bridge_ETokenAlreadyClaimedOrHitLimit"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EMessageNotFoundInRecords">EMessageNotFoundInRecords</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 11;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_ETokenAlreadyClaimedOrHitLimit">ETokenAlreadyClaimedOrHitLimit</a>: u64 = 15;
 </code></pre>
 
 
 
-<a name="0xb_bridge_ETokenAlreadyClaimedOrHitLimit"></a>
+<a name="bridge_bridge_ETokenValueIsZero"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_ETokenAlreadyClaimedOrHitLimit">ETokenAlreadyClaimedOrHitLimit</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 15;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_ETokenValueIsZero">ETokenValueIsZero</a>: u64 = 19;
 </code></pre>
 
 
 
-<a name="0xb_bridge_ETokenValueIsZero"></a>
+<a name="bridge_bridge_EUnauthorisedClaim"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_ETokenValueIsZero">ETokenValueIsZero</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 19;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EUnauthorisedClaim">EUnauthorisedClaim</a>: u64 = 1;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EUnauthorisedClaim"></a>
+<a name="bridge_bridge_EUnexpectedChainID"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EUnauthorisedClaim">EUnauthorisedClaim</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 1;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedChainID">EUnexpectedChainID</a>: u64 = 4;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EUnexpectedChainID"></a>
+<a name="bridge_bridge_EUnexpectedMessageType"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EUnexpectedChainID">EUnexpectedChainID</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 4;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedMessageType">EUnexpectedMessageType</a>: u64 = 0;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EUnexpectedMessageType"></a>
+<a name="bridge_bridge_EUnexpectedMessageVersion"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EUnexpectedMessageType">EUnexpectedMessageType</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 0;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedMessageVersion">EUnexpectedMessageVersion</a>: u64 = 12;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EUnexpectedMessageVersion"></a>
+<a name="bridge_bridge_EUnexpectedOperation"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EUnexpectedMessageVersion">EUnexpectedMessageVersion</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 12;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedOperation">EUnexpectedOperation</a>: u64 = 9;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EUnexpectedOperation"></a>
+<a name="bridge_bridge_EUnexpectedSeqNum"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EUnexpectedOperation">EUnexpectedOperation</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 9;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedSeqNum">EUnexpectedSeqNum</a>: u64 = 6;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EUnexpectedSeqNum"></a>
+<a name="bridge_bridge_EUnexpectedTokenType"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EUnexpectedSeqNum">EUnexpectedSeqNum</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 6;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedTokenType">EUnexpectedTokenType</a>: u64 = 3;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EUnexpectedTokenType"></a>
+<a name="bridge_bridge_EVM_ADDRESS_LENGTH"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EUnexpectedTokenType">EUnexpectedTokenType</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 3;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EVM_ADDRESS_LENGTH">EVM_ADDRESS_LENGTH</a>: u64 = 20;
 </code></pre>
 
 
 
-<a name="0xb_bridge_EVM_ADDRESS_LENGTH"></a>
+<a name="bridge_bridge_EWrongInnerVersion"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_EVM_ADDRESS_LENGTH">EVM_ADDRESS_LENGTH</a>: <a href="../move-stdlib/u64.md#0x1_u64">u64</a> = 20;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_EWrongInnerVersion">EWrongInnerVersion</a>: u64 = 7;
 </code></pre>
 
 
 
-<a name="0xb_bridge_MESSAGE_VERSION"></a>
+<a name="bridge_bridge_MESSAGE_VERSION"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_MESSAGE_VERSION">MESSAGE_VERSION</a>: u8 = 1;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_MESSAGE_VERSION">MESSAGE_VERSION</a>: u8 = 1;
 </code></pre>
 
 
 
-<a name="0xb_bridge_TRANSFER_STATUS_APPROVED"></a>
+<a name="bridge_bridge_TRANSFER_STATUS_APPROVED"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_TRANSFER_STATUS_APPROVED">TRANSFER_STATUS_APPROVED</a>: u8 = 1;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_TRANSFER_STATUS_APPROVED">TRANSFER_STATUS_APPROVED</a>: u8 = 1;
 </code></pre>
 
 
 
-<a name="0xb_bridge_TRANSFER_STATUS_CLAIMED"></a>
+<a name="bridge_bridge_TRANSFER_STATUS_CLAIMED"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_TRANSFER_STATUS_CLAIMED">TRANSFER_STATUS_CLAIMED</a>: u8 = 2;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_TRANSFER_STATUS_CLAIMED">TRANSFER_STATUS_CLAIMED</a>: u8 = 2;
 </code></pre>
 
 
 
-<a name="0xb_bridge_TRANSFER_STATUS_NOT_FOUND"></a>
+<a name="bridge_bridge_TRANSFER_STATUS_NOT_FOUND"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_TRANSFER_STATUS_NOT_FOUND">TRANSFER_STATUS_NOT_FOUND</a>: u8 = 3;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_TRANSFER_STATUS_NOT_FOUND">TRANSFER_STATUS_NOT_FOUND</a>: u8 = 3;
 </code></pre>
 
 
 
-<a name="0xb_bridge_TRANSFER_STATUS_PENDING"></a>
+<a name="bridge_bridge_TRANSFER_STATUS_PENDING"></a>
 
 
 
-<pre><code><b>const</b> <a href="bridge.md#0xb_bridge_TRANSFER_STATUS_PENDING">TRANSFER_STATUS_PENDING</a>: u8 = 0;
+<pre><code><b>const</b> <a href="../bridge/bridge.md#bridge_bridge_TRANSFER_STATUS_PENDING">TRANSFER_STATUS_PENDING</a>: u8 = 0;
 </code></pre>
 
 
 
-<a name="0xb_bridge_create"></a>
+<a name="bridge_bridge_create"></a>
 
 ## Function `create`
 
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_create">create</a>(id: <a href="../haneul-framework/object.md#0x2_object_UID">object::UID</a>, chain_id: u8, ctx: &<b>mut</b> <a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_create">create</a>(id: <a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>, chain_id: u8, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -698,24 +705,24 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_create">create</a>(id: UID, chain_id: u8, ctx: &<b>mut</b> TxContext) {
-    <b>assert</b>!(ctx.sender() == @0x0, <a href="bridge.md#0xb_bridge_ENotSystemAddress">ENotSystemAddress</a>);
-    <b>let</b> bridge_inner = <a href="bridge.md#0xb_bridge_BridgeInner">BridgeInner</a> {
-        bridge_version: <a href="bridge.md#0xb_bridge_CURRENT_VERSION">CURRENT_VERSION</a>,
-        message_version: <a href="bridge.md#0xb_bridge_MESSAGE_VERSION">MESSAGE_VERSION</a>,
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_create">create</a>(id: UID, chain_id: u8, ctx: &<b>mut</b> TxContext) {
+    <b>assert</b>!(ctx.sender() == @0x0, <a href="../bridge/bridge.md#bridge_bridge_ENotSystemAddress">ENotSystemAddress</a>);
+    <b>let</b> bridge_inner = <a href="../bridge/bridge.md#bridge_bridge_BridgeInner">BridgeInner</a> {
+        bridge_version: <a href="../bridge/bridge.md#bridge_bridge_CURRENT_VERSION">CURRENT_VERSION</a>,
+        message_version: <a href="../bridge/bridge.md#bridge_bridge_MESSAGE_VERSION">MESSAGE_VERSION</a>,
         chain_id,
-        sequence_nums: <a href="../haneul-framework/vec_map.md#0x2_vec_map_empty">vec_map::empty</a>(),
-        <a href="committee.md#0xb_committee">committee</a>: <a href="committee.md#0xb_committee_create">committee::create</a>(ctx),
-        <a href="treasury.md#0xb_treasury">treasury</a>: <a href="treasury.md#0xb_treasury_create">treasury::create</a>(ctx),
-        token_transfer_records: <a href="../haneul-framework/linked_table.md#0x2_linked_table_new">linked_table::new</a>(ctx),
-        <a href="limiter.md#0xb_limiter">limiter</a>: <a href="limiter.md#0xb_limiter_new">limiter::new</a>(),
+        sequence_nums: vec_map::empty(),
+        <a href="../bridge/committee.md#bridge_committee">committee</a>: <a href="../bridge/committee.md#bridge_committee_create">committee::create</a>(ctx),
+        <a href="../bridge/treasury.md#bridge_treasury">treasury</a>: <a href="../bridge/treasury.md#bridge_treasury_create">treasury::create</a>(ctx),
+        token_transfer_records: linked_table::new(ctx),
+        <a href="../bridge/limiter.md#bridge_limiter">limiter</a>: <a href="../bridge/limiter.md#bridge_limiter_new">limiter::new</a>(),
         paused: <b>false</b>,
     };
-    <b>let</b> <a href="bridge.md#0xb_bridge">bridge</a> = <a href="bridge.md#0xb_bridge_Bridge">Bridge</a> {
+    <b>let</b> <a href="../bridge/bridge.md#bridge_bridge">bridge</a> = <a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a> {
         id,
-        inner: <a href="../haneul-framework/versioned.md#0x2_versioned_create">versioned::create</a>(<a href="bridge.md#0xb_bridge_CURRENT_VERSION">CURRENT_VERSION</a>, bridge_inner, ctx),
+        inner: versioned::create(<a href="../bridge/bridge.md#bridge_bridge_CURRENT_VERSION">CURRENT_VERSION</a>, bridge_inner, ctx),
     };
-    <a href="../haneul-framework/transfer.md#0x2_transfer_share_object">transfer::share_object</a>(<a href="bridge.md#0xb_bridge">bridge</a>);
+    transfer::share_object(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>);
 }
 </code></pre>
 
@@ -723,13 +730,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_init_bridge_committee"></a>
+<a name="bridge_bridge_init_bridge_committee"></a>
 
 ## Function `init_bridge_committee`
 
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_init_bridge_committee">init_bridge_committee</a>(<a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">bridge::Bridge</a>, active_validator_voting_power: <a href="../haneul-framework/vec_map.md#0x2_vec_map_VecMap">vec_map::VecMap</a>&lt;<b>address</b>, <a href="../move-stdlib/u64.md#0x1_u64">u64</a>&gt;, min_stake_participation_percentage: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>, ctx: &<a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_init_bridge_committee">init_bridge_committee</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">bridge::bridge::Bridge</a>, active_validator_voting_power: <a href="../haneul/vec_map.md#haneul_vec_map_VecMap">haneul::vec_map::VecMap</a>&lt;<b>address</b>, u64&gt;, min_stake_participation_percentage: u64, ctx: &<a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -738,16 +745,16 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_init_bridge_committee">init_bridge_committee</a>(
-    <a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">Bridge</a>,
-    active_validator_voting_power: VecMap&lt;<b>address</b>, <a href="../move-stdlib/u64.md#0x1_u64">u64</a>&gt;,
-    min_stake_participation_percentage: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>,
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_init_bridge_committee">init_bridge_committee</a>(
+    <a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a>,
+    active_validator_voting_power: VecMap&lt;<b>address</b>, u64&gt;,
+    min_stake_participation_percentage: u64,
     ctx: &TxContext
 ) {
-    <b>assert</b>!(ctx.sender() == @0x0, <a href="bridge.md#0xb_bridge_ENotSystemAddress">ENotSystemAddress</a>);
-    <b>let</b> inner = <a href="bridge.md#0xb_bridge_load_inner_mut">load_inner_mut</a>(<a href="bridge.md#0xb_bridge">bridge</a>);
-    <b>if</b> (inner.<a href="committee.md#0xb_committee">committee</a>.committee_members().is_empty()) {
-        inner.<a href="committee.md#0xb_committee">committee</a>.try_create_next_committee(
+    <b>assert</b>!(ctx.sender() == @0x0, <a href="../bridge/bridge.md#bridge_bridge_ENotSystemAddress">ENotSystemAddress</a>);
+    <b>let</b> inner = <a href="../bridge/bridge.md#bridge_bridge_load_inner_mut">load_inner_mut</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>);
+    <b>if</b> (inner.<a href="../bridge/committee.md#bridge_committee">committee</a>.committee_members().is_empty()) {
+        inner.<a href="../bridge/committee.md#bridge_committee">committee</a>.try_create_next_committee(
             active_validator_voting_power,
             min_stake_participation_percentage,
             ctx,
@@ -760,13 +767,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_committee_registration"></a>
+<a name="bridge_bridge_committee_registration"></a>
 
 ## Function `committee_registration`
 
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="bridge.md#0xb_bridge_committee_registration">committee_registration</a>(<a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">bridge::Bridge</a>, system_state: &<b>mut</b> <a href="../haneul-system/haneul_system.md#0x3_haneul_system_HaneulSystemState">haneul_system::HaneulSystemState</a>, bridge_pubkey_bytes: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;, http_rest_url: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;, ctx: &<a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
+<pre><code><b>public</b> <b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_committee_registration">committee_registration</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">bridge::bridge::Bridge</a>, system_state: &<b>mut</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">haneul_system::haneul_system::HaneulSystemState</a>, bridge_pubkey_bytes: vector&lt;u8&gt;, http_rest_url: vector&lt;u8&gt;, ctx: &<a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -775,15 +782,15 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="bridge.md#0xb_bridge_committee_registration">committee_registration</a>(
-    <a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">Bridge</a>,
+<pre><code><b>public</b> <b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_committee_registration">committee_registration</a>(
+    <a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a>,
     system_state: &<b>mut</b> HaneulSystemState,
-    bridge_pubkey_bytes: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;,
-    http_rest_url: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;,
+    bridge_pubkey_bytes: vector&lt;u8&gt;,
+    http_rest_url: vector&lt;u8&gt;,
     ctx: &TxContext
 ) {
-    <a href="bridge.md#0xb_bridge_load_inner_mut">load_inner_mut</a>(<a href="bridge.md#0xb_bridge">bridge</a>)
-        .<a href="committee.md#0xb_committee">committee</a>
+    <a href="../bridge/bridge.md#bridge_bridge_load_inner_mut">load_inner_mut</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>)
+        .<a href="../bridge/committee.md#bridge_committee">committee</a>
         .register(system_state, bridge_pubkey_bytes, http_rest_url, ctx);
 }
 </code></pre>
@@ -792,13 +799,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_update_node_url"></a>
+<a name="bridge_bridge_update_node_url"></a>
 
 ## Function `update_node_url`
 
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="bridge.md#0xb_bridge_update_node_url">update_node_url</a>(<a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">bridge::Bridge</a>, new_url: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;, ctx: &<a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
+<pre><code><b>public</b> <b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_update_node_url">update_node_url</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">bridge::bridge::Bridge</a>, new_url: vector&lt;u8&gt;, ctx: &<a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -807,8 +814,8 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="bridge.md#0xb_bridge_update_node_url">update_node_url</a>(<a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">Bridge</a>, new_url: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;, ctx: &TxContext) {
-    <a href="bridge.md#0xb_bridge_load_inner_mut">load_inner_mut</a>(<a href="bridge.md#0xb_bridge">bridge</a>).<a href="committee.md#0xb_committee">committee</a>.<a href="bridge.md#0xb_bridge_update_node_url">update_node_url</a>(new_url, ctx);
+<pre><code><b>public</b> <b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_update_node_url">update_node_url</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a>, new_url: vector&lt;u8&gt;, ctx: &TxContext) {
+    <a href="../bridge/bridge.md#bridge_bridge_load_inner_mut">load_inner_mut</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>).<a href="../bridge/committee.md#bridge_committee">committee</a>.<a href="../bridge/bridge.md#bridge_bridge_update_node_url">update_node_url</a>(new_url, ctx);
 }
 </code></pre>
 
@@ -816,13 +823,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_register_foreign_token"></a>
+<a name="bridge_bridge_register_foreign_token"></a>
 
 ## Function `register_foreign_token`
 
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="bridge.md#0xb_bridge_register_foreign_token">register_foreign_token</a>&lt;T&gt;(<a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">bridge::Bridge</a>, tc: <a href="../haneul-framework/coin.md#0x2_coin_TreasuryCap">coin::TreasuryCap</a>&lt;T&gt;, uc: <a href="../haneul-framework/package.md#0x2_package_UpgradeCap">package::UpgradeCap</a>, metadata: &<a href="../haneul-framework/coin.md#0x2_coin_CoinMetadata">coin::CoinMetadata</a>&lt;T&gt;)
+<pre><code><b>public</b> <b>fun</b> register_foreign_tokenT(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">bridge::bridge::Bridge</a>, tc: <a href="../haneul/coin.md#haneul_coin_TreasuryCap">haneul::coin::TreasuryCap</a>&lt;T&gt;, uc: <a href="../haneul/package.md#haneul_package_UpgradeCap">haneul::package::UpgradeCap</a>, metadata: &<a href="../haneul/coin.md#haneul_coin_CoinMetadata">haneul::coin::CoinMetadata</a>&lt;T&gt;)
 </code></pre>
 
 
@@ -831,15 +838,15 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="bridge.md#0xb_bridge_register_foreign_token">register_foreign_token</a>&lt;T&gt;(
-    <a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">Bridge</a>,
+<pre><code><b>public</b> <b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_register_foreign_token">register_foreign_token</a>&lt;T&gt;(
+    <a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a>,
     tc: TreasuryCap&lt;T&gt;,
     uc: UpgradeCap,
     metadata: &CoinMetadata&lt;T&gt;,
 ) {
-    <a href="bridge.md#0xb_bridge_load_inner_mut">load_inner_mut</a>(<a href="bridge.md#0xb_bridge">bridge</a>)
-        .<a href="treasury.md#0xb_treasury">treasury</a>
-        .<a href="bridge.md#0xb_bridge_register_foreign_token">register_foreign_token</a>&lt;T&gt;(tc, uc, metadata)
+    <a href="../bridge/bridge.md#bridge_bridge_load_inner_mut">load_inner_mut</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>)
+        .<a href="../bridge/treasury.md#bridge_treasury">treasury</a>
+        .<a href="../bridge/bridge.md#bridge_bridge_register_foreign_token">register_foreign_token</a>&lt;T&gt;(tc, uc, metadata)
 }
 </code></pre>
 
@@ -847,13 +854,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_send_token"></a>
+<a name="bridge_bridge_send_token"></a>
 
 ## Function `send_token`
 
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="bridge.md#0xb_bridge_send_token">send_token</a>&lt;T&gt;(<a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">bridge::Bridge</a>, target_chain: u8, target_address: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;, token: <a href="../haneul-framework/coin.md#0x2_coin_Coin">coin::Coin</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
+<pre><code><b>public</b> <b>fun</b> send_tokenT(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">bridge::bridge::Bridge</a>, target_chain: u8, target_address: vector&lt;u8&gt;, token: <a href="../haneul/coin.md#haneul_coin_Coin">haneul::coin::Coin</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -862,53 +869,48 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="bridge.md#0xb_bridge_send_token">send_token</a>&lt;T&gt;(
-    <a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">Bridge</a>,
+<pre><code><b>public</b> <b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_send_token">send_token</a>&lt;T&gt;(
+    <a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a>,
     target_chain: u8,
-    target_address: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;,
+    target_address: vector&lt;u8&gt;,
     token: Coin&lt;T&gt;,
     ctx: &<b>mut</b> TxContext
 ) {
-    <b>let</b> inner = <a href="bridge.md#0xb_bridge_load_inner_mut">load_inner_mut</a>(<a href="bridge.md#0xb_bridge">bridge</a>);
-    <b>assert</b>!(!inner.paused, <a href="bridge.md#0xb_bridge_EBridgeUnavailable">EBridgeUnavailable</a>);
-    <b>assert</b>!(<a href="chain_ids.md#0xb_chain_ids_is_valid_route">chain_ids::is_valid_route</a>(inner.chain_id, target_chain), <a href="bridge.md#0xb_bridge_EInvalidBridgeRoute">EInvalidBridgeRoute</a>);
-    <b>assert</b>!(target_address.length() == <a href="bridge.md#0xb_bridge_EVM_ADDRESS_LENGTH">EVM_ADDRESS_LENGTH</a>, <a href="bridge.md#0xb_bridge_EInvalidEvmAddress">EInvalidEvmAddress</a>);
-
-    <b>let</b> bridge_seq_num = inner.<a href="bridge.md#0xb_bridge_get_current_seq_num_and_increment">get_current_seq_num_and_increment</a>(<a href="message_types.md#0xb_message_types_token">message_types::token</a>());
-    <b>let</b> token_id = inner.<a href="treasury.md#0xb_treasury">treasury</a>.token_id&lt;T&gt;();
-    <b>let</b> token_amount = token.<a href="../haneul-framework/balance.md#0x2_balance">balance</a>().value();
-    <b>assert</b>!(token_amount &gt; 0, <a href="bridge.md#0xb_bridge_ETokenValueIsZero">ETokenValueIsZero</a>);
-
-    // create <a href="bridge.md#0xb_bridge">bridge</a> <a href="message.md#0xb_message">message</a>
-    <b>let</b> <a href="message.md#0xb_message">message</a> = <a href="message.md#0xb_message_create_token_bridge_message">message::create_token_bridge_message</a>(
+    <b>let</b> inner = <a href="../bridge/bridge.md#bridge_bridge_load_inner_mut">load_inner_mut</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>);
+    <b>assert</b>!(!inner.paused, <a href="../bridge/bridge.md#bridge_bridge_EBridgeUnavailable">EBridgeUnavailable</a>);
+    <b>assert</b>!(<a href="../bridge/chain_ids.md#bridge_chain_ids_is_valid_route">chain_ids::is_valid_route</a>(inner.chain_id, target_chain), <a href="../bridge/bridge.md#bridge_bridge_EInvalidBridgeRoute">EInvalidBridgeRoute</a>);
+    <b>assert</b>!(target_address.length() == <a href="../bridge/bridge.md#bridge_bridge_EVM_ADDRESS_LENGTH">EVM_ADDRESS_LENGTH</a>, <a href="../bridge/bridge.md#bridge_bridge_EInvalidEvmAddress">EInvalidEvmAddress</a>);
+    <b>let</b> bridge_seq_num = inner.<a href="../bridge/bridge.md#bridge_bridge_get_current_seq_num_and_increment">get_current_seq_num_and_increment</a>(<a href="../bridge/message_types.md#bridge_message_types_token">message_types::token</a>());
+    <b>let</b> token_id = inner.<a href="../bridge/treasury.md#bridge_treasury">treasury</a>.token_id&lt;T&gt;();
+    <b>let</b> token_amount = token.balance().value();
+    <b>assert</b>!(token_amount &gt; 0, <a href="../bridge/bridge.md#bridge_bridge_ETokenValueIsZero">ETokenValueIsZero</a>);
+    // <a href="../bridge/bridge.md#bridge_bridge_create">create</a> <a href="../bridge/bridge.md#bridge_bridge">bridge</a> <a href="../bridge/message.md#bridge_message">message</a>
+    <b>let</b> <a href="../bridge/message.md#bridge_message">message</a> = <a href="../bridge/message.md#bridge_message_create_token_bridge_message">message::create_token_bridge_message</a>(
         inner.chain_id,
         bridge_seq_num,
-        <a href="../haneul-framework/address.md#0x2_address_to_bytes">address::to_bytes</a>(ctx.sender()),
+        address::to_bytes(ctx.sender()),
         target_chain,
         target_address,
         token_id,
         token_amount,
     );
-
     // burn / escrow token, unsupported coins will fail in this step
-    inner.<a href="treasury.md#0xb_treasury">treasury</a>.burn(token);
-
-    // Store pending <a href="bridge.md#0xb_bridge">bridge</a> request
+    inner.<a href="../bridge/treasury.md#bridge_treasury">treasury</a>.burn(token);
+    // Store pending <a href="../bridge/bridge.md#bridge_bridge">bridge</a> request
     inner.token_transfer_records.push_back(
-        <a href="message.md#0xb_message">message</a>.key(),
-        <a href="bridge.md#0xb_bridge_BridgeRecord">BridgeRecord</a> {
-            <a href="message.md#0xb_message">message</a>,
-            verified_signatures: <a href="../move-stdlib/option.md#0x1_option_none">option::none</a>(),
+        <a href="../bridge/message.md#bridge_message">message</a>.key(),
+        <a href="../bridge/bridge.md#bridge_bridge_BridgeRecord">BridgeRecord</a> {
+            <a href="../bridge/message.md#bridge_message">message</a>,
+            verified_signatures: option::none(),
             claimed: <b>false</b>,
         },
     );
-
-    // emit <a href="../haneul-framework/event.md#0x2_event">event</a>
+    // emit event
     emit(
-        <a href="bridge.md#0xb_bridge_TokenDepositedEvent">TokenDepositedEvent</a> {
+        <a href="../bridge/bridge.md#bridge_bridge_TokenDepositedEvent">TokenDepositedEvent</a> {
             seq_num: bridge_seq_num,
             source_chain: inner.chain_id,
-            sender_address: <a href="../haneul-framework/address.md#0x2_address_to_bytes">address::to_bytes</a>(ctx.sender()),
+            sender_address: address::to_bytes(ctx.sender()),
             target_chain,
             target_address,
             token_type: token_id,
@@ -922,13 +924,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_approve_token_transfer"></a>
+<a name="bridge_bridge_approve_token_transfer"></a>
 
 ## Function `approve_token_transfer`
 
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="bridge.md#0xb_bridge_approve_token_transfer">approve_token_transfer</a>(<a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">bridge::Bridge</a>, <a href="message.md#0xb_message">message</a>: <a href="message.md#0xb_message_BridgeMessage">message::BridgeMessage</a>, signatures: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_approve_token_transfer">approve_token_transfer</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">bridge::bridge::Bridge</a>, <a href="../bridge/message.md#bridge_message">message</a>: <a href="../bridge/message.md#bridge_message_BridgeMessage">bridge::message::BridgeMessage</a>, signatures: vector&lt;vector&lt;u8&gt;&gt;)
 </code></pre>
 
 
@@ -937,62 +939,57 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="bridge.md#0xb_bridge_approve_token_transfer">approve_token_transfer</a>(
-    <a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">Bridge</a>,
-    <a href="message.md#0xb_message">message</a>: BridgeMessage,
-    signatures: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;&gt;,
+<pre><code><b>public</b> <b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_approve_token_transfer">approve_token_transfer</a>(
+    <a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a>,
+    <a href="../bridge/message.md#bridge_message">message</a>: BridgeMessage,
+    signatures: vector&lt;vector&lt;u8&gt;&gt;,
 ) {
-    <b>let</b> inner = <a href="bridge.md#0xb_bridge_load_inner_mut">load_inner_mut</a>(<a href="bridge.md#0xb_bridge">bridge</a>);
-    <b>assert</b>!(!inner.paused, <a href="bridge.md#0xb_bridge_EBridgeUnavailable">EBridgeUnavailable</a>);
+    <b>let</b> inner = <a href="../bridge/bridge.md#bridge_bridge_load_inner_mut">load_inner_mut</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>);
+    <b>assert</b>!(!inner.paused, <a href="../bridge/bridge.md#bridge_bridge_EBridgeUnavailable">EBridgeUnavailable</a>);
     // verify signatures
-    inner.<a href="committee.md#0xb_committee">committee</a>.verify_signatures(<a href="message.md#0xb_message">message</a>, signatures);
-
-    <b>assert</b>!(<a href="message.md#0xb_message">message</a>.message_type() == <a href="message_types.md#0xb_message_types_token">message_types::token</a>(), <a href="bridge.md#0xb_bridge_EMustBeTokenMessage">EMustBeTokenMessage</a>);
-    <b>assert</b>!(<a href="message.md#0xb_message">message</a>.message_version() == <a href="bridge.md#0xb_bridge_MESSAGE_VERSION">MESSAGE_VERSION</a>, <a href="bridge.md#0xb_bridge_EUnexpectedMessageVersion">EUnexpectedMessageVersion</a>);
-    <b>let</b> token_payload = <a href="message.md#0xb_message">message</a>.extract_token_bridge_payload();
+    inner.<a href="../bridge/committee.md#bridge_committee">committee</a>.verify_signatures(<a href="../bridge/message.md#bridge_message">message</a>, signatures);
+    <b>assert</b>!(<a href="../bridge/message.md#bridge_message">message</a>.message_type() == <a href="../bridge/message_types.md#bridge_message_types_token">message_types::token</a>(), <a href="../bridge/bridge.md#bridge_bridge_EMustBeTokenMessage">EMustBeTokenMessage</a>);
+    <b>assert</b>!(<a href="../bridge/message.md#bridge_message">message</a>.message_version() == <a href="../bridge/bridge.md#bridge_bridge_MESSAGE_VERSION">MESSAGE_VERSION</a>, <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedMessageVersion">EUnexpectedMessageVersion</a>);
+    <b>let</b> token_payload = <a href="../bridge/message.md#bridge_message">message</a>.extract_token_bridge_payload();
     <b>let</b> target_chain = token_payload.token_target_chain();
     <b>assert</b>!(
-        <a href="message.md#0xb_message">message</a>.source_chain() == inner.chain_id || target_chain == inner.chain_id,
-        <a href="bridge.md#0xb_bridge_EUnexpectedChainID">EUnexpectedChainID</a>,
+        <a href="../bridge/message.md#bridge_message">message</a>.source_chain() == inner.chain_id || target_chain == inner.chain_id,
+        <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedChainID">EUnexpectedChainID</a>,
     );
-
-    <b>let</b> message_key = <a href="message.md#0xb_message">message</a>.key();
-    // retrieve pending <a href="message.md#0xb_message">message</a> <b>if</b> source chain is Haneul, the initial <a href="message.md#0xb_message">message</a>
+    <b>let</b> message_key = <a href="../bridge/message.md#bridge_message">message</a>.key();
+    // retrieve pending <a href="../bridge/message.md#bridge_message">message</a> <b>if</b> source chain is Haneul, the initial <a href="../bridge/message.md#bridge_message">message</a>
     // must exist on chain
-    <b>if</b> (<a href="message.md#0xb_message">message</a>.source_chain() == inner.chain_id) {
+    <b>if</b> (<a href="../bridge/message.md#bridge_message">message</a>.source_chain() == inner.chain_id) {
         <b>let</b> record = &<b>mut</b> inner.token_transfer_records[message_key];
-
-        <b>assert</b>!(record.<a href="message.md#0xb_message">message</a> == <a href="message.md#0xb_message">message</a>, <a href="bridge.md#0xb_bridge_EMalformedMessageError">EMalformedMessageError</a>);
-        <b>assert</b>!(!record.claimed, <a href="bridge.md#0xb_bridge_EInvariantHaneulInitializedTokenTransferShouldNotBeClaimed">EInvariantHaneulInitializedTokenTransferShouldNotBeClaimed</a>);
-
-        // If record already <b>has</b> verified signatures, it means the <a href="message.md#0xb_message">message</a> <b>has</b> been approved
+        <b>assert</b>!(record.<a href="../bridge/message.md#bridge_message">message</a> == <a href="../bridge/message.md#bridge_message">message</a>, <a href="../bridge/bridge.md#bridge_bridge_EMalformedMessageError">EMalformedMessageError</a>);
+        <b>assert</b>!(!record.claimed, <a href="../bridge/bridge.md#bridge_bridge_EInvariantHaneulInitializedTokenTransferShouldNotBeClaimed">EInvariantHaneulInitializedTokenTransferShouldNotBeClaimed</a>);
+        // If record already <b>has</b> verified signatures, it means the <a href="../bridge/message.md#bridge_message">message</a> <b>has</b> been approved
         // Then we exit early.
         <b>if</b> (record.verified_signatures.is_some()) {
-            emit(<a href="bridge.md#0xb_bridge_TokenTransferAlreadyApproved">TokenTransferAlreadyApproved</a> { message_key });
+            emit(<a href="../bridge/bridge.md#bridge_bridge_TokenTransferAlreadyApproved">TokenTransferAlreadyApproved</a> { message_key });
             <b>return</b>
         };
         // Store approval
-        record.verified_signatures = <a href="../move-stdlib/option.md#0x1_option_some">option::some</a>(signatures)
+        record.verified_signatures = option::some(signatures)
     } <b>else</b> {
-        // At this point, <b>if</b> this <a href="message.md#0xb_message">message</a> is in token_transfer_records, we know
-        // it's already approved because we only add a <a href="message.md#0xb_message">message</a> <b>to</b> token_transfer_records
+        // At this point, <b>if</b> this <a href="../bridge/message.md#bridge_message">message</a> is in token_transfer_records, we know
+        // it's already approved because we only add a <a href="../bridge/message.md#bridge_message">message</a> to token_transfer_records
         // after verifying the signatures
         <b>if</b> (inner.token_transfer_records.contains(message_key)) {
-            emit(<a href="bridge.md#0xb_bridge_TokenTransferAlreadyApproved">TokenTransferAlreadyApproved</a> { message_key });
+            emit(<a href="../bridge/bridge.md#bridge_bridge_TokenTransferAlreadyApproved">TokenTransferAlreadyApproved</a> { message_key });
             <b>return</b>
         };
-        // Store <a href="message.md#0xb_message">message</a> and approval
+        // Store <a href="../bridge/message.md#bridge_message">message</a> and approval
         inner.token_transfer_records.push_back(
             message_key,
-            <a href="bridge.md#0xb_bridge_BridgeRecord">BridgeRecord</a> {
-                <a href="message.md#0xb_message">message</a>,
-                verified_signatures: <a href="../move-stdlib/option.md#0x1_option_some">option::some</a>(signatures),
+            <a href="../bridge/bridge.md#bridge_bridge_BridgeRecord">BridgeRecord</a> {
+                <a href="../bridge/message.md#bridge_message">message</a>,
+                verified_signatures: option::some(signatures),
                 claimed: <b>false</b>
             },
         );
     };
-
-    emit(<a href="bridge.md#0xb_bridge_TokenTransferApproved">TokenTransferApproved</a> { message_key });
+    emit(<a href="../bridge/bridge.md#bridge_bridge_TokenTransferApproved">TokenTransferApproved</a> { message_key });
 }
 </code></pre>
 
@@ -1000,13 +997,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_claim_token"></a>
+<a name="bridge_bridge_claim_token"></a>
 
 ## Function `claim_token`
 
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="bridge.md#0xb_bridge_claim_token">claim_token</a>&lt;T&gt;(<a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">bridge::Bridge</a>, <a href="../haneul-framework/clock.md#0x2_clock">clock</a>: &<a href="../haneul-framework/clock.md#0x2_clock_Clock">clock::Clock</a>, source_chain: u8, bridge_seq_num: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>, ctx: &<b>mut</b> <a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): <a href="../haneul-framework/coin.md#0x2_coin_Coin">coin::Coin</a>&lt;T&gt;
+<pre><code><b>public</b> <b>fun</b> claim_tokenT(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">bridge::bridge::Bridge</a>, clock: &<a href="../haneul/clock.md#haneul_clock_Clock">haneul::clock::Clock</a>, source_chain: u8, bridge_seq_num: u64, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/coin.md#haneul_coin_Coin">haneul::coin::Coin</a>&lt;T&gt;
 </code></pre>
 
 
@@ -1015,22 +1012,22 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="bridge.md#0xb_bridge_claim_token">claim_token</a>&lt;T&gt;(
-    <a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">Bridge</a>,
-    <a href="../haneul-framework/clock.md#0x2_clock">clock</a>: &Clock,
+<pre><code><b>public</b> <b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_claim_token">claim_token</a>&lt;T&gt;(
+    <a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a>,
+    clock: &Clock,
     source_chain: u8,
-    bridge_seq_num: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>,
+    bridge_seq_num: u64,
     ctx: &<b>mut</b> TxContext,
 ): Coin&lt;T&gt; {
-    <b>let</b> (maybe_token, owner) = <a href="bridge.md#0xb_bridge">bridge</a>.<a href="bridge.md#0xb_bridge_claim_token_internal">claim_token_internal</a>&lt;T&gt;(
-        <a href="../haneul-framework/clock.md#0x2_clock">clock</a>,
+    <b>let</b> (maybe_token, owner) = <a href="../bridge/bridge.md#bridge_bridge">bridge</a>.<a href="../bridge/bridge.md#bridge_bridge_claim_token_internal">claim_token_internal</a>&lt;T&gt;(
+        clock,
         source_chain,
         bridge_seq_num,
         ctx,
     );
     // Only token owner can claim the token
-    <b>assert</b>!(ctx.sender() == owner, <a href="bridge.md#0xb_bridge_EUnauthorisedClaim">EUnauthorisedClaim</a>);
-    <b>assert</b>!(maybe_token.is_some(), <a href="bridge.md#0xb_bridge_ETokenAlreadyClaimedOrHitLimit">ETokenAlreadyClaimedOrHitLimit</a>);
+    <b>assert</b>!(ctx.sender() == owner, <a href="../bridge/bridge.md#bridge_bridge_EUnauthorisedClaim">EUnauthorisedClaim</a>);
+    <b>assert</b>!(maybe_token.is_some(), <a href="../bridge/bridge.md#bridge_bridge_ETokenAlreadyClaimedOrHitLimit">ETokenAlreadyClaimedOrHitLimit</a>);
     maybe_token.destroy_some()
 }
 </code></pre>
@@ -1039,13 +1036,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_claim_and_transfer_token"></a>
+<a name="bridge_bridge_claim_and_transfer_token"></a>
 
 ## Function `claim_and_transfer_token`
 
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="bridge.md#0xb_bridge_claim_and_transfer_token">claim_and_transfer_token</a>&lt;T&gt;(<a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">bridge::Bridge</a>, <a href="../haneul-framework/clock.md#0x2_clock">clock</a>: &<a href="../haneul-framework/clock.md#0x2_clock_Clock">clock::Clock</a>, source_chain: u8, bridge_seq_num: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>, ctx: &<b>mut</b> <a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>)
+<pre><code><b>public</b> <b>fun</b> claim_and_transfer_tokenT(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">bridge::bridge::Bridge</a>, clock: &<a href="../haneul/clock.md#haneul_clock_Clock">haneul::clock::Clock</a>, source_chain: u8, bridge_seq_num: u64, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -1054,16 +1051,16 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="bridge.md#0xb_bridge_claim_and_transfer_token">claim_and_transfer_token</a>&lt;T&gt;(
-    <a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">Bridge</a>,
-    <a href="../haneul-framework/clock.md#0x2_clock">clock</a>: &Clock,
+<pre><code><b>public</b> <b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_claim_and_transfer_token">claim_and_transfer_token</a>&lt;T&gt;(
+    <a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a>,
+    clock: &Clock,
     source_chain: u8,
-    bridge_seq_num: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>,
+    bridge_seq_num: u64,
     ctx: &<b>mut</b> TxContext,
 ) {
-    <b>let</b> (token, owner) = <a href="bridge.md#0xb_bridge">bridge</a>.<a href="bridge.md#0xb_bridge_claim_token_internal">claim_token_internal</a>&lt;T&gt;(<a href="../haneul-framework/clock.md#0x2_clock">clock</a>, source_chain, bridge_seq_num, ctx);
+    <b>let</b> (token, owner) = <a href="../bridge/bridge.md#bridge_bridge">bridge</a>.<a href="../bridge/bridge.md#bridge_bridge_claim_token_internal">claim_token_internal</a>&lt;T&gt;(clock, source_chain, bridge_seq_num, ctx);
     <b>if</b> (token.is_some()) {
-        <a href="../haneul-framework/transfer.md#0x2_transfer_public_transfer">transfer::public_transfer</a>(token.destroy_some(), owner)
+        transfer::public_transfer(token.destroy_some(), owner)
     } <b>else</b> {
         token.destroy_none();
     };
@@ -1074,13 +1071,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_execute_system_message"></a>
+<a name="bridge_bridge_execute_system_message"></a>
 
 ## Function `execute_system_message`
 
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="bridge.md#0xb_bridge_execute_system_message">execute_system_message</a>(<a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">bridge::Bridge</a>, <a href="message.md#0xb_message">message</a>: <a href="message.md#0xb_message_BridgeMessage">message::BridgeMessage</a>, signatures: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_execute_system_message">execute_system_message</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">bridge::bridge::Bridge</a>, <a href="../bridge/message.md#bridge_message">message</a>: <a href="../bridge/message.md#bridge_message_BridgeMessage">bridge::message::BridgeMessage</a>, signatures: vector&lt;vector&lt;u8&gt;&gt;)
 </code></pre>
 
 
@@ -1089,42 +1086,37 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="bridge.md#0xb_bridge_execute_system_message">execute_system_message</a>(
-    <a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">Bridge</a>,
-    <a href="message.md#0xb_message">message</a>: BridgeMessage,
-    signatures: <a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;&gt;,
+<pre><code><b>public</b> <b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_execute_system_message">execute_system_message</a>(
+    <a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a>,
+    <a href="../bridge/message.md#bridge_message">message</a>: BridgeMessage,
+    signatures: vector&lt;vector&lt;u8&gt;&gt;,
 ) {
-    <b>let</b> message_type = <a href="message.md#0xb_message">message</a>.message_type();
-
+    <b>let</b> message_type = <a href="../bridge/message.md#bridge_message">message</a>.message_type();
     // TODO: test version mismatch
-    <b>assert</b>!(<a href="message.md#0xb_message">message</a>.message_version() == <a href="bridge.md#0xb_bridge_MESSAGE_VERSION">MESSAGE_VERSION</a>, <a href="bridge.md#0xb_bridge_EUnexpectedMessageVersion">EUnexpectedMessageVersion</a>);
-    <b>let</b> inner = <a href="bridge.md#0xb_bridge_load_inner_mut">load_inner_mut</a>(<a href="bridge.md#0xb_bridge">bridge</a>);
-
-    <b>assert</b>!(<a href="message.md#0xb_message">message</a>.source_chain() == inner.chain_id, <a href="bridge.md#0xb_bridge_EUnexpectedChainID">EUnexpectedChainID</a>);
-
+    <b>assert</b>!(<a href="../bridge/message.md#bridge_message">message</a>.message_version() == <a href="../bridge/bridge.md#bridge_bridge_MESSAGE_VERSION">MESSAGE_VERSION</a>, <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedMessageVersion">EUnexpectedMessageVersion</a>);
+    <b>let</b> inner = <a href="../bridge/bridge.md#bridge_bridge_load_inner_mut">load_inner_mut</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>);
+    <b>assert</b>!(<a href="../bridge/message.md#bridge_message">message</a>.source_chain() == inner.chain_id, <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedChainID">EUnexpectedChainID</a>);
     // check system ops seq number and increment it
-    <b>let</b> expected_seq_num = inner.<a href="bridge.md#0xb_bridge_get_current_seq_num_and_increment">get_current_seq_num_and_increment</a>(message_type);
-    <b>assert</b>!(<a href="message.md#0xb_message">message</a>.seq_num() == expected_seq_num, <a href="bridge.md#0xb_bridge_EUnexpectedSeqNum">EUnexpectedSeqNum</a>);
-
-    inner.<a href="committee.md#0xb_committee">committee</a>.verify_signatures(<a href="message.md#0xb_message">message</a>, signatures);
-
-    <b>if</b> (message_type == <a href="message_types.md#0xb_message_types_emergency_op">message_types::emergency_op</a>()) {
-        <b>let</b> payload = <a href="message.md#0xb_message">message</a>.extract_emergency_op_payload();
-        inner.<a href="bridge.md#0xb_bridge_execute_emergency_op">execute_emergency_op</a>(payload);
-    } <b>else</b> <b>if</b> (message_type == <a href="message_types.md#0xb_message_types_committee_blocklist">message_types::committee_blocklist</a>()) {
-        <b>let</b> payload = <a href="message.md#0xb_message">message</a>.extract_blocklist_payload();
-        inner.<a href="committee.md#0xb_committee">committee</a>.execute_blocklist(payload);
-    } <b>else</b> <b>if</b> (message_type == <a href="message_types.md#0xb_message_types_update_bridge_limit">message_types::update_bridge_limit</a>()) {
-        <b>let</b> payload = <a href="message.md#0xb_message">message</a>.extract_update_bridge_limit();
-        inner.<a href="bridge.md#0xb_bridge_execute_update_bridge_limit">execute_update_bridge_limit</a>(payload);
-    } <b>else</b> <b>if</b> (message_type == <a href="message_types.md#0xb_message_types_update_asset_price">message_types::update_asset_price</a>()) {
-        <b>let</b> payload = <a href="message.md#0xb_message">message</a>.extract_update_asset_price();
-        inner.<a href="bridge.md#0xb_bridge_execute_update_asset_price">execute_update_asset_price</a>(payload);
-    } <b>else</b> <b>if</b> (message_type == <a href="message_types.md#0xb_message_types_add_tokens_on_haneul">message_types::add_tokens_on_haneul</a>()) {
-        <b>let</b> payload = <a href="message.md#0xb_message">message</a>.extract_add_tokens_on_haneul();
-        inner.<a href="bridge.md#0xb_bridge_execute_add_tokens_on_haneul">execute_add_tokens_on_haneul</a>(payload);
+    <b>let</b> expected_seq_num = inner.<a href="../bridge/bridge.md#bridge_bridge_get_current_seq_num_and_increment">get_current_seq_num_and_increment</a>(message_type);
+    <b>assert</b>!(<a href="../bridge/message.md#bridge_message">message</a>.seq_num() == expected_seq_num, <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedSeqNum">EUnexpectedSeqNum</a>);
+    inner.<a href="../bridge/committee.md#bridge_committee">committee</a>.verify_signatures(<a href="../bridge/message.md#bridge_message">message</a>, signatures);
+    <b>if</b> (message_type == <a href="../bridge/message_types.md#bridge_message_types_emergency_op">message_types::emergency_op</a>()) {
+        <b>let</b> payload = <a href="../bridge/message.md#bridge_message">message</a>.extract_emergency_op_payload();
+        inner.<a href="../bridge/bridge.md#bridge_bridge_execute_emergency_op">execute_emergency_op</a>(payload);
+    } <b>else</b> <b>if</b> (message_type == <a href="../bridge/message_types.md#bridge_message_types_committee_blocklist">message_types::committee_blocklist</a>()) {
+        <b>let</b> payload = <a href="../bridge/message.md#bridge_message">message</a>.extract_blocklist_payload();
+        inner.<a href="../bridge/committee.md#bridge_committee">committee</a>.execute_blocklist(payload);
+    } <b>else</b> <b>if</b> (message_type == <a href="../bridge/message_types.md#bridge_message_types_update_bridge_limit">message_types::update_bridge_limit</a>()) {
+        <b>let</b> payload = <a href="../bridge/message.md#bridge_message">message</a>.extract_update_bridge_limit();
+        inner.<a href="../bridge/bridge.md#bridge_bridge_execute_update_bridge_limit">execute_update_bridge_limit</a>(payload);
+    } <b>else</b> <b>if</b> (message_type == <a href="../bridge/message_types.md#bridge_message_types_update_asset_price">message_types::update_asset_price</a>()) {
+        <b>let</b> payload = <a href="../bridge/message.md#bridge_message">message</a>.extract_update_asset_price();
+        inner.<a href="../bridge/bridge.md#bridge_bridge_execute_update_asset_price">execute_update_asset_price</a>(payload);
+    } <b>else</b> <b>if</b> (message_type == <a href="../bridge/message_types.md#bridge_message_types_add_tokens_on_haneul">message_types::add_tokens_on_haneul</a>()) {
+        <b>let</b> payload = <a href="../bridge/message.md#bridge_message">message</a>.extract_add_tokens_on_haneul();
+        inner.<a href="../bridge/bridge.md#bridge_bridge_execute_add_tokens_on_haneul">execute_add_tokens_on_haneul</a>(payload);
     } <b>else</b> {
-        <b>abort</b> <a href="bridge.md#0xb_bridge_EUnexpectedMessageType">EUnexpectedMessageType</a>
+        <b>abort</b> <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedMessageType">EUnexpectedMessageType</a>
     };
 }
 </code></pre>
@@ -1133,13 +1125,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_get_token_transfer_action_status"></a>
+<a name="bridge_bridge_get_token_transfer_action_status"></a>
 
 ## Function `get_token_transfer_action_status`
 
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_get_token_transfer_action_status">get_token_transfer_action_status</a>(<a href="bridge.md#0xb_bridge">bridge</a>: &<a href="bridge.md#0xb_bridge_Bridge">bridge::Bridge</a>, source_chain: u8, bridge_seq_num: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>): u8
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_get_token_transfer_action_status">get_token_transfer_action_status</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<a href="../bridge/bridge.md#bridge_bridge_Bridge">bridge::bridge::Bridge</a>, source_chain: u8, bridge_seq_num: u64): u8
 </code></pre>
 
 
@@ -1148,32 +1140,28 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_get_token_transfer_action_status">get_token_transfer_action_status</a>(
-    <a href="bridge.md#0xb_bridge">bridge</a>: &<a href="bridge.md#0xb_bridge_Bridge">Bridge</a>,
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_get_token_transfer_action_status">get_token_transfer_action_status</a>(
+    <a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a>,
     source_chain: u8,
-    bridge_seq_num: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>,
+    bridge_seq_num: u64,
 ): u8 {
-    <b>let</b> inner = <a href="bridge.md#0xb_bridge_load_inner">load_inner</a>(<a href="bridge.md#0xb_bridge">bridge</a>);
-    <b>let</b> key = <a href="message.md#0xb_message_create_key">message::create_key</a>(
+    <b>let</b> inner = <a href="../bridge/bridge.md#bridge_bridge_load_inner">load_inner</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>);
+    <b>let</b> key = <a href="../bridge/message.md#bridge_message_create_key">message::create_key</a>(
         source_chain,
-        <a href="message_types.md#0xb_message_types_token">message_types::token</a>(),
+        <a href="../bridge/message_types.md#bridge_message_types_token">message_types::token</a>(),
         bridge_seq_num
     );
-
     <b>if</b> (!inner.token_transfer_records.contains(key)) {
-        <b>return</b> <a href="bridge.md#0xb_bridge_TRANSFER_STATUS_NOT_FOUND">TRANSFER_STATUS_NOT_FOUND</a>
+        <b>return</b> <a href="../bridge/bridge.md#bridge_bridge_TRANSFER_STATUS_NOT_FOUND">TRANSFER_STATUS_NOT_FOUND</a>
     };
-
     <b>let</b> record = &inner.token_transfer_records[key];
     <b>if</b> (record.claimed) {
-        <b>return</b> <a href="bridge.md#0xb_bridge_TRANSFER_STATUS_CLAIMED">TRANSFER_STATUS_CLAIMED</a>
+        <b>return</b> <a href="../bridge/bridge.md#bridge_bridge_TRANSFER_STATUS_CLAIMED">TRANSFER_STATUS_CLAIMED</a>
     };
-
     <b>if</b> (record.verified_signatures.is_some()) {
-        <b>return</b> <a href="bridge.md#0xb_bridge_TRANSFER_STATUS_APPROVED">TRANSFER_STATUS_APPROVED</a>
+        <b>return</b> <a href="../bridge/bridge.md#bridge_bridge_TRANSFER_STATUS_APPROVED">TRANSFER_STATUS_APPROVED</a>
     };
-
-    <a href="bridge.md#0xb_bridge_TRANSFER_STATUS_PENDING">TRANSFER_STATUS_PENDING</a>
+    <a href="../bridge/bridge.md#bridge_bridge_TRANSFER_STATUS_PENDING">TRANSFER_STATUS_PENDING</a>
 }
 </code></pre>
 
@@ -1181,13 +1169,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_get_token_transfer_action_signatures"></a>
+<a name="bridge_bridge_get_token_transfer_action_signatures"></a>
 
 ## Function `get_token_transfer_action_signatures`
 
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_get_token_transfer_action_signatures">get_token_transfer_action_signatures</a>(<a href="bridge.md#0xb_bridge">bridge</a>: &<a href="bridge.md#0xb_bridge_Bridge">bridge::Bridge</a>, source_chain: u8, bridge_seq_num: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>): <a href="../move-stdlib/option.md#0x1_option_Option">option::Option</a>&lt;<a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;&gt;&gt;
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_get_token_transfer_action_signatures">get_token_transfer_action_signatures</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<a href="../bridge/bridge.md#bridge_bridge_Bridge">bridge::bridge::Bridge</a>, source_chain: u8, bridge_seq_num: u64): <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;vector&lt;vector&lt;u8&gt;&gt;&gt;
 </code></pre>
 
 
@@ -1196,22 +1184,20 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_get_token_transfer_action_signatures">get_token_transfer_action_signatures</a>(
-    <a href="bridge.md#0xb_bridge">bridge</a>: &<a href="bridge.md#0xb_bridge_Bridge">Bridge</a>,
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_get_token_transfer_action_signatures">get_token_transfer_action_signatures</a>(
+    <a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a>,
     source_chain: u8,
-    bridge_seq_num: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>,
-): Option&lt;<a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;<a href="../move-stdlib/vector.md#0x1_vector">vector</a>&lt;u8&gt;&gt;&gt; {
-    <b>let</b> inner = <a href="bridge.md#0xb_bridge_load_inner">load_inner</a>(<a href="bridge.md#0xb_bridge">bridge</a>);
-    <b>let</b> key = <a href="message.md#0xb_message_create_key">message::create_key</a>(
+    bridge_seq_num: u64,
+): Option&lt;vector&lt;vector&lt;u8&gt;&gt;&gt; {
+    <b>let</b> inner = <a href="../bridge/bridge.md#bridge_bridge_load_inner">load_inner</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>);
+    <b>let</b> key = <a href="../bridge/message.md#bridge_message_create_key">message::create_key</a>(
         source_chain,
-        <a href="message_types.md#0xb_message_types_token">message_types::token</a>(),
+        <a href="../bridge/message_types.md#bridge_message_types_token">message_types::token</a>(),
         bridge_seq_num
     );
-
     <b>if</b> (!inner.token_transfer_records.contains(key)) {
-        <b>return</b> <a href="../move-stdlib/option.md#0x1_option_none">option::none</a>()
+        <b>return</b> option::none()
     };
-
     <b>let</b> record = &inner.token_transfer_records[key];
     record.verified_signatures
 }
@@ -1221,13 +1207,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_load_inner"></a>
+<a name="bridge_bridge_load_inner"></a>
 
 ## Function `load_inner`
 
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_load_inner">load_inner</a>(<a href="bridge.md#0xb_bridge">bridge</a>: &<a href="bridge.md#0xb_bridge_Bridge">bridge::Bridge</a>): &<a href="bridge.md#0xb_bridge_BridgeInner">bridge::BridgeInner</a>
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_load_inner">load_inner</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<a href="../bridge/bridge.md#bridge_bridge_Bridge">bridge::bridge::Bridge</a>): &<a href="../bridge/bridge.md#bridge_bridge_BridgeInner">bridge::bridge::BridgeInner</a>
 </code></pre>
 
 
@@ -1236,15 +1222,14 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_load_inner">load_inner</a>(
-    <a href="bridge.md#0xb_bridge">bridge</a>: &<a href="bridge.md#0xb_bridge_Bridge">Bridge</a>,
-): &<a href="bridge.md#0xb_bridge_BridgeInner">BridgeInner</a> {
-    <b>let</b> version = <a href="bridge.md#0xb_bridge">bridge</a>.inner.version();
-
-    // TODO: Replace this <b>with</b> a lazy <b>update</b> function when we add a new version of the inner <a href="../haneul-framework/object.md#0x2_object">object</a>.
-    <b>assert</b>!(version == <a href="bridge.md#0xb_bridge_CURRENT_VERSION">CURRENT_VERSION</a>, <a href="bridge.md#0xb_bridge_EWrongInnerVersion">EWrongInnerVersion</a>);
-    <b>let</b> inner: &<a href="bridge.md#0xb_bridge_BridgeInner">BridgeInner</a> = <a href="bridge.md#0xb_bridge">bridge</a>.inner.load_value();
-    <b>assert</b>!(inner.bridge_version == version, <a href="bridge.md#0xb_bridge_EWrongInnerVersion">EWrongInnerVersion</a>);
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_load_inner">load_inner</a>(
+    <a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a>,
+): &<a href="../bridge/bridge.md#bridge_bridge_BridgeInner">BridgeInner</a> {
+    <b>let</b> version = <a href="../bridge/bridge.md#bridge_bridge">bridge</a>.inner.version();
+    // TODO: Replace this with a lazy update function when we add a new version of the inner object.
+    <b>assert</b>!(version == <a href="../bridge/bridge.md#bridge_bridge_CURRENT_VERSION">CURRENT_VERSION</a>, <a href="../bridge/bridge.md#bridge_bridge_EWrongInnerVersion">EWrongInnerVersion</a>);
+    <b>let</b> inner: &<a href="../bridge/bridge.md#bridge_bridge_BridgeInner">BridgeInner</a> = <a href="../bridge/bridge.md#bridge_bridge">bridge</a>.inner.load_value();
+    <b>assert</b>!(inner.bridge_version == version, <a href="../bridge/bridge.md#bridge_bridge_EWrongInnerVersion">EWrongInnerVersion</a>);
     inner
 }
 </code></pre>
@@ -1253,13 +1238,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_load_inner_mut"></a>
+<a name="bridge_bridge_load_inner_mut"></a>
 
 ## Function `load_inner_mut`
 
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_load_inner_mut">load_inner_mut</a>(<a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">bridge::Bridge</a>): &<b>mut</b> <a href="bridge.md#0xb_bridge_BridgeInner">bridge::BridgeInner</a>
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_load_inner_mut">load_inner_mut</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">bridge::bridge::Bridge</a>): &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_BridgeInner">bridge::bridge::BridgeInner</a>
 </code></pre>
 
 
@@ -1268,12 +1253,12 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_load_inner_mut">load_inner_mut</a>(<a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">Bridge</a>): &<b>mut</b> <a href="bridge.md#0xb_bridge_BridgeInner">BridgeInner</a> {
-    <b>let</b> version = <a href="bridge.md#0xb_bridge">bridge</a>.inner.version();
-    // TODO: Replace this <b>with</b> a lazy <b>update</b> function when we add a new version of the inner <a href="../haneul-framework/object.md#0x2_object">object</a>.
-    <b>assert</b>!(version == <a href="bridge.md#0xb_bridge_CURRENT_VERSION">CURRENT_VERSION</a>, <a href="bridge.md#0xb_bridge_EWrongInnerVersion">EWrongInnerVersion</a>);
-    <b>let</b> inner: &<b>mut</b> <a href="bridge.md#0xb_bridge_BridgeInner">BridgeInner</a> = <a href="bridge.md#0xb_bridge">bridge</a>.inner.load_value_mut();
-    <b>assert</b>!(inner.bridge_version == version, <a href="bridge.md#0xb_bridge_EWrongInnerVersion">EWrongInnerVersion</a>);
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_load_inner_mut">load_inner_mut</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a>): &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_BridgeInner">BridgeInner</a> {
+    <b>let</b> version = <a href="../bridge/bridge.md#bridge_bridge">bridge</a>.inner.version();
+    // TODO: Replace this with a lazy update function when we add a new version of the inner object.
+    <b>assert</b>!(version == <a href="../bridge/bridge.md#bridge_bridge_CURRENT_VERSION">CURRENT_VERSION</a>, <a href="../bridge/bridge.md#bridge_bridge_EWrongInnerVersion">EWrongInnerVersion</a>);
+    <b>let</b> inner: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_BridgeInner">BridgeInner</a> = <a href="../bridge/bridge.md#bridge_bridge">bridge</a>.inner.load_value_mut();
+    <b>assert</b>!(inner.bridge_version == version, <a href="../bridge/bridge.md#bridge_bridge_EWrongInnerVersion">EWrongInnerVersion</a>);
     inner
 }
 </code></pre>
@@ -1282,13 +1267,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_claim_token_internal"></a>
+<a name="bridge_bridge_claim_token_internal"></a>
 
 ## Function `claim_token_internal`
 
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_claim_token_internal">claim_token_internal</a>&lt;T&gt;(<a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">bridge::Bridge</a>, <a href="../haneul-framework/clock.md#0x2_clock">clock</a>: &<a href="../haneul-framework/clock.md#0x2_clock_Clock">clock::Clock</a>, source_chain: u8, bridge_seq_num: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>, ctx: &<b>mut</b> <a href="../haneul-framework/tx_context.md#0x2_tx_context_TxContext">tx_context::TxContext</a>): (<a href="../move-stdlib/option.md#0x1_option_Option">option::Option</a>&lt;<a href="../haneul-framework/coin.md#0x2_coin_Coin">coin::Coin</a>&lt;T&gt;&gt;, <b>address</b>)
+<pre><code><b>fun</b> claim_token_internalT(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">bridge::bridge::Bridge</a>, clock: &<a href="../haneul/clock.md#haneul_clock_Clock">haneul::clock::Clock</a>, source_chain: u8, bridge_seq_num: u64, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<a href="../haneul/coin.md#haneul_coin_Coin">haneul::coin::Coin</a>&lt;T&gt;&gt;, <b>address</b>)
 </code></pre>
 
 
@@ -1297,78 +1282,68 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_claim_token_internal">claim_token_internal</a>&lt;T&gt;(
-    <a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_Bridge">Bridge</a>,
-    <a href="../haneul-framework/clock.md#0x2_clock">clock</a>: &Clock,
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_claim_token_internal">claim_token_internal</a>&lt;T&gt;(
+    <a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a>,
+    clock: &Clock,
     source_chain: u8,
-    bridge_seq_num: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>,
+    bridge_seq_num: u64,
     ctx: &<b>mut</b> TxContext,
 ): (Option&lt;Coin&lt;T&gt;&gt;, <b>address</b>) {
-    <b>let</b> inner = <a href="bridge.md#0xb_bridge_load_inner_mut">load_inner_mut</a>(<a href="bridge.md#0xb_bridge">bridge</a>);
-    <b>assert</b>!(!inner.paused, <a href="bridge.md#0xb_bridge_EBridgeUnavailable">EBridgeUnavailable</a>);
-
-    <b>let</b> key = <a href="message.md#0xb_message_create_key">message::create_key</a>(source_chain, <a href="message_types.md#0xb_message_types_token">message_types::token</a>(), bridge_seq_num);
-    <b>assert</b>!(inner.token_transfer_records.contains(key), <a href="bridge.md#0xb_bridge_EMessageNotFoundInRecords">EMessageNotFoundInRecords</a>);
-
-    // retrieve approved <a href="bridge.md#0xb_bridge">bridge</a> <a href="message.md#0xb_message">message</a>
+    <b>let</b> inner = <a href="../bridge/bridge.md#bridge_bridge_load_inner_mut">load_inner_mut</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>);
+    <b>assert</b>!(!inner.paused, <a href="../bridge/bridge.md#bridge_bridge_EBridgeUnavailable">EBridgeUnavailable</a>);
+    <b>let</b> key = <a href="../bridge/message.md#bridge_message_create_key">message::create_key</a>(source_chain, <a href="../bridge/message_types.md#bridge_message_types_token">message_types::token</a>(), bridge_seq_num);
+    <b>assert</b>!(inner.token_transfer_records.contains(key), <a href="../bridge/bridge.md#bridge_bridge_EMessageNotFoundInRecords">EMessageNotFoundInRecords</a>);
+    // retrieve approved <a href="../bridge/bridge.md#bridge_bridge">bridge</a> <a href="../bridge/message.md#bridge_message">message</a>
     <b>let</b> record = &<b>mut</b> inner.token_transfer_records[key];
-    // ensure this is a token <a href="bridge.md#0xb_bridge">bridge</a> <a href="message.md#0xb_message">message</a>
+    // ensure this is a token <a href="../bridge/bridge.md#bridge_bridge">bridge</a> <a href="../bridge/message.md#bridge_message">message</a>
     <b>assert</b>!(
-        &record.<a href="message.md#0xb_message">message</a>.message_type() == <a href="message_types.md#0xb_message_types_token">message_types::token</a>(),
-        <a href="bridge.md#0xb_bridge_EUnexpectedMessageType">EUnexpectedMessageType</a>,
+        &record.<a href="../bridge/message.md#bridge_message">message</a>.message_type() == <a href="../bridge/message_types.md#bridge_message_types_token">message_types::token</a>(),
+        <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedMessageType">EUnexpectedMessageType</a>,
     );
     // Ensure it's signed
-    <b>assert</b>!(record.verified_signatures.is_some(), <a href="bridge.md#0xb_bridge_EUnauthorisedClaim">EUnauthorisedClaim</a>);
-
-    // extract token <a href="message.md#0xb_message">message</a>
-    <b>let</b> token_payload = record.<a href="message.md#0xb_message">message</a>.extract_token_bridge_payload();
+    <b>assert</b>!(record.verified_signatures.is_some(), <a href="../bridge/bridge.md#bridge_bridge_EUnauthorisedClaim">EUnauthorisedClaim</a>);
+    // extract token <a href="../bridge/message.md#bridge_message">message</a>
+    <b>let</b> token_payload = record.<a href="../bridge/message.md#bridge_message">message</a>.extract_token_bridge_payload();
     // get owner <b>address</b>
-    <b>let</b> owner = <a href="../haneul-framework/address.md#0x2_address_from_bytes">address::from_bytes</a>(token_payload.token_target_address());
-
+    <b>let</b> owner = address::from_bytes(token_payload.token_target_address());
     // If already claimed, exit early
     <b>if</b> (record.claimed) {
-        emit(<a href="bridge.md#0xb_bridge_TokenTransferAlreadyClaimed">TokenTransferAlreadyClaimed</a> { message_key: key });
-        <b>return</b> (<a href="../move-stdlib/option.md#0x1_option_none">option::none</a>(), owner)
+        emit(<a href="../bridge/bridge.md#bridge_bridge_TokenTransferAlreadyClaimed">TokenTransferAlreadyClaimed</a> { message_key: key });
+        <b>return</b> (option::none(), owner)
     };
-
     <b>let</b> target_chain = token_payload.token_target_chain();
-    // ensure target chain matches <a href="bridge.md#0xb_bridge">bridge</a>.chain_id
-    <b>assert</b>!(target_chain == inner.chain_id, <a href="bridge.md#0xb_bridge_EUnexpectedChainID">EUnexpectedChainID</a>);
-
+    // ensure target chain matches <a href="../bridge/bridge.md#bridge_bridge">bridge</a>.chain_id
+    <b>assert</b>!(target_chain == inner.chain_id, <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedChainID">EUnexpectedChainID</a>);
     // TODO: why do we check validity of the route here? what <b>if</b> inconsistency?
     // Ensure route is valid
     // TODO: add unit tests
     // `get_route` <b>abort</b> <b>if</b> route is invalid
-    <b>let</b> route = <a href="chain_ids.md#0xb_chain_ids_get_route">chain_ids::get_route</a>(source_chain, target_chain);
+    <b>let</b> route = <a href="../bridge/chain_ids.md#bridge_chain_ids_get_route">chain_ids::get_route</a>(source_chain, target_chain);
     // check token type
     <b>assert</b>!(
-        <a href="treasury.md#0xb_treasury_token_id">treasury::token_id</a>&lt;T&gt;(&inner.<a href="treasury.md#0xb_treasury">treasury</a>) == token_payload.token_type(),
-        <a href="bridge.md#0xb_bridge_EUnexpectedTokenType">EUnexpectedTokenType</a>,
+        <a href="../bridge/treasury.md#bridge_treasury_token_id">treasury::token_id</a>&lt;T&gt;(&inner.<a href="../bridge/treasury.md#bridge_treasury">treasury</a>) == token_payload.token_type(),
+        <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedTokenType">EUnexpectedTokenType</a>,
     );
-
     <b>let</b> amount = token_payload.token_amount();
-    // Make sure <a href="../haneul-framework/transfer.md#0x2_transfer">transfer</a> is within limit.
+    // Make sure transfer is within limit.
     <b>if</b> (!inner
-        .<a href="limiter.md#0xb_limiter">limiter</a>
+        .<a href="../bridge/limiter.md#bridge_limiter">limiter</a>
         .check_and_record_sending_transfer&lt;T&gt;(
-        &inner.<a href="treasury.md#0xb_treasury">treasury</a>,
-        <a href="../haneul-framework/clock.md#0x2_clock">clock</a>,
+        &inner.<a href="../bridge/treasury.md#bridge_treasury">treasury</a>,
+        clock,
         route,
         amount,
     )
     ) {
-        emit(<a href="bridge.md#0xb_bridge_TokenTransferLimitExceed">TokenTransferLimitExceed</a> { message_key: key });
-        <b>return</b> (<a href="../move-stdlib/option.md#0x1_option_none">option::none</a>(), owner)
+        emit(<a href="../bridge/bridge.md#bridge_bridge_TokenTransferLimitExceed">TokenTransferLimitExceed</a> { message_key: key });
+        <b>return</b> (option::none(), owner)
     };
-
-    // claim from <a href="treasury.md#0xb_treasury">treasury</a>
-    <b>let</b> token = inner.<a href="treasury.md#0xb_treasury">treasury</a>.mint&lt;T&gt;(amount, ctx);
-
+    // claim from <a href="../bridge/treasury.md#bridge_treasury">treasury</a>
+    <b>let</b> token = inner.<a href="../bridge/treasury.md#bridge_treasury">treasury</a>.mint&lt;T&gt;(amount, ctx);
     // Record changes
     record.claimed = <b>true</b>;
-    emit(<a href="bridge.md#0xb_bridge_TokenTransferClaimed">TokenTransferClaimed</a> { message_key: key });
-
-    (<a href="../move-stdlib/option.md#0x1_option_some">option::some</a>(token), owner)
+    emit(<a href="../bridge/bridge.md#bridge_bridge_TokenTransferClaimed">TokenTransferClaimed</a> { message_key: key });
+    (option::some(token), owner)
 }
 </code></pre>
 
@@ -1376,13 +1351,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_execute_emergency_op"></a>
+<a name="bridge_bridge_execute_emergency_op"></a>
 
 ## Function `execute_emergency_op`
 
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_execute_emergency_op">execute_emergency_op</a>(inner: &<b>mut</b> <a href="bridge.md#0xb_bridge_BridgeInner">bridge::BridgeInner</a>, payload: <a href="message.md#0xb_message_EmergencyOp">message::EmergencyOp</a>)
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_execute_emergency_op">execute_emergency_op</a>(inner: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_BridgeInner">bridge::bridge::BridgeInner</a>, payload: <a href="../bridge/message.md#bridge_message_EmergencyOp">bridge::message::EmergencyOp</a>)
 </code></pre>
 
 
@@ -1391,18 +1366,18 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_execute_emergency_op">execute_emergency_op</a>(inner: &<b>mut</b> <a href="bridge.md#0xb_bridge_BridgeInner">BridgeInner</a>, payload: EmergencyOp) {
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_execute_emergency_op">execute_emergency_op</a>(inner: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_BridgeInner">BridgeInner</a>, payload: EmergencyOp) {
     <b>let</b> op = payload.emergency_op_type();
-    <b>if</b> (op == <a href="message.md#0xb_message_emergency_op_pause">message::emergency_op_pause</a>()) {
-        <b>assert</b>!(!inner.paused, <a href="bridge.md#0xb_bridge_EBridgeAlreadyPaused">EBridgeAlreadyPaused</a>);
+    <b>if</b> (op == <a href="../bridge/message.md#bridge_message_emergency_op_pause">message::emergency_op_pause</a>()) {
+        <b>assert</b>!(!inner.paused, <a href="../bridge/bridge.md#bridge_bridge_EBridgeAlreadyPaused">EBridgeAlreadyPaused</a>);
         inner.paused = <b>true</b>;
-        emit(<a href="bridge.md#0xb_bridge_EmergencyOpEvent">EmergencyOpEvent</a> { frozen: <b>true</b> });
-    } <b>else</b> <b>if</b> (op == <a href="message.md#0xb_message_emergency_op_unpause">message::emergency_op_unpause</a>()) {
-        <b>assert</b>!(inner.paused, <a href="bridge.md#0xb_bridge_EBridgeNotPaused">EBridgeNotPaused</a>);
+        emit(<a href="../bridge/bridge.md#bridge_bridge_EmergencyOpEvent">EmergencyOpEvent</a> { frozen: <b>true</b> });
+    } <b>else</b> <b>if</b> (op == <a href="../bridge/message.md#bridge_message_emergency_op_unpause">message::emergency_op_unpause</a>()) {
+        <b>assert</b>!(inner.paused, <a href="../bridge/bridge.md#bridge_bridge_EBridgeNotPaused">EBridgeNotPaused</a>);
         inner.paused = <b>false</b>;
-        emit(<a href="bridge.md#0xb_bridge_EmergencyOpEvent">EmergencyOpEvent</a> { frozen: <b>false</b> });
+        emit(<a href="../bridge/bridge.md#bridge_bridge_EmergencyOpEvent">EmergencyOpEvent</a> { frozen: <b>false</b> });
     } <b>else</b> {
-        <b>abort</b> <a href="bridge.md#0xb_bridge_EUnexpectedOperation">EUnexpectedOperation</a>
+        <b>abort</b> <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedOperation">EUnexpectedOperation</a>
     };
 }
 </code></pre>
@@ -1411,13 +1386,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_execute_update_bridge_limit"></a>
+<a name="bridge_bridge_execute_update_bridge_limit"></a>
 
 ## Function `execute_update_bridge_limit`
 
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_execute_update_bridge_limit">execute_update_bridge_limit</a>(inner: &<b>mut</b> <a href="bridge.md#0xb_bridge_BridgeInner">bridge::BridgeInner</a>, payload: <a href="message.md#0xb_message_UpdateBridgeLimit">message::UpdateBridgeLimit</a>)
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_execute_update_bridge_limit">execute_update_bridge_limit</a>(inner: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_BridgeInner">bridge::bridge::BridgeInner</a>, payload: <a href="../bridge/message.md#bridge_message_UpdateBridgeLimit">bridge::message::UpdateBridgeLimit</a>)
 </code></pre>
 
 
@@ -1426,15 +1401,14 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_execute_update_bridge_limit">execute_update_bridge_limit</a>(inner: &<b>mut</b> <a href="bridge.md#0xb_bridge_BridgeInner">BridgeInner</a>, payload: UpdateBridgeLimit) {
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_execute_update_bridge_limit">execute_update_bridge_limit</a>(inner: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_BridgeInner">BridgeInner</a>, payload: UpdateBridgeLimit) {
     <b>let</b> receiving_chain = payload.update_bridge_limit_payload_receiving_chain();
-    <b>assert</b>!(receiving_chain == inner.chain_id, <a href="bridge.md#0xb_bridge_EUnexpectedChainID">EUnexpectedChainID</a>);
-    <b>let</b> route = <a href="chain_ids.md#0xb_chain_ids_get_route">chain_ids::get_route</a>(
+    <b>assert</b>!(receiving_chain == inner.chain_id, <a href="../bridge/bridge.md#bridge_bridge_EUnexpectedChainID">EUnexpectedChainID</a>);
+    <b>let</b> route = <a href="../bridge/chain_ids.md#bridge_chain_ids_get_route">chain_ids::get_route</a>(
         payload.update_bridge_limit_payload_sending_chain(),
         receiving_chain
     );
-
-    inner.<a href="limiter.md#0xb_limiter">limiter</a>.update_route_limit(
+    inner.<a href="../bridge/limiter.md#bridge_limiter">limiter</a>.update_route_limit(
         &route,
         payload.update_bridge_limit_payload_limit()
     )
@@ -1445,13 +1419,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_execute_update_asset_price"></a>
+<a name="bridge_bridge_execute_update_asset_price"></a>
 
 ## Function `execute_update_asset_price`
 
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_execute_update_asset_price">execute_update_asset_price</a>(inner: &<b>mut</b> <a href="bridge.md#0xb_bridge_BridgeInner">bridge::BridgeInner</a>, payload: <a href="message.md#0xb_message_UpdateAssetPrice">message::UpdateAssetPrice</a>)
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_execute_update_asset_price">execute_update_asset_price</a>(inner: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_BridgeInner">bridge::bridge::BridgeInner</a>, payload: <a href="../bridge/message.md#bridge_message_UpdateAssetPrice">bridge::message::UpdateAssetPrice</a>)
 </code></pre>
 
 
@@ -1460,8 +1434,8 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_execute_update_asset_price">execute_update_asset_price</a>(inner: &<b>mut</b> <a href="bridge.md#0xb_bridge_BridgeInner">BridgeInner</a>, payload: UpdateAssetPrice) {
-    inner.<a href="treasury.md#0xb_treasury">treasury</a>.update_asset_notional_price(
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_execute_update_asset_price">execute_update_asset_price</a>(inner: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_BridgeInner">BridgeInner</a>, payload: UpdateAssetPrice) {
+    inner.<a href="../bridge/treasury.md#bridge_treasury">treasury</a>.update_asset_notional_price(
         payload.update_asset_price_payload_token_id(),
         payload.update_asset_price_payload_new_price()
     )
@@ -1472,13 +1446,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_execute_add_tokens_on_haneul"></a>
+<a name="bridge_bridge_execute_add_tokens_on_haneul"></a>
 
 ## Function `execute_add_tokens_on_haneul`
 
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_execute_add_tokens_on_haneul">execute_add_tokens_on_haneul</a>(inner: &<b>mut</b> <a href="bridge.md#0xb_bridge_BridgeInner">bridge::BridgeInner</a>, payload: <a href="message.md#0xb_message_AddTokenOnHaneul">message::AddTokenOnHaneul</a>)
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_execute_add_tokens_on_haneul">execute_add_tokens_on_haneul</a>(inner: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_BridgeInner">bridge::bridge::BridgeInner</a>, payload: <a href="../bridge/message.md#bridge_message_AddTokenOnHaneul">bridge::message::AddTokenOnHaneul</a>)
 </code></pre>
 
 
@@ -1487,22 +1461,20 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_execute_add_tokens_on_haneul">execute_add_tokens_on_haneul</a>(inner: &<b>mut</b> <a href="bridge.md#0xb_bridge_BridgeInner">BridgeInner</a>, payload: AddTokenOnHaneul) {
-    // FIXME: <b>assert</b> native_token <b>to</b> be <b>false</b> and add test
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_execute_add_tokens_on_haneul">execute_add_tokens_on_haneul</a>(inner: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_BridgeInner">BridgeInner</a>, payload: AddTokenOnHaneul) {
+    // FIXME: <b>assert</b> native_token to be <b>false</b> and add test
     <b>let</b> native_token = payload.is_native();
     <b>let</b> <b>mut</b> token_ids = payload.token_ids();
     <b>let</b> <b>mut</b> token_type_names = payload.token_type_names();
     <b>let</b> <b>mut</b> token_prices = payload.token_prices();
-
     // Make sure token data is consistent
-    <b>assert</b>!(token_ids.length() == token_type_names.length(), <a href="bridge.md#0xb_bridge_EMalformedMessageError">EMalformedMessageError</a>);
-    <b>assert</b>!(token_ids.length() == token_prices.length(), <a href="bridge.md#0xb_bridge_EMalformedMessageError">EMalformedMessageError</a>);
-
+    <b>assert</b>!(token_ids.length() == token_type_names.length(), <a href="../bridge/bridge.md#bridge_bridge_EMalformedMessageError">EMalformedMessageError</a>);
+    <b>assert</b>!(token_ids.length() == token_prices.length(), <a href="../bridge/bridge.md#bridge_bridge_EMalformedMessageError">EMalformedMessageError</a>);
     <b>while</b> (token_ids.length() &gt; 0) {
         <b>let</b> token_id = token_ids.pop_back();
         <b>let</b> token_type_name = token_type_names.pop_back();
         <b>let</b> token_price = token_prices.pop_back();
-        inner.<a href="treasury.md#0xb_treasury">treasury</a>.add_new_token(token_type_name, token_id, native_token, token_price)
+        inner.<a href="../bridge/treasury.md#bridge_treasury">treasury</a>.add_new_token(token_type_name, token_id, native_token, token_price)
     }
 }
 </code></pre>
@@ -1511,13 +1483,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_get_current_seq_num_and_increment"></a>
+<a name="bridge_bridge_get_current_seq_num_and_increment"></a>
 
 ## Function `get_current_seq_num_and_increment`
 
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_get_current_seq_num_and_increment">get_current_seq_num_and_increment</a>(<a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_BridgeInner">bridge::BridgeInner</a>, msg_type: u8): <a href="../move-stdlib/u64.md#0x1_u64">u64</a>
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_get_current_seq_num_and_increment">get_current_seq_num_and_increment</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_BridgeInner">bridge::bridge::BridgeInner</a>, msg_type: u8): u64
 </code></pre>
 
 
@@ -1526,15 +1498,14 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_get_current_seq_num_and_increment">get_current_seq_num_and_increment</a>(<a href="bridge.md#0xb_bridge">bridge</a>: &<b>mut</b> <a href="bridge.md#0xb_bridge_BridgeInner">BridgeInner</a>, msg_type: u8): <a href="../move-stdlib/u64.md#0x1_u64">u64</a> {
-    <b>if</b> (!<a href="bridge.md#0xb_bridge">bridge</a>.sequence_nums.contains(&msg_type)) {
-        <a href="bridge.md#0xb_bridge">bridge</a>.sequence_nums.insert(msg_type, 1);
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_get_current_seq_num_and_increment">get_current_seq_num_and_increment</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge_BridgeInner">BridgeInner</a>, msg_type: u8): u64 {
+    <b>if</b> (!<a href="../bridge/bridge.md#bridge_bridge">bridge</a>.sequence_nums.contains(&msg_type)) {
+        <a href="../bridge/bridge.md#bridge_bridge">bridge</a>.sequence_nums.insert(msg_type, 1);
         <b>return</b> 0
     };
-
-    <b>let</b> entry = &<b>mut</b> <a href="bridge.md#0xb_bridge">bridge</a>.sequence_nums[&msg_type];
-    <b>let</b> seq_num = *entry;
-    *entry = seq_num + 1;
+    <b>let</b> <b>entry</b> = &<b>mut</b> <a href="../bridge/bridge.md#bridge_bridge">bridge</a>.sequence_nums[&msg_type];
+    <b>let</b> seq_num = *<b>entry</b>;
+    *<b>entry</b> = seq_num + 1;
     seq_num
 }
 </code></pre>
@@ -1543,13 +1514,13 @@ title: Module `0xb::bridge`
 
 </details>
 
-<a name="0xb_bridge_get_parsed_token_transfer_message"></a>
+<a name="bridge_bridge_get_parsed_token_transfer_message"></a>
 
 ## Function `get_parsed_token_transfer_message`
 
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_get_parsed_token_transfer_message">get_parsed_token_transfer_message</a>(<a href="bridge.md#0xb_bridge">bridge</a>: &<a href="bridge.md#0xb_bridge_Bridge">bridge::Bridge</a>, source_chain: u8, bridge_seq_num: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>): <a href="../move-stdlib/option.md#0x1_option_Option">option::Option</a>&lt;<a href="message.md#0xb_message_ParsedTokenTransferMessage">message::ParsedTokenTransferMessage</a>&gt;
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_get_parsed_token_transfer_message">get_parsed_token_transfer_message</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<a href="../bridge/bridge.md#bridge_bridge_Bridge">bridge::bridge::Bridge</a>, source_chain: u8, bridge_seq_num: u64): <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<a href="../bridge/message.md#bridge_message_ParsedTokenTransferMessage">bridge::message::ParsedTokenTransferMessage</a>&gt;
 </code></pre>
 
 
@@ -1558,25 +1529,23 @@ title: Module `0xb::bridge`
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="bridge.md#0xb_bridge_get_parsed_token_transfer_message">get_parsed_token_transfer_message</a>(
-    <a href="bridge.md#0xb_bridge">bridge</a>: &<a href="bridge.md#0xb_bridge_Bridge">Bridge</a>,
+<pre><code><b>fun</b> <a href="../bridge/bridge.md#bridge_bridge_get_parsed_token_transfer_message">get_parsed_token_transfer_message</a>(
+    <a href="../bridge/bridge.md#bridge_bridge">bridge</a>: &<a href="../bridge/bridge.md#bridge_bridge_Bridge">Bridge</a>,
     source_chain: u8,
-    bridge_seq_num: <a href="../move-stdlib/u64.md#0x1_u64">u64</a>,
+    bridge_seq_num: u64,
 ): Option&lt;ParsedTokenTransferMessage&gt; {
-    <b>let</b> inner = <a href="bridge.md#0xb_bridge_load_inner">load_inner</a>(<a href="bridge.md#0xb_bridge">bridge</a>);
-    <b>let</b> key = <a href="message.md#0xb_message_create_key">message::create_key</a>(
+    <b>let</b> inner = <a href="../bridge/bridge.md#bridge_bridge_load_inner">load_inner</a>(<a href="../bridge/bridge.md#bridge_bridge">bridge</a>);
+    <b>let</b> key = <a href="../bridge/message.md#bridge_message_create_key">message::create_key</a>(
         source_chain,
-        <a href="message_types.md#0xb_message_types_token">message_types::token</a>(),
+        <a href="../bridge/message_types.md#bridge_message_types_token">message_types::token</a>(),
         bridge_seq_num
     );
-
     <b>if</b> (!inner.token_transfer_records.contains(key)) {
-        <b>return</b> <a href="../move-stdlib/option.md#0x1_option_none">option::none</a>()
+        <b>return</b> option::none()
     };
-
     <b>let</b> record = &inner.token_transfer_records[key];
-    <b>let</b> <a href="message.md#0xb_message">message</a> = &record.<a href="message.md#0xb_message">message</a>;
-    <a href="../move-stdlib/option.md#0x1_option_some">option::some</a>(to_parsed_token_transfer_message(<a href="message.md#0xb_message">message</a>))
+    <b>let</b> <a href="../bridge/message.md#bridge_message">message</a> = &record.<a href="../bridge/message.md#bridge_message">message</a>;
+    option::some(to_parsed_token_transfer_message(<a href="../bridge/message.md#bridge_message">message</a>))
 }
 </code></pre>
 

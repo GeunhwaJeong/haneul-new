@@ -1,0 +1,563 @@
+---
+title: Module `haneul::config`
+---
+
+
+
+-  [Struct `Config`](#haneul_config_Config)
+-  [Struct `Setting`](#haneul_config_Setting)
+-  [Struct `SettingData`](#haneul_config_SettingData)
+-  [Constants](#@Constants_0)
+-  [Function `new`](#haneul_config_new)
+-  [Function `share`](#haneul_config_share)
+-  [Function `transfer`](#haneul_config_transfer)
+-  [Function `add_for_next_epoch`](#haneul_config_add_for_next_epoch)
+-  [Function `remove_for_next_epoch`](#haneul_config_remove_for_next_epoch)
+-  [Function `exists_with_type`](#haneul_config_exists_with_type)
+-  [Function `exists_with_type_for_next_epoch`](#haneul_config_exists_with_type_for_next_epoch)
+-  [Function `borrow_for_next_epoch_mut`](#haneul_config_borrow_for_next_epoch_mut)
+-  [Function `read_setting_for_next_epoch`](#haneul_config_read_setting_for_next_epoch)
+-  [Function `read_setting`](#haneul_config_read_setting)
+-  [Function `read_setting_impl`](#haneul_config_read_setting_impl)
+
+
+<pre><code><b>use</b> <a href="../std/ascii.md#std_ascii">std::ascii</a>;
+<b>use</b> <a href="../std/bcs.md#std_bcs">std::bcs</a>;
+<b>use</b> <a href="../std/option.md#std_option">std::option</a>;
+<b>use</b> <a href="../std/string.md#std_string">std::string</a>;
+<b>use</b> <a href="../std/vector.md#std_vector">std::vector</a>;
+<b>use</b> <a href="../haneul/address.md#haneul_address">haneul::address</a>;
+<b>use</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field">haneul::dynamic_field</a>;
+<b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
+<b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;
+<b>use</b> <a href="../haneul/transfer.md#haneul_transfer">haneul::transfer</a>;
+<b>use</b> <a href="../haneul/tx_context.md#haneul_tx_context">haneul::tx_context</a>;
+</code></pre>
+
+
+
+<a name="haneul_config_Config"></a>
+
+## Struct `Config`
+
+
+
+<pre><code><b>public</b> <b>struct</b> ConfigWriteCap <b>has</b> key
+</code></pre>
+
+
+
+<details>
+<summary>Fields</summary>
+
+
+<dl>
+<dt>
+<code>id: <a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a></code>
+</dt>
+<dd>
+</dd>
+</dl>
+
+
+</details>
+
+<a name="haneul_config_Setting"></a>
+
+## Struct `Setting`
+
+
+
+<pre><code><b>public</b> <b>struct</b> SettingValue <b>has</b> drop, store
+</code></pre>
+
+
+
+<details>
+<summary>Fields</summary>
+
+
+<dl>
+<dt>
+<code>data: <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<a href="../haneul/config.md#haneul_config_SettingData">haneul::config::SettingData</a>&lt;Value&gt;&gt;</code>
+</dt>
+<dd>
+</dd>
+</dl>
+
+
+</details>
+
+<a name="haneul_config_SettingData"></a>
+
+## Struct `SettingData`
+
+
+
+<pre><code><b>public</b> <b>struct</b> SettingDataValue <b>has</b> drop, store
+</code></pre>
+
+
+
+<details>
+<summary>Fields</summary>
+
+
+<dl>
+<dt>
+<code>newer_value_epoch: u64</code>
+</dt>
+<dd>
+</dd>
+<dt>
+<code>newer_value: <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;Value&gt;</code>
+</dt>
+<dd>
+</dd>
+<dt>
+<code>older_value_opt: <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;Value&gt;</code>
+</dt>
+<dd>
+</dd>
+</dl>
+
+
+</details>
+
+<a name="@Constants_0"></a>
+
+## Constants
+
+
+<a name="haneul_config_EAlreadySetForEpoch"></a>
+
+
+
+<pre><code><b>const</b> <a href="../haneul/config.md#haneul_config_EAlreadySetForEpoch">EAlreadySetForEpoch</a>: u64 = 0;
+</code></pre>
+
+
+
+<a name="haneul_config_EBCSSerializationFailure"></a>
+
+
+
+<pre><code><b>const</b> <a href="../haneul/config.md#haneul_config_EBCSSerializationFailure">EBCSSerializationFailure</a>: u64 = 2;
+</code></pre>
+
+
+
+<a name="haneul_config_ENotSetForEpoch"></a>
+
+
+
+<pre><code><b>const</b> <a href="../haneul/config.md#haneul_config_ENotSetForEpoch">ENotSetForEpoch</a>: u64 = 1;
+</code></pre>
+
+
+
+<a name="haneul_config_new"></a>
+
+## Function `new`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> newWriteCap(_cap: &<b>mut</b> WriteCap, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/config.md#haneul_config_Config">haneul::config::Config</a>&lt;WriteCap&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/config.md#haneul_config_new">new</a>&lt;WriteCap&gt;(_cap: &<b>mut</b> WriteCap, ctx: &<b>mut</b> TxContext): <a href="../haneul/config.md#haneul_config_Config">Config</a>&lt;WriteCap&gt; {
+    <a href="../haneul/config.md#haneul_config_Config">Config</a>&lt;WriteCap&gt; { id: <a href="../haneul/object.md#haneul_object_new">object::new</a>(ctx) }
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_config_share"></a>
+
+## Function `share`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> shareWriteCap(<a href="../haneul/config.md#haneul_config">config</a>: <a href="../haneul/config.md#haneul_config_Config">haneul::config::Config</a>&lt;WriteCap&gt;)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/config.md#haneul_config_share">share</a>&lt;WriteCap&gt;(<a href="../haneul/config.md#haneul_config">config</a>: <a href="../haneul/config.md#haneul_config_Config">Config</a>&lt;WriteCap&gt;) {
+    <a href="../haneul/transfer.md#haneul_transfer_share_object">transfer::share_object</a>(<a href="../haneul/config.md#haneul_config">config</a>)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_config_transfer"></a>
+
+## Function `transfer`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> transferWriteCap(<a href="../haneul/config.md#haneul_config">config</a>: <a href="../haneul/config.md#haneul_config_Config">haneul::config::Config</a>&lt;WriteCap&gt;, owner: <b>address</b>)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/transfer.md#haneul_transfer">transfer</a>&lt;WriteCap&gt;(<a href="../haneul/config.md#haneul_config">config</a>: <a href="../haneul/config.md#haneul_config_Config">Config</a>&lt;WriteCap&gt;, owner: <b>address</b>) {
+    <a href="../haneul/transfer.md#haneul_transfer_transfer">transfer::transfer</a>(<a href="../haneul/config.md#haneul_config">config</a>, owner)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_config_add_for_next_epoch"></a>
+
+## Function `add_for_next_epoch`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> add_for_next_epochWriteCap, Name, Value(<a href="../haneul/config.md#haneul_config">config</a>: &<b>mut</b> <a href="../haneul/config.md#haneul_config_Config">haneul::config::Config</a>&lt;WriteCap&gt;, _cap: &<b>mut</b> WriteCap, name: Name, value: Value, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;Value&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/config.md#haneul_config_add_for_next_epoch">add_for_next_epoch</a>&lt;
+    WriteCap,
+    Name: <b>copy</b> + drop + store,
+    Value: <b>copy</b> + drop + store,
+&gt;(
+    <a href="../haneul/config.md#haneul_config">config</a>: &<b>mut</b> <a href="../haneul/config.md#haneul_config_Config">Config</a>&lt;WriteCap&gt;,
+    _cap: &<b>mut</b> WriteCap,
+    name: Name,
+    value: Value,
+    ctx: &<b>mut</b> TxContext,
+): Option&lt;Value&gt; {
+    <b>let</b> epoch = ctx.epoch();
+    <b>if</b> (!field::exists_(&<a href="../haneul/config.md#haneul_config">config</a>.id, name)) {
+        <b>let</b> sobj = <a href="../haneul/config.md#haneul_config_Setting">Setting</a> {
+            data: option::some(<a href="../haneul/config.md#haneul_config_SettingData">SettingData</a> {
+                newer_value_epoch: epoch,
+                newer_value: option::some(value),
+                older_value_opt: option::none(),
+            }),
+        };
+        field::add(&<b>mut</b> <a href="../haneul/config.md#haneul_config">config</a>.id, name, sobj);
+        option::none()
+    } <b>else</b> {
+        <b>let</b> sobj: &<b>mut</b> <a href="../haneul/config.md#haneul_config_Setting">Setting</a>&lt;Value&gt; = field::borrow_mut(&<b>mut</b> <a href="../haneul/config.md#haneul_config">config</a>.id, name);
+        <b>let</b> <a href="../haneul/config.md#haneul_config_SettingData">SettingData</a> {
+            newer_value_epoch,
+            newer_value,
+            older_value_opt,
+        } = sobj.data.extract();
+        <b>let</b> (older_value_opt, removed_value) =
+            <b>if</b> (epoch &gt; newer_value_epoch) {
+                // <b>if</b> the `newer_value` is <b>for</b> a previous epoch, <b>move</b> it to `older_value_opt`
+                (<b>move</b> newer_value, <b>move</b> older_value_opt)
+            } <b>else</b> {
+                // the current epoch cannot be less than the `newer_value_epoch`
+                <b>assert</b>!(epoch == newer_value_epoch);
+                // <b>if</b> the `newer_value` is <b>for</b> the current epoch, then the option must be `none`
+                <b>assert</b>!(newer_value.is_none(), <a href="../haneul/config.md#haneul_config_EAlreadySetForEpoch">EAlreadySetForEpoch</a>);
+                (<b>move</b> older_value_opt, option::none())
+            };
+        sobj.data.fill(<a href="../haneul/config.md#haneul_config_SettingData">SettingData</a> {
+            newer_value_epoch: epoch,
+            newer_value: option::some(value),
+            older_value_opt,
+        });
+        removed_value
+    }
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_config_remove_for_next_epoch"></a>
+
+## Function `remove_for_next_epoch`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> remove_for_next_epochWriteCap, Name, Value(<a href="../haneul/config.md#haneul_config">config</a>: &<b>mut</b> <a href="../haneul/config.md#haneul_config_Config">haneul::config::Config</a>&lt;WriteCap&gt;, _cap: &<b>mut</b> WriteCap, name: Name, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;Value&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/config.md#haneul_config_remove_for_next_epoch">remove_for_next_epoch</a>&lt;
+    WriteCap,
+    Name: <b>copy</b> + drop + store,
+    Value: <b>copy</b> + drop + store,
+&gt;(
+    <a href="../haneul/config.md#haneul_config">config</a>: &<b>mut</b> <a href="../haneul/config.md#haneul_config_Config">Config</a>&lt;WriteCap&gt;,
+    _cap: &<b>mut</b> WriteCap,
+    name: Name,
+    ctx: &<b>mut</b> TxContext,
+): Option&lt;Value&gt; {
+    <b>let</b> epoch = ctx.epoch();
+    <b>if</b> (!field::exists_(&<a href="../haneul/config.md#haneul_config">config</a>.id, name)) <b>return</b> option::none();
+    <b>let</b> sobj: &<b>mut</b> <a href="../haneul/config.md#haneul_config_Setting">Setting</a>&lt;Value&gt; = field::borrow_mut(&<b>mut</b> <a href="../haneul/config.md#haneul_config">config</a>.id, name);
+    <b>let</b> <a href="../haneul/config.md#haneul_config_SettingData">SettingData</a> {
+        newer_value_epoch,
+        newer_value,
+        older_value_opt,
+    } = sobj.data.extract();
+    <b>let</b> (older_value_opt, removed_value) =
+        <b>if</b> (epoch &gt; newer_value_epoch) {
+            // <b>if</b> the `newer_value` is <b>for</b> a previous epoch, <b>move</b> it to `older_value_opt`
+            (<b>move</b> newer_value, option::none())
+        } <b>else</b> {
+            // the current epoch cannot be less than the `newer_value_epoch`
+            <b>assert</b>!(epoch == newer_value_epoch);
+            (<b>move</b> older_value_opt, <b>move</b> newer_value)
+        };
+    <b>let</b> older_value_opt_is_none = older_value_opt.is_none();
+    sobj.data.fill(<a href="../haneul/config.md#haneul_config_SettingData">SettingData</a> {
+        newer_value_epoch: epoch,
+        newer_value: option::none(),
+        older_value_opt,
+    });
+    <b>if</b> (older_value_opt_is_none) {
+        field::remove&lt;_, <a href="../haneul/config.md#haneul_config_Setting">Setting</a>&lt;Value&gt;&gt;(&<b>mut</b> <a href="../haneul/config.md#haneul_config">config</a>.id, name);
+    };
+    removed_value
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_config_exists_with_type"></a>
+
+## Function `exists_with_type`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> exists_with_typeWriteCap, Name, Value(<a href="../haneul/config.md#haneul_config">config</a>: &<a href="../haneul/config.md#haneul_config_Config">haneul::config::Config</a>&lt;WriteCap&gt;, name: Name): bool
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/config.md#haneul_config_exists_with_type">exists_with_type</a>&lt;
+    WriteCap,
+    Name: <b>copy</b> + drop + store,
+    Value: <b>copy</b> + drop + store,
+&gt;(
+    <a href="../haneul/config.md#haneul_config">config</a>: &<a href="../haneul/config.md#haneul_config_Config">Config</a>&lt;WriteCap&gt;,
+    name: Name,
+): bool {
+    field::exists_with_type&lt;_, <a href="../haneul/config.md#haneul_config_Setting">Setting</a>&lt;Value&gt;&gt;(&<a href="../haneul/config.md#haneul_config">config</a>.id, name)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_config_exists_with_type_for_next_epoch"></a>
+
+## Function `exists_with_type_for_next_epoch`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> exists_with_type_for_next_epochWriteCap, Name, Value(<a href="../haneul/config.md#haneul_config">config</a>: &<a href="../haneul/config.md#haneul_config_Config">haneul::config::Config</a>&lt;WriteCap&gt;, name: Name, ctx: &<a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): bool
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/config.md#haneul_config_exists_with_type_for_next_epoch">exists_with_type_for_next_epoch</a>&lt;
+    WriteCap,
+    Name: <b>copy</b> + drop + store,
+    Value: <b>copy</b> + drop + store,
+&gt;(
+    <a href="../haneul/config.md#haneul_config">config</a>: &<a href="../haneul/config.md#haneul_config_Config">Config</a>&lt;WriteCap&gt;,
+    name: Name,
+    ctx: &TxContext,
+): bool {
+    field::exists_with_type&lt;_, <a href="../haneul/config.md#haneul_config_Setting">Setting</a>&lt;Value&gt;&gt;(&<a href="../haneul/config.md#haneul_config">config</a>.id, name) && {
+        <b>let</b> epoch = ctx.epoch();
+        <b>let</b> sobj: &<a href="../haneul/config.md#haneul_config_Setting">Setting</a>&lt;Value&gt; = field::borrow(&<a href="../haneul/config.md#haneul_config">config</a>.id, name);
+        epoch == sobj.data.<a href="../haneul/borrow.md#haneul_borrow">borrow</a>().newer_value_epoch &&
+        sobj.data.<a href="../haneul/borrow.md#haneul_borrow">borrow</a>().newer_value.is_some()
+    }
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_config_borrow_for_next_epoch_mut"></a>
+
+## Function `borrow_for_next_epoch_mut`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> borrow_for_next_epoch_mutWriteCap, Name, Value(<a href="../haneul/config.md#haneul_config">config</a>: &<b>mut</b> <a href="../haneul/config.md#haneul_config_Config">haneul::config::Config</a>&lt;WriteCap&gt;, _cap: &<b>mut</b> WriteCap, name: Name, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): &<b>mut</b> Value
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/config.md#haneul_config_borrow_for_next_epoch_mut">borrow_for_next_epoch_mut</a>&lt;
+    WriteCap,
+    Name: <b>copy</b> + drop + store,
+    Value: <b>copy</b> + drop + store,
+&gt;(
+    <a href="../haneul/config.md#haneul_config">config</a>: &<b>mut</b> <a href="../haneul/config.md#haneul_config_Config">Config</a>&lt;WriteCap&gt;,
+    _cap: &<b>mut</b> WriteCap,
+    name: Name,
+    ctx: &<b>mut</b> TxContext,
+): &<b>mut</b> Value {
+    <b>let</b> epoch = ctx.epoch();
+    <b>let</b> sobj: &<b>mut</b> <a href="../haneul/config.md#haneul_config_Setting">Setting</a>&lt;Value&gt; = field::borrow_mut(&<b>mut</b> <a href="../haneul/config.md#haneul_config">config</a>.id, name);
+    <b>let</b> data = sobj.data.borrow_mut();
+    <b>assert</b>!(data.newer_value_epoch == epoch, <a href="../haneul/config.md#haneul_config_ENotSetForEpoch">ENotSetForEpoch</a>);
+    <b>assert</b>!(data.newer_value.is_some(), <a href="../haneul/config.md#haneul_config_ENotSetForEpoch">ENotSetForEpoch</a>);
+    data.newer_value.borrow_mut()
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_config_read_setting_for_next_epoch"></a>
+
+## Function `read_setting_for_next_epoch`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> read_setting_for_next_epochWriteCap, Name, Value(<a href="../haneul/config.md#haneul_config">config</a>: &<a href="../haneul/config.md#haneul_config_Config">haneul::config::Config</a>&lt;WriteCap&gt;, name: Name): <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;Value&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/config.md#haneul_config_read_setting_for_next_epoch">read_setting_for_next_epoch</a>&lt;
+    WriteCap,
+    Name: <b>copy</b> + drop + store,
+    Value: <b>copy</b> + drop + store,
+&gt;(
+    <a href="../haneul/config.md#haneul_config">config</a>: &<a href="../haneul/config.md#haneul_config_Config">Config</a>&lt;WriteCap&gt;,
+    name: Name,
+): Option&lt;Value&gt; {
+    <b>if</b> (!field::exists_with_type&lt;_, <a href="../haneul/config.md#haneul_config_Setting">Setting</a>&lt;Value&gt;&gt;(&<a href="../haneul/config.md#haneul_config">config</a>.id, name)) <b>return</b> option::none();
+    <b>let</b> sobj: &<a href="../haneul/config.md#haneul_config_Setting">Setting</a>&lt;Value&gt; = field::borrow(&<a href="../haneul/config.md#haneul_config">config</a>.id, name);
+    <b>let</b> data = sobj.data.<a href="../haneul/borrow.md#haneul_borrow">borrow</a>();
+    data.newer_value
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_config_read_setting"></a>
+
+## Function `read_setting`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> read_settingName, Value(<a href="../haneul/config.md#haneul_config">config</a>: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>, name: Name, ctx: &<a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;Value&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/config.md#haneul_config_read_setting">read_setting</a>&lt;Name: <b>copy</b> + drop + store, Value: <b>copy</b> + drop + store&gt;(
+    <a href="../haneul/config.md#haneul_config">config</a>: ID,
+    name: Name,
+    ctx: &TxContext,
+): Option&lt;Value&gt; {
+    <b>use</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field_Field">haneul::dynamic_field::Field</a>;
+    <b>let</b> config_id = <a href="../haneul/config.md#haneul_config">config</a>.to_address();
+    <b>let</b> setting_df = field::hash_type_and_key(config_id, name);
+    <a href="../haneul/config.md#haneul_config_read_setting_impl">read_setting_impl</a>&lt;Field&lt;Name, <a href="../haneul/config.md#haneul_config_Setting">Setting</a>&lt;Value&gt;&gt;, <a href="../haneul/config.md#haneul_config_Setting">Setting</a>&lt;Value&gt;, <a href="../haneul/config.md#haneul_config_SettingData">SettingData</a>&lt;Value&gt;, Value&gt;(
+        config_id,
+        setting_df,
+        ctx.epoch(),
+    )
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_config_read_setting_impl"></a>
+
+## Function `read_setting_impl`
+
+
+
+<pre><code><b>fun</b> read_setting_implFieldSettingValue, SettingValue, SettingDataValue, Value(<a href="../haneul/config.md#haneul_config">config</a>: <b>address</b>, name: <b>address</b>, current_epoch: u64): <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;Value&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>native</b> <b>fun</b> <a href="../haneul/config.md#haneul_config_read_setting_impl">read_setting_impl</a>&lt;
+    FieldSettingValue: key,
+    SettingValue: store,
+    SettingDataValue: store,
+    Value: <b>copy</b> + drop + store,
+&gt;(
+    <a href="../haneul/config.md#haneul_config">config</a>: <b>address</b>,
+    name: <b>address</b>,
+    current_epoch: u64,
+): Option&lt;Value&gt;;
+</code></pre>
+
+
+
+</details>
