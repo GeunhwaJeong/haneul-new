@@ -9,7 +9,9 @@ use haneul_open_rpc::Module;
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::haneul_serde::BigInt;
 
-use super::{rpc_module::RpcModule, Reader};
+use crate::data::reader::Reader;
+
+use super::rpc_module::RpcModule;
 
 #[open_rpc(namespace = "haneulx", tag = "Governance API")]
 #[rpc(server, namespace = "haneulx")]
