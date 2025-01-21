@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::fmt::{self, Display, Formatter, Write};
-use std::sync::Arc;
 
 use enum_dispatch::enum_dispatch;
 use schemars::JsonSchema;
@@ -565,7 +564,7 @@ impl HaneulTransactionBlockKind {
 
     async fn try_from_with_package_resolver(
         tx: TransactionKind,
-        package_resolver: Arc<Resolver<impl PackageStore>>,
+        package_resolver: &Resolver<impl PackageStore>,
     ) -> Result<Self, anyhow::Error> {
         Ok(match tx {
             TransactionKind::ChangeEpoch(e) => Self::ChangeEpoch(e.into()),
@@ -1478,7 +1477,7 @@ impl HaneulTransactionBlockData {
 
     pub async fn try_from_with_package_resolver(
         data: TransactionData,
-        package_resolver: Arc<Resolver<impl PackageStore>>,
+        package_resolver: &Resolver<impl PackageStore>,
     ) -> Result<Self, anyhow::Error> {
         let message_version = data.message_version();
         let sender = data.sender();
@@ -1536,7 +1535,7 @@ impl HaneulTransactionBlock {
     // `try_from` methods for nested structs like HaneulTransactionBlockData etc.
     pub async fn try_from_with_package_resolver(
         data: SenderSignedData,
-        package_resolver: Arc<Resolver<impl PackageStore>>,
+        package_resolver: &Resolver<impl PackageStore>,
     ) -> Result<Self, anyhow::Error> {
         Ok(Self {
             data: HaneulTransactionBlockData::try_from_with_package_resolver(
@@ -1787,7 +1786,7 @@ impl HaneulProgrammableTransactionBlock {
 
     async fn try_from_with_package_resolver(
         value: ProgrammableTransaction,
-        package_resolver: Arc<Resolver<impl PackageStore>>,
+        package_resolver: &Resolver<impl PackageStore>,
     ) -> Result<Self, anyhow::Error> {
         let input_types = package_resolver.pure_input_layouts(&value).await?;
         let ProgrammableTransaction { inputs, commands } = value;
