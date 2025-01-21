@@ -14054,6 +14054,7 @@ dependencies = [
  "serde_json",
  "haneul-indexer-alt-metrics",
  "haneul-indexer-alt-schema",
+ "haneul-json-rpc-types",
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
  "haneul-package-resolver",
