@@ -134,11 +134,7 @@ services:
       - ./dbs/fullnode1:/opt/haneul/db:rw
       - ./logs/fullnode1:/opt/haneul/logs
     command:
-      [
-        "/usr/local/bin/haneul-node-inst",
-        "--config-path",
-        "/opt/haneul/config/fullnode.yaml",
-      ]
+        "bash -c '/usr/local/bin/haneul-node-inst --config-path /opt/haneul/config/fullnode.yaml >> /opt/haneul/logs/full_logs.log 2>&1'"
     restart: on-failure
     logging:
       driver: "json-file"
