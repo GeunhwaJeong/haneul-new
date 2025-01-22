@@ -136,6 +136,7 @@ members = [
     "crates/haneul-move",
     "crates/haneul-move-build",
     "crates/haneul-move-lsp",
+    "crates/haneul-mvr-graphql-e2e-tests",
     "crates/haneul-mvr-graphql-rpc",
     "crates/haneul-network",
     "crates/haneul-node",

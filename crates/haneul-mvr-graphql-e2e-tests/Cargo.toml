@@ -1,0 +1,30 @@
+[package]
+name = "haneul-mvr-graphql-e2e-tests"
+version = "0.1.0"
+authors = ["Haneul Labs <eng@haneul-labs.com>"]
+description = "End to end tests for Haneul GraphQL"
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+anyhow.workspace = true
+async-trait.workspace = true
+telemetry-subscribers.workspace = true
+datatest-stable.workspace = true
+serde_json.workspace = true
+haneul-mvr-graphql-rpc.workspace = true
+haneul-transactional-test-runner.workspace = true
+tokio.workspace = true
+
+[[test]]
+name = "tests"
+harness = false
+
+[dependencies]
+
+[target.'cfg(msim)'.dependencies]
+msim.workspace = true
