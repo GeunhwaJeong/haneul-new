@@ -186,11 +186,7 @@ impl RosettaServerCommand {
 
 async fn wait_for_haneul_client(rpc_address: String) -> HaneulClient {
     loop {
-        match HaneulClientBuilder::default()
-            .max_concurrent_requests(usize::MAX)
-            .build(&rpc_address)
-            .await
-        {
+        match HaneulClientBuilder::default().build(&rpc_address).await {
             Ok(client) => return client,
             Err(e) => {
                 warn!("Error connecting to Haneul RPC server [{rpc_address}]: {e}, retrying in 5 seconds.");
