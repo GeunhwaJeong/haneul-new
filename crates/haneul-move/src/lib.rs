@@ -5,7 +5,7 @@ use clap::Parser;
 use move_cli::base::test::UnitTestResult;
 use move_package::BuildConfig;
 use std::path::Path;
-use haneul_move_build::set_haneul_flavor;
+use haneul_move_build::{set_haneul_flavor, HaneulPackageHooks};
 
 pub mod build;
 pub mod coverage;
@@ -41,6 +41,7 @@ pub fn execute_move_command(
     if let Some(err_msg) = set_haneul_flavor(&mut build_config) {
         anyhow::bail!(err_msg);
     }
+    move_package::package_hooks::register_package_hooks(Box::new(HaneulPackageHooks));
     match command {
         Command::Build(c) => c.execute(package_path, build_config),
         Command::Coverage(c) => c.execute(package_path, build_config),
