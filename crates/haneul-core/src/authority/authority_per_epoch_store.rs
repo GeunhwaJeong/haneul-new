@@ -21,6 +21,7 @@ use move_bytecode_utils::module_cache::SyncModuleCache;
 use haneullabs_common::sync::notify_once::NotifyOnce;
 use haneullabs_common::sync::notify_read::NotifyRead;
 use haneullabs_metrics::monitored_scope;
+use nonempty::NonEmpty;
 use parking_lot::RwLock;
 use parking_lot::{Mutex, RwLockReadGuard, RwLockWriteGuard};
 use prometheus::IntCounter;
@@ -4032,7 +4033,7 @@ impl AuthorityPerEpochStore {
     pub fn process_pending_checkpoint(
         &self,
         commit_height: CheckpointHeight,
-        content_info: Vec<(CheckpointSummary, CheckpointContents)>,
+        content_info: NonEmpty<(CheckpointSummary, CheckpointContents)>,
     ) -> HaneulResult<()> {
         let tables = self.tables()?;
         // All created checkpoints are inserted in builder_checkpoint_summary in a single batch.
