@@ -586,7 +586,7 @@ This is the only way to create <code><a href="../haneul/object.md#haneul_object_
 
 ## Function `delete`
 
-Delete the object and it's <code><a href="../haneul/object.md#haneul_object_UID">UID</a></code>. This is the only way to eliminate a <code><a href="../haneul/object.md#haneul_object_UID">UID</a></code>.
+Delete the object and its <code><a href="../haneul/object.md#haneul_object_UID">UID</a></code>. This is the only way to eliminate a <code><a href="../haneul/object.md#haneul_object_UID">UID</a></code>.
 This exists to inform Haneul of object deletions. When an object
 gets unpacked, the programmer will have to do something with its
 <code><a href="../haneul/object.md#haneul_object_UID">UID</a></code>. The implementation of this function emits a deleted
