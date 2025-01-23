@@ -2471,13 +2471,12 @@ mod tests {
     use crate::authority::test_authority_builder::TestAuthorityBuilder;
     use futures::future::BoxFuture;
     use futures::FutureExt as _;
-    use shared_crypto::intent::{Intent, IntentScope};
     use std::collections::{BTreeMap, HashMap};
     use std::ops::Deref;
     use haneul_macros::sim_test;
     use haneul_protocol_config::{Chain, ProtocolConfig};
     use haneul_types::base_types::{ObjectID, SequenceNumber, TransactionEffectsDigest};
-    use haneul_types::crypto::{AuthoritySignInfo, Signature};
+    use haneul_types::crypto::Signature;
     use haneul_types::digests::TransactionEventsDigest;
     use haneul_types::effects::{TransactionEffects, TransactionEvents};
     use haneul_types::messages_checkpoint::SignedCheckpointSummary;
@@ -2599,7 +2598,6 @@ mod tests {
 
         let accumulator = Arc::new(StateAccumulator::new_for_tests(
             state.get_accumulator_store().clone(),
-            &epoch_store,
         ));
 
         let checkpoint_service = CheckpointService::build(
@@ -2852,18 +2850,7 @@ mod tests {
         let effects = e(digest, dependencies, gas_used);
         store.insert(digest, effects.clone());
         epoch_store
-            .insert_tx_key_and_effects_signature(
-                &TransactionKey::Digest(digest),
-                &digest,
-                &effects.digest(),
-                Some(&AuthoritySignInfo::new(
-                    epoch_store.epoch(),
-                    &effects,
-                    Intent::haneul_app(IntentScope::TransactionEffects),
-                    state.name,
-                    &*state.secret,
-                )),
-            )
+            .insert_tx_key(&TransactionKey::Digest(digest), &digest)
             .expect("Inserting cert fx and sigs should not fail");
     }
 }
