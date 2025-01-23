@@ -34,7 +34,8 @@ use haneul_storage::mutex_table::{MutexGuard, MutexTable};
 use haneul_types::accumulator::Accumulator;
 use haneul_types::authenticator_state::{get_authenticator_state, ActiveJwk};
 use haneul_types::base_types::{
-    AuthorityName, ConsensusObjectSequenceKey, EpochId, ObjectID, SequenceNumber, TransactionDigest,
+    AuthorityName, ConsensusObjectSequenceKey, EpochId, FullObjectID, ObjectID, SequenceNumber,
+    TransactionDigest,
 };
 use haneul_types::base_types::{ConciseableName, ObjectRef};
 use haneul_types::committee::Committee;
@@ -1437,7 +1438,7 @@ impl AuthorityPerEpochStore {
                                 error: "no assigned shared versions".to_string(),
                             })?;
 
-                        let initial_shared_version =
+                        let modified_initial_shared_version =
                             if self.epoch_start_config().use_version_assignment_tables_v3() {
                                 *initial_shared_version
                             } else {
@@ -1447,7 +1448,7 @@ impl AuthorityPerEpochStore {
                             };
                         // If we found assigned versions, but they are missing the assignment for
                         // this object, it indicates a serious inconsistency!
-                        let Some(version) = assigned_shared_versions.get(&(*id, initial_shared_version)) else {
+                        let Some(version) = assigned_shared_versions.get(&(*id, modified_initial_shared_version)) else {
                             panic!(
                                 "Shared object version should have been assigned. key: {key:?}, \
                                 obj id: {id:?}, initial_shared_version: {initial_shared_version:?}, \
@@ -1455,13 +1456,13 @@ impl AuthorityPerEpochStore {
                             )
                         };
                         InputKey::VersionedObject {
-                            id: *id,
+                            id: FullObjectID::new(*id, Some(*initial_shared_version)),
                             version: *version,
                         }
                     }
                     InputObjectKind::MovePackage(id) => InputKey::Package { id: *id },
                     InputObjectKind::ImmOrOwnedMoveObject(objref) => InputKey::VersionedObject {
-                        id: objref.0,
+                        id: FullObjectID::new(objref.0, None),
                         version: objref.1,
                     },
                 })
