@@ -26,12 +26,12 @@ use haneul_types::execution_status::{
     TypeArgumentError,
 };
 use haneul_types::full_checkpoint_content::{CheckpointData, CheckpointTransaction};
-use haneul_types::messages_checkpoint::CertifiedCheckpointSummary;
+use haneul_types::messages_checkpoint::{CertifiedCheckpointSummary, CheckpointCommitment};
 use haneul_types::messages_consensus::ConsensusDeterminedVersionAssignments;
 use haneul_types::messages_grpc::ObjectInfoRequestKind;
 use haneul_types::move_package::TypeOrigin;
 use haneul_types::object::Object;
-use haneul_types::transaction::{SenderSignedData, TransactionData};
+use haneul_types::transaction::{GenesisObject, SenderSignedData, TransactionData};
 use haneul_types::type_input::{StructInput, TypeInput};
 use haneul_types::{
     base_types::MoveObjectType_,
@@ -279,6 +279,13 @@ fn get_registry() -> Result<Registry> {
         .unwrap();
 
     tracer.trace_type::<CheckpointData>(&samples).unwrap();
+
+    tracer.trace_type::<TransactionData>(&samples).unwrap();
+    tracer.trace_type::<GenesisObject>(&samples).unwrap();
+    tracer.trace_type::<CheckpointCommitment>(&samples).unwrap();
+    tracer
+        .trace_type::<haneul_types::object::Authenticator>(&samples)
+        .unwrap();
 
     tracer.registry()
 }
