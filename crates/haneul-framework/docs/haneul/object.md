@@ -619,7 +619,7 @@ system event so Haneul knows to process the object deletion
 Get the underlying <code><a href="../haneul/object.md#haneul_object_ID">ID</a></code> of <code>obj</code>
 
 
-<pre><code><b>public</b> <b>fun</b> idT(obj: &T): <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/object.md#haneul_object_id">id</a>&lt;T: key&gt;(obj: &T): <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>
 </code></pre>
 
 
@@ -644,7 +644,7 @@ Get the underlying <code><a href="../haneul/object.md#haneul_object_ID">ID</a></
 Borrow the underlying <code><a href="../haneul/object.md#haneul_object_ID">ID</a></code> of <code>obj</code>
 
 
-<pre><code><b>public</b> <b>fun</b> borrow_idT(obj: &T): &<a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/object.md#haneul_object_borrow_id">borrow_id</a>&lt;T: key&gt;(obj: &T): &<a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>
 </code></pre>
 
 
@@ -669,7 +669,7 @@ Borrow the underlying <code><a href="../haneul/object.md#haneul_object_ID">ID</a
 Get the raw bytes for the underlying <code><a href="../haneul/object.md#haneul_object_ID">ID</a></code> of <code>obj</code>
 
 
-<pre><code><b>public</b> <b>fun</b> id_bytesT(obj: &T): vector&lt;u8&gt;
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/object.md#haneul_object_id_bytes">id_bytes</a>&lt;T: key&gt;(obj: &T): vector&lt;u8&gt;
 </code></pre>
 
 
@@ -694,7 +694,7 @@ Get the raw bytes for the underlying <code><a href="../haneul/object.md#haneul_o
 Get the inner bytes for the underlying <code><a href="../haneul/object.md#haneul_object_ID">ID</a></code> of <code>obj</code>
 
 
-<pre><code><b>public</b> <b>fun</b> id_addressT(obj: &T): <b>address</b>
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/object.md#haneul_object_id_address">id_address</a>&lt;T: key&gt;(obj: &T): <b>address</b>
 </code></pre>
 
 
@@ -723,7 +723,7 @@ Cannot be made public as the access to <code><a href="../haneul/object.md#haneul
 restrictable in the object's module.
 
 
-<pre><code><b>fun</b> borrow_uidT(obj: &T): &<a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>
+<pre><code><b>fun</b> <a href="../haneul/object.md#haneul_object_borrow_uid">borrow_uid</a>&lt;T: key&gt;(obj: &T): &<a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>
 </code></pre>
 
 

@@ -28,6 +28,7 @@ list.
 -  [Function `borrow_per_type_config_mut`](#haneul_deny_list_borrow_per_type_config_mut)
 -  [Function `borrow_per_type_config`](#haneul_deny_list_borrow_per_type_config)
 -  [Function `per_type_exists`](#haneul_deny_list_per_type_exists)
+-  [Macro function `per_type_config_entry`](#haneul_deny_list_per_type_config_entry)
 -  [Function `v1_add`](#haneul_deny_list_v1_add)
 -  [Function `v1_per_type_list_add`](#haneul_deny_list_v1_per_type_list_add)
 -  [Function `v1_remove`](#haneul_deny_list_v1_remove)
@@ -762,6 +763,42 @@ meaningless to add them to the deny list.
 <pre><code><b>fun</b> <a href="../haneul/deny_list.md#haneul_deny_list_per_type_exists">per_type_exists</a>(<a href="../haneul/deny_list.md#haneul_deny_list">deny_list</a>: &<a href="../haneul/deny_list.md#haneul_deny_list_DenyList">DenyList</a>, per_type_index: u64, per_type_key: vector&lt;u8&gt;): bool {
     <b>let</b> key = <a href="../haneul/deny_list.md#haneul_deny_list_ConfigKey">ConfigKey</a> { per_type_index, per_type_key };
     ofield::exists_(&<a href="../haneul/deny_list.md#haneul_deny_list">deny_list</a>.id, key)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_deny_list_per_type_config_entry"></a>
+
+## Macro function `per_type_config_entry`
+
+
+
+<pre><code><b>macro</b> <b>fun</b> <a href="../haneul/deny_list.md#haneul_deny_list_per_type_config_entry">per_type_config_entry</a>($<a href="../haneul/deny_list.md#haneul_deny_list">deny_list</a>: &<b>mut</b> <a href="../haneul/deny_list.md#haneul_deny_list_DenyList">haneul::deny_list::DenyList</a>, $per_type_index: u64, $per_type_key: vector&lt;u8&gt;, $ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): &<b>mut</b> <a href="../haneul/config.md#haneul_config_Config">haneul::config::Config</a>&lt;<a href="../haneul/deny_list.md#haneul_deny_list_ConfigWriteCap">haneul::deny_list::ConfigWriteCap</a>&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>macro</b> <b>fun</b> <a href="../haneul/deny_list.md#haneul_deny_list_per_type_config_entry">per_type_config_entry</a>(
+    $<a href="../haneul/deny_list.md#haneul_deny_list">deny_list</a>: &<b>mut</b> <a href="../haneul/deny_list.md#haneul_deny_list_DenyList">DenyList</a>,
+    $per_type_index: u64,
+    $per_type_key: vector&lt;u8&gt;,
+    $ctx: &<b>mut</b> TxContext,
+): &<b>mut</b> Config&lt;<a href="../haneul/deny_list.md#haneul_deny_list_ConfigWriteCap">ConfigWriteCap</a>&gt; {
+    <b>let</b> <a href="../haneul/deny_list.md#haneul_deny_list">deny_list</a> = $<a href="../haneul/deny_list.md#haneul_deny_list">deny_list</a>;
+    <b>let</b> per_type_index = $per_type_index;
+    <b>let</b> per_type_key = $per_type_key;
+    <b>let</b> ctx = $ctx;
+    <b>if</b> (!<a href="../haneul/deny_list.md#haneul_deny_list">deny_list</a>.<a href="../haneul/deny_list.md#haneul_deny_list_per_type_exists">per_type_exists</a>(per_type_index, per_type_key)) {
+        <a href="../haneul/deny_list.md#haneul_deny_list">deny_list</a>.<a href="../haneul/deny_list.md#haneul_deny_list_add_per_type_config">add_per_type_config</a>(per_type_index, per_type_key, ctx);
+    };
+    <a href="../haneul/deny_list.md#haneul_deny_list">deny_list</a>.<a href="../haneul/deny_list.md#haneul_deny_list_borrow_per_type_config_mut">borrow_per_type_config_mut</a>(per_type_index, per_type_key)
 }
 </code></pre>
 

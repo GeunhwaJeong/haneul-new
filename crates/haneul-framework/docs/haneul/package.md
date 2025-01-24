@@ -331,7 +331,7 @@ constraint there can be only one Publisher object per module
 but multiple per package (!).
 
 
-<pre><code><b>public</b> <b>fun</b> claimOTW(otw: OTW, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/package.md#haneul_package_Publisher">haneul::package::Publisher</a>
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/package.md#haneul_package_claim">claim</a>&lt;OTW: drop&gt;(otw: OTW, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/package.md#haneul_package_Publisher">haneul::package::Publisher</a>
 </code></pre>
 
 
@@ -364,7 +364,7 @@ Since this function can only be called in the module initializer,
 the sender is the publisher.
 
 
-<pre><code><b>public</b> <b>fun</b> claim_and_keepOTW(otw: OTW, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/package.md#haneul_package_claim_and_keep">claim_and_keep</a>&lt;OTW: drop&gt;(otw: OTW, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -416,7 +416,7 @@ associated with it.
 Check whether type belongs to the same package as the publisher object.
 
 
-<pre><code><b>public</b> <b>fun</b> from_packageT(self: &<a href="../haneul/package.md#haneul_package_Publisher">haneul::package::Publisher</a>): bool
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/package.md#haneul_package_from_package">from_package</a>&lt;T&gt;(self: &<a href="../haneul/package.md#haneul_package_Publisher">haneul::package::Publisher</a>): bool
 </code></pre>
 
 
@@ -441,7 +441,7 @@ Check whether type belongs to the same package as the publisher object.
 Check whether a type belongs to the same module as the publisher object.
 
 
-<pre><code><b>public</b> <b>fun</b> from_moduleT(self: &<a href="../haneul/package.md#haneul_package_Publisher">haneul::package::Publisher</a>): bool
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/package.md#haneul_package_from_module">from_module</a>&lt;T&gt;(self: &<a href="../haneul/package.md#haneul_package_Publisher">haneul::package::Publisher</a>): bool
 </code></pre>
 
 

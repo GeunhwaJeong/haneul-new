@@ -113,7 +113,7 @@ A single <code><a href="../haneul/token.md#haneul_token_Token">Token</a></code> 
 and actions performed on it must be confirmed in a matching <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy</a></code>.
 
 
-<pre><code><b>public</b> <b>struct</b> TokenT <b>has</b> <a href="../haneul/token.md#haneul_token_key">key</a>
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul/token.md#haneul_token_Token">Token</a>&lt;<b>phantom</b> T&gt; <b>has</b> <a href="../haneul/token.md#haneul_token_key">key</a>
 </code></pre>
 
 
@@ -147,7 +147,7 @@ A Capability that manages a single <code><a href="../haneul/token.md#haneul_toke
 field. Created together with <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy</a></code> in the <code>new</code> function.
 
 
-<pre><code><b>public</b> <b>struct</b> TokenPolicyCapT <b>has</b> <a href="../haneul/token.md#haneul_token_key">key</a>, store
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul/token.md#haneul_token_TokenPolicyCap">TokenPolicyCap</a>&lt;<b>phantom</b> T&gt; <b>has</b> <a href="../haneul/token.md#haneul_token_key">key</a>, store
 </code></pre>
 
 
@@ -187,7 +187,7 @@ action to succeed.
 <code><a href="../haneul/token.md#haneul_token_allow">allow</a></code> function that can be called by the <code><a href="../haneul/token.md#haneul_token_TokenPolicyCap">TokenPolicyCap</a></code> owner.
 
 
-<pre><code><b>public</b> <b>struct</b> TokenPolicyT <b>has</b> <a href="../haneul/token.md#haneul_token_key">key</a>
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy</a>&lt;<b>phantom</b> T&gt; <b>has</b> <a href="../haneul/token.md#haneul_token_key">key</a>
 </code></pre>
 
 
@@ -234,7 +234,7 @@ about the action to be performed and must be consumed by the <code><a href="../h
 or <code><a href="../haneul/token.md#haneul_token_confirm_request_mut">confirm_request_mut</a></code> functions when the Rules are satisfied.
 
 
-<pre><code><b>public</b> <b>struct</b> ActionRequestT
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul/token.md#haneul_token_ActionRequest">ActionRequest</a>&lt;<b>phantom</b> T&gt;
 </code></pre>
 
 
@@ -299,7 +299,7 @@ specific action <code>Rule</code>. There can be only one configuration per
 <code>Rule</code> per <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy</a></code>.
 
 
-<pre><code><b>public</b> <b>struct</b> RuleKeyT <b>has</b> <b>copy</b>, drop, store
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul/token.md#haneul_token_RuleKey">RuleKey</a>&lt;<b>phantom</b> T&gt; <b>has</b> <b>copy</b>, drop, store
 </code></pre>
 
 
@@ -328,7 +328,7 @@ An event emitted when a <code><a href="../haneul/token.md#haneul_token_TokenPoli
 we emit this event in the <code><a href="../haneul/token.md#haneul_token_share_policy">share_policy</a></code> function and mark it as mutable.
 
 
-<pre><code><b>public</b> <b>struct</b> TokenPolicyCreatedT <b>has</b> <b>copy</b>, drop
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul/token.md#haneul_token_TokenPolicyCreated">TokenPolicyCreated</a>&lt;<b>phantom</b> T&gt; <b>has</b> <b>copy</b>, drop
 </code></pre>
 
 
@@ -493,7 +493,7 @@ The <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy</a><
 hence it is safe to use it for authorization.
 
 
-<pre><code><b>public</b> <b>fun</b> new_policyT(_treasury_cap: &<a href="../haneul/coin.md#haneul_coin_TreasuryCap">haneul::coin::TreasuryCap</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_new_policy">new_policy</a>&lt;T&gt;(_treasury_cap: &<a href="../haneul/coin.md#haneul_coin_TreasuryCap">haneul::coin::TreasuryCap</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;)
 </code></pre>
 
 
@@ -531,7 +531,7 @@ Share the <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolic
 shared after initialization.
 
 
-<pre><code><b>public</b> <b>fun</b> share_policyT(policy: <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_share_policy">share_policy</a>&lt;T&gt;(policy: <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;)
 </code></pre>
 
 
@@ -562,7 +562,7 @@ Transfer a <code><a href="../haneul/token.md#haneul_token_Token">Token</a></code
 to be used in verification.
 
 
-<pre><code><b>public</b> <b>fun</b> transferT(t: <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_recipient">recipient</a>: <b>address</b>, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/transfer.md#haneul_transfer">transfer</a>&lt;T&gt;(t: <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_recipient">recipient</a>: <b>address</b>, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;
 </code></pre>
 
 
@@ -600,7 +600,7 @@ Spend action requires <code><a href="../haneul/token.md#haneul_token_confirm_req
 request and join the spent balance with the <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy</a>.<a href="../haneul/token.md#haneul_token_spent_balance">spent_balance</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> spendT(t: <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_spend">spend</a>&lt;T&gt;(t: <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;
 </code></pre>
 
 
@@ -634,7 +634,7 @@ Convert <code><a href="../haneul/token.md#haneul_token_Token">Token</a></code> i
 "to_coin" action.
 
 
-<pre><code><b>public</b> <b>fun</b> to_coinT(t: <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../haneul/coin.md#haneul_coin_Coin">haneul::coin::Coin</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_to_coin">to_coin</a>&lt;T&gt;(t: <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../haneul/coin.md#haneul_coin_Coin">haneul::coin::Coin</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;)
 </code></pre>
 
 
@@ -672,7 +672,7 @@ Convert an open <code>Coin</code> into a <code><a href="../haneul/token.md#haneu
 the "from_coin" action.
 
 
-<pre><code><b>public</b> <b>fun</b> from_coinT(<a href="../haneul/coin.md#haneul_coin">coin</a>: <a href="../haneul/coin.md#haneul_coin_Coin">haneul::coin::Coin</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_from_coin">from_coin</a>&lt;T&gt;(<a href="../haneul/coin.md#haneul_coin">coin</a>: <a href="../haneul/coin.md#haneul_coin_Coin">haneul::coin::Coin</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;)
 </code></pre>
 
 
@@ -711,7 +711,7 @@ the "from_coin" action.
 Join two <code><a href="../haneul/token.md#haneul_token_Token">Token</a></code>s into one, always available.
 
 
-<pre><code><b>public</b> <b>fun</b> joinT(<a href="../haneul/token.md#haneul_token">token</a>: &<b>mut</b> <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;, another: <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_join">join</a>&lt;T&gt;(<a href="../haneul/token.md#haneul_token">token</a>: &<b>mut</b> <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;, another: <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;)
 </code></pre>
 
 
@@ -739,7 +739,7 @@ Split a <code><a href="../haneul/token.md#haneul_token_Token">Token</a></code> w
 Aborts if the <code><a href="../haneul/token.md#haneul_token_Token">Token</a>.<a href="../haneul/balance.md#haneul_balance">balance</a></code> is lower than <code><a href="../haneul/token.md#haneul_token_amount">amount</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> splitT(<a href="../haneul/token.md#haneul_token">token</a>: &<b>mut</b> <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_amount">amount</a>: u64, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_split">split</a>&lt;T&gt;(<a href="../haneul/token.md#haneul_token">token</a>: &<b>mut</b> <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_amount">amount</a>: u64, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;
 </code></pre>
 
 
@@ -768,7 +768,7 @@ Aborts if the <code><a href="../haneul/token.md#haneul_token_Token">Token</a>.<a
 Create a zero <code><a href="../haneul/token.md#haneul_token_Token">Token</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> zeroT(ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_zero">zero</a>&lt;T&gt;(ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;
 </code></pre>
 
 
@@ -797,7 +797,7 @@ Destroy an empty <code><a href="../haneul/token.md#haneul_token_Token">Token</a>
 Aborts if the <code><a href="../haneul/token.md#haneul_token_Token">Token</a>.<a href="../haneul/balance.md#haneul_balance">balance</a></code> is not zero.
 
 
-<pre><code><b>public</b> <b>fun</b> destroy_zeroT(<a href="../haneul/token.md#haneul_token">token</a>: <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_destroy_zero">destroy_zero</a>&lt;T&gt;(<a href="../haneul/token.md#haneul_token">token</a>: <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;)
 </code></pre>
 
 
@@ -825,7 +825,7 @@ Aborts if the <code><a href="../haneul/token.md#haneul_token_Token">Token</a>.<a
 Transfer the <code><a href="../haneul/token.md#haneul_token_Token">Token</a></code> to the transaction sender.
 
 
-<pre><code><b>public</b> <b>fun</b> keepT(<a href="../haneul/token.md#haneul_token">token</a>: <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_keep">keep</a>&lt;T&gt;(<a href="../haneul/token.md#haneul_token">token</a>: <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -851,7 +851,7 @@ Create a new <code><a href="../haneul/token.md#haneul_token_ActionRequest">Actio
 Publicly available method to allow for custom actions.
 
 
-<pre><code><b>public</b> <b>fun</b> new_requestT(name: <a href="../std/string.md#std_string_String">std::string::String</a>, <a href="../haneul/token.md#haneul_token_amount">amount</a>: u64, <a href="../haneul/token.md#haneul_token_recipient">recipient</a>: <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<b>address</b>&gt;, <a href="../haneul/token.md#haneul_token_spent_balance">spent_balance</a>: <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<a href="../haneul/balance.md#haneul_balance_Balance">haneul::balance::Balance</a>&lt;T&gt;&gt;, ctx: &<a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_new_request">new_request</a>&lt;T&gt;(name: <a href="../std/string.md#std_string_String">std::string::String</a>, <a href="../haneul/token.md#haneul_token_amount">amount</a>: u64, <a href="../haneul/token.md#haneul_token_recipient">recipient</a>: <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<b>address</b>&gt;, <a href="../haneul/token.md#haneul_token_spent_balance">spent_balance</a>: <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<a href="../haneul/balance.md#haneul_balance_Balance">haneul::balance::Balance</a>&lt;T&gt;&gt;, ctx: &<a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;
 </code></pre>
 
 
@@ -898,7 +898,7 @@ Aborts if:
 - the <code><a href="../haneul/token.md#haneul_token_ActionRequest">ActionRequest</a></code> does not meet the <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy</a></code> rules for the action
 
 
-<pre><code><b>public</b> <b>fun</b> confirm_requestT(policy: &<a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, request: <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../std/string.md#std_string_String">std::string::String</a>, u64, <b>address</b>, <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<b>address</b>&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_confirm_request">confirm_request</a>&lt;T&gt;(policy: &<a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, request: <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../std/string.md#std_string_String">std::string::String</a>, u64, <b>address</b>, <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<b>address</b>&gt;)
 </code></pre>
 
 
@@ -953,7 +953,7 @@ spent balance it calls <code><a href="../haneul/token.md#haneul_token_confirm_re
 See <code><a href="../haneul/token.md#haneul_token_confirm_request">confirm_request</a></code> for the list of abort conditions.
 
 
-<pre><code><b>public</b> <b>fun</b> confirm_request_mutT(policy: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, request: <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../std/string.md#std_string_String">std::string::String</a>, u64, <b>address</b>, <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<b>address</b>&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_confirm_request_mut">confirm_request_mut</a>&lt;T&gt;(policy: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, request: <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../std/string.md#std_string_String">std::string::String</a>, u64, <b>address</b>, <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<b>address</b>&gt;)
 </code></pre>
 
 
@@ -991,7 +991,7 @@ Aborts if request contains <code><a href="../haneul/token.md#haneul_token_spent_
 <code>TreasuryCap</code> is required (see <code><a href="../haneul/token.md#haneul_token_confirm_with_treasury_cap">confirm_with_treasury_cap</a></code>).
 
 
-<pre><code><b>public</b> <b>fun</b> confirm_with_policy_capT(_policy_cap: &<a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;, request: <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../std/string.md#std_string_String">std::string::String</a>, u64, <b>address</b>, <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<b>address</b>&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_confirm_with_policy_cap">confirm_with_policy_cap</a>&lt;T&gt;(_policy_cap: &<a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;, request: <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../std/string.md#std_string_String">std::string::String</a>, u64, <b>address</b>, <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<b>address</b>&gt;)
 </code></pre>
 
 
@@ -1035,7 +1035,7 @@ Unlike <code><a href="../haneul/token.md#haneul_token_confirm_with_policy_cap">c
 to be consumed, decreasing the <code>total_supply</code> of the <code><a href="../haneul/token.md#haneul_token_Token">Token</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> confirm_with_treasury_capT(treasury_cap: &<b>mut</b> <a href="../haneul/coin.md#haneul_coin_TreasuryCap">haneul::coin::TreasuryCap</a>&lt;T&gt;, request: <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../std/string.md#std_string_String">std::string::String</a>, u64, <b>address</b>, <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<b>address</b>&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_confirm_with_treasury_cap">confirm_with_treasury_cap</a>&lt;T&gt;(treasury_cap: &<b>mut</b> <a href="../haneul/coin.md#haneul_coin_TreasuryCap">haneul::coin::TreasuryCap</a>&lt;T&gt;, request: <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../std/string.md#std_string_String">std::string::String</a>, u64, <b>address</b>, <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<b>address</b>&gt;)
 </code></pre>
 
 
@@ -1080,7 +1080,7 @@ be used to add arbitrary approvals to the request (not only the ones
 required by the <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy</a></code>).
 
 
-<pre><code><b>public</b> <b>fun</b> add_approvalT, W(_t: W, request: &<b>mut</b> <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_add_approval">add_approval</a>&lt;T, W: drop&gt;(_t: W, request: &<b>mut</b> <a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -1112,7 +1112,7 @@ Rule itself. Configuration is stored per <code>Rule</code> and not per <code>Rul
 the <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy</a></code> owner.
 
 
-<pre><code><b>public</b> <b>fun</b> add_rule_configT, Rule, Config(_rule: Rule, self: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, cap: &<a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;, <a href="../haneul/config.md#haneul_config">config</a>: Config, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_add_rule_config">add_rule_config</a>&lt;T, Rule: drop, Config: store&gt;(_rule: Rule, self: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, cap: &<a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;, <a href="../haneul/config.md#haneul_config">config</a>: Config, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -1150,7 +1150,7 @@ for access gating).
 Aborts if the Config is not present.
 
 
-<pre><code><b>public</b> <b>fun</b> rule_configT, Rule, Config(_rule: Rule, self: &<a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;): &Config
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_rule_config">rule_config</a>&lt;T, Rule: drop, Config: store&gt;(_rule: Rule, self: &<a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;): &Config
 </code></pre>
 
 
@@ -1183,7 +1183,7 @@ Aborts if:
 - <code><a href="../haneul/token.md#haneul_token_TokenPolicyCap">TokenPolicyCap</a></code> is not matching the <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy</a></code>
 
 
-<pre><code><b>public</b> <b>fun</b> rule_config_mutT, Rule, Config(_rule: Rule, self: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, cap: &<a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;): &<b>mut</b> Config
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_rule_config_mut">rule_config_mut</a>&lt;T, Rule: drop, Config: store&gt;(_rule: Rule, self: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, cap: &<a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;): &<b>mut</b> Config
 </code></pre>
 
 
@@ -1223,7 +1223,7 @@ Aborts if:
 - <code><a href="../haneul/token.md#haneul_token_TokenPolicyCap">TokenPolicyCap</a></code> is not matching the <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy</a></code>
 
 
-<pre><code><b>public</b> <b>fun</b> remove_rule_configT, Rule, Config(self: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, cap: &<a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): Config
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_remove_rule_config">remove_rule_config</a>&lt;T, Rule, Config: store&gt;(self: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, cap: &<a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): Config
 </code></pre>
 
 
@@ -1255,7 +1255,7 @@ Check if a config for a <code>Rule</code> is set in the <code><a href="../haneul
 checking the type of the <code>Config</code>.
 
 
-<pre><code><b>public</b> <b>fun</b> has_rule_configT, Rule(self: &<a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;): bool
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_has_rule_config">has_rule_config</a>&lt;T, Rule&gt;(self: &<a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;): bool
 </code></pre>
 
 
@@ -1281,7 +1281,7 @@ Check if a <code>Config</code> for a <code>Rule</code> is set in the <code><a hr
 it matches the type provided.
 
 
-<pre><code><b>public</b> <b>fun</b> has_rule_config_with_typeT, Rule, Config(self: &<a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;): bool
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_has_rule_config_with_type">has_rule_config_with_type</a>&lt;T, Rule, Config: store&gt;(self: &<a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;): bool
 </code></pre>
 
 
@@ -1309,7 +1309,7 @@ empty set of <code>Rules</code> for the <code><a href="../haneul/token.md#haneul
 Aborts if the <code><a href="../haneul/token.md#haneul_token_TokenPolicyCap">TokenPolicyCap</a></code> is not matching the <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> allowT(self: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, cap: &<a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_action">action</a>: <a href="../std/string.md#std_string_String">std::string::String</a>, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_allow">allow</a>&lt;T&gt;(self: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, cap: &<a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_action">action</a>: <a href="../std/string.md#std_string_String">std::string::String</a>, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -1343,7 +1343,7 @@ from the <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy
 Aborts if the <code><a href="../haneul/token.md#haneul_token_TokenPolicyCap">TokenPolicyCap</a></code> is not matching the <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> disallowT(self: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, cap: &<a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_action">action</a>: <a href="../std/string.md#std_string_String">std::string::String</a>, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_disallow">disallow</a>&lt;T&gt;(self: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, cap: &<a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_action">action</a>: <a href="../std/string.md#std_string_String">std::string::String</a>, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -1376,7 +1376,7 @@ Adds a Rule for an action with <code>name</code> in the <code><a href="../haneul
 Aborts if the <code><a href="../haneul/token.md#haneul_token_TokenPolicyCap">TokenPolicyCap</a></code> is not matching the <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> add_rule_for_actionT, Rule(self: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, cap: &<a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_action">action</a>: <a href="../std/string.md#std_string_String">std::string::String</a>, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_add_rule_for_action">add_rule_for_action</a>&lt;T, Rule: drop&gt;(self: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, cap: &<a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_action">action</a>: <a href="../std/string.md#std_string_String">std::string::String</a>, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -1413,7 +1413,7 @@ the config object to be handled by the sender (or a Rule itself).
 Aborts if the <code><a href="../haneul/token.md#haneul_token_TokenPolicyCap">TokenPolicyCap</a></code> is not matching the <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> remove_rule_for_actionT, Rule(self: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, cap: &<a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_action">action</a>: <a href="../std/string.md#std_string_String">std::string::String</a>, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_remove_rule_for_action">remove_rule_for_action</a>&lt;T, Rule: drop&gt;(self: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, cap: &<a href="../haneul/token.md#haneul_token_TokenPolicyCap">haneul::token::TokenPolicyCap</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_action">action</a>: <a href="../std/string.md#std_string_String">std::string::String</a>, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -1444,7 +1444,7 @@ Aborts if the <code><a href="../haneul/token.md#haneul_token_TokenPolicyCap">Tok
 Mint a <code><a href="../haneul/token.md#haneul_token_Token">Token</a></code> with a given <code><a href="../haneul/token.md#haneul_token_amount">amount</a></code> using the <code>TreasuryCap</code>.
 
 
-<pre><code><b>public</b> <b>fun</b> mintT(cap: &<b>mut</b> <a href="../haneul/coin.md#haneul_coin_TreasuryCap">haneul::coin::TreasuryCap</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_amount">amount</a>: u64, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_mint">mint</a>&lt;T&gt;(cap: &<b>mut</b> <a href="../haneul/coin.md#haneul_coin_TreasuryCap">haneul::coin::TreasuryCap</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_amount">amount</a>: u64, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;
 </code></pre>
 
 
@@ -1470,7 +1470,7 @@ Mint a <code><a href="../haneul/token.md#haneul_token_Token">Token</a></code> wi
 Burn a <code><a href="../haneul/token.md#haneul_token_Token">Token</a></code> using the <code>TreasuryCap</code>.
 
 
-<pre><code><b>public</b> <b>fun</b> burnT(cap: &<b>mut</b> <a href="../haneul/coin.md#haneul_coin_TreasuryCap">haneul::coin::TreasuryCap</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token">token</a>: <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_burn">burn</a>&lt;T&gt;(cap: &<b>mut</b> <a href="../haneul/coin.md#haneul_coin_TreasuryCap">haneul::coin::TreasuryCap</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token">token</a>: <a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;)
 </code></pre>
 
 
@@ -1498,7 +1498,7 @@ Flush the <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolic
 action is only available to the <code>TreasuryCap</code> owner.
 
 
-<pre><code><b>public</b> <b>fun</b> flushT(self: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, cap: &<b>mut</b> <a href="../haneul/coin.md#haneul_coin_TreasuryCap">haneul::coin::TreasuryCap</a>&lt;T&gt;, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): u64
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_flush">flush</a>&lt;T&gt;(self: &<b>mut</b> <a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, cap: &<b>mut</b> <a href="../haneul/coin.md#haneul_coin_TreasuryCap">haneul::coin::TreasuryCap</a>&lt;T&gt;, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): u64
 </code></pre>
 
 
@@ -1529,7 +1529,7 @@ action is only available to the <code>TreasuryCap</code> owner.
 Check whether an action is present in the rules VecMap.
 
 
-<pre><code><b>public</b> <b>fun</b> is_allowedT(self: &<a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_action">action</a>: &<a href="../std/string.md#std_string_String">std::string::String</a>): bool
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_is_allowed">is_allowed</a>&lt;T&gt;(self: &<a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_action">action</a>: &<a href="../std/string.md#std_string_String">std::string::String</a>): bool
 </code></pre>
 
 
@@ -1554,7 +1554,7 @@ Check whether an action is present in the rules VecMap.
 Returns the rules required for a specific action.
 
 
-<pre><code><b>public</b> <b>fun</b> rulesT(self: &<a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_action">action</a>: &<a href="../std/string.md#std_string_String">std::string::String</a>): <a href="../haneul/vec_set.md#haneul_vec_set_VecSet">haneul::vec_set::VecSet</a>&lt;<a href="../std/type_name.md#std_type_name_TypeName">std::type_name::TypeName</a>&gt;
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_rules">rules</a>&lt;T&gt;(self: &<a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;, <a href="../haneul/token.md#haneul_token_action">action</a>: &<a href="../std/string.md#std_string_String">std::string::String</a>): <a href="../haneul/vec_set.md#haneul_vec_set_VecSet">haneul::vec_set::VecSet</a>&lt;<a href="../std/type_name.md#std_type_name_TypeName">std::type_name::TypeName</a>&gt;
 </code></pre>
 
 
@@ -1579,7 +1579,7 @@ Returns the rules required for a specific action.
 Returns the <code><a href="../haneul/token.md#haneul_token_spent_balance">spent_balance</a></code> of the <code><a href="../haneul/token.md#haneul_token_TokenPolicy">TokenPolicy</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> spent_balanceT(self: &<a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;): u64
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_spent_balance">spent_balance</a>&lt;T&gt;(self: &<a href="../haneul/token.md#haneul_token_TokenPolicy">haneul::token::TokenPolicy</a>&lt;T&gt;): u64
 </code></pre>
 
 
@@ -1604,7 +1604,7 @@ Returns the <code><a href="../haneul/token.md#haneul_token_spent_balance">spent_
 Returns the <code><a href="../haneul/balance.md#haneul_balance">balance</a></code> of the <code><a href="../haneul/token.md#haneul_token_Token">Token</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> valueT(t: &<a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;): u64
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_value">value</a>&lt;T&gt;(t: &<a href="../haneul/token.md#haneul_token_Token">haneul::token::Token</a>&lt;T&gt;): u64
 </code></pre>
 
 
@@ -1733,7 +1733,7 @@ Name of the <code>FromCoin</code> action.
 The Action in the <code><a href="../haneul/token.md#haneul_token_ActionRequest">ActionRequest</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> actionT(self: &<a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;): <a href="../std/string.md#std_string_String">std::string::String</a>
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_action">action</a>&lt;T&gt;(self: &<a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;): <a href="../std/string.md#std_string_String">std::string::String</a>
 </code></pre>
 
 
@@ -1756,7 +1756,7 @@ The Action in the <code><a href="../haneul/token.md#haneul_token_ActionRequest">
 Amount of the <code><a href="../haneul/token.md#haneul_token_ActionRequest">ActionRequest</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> amountT(self: &<a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;): u64
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_amount">amount</a>&lt;T&gt;(self: &<a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;): u64
 </code></pre>
 
 
@@ -1779,7 +1779,7 @@ Amount of the <code><a href="../haneul/token.md#haneul_token_ActionRequest">Acti
 Sender of the <code><a href="../haneul/token.md#haneul_token_ActionRequest">ActionRequest</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> senderT(self: &<a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;): <b>address</b>
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_sender">sender</a>&lt;T&gt;(self: &<a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;): <b>address</b>
 </code></pre>
 
 
@@ -1802,7 +1802,7 @@ Sender of the <code><a href="../haneul/token.md#haneul_token_ActionRequest">Acti
 Recipient of the <code><a href="../haneul/token.md#haneul_token_ActionRequest">ActionRequest</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> recipientT(self: &<a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;): <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<b>address</b>&gt;
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_recipient">recipient</a>&lt;T&gt;(self: &<a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;): <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<b>address</b>&gt;
 </code></pre>
 
 
@@ -1827,7 +1827,7 @@ Recipient of the <code><a href="../haneul/token.md#haneul_token_ActionRequest">A
 Approvals of the <code><a href="../haneul/token.md#haneul_token_ActionRequest">ActionRequest</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> approvalsT(self: &<a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;): <a href="../haneul/vec_set.md#haneul_vec_set_VecSet">haneul::vec_set::VecSet</a>&lt;<a href="../std/type_name.md#std_type_name_TypeName">std::type_name::TypeName</a>&gt;
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_approvals">approvals</a>&lt;T&gt;(self: &<a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;): <a href="../haneul/vec_set.md#haneul_vec_set_VecSet">haneul::vec_set::VecSet</a>&lt;<a href="../std/type_name.md#std_type_name_TypeName">std::type_name::TypeName</a>&gt;
 </code></pre>
 
 
@@ -1852,7 +1852,7 @@ Approvals of the <code><a href="../haneul/token.md#haneul_token_ActionRequest">A
 Burned balance of the <code><a href="../haneul/token.md#haneul_token_ActionRequest">ActionRequest</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> spentT(self: &<a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;): <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;u64&gt;
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_spent">spent</a>&lt;T&gt;(self: &<a href="../haneul/token.md#haneul_token_ActionRequest">haneul::token::ActionRequest</a>&lt;T&gt;): <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;u64&gt;
 </code></pre>
 
 
@@ -1886,7 +1886,7 @@ The goal of <code>is_protected</code> is to potentially allow Rules store a muta
 version of their configuration and mutate state on user action.
 
 
-<pre><code><b>fun</b> keyRule(): <a href="../haneul/token.md#haneul_token_RuleKey">haneul::token::RuleKey</a>&lt;Rule&gt;
+<pre><code><b>fun</b> <a href="../haneul/token.md#haneul_token_key">key</a>&lt;Rule&gt;(): <a href="../haneul/token.md#haneul_token_RuleKey">haneul::token::RuleKey</a>&lt;Rule&gt;
 </code></pre>
 
 

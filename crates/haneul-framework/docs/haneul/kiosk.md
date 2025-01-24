@@ -295,7 +295,7 @@ The main application for the <code><a href="../haneul/kiosk.md#haneul_kiosk_Purc
 on top of the <code><a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">Kiosk</a></code>.
 
 
-<pre><code><b>public</b> <b>struct</b> PurchaseCapT <b>has</b> key, store
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">PurchaseCap</a>&lt;<b>phantom</b> T: key, store&gt; <b>has</b> key, store
 </code></pre>
 
 
@@ -464,7 +464,7 @@ to track available offers anywhere on the network; the event is
 type-indexed which allows for searching for offers of a specific <code>T</code>
 
 
-<pre><code><b>public</b> <b>struct</b> ItemListedT <b>has</b> <b>copy</b>, drop
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul/kiosk.md#haneul_kiosk_ItemListed">ItemListed</a>&lt;<b>phantom</b> T: key, store&gt; <b>has</b> <b>copy</b>, drop
 </code></pre>
 
 
@@ -509,7 +509,7 @@ sets a minimum price for the item, and the actual price is defined
 by the trading module / extension.
 
 
-<pre><code><b>public</b> <b>struct</b> ItemPurchasedT <b>has</b> <b>copy</b>, drop
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul/kiosk.md#haneul_kiosk_ItemPurchased">ItemPurchased</a>&lt;<b>phantom</b> T: key, store&gt; <b>has</b> <b>copy</b>, drop
 </code></pre>
 
 
@@ -547,7 +547,7 @@ Emitted when an item was delisted by the safe owner. Can be used
 to close tracked offers.
 
 
-<pre><code><b>public</b> <b>struct</b> ItemDelistedT <b>has</b> <b>copy</b>, drop
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul/kiosk.md#haneul_kiosk_ItemDelisted">ItemDelisted</a>&lt;<b>phantom</b> T: key, store&gt; <b>has</b> <b>copy</b>, drop
 </code></pre>
 
 
@@ -868,7 +868,7 @@ Place any object into a Kiosk.
 Performs an authorization check to make sure only owner can do that.
 
 
-<pre><code><b>public</b> <b>fun</b> placeT(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, item: T)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_place">place</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, item: T)
 </code></pre>
 
 
@@ -899,7 +899,7 @@ Requires policy for <code>T</code> to make sure that there's an issued <code>Tra
 and the item can be sold, otherwise the asset might be locked forever.
 
 
-<pre><code><b>public</b> <b>fun</b> lockT(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, _policy: &<a href="../haneul/transfer_policy.md#haneul_transfer_policy_TransferPolicy">haneul::transfer_policy::TransferPolicy</a>&lt;T&gt;, item: T)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_lock">lock</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, _policy: &<a href="../haneul/transfer_policy.md#haneul_transfer_policy_TransferPolicy">haneul::transfer_policy::TransferPolicy</a>&lt;T&gt;, item: T)
 </code></pre>
 
 
@@ -931,7 +931,7 @@ Take any object from the Kiosk.
 Performs an authorization check to make sure only owner can do that.
 
 
-<pre><code><b>public</b> <b>fun</b> takeT(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>): T
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_take">take</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>): T
 </code></pre>
 
 
@@ -963,7 +963,7 @@ List the item by setting a price and making it available for purchase.
 Performs an authorization check to make sure only owner can sell.
 
 
-<pre><code><b>public</b> <b>fun</b> listT(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>, price: u64)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_list">list</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>, price: u64)
 </code></pre>
 
 
@@ -992,7 +992,7 @@ Performs an authorization check to make sure only owner can sell.
 Calls <code><a href="../haneul/kiosk.md#haneul_kiosk_place">place</a></code> and <code><a href="../haneul/kiosk.md#haneul_kiosk_list">list</a></code> together - simplifies the flow.
 
 
-<pre><code><b>public</b> <b>fun</b> place_and_listT(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, item: T, price: u64)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_place_and_list">place_and_list</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, item: T, price: u64)
 </code></pre>
 
 
@@ -1025,7 +1025,7 @@ Remove an existing listing from the <code><a href="../haneul/kiosk.md#haneul_kio
 user Kiosk. Can only be performed by the owner of the <code><a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">Kiosk</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> delistT(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_delist">delist</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>)
 </code></pre>
 
 
@@ -1061,7 +1061,7 @@ request their approval (by calling some function) so that the trade can be
 finalized.
 
 
-<pre><code><b>public</b> <b>fun</b> purchaseT(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>, payment: <a href="../haneul/coin.md#haneul_coin_Coin">haneul::coin::Coin</a>&lt;<a href="../haneul/haneul.md#haneul_haneul_HANEUL">haneul::haneul::HANEUL</a>&gt;): (T, <a href="../haneul/transfer_policy.md#haneul_transfer_policy_TransferRequest">haneul::transfer_policy::TransferRequest</a>&lt;T&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_purchase">purchase</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>, payment: <a href="../haneul/coin.md#haneul_coin_Coin">haneul::coin::Coin</a>&lt;<a href="../haneul/haneul.md#haneul_haneul_HANEUL">haneul::haneul::HANEUL</a>&gt;): (T, <a href="../haneul/transfer_policy.md#haneul_transfer_policy_TransferRequest">haneul::transfer_policy::TransferRequest</a>&lt;T&gt;)
 </code></pre>
 
 
@@ -1098,7 +1098,7 @@ Creates a <code><a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">PurchaseCa
 for any price equal or higher than the <code>min_price</code>.
 
 
-<pre><code><b>public</b> <b>fun</b> list_with_purchase_capT(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>, min_price: u64, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">haneul::kiosk::PurchaseCap</a>&lt;T&gt;
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_list_with_purchase_cap">list_with_purchase_cap</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>, min_price: u64, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">haneul::kiosk::PurchaseCap</a>&lt;T&gt;
 </code></pre>
 
 
@@ -1139,7 +1139,7 @@ Unpack the <code><a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">PurchaseC
 as the price for the listing making sure it's no less than <code>min_amount</code>.
 
 
-<pre><code><b>public</b> <b>fun</b> purchase_with_capT(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, purchase_cap: <a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">haneul::kiosk::PurchaseCap</a>&lt;T&gt;, payment: <a href="../haneul/coin.md#haneul_coin_Coin">haneul::coin::Coin</a>&lt;<a href="../haneul/haneul.md#haneul_haneul_HANEUL">haneul::haneul::HANEUL</a>&gt;): (T, <a href="../haneul/transfer_policy.md#haneul_transfer_policy_TransferRequest">haneul::transfer_policy::TransferRequest</a>&lt;T&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_purchase_with_cap">purchase_with_cap</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, purchase_cap: <a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">haneul::kiosk::PurchaseCap</a>&lt;T&gt;, payment: <a href="../haneul/coin.md#haneul_coin_Coin">haneul::coin::Coin</a>&lt;<a href="../haneul/haneul.md#haneul_haneul_HANEUL">haneul::haneul::HANEUL</a>&gt;): (T, <a href="../haneul/transfer_policy.md#haneul_transfer_policy_TransferRequest">haneul::transfer_policy::TransferRequest</a>&lt;T&gt;)
 </code></pre>
 
 
@@ -1180,7 +1180,7 @@ Return the <code><a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">PurchaseC
 allow the item for taking. Can only be returned to its <code><a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">Kiosk</a></code>, aborts otherwise.
 
 
-<pre><code><b>public</b> <b>fun</b> return_purchase_capT(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, purchase_cap: <a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">haneul::kiosk::PurchaseCap</a>&lt;T&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_return_purchase_cap">return_purchase_cap</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, purchase_cap: <a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">haneul::kiosk::PurchaseCap</a>&lt;T&gt;)
 </code></pre>
 
 
@@ -1246,7 +1246,7 @@ Withdraw profits from the Kiosk.
 Internal: "lock" an item disabling the <code><a href="../haneul/kiosk.md#haneul_kiosk_take">take</a></code> action.
 
 
-<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> lock_internalT(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, item: T)
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_lock_internal">lock_internal</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, item: T)
 </code></pre>
 
 
@@ -1272,7 +1272,7 @@ Internal: "lock" an item disabling the <code><a href="../haneul/kiosk.md#haneul_
 Internal: "place" an item to the Kiosk and increment the item count.
 
 
-<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> place_internalT(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, item: T)
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_place_internal">place_internal</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, item: T)
 </code></pre>
 
 
@@ -1348,7 +1348,7 @@ Check whether the <code>item</code> is present in the <code><a href="../haneul/k
 Check whether the <code>item</code> is present in the <code><a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">Kiosk</a></code> and has type T.
 
 
-<pre><code><b>public</b> <b>fun</b> has_item_with_typeT(self: &<a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>): bool
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_has_item_with_type">has_item_with_type</a>&lt;T: key, store&gt;(self: &<a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>): bool
 </code></pre>
 
 
@@ -1688,7 +1688,7 @@ Immutably borrow an item from the <code><a href="../haneul/kiosk.md#haneul_kiosk
 at any time.
 
 
-<pre><code><b>public</b> <b>fun</b> borrowT(self: &<a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>): &T
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/borrow.md#haneul_borrow">borrow</a>&lt;T: key, store&gt;(self: &<a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>): &T
 </code></pre>
 
 
@@ -1716,7 +1716,7 @@ Mutably borrow an item from the <code><a href="../haneul/kiosk.md#haneul_kiosk_K
 Item can be <code><a href="../haneul/kiosk.md#haneul_kiosk_borrow_mut">borrow_mut</a></code>ed only if it's not <code><a href="../haneul/kiosk.md#haneul_kiosk_is_listed">is_listed</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> borrow_mutT(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>): &<b>mut</b> T
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_borrow_mut">borrow_mut</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>): &<b>mut</b> T
 </code></pre>
 
 
@@ -1745,7 +1745,7 @@ Take the item from the <code><a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">Kio
 Item can be <code><a href="../haneul/kiosk.md#haneul_kiosk_borrow_val">borrow_val</a></code>-ed only if it's not <code><a href="../haneul/kiosk.md#haneul_kiosk_is_listed">is_listed</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> borrow_valT(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>): (T, <a href="../haneul/kiosk.md#haneul_kiosk_Borrow">haneul::kiosk::Borrow</a>)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_borrow_val">borrow_val</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, id: <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>): (T, <a href="../haneul/kiosk.md#haneul_kiosk_Borrow">haneul::kiosk::Borrow</a>)
 </code></pre>
 
 
@@ -1774,7 +1774,7 @@ Return the borrowed item to the <code><a href="../haneul/kiosk.md#haneul_kiosk_K
 if <code><a href="../haneul/kiosk.md#haneul_kiosk_borrow_val">borrow_val</a></code> is used.
 
 
-<pre><code><b>public</b> <b>fun</b> return_valT(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, item: T, <a href="../haneul/borrow.md#haneul_borrow">borrow</a>: <a href="../haneul/kiosk.md#haneul_kiosk_Borrow">haneul::kiosk::Borrow</a>)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_return_val">return_val</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, item: T, <a href="../haneul/borrow.md#haneul_borrow">borrow</a>: <a href="../haneul/kiosk.md#haneul_kiosk_Borrow">haneul::kiosk::Borrow</a>)
 </code></pre>
 
 
@@ -1827,7 +1827,7 @@ Get the <code><b>for</b></code> field of the <code><a href="../haneul/kiosk.md#h
 Get the <code>kiosk_id</code> from the <code><a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">PurchaseCap</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> purchase_cap_kioskT(self: &<a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">haneul::kiosk::PurchaseCap</a>&lt;T&gt;): <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_purchase_cap_kiosk">purchase_cap_kiosk</a>&lt;T: key, store&gt;(self: &<a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">haneul::kiosk::PurchaseCap</a>&lt;T&gt;): <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>
 </code></pre>
 
 
@@ -1852,7 +1852,7 @@ Get the <code>kiosk_id</code> from the <code><a href="../haneul/kiosk.md#haneul_
 Get the <code>Item_id</code> from the <code><a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">PurchaseCap</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> purchase_cap_itemT(self: &<a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">haneul::kiosk::PurchaseCap</a>&lt;T&gt;): <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_purchase_cap_item">purchase_cap_item</a>&lt;T: key, store&gt;(self: &<a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">haneul::kiosk::PurchaseCap</a>&lt;T&gt;): <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>
 </code></pre>
 
 
@@ -1877,7 +1877,7 @@ Get the <code>Item_id</code> from the <code><a href="../haneul/kiosk.md#haneul_k
 Get the <code>min_price</code> from the <code><a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">PurchaseCap</a></code>.
 
 
-<pre><code><b>public</b> <b>fun</b> purchase_cap_min_priceT(self: &<a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">haneul::kiosk::PurchaseCap</a>&lt;T&gt;): u64
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_purchase_cap_min_price">purchase_cap_min_price</a>&lt;T: key, store&gt;(self: &<a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">haneul::kiosk::PurchaseCap</a>&lt;T&gt;): u64
 </code></pre>
 
 

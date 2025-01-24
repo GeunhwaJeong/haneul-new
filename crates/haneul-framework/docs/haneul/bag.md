@@ -136,7 +136,7 @@ Aborts with <code><a href="../haneul/dynamic_field.md#haneul_dynamic_field_EFiel
 that key <code>k: K</code>.
 
 
-<pre><code><b>public</b> <b>fun</b> addK, V(<a href="../haneul/bag.md#haneul_bag">bag</a>: &<b>mut</b> <a href="../haneul/bag.md#haneul_bag_Bag">haneul::bag::Bag</a>, k: K, v: V)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/bag.md#haneul_bag_add">add</a>&lt;K: <b>copy</b>, drop, store, V: store&gt;(<a href="../haneul/bag.md#haneul_bag">bag</a>: &<b>mut</b> <a href="../haneul/bag.md#haneul_bag_Bag">haneul::bag::Bag</a>, k: K, v: V)
 </code></pre>
 
 
@@ -166,7 +166,7 @@ Aborts with <code><a href="../haneul/dynamic_field.md#haneul_dynamic_field_EFiel
 the value does not have the specified type.
 
 
-<pre><code><b>public</b> <b>fun</b> borrowK, V(<a href="../haneul/bag.md#haneul_bag">bag</a>: &<a href="../haneul/bag.md#haneul_bag_Bag">haneul::bag::Bag</a>, k: K): &V
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/borrow.md#haneul_borrow">borrow</a>&lt;K: <b>copy</b>, drop, store, V: store&gt;(<a href="../haneul/bag.md#haneul_bag">bag</a>: &<a href="../haneul/bag.md#haneul_bag_Bag">haneul::bag::Bag</a>, k: K): &V
 </code></pre>
 
 
@@ -195,7 +195,7 @@ Aborts with <code><a href="../haneul/dynamic_field.md#haneul_dynamic_field_EFiel
 the value does not have the specified type.
 
 
-<pre><code><b>public</b> <b>fun</b> borrow_mutK, V(<a href="../haneul/bag.md#haneul_bag">bag</a>: &<b>mut</b> <a href="../haneul/bag.md#haneul_bag_Bag">haneul::bag::Bag</a>, k: K): &<b>mut</b> V
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/bag.md#haneul_bag_borrow_mut">borrow_mut</a>&lt;K: <b>copy</b>, drop, store, V: store&gt;(<a href="../haneul/bag.md#haneul_bag">bag</a>: &<b>mut</b> <a href="../haneul/bag.md#haneul_bag_Bag">haneul::bag::Bag</a>, k: K): &<b>mut</b> V
 </code></pre>
 
 
@@ -224,7 +224,7 @@ Aborts with <code><a href="../haneul/dynamic_field.md#haneul_dynamic_field_EFiel
 the value does not have the specified type.
 
 
-<pre><code><b>public</b> <b>fun</b> removeK, V(<a href="../haneul/bag.md#haneul_bag">bag</a>: &<b>mut</b> <a href="../haneul/bag.md#haneul_bag_Bag">haneul::bag::Bag</a>, k: K): V
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/bag.md#haneul_bag_remove">remove</a>&lt;K: <b>copy</b>, drop, store, V: store&gt;(<a href="../haneul/bag.md#haneul_bag">bag</a>: &<b>mut</b> <a href="../haneul/bag.md#haneul_bag_Bag">haneul::bag::Bag</a>, k: K): V
 </code></pre>
 
 
@@ -251,7 +251,7 @@ the value does not have the specified type.
 Returns true iff there is an value associated with the key <code>k: K</code> in the bag <code><a href="../haneul/bag.md#haneul_bag">bag</a>: &<a href="../haneul/bag.md#haneul_bag_Bag">Bag</a></code>
 
 
-<pre><code><b>public</b> <b>fun</b> containsK(<a href="../haneul/bag.md#haneul_bag">bag</a>: &<a href="../haneul/bag.md#haneul_bag_Bag">haneul::bag::Bag</a>, k: K): bool
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/bag.md#haneul_bag_contains">contains</a>&lt;K: <b>copy</b>, drop, store&gt;(<a href="../haneul/bag.md#haneul_bag">bag</a>: &<a href="../haneul/bag.md#haneul_bag_Bag">haneul::bag::Bag</a>, k: K): bool
 </code></pre>
 
 
@@ -277,7 +277,7 @@ Returns true iff there is an value associated with the key <code>k: K</code> in 
 with an assigned value of type <code>V</code>
 
 
-<pre><code><b>public</b> <b>fun</b> contains_with_typeK, V(<a href="../haneul/bag.md#haneul_bag">bag</a>: &<a href="../haneul/bag.md#haneul_bag_Bag">haneul::bag::Bag</a>, k: K): bool
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/bag.md#haneul_bag_contains_with_type">contains_with_type</a>&lt;K: <b>copy</b>, drop, store, V: store&gt;(<a href="../haneul/bag.md#haneul_bag">bag</a>: &<a href="../haneul/bag.md#haneul_bag_Bag">haneul::bag::Bag</a>, k: K): bool
 </code></pre>
 
 

@@ -886,7 +886,7 @@ Generate a random u8 in [min, max] (with a bias of 2^{-64}).
 Shuffle a vector using the random generator (Fisher–Yates/Knuth shuffle).
 
 
-<pre><code><b>public</b> <b>fun</b> shuffleT(g: &<b>mut</b> <a href="../haneul/random.md#haneul_random_RandomGenerator">haneul::random::RandomGenerator</a>, v: &<b>mut</b> vector&lt;T&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/random.md#haneul_random_shuffle">shuffle</a>&lt;T&gt;(g: &<b>mut</b> <a href="../haneul/random.md#haneul_random_RandomGenerator">haneul::random::RandomGenerator</a>, v: &<b>mut</b> vector&lt;T&gt;)
 </code></pre>
 
 

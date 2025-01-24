@@ -38,7 +38,7 @@ sure the object is returned and was not swapped for another one.
 An object wrapping a <code>T</code> and providing the borrow API.
 
 
-<pre><code><b>public</b> <b>struct</b> ReferentT <b>has</b> store
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul/borrow.md#haneul_borrow_Referent">Referent</a>&lt;T: key, store&gt; <b>has</b> store
 </code></pre>
 
 
@@ -127,7 +127,7 @@ An attempt to swap the <code><a href="../haneul/borrow.md#haneul_borrow_Referent
 Create a new <code><a href="../haneul/borrow.md#haneul_borrow_Referent">Referent</a></code> struct
 
 
-<pre><code><b>public</b> <b>fun</b> newT(value: T, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/borrow.md#haneul_borrow_Referent">haneul::borrow::Referent</a>&lt;T&gt;
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/borrow.md#haneul_borrow_new">new</a>&lt;T: key, store&gt;(value: T, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/borrow.md#haneul_borrow_Referent">haneul::borrow::Referent</a>&lt;T&gt;
 </code></pre>
 
 
@@ -156,7 +156,7 @@ Borrow the <code>T</code> from the <code><a href="../haneul/borrow.md#haneul_bor
 hot potato.
 
 
-<pre><code><b>public</b> <b>fun</b> borrowT(self: &<b>mut</b> <a href="../haneul/borrow.md#haneul_borrow_Referent">haneul::borrow::Referent</a>&lt;T&gt;): (T, <a href="../haneul/borrow.md#haneul_borrow_Borrow">haneul::borrow::Borrow</a>)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/borrow.md#haneul_borrow">borrow</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/borrow.md#haneul_borrow_Referent">haneul::borrow::Referent</a>&lt;T&gt;): (T, <a href="../haneul/borrow.md#haneul_borrow_Borrow">haneul::borrow::Borrow</a>)
 </code></pre>
 
 
@@ -189,7 +189,7 @@ hot potato.
 Put an object and the <code><a href="../haneul/borrow.md#haneul_borrow_Borrow">Borrow</a></code> hot potato back.
 
 
-<pre><code><b>public</b> <b>fun</b> put_backT(self: &<b>mut</b> <a href="../haneul/borrow.md#haneul_borrow_Referent">haneul::borrow::Referent</a>&lt;T&gt;, value: T, <a href="../haneul/borrow.md#haneul_borrow">borrow</a>: <a href="../haneul/borrow.md#haneul_borrow_Borrow">haneul::borrow::Borrow</a>)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/borrow.md#haneul_borrow_put_back">put_back</a>&lt;T: key, store&gt;(self: &<b>mut</b> <a href="../haneul/borrow.md#haneul_borrow_Referent">haneul::borrow::Referent</a>&lt;T&gt;, value: T, <a href="../haneul/borrow.md#haneul_borrow">borrow</a>: <a href="../haneul/borrow.md#haneul_borrow_Borrow">haneul::borrow::Borrow</a>)
 </code></pre>
 
 
@@ -217,7 +217,7 @@ Put an object and the <code><a href="../haneul/borrow.md#haneul_borrow_Borrow">B
 Unpack the <code><a href="../haneul/borrow.md#haneul_borrow_Referent">Referent</a></code> struct and return the value.
 
 
-<pre><code><b>public</b> <b>fun</b> destroyT(self: <a href="../haneul/borrow.md#haneul_borrow_Referent">haneul::borrow::Referent</a>&lt;T&gt;): T
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/borrow.md#haneul_borrow_destroy">destroy</a>&lt;T: key, store&gt;(self: <a href="../haneul/borrow.md#haneul_borrow_Referent">haneul::borrow::Referent</a>&lt;T&gt;): T
 </code></pre>
 
 
