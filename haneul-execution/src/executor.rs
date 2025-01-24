@@ -3,6 +3,7 @@
 
 use std::{collections::HashSet, sync::Arc};
 use haneul_protocol_config::ProtocolConfig;
+use haneul_types::execution::ExecutionTiming;
 use haneul_types::storage::BackingStore;
 use haneul_types::{
     base_types::{ObjectRef, HaneulAddress, TxContext},
@@ -44,6 +45,7 @@ pub trait Executor {
         InnerTemporaryStore,
         HaneulGasStatus,
         TransactionEffects,
+        Vec<ExecutionTiming>,
         Result<(), ExecutionError>,
     );
 

@@ -48,7 +48,7 @@ mod checked {
     use haneul_types::inner_temporary_store::InnerTemporaryStore;
     use haneul_types::storage::BackingStore;
     #[cfg(msim)]
-    use haneul_types::haneul_system_state::advance_epoch_result_injection::maybe_modify_result;
+    use haneul_types::haneul_system_state::advance_epoch_result_injection::maybe_modify_result_legacy;
     use haneul_types::haneul_system_state::{AdvanceEpochParams, ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME};
     use haneul_types::transaction::{
         Argument, AuthenticatorStateExpire, AuthenticatorStateUpdate, CallArg, ChangeEpoch,
@@ -869,7 +869,7 @@ mod checked {
         );
 
         #[cfg(msim)]
-        let result = maybe_modify_result(result, change_epoch.epoch);
+        let result = maybe_modify_result_legacy(result, change_epoch.epoch);
 
         if result.is_err() {
             tracing::error!(
