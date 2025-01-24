@@ -9,7 +9,7 @@ use std::{fs::create_dir_all, io::Write, path::Path};
 const HANEUL_PKG_NAME: &str = "Haneul";
 
 // Use testnet by default. Probably want to add options to make this configurable later
-const HANEUL_PKG_PATH: &str = "{ git = \"https://github.com/GeunhwaJeong/haneul.git\", subdir = \"crates/haneul-framework/packages/haneul-framework\", rev = \"framework/testnet\" }";
+const HANEUL_PKG_PATH: &str = "{ git = \"https://github.com/GeunhwaJeong/haneul.git\", subdir = \"crates/haneul-framework/packages/haneul-framework\", rev = \"framework/testnet\", override = true }";
 
 #[derive(Parser)]
 #[group(id = "haneul-move-new")]
