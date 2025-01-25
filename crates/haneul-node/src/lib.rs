@@ -13,6 +13,7 @@ use arc_swap::ArcSwap;
 use fastcrypto_zkp::bn254::zk_login::JwkId;
 use fastcrypto_zkp::bn254::zk_login::OIDCProvider;
 use futures::TryFutureExt;
+use haneullabs_common::debug_fatal;
 use haneullabs_network::server::HANEUL_TLS_SERVER_NAME;
 use prometheus::Registry;
 use std::collections::{BTreeSet, HashMap, HashSet};
@@ -44,9 +45,12 @@ use haneul_rpc_api::RpcMetrics;
 use haneul_types::base_types::ConciseableName;
 use haneul_types::crypto::RandomnessRound;
 use haneul_types::digests::ChainIdentifier;
+use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::messages_consensus::AuthorityCapabilitiesV2;
+use haneul_types::messages_consensus::ConsensusTransactionKind;
 use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::transaction::VerifiedCertificate;
 use tap::tap::TapFallible;
 use tokio::runtime::Handle;
 use tokio::sync::{broadcast, mpsc, watch, Mutex};
@@ -832,6 +836,8 @@ impl HaneulNode {
         let haneul_node_metrics = Arc::new(HaneulNodeMetrics::new(&registry_service.default_registry()));
 
         let validator_components = if state.is_validator(&epoch_store) {
+            Self::reexecute_pending_consensus_certs(&epoch_store, &state).await;
+
             let components = Self::construct_validator_components(
                 config.clone(),
                 state.clone(),
@@ -1325,7 +1331,7 @@ impl HaneulNode {
         haneul_node_metrics: Arc<HaneulNodeMetrics>,
         haneul_tx_validator_metrics: Arc<HaneulTxValidatorMetrics>,
     ) -> Result<ValidatorComponents> {
-        let checkpoint_service = Self::start_checkpoint_service(
+        let checkpoint_service = Self::build_checkpoint_service(
             config,
             consensus_adapter.clone(),
             checkpoint_store,
@@ -1421,7 +1427,7 @@ impl HaneulNode {
         })
     }
 
-    fn start_checkpoint_service(
+    fn build_checkpoint_service(
         config: &NodeConfig,
         consensus_adapter: Arc<ConsensusAdapter>,
         checkpoint_store: Arc<CheckpointStore>,
@@ -1530,6 +1536,67 @@ impl HaneulNode {
         let grpc_server = spawn_monitored_task!(server.serve().map_err(Into::into));
 
         Ok(grpc_server)
+    }
+
+    async fn reexecute_pending_consensus_certs(
+        epoch_store: &Arc<AuthorityPerEpochStore>,
+        state: &Arc<AuthorityState>,
+    ) {
+        let pending_consensus_certificates = epoch_store
+            .get_all_pending_consensus_transactions()
+            .into_iter()
+            .filter_map(|tx| {
+                match tx.kind {
+                    // shared object txns will be re-executed by consensus replay
+                    ConsensusTransactionKind::CertifiedTransaction(tx)
+                        if !tx.contains_shared_object() =>
+                    {
+                        let tx = *tx;
+                        // we only need to re-execute if we previously signed the effects (which indicates we
+                        // returned the effects to a client).
+                        if let Some(fx_digest) = epoch_store
+                            .get_signed_effects_digest(tx.digest())
+                            .expect("db error")
+                        {
+                            // new_unchecked is safe because we never submit a transaction to consensus
+                            // without verifying it
+                            let tx = VerifiedExecutableTransaction::new_from_certificate(
+                                VerifiedCertificate::new_unchecked(tx),
+                            );
+                            Some((tx, fx_digest))
+                        } else {
+                            None
+                        }
+                    }
+                    _ => None,
+                }
+            })
+            .collect::<Vec<_>>();
+
+        let digests = pending_consensus_certificates
+            .iter()
+            .map(|(tx, _)| *tx.digest())
+            .collect::<Vec<_>>();
+
+        info!("reexecuting pending consensus certificates: {:?}", digests);
+
+        state.enqueue_with_expected_effects_digest(pending_consensus_certificates, epoch_store);
+
+        // If this times out, the validator will still almost certainly start up fine. But, it is
+        // possible that it may temporarily "forget" about transactions that it had previously
+        // executed. This could confuse clients in some circumstances. However, the transactions
+        // are still in pending_consensus_certificates, so we cannot lose any finality guarantees.
+        if tokio::time::timeout(
+            std::time::Duration::from_secs(10),
+            state
+                .get_transaction_cache_reader()
+                .notify_read_executed_effects_digests(&digests),
+        )
+        .await
+        .is_err()
+        {
+            debug_fatal!("Timed out waiting for effects digests to be executed");
+        }
     }
 
     pub fn state(&self) -> Arc<AuthorityState> {
