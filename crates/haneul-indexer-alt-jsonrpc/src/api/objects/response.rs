@@ -6,7 +6,7 @@ use haneul_json_rpc_types::{
     HaneulObjectData, HaneulObjectDataOptions, HaneulObjectRef, HaneulPastObjectResponse,
 };
 use haneul_types::{
-    base_types::{ObjectID, SequenceNumber},
+    base_types::{ObjectID, ObjectType, SequenceNumber},
     digests::ObjectDigest,
     object::Object,
 };
@@ -48,15 +48,17 @@ fn object(
     object_id: ObjectID,
     version: SequenceNumber,
     bytes: &[u8],
-    _options: &HaneulObjectDataOptions,
+    options: &HaneulObjectDataOptions,
 ) -> Result<HaneulObjectData, RpcError> {
     let object: Object = bcs::from_bytes(bytes).context("Failed to deserialize object")?;
+
+    let type_ = options.show_type.then(|| ObjectType::from(&object));
 
     Ok(HaneulObjectData {
         object_id,
         version,
         digest: object.digest(),
-        type_: None,
+        type_,
         owner: None,
         previous_transaction: None,
         storage_rebate: None,
