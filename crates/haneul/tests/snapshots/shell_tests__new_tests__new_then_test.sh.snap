@@ -1,0 +1,34 @@
+---
+source: crates/haneul/tests/shell_tests.rs
+description: tests/shell_tests/new_tests/new_then_test.sh
+---
+----- script -----
+# Copyright (c) Mysten Labs, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+# check that haneul move new followed by haneul move test succeeds
+haneul move new example
+
+# we mangle the generated toml file to replace the framework dependency with a local dependency
+FRAMEWORK_DIR=$(echo $CARGO_MANIFEST_DIR | sed 's#/crates/haneul##g')
+cat example/Move.toml \
+  | sed 's#\(Haneul = .*\)git = "[^"]*", \(.*\)#\1\2#' \
+  | sed 's#\(Haneul = .*\), rev = "[^"]*"\(.*\)#\1\2#' \
+  | sed 's#\(Haneul = .*\)subdir = "\([^"]*\)"\(.*\)#\1local = "FRAMEWORK/\2"\3#' \
+  | sed "s#\(Haneul = .*\)FRAMEWORK\(.*\)#\1$FRAMEWORK_DIR\2#" \
+  > Move.toml
+mv Move.toml example/Move.toml
+
+cd example && haneul move test
+
+----- results -----
+success: true
+exit_code: 0
+----- stdout -----
+INCLUDING DEPENDENCY Haneul
+INCLUDING DEPENDENCY MoveStdlib
+BUILDING example
+Running Move unit tests
+Test result: OK. Total tests: 0; passed: 0; failed: 0
+
+----- stderr -----

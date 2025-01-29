@@ -4,4 +4,4 @@
 # simple test just to make sure the test runner works
 echo "dummy test"
 cat data/data.txt
-haneul-move new dummy
+haneul move new dummy

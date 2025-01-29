@@ -1,12 +1,12 @@
 # Copyright (c) Mysten Labs, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-# haneul-move new example when `example/.gitignore` already contains build/*; it should be unchanged
+# haneul move new example when `example/.gitignore` already contains build/*; it should be unchanged
 mkdir example
 echo "ignore1" >> example/.gitignore
 echo "build/*" >> example/.gitignore
 echo "ignore2" >> example/.gitignore
-haneul-move new example
+haneul move new example
 cat example/.gitignore
 echo
 echo ==== files in example/ ====
