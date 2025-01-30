@@ -22,8 +22,8 @@ use haneul_core::authority::authority_per_epoch_store::CertLockGuard;
 use haneul_core::authority::authority_test_utils::send_and_confirm_transaction_with_execution_error;
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc::authority_state::StateRead;
-use haneul_json_rpc_types::DevInspectResults;
 use haneul_json_rpc_types::EventFilter;
+use haneul_json_rpc_types::{DevInspectResults, DryRunTransactionBlockResponse};
 use haneul_storage::key_value_store::TransactionKeyValueStore;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
@@ -45,10 +45,10 @@ use haneul_types::storage::ObjectStore;
 use haneul_types::storage::ReadStore;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
-use haneul_types::transaction::InputObjects;
 use haneul_types::transaction::Transaction;
 use haneul_types::transaction::TransactionDataAPI;
 use haneul_types::transaction::TransactionKind;
+use haneul_types::transaction::{InputObjects, TransactionData};
 use test_adapter::{HaneulTestAdapter, PRE_COMPILED};
 
 #[cfg_attr(not(msim), tokio::main)]
@@ -98,6 +98,12 @@ pub trait TransactionalAdapter: Send + Sync + ReadStore {
         address: HaneulAddress,
         amount: u64,
     ) -> anyhow::Result<TransactionEffects>;
+
+    async fn dry_run_transaction_block(
+        &self,
+        transaction_block: TransactionData,
+        transaction_digest: TransactionDigest,
+    ) -> HaneulResult<DryRunTransactionBlockResponse>;
 
     async fn dev_inspect_transaction_block(
         &self,
@@ -170,6 +176,17 @@ impl TransactionalAdapter for ValidatorWithFullnode {
             self.validator
                 .prepare_certificate_for_benchmark(&tx, input_objects, &epoch_store)?;
         Ok((effects, error))
+    }
+
+    async fn dry_run_transaction_block(
+        &self,
+        transaction_block: TransactionData,
+        transaction_digest: TransactionDigest,
+    ) -> HaneulResult<DryRunTransactionBlockResponse> {
+        self.fullnode
+            .dry_exec_transaction(transaction_block, transaction_digest)
+            .await
+            .map(|result| result.0)
     }
 
     async fn dev_inspect_transaction_block(
@@ -407,6 +424,14 @@ impl TransactionalAdapter for Simulacrum<StdRng, PersistedStore> {
         _gas_price: Option<u64>,
     ) -> HaneulResult<DevInspectResults> {
         unimplemented!("dev_inspect_transaction_block not supported in simulator mode")
+    }
+
+    async fn dry_run_transaction_block(
+        &self,
+        _transaction_block: TransactionData,
+        _transaction_digest: TransactionDigest,
+    ) -> HaneulResult<DryRunTransactionBlockResponse> {
+        unimplemented!("dry_run_transaction_block not supported in simulator mode")
     }
 
     async fn query_tx_events_asc(
