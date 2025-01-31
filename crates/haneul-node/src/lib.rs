@@ -31,6 +31,7 @@ use haneul_core::authority::authority_store_tables::{
 };
 use haneul_core::authority::backpressure::BackpressureManager;
 use haneul_core::authority::epoch_start_configuration::EpochFlag;
+use haneul_core::authority::execution_time_estimator::ExecutionTimeObserver;
 use haneul_core::authority::RandomnessRoundReceiver;
 use haneul_core::consensus_adapter::ConsensusClient;
 use haneul_core::consensus_manager::UpdatableConsensusClient;
@@ -1369,6 +1370,12 @@ impl HaneulNode {
                     .await?;
             }
         }
+
+        ExecutionTimeObserver::spawn(
+            &epoch_store,
+            Box::new(consensus_adapter.clone()),
+            config.local_execution_time_channel_capacity,
+        );
 
         let throughput_calculator = Arc::new(ConsensusThroughputCalculator::new(
             None,
