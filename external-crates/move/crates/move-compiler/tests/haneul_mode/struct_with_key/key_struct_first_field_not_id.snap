@@ -1,0 +1,15 @@
+---
+source: crates/move-compiler/tests/move_check_testsuite.rs
+info:
+  flavor: haneul
+  edition: legacy
+  lint: false
+input_file: crates/move-compiler/tests/haneul_mode/struct_with_key/key_struct_first_field_not_id.move
+---
+error[Haneul E02007]: invalid object declaration
+  ┌─ tests/haneul_mode/struct_with_key/key_struct_first_field_not_id.move:4:9
+  │
+3 │     struct S has key {
+  │                  --- The 'key' ability is used to declare objects in Haneul
+4 │         flag: bool
+  │         ^^^^ Invalid object 'S'. Structs with the 'key' ability must have 'id: haneul::object::UID' as their first field
