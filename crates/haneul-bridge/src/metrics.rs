@@ -119,6 +119,11 @@ pub struct BridgeMetrics {
 
     pub(crate) auth_agg_ok_responses: IntCounterVec,
     pub(crate) auth_agg_bad_responses: IntCounterVec,
+
+    pub(crate) haneul_eth_token_transfer_approved: IntCounter,
+    pub(crate) haneul_eth_token_transfer_claimed: IntCounter,
+    pub(crate) eth_haneul_token_transfer_approved: IntCounter,
+    pub(crate) eth_haneul_token_transfer_claimed: IntCounter,
 }
 
 impl BridgeMetrics {
@@ -348,6 +353,34 @@ impl BridgeMetrics {
                 "bridge_auth_agg_bad_responses",
                 "Total number of bad respones from auth agg",
                 &["authority"],
+                registry,
+            )
+            .unwrap(),
+            haneul_eth_token_transfer_approved: register_int_counter_with_registry!(
+                "bridge_haneul_eth_token_transfer_approved",
+                "Total number of approved haneul to eth token transfers (since metric introduced). \
+                Should be used to track rates rather than absolute values.",
+                registry,
+            )
+            .unwrap(),
+            haneul_eth_token_transfer_claimed: register_int_counter_with_registry!(
+                "bridge_haneul_eth_token_transfer_claimed",
+                "Total number of claimed haneul to eth token transfers (since metric introduced). \
+                Should be used to track rates rather than absolute values.",
+                registry,
+            )
+            .unwrap(),
+            eth_haneul_token_transfer_approved: register_int_counter_with_registry!(
+                "bridge_eth_haneul_token_transfer_approved",
+                "Total number of approved eth to haneul token transfers (since metric introduced). \
+                Should be used to track rates rather than absolute values.",
+                registry,
+            )
+            .unwrap(),
+            eth_haneul_token_transfer_claimed: register_int_counter_with_registry!(
+                "bridge_eth_haneul_token_transfer_claimed",
+                "Total number of claimed eth to haneul token transfers (since metric introduced). \
+                Should be used to track rates rather than absolute values.",
                 registry,
             )
             .unwrap(),
