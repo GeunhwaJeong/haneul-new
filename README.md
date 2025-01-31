@@ -56,3 +56,16 @@ Use the following links to learn more about Haneul and the Haneul ecosystem:
  * Join the Haneul community on [Haneul Discord](https://discord.gg/haneul).
  * Find out more about the Haneul ecosystem on the [Haneul Resources](https://haneul.io/resources/) page.
  * Review information about Haneul governance, [decentralization](https://haneulfoundation.org/decentralization), and [Developer Grants Program](https://haneul.io/grants-hub) on the [Haneul Foundation](https://haneulfoundation.org/) site.
+
+
+ ## How to Contribute
+
+ See the [Contributing Guide](CONTRIBUTING.md) for details on how to contribute to Haneul.
+
+ ## Code of Conduct
+
+ See the [Code of Conduct](CODE_OF_CONDUCT.MD) for details on our code of conduct.
+
+ ## License
+
+ See the [LICENSE](LICENSE) file for more details.
