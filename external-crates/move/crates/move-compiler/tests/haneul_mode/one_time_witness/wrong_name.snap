@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: false
-input_file: crates/move-compiler/tests/haneul_mode/one_time_witness/wrong_name.move
 ---
 error[Haneul E02003]: invalid 'init' function
   ┌─ tests/haneul_mode/one_time_witness/wrong_name.move:8:9

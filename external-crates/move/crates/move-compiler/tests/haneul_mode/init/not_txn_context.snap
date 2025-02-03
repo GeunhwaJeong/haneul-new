@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: false
-input_file: crates/move-compiler/tests/haneul_mode/init/not_txn_context.move
 ---
 error[Haneul E02003]: invalid 'init' function
   ┌─ tests/haneul_mode/init/not_txn_context.move:3:9

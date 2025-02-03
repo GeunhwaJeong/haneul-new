@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: false
-input_file: crates/move-compiler/tests/haneul_mode/entry_points/return_values_invalid.move
 ---
 error[Haneul E02002]: invalid 'entry' function signature
   ┌─ tests/haneul_mode/entry_points/return_values_invalid.move:4:12

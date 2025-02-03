@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: true
-input_file: crates/move-compiler/tests/haneul_mode/linter/false_positive_share_owned.move
 ---
 warning[Lint W99000]: possible owned object share
    ┌─ tests/haneul_mode/linter/false_positive_share_owned.move:12:9

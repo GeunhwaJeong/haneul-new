@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: false
-input_file: crates/move-compiler/tests/haneul_mode/id_leak/through_reference.move
 ---
 error[E05001]: ability constraint not satisfied
    ┌─ tests/haneul_mode/id_leak/through_reference.move:11:10

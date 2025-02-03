@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: false
-input_file: crates/move-compiler/tests/haneul_mode/id_leak/transmute.move
 ---
 error[Haneul E01001]: invalid object construction
    ┌─ tests/haneul_mode/id_leak/transmute.move:17:19

@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: true
-input_file: crates/move-compiler/tests/haneul_mode/linter/coin_field.move
 ---
 warning[Lint W99003]: sub-optimal 'haneul::coin::Coin' field type
    ┌─ tests/haneul_mode/linter/coin_field.move:13:12

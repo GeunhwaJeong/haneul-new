@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: false
-input_file: crates/move-compiler/tests/haneul_mode/private_generics/no_public_transfer.move
 ---
 error[Haneul E02009]: invalid private transfer call
   ┌─ tests/haneul_mode/private_generics/no_public_transfer.move:9:9

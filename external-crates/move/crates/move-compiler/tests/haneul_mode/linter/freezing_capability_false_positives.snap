@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: true
-input_file: crates/move-compiler/tests/haneul_mode/linter/freezing_capability_false_positives.move
 ---
 warning[Lint W99008]: freezing potential capability
    ┌─ tests/haneul_mode/linter/freezing_capability_false_positives.move:25:9

@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: true
-input_file: crates/move-compiler/tests/haneul_mode/linter/false_negative_lint_missing_key.move
 ---
 warning[Lint W99007]: struct with id but missing key ability
    ┌─ tests/haneul_mode/linter/false_negative_lint_missing_key.move:22:5

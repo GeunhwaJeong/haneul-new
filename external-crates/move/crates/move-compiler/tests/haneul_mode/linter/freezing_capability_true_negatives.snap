@@ -4,6 +4,5 @@ info:
   flavor: haneul
   edition: legacy
   lint: true
-input_file: crates/move-compiler/tests/haneul_mode/linter/freezing_capability_true_negatives.move
 ---
 

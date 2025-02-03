@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: true
-input_file: crates/move-compiler/tests/haneul_mode/linter/self_transfer.move
 ---
 warning[Lint W99001]: non-composable transfer to sender
    ┌─ tests/haneul_mode/linter/self_transfer.move:23:9

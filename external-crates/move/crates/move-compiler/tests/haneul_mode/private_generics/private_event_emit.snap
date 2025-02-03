@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: false
-input_file: crates/move-compiler/tests/haneul_mode/private_generics/private_event_emit.move
 ---
 error[Haneul E02008]: invalid event
   ┌─ tests/haneul_mode/private_generics/private_event_emit.move:8:9

@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: false
-input_file: crates/move-compiler/tests/haneul_mode/one_time_witness/init_unbound_type.move
 ---
 error[E03002]: unbound module
   ┌─ tests/haneul_mode/one_time_witness/init_unbound_type.move:2:20

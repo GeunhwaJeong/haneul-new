@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: false
-input_file: crates/move-compiler/tests/haneul_mode/entry_points/receiving_non_object_type.move
 ---
 error[E05001]: ability constraint not satisfied
    ┌─ tests/haneul_mode/entry_points/receiving_non_object_type.move:6:28

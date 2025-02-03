@@ -4,6 +4,5 @@ info:
   flavor: haneul
   edition: legacy
   lint: false
-input_file: crates/move-compiler/tests/haneul_mode/one_time_witness/wrong_field_type.move
 ---
 

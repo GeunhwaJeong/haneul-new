@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: true
-input_file: crates/move-compiler/tests/haneul_mode/linter/collection_equality.move
 ---
 warning[Lint W99005]: possibly useless collections compare
    ┌─ tests/haneul_mode/linter/collection_equality.move:17:14

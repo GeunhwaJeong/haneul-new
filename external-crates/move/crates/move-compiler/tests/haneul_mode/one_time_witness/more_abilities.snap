@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: false
-input_file: crates/move-compiler/tests/haneul_mode/one_time_witness/more_abilities.move
 ---
 error[Haneul E02004]: invalid one-time witness declaration
   ┌─ tests/haneul_mode/one_time_witness/more_abilities.move:6:12

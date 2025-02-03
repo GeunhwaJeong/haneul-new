@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: false
-input_file: crates/move-compiler/tests/haneul_mode/one_time_witness/wrong_field_type_and_extra_field_with_init.move
 ---
 error[Haneul E02004]: invalid one-time witness declaration
   ┌─ tests/haneul_mode/one_time_witness/wrong_field_type_and_extra_field_with_init.move:2:12

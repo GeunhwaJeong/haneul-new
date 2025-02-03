@@ -4,7 +4,6 @@ info:
   flavor: haneul
   edition: legacy
   lint: false
-input_file: crates/move-compiler/tests/haneul_mode/one_time_witness/bool_field.move
 ---
 warning[W09004]: unnecessary trailing semicolon
   ┌─ tests/haneul_mode/one_time_witness/bool_field.move:9:15
