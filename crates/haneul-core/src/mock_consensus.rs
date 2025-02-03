@@ -9,7 +9,7 @@ use crate::consensus_handler::SequencedConsensusTransaction;
 use consensus_core::BlockRef;
 use prometheus::Registry;
 use std::sync::{Arc, Weak};
-use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::error::HaneulResult;
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::messages_consensus::{ConsensusTransaction, ConsensusTransactionKind};
 use haneul_types::transaction::{VerifiedCertificate, VerifiedTransaction};
@@ -96,18 +96,27 @@ impl MockConsensusClient {
             }
         }
     }
+
+    fn submit_impl(&self, transactions: &[ConsensusTransaction]) -> HaneulResult<BlockStatusReceiver> {
+        // TODO: maybe support multi-transactions and remove this check
+        assert!(transactions.len() == 1);
+        let transaction = &transactions[0];
+        self.tx_sender
+            .try_send(transaction.clone())
+            .expect("MockConsensusClient channel should not overflow");
+        Ok(with_block_status(consensus_core::BlockStatus::Sequenced(
+            BlockRef::MIN,
+        )))
+    }
 }
 
-#[async_trait::async_trait]
 impl SubmitToConsensus for MockConsensusClient {
-    async fn submit_to_consensus(
+    fn submit_to_consensus(
         &self,
         transactions: &[ConsensusTransaction],
-        epoch_store: &Arc<AuthorityPerEpochStore>,
+        _epoch_store: &Arc<AuthorityPerEpochStore>,
     ) -> HaneulResult {
-        self.submit(transactions, epoch_store)
-            .await
-            .map(|_response| ())
+        self.submit_impl(transactions).map(|_response| ())
     }
 }
 
@@ -118,16 +127,7 @@ impl ConsensusClient for MockConsensusClient {
         transactions: &[ConsensusTransaction],
         _epoch_store: &Arc<AuthorityPerEpochStore>,
     ) -> HaneulResult<BlockStatusReceiver> {
-        // TODO: maybe support multi-transactions and remove this check
-        assert!(transactions.len() == 1);
-        let transaction = &transactions[0];
-        self.tx_sender
-            .send(transaction.clone())
-            .await
-            .map_err(|e| HaneulError::Unknown(e.to_string()))?;
-        Ok(with_block_status(consensus_core::BlockStatus::Sequenced(
-            BlockRef::MIN,
-        )))
+        self.submit_impl(transactions)
     }
 }
 
