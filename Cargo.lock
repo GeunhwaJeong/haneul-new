@@ -14209,6 +14209,7 @@ dependencies = [
  "haneul-default-config",
  "haneul-indexer-alt-metrics",
  "haneul-indexer-alt-schema",
+ "haneul-json",
  "haneul-json-rpc-types",
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
