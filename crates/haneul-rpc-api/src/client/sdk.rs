@@ -15,7 +15,6 @@ use haneul_sdk_types::SignedCheckpointSummary;
 use haneul_sdk_types::SignedTransaction;
 use haneul_sdk_types::Transaction;
 use haneul_sdk_types::TransactionDigest;
-use haneul_sdk_types::ValidatorCommittee;
 use haneul_sdk_types::Version;
 use tap::Pipe;
 
@@ -193,22 +192,6 @@ impl Client {
 
     pub async fn get_system_state_summary(&self) -> Result<Response<SystemStateSummary>> {
         let url = self.url().join("system")?;
-
-        let request = self.inner.get(url);
-
-        self.json(request).await
-    }
-
-    pub async fn get_current_committee(&self) -> Result<Response<ValidatorCommittee>> {
-        let url = self.url().join("system/committee")?;
-
-        let request = self.inner.get(url);
-
-        self.json(request).await
-    }
-
-    pub async fn get_committee(&self, epoch: EpochId) -> Result<Response<ValidatorCommittee>> {
-        let url = self.url().join(&format!("system/committee/{epoch}"))?;
 
         let request = self.inner.get(url);
 
