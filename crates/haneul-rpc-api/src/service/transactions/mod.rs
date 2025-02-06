@@ -9,6 +9,7 @@ use haneul_sdk_types::TransactionDigest;
 use tap::Pipe;
 
 mod execution;
+mod resolve;
 
 impl RpcService {
     pub fn get_transaction(

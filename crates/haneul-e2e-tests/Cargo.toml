@@ -68,6 +68,7 @@ haneul-rpc-api.workspace = true
 shared-crypto.workspace = true
 haneul-sdk-types.workspace = true
 haneul-sdk-transaction-builder.workspace = true
+tonic.workspace = true
 
 passkey-types.workspace = true
 passkey-client.workspace = true
