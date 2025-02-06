@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::authority_state::StateReadError;
-use crate::name_service::NameServiceError;
 use fastcrypto::error::FastCryptoError;
 use hyper::header::InvalidHeaderValue;
 use itertools::Itertools;
@@ -11,6 +10,7 @@ use jsonrpsee::types::error::INTERNAL_ERROR_CODE;
 use jsonrpsee::types::{ErrorObject, ErrorObjectOwned};
 use std::collections::BTreeMap;
 use haneul_json_rpc_api::{TRANSACTION_EXECUTION_CLIENT_ERROR_CODE, TRANSIENT_ERROR_CODE};
+use haneul_name_service::NameServiceError;
 use haneul_types::committee::{QUORUM_THRESHOLD, TOTAL_VOTING_POWER};
 use haneul_types::error::{HaneulError, HaneulObjectResponseError, UserInputError};
 use haneul_types::quorum_driver_types::QuorumDriverError;

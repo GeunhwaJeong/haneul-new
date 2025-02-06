@@ -39,6 +39,7 @@ haneul-config.workspace = true
 haneul-core.workspace = true
 haneul-rpc-api.workspace = true
 haneul-storage.workspace = true
+haneul-name-service.workspace = true
 haneul-network.workspace = true
 haneul-json-rpc.workspace = true
 haneul-json-rpc-api.workspace = true

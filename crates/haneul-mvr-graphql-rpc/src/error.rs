@@ -3,7 +3,7 @@
 
 use async_graphql::{ErrorExtensionValues, ErrorExtensions, Pos, ServerError};
 use haneul_indexer::errors::IndexerError;
-use haneul_json_rpc::name_service::NameServiceError;
+use haneul_name_service::NameServiceError;
 
 use crate::types::move_registry::error::MoveRegistryError;
 

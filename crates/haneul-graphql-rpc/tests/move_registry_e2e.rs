@@ -12,9 +12,9 @@ use haneul_graphql_rpc::{
     },
 };
 use haneul_graphql_rpc_client::simple_client::SimpleClient;
-use haneul_json_rpc::name_service::{Domain, DomainFormat};
 use haneul_json_rpc_types::ObjectChange;
 use haneul_move_build::BuildConfig;
+use haneul_name_service::{Domain, DomainFormat};
 use haneul_pg_db::temp::get_available_port;
 use haneul_types::{
     base_types::{ObjectID, SequenceNumber},

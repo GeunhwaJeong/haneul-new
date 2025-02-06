@@ -26,7 +26,7 @@ use crate::error::Error;
 use crate::types::stake::StakedHaneul;
 use async_graphql::connection::Connection;
 use async_graphql::*;
-use haneul_json_rpc::name_service::NameServiceConfig;
+use haneul_name_service::NameServiceConfig;
 use haneul_types::object::{Data, MoveObject as NativeMoveObject};
 use haneul_types::TypeTag;
 

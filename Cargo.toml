@@ -139,6 +139,7 @@ members = [
     "crates/haneul-move-lsp",
     "crates/haneul-mvr-graphql-e2e-tests",
     "crates/haneul-mvr-graphql-rpc",
+    "crates/haneul-name-service",
     "crates/haneul-network",
     "crates/haneul-node",
     "crates/haneul-open-rpc",
@@ -673,6 +674,7 @@ haneul-move = { path = "crates/haneul-move" }
 haneul-move-build = { path = "crates/haneul-move-build" }
 haneul-move-lsp = { path = "crates/haneul-move-lsp" }
 haneul-mvr-graphql-rpc = { path = "crates/haneul-mvr-graphql-rpc" }
+haneul-name-service = { path = "crates/haneul-name-service" }
 haneul-network = { path = "crates/haneul-network" }
 haneul-node = { path = "crates/haneul-node" }
 haneul-open-rpc = { path = "crates/haneul-open-rpc" }

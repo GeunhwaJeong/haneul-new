@@ -7,7 +7,6 @@ use jsonrpsee::core::SubscriptionResult;
 use jsonrpsee::{PendingSubscriptionSink, RpcModule};
 use tap::TapFallible;
 
-use haneul_json_rpc::name_service::{Domain, NameRecord, NameServiceConfig, NameServiceError};
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_api::{cap_page_limit, IndexerApiServer};
 use haneul_json_rpc_types::{
@@ -15,6 +14,7 @@ use haneul_json_rpc_types::{
     HaneulObjectResponseQuery, HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
     TransactionFilter,
 };
+use haneul_name_service::{Domain, NameRecord, NameServiceConfig, NameServiceError};
 use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::digests::TransactionDigest;

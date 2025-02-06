@@ -25,6 +25,7 @@ use haneul_json_rpc_types::{
     HaneulObjectResponse, HaneulObjectResponseQuery, HaneulTransactionBlockResponse,
     HaneulTransactionBlockResponseQuery, TransactionBlocksPage, TransactionFilter,
 };
+use haneul_name_service::{Domain, NameRecord, NameServiceConfig, NameServiceError};
 use haneul_open_rpc::Module;
 use haneul_storage::key_value_store::TransactionKeyValueStore;
 use haneul_types::{
@@ -40,7 +41,6 @@ use tracing::{instrument, warn};
 use crate::{
     authority_state::{StateRead, StateReadResult},
     error::{Error, HaneulRpcInputError},
-    name_service::{Domain, NameRecord, NameServiceConfig, NameServiceError},
     with_tracing, HaneulRpcModule,
 };
 

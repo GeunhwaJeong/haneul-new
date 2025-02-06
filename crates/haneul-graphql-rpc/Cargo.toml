@@ -47,6 +47,7 @@ serde_with.workspace = true
 serde_yaml.workspace = true
 shared-crypto.workspace = true
 similar.workspace = true
+haneul-name-service.workspace = true
 haneul-pg-db.workspace = true
 haneul-sdk.workspace = true
 haneul-types.workspace = true

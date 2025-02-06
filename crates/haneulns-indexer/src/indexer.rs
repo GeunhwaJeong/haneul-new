@@ -7,7 +7,7 @@ use std::{
 };
 
 use move_core_types::language_storage::StructTag;
-use haneul_json_rpc::name_service::{Domain, NameRecord, SubDomainRegistration};
+use haneul_name_service::{Domain, NameRecord, SubDomainRegistration};
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     dynamic_field::Field,

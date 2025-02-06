@@ -10,7 +10,7 @@ use move_core_types::identifier::IdentStr;
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeSet, fmt::Display, time::Duration};
 use haneul_default_config::DefaultConfig;
-use haneul_json_rpc::name_service::NameServiceConfig;
+use haneul_name_service::NameServiceConfig;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 
 pub(crate) const RPC_TIMEOUT_ERR_SLEEP_RETRY_PERIOD: Duration = Duration::from_millis(30_000);

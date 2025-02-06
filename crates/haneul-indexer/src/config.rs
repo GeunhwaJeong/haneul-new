@@ -7,7 +7,7 @@ use clap::{Args, Parser, Subcommand};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, net::SocketAddr, path::PathBuf};
 use strum::IntoEnumIterator;
-use haneul_json_rpc::name_service::NameServiceConfig;
+use haneul_name_service::NameServiceConfig;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use url::Url;
 

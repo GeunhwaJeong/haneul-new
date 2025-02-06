@@ -8,7 +8,7 @@ use move_core_types::language_storage::StructTag;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use haneul_json_rpc::name_service::{validate_label, Domain};
+use haneul_name_service::{validate_label, Domain};
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     collection_types::VecMap,

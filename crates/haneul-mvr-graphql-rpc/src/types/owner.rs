@@ -19,7 +19,7 @@ use crate::types::type_filter::ExactTypeFilter;
 
 use async_graphql::connection::Connection;
 use async_graphql::*;
-use haneul_json_rpc::name_service::NameServiceConfig;
+use haneul_name_service::NameServiceConfig;
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::gas_coin::GAS;
 
