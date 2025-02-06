@@ -52,12 +52,14 @@ impl StateReader {
             .map(|committee| (*committee).clone().into())
     }
 
-    pub fn get_system_state_summary(&self) -> Result<super::rest::system::SystemStateSummary> {
+    pub fn get_system_state_summary(
+        &self,
+    ) -> Result<haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary> {
         use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 
         let system_state = haneul_types::haneul_system_state::get_haneul_system_state(self.inner())
             .map_err(StorageError::custom)?;
-        let summary = system_state.into_haneul_system_state_summary().into();
+        let summary = system_state.into_haneul_system_state_summary();
 
         Ok(summary)
     }
