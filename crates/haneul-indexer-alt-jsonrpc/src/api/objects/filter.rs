@@ -16,7 +16,7 @@ use haneul_json_rpc_types::{Page as PageResponse, HaneulObjectDataOptions};
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     haneul_serde::HaneulStructTag,
-    Identifier,
+    Identifier, TypeTag,
 };
 
 use crate::{
@@ -88,6 +88,16 @@ impl HaneulObjectDataFilter {
             HaneulObjectDataFilter::Package(_) => None,
             HaneulObjectDataFilter::MoveModule { .. } => None,
             HaneulObjectDataFilter::StructType(tag) => Some(tag.name.as_str()),
+        }
+    }
+
+    fn type_params(&self) -> Option<&[TypeTag]> {
+        match self {
+            HaneulObjectDataFilter::Package(_) => None,
+            HaneulObjectDataFilter::MoveModule { .. } => None,
+            HaneulObjectDataFilter::StructType(tag) => {
+                (!tag.type_params.is_empty()).then(|| &tag.type_params[..])
+            }
         }
     }
 }
@@ -163,6 +173,11 @@ pub(super) async fn owned_objects(
 
     if let Some(name) = filter.and_then(|f| f.name()) {
         query = query.filter(candidates!(name).eq(name));
+    }
+
+    if let Some(type_params) = filter.and_then(|f| f.type_params()) {
+        let bytes = bcs::to_bytes(type_params).context("Failed to serialize type params")?;
+        query = query.filter(candidates!(instantiation).eq(bytes));
     }
 
     let mut results: Vec<(Vec<u8>, i64)> = ctx
