@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 haneul client --client.config $CONFIG \
-  publish simple \
+  publish simple --verify-deps \
   --json | jq '.effects.status'
 
 haneul move --client.config $CONFIG \
