@@ -116,7 +116,12 @@ test-cluster.workspace = true
 haneul-macros.workspace = true
 haneul-simulator.workspace = true
 haneul-test-transaction-builder.workspace = true
+haneul-protocol-config.workspace = true
 serde_json.workspace = true
+
+[build-dependencies]
+haneul-framework-snapshot.workspace = true
+anyhow.workspace = true
 
 [target.'cfg(msim)'.dependencies]
 msim.workspace = true
