@@ -117,6 +117,9 @@
       { "source": "/concepts/haneul-move-concepts/collections", "destination": "/concepts/haneul-move-concepts", "permanent": true },
       { "source": "/concepts/haneul-move-concepts/init", "destination": "/concepts/haneul-move-concepts", "permanent": true },
       { "source": "/concepts/haneul-move-concepts/entry-functions", "destination": "/concepts/haneul-move-concepts", "permanent": true },
-      { "source": "/concepts/haneul-move-concepts/one-time-witness", "destination": "/concepts/haneul-move-concepts", "permanent": true }
+      { "source": "/concepts/haneul-move-concepts/one-time-witness", "destination": "/concepts/haneul-move-concepts", "permanent": true },
+      { "source": "/references/framework/haneul-framework/:path*", "destination": "/references/framework/haneul/:path*", "permanent": true },
+      { "source": "/references/framework/move-stdlib/:path*", "destination": "/references/framework/std/:path*", "permanent": true },
+      { "source": "/references/framework/haneul-system/:path*", "destination": "/references/framework/haneul_system/:path*", "permanent": true }
     ]
   }
