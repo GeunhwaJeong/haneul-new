@@ -6,6 +6,7 @@ use async_trait::async_trait;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee::RpcModule;
 use haneul_json_rpc::coin_api::{parse_to_struct_tag, parse_to_type_tag};
+use haneul_json_rpc::error::HaneulRpcInputError;
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_api::{cap_page_limit, CoinReadApiServer};
 use haneul_json_rpc_types::{Balance, CoinPage, Page, HaneulCoinMetadata};
@@ -30,7 +31,7 @@ impl CoinReadApiServer for CoinReadApi {
         &self,
         owner: HaneulAddress,
         coin_type: Option<String>,
-        cursor: Option<ObjectID>,
+        cursor: Option<String>,
         limit: Option<usize>,
     ) -> RpcResult<CoinPage> {
         let limit = cap_page_limit(limit);
@@ -43,7 +44,9 @@ impl CoinReadApiServer for CoinReadApi {
             parse_to_type_tag(coin_type)?.to_canonical_string(/* with_prefix */ true);
 
         let cursor = match cursor {
-            Some(c) => c,
+            Some(c) => c
+                .parse()
+                .map_err(|e| HaneulRpcInputError::GenericInvalid(format!("invalid cursor: {e}")))?,
             // If cursor is not specified, we need to start from the beginning of the coin type, which is the minimal possible ObjectID.
             None => ObjectID::ZERO,
         };
@@ -54,7 +57,7 @@ impl CoinReadApiServer for CoinReadApi {
 
         let has_next_page = results.len() > limit;
         results.truncate(limit);
-        let next_cursor = results.last().map(|o| o.coin_object_id);
+        let next_cursor = results.last().map(|o| o.coin_object_id.to_string());
         Ok(Page {
             data: results,
             next_cursor,
@@ -65,7 +68,7 @@ impl CoinReadApiServer for CoinReadApi {
     async fn get_all_coins(
         &self,
         owner: HaneulAddress,
-        cursor: Option<ObjectID>,
+        cursor: Option<String>,
         limit: Option<usize>,
     ) -> RpcResult<CoinPage> {
         let limit = cap_page_limit(limit);
@@ -74,7 +77,9 @@ impl CoinReadApiServer for CoinReadApi {
         }
 
         let cursor = match cursor {
-            Some(c) => c,
+            Some(c) => c
+                .parse()
+                .map_err(|e| HaneulRpcInputError::GenericInvalid(format!("invalid cursor: {e}")))?,
             // If cursor is not specified, we need to start from the beginning of the coin type, which is the minimal possible ObjectID.
             None => ObjectID::ZERO,
         };
@@ -85,7 +90,7 @@ impl CoinReadApiServer for CoinReadApi {
 
         let has_next_page = results.len() > limit;
         results.truncate(limit);
-        let next_cursor = results.last().map(|o| o.coin_object_id);
+        let next_cursor = results.last().map(|o| o.coin_object_id.to_string());
         Ok(Page {
             data: results,
             next_cursor,

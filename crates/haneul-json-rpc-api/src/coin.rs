@@ -6,7 +6,7 @@ use jsonrpsee::proc_macros::rpc;
 use haneul_json_rpc_types::{Balance, CoinPage, HaneulCoinMetadata};
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::balance::Supply;
-use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::base_types::HaneulAddress;
 
 #[open_rpc(namespace = "haneulx", tag = "Coin Query API")]
 #[rpc(server, client, namespace = "haneulx")]
@@ -20,7 +20,7 @@ pub trait CoinReadApi {
         /// optional type name for the coin (e.g., 0x168da5bf1f48dafc111b0a488fa454aca95e0b5e::usdc::USDC), default to 0x2::haneul::HANEUL if not specified.
         coin_type: Option<String>,
         /// optional paging cursor
-        cursor: Option<ObjectID>,
+        cursor: Option<String>,
         /// maximum number of items per page
         limit: Option<usize>,
     ) -> RpcResult<CoinPage>;
@@ -32,7 +32,7 @@ pub trait CoinReadApi {
         /// the owner's Haneul address
         owner: HaneulAddress,
         /// optional paging cursor
-        cursor: Option<ObjectID>,
+        cursor: Option<String>,
         /// maximum number of items per page
         limit: Option<usize>,
     ) -> RpcResult<CoinPage>;

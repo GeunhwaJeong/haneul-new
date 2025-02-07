@@ -17,7 +17,7 @@ use haneul_types::object::Object;
 use haneul_types::haneul_serde::BigInt;
 use haneul_types::haneul_serde::SequenceNumber as AsSequenceNumber;
 
-pub type CoinPage = Page<Coin, ObjectID>;
+pub type CoinPage = Page<Coin, String>;
 
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, JsonSchema, PartialEq, Eq, Clone)]
