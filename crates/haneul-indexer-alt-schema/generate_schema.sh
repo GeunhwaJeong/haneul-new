@@ -78,5 +78,4 @@ diesel migration run                                                          \
 diesel print-schema                                                           \
   --database-url "postgres://postgres:postgrespw@localhost:$PORT"             \
   --patch-file "$REPO/crates/haneul-indexer-alt-schema/schema.patch"             \
-  --except-tables watermarks cp_sequence_numbers                              \
   > "$REPO/crates/haneul-indexer-alt-schema/src/schema.rs"
