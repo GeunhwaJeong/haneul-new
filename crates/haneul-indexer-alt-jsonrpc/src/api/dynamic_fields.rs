@@ -3,13 +3,12 @@
 
 use anyhow::{anyhow, Context as _};
 use jsonrpsee::{core::RpcResult, proc_macros::rpc};
-use haneul_indexer_alt_schema::objects::StoredObject;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulObjectResponse};
 use haneul_open_rpc::Module;
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::{
-    base_types::{ObjectID, SequenceNumber},
+    base_types::ObjectID,
     dynamic_field::{derive_dynamic_field_id, DynamicFieldInfo, DynamicFieldName},
     error::HaneulObjectResponseError,
     object::Object,
@@ -135,31 +134,17 @@ async fn dynamic_field_object_response(
     let (df, dof) = try_join!(df, dof)
         .with_context(|| format!("Failed to fetch dynamic field on {parent_object_id}"))?;
 
-    let Some(StoredObject {
-        object_id,
-        object_version,
-        serialized_object,
-    }) = df.or(dof)
-    else {
+    let Some(object) = df.or(dof) else {
         return Ok(HaneulObjectResponse::new_with_error(
             HaneulObjectResponseError::DynamicFieldNotFound { parent_object_id },
         ));
-    };
-
-    let object_id = ObjectID::from_bytes(object_id)
-        .context("Failed to deserialize object ID for dynamic field")?;
-
-    let object_version = SequenceNumber::from_u64(object_version as u64);
-
-    let Some(bytes) = serialized_object else {
-        rpc_bail!("Dynamic field had no contents");
     };
 
     let options = HaneulObjectDataOptions::full_content();
     use RpcError as E;
 
     Ok(HaneulObjectResponse::new_with_data(
-        objects::response::object(ctx, object_id, object_version, &bytes, &options)
+        objects::response::object(ctx, object, &options)
             .await
             .map_err(|e| match e {
                 E::InvalidParams(e) => match e {},
@@ -175,7 +160,7 @@ async fn load_df(
     parent_id: ObjectID,
     type_: &TypeTag,
     value: &[u8],
-) -> Result<Option<StoredObject>, RpcError<Error>> {
+) -> Result<Option<Object>, RpcError<Error>> {
     let id = derive_dynamic_field_id(parent_id, type_, value)
         .context("Failed to derive dynamic field ID")?;
 
@@ -194,23 +179,17 @@ async fn load_dof(
     parent_id: ObjectID,
     type_: &TypeTag,
     name: &[u8],
-) -> Result<Option<StoredObject>, RpcError<Error>> {
+) -> Result<Option<Object>, RpcError<Error>> {
     let wrapper: TypeTag = DynamicFieldInfo::dynamic_object_field_wrapper(type_.clone()).into();
     let id = derive_dynamic_field_id(parent_id, &wrapper, name)
         .context("Failed to derive dynamic object field ID")?;
 
-    let Some(StoredObject {
-        serialized_object: Some(bytes),
-        ..
-    }) = load_latest(ctx.loader(), id)
+    let Some(object) = load_latest(ctx.loader(), id)
         .await
         .context("Failed to load dynamic object field")?
     else {
         return Ok(None);
     };
-
-    let object: Object =
-        bcs::from_bytes(&bytes).context("Failed to deserialize Field as Object")?;
 
     let Some(move_object) = object.data.try_as_move() else {
         rpc_bail!("Dynamic field at {id} is not a Move Object");
