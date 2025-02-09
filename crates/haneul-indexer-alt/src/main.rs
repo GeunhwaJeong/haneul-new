@@ -12,7 +12,7 @@ use haneul_indexer_alt::args::Args;
 use haneul_indexer_alt::args::Command;
 use haneul_indexer_alt::config::IndexerConfig;
 use haneul_indexer_alt::config::Merge;
-use haneul_indexer_alt::start_indexer;
+use haneul_indexer_alt::setup_indexer;
 use haneul_indexer_alt_framework::Indexer;
 use haneul_indexer_alt_metrics::MetricsService;
 use haneul_indexer_alt_schema::MIGRATIONS;
@@ -47,7 +47,7 @@ async fn main() -> Result<()> {
 
             let metrics = MetricsService::new(metrics_args, registry, cancel.child_token());
 
-            let h_indexer = start_indexer(
+            let h_indexer = setup_indexer(
                 args.db_args,
                 indexer_args,
                 client_args,
@@ -56,7 +56,10 @@ async fn main() -> Result<()> {
                 metrics.registry(),
                 cancel.child_token(),
             )
-            .await?;
+            .await?
+            .run()
+            .await
+            .context("Failed to start indexer")?;
 
             let h_metrics = metrics.run().await?;
 
