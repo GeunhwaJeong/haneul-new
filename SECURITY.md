@@ -166,7 +166,7 @@ _If you find a bug or vulnerability, report it using the [HackenProof dashboard]
 
 **Where can I get technical questions answered?**
 
-_Haneul and HackenProof will be conducting Office Hours to answer questions. A date will be announced on Twitter by [@HaneulNetwork](https://twitter.com/haneulnetwork). If you are not able to attend, you can email questions to info@hackenproof.com._ with questions regarding the Bug Bounty Program.
+_Haneul and HackenProof will be conducting Office Hours to answer questions. A date will be announced on Twitter by [@HaneulNetwork](https://x.com/haneulnetwork). If you are not able to attend, you can email questions to info@hackenproof.com._ with questions regarding the Bug Bounty Program.
 
 For additional security concerns/questions/comments outside the scope of the HackenProof Bug Bounty Program, reach out to Haneul's Community [Discord](https://discord.gg/haneul), [Forums](https://forums.haneul.io/), or e-mail us at _security@haneul.io_
 
