@@ -2,13 +2,13 @@
 
 We appreciate your participation in keeping the Haneul network secure. This doc includes details on Haneul's Bug Bounty Program, including information on how to report an issue, what bug bounties are available, and who is eligible for bounties.
 
-The program is run in partnership with [HackenProof](https://hackenproof.com/). More information is available on [their site](https://hackenproof.com/haneul/haneul/).
+The program is run in partnership with [HackenProof](https://hackenproof.com/). More information is available on [their site](https://hackenproof.com/programs/haneul-protocol).
 
 If you have any questions or concerns, contact [support@hackenproof.com](mailto:info@hackenproof.com).
 
 # Reporting and response process
 
-All reports must be sent using HackenProof’s [secure dashboard](https://hackenproof.com/haneul/haneul/). **DO NOT report a security issue using GitHub, email, or Discord.**
+All reports must be sent using HackenProof’s [secure dashboard](https://hackenproof.com/programs/haneul-protocol). **DO NOT report a security issue using GitHub, email, or Discord.**
 
 You should receive an acknowledgement of your report within 48 hours for critical vulnerabilities and 96 hours for all other vulnerabilities.
 
