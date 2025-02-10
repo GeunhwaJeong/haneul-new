@@ -18,14 +18,17 @@ anyhow.workspace = true
 diesel = { workspace = true, features = ["chrono"] }
 diesel-async = { workspace = true, features = ["bb8", "postgres", "async-connection-wrapper"] }
 prometheus.workspace = true
+tempfile.workspace = true
 tokio.workspace = true
 tokio-util.workspace = true
 url.workspace = true
 
+simulacrum.workspace = true
 haneul-indexer-alt.workspace = true
 haneul-indexer-alt-framework.workspace = true
 haneul-indexer-alt-jsonrpc.workspace = true
 haneul-pg-db.workspace = true
+haneul-types.workspace = true
 
 [target.'cfg(msim)'.dependencies]
 msim.workspace = true
