@@ -164,7 +164,7 @@ message SimulateTransactionRequest {
 }
 
 message SimulateTransactionOptions {
-  // Include the `BalanceChanges` in the response.
+  // Include the `BalanceChange`s in the response.
   //
   // Defaults to `false` if not included.
   optional bool balance_changes = 8;
@@ -173,7 +173,7 @@ message SimulateTransactionOptions {
 message SimulateTransactionResponse {
   optional haneul.types.Bcs effects_bcs = 3;
   optional haneul.types.Bcs events_bcs = 5;
-  optional haneul.node.v2.BalanceChanges balance_changes = 6;
+  repeated haneul.node.v2.BalanceChange balance_changes = 6;
 }
 
 message ResolveTransactionRequest {
