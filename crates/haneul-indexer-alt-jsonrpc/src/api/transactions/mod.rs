@@ -4,15 +4,12 @@
 use futures::future;
 use jsonrpsee::{core::RpcResult, proc_macros::rpc};
 use serde::{Deserialize, Serialize};
-use haneul_json_rpc_types::{
-    Page, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
-    HaneulTransactionBlockResponseQuery,
-};
+use haneul_json_rpc_types::{Page, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions};
 use haneul_open_rpc::Module;
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::digests::TransactionDigest;
 
-use self::error::Error;
+use self::{error::Error, filter::HaneulTransactionBlockResponseQuery};
 
 use crate::{
     context::Context,
