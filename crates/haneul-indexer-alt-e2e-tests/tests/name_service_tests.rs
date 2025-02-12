@@ -407,7 +407,7 @@ impl HaneulNSCluster {
             sim,
             IndexerArgs::default(),
             SystemPackageTaskArgs::default(),
-            IndexerConfig::example(),
+            IndexerConfig::for_test(),
             rpc_config,
             &prometheus::Registry::new(),
             CancellationToken::new(),
