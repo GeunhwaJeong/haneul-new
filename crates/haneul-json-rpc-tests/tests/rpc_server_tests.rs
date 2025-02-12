@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use shared_crypto::intent::{Intent, IntentMessage};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 #[cfg(not(msim))]
@@ -11,24 +12,30 @@ use haneul_json_rpc_api::{
     CoinReadApiClient, GovernanceReadApiClient, IndexerApiClient, ReadApiClient,
     TransactionBuilderClient, WriteApiClient,
 };
-use haneul_json_rpc_types::ObjectChange;
 use haneul_json_rpc_types::ObjectsPage;
 use haneul_json_rpc_types::{
     Balance, CoinPage, DelegatedStake, StakeStatus, HaneulCoinMetadata, HaneulExecutionStatus,
     HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulTransactionBlockEffectsAPI,
     HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions, TransactionBlockBytes,
 };
+use haneul_json_rpc_types::{ObjectChange, ZkLoginIntentScope};
 use haneul_macros::sim_test;
 use haneul_move_build::BuildConfig;
+use haneul_simulator::fastcrypto::encoding::{Base64, Encoding};
 use haneul_swarm_config::genesis_config::{DEFAULT_GAS_AMOUNT, DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT};
 use haneul_test_transaction_builder::make_transfer_haneul_transaction;
+use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::balance::Supply;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::coin::{TreasuryCap, COIN_MODULE_NAME};
+use haneul_types::crypto::Signature;
 use haneul_types::digests::ObjectDigest;
 use haneul_types::gas_coin::GAS;
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
+use haneul_types::signature::GenericSignature;
+use haneul_types::utils::load_test_vectors;
+use haneul_types::zk_login_authenticator::ZkLoginAuthenticator;
 use haneul_types::{parse_haneul_struct_tag, HANEUL_FRAMEWORK_ADDRESS};
 use test_cluster::TestClusterBuilder;
 use tokio::time::sleep;
@@ -981,5 +988,61 @@ async fn test_staking_multiple_coins() -> Result<(), anyhow::Error> {
         .unwrap();
     assert_eq!((genesis_coin_amount * 3) - 1000000000, new_coin.balance);
 
+    Ok(())
+}
+
+#[sim_test]
+async fn test_zklogin_verify() -> Result<(), anyhow::Error> {
+    let test_cluster = TestClusterBuilder::new()
+        .with_epoch_duration_ms(15000)
+        .with_default_jwks()
+        .build()
+        .await;
+    test_cluster.wait_for_epoch(Some(1)).await;
+    test_cluster.wait_for_authenticator_state_update().await;
+
+    let http_client = test_cluster.rpc_client();
+
+    // Construct a valid zkLogin transaction data, signature.
+    let (kp, pk_zklogin, inputs) =
+        &load_test_vectors("../haneul-types/src/unit_tests/zklogin_test_vectors.json")[1];
+
+    let zklogin_addr = (pk_zklogin).into();
+    let rgp = test_cluster.get_reference_gas_price().await;
+    let gas = test_cluster
+        .fund_address_and_return_gas(rgp, Some(20000000000), zklogin_addr)
+        .await;
+    let tx_data = TestTransactionBuilder::new(zklogin_addr, gas, rgp)
+        .transfer_haneul(None, HaneulAddress::ZERO)
+        .build();
+    let msg = IntentMessage::new(Intent::haneul_transaction(), tx_data.clone());
+    let eph_sig = Signature::new_secure(&msg, kp);
+    let generic_sig = GenericSignature::ZkLoginAuthenticator(ZkLoginAuthenticator::new(
+        inputs.clone(),
+        2,
+        eph_sig.clone(),
+    ));
+
+    // construct all parameters for the query
+    let bytes = Base64::encode(bcs::to_bytes(&tx_data).unwrap());
+    let signature = Base64::encode(generic_sig.as_ref());
+    let intent_scope = ZkLoginIntentScope::TransactionData;
+
+    let res = http_client
+        .verify_zklogin_signature(bytes.clone(), signature.clone(), intent_scope, zklogin_addr)
+        .await?;
+    assert!(res.success);
+    assert!(res.errors.is_empty());
+
+    let res = http_client
+        .verify_zklogin_signature(
+            bytes,
+            signature,
+            ZkLoginIntentScope::PersonalMessage,
+            zklogin_addr,
+        )
+        .await?;
+    assert!(!res.success);
+    assert!(!res.errors.is_empty());
     Ok(())
 }

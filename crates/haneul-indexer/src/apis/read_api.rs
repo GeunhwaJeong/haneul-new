@@ -12,6 +12,8 @@ use crate::errors::IndexerError;
 use crate::indexer_reader::IndexerReader;
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_api::{ReadApiServer, QUERY_MAX_RESULT_LIMIT};
+use haneul_json_rpc_types::ZkLoginIntentScope;
+use haneul_json_rpc_types::ZkLoginVerifyResult;
 use haneul_json_rpc_types::{
     Checkpoint, CheckpointId, CheckpointPage, ProtocolConfigResponse, HaneulEvent,
     HaneulGetPastObjectRequest, HaneulObjectDataOptions, HaneulObjectResponse, HaneulPastObjectResponse,
@@ -19,6 +21,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_open_rpc::Module;
 use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::digests::{ChainIdentifier, TransactionDigest};
 use haneul_types::haneul_serde::BigInt;
@@ -230,6 +233,16 @@ impl ReadApiServer for ReadApi {
 
     async fn get_chain_identifier(&self) -> RpcResult<String> {
         self.get_chain_identifier().await.map(|id| id.to_string())
+    }
+
+    async fn verify_zklogin_signature(
+        &self,
+        _bytes: String,
+        _signature: String,
+        _intent_scope: ZkLoginIntentScope,
+        _author: HaneulAddress,
+    ) -> RpcResult<ZkLoginVerifyResult> {
+        todo!()
     }
 }
 
