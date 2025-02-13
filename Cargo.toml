@@ -68,6 +68,7 @@ exclude = [
 members = [
     "consensus/config",
     "consensus/core",
+    "consensus/simtests",
     "crates/anemo-benchmark",
     "crates/bin-version",
     "crates/haneullabs-common",
@@ -716,6 +717,7 @@ x = { path = "crates/x" }
 
 consensus-config = { path = "consensus/config" }
 consensus-core = { path = "consensus/core" }
+consensus-simtests = { path = "consensus/simtests" }
 
 haneul-execution = { path = "haneul-execution" }
 # haneul-move-natives = { path = "haneul-execution/latest/haneul-move-natives", package = "haneul-move-natives-latest" }

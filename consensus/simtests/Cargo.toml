@@ -1,0 +1,32 @@
+[package]
+name = "consensus-simtests"
+version = "0.1.0"
+license = "Apache-2.0"
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+edition = "2021"
+publish = false
+
+[lints]
+workspace = true
+
+[target.'cfg(msim)'.dependencies]
+haneul-simulator.workspace = true
+anyhow.workspace = true
+arc-swap.workspace = true
+consensus-config.workspace = true
+consensus-core.workspace = true
+haneullabs-metrics.workspace = true
+haneullabs-network.workspace = true
+parking_lot.workspace = true
+prometheus.workspace = true
+rand.workspace = true
+haneul-config.workspace = true
+haneul-macros.workspace = true
+haneul-protocol-config.workspace = true
+tokio.workspace = true
+tokio-stream.workspace = true
+tokio-util.workspace = true
+tracing.workspace = true
+typed-store.workspace = true
+tempfile.workspace = true
+telemetry-subscribers.workspace = true
