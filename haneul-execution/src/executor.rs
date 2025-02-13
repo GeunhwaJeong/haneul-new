@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use move_trace_format::format::MoveTraceBuilder;
 use std::{collections::HashSet, sync::Arc};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::execution::ExecutionTiming;
@@ -41,6 +42,7 @@ pub trait Executor {
         transaction_kind: TransactionKind,
         transaction_signer: HaneulAddress,
         transaction_digest: TransactionDigest,
+        trace_builder_opt: &mut Option<MoveTraceBuilder>,
     ) -> (
         InnerTemporaryStore,
         HaneulGasStatus,

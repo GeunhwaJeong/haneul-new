@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use std::{collections::HashSet, sync::Arc};
 
 use move_binary_format::CompiledModule;
+use move_trace_format::format::MoveTraceBuilder;
 use move_vm_config::verifier::{MeterConfig, VerifierConfig};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::execution::ExecutionTiming;
@@ -80,6 +81,7 @@ impl executor::Executor for Executor {
         transaction_kind: TransactionKind,
         transaction_signer: HaneulAddress,
         transaction_digest: TransactionDigest,
+        _trace_builder_opt: &mut Option<MoveTraceBuilder>,
     ) -> (
         InnerTemporaryStore,
         HaneulGasStatus,
