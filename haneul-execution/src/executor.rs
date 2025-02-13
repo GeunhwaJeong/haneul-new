@@ -7,7 +7,7 @@ use haneul_protocol_config::ProtocolConfig;
 use haneul_types::execution::ExecutionTiming;
 use haneul_types::storage::BackingStore;
 use haneul_types::{
-    base_types::{ObjectRef, HaneulAddress, TxContext},
+    base_types::{ObjectRef, HaneulAddress},
     committee::EpochId,
     digests::TransactionDigest,
     effects::TransactionEffects,
@@ -85,8 +85,11 @@ pub trait Executor {
         // Configuration
         protocol_config: &ProtocolConfig,
         metrics: Arc<LimitsMetrics>,
-        // Genesis State
-        tx_context: &mut TxContext,
+        // Epoch
+        epoch_id: EpochId,
+        epoch_timestamp_ms: u64,
+        // Genesis Digest
+        transaction_digest: &TransactionDigest,
         // Transaction
         input_objects: CheckedInputObjects,
         pt: ProgrammableTransaction,
