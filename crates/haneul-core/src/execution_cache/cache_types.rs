@@ -12,6 +12,15 @@ use haneullabs_common::debug_fatal;
 use parking_lot::Mutex;
 use haneul_types::base_types::SequenceNumber;
 
+pub enum CacheResult<T> {
+    /// Entry is in the cache
+    Hit(T),
+    /// Entry is not in the cache and is known to not exist
+    NegativeHit,
+    /// Entry is not in the cache and may or may not exist in the store
+    Miss,
+}
+
 /// CachedVersionMap is a map from version to value, with the additional contraints:
 /// - The key (SequenceNumber) must be monotonically increasing for each insert. If
 ///   a key is inserted that is less than the previous key, it results in an assertion

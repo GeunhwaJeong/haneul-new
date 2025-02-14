@@ -23,6 +23,7 @@ use haneul_types::base_types::{FullObjectID, VerifiedExecutionData};
 use haneul_types::digests::{TransactionDigest, TransactionEffectsDigest, TransactionEventsDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
+use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::object::Object;
 use haneul_types::storage::{
@@ -151,27 +152,10 @@ pub trait ExecutionCacheCommit: Send + Sync {
         use_object_per_epoch_marker_table_v2: bool,
     ) -> BoxFuture<'a, ()>;
 
-    /// Durably commit transactions (but not their outputs) to the database.
-    /// Called before writing a locally built checkpoint to the CheckpointStore, so that
-    /// the inputs of the checkpoint cannot be lost.
-    /// These transactions are guaranteed to be final unless this validator
-    /// forks (i.e. constructs a checkpoint which will never be certified). In this case
-    /// some non-final transactions could be left in the database.
-    ///
-    /// This is an intermediate solution until we delay commits to the epoch db. After
-    /// we have done that, crash recovery will be done by re-processing consensus commits
-    /// and pending_consensus_transactions, and this method can be removed.
-    fn persist_transactions<'a>(&'a self, digests: &'a [TransactionDigest]) -> BoxFuture<'a, ()>;
-
-    /// Persist transactions and their effects to the database, but no other outputs.
-    /// Additionally this stores the content-addressed effects in the database but does
-    /// not add an executed_effects. This is required for recovery from a crash when
-    /// upgrading to data-quarantining.
-    /// TODO: remove this once all nodes have upgraded to data-quarantining.
-    fn persist_transactions_and_effects(
-        &self,
-        digests: &[(TransactionDigest, TransactionEffectsDigest)],
-    );
+    /// Durably commit a transaction to the database. Used to store any transactions
+    /// that cannot be reconstructed at start-up by consensus replay. Currently the only
+    /// case of this is RandomnessStateUpdate.
+    fn persist_transaction(&self, transaction: &VerifiedExecutableTransaction);
 
     // Number of pending uncommitted transactions
     fn approximate_pending_transaction_count(&self) -> u64;
