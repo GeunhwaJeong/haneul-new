@@ -93,7 +93,7 @@ module P::N {
   ]
 }
 
-//# run-jsonrpc --cursors @{obj_5_0,2}
+//# run-jsonrpc --cursors bcs(@{obj_5_0},2)
 {
   "method": "haneulx_getOwnedObjects",
   "params": [
