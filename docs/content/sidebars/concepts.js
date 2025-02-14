@@ -167,6 +167,7 @@ const concepts = [
 			'concepts/tokenomics/haneul-bridging',
 			'concepts/tokenomics/gas-pricing',
 			'concepts/tokenomics/gas-in-haneul',
+			'concepts/tokenomics/vesting-strategies'
 		],
 	},
 	'concepts/haneul-bridge',
