@@ -14,7 +14,7 @@ use std::num::NonZeroUsize;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, ensure, Context, Result};
 use fastcrypto::traits::Signer;
 use rand::rngs::OsRng;
 use haneul_config::verifier_signing_config::VerifierSigningConfig;
@@ -24,11 +24,12 @@ use haneul_storage::blob::{Blob, BlobEncoding};
 use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_swarm_config::network_config_builder::ConfigBuilder;
-use haneul_types::base_types::{AuthorityName, ObjectID, VersionNumber};
-use haneul_types::crypto::AuthoritySignature;
+use haneul_types::base_types::{AuthorityName, ObjectID, ObjectRef, VersionNumber};
+use haneul_types::crypto::{get_account_key_pair, AccountKeyPair, AuthoritySignature};
 use haneul_types::digests::ConsensusCommitDigest;
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::messages_consensus::ConsensusDeterminedVersionAssignments;
-use haneul_types::object::Object;
+use haneul_types::object::{Object, Owner};
 use haneul_types::storage::{ObjectStore, ReadStore, RpcStateReader};
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use haneul_types::transaction::EndOfEpochTransactionKind;
@@ -327,6 +328,42 @@ impl<R, S: store::SimulatorStore> Simulacrum<R, S> {
     /// Return the reference gas price for the current epoch
     pub fn reference_gas_price(&self) -> u64 {
         self.epoch_state.reference_gas_price()
+    }
+
+    /// Create a new account and credit it with `amount` gas units from a faucet account. Returns
+    /// the account, its keypair, and a reference to the gas object it was funded with.
+    ///
+    /// ```
+    /// use simulacrum::Simulacrum;
+    /// use haneul_types::base_types::HaneulAddress;
+    /// use haneul_types::gas_coin::GEUNHWA_PER_HANEUL;
+    ///
+    /// # fn main() {
+    /// let mut simulacrum = Simulacrum::new();
+    /// let (account, kp, gas) = simulacrum.funded_account(GEUNHWA_PER_HANEUL).unwrap();
+    ///
+    /// // `account` is a fresh HaneulAddress that owns a Coin<HANEUL> object with single HANEUL in it,
+    /// // referred to by `gas`.
+    /// // ...
+    /// # }
+    /// ```
+    pub fn funded_account(
+        &mut self,
+        amount: u64,
+    ) -> Result<(HaneulAddress, AccountKeyPair, ObjectRef)> {
+        let (address, key) = get_account_key_pair();
+        let fx = self.request_gas(address, amount)?;
+        ensure!(fx.status().is_ok(), "Failed to request gas for account");
+
+        let gas = fx
+            .created()
+            .into_iter()
+            .find_map(|(oref, owner)| {
+                matches!(owner, Owner::AddressOwner(owner) if owner == address).then_some(oref)
+            })
+            .context("Could not find created object")?;
+
+        Ok((address, key, gas))
     }
 
     /// Request that `amount` Geunhwa be sent to `address` from a faucet account.
