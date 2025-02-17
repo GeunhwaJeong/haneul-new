@@ -1,0 +1,9 @@
+[package]
+name = "type_limits"
+edition = "2024.beta"
+
+[dependencies]
+Haneul = { local = "../../../haneul-framework/packages/haneul-framework" }
+
+[addresses]
+type_limits = "0x0"

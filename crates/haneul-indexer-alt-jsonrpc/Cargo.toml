@@ -51,6 +51,7 @@ haneul-open-rpc.workspace = true
 haneul-open-rpc-macros.workspace = true
 haneul-package-resolver.workspace = true
 haneul-pg-db.workspace = true
+haneul-protocol-config.workspace = true
 haneul-types.workspace = true
 
 [dev-dependencies]

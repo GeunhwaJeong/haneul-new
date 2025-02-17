@@ -14094,6 +14094,7 @@ dependencies = [
  "haneul-open-rpc-macros",
  "haneul-package-resolver",
  "haneul-pg-db",
+ "haneul-protocol-config",
  "haneul-types",
  "telemetry-subscribers",
  "thiserror 1.0.69",
