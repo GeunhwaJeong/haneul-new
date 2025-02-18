@@ -156,6 +156,7 @@ members = [
     "crates/haneul-replay",
     "crates/haneul-rosetta",
     "crates/haneul-rpc-api",
+    "crates/haneul-rpc-benchmark",
     "crates/haneul-rpc-loadgen",
     "crates/haneul-sdk",
     "crates/haneul-security-watchdog",
