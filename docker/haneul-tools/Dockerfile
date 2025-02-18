@@ -16,16 +16,12 @@ COPY haneul-execution haneul-execution
 COPY external-crates external-crates
 
 RUN cargo build --profile ${PROFILE} \
-    --bin haneul-node \
     --bin stress \
     --bin haneul-bridge \
     --bin bridge-indexer \
     --bin deepbook-indexer \
     --bin haneul-bridge-cli \
-    --bin haneul-analytics-indexer \
-    --bin haneul-edge-proxy \
     --bin haneul \
-    --bin haneul-faucet \
     --bin haneul-cluster-test \
     --bin haneul-tool
 
@@ -36,16 +32,12 @@ WORKDIR "$WORKDIR/haneul"
 # haneul-tool needs libpq at runtime and uses git when fetching move dependencies during build
 RUN apt-get update && apt-get install -y libpq5 libpq-dev ca-certificates git
 
-COPY --from=builder /haneul/target/release/haneul-node /usr/local/bin
 COPY --from=builder /haneul/target/release/stress /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-bridge /usr/local/bin
 COPY --from=builder /haneul/target/release/bridge-indexer /usr/local/bin
 COPY --from=builder /haneul/target/release/deepbook-indexer /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-bridge-cli /usr/local/bin
-COPY --from=builder /haneul/target/release/haneul-analytics-indexer /usr/local/bin
-COPY --from=builder /haneul/target/release/haneul-edge-proxy /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul /usr/local/bin
-COPY --from=builder /haneul/target/release/haneul-faucet /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-cluster-test /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-tool /usr/local/bin
 
