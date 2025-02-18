@@ -17,6 +17,7 @@ COPY external-crates external-crates
 
 RUN cargo build --profile ${PROFILE} \
     --bin stress \
+    --bin haneul-faucet \
     --bin haneul-bridge \
     --bin bridge-indexer \
     --bin deepbook-indexer \
@@ -33,6 +34,7 @@ WORKDIR "$WORKDIR/haneul"
 RUN apt-get update && apt-get install -y libpq5 libpq-dev ca-certificates git
 
 COPY --from=builder /haneul/target/release/stress /usr/local/bin
+COPY --from=builder /haneul/target/release/haneul-faucet /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-bridge /usr/local/bin
 COPY --from=builder /haneul/target/release/bridge-indexer /usr/local/bin
 COPY --from=builder /haneul/target/release/deepbook-indexer /usr/local/bin
