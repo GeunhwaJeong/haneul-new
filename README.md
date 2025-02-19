@@ -4,6 +4,8 @@
 
 # Welcome to Haneul
 
+[![License](https://img.shields.io/github/license/HaneulLabs/haneul)](https://github.com/GeunhwaJeong/haneul/blob/main/LICENSE)
+
 [Haneul](https://haneul.io) is a next-generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by the [Move programming language](https://github.com/GeunhwaJeong/awesome-move).
 
 ## Haneul Highlights
