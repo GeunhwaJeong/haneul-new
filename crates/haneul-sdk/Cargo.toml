@@ -47,6 +47,11 @@ tempfile.workspace = true
 futures-core.workspace = true
 futures.workspace = true
 rand.workspace = true
+test-cluster.workspace = true
+haneul-macros.workspace = true
+haneul-simulator.workspace = true
+prometheus.workspace = true
+haneul-protocol-config.workspace = true
 
 [[example]]
 name = "coin_read_api"

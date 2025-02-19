@@ -33,4 +33,6 @@ pub enum Error {
     },
     #[error("Insufficient fund for address [{address}], requested amount: {amount}")]
     InsufficientFund { address: HaneulAddress, amount: u128 },
+    #[error("Invalid signature")]
+    InvalidSignature,
 }

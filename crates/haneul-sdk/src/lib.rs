@@ -104,6 +104,7 @@ pub mod apis;
 pub mod error;
 pub mod json_rpc_error;
 pub mod haneul_client_config;
+pub mod verify_personal_message_signature;
 pub mod wallet_context;
 
 pub const HANEUL_COIN_TYPE: &str = "0x2::haneul::HANEUL";
