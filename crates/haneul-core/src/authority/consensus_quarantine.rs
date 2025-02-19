@@ -19,8 +19,11 @@ use haneul_types::authenticator_state::ActiveJwk;
 use haneul_types::base_types::{AuthorityName, SequenceNumber};
 use haneul_types::crypto::RandomnessRound;
 use haneul_types::error::HaneulResult;
+use haneul_types::execution::ExecutionTimeObservationKey;
 use haneul_types::messages_checkpoint::{CheckpointContents, CheckpointSequenceNumber};
-use haneul_types::messages_consensus::{ConsensusTransaction, ConsensusTransactionKind};
+use haneul_types::messages_consensus::{
+    AuthorityIndex, ConsensusTransaction, ConsensusTransactionKind,
+};
 use haneul_types::{
     base_types::{ConsensusObjectSequenceKey, ObjectID},
     digests::TransactionDigest,
@@ -49,6 +52,7 @@ use crate::{
 use super::*;
 
 #[derive(Default)]
+#[allow(clippy::type_complexity)]
 pub(crate) struct ConsensusCommitOutput {
     // Consensus and reconfig state
     consensus_round: Round,
@@ -84,6 +88,11 @@ pub(crate) struct ConsensusCommitOutput {
     // congestion control state
     congestion_control_object_debts: Vec<(ObjectID, u64)>,
     congestion_control_randomness_object_debts: Vec<(ObjectID, u64)>,
+    execution_time_observations: Vec<(
+        AuthorityIndex,
+        u64, /* generation */
+        Vec<(ExecutionTimeObservationKey, Duration)>,
+    )>,
 }
 
 impl ConsensusCommitOutput {
@@ -129,6 +138,16 @@ impl ConsensusCommitOutput {
 
     pub fn insert_end_of_publish(&mut self, authority: AuthorityName) {
         self.end_of_publish.insert(authority);
+    }
+
+    pub fn insert_execution_time_observation(
+        &mut self,
+        source: AuthorityIndex,
+        generation: u64,
+        estimates: Vec<(ExecutionTimeObservationKey, Duration)>,
+    ) {
+        self.execution_time_observations
+            .push((source, generation, estimates));
     }
 
     pub(crate) fn record_consensus_commit_stats(&mut self, stats: ExecutionIndicesWithStats) {
@@ -328,6 +347,13 @@ impl ConsensusCommitOutput {
                         CongestionPerObjectDebt::new(self.consensus_round, debt),
                     )
                 }),
+        )?;
+
+        batch.insert_batch(
+            &tables.execution_time_observations,
+            self.execution_time_observations
+                .into_iter()
+                .map(|(authority, generation, estimates)| ((generation, authority), estimates)),
         )?;
 
         Ok(())

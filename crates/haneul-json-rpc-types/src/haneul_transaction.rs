@@ -555,6 +555,9 @@ impl HaneulTransactionBlockKind {
                             ) => HaneulEndOfEpochTransactionKind::BridgeCommitteeUpdate(
                                 bridge_shared_version,
                             ),
+                            EndOfEpochTransactionKind::StoreExecutionTimeObservations(_) => {
+                                HaneulEndOfEpochTransactionKind::StoreExecutionTimeObservations
+                            }
                         })
                         .collect(),
                 })
@@ -653,6 +656,9 @@ impl HaneulTransactionBlockKind {
                             }
                             EndOfEpochTransactionKind::BridgeCommitteeInit(seq) => {
                                 HaneulEndOfEpochTransactionKind::BridgeCommitteeUpdate(seq)
+                            }
+                            EndOfEpochTransactionKind::StoreExecutionTimeObservations(_) => {
+                                HaneulEndOfEpochTransactionKind::StoreExecutionTimeObservations
                             }
                         })
                         .collect(),
@@ -1669,6 +1675,7 @@ pub enum HaneulEndOfEpochTransactionKind {
     CoinDenyListStateCreate,
     BridgeStateCreate(CheckpointDigest),
     BridgeCommitteeUpdate(SequenceNumber),
+    StoreExecutionTimeObservations,
 }
 
 #[serde_as]

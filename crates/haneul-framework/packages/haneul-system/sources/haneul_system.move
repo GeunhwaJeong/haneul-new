@@ -617,6 +617,14 @@ module haneul_system::haneul_system {
         haneul_system_state_inner::active_validator_voting_powers(self)
     }
 
+    #[allow(unused_function)]
+    /// Saves the given execution time estimate blob to the HaneulSystemState object, for system use
+    /// at the start of the next epoch.
+    fun store_execution_time_estimates(wrapper: &mut HaneulSystemState, estimates_bytes: vector<u8>) {
+        let self = load_system_state_mut(wrapper);
+        haneul_system_state_inner::store_execution_time_estimates(self, estimates_bytes)
+    }
+
     #[test_only]
     public fun validator_voting_powers_for_testing(wrapper: &mut HaneulSystemState): VecMap<address, u64> {
         validator_voting_powers(wrapper)

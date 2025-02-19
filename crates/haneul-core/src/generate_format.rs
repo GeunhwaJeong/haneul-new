@@ -21,6 +21,7 @@ use haneul_types::crypto::{
 };
 use haneul_types::effects::TransactionEvents;
 use haneul_types::event::Event;
+use haneul_types::execution::ExecutionTimeObservationKey;
 use haneul_types::execution_status::{
     CommandArgumentError, ExecutionFailureStatus, ExecutionStatus, PackageUpgradeError,
     TypeArgumentError,
@@ -31,7 +32,9 @@ use haneul_types::messages_consensus::ConsensusDeterminedVersionAssignments;
 use haneul_types::messages_grpc::ObjectInfoRequestKind;
 use haneul_types::move_package::TypeOrigin;
 use haneul_types::object::Object;
-use haneul_types::transaction::{GenesisObject, SenderSignedData, TransactionData};
+use haneul_types::transaction::{
+    GenesisObject, SenderSignedData, StoredExecutionTimeObservations, TransactionData,
+};
 use haneul_types::type_input::{StructInput, TypeInput};
 use haneul_types::{
     base_types::MoveObjectType_,
@@ -221,6 +224,12 @@ fn get_registry() -> Result<Registry> {
     tracer.trace_type::<PackageUpgradeError>(&samples).unwrap();
     tracer
         .trace_type::<TransactionExpiration>(&samples)
+        .unwrap();
+    tracer
+        .trace_type::<ExecutionTimeObservationKey>(&samples)
+        .unwrap();
+    tracer
+        .trace_type::<StoredExecutionTimeObservations>(&samples)
         .unwrap();
     tracer
         .trace_type::<EndOfEpochTransactionKind>(&samples)
