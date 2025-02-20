@@ -1,16 +1,15 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::path::PathBuf;
-use std::{collections::HashSet, sync::Arc};
-
 use move_binary_format::CompiledModule;
 use move_trace_format::format::MoveTraceBuilder;
 use move_vm_config::verifier::{MeterConfig, VerifierConfig};
+use std::{collections::HashSet, path::PathBuf, sync::Arc};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::execution::ExecutionTiming;
+use haneul_types::transaction::GasData;
 use haneul_types::{
-    base_types::{ObjectRef, HaneulAddress, TxContext},
+    base_types::{HaneulAddress, TxContext},
     committee::EpochId,
     digests::TransactionDigest,
     effects::TransactionEffects,
@@ -76,7 +75,7 @@ impl executor::Executor for Executor {
         epoch_id: &EpochId,
         epoch_timestamp_ms: u64,
         input_objects: CheckedInputObjects,
-        gas_coins: Vec<ObjectRef>,
+        gas: GasData,
         gas_status: HaneulGasStatus,
         transaction_kind: TransactionKind,
         transaction_signer: HaneulAddress,
@@ -92,7 +91,7 @@ impl executor::Executor for Executor {
         execute_transaction_to_effects::<execution_mode::Normal>(
             store,
             input_objects,
-            gas_coins,
+            gas,
             gas_status,
             transaction_kind,
             transaction_signer,
@@ -118,7 +117,7 @@ impl executor::Executor for Executor {
         epoch_id: &EpochId,
         epoch_timestamp_ms: u64,
         input_objects: CheckedInputObjects,
-        gas_coins: Vec<ObjectRef>,
+        gas: GasData,
         gas_status: HaneulGasStatus,
         transaction_kind: TransactionKind,
         transaction_signer: HaneulAddress,
@@ -134,7 +133,7 @@ impl executor::Executor for Executor {
             execute_transaction_to_effects::<execution_mode::DevInspect<true>>(
                 store,
                 input_objects,
-                gas_coins,
+                gas,
                 gas_status,
                 transaction_kind,
                 transaction_signer,
@@ -152,7 +151,7 @@ impl executor::Executor for Executor {
             execute_transaction_to_effects::<execution_mode::DevInspect<false>>(
                 store,
                 input_objects,
-                gas_coins,
+                gas,
                 gas_status,
                 transaction_kind,
                 transaction_signer,
@@ -186,6 +185,9 @@ impl executor::Executor for Executor {
             transaction_digest,
             &epoch_id,
             epoch_timestamp_ms,
+            // genesis transaction: RGP: 1, sponsor: None
+            1,
+            None,
         );
         execute_genesis_state_update(
             store,

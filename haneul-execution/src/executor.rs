@@ -6,8 +6,9 @@ use std::{collections::HashSet, sync::Arc};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::execution::ExecutionTiming;
 use haneul_types::storage::BackingStore;
+use haneul_types::transaction::GasData;
 use haneul_types::{
-    base_types::{ObjectRef, HaneulAddress},
+    base_types::HaneulAddress,
     committee::EpochId,
     digests::TransactionDigest,
     effects::TransactionEffects,
@@ -36,7 +37,7 @@ pub trait Executor {
         // Transaction Inputs
         input_objects: CheckedInputObjects,
         // Gas related
-        gas_coins: Vec<ObjectRef>,
+        gas: GasData,
         gas_status: HaneulGasStatus,
         // Transaction
         transaction_kind: TransactionKind,
@@ -65,7 +66,7 @@ pub trait Executor {
         // Transaction Inputs
         input_objects: CheckedInputObjects,
         // Gas related
-        gas_coins: Vec<ObjectRef>,
+        gas: GasData,
         gas_status: HaneulGasStatus,
         // Transaction
         transaction_kind: TransactionKind,
