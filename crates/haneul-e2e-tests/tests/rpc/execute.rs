@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_macros::sim_test;
-use haneul_rpc_api::types::ExecuteTransactionOptions;
 use haneul_rpc_api::Client;
 use haneul_sdk_types::BalanceChange;
 use haneul_test_transaction_builder::make_transfer_haneul_transaction;
@@ -23,12 +22,7 @@ async fn execute_transaction_transfer() {
         make_transfer_haneul_transaction(&test_cluster.wallet, Some(address), Some(amount)).await;
     let sender = txn.transaction_data().sender();
 
-    let options = ExecuteTransactionOptions {
-        balance_changes: Some(true),
-        ..Default::default()
-    };
-
-    let response = client.execute_transaction(&options, &txn).await.unwrap();
+    let response = client.execute_transaction(&txn).await.unwrap();
 
     let gas = response.effects.gas_cost_summary().net_gas_usage();
 
