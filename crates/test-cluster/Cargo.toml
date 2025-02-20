@@ -22,6 +22,7 @@ rand.workspace = true
 tempfile.workspace = true
 haneul-config.workspace = true
 haneul-core.workspace = true
+haneullabs-common.workspace = true
 haneul-framework.workspace = true
 haneul-swarm-config.workspace = true
 haneul-indexer.workspace = true
