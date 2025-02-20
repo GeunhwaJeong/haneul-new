@@ -14223,6 +14223,7 @@ dependencies = [
  "haneul-indexer-alt-schema",
  "haneul-json",
  "haneul-json-rpc-types",
+ "haneul-kvstore",
  "haneul-name-service",
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
