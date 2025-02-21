@@ -6,9 +6,7 @@ use std::str::FromStr;
 use anyhow::Context as _;
 use futures::future::OptionFuture;
 use move_core_types::annotated_value::{MoveDatatypeLayout, MoveTypeLayout};
-use haneul_indexer_alt_schema::transactions::{
-    BalanceChange, StoredTransaction, StoredTxBalanceChange,
-};
+use haneul_indexer_alt_schema::transactions::{BalanceChange, StoredTxBalanceChange};
 use haneul_json_rpc_types::{
     BalanceChange as HaneulBalanceChange, ObjectChange as HaneulObjectChange, HaneulEvent,
     HaneulTransactionBlock, HaneulTransactionBlockData, HaneulTransactionBlockEffects,
@@ -29,7 +27,7 @@ use tokio::join;
 use crate::{
     context::Context,
     data::{
-        objects::VersionedObjectKey, transactions::TransactionKey,
+        kv_loader::TransactionContents, objects::VersionedObjectKey,
         tx_balance_changes::TxBalanceChangeKey,
     },
     error::{invalid_params, rpc_bail, RpcError},
@@ -44,15 +42,15 @@ pub(super) async fn transaction(
     digest: TransactionDigest,
     options: &HaneulTransactionBlockResponseOptions,
 ) -> Result<HaneulTransactionBlockResponse, RpcError<Error>> {
-    let stored_tx = ctx.pg_loader().load_one(TransactionKey(digest));
+    let tx = ctx.kv_loader().load_one_transaction(digest);
     let stored_bc: OptionFuture<_> = options
         .show_balance_changes
         .then(|| ctx.pg_loader().load_one(TxBalanceChangeKey(digest)))
         .into();
 
-    let (stored_tx, stored_bc) = join!(stored_tx, stored_bc);
+    let (tx, stored_bc) = join!(tx, stored_bc);
 
-    let stored_tx = stored_tx
+    let tx = tx
         .context("Failed to fetch transaction from store")?
         .ok_or_else(|| invalid_params(Error::NotFound(digest)))?;
 
@@ -67,29 +65,28 @@ pub(super) async fn transaction(
         None => None,
     };
 
-    let digest = TransactionDigest::try_from(stored_tx.tx_digest.clone())
-        .context("Failed to deserialize transaction digest")?;
+    let digest = tx.digest()?;
 
     let mut response = HaneulTransactionBlockResponse::new(digest);
 
     if options.show_input {
-        response.transaction = Some(input(ctx, &stored_tx).await?);
+        response.transaction = Some(input(ctx, &tx).await?);
     }
 
     if options.show_raw_input {
-        response.raw_transaction = stored_tx.raw_transaction.clone();
+        response.raw_transaction = tx.raw_transaction()?;
     }
 
     if options.show_effects {
-        response.effects = Some(effects(&stored_tx)?);
+        response.effects = Some(effects(&tx)?);
     }
 
     if options.show_raw_effects {
-        response.raw_effects = stored_tx.raw_effects.clone();
+        response.raw_effects = tx.raw_effects()?;
     }
 
     if options.show_events {
-        response.events = Some(events(ctx, digest, &stored_tx).await?);
+        response.events = Some(events(ctx, digest, &tx).await?);
     }
 
     if let Some(changes) = stored_bc {
@@ -97,7 +94,7 @@ pub(super) async fn transaction(
     }
 
     if options.show_object_changes {
-        response.object_changes = Some(object_changes(ctx, digest, &stored_tx).await?);
+        response.object_changes = Some(object_changes(ctx, digest, &tx).await?);
     }
 
     Ok(response)
@@ -106,12 +103,10 @@ pub(super) async fn transaction(
 /// Extract a representation of the transaction's input data from the stored form.
 async fn input(
     ctx: &Context,
-    tx: &StoredTransaction,
+    tx: &TransactionContents,
 ) -> Result<HaneulTransactionBlock, RpcError<Error>> {
-    let data: TransactionData =
-        bcs::from_bytes(&tx.raw_transaction).context("Failed to deserialize TransactionData")?;
-    let tx_signatures: Vec<GenericSignature> =
-        bcs::from_bytes(&tx.user_signatures).context("Failed to deserialize user signatures")?;
+    let data: TransactionData = tx.data()?;
+    let tx_signatures: Vec<GenericSignature> = tx.signatures()?;
 
     Ok(HaneulTransactionBlock {
         data: HaneulTransactionBlockData::try_from_with_package_resolver(data, ctx.package_resolver())
@@ -122,9 +117,8 @@ async fn input(
 }
 
 /// Extract a representation of the transaction's effects from the stored form.
-fn effects(tx: &StoredTransaction) -> Result<HaneulTransactionBlockEffects, RpcError<Error>> {
-    let effects: TransactionEffects =
-        bcs::from_bytes(&tx.raw_effects).context("Failed to deserialize TransactionEffects")?;
+fn effects(tx: &TransactionContents) -> Result<HaneulTransactionBlockEffects, RpcError<Error>> {
+    let effects: TransactionEffects = tx.effects()?;
     Ok(effects
         .try_into()
         .context("Failed to convert Effects into response")?)
@@ -134,9 +128,9 @@ fn effects(tx: &StoredTransaction) -> Result<HaneulTransactionBlockEffects, RpcE
 async fn events(
     ctx: &Context,
     digest: TransactionDigest,
-    tx: &StoredTransaction,
+    tx: &TransactionContents,
 ) -> Result<HaneulTransactionBlockEvents, RpcError<Error>> {
-    let events: Vec<Event> = bcs::from_bytes(&tx.events).context("Failed to deserialize Events")?;
+    let events: Vec<Event> = tx.events()?;
     let mut haneul_events = Vec::with_capacity(events.len());
 
     for (ix, event) in events.into_iter().enumerate() {
@@ -158,14 +152,9 @@ async fn events(
             ),
         };
 
-        let haneul_event = HaneulEvent::try_from(
-            event,
-            digest,
-            ix as u64,
-            Some(tx.timestamp_ms as u64),
-            layout,
-        )
-        .with_context(|| format!("Failed to convert Event {ix} into response"))?;
+        let haneul_event =
+            HaneulEvent::try_from(event, digest, ix as u64, Some(tx.timestamp_ms()), layout)
+                .with_context(|| format!("Failed to convert Event {ix} into response"))?;
 
         haneul_events.push(haneul_event)
     }
@@ -205,12 +194,10 @@ fn balance_changes(
 async fn object_changes(
     ctx: &Context,
     digest: TransactionDigest,
-    tx: &StoredTransaction,
+    tx: &TransactionContents,
 ) -> Result<Vec<HaneulObjectChange>, RpcError<Error>> {
-    let tx_data: TransactionData =
-        bcs::from_bytes(&tx.raw_transaction).context("Failed to deserialize TransactionData")?;
-    let effects: TransactionEffects =
-        bcs::from_bytes(&tx.raw_effects).context("Failed to deserialize TransactionEffects")?;
+    let tx_data: TransactionData = tx.data()?;
+    let effects: TransactionEffects = tx.effects()?;
 
     let mut keys = vec![];
     let native_changes = effects.object_changes();
