@@ -724,7 +724,7 @@ Non-entry version of <code><a href="../haneul_system/haneul_system.md#haneul_sys
     wrapper: &<b>mut</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">HaneulSystemState</a>,
     staked_haneul: StakedHaneul,
     ctx: &<b>mut</b> TxContext,
-) : Balance&lt;HANEUL&gt; {
+): Balance&lt;HANEUL&gt; {
     <b>let</b> self = <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_system_state_mut">load_system_state_mut</a>(wrapper);
     self.<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_request_withdraw_stake">request_withdraw_stake</a>(staked_haneul, ctx)
 }
@@ -1492,11 +1492,11 @@ gas coins.
     storage_rebate: u64,
     non_refundable_storage_fee: u64,
     storage_fund_reinvest_rate: u64, // share of storage fund's rewards that's reinvested
-                                     // into storage fund, in basis point.
+                                        // into storage fund, in basis point.
     reward_slashing_rate: u64, // how much rewards are slashed to punish a <a href="../haneul_system/validator.md#haneul_system_validator">validator</a>, in bps.
     epoch_start_timestamp_ms: u64, // Timestamp of the epoch start
     ctx: &<b>mut</b> TxContext,
-) : Balance&lt;HANEUL&gt; {
+): Balance&lt;HANEUL&gt; {
     <b>let</b> self = <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_system_state_mut">load_system_state_mut</a>(wrapper);
     // Validator will make a special system call with sender set <b>as</b> 0x0.
     <b>assert</b>!(ctx.sender() == @0x0, <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_ENotSystemAddress">ENotSystemAddress</a>);
@@ -1585,10 +1585,10 @@ gas coins.
 
 <pre><code><b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_inner_maybe_upgrade">load_inner_maybe_upgrade</a>(self: &<b>mut</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">HaneulSystemState</a>): &<b>mut</b> HaneulSystemStateInnerV2 {
     <b>if</b> (self.version == 1) {
-      <b>let</b> v1: HaneulSystemStateInner = dynamic_field::remove(&<b>mut</b> self.id, self.version);
-      <b>let</b> v2 = v1.v1_to_v2();
-      self.version = 2;
-      dynamic_field::add(&<b>mut</b> self.id, self.version, v2);
+        <b>let</b> v1: HaneulSystemStateInner = dynamic_field::remove(&<b>mut</b> self.id, self.version);
+        <b>let</b> v2 = v1.v1_to_v2();
+        self.version = 2;
+        dynamic_field::add(&<b>mut</b> self.id, self.version, v2);
     };
     <b>let</b> inner: &<b>mut</b> HaneulSystemStateInnerV2 = dynamic_field::borrow_mut(
         &<b>mut</b> self.id,

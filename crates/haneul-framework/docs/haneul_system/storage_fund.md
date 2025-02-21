@@ -95,7 +95,7 @@ Called by <code><a href="../haneul_system/haneul_system.md#haneul_system_haneul_
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/storage_fund.md#haneul_system_storage_fund_new">new</a>(initial_fund: Balance&lt;HANEUL&gt;) : <a href="../haneul_system/storage_fund.md#haneul_system_storage_fund_StorageFund">StorageFund</a> {
+<pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/storage_fund.md#haneul_system_storage_fund_new">new</a>(initial_fund: Balance&lt;HANEUL&gt;): <a href="../haneul_system/storage_fund.md#haneul_system_storage_fund_StorageFund">StorageFund</a> {
     <a href="../haneul_system/storage_fund.md#haneul_system_storage_fund_StorageFund">StorageFund</a> {
         // At the beginning there's no object in the storage yet
         <a href="../haneul_system/storage_fund.md#haneul_system_storage_fund_total_object_storage_rebates">total_object_storage_rebates</a>: balance::zero(),
@@ -131,7 +131,7 @@ Called by <code><a href="../haneul_system/haneul_system.md#haneul_system_haneul_
     leftover_staking_rewards: Balance&lt;HANEUL&gt;,
     storage_rebate_amount: u64,
     non_refundable_storage_fee_amount: u64,
-) : Balance&lt;HANEUL&gt; {
+): Balance&lt;HANEUL&gt; {
     // Both the reinvestment and leftover rewards are not to be refunded so they go to the non-refundable balance.
     self.non_refundable_balance.join(storage_fund_reinvestment);
     self.non_refundable_balance.join(leftover_staking_rewards);

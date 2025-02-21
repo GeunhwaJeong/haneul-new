@@ -575,7 +575,7 @@ Create a new, empty staking pool.
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_new">new</a>(ctx: &<b>mut</b> TxContext) : <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakingPool">StakingPool</a> {
+<pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_new">new</a>(ctx: &<b>mut</b> TxContext): <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakingPool">StakingPool</a> {
     <b>let</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_exchange_rates">exchange_rates</a> = table::new(ctx);
     <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakingPool">StakingPool</a> {
         id: object::new(ctx),
@@ -618,7 +618,7 @@ Request to stake to a staking pool. The stake starts counting at the beginning o
     stake: Balance&lt;HANEUL&gt;,
     <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_stake_activation_epoch">stake_activation_epoch</a>: u64,
     ctx: &<b>mut</b> TxContext
-) : <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakedHaneul">StakedHaneul</a> {
+): <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakedHaneul">StakedHaneul</a> {
     <b>let</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_amount">haneul_amount</a> = stake.value();
     <b>assert</b>!(!<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_is_inactive">is_inactive</a>(pool), <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_EDelegationToInactivePool">EDelegationToInactivePool</a>);
     <b>assert</b>!(<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_amount">haneul_amount</a> &gt; 0, <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_EDelegationOfZeroHaneul">EDelegationOfZeroHaneul</a>);
@@ -659,7 +659,7 @@ A proportional amount of pool token withdraw is recorded and processed at epoch 
     pool: &<b>mut</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakingPool">StakingPool</a>,
     staked_haneul: <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakedHaneul">StakedHaneul</a>,
     ctx: &TxContext
-) : Balance&lt;HANEUL&gt; {
+): Balance&lt;HANEUL&gt; {
     // stake is inactive
     <b>if</b> (staked_haneul.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_stake_activation_epoch">stake_activation_epoch</a> &gt; ctx.epoch()) {
         <b>let</b> principal = <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_unwrap_staked_haneul">unwrap_staked_haneul</a>(staked_haneul);
@@ -706,7 +706,7 @@ A proportional amount of pool token withdraw is recorded and processed at epoch 
     pool: &<b>mut</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakingPool">StakingPool</a>,
     fungible_staked_haneul: <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a>,
     ctx: &TxContext
-) : Balance&lt;HANEUL&gt; {
+): Balance&lt;HANEUL&gt; {
     <b>let</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a> { id, <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_pool_id">pool_id</a>, value } = fungible_staked_haneul;
     <b>assert</b>!(<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_pool_id">pool_id</a> == object::id(pool), <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_EWrongPool">EWrongPool</a>);
     object::delete(id);
@@ -759,7 +759,7 @@ returns (principal_withdraw_amount, rewards_withdraw_amount)
     <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_fungible_staked_haneul_value">fungible_staked_haneul_value</a>: u64,
     fungible_staked_haneul_data_principal_amount: u64, // fungible_staked_haneul_data.principal.value()
     fungible_staked_haneul_data_total_supply: u64, // fungible_staked_haneul_data.total_supply
-) : (u64, u64) {
+): (u64, u64) {
     // 1. <b>if</b> the entire <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_FungibleStakedHaneulData">FungibleStakedHaneulData</a> supply is redeemed, how much haneul should we receive?
     <b>let</b> total_haneul_amount = <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_get_haneul_amount">get_haneul_amount</a>(&latest_exchange_rate, fungible_staked_haneul_data_total_supply);
     // min with total_haneul_amount to prevent underflow
@@ -807,7 +807,7 @@ Convert the given staked HANEUL to an FungibleStakedHaneul object
     pool: &<b>mut</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakingPool">StakingPool</a>,
     staked_haneul: <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakedHaneul">StakedHaneul</a>,
     ctx: &<b>mut</b> TxContext
-) : <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a> {
+): <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_FungibleStakedHaneul">FungibleStakedHaneul</a> {
     <b>let</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakedHaneul">StakedHaneul</a> { id, <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_pool_id">pool_id</a>, <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_stake_activation_epoch">stake_activation_epoch</a>, principal } = staked_haneul;
     <b>assert</b>!(<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_pool_id">pool_id</a> == object::id(pool), <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_EWrongPool">EWrongPool</a>);
     <b>assert</b>!(
@@ -875,15 +875,15 @@ Returns values are amount of pool tokens withdrawn and withdrawn principal porti
 <pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_withdraw_from_principal">withdraw_from_principal</a>(
     pool: &<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakingPool">StakingPool</a>,
     staked_haneul: <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakedHaneul">StakedHaneul</a>,
-) : (u64, Balance&lt;HANEUL&gt;) {
+): (u64, Balance&lt;HANEUL&gt;) {
     // Check that the stake information matches the pool.
     <b>assert</b>!(staked_haneul.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_pool_id">pool_id</a> == object::id(pool), <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_EWrongPool">EWrongPool</a>);
     <b>let</b> exchange_rate_at_staking_epoch = <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_pool_token_exchange_rate_at_epoch">pool_token_exchange_rate_at_epoch</a>(pool, staked_haneul.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_stake_activation_epoch">stake_activation_epoch</a>);
     <b>let</b> principal_withdraw = <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_unwrap_staked_haneul">unwrap_staked_haneul</a>(staked_haneul);
     <b>let</b> pool_token_withdraw_amount = <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_get_token_amount">get_token_amount</a>(
-		&exchange_rate_at_staking_epoch,
-		principal_withdraw.value()
-	);
+    &exchange_rate_at_staking_epoch,
+    principal_withdraw.value()
+);
     (
         pool_token_withdraw_amount,
         principal_withdraw,
@@ -1069,7 +1069,7 @@ portion because the principal portion was already taken out of the staker's self
     principal_withdraw_amount: u64,
     pool_token_withdraw_amount: u64,
     epoch: u64,
-) : Balance&lt;HANEUL&gt; {
+): Balance&lt;HANEUL&gt; {
     <b>let</b> exchange_rate = <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_pool_token_exchange_rate_at_epoch">pool_token_exchange_rate_at_epoch</a>(pool, epoch);
     <b>let</b> total_haneul_withdraw_amount = <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_get_haneul_amount">get_haneul_amount</a>(&exchange_rate, pool_token_withdraw_amount);
     <b>let</b> <b>mut</b> reward_withdraw_amount =

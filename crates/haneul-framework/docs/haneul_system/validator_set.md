@@ -723,7 +723,7 @@ Called by <code><a href="../haneul_system/haneul_system.md#haneul_system_haneul_
 
 <pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set_request_remove_validator_candidate">request_remove_validator_candidate</a>(self: &<b>mut</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set_ValidatorSet">ValidatorSet</a>, ctx: &<b>mut</b> TxContext) {
     <b>let</b> validator_address = ctx.sender();
-     <b>assert</b>!(
+        <b>assert</b>!(
         self.validator_candidates.contains(validator_address),
         <a href="../haneul_system/validator_set.md#haneul_system_validator_set_ENotValidatorCandidate">ENotValidatorCandidate</a>
     );
@@ -879,7 +879,7 @@ Aborts in case the staking amount is smaller than MIN_STAKING_THRESHOLD
     validator_address: <b>address</b>,
     stake: Balance&lt;HANEUL&gt;,
     ctx: &<b>mut</b> TxContext,
-) : StakedHaneul {
+): StakedHaneul {
     <b>let</b> haneul_amount = stake.value();
     <b>assert</b>!(haneul_amount &gt;= <a href="../haneul_system/validator_set.md#haneul_system_validator_set_MIN_STAKING_THRESHOLD">MIN_STAKING_THRESHOLD</a>, <a href="../haneul_system/validator_set.md#haneul_system_validator_set_EStakingBelowThreshold">EStakingBelowThreshold</a>);
     <b>let</b> <a href="../haneul_system/validator.md#haneul_system_validator">validator</a> = <a href="../haneul_system/validator_set.md#haneul_system_validator_set_get_candidate_or_active_validator_mut">get_candidate_or_active_validator_mut</a>(self, validator_address);
@@ -916,7 +916,7 @@ the stake and any rewards corresponding to it will be immediately processed.
     self: &<b>mut</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set_ValidatorSet">ValidatorSet</a>,
     staked_haneul: StakedHaneul,
     ctx: &TxContext,
-) : Balance&lt;HANEUL&gt; {
+): Balance&lt;HANEUL&gt; {
     <b>let</b> staking_pool_id = pool_id(&staked_haneul);
     <b>let</b> <a href="../haneul_system/validator.md#haneul_system_validator">validator</a> =
         <b>if</b> (self.<a href="../haneul_system/validator_set.md#haneul_system_validator_set_staking_pool_mappings">staking_pool_mappings</a>.contains(staking_pool_id)) { // This is an active <a href="../haneul_system/validator.md#haneul_system_validator">validator</a>.
@@ -954,7 +954,7 @@ the stake and any rewards corresponding to it will be immediately processed.
     self: &<b>mut</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set_ValidatorSet">ValidatorSet</a>,
     staked_haneul: StakedHaneul,
     ctx: &<b>mut</b> TxContext,
-) : FungibleStakedHaneul {
+): FungibleStakedHaneul {
     <b>let</b> staking_pool_id = pool_id(&staked_haneul);
     <b>let</b> <a href="../haneul_system/validator.md#haneul_system_validator">validator</a> =
         <b>if</b> (self.<a href="../haneul_system/validator_set.md#haneul_system_validator_set_staking_pool_mappings">staking_pool_mappings</a>.contains(staking_pool_id)) { // This is an active <a href="../haneul_system/validator.md#haneul_system_validator">validator</a>.
@@ -992,7 +992,7 @@ the stake and any rewards corresponding to it will be immediately processed.
     self: &<b>mut</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set_ValidatorSet">ValidatorSet</a>,
     fungible_staked_haneul: FungibleStakedHaneul,
     ctx: &TxContext,
-) : Balance&lt;HANEUL&gt; {
+): Balance&lt;HANEUL&gt; {
     <b>let</b> staking_pool_id = fungible_staked_haneul_pool_id(&fungible_staked_haneul);
     <b>let</b> <a href="../haneul_system/validator.md#haneul_system_validator">validator</a> =
         <b>if</b> (self.<a href="../haneul_system/validator_set.md#haneul_system_validator_set_staking_pool_mappings">staking_pool_mappings</a>.contains(staking_pool_id)) { // This is an active <a href="../haneul_system/validator.md#haneul_system_validator">validator</a>.
@@ -1090,7 +1090,7 @@ It does the following things:
     // Compute the reward adjustments of slashed validators, to be taken into
     // account in adjusted reward computation.
     <b>let</b> (total_staking_reward_adjustment, individual_staking_reward_adjustments,
-         total_storage_fund_reward_adjustment, individual_storage_fund_reward_adjustments
+            total_storage_fund_reward_adjustment, individual_storage_fund_reward_adjustments
         ) =
         <a href="../haneul_system/validator_set.md#haneul_system_validator_set_compute_reward_adjustments">compute_reward_adjustments</a>(
             <a href="../haneul_system/validator_set.md#haneul_system_validator_set_get_validator_indices">get_validator_indices</a>(&self.<a href="../haneul_system/validator_set.md#haneul_system_validator_set_active_validators">active_validators</a>, &slashed_validators),
@@ -1185,7 +1185,7 @@ It does the following things:
         <b>if</b> (stake &gt;= low_stake_threshold) {
             // The <a href="../haneul_system/validator.md#haneul_system_validator">validator</a> is safe. We remove their <b>entry</b> from the at_risk map <b>if</b> there exists one.
             <b>if</b> (self.at_risk_validators.contains(&validator_address)) {
-               self.at_risk_validators.remove(&validator_address);
+                self.at_risk_validators.remove(&validator_address);
             }
         } <b>else</b> <b>if</b> (stake &gt;= very_low_stake_threshold) {
             // The stake is a bit below the threshold so we increment the <b>entry</b> of the <a href="../haneul_system/validator.md#haneul_system_validator">validator</a> in the map.
@@ -1494,7 +1494,7 @@ gas price, weighted by stake.
 
 <pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set_pool_exchange_rates">pool_exchange_rates</a>(
     self: &<b>mut</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set_ValidatorSet">ValidatorSet</a>, pool_id: &ID
-) : &Table&lt;u64, PoolTokenExchangeRate&gt; {
+): &Table&lt;u64, PoolTokenExchangeRate&gt; {
     <b>let</b> <a href="../haneul_system/validator.md#haneul_system_validator">validator</a> =
         // If the pool id is recorded in the mapping, then it must be either candidate or active.
         <b>if</b> (self.<a href="../haneul_system/validator_set.md#haneul_system_validator_set_staking_pool_mappings">staking_pool_mappings</a>.contains(*pool_id)) {
@@ -1504,7 +1504,7 @@ gas price, weighted by stake.
             <b>let</b> wrapper = &<b>mut</b> self.inactive_validators[*pool_id];
             wrapper.load_validator_maybe_upgrade()
         };
-	<a href="../haneul_system/validator.md#haneul_system_validator">validator</a>.get_staking_pool_ref().exchange_rates()
+<a href="../haneul_system/validator.md#haneul_system_validator">validator</a>.get_staking_pool_ref().exchange_rates()
 }
 </code></pre>
 
@@ -1557,7 +1557,7 @@ Returns true iff the address exists in active validators.
     self: &<a href="../haneul_system/validator_set.md#haneul_system_validator_set_ValidatorSet">ValidatorSet</a>,
     validator_address: <b>address</b>,
 ): bool {
-   <a href="../haneul_system/validator_set.md#haneul_system_validator_set_find_validator">find_validator</a>(&self.<a href="../haneul_system/validator_set.md#haneul_system_validator_set_active_validators">active_validators</a>, validator_address).is_some()
+    <a href="../haneul_system/validator_set.md#haneul_system_validator_set_find_validator">find_validator</a>(&self.<a href="../haneul_system/validator_set.md#haneul_system_validator_set_active_validators">active_validators</a>, validator_address).is_some()
 }
 </code></pre>
 
@@ -2684,7 +2684,7 @@ The staking rewards are shared with the stakers while the storage fund ones are 
                 // Otherwise the slashed rewards should be distributed among the unslashed
                 // validators so add the corresponding adjustment.
                 <b>let</b> adjustment = total_staking_reward_adjustment <b>as</b> u128 * <a href="../haneul_system/voting_power.md#haneul_system_voting_power">voting_power</a>
-                               / (total_unslashed_validator_voting_power <b>as</b> u128);
+                                / (total_unslashed_validator_voting_power <b>as</b> u128);
                 unadjusted_staking_reward_amount + (adjustment <b>as</b> u64)
             };
         adjusted_staking_reward_amounts.push_back(adjusted_staking_reward_amount);
@@ -2747,8 +2747,8 @@ The staking rewards are shared with the stakers while the storage fund ones are 
         <b>let</b> <b>mut</b> validator_reward = staker_reward.split(validator_commission_amount <b>as</b> u64);
         // Add storage fund rewards to the <a href="../haneul_system/validator.md#haneul_system_validator">validator</a>'s reward.
         validator_reward.join(
-	    	storage_fund_reward.split(adjusted_storage_fund_reward_amounts[i])
-	    );
+        storage_fund_reward.split(adjusted_storage_fund_reward_amounts[i])
+    );
         // Add rewards to the <a href="../haneul_system/validator.md#haneul_system_validator">validator</a>. Don't try and distribute rewards though <b>if</b> the payout is zero.
         <b>if</b> (validator_reward.value() &gt; 0) {
             <b>let</b> validator_address = <a href="../haneul_system/validator.md#haneul_system_validator">validator</a>.haneul_address();
