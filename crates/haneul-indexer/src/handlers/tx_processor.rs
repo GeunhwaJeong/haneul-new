@@ -7,11 +7,11 @@ use async_trait::async_trait;
 use haneul_json_rpc::get_balance_changes_from_effect;
 use haneul_json_rpc::get_object_changes;
 use haneul_json_rpc::ObjectProvider;
-use haneul_rpc_api::CheckpointData;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
+use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::object::Object;
 use haneul_types::transaction::{TransactionData, TransactionDataAPI};
 

@@ -16,10 +16,10 @@ use tracing::warn;
 use haneul_indexer::types::owner_to_owner_info;
 use haneul_json_rpc_types::HaneulMoveValue;
 use haneul_package_resolver::Resolver;
-use haneul_rpc_api::{CheckpointData, CheckpointTransaction};
 use haneul_types::base_types::ObjectID;
 use haneul_types::dynamic_field::visitor as DFV;
 use haneul_types::dynamic_field::{DynamicFieldName, DynamicFieldType};
+use haneul_types::full_checkpoint_content::{CheckpointData, CheckpointTransaction};
 use haneul_types::object::Object;
 
 use crate::handlers::AnalyticsHandler;

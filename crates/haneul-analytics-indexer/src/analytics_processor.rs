@@ -17,8 +17,8 @@ use tracing::{error, info};
 
 use haneul_config::object_storage_config::{ObjectStoreConfig, ObjectStoreType};
 use haneul_data_ingestion_core::Worker;
-use haneul_rpc_api::CheckpointData;
 use haneul_storage::object_store::util::{copy_file, path_to_filesystem};
+use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 
 use crate::analytics_metrics::AnalyticsMetrics;

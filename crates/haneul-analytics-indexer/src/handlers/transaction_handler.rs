@@ -9,9 +9,9 @@ use haneul_data_ingestion_core::Worker;
 use tokio::sync::Mutex;
 use tracing::error;
 
-use haneul_rpc_api::{CheckpointData, CheckpointTransaction};
 use haneul_types::effects::TransactionEffects;
 use haneul_types::effects::TransactionEffectsAPI;
+use haneul_types::full_checkpoint_content::{CheckpointData, CheckpointTransaction};
 use haneul_types::transaction::{Command, TransactionDataAPI, TransactionKind};
 
 use crate::handlers::AnalyticsHandler;

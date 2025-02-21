@@ -10,9 +10,9 @@ use tokio::sync::Mutex;
 
 use haneul_json_rpc_types::HaneulMoveStruct;
 use haneul_package_resolver::Resolver;
-use haneul_rpc_api::{CheckpointData, CheckpointTransaction};
 use haneul_types::base_types::ObjectID;
 use haneul_types::effects::TransactionEffects;
+use haneul_types::full_checkpoint_content::{CheckpointData, CheckpointTransaction};
 use haneul_types::object::Object;
 
 use crate::handlers::{

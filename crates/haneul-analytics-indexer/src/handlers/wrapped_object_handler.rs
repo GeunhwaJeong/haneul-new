@@ -9,7 +9,7 @@ use haneul_types::SYSTEM_PACKAGE_ADDRESSES;
 use tokio::sync::Mutex;
 
 use haneul_package_resolver::Resolver;
-use haneul_rpc_api::{CheckpointData, CheckpointTransaction};
+use haneul_types::full_checkpoint_content::{CheckpointData, CheckpointTransaction};
 use haneul_types::object::Object;
 
 use crate::handlers::{get_move_struct, parse_struct, AnalyticsHandler};

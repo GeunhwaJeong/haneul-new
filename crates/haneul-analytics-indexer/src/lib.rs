@@ -19,12 +19,12 @@ use tracing::info;
 
 use haneul_config::object_storage_config::ObjectStoreConfig;
 use haneul_data_ingestion_core::Worker;
-use haneul_rpc_api::CheckpointData;
 use haneul_storage::object_store::util::{
     find_all_dirs_with_epoch_prefix, find_all_files_with_epoch_prefix,
 };
 use haneul_types::base_types::EpochId;
 use haneul_types::dynamic_field::DynamicFieldType;
+use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 
 use crate::analytics_metrics::AnalyticsMetrics;

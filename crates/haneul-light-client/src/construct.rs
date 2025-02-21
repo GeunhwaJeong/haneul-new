@@ -4,8 +4,8 @@
 use crate::proof::{Proof, ProofTarget, TransactionProof};
 
 use anyhow::anyhow;
-use haneul_rpc_api::{CheckpointData, CheckpointTransaction};
 use haneul_types::effects::TransactionEffectsAPI;
+use haneul_types::full_checkpoint_content::{CheckpointData, CheckpointTransaction};
 
 /// Construct a proof from the given checkpoint data and proof targets.
 ///

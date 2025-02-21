@@ -5,9 +5,9 @@ use anyhow::Result;
 use haneul_data_ingestion_core::Worker;
 use tokio::sync::Mutex;
 
-use haneul_rpc_api::{CheckpointData, CheckpointTransaction};
 use haneul_types::base_types::ObjectID;
 use haneul_types::effects::TransactionEffects;
+use haneul_types::full_checkpoint_content::{CheckpointData, CheckpointTransaction};
 use haneul_types::transaction::TransactionDataAPI;
 
 use crate::handlers::{AnalyticsHandler, InputObjectTracker, ObjectStatusTracker};

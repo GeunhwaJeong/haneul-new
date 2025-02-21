@@ -16,10 +16,10 @@ use crate::tables::EventEntry;
 use crate::FileType;
 use haneul_json_rpc_types::type_and_fields_from_move_event_data;
 use haneul_package_resolver::Resolver;
-use haneul_rpc_api::CheckpointData;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::TransactionEvents;
 use haneul_types::event::Event;
+use haneul_types::full_checkpoint_content::CheckpointData;
 
 pub struct EventHandler {
     state: Mutex<State>,

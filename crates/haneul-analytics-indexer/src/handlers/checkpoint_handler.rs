@@ -6,8 +6,8 @@ use fastcrypto::traits::EncodeDecodeBase64;
 use tokio::sync::Mutex;
 
 use haneul_data_ingestion_core::Worker;
-use haneul_rpc_api::{CheckpointData, CheckpointTransaction};
 use haneul_types::effects::TransactionEffectsAPI;
+use haneul_types::full_checkpoint_content::{CheckpointData, CheckpointTransaction};
 use haneul_types::messages_checkpoint::{CertifiedCheckpointSummary, CheckpointSummary};
 use haneul_types::transaction::TransactionDataAPI;
 
