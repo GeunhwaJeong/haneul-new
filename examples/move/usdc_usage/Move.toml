@@ -1,0 +1,11 @@
+[package]
+name = "usdc_usage"
+edition = "2024.beta"
+
+[dependencies]
+Haneul = { override = true, local = "../../../crates/haneul-framework/packages/haneul-framework" }
+usdc = { git = "https://github.com/circlefin/stablecoin-haneul.git", subdir = "packages/usdc", rev = "master" }
+
+
+[addresses]
+usdc_usage = "0x0"
