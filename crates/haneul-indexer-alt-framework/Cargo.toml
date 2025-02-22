@@ -32,6 +32,7 @@ url.workspace = true
 haneul-field-count.workspace = true
 haneul-indexer-alt-metrics.workspace = true
 haneul-pg-db.workspace = true
+haneul-sql-macro.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
 

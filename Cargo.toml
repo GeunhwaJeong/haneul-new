@@ -165,6 +165,7 @@ members = [
     "crates/haneul-snapshot",
     "crates/haneul-source-validation",
     "crates/haneul-source-validation-service",
+    "crates/haneul-sql-macro",
     "crates/haneul-storage",
     "crates/haneul-surfer",
     "crates/haneul-swarm",
@@ -692,6 +693,7 @@ haneul-simulator = { path = "crates/haneul-simulator" }
 haneul-snapshot = { path = "crates/haneul-snapshot" }
 haneul-source-validation = { path = "crates/haneul-source-validation" }
 haneul-source-validation-service = { path = "crates/haneul-source-validation-service" }
+haneul-sql-macro = { path = "crates/haneul-sql-macro" }
 haneul-storage = { path = "crates/haneul-storage" }
 haneul-surfer = { path = "crates/haneul-surfer" }
 haneul-swarm = { path = "crates/haneul-swarm" }
