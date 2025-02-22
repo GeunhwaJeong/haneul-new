@@ -8,14 +8,15 @@ use async_graphql::dataloader::Loader;
 use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl};
 use serde::de::DeserializeOwned;
 use haneul_indexer_alt_schema::{objects::StoredObject, schema::kv_objects};
+use haneul_kvstore::KeyValueStoreReader;
+use haneul_types::{base_types::ObjectID, object::Object, storage::ObjectKey};
+
+use crate::context::Context;
 
 use super::{
     bigtable_reader::BigtableReader, error::Error, object_info::LatestObjectInfoKey,
     object_versions::LatestObjectVersionKey, pg_reader::PgReader,
 };
-use crate::Context;
-use haneul_kvstore::KeyValueStoreReader;
-use haneul_types::{base_types::ObjectID, object::Object, storage::ObjectKey};
 
 /// Key for fetching the contents a particular version of an object.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

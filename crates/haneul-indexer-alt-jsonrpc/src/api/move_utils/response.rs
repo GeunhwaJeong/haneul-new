@@ -11,8 +11,8 @@ use haneul_package_resolver::{FunctionDef, OpenSignature, OpenSignatureBody, Ref
 use haneul_types::{base_types::ObjectID, Identifier};
 
 use crate::{
+    context::Context,
     error::{invalid_params, RpcError},
-    Context,
 };
 
 use super::error::Error;
