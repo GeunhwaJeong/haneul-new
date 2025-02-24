@@ -14,7 +14,7 @@ use crate::types::{
 use crate::{Error, OnlineServerContext, HaneulEnv};
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 
-/// This module implements the [Rosetta Block API](https://www.rosetta-api.org/docs/BlockApi.html)
+// This module implements the [Rosetta Block API](https://www.rosetta-api.org/docs/BlockApi.html)
 
 /// Get a block by its Block Identifier.
 /// [Rosetta API Spec](https://www.rosetta-api.org/docs/BlockApi.html#block)

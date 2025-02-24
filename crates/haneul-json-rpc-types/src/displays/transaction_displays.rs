@@ -14,7 +14,7 @@ use tabled::{
     settings::{style::HorizontalLine, Panel as TablePanel, Style as TableStyle},
 };
 
-impl<'a> Display for Pretty<'a, HaneulProgrammableTransactionBlock> {
+impl Display for Pretty<'_, HaneulProgrammableTransactionBlock> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let Pretty(ptb) = self;
         let HaneulProgrammableTransactionBlock { inputs, commands } = ptb;
@@ -88,7 +88,7 @@ impl<'a> Display for Pretty<'a, HaneulProgrammableTransactionBlock> {
     }
 }
 
-impl<'a> Display for Pretty<'a, HaneulCommand> {
+impl Display for Pretty<'_, HaneulCommand> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let Pretty(command) = self;
         match command {
@@ -147,7 +147,7 @@ impl<'a> Display for Pretty<'a, HaneulCommand> {
     }
 }
 
-impl<'a> Display for Pretty<'a, HaneulProgrammableMoveCall> {
+impl Display for Pretty<'_, HaneulProgrammableMoveCall> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let Pretty(move_call) = self;
         let HaneulProgrammableMoveCall {
@@ -177,7 +177,7 @@ impl<'a> Display for Pretty<'a, HaneulProgrammableMoveCall> {
     }
 }
 
-impl<'a> Display for Pretty<'a, HaneulArgument> {
+impl Display for Pretty<'_, HaneulArgument> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let Pretty(argument) = self;
 

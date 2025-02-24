@@ -285,7 +285,7 @@ impl AdapterInitConfig {
 }
 
 #[async_trait]
-impl<'a> MoveTestAdapter<'a> for HaneulTestAdapter {
+impl MoveTestAdapter<'_> for HaneulTestAdapter {
     type ExtraPublishArgs = HaneulPublishArgs;
     type ExtraRunArgs = HaneulRunArgs;
     type ExtraInitArgs = HaneulInitArgs;

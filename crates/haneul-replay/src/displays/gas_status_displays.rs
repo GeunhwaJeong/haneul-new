@@ -10,7 +10,7 @@ use tabled::{
     settings::{style::HorizontalLine, Style as TableStyle},
 };
 
-impl<'a> Display for Pretty<'a, HaneulGasStatus> {
+impl Display for Pretty<'_, HaneulGasStatus> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let Pretty(haneul_gas_status) = self;
         match haneul_gas_status {

@@ -66,7 +66,7 @@ impl BinaryFlavor {
     }
 
     const fn shift_and_flavor(unflavored: u32) -> u32 {
-        (Self::HANEUL_FLAVOR as u32) << Self::SHIFT_AMOUNT | unflavored
+        ((Self::HANEUL_FLAVOR as u32) << Self::SHIFT_AMOUNT) | unflavored
     }
 }
 

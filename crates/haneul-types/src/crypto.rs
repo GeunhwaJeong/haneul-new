@@ -124,12 +124,12 @@ pub fn verify_proof_of_possession(
     )
 }
 ///////////////////////////////////////////////
-/// Account Keys
-///
-/// * The following section defines the keypairs that are used by
-/// * accounts to interact with Haneul.
-/// * Currently we support eddsa and ecdsa on Haneul.
-///
+// Account Keys
+//
+// * The following section defines the keypairs that are used by
+// * accounts to interact with Haneul.
+// * Currently we support eddsa and ecdsa on Haneul.
+//
 
 #[allow(clippy::large_enum_variant)]
 #[derive(Debug, From, PartialEq, Eq)]
@@ -1376,7 +1376,7 @@ impl<const STRONG_THRESHOLD: bool> AuthorityQuorumSignInfo<STRONG_THRESHOLD> {
     pub fn authorities<'a>(
         &'a self,
         committee: &'a Committee,
-    ) -> impl Iterator<Item = HaneulResult<&AuthorityName>> {
+    ) -> impl Iterator<Item = HaneulResult<&'a AuthorityName>> {
         self.signers_map.iter().map(|i| {
             committee
                 .authority_by_index(i)

@@ -33,7 +33,7 @@ impl<'state, 'vm> TypeLayoutResolver<'state, 'vm> {
     }
 }
 
-impl<'state, 'vm> LayoutResolver for TypeLayoutResolver<'state, 'vm> {
+impl LayoutResolver for TypeLayoutResolver<'_, '_> {
     fn get_annotated_layout(
         &mut self,
         struct_tag: &StructTag,
@@ -53,13 +53,13 @@ impl<'state, 'vm> LayoutResolver for TypeLayoutResolver<'state, 'vm> {
     }
 }
 
-impl<'state> BackingPackageStore for NullHaneulResolver<'state> {
+impl BackingPackageStore for NullHaneulResolver<'_> {
     fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<PackageObject>> {
         self.0.get_package_object(package_id)
     }
 }
 
-impl<'state> ResourceResolver for NullHaneulResolver<'state> {
+impl ResourceResolver for NullHaneulResolver<'_> {
     type Error = HaneulError;
 
     fn get_resource(

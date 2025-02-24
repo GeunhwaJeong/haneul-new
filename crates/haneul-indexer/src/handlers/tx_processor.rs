@@ -195,7 +195,7 @@ impl<'a> EpochEndIndexingObjectStore<'a> {
     }
 }
 
-impl<'a> haneul_types::storage::ObjectStore for EpochEndIndexingObjectStore<'a> {
+impl haneul_types::storage::ObjectStore for EpochEndIndexingObjectStore<'_> {
     fn get_object(&self, object_id: &ObjectID) -> Option<Object> {
         self.objects
             .iter()
