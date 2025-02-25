@@ -36,5 +36,4 @@ haneul-rpc-api.workspace = true
 haneullabs-common.workspace = true
 
 [dev-dependencies]
-insta.workspace = true
 tempfile.workspace = true
