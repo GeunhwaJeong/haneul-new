@@ -655,7 +655,7 @@ haneul-genesis-builder = { path = "crates/haneul-genesis-builder" }
 haneul-http = { path = "crates/haneul-http" }
 haneul-indexer = { path = "crates/haneul-indexer" }
 haneul-indexer-alt = { path = "crates/haneul-indexer-alt" }
-haneul-indexer-alt-framework = { path = "crates/haneul-indexer-alt-framework" }
+haneul-indexer-alt-framework = { path = "crates/haneul-indexer-alt-framework", default-features = false }
 haneul-indexer-alt-jsonrpc = { path = "crates/haneul-indexer-alt-jsonrpc" }
 haneul-indexer-alt-metrics = { path = "crates/haneul-indexer-alt-metrics" }
 haneul-indexer-alt-restorer = { path = "crates/haneul-indexer-alt-restorer" }
