@@ -77,7 +77,8 @@ pub struct HaneulMoveNormalizedStruct {
 pub struct HaneulMoveNormalizedEnum {
     pub abilities: HaneulMoveAbilitySet,
     pub type_parameters: Vec<HaneulMoveStructTypeParameter>,
-    pub variants: BTreeMap<String, Vec<HaneulMoveNormalizedField>>,
+    // NB: Don't use a `BTreeMap` here as we want to keep the declaration order of the variants
+    pub variants: Vec<(String, Vec<HaneulMoveNormalizedField>)>,
 }
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
@@ -246,7 +247,7 @@ impl From<NormalizedEnum> for HaneulMoveNormalizedEnum {
                             .collect::<Vec<HaneulMoveNormalizedField>>(),
                     )
                 })
-                .collect::<BTreeMap<String, Vec<HaneulMoveNormalizedField>>>(),
+                .collect::<Vec<(String, Vec<HaneulMoveNormalizedField>)>>(),
         }
     }
 }
