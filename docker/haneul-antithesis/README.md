@@ -22,7 +22,7 @@ docker compose up
 
 
 **additional info**
-The version of `haneul` which is used to generate the genesis outputs much be on the same protocol version as the fullnode/validators (eg: `haneullabs/haneul-node:mainnet-v1.19.1`)
+The version of `haneul` that generates  the genesis outputs must be on the same protocol version as the fullnode/validators (for example, `haneullabs/haneul-node:mainnet-v1.19.1`)
 Here's an example of how to build a `haneul` binary that creates a genesis which is compatible with the release: `v1.19.1`
 ```
 git checkout releases/haneul-v1.19.0-release

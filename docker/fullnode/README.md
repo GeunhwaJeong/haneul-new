@@ -45,7 +45,7 @@ After the Full node starts you can test the JSON-RPC interfaces.
 
 Haneul Explorer supports connecting to a local network. To view activity on your local Full node, open the URL: [https://explorer.haneul.io/?network=local](https://explorer.haneul.io/?network=local).
 
-You can also change the network that Haneul Explorer connects to by select it in the Haneul Explorer interface. 
+You can also change the network that Haneul Explorer connects to by selecting it in the Haneul Explorer interface. 
 
 ### Stop the Full node
 
