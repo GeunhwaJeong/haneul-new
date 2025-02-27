@@ -7,6 +7,7 @@ use anyhow::{anyhow, bail, Result};
 use diesel::sql_query;
 use diesel_async::RunQueryDsl;
 use haneul_indexer_alt_framework::{
+    db,
     pipeline::{concurrent::Handler, Processor},
     FieldCount,
 };
@@ -14,7 +15,6 @@ use haneul_indexer_alt_schema::{
     objects::{StoredCoinBalanceBucket, StoredCoinOwnerKind},
     schema::coin_balance_buckets,
 };
-use haneul_pg_db as db;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     full_checkpoint_content::CheckpointData,

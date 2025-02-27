@@ -8,11 +8,11 @@ use anyhow::{bail, Context, Result};
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use haneul_indexer_alt_framework::{
+    db,
     models::cp_sequence_numbers::epoch_interval,
     pipeline::{concurrent::Handler, Processor},
 };
 use haneul_indexer_alt_schema::{epochs::StoredEpochStart, schema::kv_epoch_starts};
-use haneul_pg_db as db;
 use haneul_types::{
     full_checkpoint_content::CheckpointData,
     haneul_system_state::{get_haneul_system_state, HaneulSystemStateTrait},

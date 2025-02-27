@@ -8,11 +8,11 @@ use diesel::{upsert::excluded, ExpressionMethods};
 use diesel_async::RunQueryDsl;
 use futures::future::try_join_all;
 use haneul_indexer_alt_framework::{
+    db,
     pipeline::{sequential::Handler, Processor},
     FieldCount,
 };
 use haneul_indexer_alt_schema::{packages::StoredPackage, schema::sum_packages};
-use haneul_pg_db as db;
 use haneul_types::full_checkpoint_content::CheckpointData;
 
 const MAX_INSERT_CHUNK_ROWS: usize = i16::MAX as usize / StoredPackage::FIELD_COUNT;

@@ -7,11 +7,11 @@ use anyhow::Result;
 use diesel::sql_query;
 use diesel_async::RunQueryDsl;
 use haneul_indexer_alt_framework::{
+    db,
     pipeline::{concurrent::Handler, Processor},
     FieldCount,
 };
 use haneul_indexer_alt_schema::{objects::StoredObjInfo, schema::obj_info};
-use haneul_pg_db as db;
 use haneul_types::{base_types::ObjectID, full_checkpoint_content::CheckpointData, object::Object};
 
 use crate::consistent_pruning::{PruningInfo, PruningLookupTable};

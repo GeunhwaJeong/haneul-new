@@ -13726,7 +13726,6 @@ dependencies = [
  "haneul-indexer-alt-framework",
  "haneul-indexer-alt-metrics",
  "haneul-indexer-alt-schema",
- "haneul-pg-db",
  "haneul-protocol-config",
  "haneul-synthetic-ingestion",
  "haneul-types",
