@@ -4,14 +4,15 @@
 use rand::prelude::StdRng;
 use rand::SeedableRng;
 use haneul_storage::blob::{Blob, BlobEncoding};
-use haneul_types::crypto::KeypairTraits;
-use haneul_types::full_checkpoint_content::CheckpointData;
-use haneul_types::gas::GasCostSummary;
-use haneul_types::messages_checkpoint::{
+
+use crate::types::crypto::KeypairTraits;
+use crate::types::full_checkpoint_content::CheckpointData;
+use crate::types::gas::GasCostSummary;
+use crate::types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointContents, CheckpointSummary, SignedCheckpointSummary,
 };
-use haneul_types::supported_protocol_versions::ProtocolConfig;
-use haneul_types::utils::make_committee_key;
+use crate::types::supported_protocol_versions::ProtocolConfig;
+use crate::types::utils::make_committee_key;
 
 const RNG_SEED: [u8; 32] = [
     21, 23, 199, 200, 234, 250, 252, 178, 94, 15, 202, 178, 62, 186, 88, 137, 233, 192, 130, 157,
