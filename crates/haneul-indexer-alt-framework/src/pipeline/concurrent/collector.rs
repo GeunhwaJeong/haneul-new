@@ -195,13 +195,13 @@ pub(super) fn collector<H: Handler + 'static>(
 
 #[cfg(test)]
 mod tests {
-    use haneul_field_count::FieldCount;
     use haneul_pg_db as db;
     use haneul_types::full_checkpoint_content::CheckpointData;
 
     use crate::{
         metrics::tests::test_metrics,
         pipeline::{concurrent::max_chunk_rows, Processor},
+        FieldCount,
     };
 
     use super::*;

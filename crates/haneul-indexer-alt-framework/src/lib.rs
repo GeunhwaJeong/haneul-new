@@ -453,7 +453,6 @@ impl Indexer {
 #[cfg(test)]
 mod tests {
     use async_trait::async_trait;
-    use haneul_field_count::FieldCount;
     use haneul_pg_db as db;
     use haneul_types::full_checkpoint_content::CheckpointData;
 

@@ -4,14 +4,13 @@
 use std::{sync::Arc, time::Duration};
 
 use serde::{Deserialize, Serialize};
-use haneul_field_count::FieldCount;
 use haneul_pg_db::{self as db, Db};
 use haneul_types::full_checkpoint_content::CheckpointData;
 use tokio::{sync::mpsc, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
 use tracing::info;
 
-use crate::{metrics::IndexerMetrics, models::watermarks::CommitterWatermark};
+use crate::{metrics::IndexerMetrics, models::watermarks::CommitterWatermark, FieldCount};
 
 use super::{processor::processor, CommitterConfig, Processor, WatermarkPart, PIPELINE_BUFFER};
 

@@ -6,8 +6,9 @@ use anyhow::{bail, Result};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use std::ops::Range;
-use haneul_field_count::FieldCount;
 use haneul_pg_db::Connection;
+
+use crate::FieldCount;
 
 #[derive(Insertable, Selectable, Queryable, Debug, Clone, FieldCount)]
 #[diesel(table_name = cp_sequence_numbers)]
