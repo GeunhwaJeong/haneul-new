@@ -13723,7 +13723,6 @@ dependencies = [
  "rand 0.8.5",
  "serde",
  "haneul-default-config",
- "haneul-field-count",
  "haneul-indexer-alt-framework",
  "haneul-indexer-alt-metrics",
  "haneul-indexer-alt-schema",
