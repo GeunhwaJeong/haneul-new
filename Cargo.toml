@@ -43,7 +43,7 @@ exclude = [
     "external-crates/move/crates/move-stdlib-natives",
     "external-crates/move/crates/move-symbol-pool",
     "external-crates/move/crates/move-transactional-test-runner",
-    "external-crates/move/crates/move-trace-format",    
+    "external-crates/move/crates/move-trace-format",
     "external-crates/move/crates/move-unit-test",
     "external-crates/move/crates/move-vm-config",
     "external-crates/move/crates/move-vm-integration-tests",
@@ -100,6 +100,7 @@ members = [
     "crates/haneul-data-ingestion-core",
     "crates/haneul-deepbook-indexer",
     "crates/haneul-default-config",
+    "crates/haneul-display",
     "crates/haneul-e2e-tests",
     "crates/haneul-edge-proxy",
     "crates/haneul-enum-compat-util",
@@ -638,6 +639,7 @@ haneul-cost = { path = "crates/haneul-cost" }
 haneul-data-ingestion = { path = "crates/haneul-data-ingestion" }
 haneul-data-ingestion-core = { path = "crates/haneul-data-ingestion-core" }
 haneul-default-config = { path = "crates/haneul-default-config" }
+haneul-display = { path = "crates/haneul-display" }
 haneul-e2e-tests = { path = "crates/haneul-e2e-tests" }
 haneul-enum-compat-util = { path = "crates/haneul-enum-compat-util" }
 haneul-faucet = { path = "crates/haneul-faucet" }

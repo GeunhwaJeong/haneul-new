@@ -13190,6 +13190,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-display"
+version = "1.44.0"
+dependencies = [
+ "anyhow",
+ "move-core-types",
+ "haneul-json-rpc-types",
+ "haneul-types",
+ "thiserror 1.0.69",
+]
+
+[[package]]
 name = "haneul-e2e-tests"
 version = "1.44.0"
 dependencies = [
@@ -13820,6 +13831,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "haneul-default-config",
+ "haneul-display",
  "haneul-indexer-alt-metrics",
  "haneul-indexer-alt-schema",
  "haneul-json",
