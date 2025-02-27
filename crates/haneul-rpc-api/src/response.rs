@@ -11,7 +11,7 @@ use crate::{
     types::{
         X_HANEUL_CHAIN, X_HANEUL_CHAIN_ID, X_HANEUL_CHECKPOINT_HEIGHT, X_HANEUL_EPOCH,
         X_HANEUL_LOWEST_AVAILABLE_CHECKPOINT, X_HANEUL_LOWEST_AVAILABLE_CHECKPOINT_OBJECTS,
-        X_HANEUL_TIMESTAMP_MS,
+        X_HANEUL_TIMESTAMP, X_HANEUL_TIMESTAMP_MS,
     },
     RpcService,
 };
@@ -37,6 +37,14 @@ pub async fn append_info_headers(
             latest_checkpoint.sequence_number.into(),
         );
         headers.insert(X_HANEUL_TIMESTAMP_MS, latest_checkpoint.timestamp_ms.into());
+
+        headers.insert(
+            X_HANEUL_TIMESTAMP,
+            crate::proto::types::timestamp_ms_to_proto(latest_checkpoint.timestamp_ms)
+                .to_string()
+                .try_into()
+                .expect("timestamp is a valid HeaderValue"),
+        );
     }
 
     if let Ok(lowest_available_checkpoint) = state.reader.inner().get_lowest_available_checkpoint()

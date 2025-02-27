@@ -32,6 +32,11 @@ pub const X_HANEUL_EPOCH: &str = "x-haneul-epoch";
 /// Current timestamp of the chain - represented as number of milliseconds from the Unix epoch
 pub const X_HANEUL_TIMESTAMP_MS: &str = "x-haneul-timestamp-ms";
 
+/// Current timestamp of the chain - encoded in the [RFC 3339] format.
+///
+/// [RFC 3339]: https://www.ietf.org/rfc/rfc3339.txt
+pub const X_HANEUL_TIMESTAMP: &str = "x-haneul-timestamp";
+
 /// Response type for the transaction simulation endpoint
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct TransactionSimulationResponse {
