@@ -36,7 +36,6 @@ haneul-indexer-alt-framework.workspace = true
 haneul-indexer-alt-metrics.workspace = true
 haneul-indexer-alt-schema.workspace = true
 haneul-protocol-config.workspace = true
-haneul-types.workspace = true
 haneul-synthetic-ingestion = { workspace = true, optional = true }
 
 [dev-dependencies]

@@ -10,10 +10,10 @@ use futures::future::try_join_all;
 use haneul_indexer_alt_framework::{
     db,
     pipeline::{sequential::Handler, Processor},
+    types::{display::DisplayVersionUpdatedEvent, full_checkpoint_content::CheckpointData},
     FieldCount,
 };
 use haneul_indexer_alt_schema::{displays::StoredDisplay, schema::sum_displays};
-use haneul_types::{display::DisplayVersionUpdatedEvent, full_checkpoint_content::CheckpointData};
 
 const MAX_INSERT_CHUNK_ROWS: usize = i16::MAX as usize / StoredDisplay::FIELD_COUNT;
 

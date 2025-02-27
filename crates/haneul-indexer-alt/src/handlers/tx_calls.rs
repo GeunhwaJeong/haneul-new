@@ -11,10 +11,9 @@ use haneul_indexer_alt_framework::{
     db,
     models::cp_sequence_numbers::tx_interval,
     pipeline::{concurrent::Handler, Processor},
+    types::{full_checkpoint_content::CheckpointData, transaction::TransactionDataAPI},
 };
 use haneul_indexer_alt_schema::{schema::tx_calls, transactions::StoredTxCalls};
-use haneul_types::full_checkpoint_content::CheckpointData;
-use haneul_types::transaction::TransactionDataAPI;
 
 pub(crate) struct TxCalls;
 
@@ -89,11 +88,12 @@ impl Handler for TxCalls {
 mod tests {
     use super::*;
     use diesel_async::RunQueryDsl;
-    use haneul_indexer_alt_framework::{handlers::cp_sequence_numbers::CpSequenceNumbers, Indexer};
-    use haneul_indexer_alt_schema::MIGRATIONS;
-    use haneul_types::{
-        base_types::ObjectID, test_checkpoint_data_builder::TestCheckpointDataBuilder,
+    use haneul_indexer_alt_framework::{
+        handlers::cp_sequence_numbers::CpSequenceNumbers,
+        types::{base_types::ObjectID, test_checkpoint_data_builder::TestCheckpointDataBuilder},
+        Indexer,
     };
+    use haneul_indexer_alt_schema::MIGRATIONS;
 
     async fn get_all_tx_calls(conn: &mut db::Connection<'_>) -> Result<Vec<StoredTxCalls>> {
         Ok(tx_calls::table

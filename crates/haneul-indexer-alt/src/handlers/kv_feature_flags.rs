@@ -8,12 +8,12 @@ use diesel_async::RunQueryDsl;
 use haneul_indexer_alt_framework::{
     db,
     pipeline::{concurrent::Handler, Processor},
+    types::full_checkpoint_content::CheckpointData,
 };
 use haneul_indexer_alt_schema::{
     checkpoints::StoredGenesis, epochs::StoredFeatureFlag, schema::kv_feature_flags,
 };
 use haneul_protocol_config::ProtocolConfig;
-use haneul_types::full_checkpoint_content::CheckpointData;
 
 pub(crate) struct KvFeatureFlags(pub(crate) StoredGenesis);
 

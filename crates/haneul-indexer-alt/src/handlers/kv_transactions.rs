@@ -9,9 +9,9 @@ use diesel_async::RunQueryDsl;
 use haneul_indexer_alt_framework::{
     db,
     pipeline::{concurrent::Handler, Processor},
+    types::full_checkpoint_content::CheckpointData,
 };
 use haneul_indexer_alt_schema::{schema::kv_transactions, transactions::StoredTransaction};
-use haneul_types::full_checkpoint_content::CheckpointData;
 
 pub(crate) struct KvTransactions;
 
@@ -92,9 +92,10 @@ impl Handler for KvTransactions {
 mod tests {
     use super::*;
     use diesel_async::RunQueryDsl;
-    use haneul_indexer_alt_framework::Indexer;
+    use haneul_indexer_alt_framework::{
+        types::test_checkpoint_data_builder::TestCheckpointDataBuilder, Indexer,
+    };
     use haneul_indexer_alt_schema::MIGRATIONS;
-    use haneul_types::test_checkpoint_data_builder::TestCheckpointDataBuilder;
 
     async fn get_all_kv_transactions(
         conn: &mut db::Connection<'_>,

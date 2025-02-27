@@ -9,17 +9,17 @@ use diesel_async::RunQueryDsl;
 use haneul_indexer_alt_framework::{
     db,
     pipeline::{concurrent::Handler, Processor},
+    types::{
+        base_types::{ObjectID, HaneulAddress},
+        full_checkpoint_content::CheckpointData,
+        object::{Object, Owner},
+        TypeTag,
+    },
     FieldCount,
 };
 use haneul_indexer_alt_schema::{
     objects::{StoredCoinBalanceBucket, StoredCoinOwnerKind},
     schema::coin_balance_buckets,
-};
-use haneul_types::{
-    base_types::{ObjectID, HaneulAddress},
-    full_checkpoint_content::CheckpointData,
-    object::{Object, Owner},
-    TypeTag,
 };
 
 use crate::consistent_pruning::{PruningInfo, PruningLookupTable};
@@ -301,14 +301,18 @@ mod tests {
 
     use super::*;
     use diesel::QueryDsl;
-    use haneul_indexer_alt_framework::Indexer;
+    use haneul_indexer_alt_framework::{
+        types::{
+            base_types::{dbg_addr, MoveObjectType, ObjectID, SequenceNumber, HaneulAddress},
+            digests::TransactionDigest,
+            gas_coin::GAS,
+            object::{Authenticator, MoveObject, Object},
+            test_checkpoint_data_builder::TestCheckpointDataBuilder,
+        },
+        Indexer,
+    };
     use haneul_indexer_alt_schema::MIGRATIONS;
     use haneul_protocol_config::ProtocolConfig;
-    use haneul_types::base_types::{dbg_addr, MoveObjectType, ObjectID, SequenceNumber, HaneulAddress};
-    use haneul_types::digests::TransactionDigest;
-    use haneul_types::gas_coin::GAS;
-    use haneul_types::object::{Authenticator, MoveObject, Object};
-    use haneul_types::test_checkpoint_data_builder::TestCheckpointDataBuilder;
 
     // Get all balance buckets from the database, sorted by object_id and cp_sequence_number.
     async fn get_all_balance_buckets(

@@ -8,9 +8,9 @@ use diesel_async::RunQueryDsl;
 use haneul_indexer_alt_framework::{
     db,
     pipeline::{concurrent::Handler, Processor},
+    types::full_checkpoint_content::CheckpointData,
 };
 use haneul_indexer_alt_schema::{objects::StoredObjVersion, schema::obj_versions};
-use haneul_types::full_checkpoint_content::CheckpointData;
 
 pub(crate) struct ObjVersions;
 

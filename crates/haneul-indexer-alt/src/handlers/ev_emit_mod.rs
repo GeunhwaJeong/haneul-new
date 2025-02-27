@@ -11,9 +11,9 @@ use haneul_indexer_alt_framework::{
     db,
     models::cp_sequence_numbers::tx_interval,
     pipeline::{concurrent::Handler, Processor},
+    types::full_checkpoint_content::CheckpointData,
 };
 use haneul_indexer_alt_schema::{events::StoredEvEmitMod, schema::ev_emit_mod};
-use haneul_types::full_checkpoint_content::CheckpointData;
 
 pub(crate) struct EvEmitMod;
 
@@ -85,11 +85,12 @@ impl Handler for EvEmitMod {
 mod tests {
     use super::*;
     use diesel_async::RunQueryDsl;
-    use haneul_indexer_alt_framework::handlers::cp_sequence_numbers::CpSequenceNumbers;
-    use haneul_indexer_alt_framework::Indexer;
+    use haneul_indexer_alt_framework::{
+        handlers::cp_sequence_numbers::CpSequenceNumbers,
+        types::{event::Event, test_checkpoint_data_builder::TestCheckpointDataBuilder},
+        Indexer,
+    };
     use haneul_indexer_alt_schema::MIGRATIONS;
-    use haneul_types::event::Event;
-    use haneul_types::test_checkpoint_data_builder::TestCheckpointDataBuilder;
 
     // A helper function to return all entries in the ev_emit_mod table sorted by package, module,
     // tx_sequence_number, and sender.

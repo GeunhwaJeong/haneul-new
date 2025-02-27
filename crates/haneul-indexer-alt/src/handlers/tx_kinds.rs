@@ -11,12 +11,12 @@ use haneul_indexer_alt_framework::{
     db,
     models::cp_sequence_numbers::tx_interval,
     pipeline::{concurrent::Handler, Processor},
+    types::full_checkpoint_content::CheckpointData,
 };
 use haneul_indexer_alt_schema::{
     schema::tx_kinds,
     transactions::{StoredKind, StoredTxKind},
 };
-use haneul_types::full_checkpoint_content::CheckpointData;
 
 pub(crate) struct TxKinds;
 
@@ -87,9 +87,11 @@ impl Handler for TxKinds {
 mod tests {
     use super::*;
     use diesel_async::RunQueryDsl;
-    use haneul_indexer_alt_framework::{handlers::cp_sequence_numbers::CpSequenceNumbers, Indexer};
+    use haneul_indexer_alt_framework::{
+        handlers::cp_sequence_numbers::CpSequenceNumbers,
+        types::test_checkpoint_data_builder::TestCheckpointDataBuilder, Indexer,
+    };
     use haneul_indexer_alt_schema::MIGRATIONS;
-    use haneul_types::test_checkpoint_data_builder::TestCheckpointDataBuilder;
 
     async fn get_all_tx_kinds(conn: &mut db::Connection<'_>) -> Result<Vec<i64>> {
         Ok(tx_kinds::table

@@ -6,16 +6,18 @@ use std::time::Duration;
 use anyhow::{bail, Context, Result};
 use diesel::{OptionalExtension, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
-use haneul_indexer_alt_framework::task::graceful_shutdown;
+use haneul_indexer_alt_framework::{
+    task::graceful_shutdown,
+    types::{
+        full_checkpoint_content::CheckpointData,
+        haneul_system_state::{get_haneul_system_state, HaneulSystemStateTrait},
+        transaction::{TransactionDataAPI, TransactionKind},
+    },
+};
 use haneul_indexer_alt_schema::{
     checkpoints::StoredGenesis,
     epochs::StoredEpochStart,
     schema::{kv_epoch_starts, kv_genesis},
-};
-use haneul_types::{
-    full_checkpoint_content::CheckpointData,
-    haneul_system_state::{get_haneul_system_state, HaneulSystemStateTrait},
-    transaction::{TransactionDataAPI, TransactionKind},
 };
 use tokio_util::sync::CancellationToken;
 use tracing::info;

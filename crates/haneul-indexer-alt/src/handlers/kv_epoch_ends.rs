@@ -11,13 +11,13 @@ use haneul_indexer_alt_framework::{
     db,
     models::cp_sequence_numbers::epoch_interval,
     pipeline::{concurrent::Handler, Processor},
+    types::{
+        event::SystemEpochInfoEvent,
+        full_checkpoint_content::CheckpointData,
+        transaction::{TransactionDataAPI, TransactionKind},
+    },
 };
 use haneul_indexer_alt_schema::{epochs::StoredEpochEnd, schema::kv_epoch_ends};
-use haneul_types::{
-    event::SystemEpochInfoEvent,
-    full_checkpoint_content::CheckpointData,
-    transaction::{TransactionDataAPI, TransactionKind},
-};
 
 pub(crate) struct KvEpochEnds;
 
@@ -156,10 +156,10 @@ mod tests {
     use super::*;
     use anyhow::Result;
     use haneul_indexer_alt_framework::{
-        db::Connection, handlers::cp_sequence_numbers::CpSequenceNumbers, Indexer,
+        db::Connection, handlers::cp_sequence_numbers::CpSequenceNumbers,
+        types::test_checkpoint_data_builder::TestCheckpointDataBuilder, Indexer,
     };
     use haneul_indexer_alt_schema::MIGRATIONS;
-    use haneul_types::test_checkpoint_data_builder::TestCheckpointDataBuilder;
 
     async fn get_all_kv_epoch_ends(conn: &mut Connection<'_>) -> Result<Vec<StoredEpochEnd>> {
         let result = kv_epoch_ends::table

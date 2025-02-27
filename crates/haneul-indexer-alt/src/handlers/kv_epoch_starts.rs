@@ -11,13 +11,13 @@ use haneul_indexer_alt_framework::{
     db,
     models::cp_sequence_numbers::epoch_interval,
     pipeline::{concurrent::Handler, Processor},
+    types::{
+        full_checkpoint_content::CheckpointData,
+        haneul_system_state::{get_haneul_system_state, HaneulSystemStateTrait},
+        transaction::{TransactionDataAPI, TransactionKind},
+    },
 };
 use haneul_indexer_alt_schema::{epochs::StoredEpochStart, schema::kv_epoch_starts};
-use haneul_types::{
-    full_checkpoint_content::CheckpointData,
-    haneul_system_state::{get_haneul_system_state, HaneulSystemStateTrait},
-    transaction::{TransactionDataAPI, TransactionKind},
-};
 
 pub(crate) struct KvEpochStarts;
 

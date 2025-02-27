@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 
 use anyhow::bail;
 use dashmap::DashMap;
-use haneul_types::base_types::ObjectID;
+use haneul_indexer_alt_framework::types::base_types::ObjectID;
 
 #[derive(Default)]
 pub(crate) struct PruningLookupTable {

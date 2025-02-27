@@ -13728,7 +13728,6 @@ dependencies = [
  "haneul-indexer-alt-schema",
  "haneul-protocol-config",
  "haneul-synthetic-ingestion",
- "haneul-types",
  "telemetry-subscribers",
  "tempfile",
  "tokio",
