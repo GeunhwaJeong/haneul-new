@@ -3,7 +3,7 @@ name = "vesting"
 edition = "2024.beta"
 
 [dependencies]
-Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir = "crates/haneul-framework/packages/haneul-framework", rev = "framework/testnet" }
+Haneul = { local = "../../crates/haneul-framework/packages/haneul-framework"  }
 
 [addresses]
 vesting = "0x0"
