@@ -162,7 +162,6 @@ const concepts = [
 			'concepts/tokenomics/vesting-strategies'
 		],
 	},
-	'concepts/haneul-bridge',
 	'concepts/research-papers',
 ];
 module.exports = concepts;
