@@ -13838,8 +13838,11 @@ dependencies = [
  "haneul-indexer-alt",
  "haneul-indexer-alt-framework",
  "haneul-indexer-alt-jsonrpc",
+ "haneul-macros",
  "haneul-move-build",
  "haneul-pg-db",
+ "haneul-protocol-config",
+ "haneul-simulator",
  "haneul-swarm-config",
  "haneul-transactional-test-runner",
  "haneul-types",
@@ -13848,6 +13851,7 @@ dependencies = [
  "test-cluster",
  "tokio",
  "tokio-util 0.7.13 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tracing",
  "url",
 ]
 

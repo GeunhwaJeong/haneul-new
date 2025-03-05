@@ -32,6 +32,9 @@ haneul-types.workspace = true
 
 [target.'cfg(msim)'.dependencies]
 msim.workspace = true
+haneul-protocol-config.workspace = true
+haneul-simulator.workspace = true
+tracing.workspace = true
 
 [dev-dependencies]
 async-trait.workspace = true
@@ -43,7 +46,9 @@ telemetry-subscribers.workspace = true
 
 move-core-types.workspace = true
 
+haneul-macros.workspace = true
 haneul-move-build.workspace = true
 haneul-swarm-config.workspace = true
 haneul-transactional-test-runner.workspace = true
 test-cluster.workspace = true
+tracing.workspace = true
