@@ -13312,7 +13312,6 @@ dependencies = [
  "serde",
  "serde_json",
  "shared-crypto",
- "haneul",
  "haneul-config",
  "haneul-core",
  "haneul-framework",
