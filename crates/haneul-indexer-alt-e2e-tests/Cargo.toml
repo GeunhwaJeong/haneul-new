@@ -41,11 +41,13 @@ async-trait.workspace = true
 datatest-stable.workspace = true
 jsonrpsee.workspace = true
 reqwest.workspace = true
+serde.workspace = true
 serde_json.workspace = true
 telemetry-subscribers.workspace = true
 
 move-core-types.workspace = true
 
+haneul-json-rpc-types.workspace = true
 haneul-macros.workspace = true
 haneul-move-build.workspace = true
 haneul-swarm-config.workspace = true
