@@ -13,7 +13,7 @@ use haneul_json_rpc_types::{
     HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_keys::keystore::{AccountKeystore, Keystore};
-use haneul_move_build::BuildConfig as MoveBuildConfig;
+use haneul_move_build::BuildConfig;
 
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
@@ -135,7 +135,7 @@ pub async fn init_package(
 ) -> Result<InitRet> {
     let path_buf = base::reroot_path(Some(path))?;
 
-    let move_build_config = MoveBuildConfig::default();
+    let move_build_config = BuildConfig::new_for_testing();
     let compiled_modules = move_build_config.build(path_buf.as_path())?;
     let modules_bytes = compiled_modules.get_package_bytes(false);
 
