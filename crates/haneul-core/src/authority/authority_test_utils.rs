@@ -7,6 +7,7 @@ use crate::consensus_handler::SequencedConsensusTransaction;
 use core::default::Default;
 use fastcrypto::hash::MultisetHash;
 use fastcrypto::traits::KeyPair;
+use haneul_protocol_config::Chain;
 use haneul_types::crypto::{AccountKeyPair, AuthorityKeyPair};
 use haneul_types::messages_consensus::ConsensusTransaction;
 use haneul_types::utils::to_sender_signed_transaction;
@@ -184,8 +185,14 @@ pub async fn init_state_with_committee(
     genesis: &Genesis,
     authority_key: &AuthorityKeyPair,
 ) -> Arc<AuthorityState> {
+    let mut protocol_config =
+        ProtocolConfig::get_for_version(ProtocolVersion::max(), Chain::Unknown);
+    protocol_config
+        .set_per_object_congestion_control_mode_for_testing(PerObjectCongestionControlMode::None);
+
     TestAuthorityBuilder::new()
         .with_genesis_and_keypair(genesis, authority_key)
+        .with_protocol_config(protocol_config)
         .build()
         .await
 }
