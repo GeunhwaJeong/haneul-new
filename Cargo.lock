@@ -14581,6 +14581,8 @@ dependencies = [
  "haneul-archival",
  "haneul-config",
  "haneul-macros",
+ "haneul-protocol-config",
+ "haneul-simulator",
  "haneul-storage",
  "haneul-swarm-config",
  "haneul-types",
