@@ -66,5 +66,12 @@ pub async fn append_info_headers(
         );
     }
 
+    headers.insert(
+        axum::http::header::SERVER,
+        format!("haneul-node/{}", state.software_version())
+            .try_into()
+            .expect("server version is a valid HeaderValue"),
+    );
+
     (headers, response)
 }
