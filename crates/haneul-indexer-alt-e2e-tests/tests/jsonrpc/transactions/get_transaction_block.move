@@ -129,3 +129,11 @@ module test::counter {
     }
   ]
 }
+
+//# run-jsonrpc
+{
+  "method": "haneul_getTransactionBlock",
+  "params": [
+    "@{digest_3}"
+  ]
+}
