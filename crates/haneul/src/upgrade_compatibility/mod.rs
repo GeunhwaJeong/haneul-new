@@ -45,7 +45,7 @@ use move_package::compilation::compiled_package::CompiledUnitWithSource;
 use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulRawData};
 use haneul_move_build::CompiledPackage;
 use haneul_protocol_config::ProtocolConfig;
-use haneul_sdk::HaneulClient;
+use haneul_sdk::apis::ReadApi;
 use haneul_types::move_package::UpgradePolicy;
 use haneul_types::{base_types::ObjectID, execution_config_utils::to_binary_config};
 
@@ -654,15 +654,14 @@ upgrade_codes!(
 
 /// Check the upgrade compatibility of a new package with an existing on-chain package.
 pub(crate) async fn check_compatibility(
-    client: &HaneulClient,
+    read_api: &ReadApi,
     package_id: ObjectID,
     new_package: CompiledPackage,
     package_path: PathBuf,
     upgrade_policy: u8,
     protocol_config: ProtocolConfig,
 ) -> Result<(), Error> {
-    let existing_obj_read = client
-        .read_api()
+    let existing_obj_read = read_api
         .get_object_with_options(package_id, HaneulObjectDataOptions::new().with_bcs())
         .await
         .context("Unable to get existing package")?;
