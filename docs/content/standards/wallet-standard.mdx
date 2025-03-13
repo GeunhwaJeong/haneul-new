@@ -258,7 +258,7 @@ Upon wallet connection, your app has the necessary information to execute transa
 Construct the transaction separately with the `@haneullabs/haneul` library and then sign it with the private key of the user. Use the `haneul:signTransaction` feature to achieve this:
 
 ```tsx
-wallet.features[haneul:signTransaction].singTransaction(<Transaction>, <WalletAccount>);
+wallet.features[haneul:signTransaction].signTransaction(<Transaction>, <WalletAccount>);
 ```
 
 Similar to connections, this process opens a pop-up dialog for the user to either accept or decline the transaction. Upon accepting, the function returns an object in the form `{bytes: String, signature: Uint8Array}`. The `bytes` value is the `b64` encoding of the transaction and the `signature` value is the transaction signature.
