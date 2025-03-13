@@ -32,7 +32,7 @@ async fn main() {
 
     let args = Args::parse();
     let _guard = match args.command {
-        HaneulCommand::Console { .. } | HaneulCommand::KeyTool { .. } | HaneulCommand::Move { .. } => {
+        HaneulCommand::KeyTool { .. } | HaneulCommand::Move { .. } => {
             telemetry_subscribers::TelemetryConfig::new()
                 .with_log_level("error")
                 .with_env()
