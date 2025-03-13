@@ -65,26 +65,41 @@ exit_code: 0
 === munge Move.toml files ===
 === publish dependency (should warn about deprecation) ===
 [Warning]: Dependency sources are no longer verified automatically during publication and upgrade, so the `--skip-dependency-verification` flag is no longer necessary.
+[note] Dependencies on Bridge, DeepBook, MoveStdlib, Haneul, and HaneulSystem are automatically added, but this feature is disabled for your package because you have explicitly included dependencies on Haneul. Consider removing these dependencies from Move.toml.
+INCLUDING DEPENDENCY Haneul
+INCLUDING DEPENDENCY MoveStdlib
 BUILDING dependency
 Skipping dependency verification
 === publish package v0 (should warn about deprecation) ===
 [Warning]: Dependency sources are no longer verified automatically during publication and upgrade, so the `--skip-dependency-verification` flag is no longer necessary.
+[note] Dependencies on Bridge, DeepBook, MoveStdlib, Haneul, and HaneulSystem are automatically added, but this feature is disabled for your package because you have explicitly included dependencies on Haneul. Consider removing these dependencies from Move.toml.
 INCLUDING DEPENDENCY dependency
+INCLUDING DEPENDENCY Haneul
+INCLUDING DEPENDENCY MoveStdlib
 BUILDING example
 Skipping dependency verification
 === upgrade package (should warn about deprecation) ===
 [Warning]: Dependency sources are no longer verified automatically during publication and upgrade, so the `--skip-dependency-verification` flag is no longer necessary.
+[note] Dependencies on Bridge, DeepBook, MoveStdlib, Haneul, and HaneulSystem are automatically added, but this feature is disabled for your package because you have explicitly included dependencies on Haneul. Consider removing these dependencies from Move.toml.
 INCLUDING DEPENDENCY dependency
+INCLUDING DEPENDENCY Haneul
+INCLUDING DEPENDENCY MoveStdlib
 BUILDING example
 Skipping dependency verification
 === modify dependency ===
 === try to publish with modified dep (should succeed) ===
 [Warning]: Dependency sources are no longer verified automatically during publication and upgrade, so the `--skip-dependency-verification` flag is no longer necessary.
+[note] Dependencies on Bridge, DeepBook, MoveStdlib, Haneul, and HaneulSystem are automatically added, but this feature is disabled for your package because you have explicitly included dependencies on Haneul. Consider removing these dependencies from Move.toml.
 INCLUDING DEPENDENCY dependency
+INCLUDING DEPENDENCY Haneul
+INCLUDING DEPENDENCY MoveStdlib
 BUILDING example
 Skipping dependency verification
 === try to upgrade with modified dep (should succeed) ===
 [Warning]: Dependency sources are no longer verified automatically during publication and upgrade, so the `--skip-dependency-verification` flag is no longer necessary.
+[note] Dependencies on Bridge, DeepBook, MoveStdlib, Haneul, and HaneulSystem are automatically added, but this feature is disabled for your package because you have explicitly included dependencies on Haneul. Consider removing these dependencies from Move.toml.
 INCLUDING DEPENDENCY dependency
+INCLUDING DEPENDENCY Haneul
+INCLUDING DEPENDENCY MoveStdlib
 BUILDING example
 Skipping dependency verification

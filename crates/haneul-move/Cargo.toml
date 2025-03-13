@@ -34,6 +34,7 @@ haneul-move-natives = { path = "../../haneul-execution/latest/haneul-move-native
 haneul-move-build.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
+haneul-package-management.workspace = true
 better_any = "0.1.1"
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]

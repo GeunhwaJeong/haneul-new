@@ -3,8 +3,7 @@ name = "dependency"
 edition = "2024.beta"
 
 [dependencies]
-# Haneul = { local = "FRAMEWORK_DIR", override = true }
+Haneul = { local = "FRAMEWORK_DIR", override = true }
 
 [addresses]
 dependency = "0x0"
-

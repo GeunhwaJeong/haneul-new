@@ -6,11 +6,6 @@ use move_cli::base::new;
 use move_package::source_package::layout::SourcePackageLayout;
 use std::{fs::create_dir_all, io::Write, path::Path};
 
-const HANEUL_PKG_NAME: &str = "Haneul";
-
-// Use testnet by default. Probably want to add options to make this configurable later
-const HANEUL_PKG_PATH: &str = "{ git = \"https://github.com/GeunhwaJeong/haneul.git\", subdir = \"crates/haneul-framework/packages/haneul-framework\", rev = \"framework/testnet\", override = true }";
-
 #[derive(Parser)]
 #[group(id = "haneul-move-new")]
 pub struct New {
@@ -24,7 +19,7 @@ impl New {
         let provided_name = &self.new.name.to_string();
 
         self.new
-            .execute(path, [(HANEUL_PKG_NAME, HANEUL_PKG_PATH)], [(name, "0x0")], "")?;
+            .execute(path, [] as [(&str, &str); 0], [(name, "0x0")], "")?;
         let p = path.unwrap_or_else(|| Path::new(&provided_name));
         let mut w = std::fs::File::create(
             p.join(SourcePackageLayout::Sources.path())
