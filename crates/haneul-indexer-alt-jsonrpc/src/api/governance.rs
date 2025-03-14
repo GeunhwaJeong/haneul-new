@@ -22,7 +22,7 @@ use haneul_types::{
 
 use crate::{
     context::Context,
-    data::objects::load_latest_deserialized,
+    data::objects::load_live_deserialized,
     error::{rpc_bail, RpcError},
 };
 
@@ -89,7 +89,7 @@ async fn rgp_response(ctx: &Context) -> Result<BigInt<u64>, RpcError> {
 async fn latest_haneul_system_state_response(
     ctx: &Context,
 ) -> Result<HaneulSystemStateSummary, RpcError> {
-    let wrapper: HaneulSystemStateWrapper = load_latest_deserialized(ctx, HANEUL_SYSTEM_STATE_OBJECT_ID)
+    let wrapper: HaneulSystemStateWrapper = load_live_deserialized(ctx, HANEUL_SYSTEM_STATE_OBJECT_ID)
         .await
         .context("Failed to fetch system state wrapper object")?;
 
@@ -101,12 +101,12 @@ async fn latest_haneul_system_state_response(
     .context("Failed to derive inner system state field ID")?;
 
     Ok(match wrapper.version {
-        1 => load_latest_deserialized::<Field<u64, HaneulSystemStateInnerV1>>(ctx, inner_id)
+        1 => load_live_deserialized::<Field<u64, HaneulSystemStateInnerV1>>(ctx, inner_id)
             .await
             .context("Failed to fetch inner system state object")?
             .value
             .into_haneul_system_state_summary(),
-        2 => load_latest_deserialized::<Field<u64, HaneulSystemStateInnerV2>>(ctx, inner_id)
+        2 => load_live_deserialized::<Field<u64, HaneulSystemStateInnerV2>>(ctx, inner_id)
             .await
             .context("Failed to fetch inner system state object")?
             .value
