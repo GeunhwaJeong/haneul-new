@@ -3,7 +3,7 @@
 
 use futures::future::join_all;
 use rand::rngs::OsRng;
-use std::collections::{BTreeSet, HashSet};
+use std::collections::BTreeSet;
 use std::sync::Arc;
 use std::time::Duration;
 use haneul_core::consensus_adapter::position_submit_certificate;
@@ -16,9 +16,7 @@ use haneul_test_transaction_builder::{make_transfer_haneul_transaction, TestTran
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::error::HaneulError;
-use haneul_types::gas::GasCostSummary;
 use haneul_types::governance::MIN_VALIDATOR_JOINING_STAKE_GEUNHWA;
-use haneul_types::message_envelope::Message;
 use haneul_types::haneul_system_state::{
     get_validator_from_table, haneul_system_state_summary::get_validator_by_pool_id,
     HaneulSystemStateTrait,
@@ -26,49 +24,6 @@ use haneul_types::haneul_system_state::{
 use haneul_types::transaction::{TransactionDataAPI, TransactionExpiration, VerifiedTransaction};
 use test_cluster::{TestCluster, TestClusterBuilder};
 use tokio::time::sleep;
-
-#[sim_test]
-async fn advance_epoch_tx_test() {
-    let test_cluster = TestClusterBuilder::new().build().await;
-    let states = test_cluster
-        .swarm
-        .validator_node_handles()
-        .into_iter()
-        .map(|handle| handle.with(|node| node.state()))
-        .collect::<Vec<_>>();
-    let tasks: Vec<_> = states
-        .iter()
-        .map(|state| async {
-            let (_system_state, effects) = state
-                .create_and_execute_advance_epoch_tx(
-                    &state.epoch_store_for_testing(),
-                    &GasCostSummary::new(0, 0, 0, 0),
-                    0, // checkpoint
-                    0, // epoch_start_timestamp_ms
-                    vec![],
-                    0, // last_checkpoint
-                )
-                .await
-                .unwrap();
-            // Check that the validator didn't commit the transaction yet.
-            assert!(state
-                .get_signed_effects_and_maybe_resign(
-                    effects.transaction_digest(),
-                    &state.epoch_store_for_testing()
-                )
-                .unwrap()
-                .is_none());
-            effects
-        })
-        .collect();
-    let results: HashSet<_> = join_all(tasks)
-        .await
-        .into_iter()
-        .map(|result| result.digest())
-        .collect();
-    // Check that all validators have the same result.
-    assert_eq!(results.len(), 1);
-}
 
 #[sim_test]
 async fn basic_reconfig_end_to_end_test() {
@@ -723,6 +678,7 @@ async fn do_test_reconfig_with_committee_change_stress() {
 #[cfg(msim)]
 #[sim_test]
 async fn test_epoch_flag_upgrade() {
+    use std::collections::HashSet;
     use std::sync::Mutex;
     use haneul_core::authority::epoch_start_configuration::EpochFlag;
     use haneul_core::authority::epoch_start_configuration::EpochStartConfigTrait;

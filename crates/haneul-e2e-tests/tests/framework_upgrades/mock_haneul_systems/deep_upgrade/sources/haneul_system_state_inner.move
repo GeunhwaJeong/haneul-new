@@ -21,6 +21,8 @@ module haneul_system::haneul_system_state_inner {
     // Not using MAX - 9 since it's already used in the shallow upgrade test.
     const SYSTEM_STATE_VERSION_V2: u64 = 18446744073709551607;  // u64::MAX - 8
 
+    const EXTRA_FIELD_EXECUTION_TIME_ESTIMATES_KEY: u64 = 0;
+
     public struct SystemParameters has store {
         epoch_duration_ms: u64,
         extra_fields: Bag,
@@ -184,5 +186,12 @@ module haneul_system::haneul_system_state_inner {
             inactive_validators,
             extra_fields,
         }
+    }
+
+    public(package) fun store_execution_time_estimates(self: &mut HaneulSystemStateInnerV2, estimates: vector<u8>) {
+        if (bag::contains(&self.extra_fields, EXTRA_FIELD_EXECUTION_TIME_ESTIMATES_KEY)) {
+            let _: vector<u8> = bag::remove(&mut self.extra_fields, EXTRA_FIELD_EXECUTION_TIME_ESTIMATES_KEY);
+        };
+        bag::add(&mut self.extra_fields, EXTRA_FIELD_EXECUTION_TIME_ESTIMATES_KEY, estimates);
     }
 }
