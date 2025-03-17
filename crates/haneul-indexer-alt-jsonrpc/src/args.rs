@@ -7,7 +7,7 @@ use haneul_indexer_alt_metrics::MetricsArgs;
 use haneul_pg_db::DbArgs;
 use url::Url;
 
-use crate::{api::write::WriteArgs, data::system_package_task::SystemPackageTaskArgs, RpcArgs};
+use crate::{data::system_package_task::SystemPackageTaskArgs, NodeArgs, RpcArgs};
 
 #[derive(clap::Parser, Debug, Clone)]
 pub struct Args {
@@ -40,7 +40,7 @@ pub enum Command {
         metrics_args: MetricsArgs,
 
         #[command(flatten)]
-        write_args: WriteArgs,
+        node_args: NodeArgs,
 
         /// Path to the RPC's configuration TOML file. If one is not provided, the default values for
         /// the configuration will be set.
