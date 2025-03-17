@@ -79,8 +79,6 @@ members = [
     "crates/haneullabs-metrics",
     "crates/haneullabs-network",
     "crates/haneullabs-service",
-    "crates/haneullabs-util-mem",
-    "crates/haneullabs-util-mem-derive",
     "crates/prometheus-closure-metric",
     "crates/shared-crypto",
     "crates/simulacrum",
@@ -625,8 +623,6 @@ haneullabs-common = { path = "crates/haneullabs-common" }
 haneullabs-metrics = { path = "crates/haneullabs-metrics" }
 haneullabs-network = { path = "crates/haneullabs-network" }
 haneullabs-service = { path = "crates/haneullabs-service" }
-haneullabs-util-mem = { path = "crates/haneullabs-util-mem" }
-haneullabs-util-mem-derive = { path = "crates/haneullabs-util-mem-derive" }
 prometheus-closure-metric = { path = "crates/prometheus-closure-metric" }
 shared-crypto = { path = "crates/shared-crypto" }
 simulacrum = { path = "crates/simulacrum" }
