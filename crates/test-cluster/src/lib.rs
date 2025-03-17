@@ -23,7 +23,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_node::HaneulNodeHandle;
-use haneul_protocol_config::ProtocolVersion;
+use haneul_protocol_config::{Chain, ProtocolVersion};
 use haneul_sdk::apis::QuorumDriverApi;
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::wallet_context::WalletContext;
@@ -848,6 +848,8 @@ pub struct TestClusterBuilder {
     validator_state_accumulator_v2_enabled_config: StateAccumulatorV2EnabledConfig,
 
     indexer_backed_rpc: bool,
+
+    chain_override: Option<Chain>,
 }
 
 impl TestClusterBuilder {
@@ -855,6 +857,7 @@ impl TestClusterBuilder {
         TestClusterBuilder {
             genesis_config: None,
             network_config: None,
+            chain_override: None,
             additional_objects: vec![],
             fullnode_rpc_port: None,
             num_validators: None,
@@ -1089,6 +1092,11 @@ impl TestClusterBuilder {
         self
     }
 
+    pub fn with_chain_override(mut self, chain: Chain) -> Self {
+        self.chain_override = Some(chain);
+        self
+    }
+
     pub async fn build(mut self) -> TestCluster {
         // All test clusters receive a continuous stream of random JWKs.
         // If we later use zklogin authenticated transactions in tests we will need to supply
@@ -1208,6 +1216,10 @@ impl TestClusterBuilder {
             .with_fullnode_run_with_range(self.fullnode_run_with_range)
             .with_fullnode_policy_config(self.fullnode_policy_config.clone())
             .with_fullnode_fw_config(self.fullnode_fw_config.clone());
+
+        if let Some(chain) = self.chain_override {
+            builder = builder.with_chain_override(chain);
+        }
 
         if let Some(genesis_config) = self.genesis_config.take() {
             builder = builder.with_genesis_config(genesis_config);
