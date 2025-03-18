@@ -9,7 +9,6 @@ use prometheus::core::{Atomic, AtomicU64};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use haneul_core::authority::authority_per_epoch_store::AuthorityPerEpochStore;
-use haneul_core::authority::epoch_start_configuration::EpochStartConfigTrait;
 use haneul_storage::package_object_cache::PackageObjectCache;
 use haneul_types::base_types::{EpochId, ObjectID, ObjectRef, SequenceNumber, VersionNumber};
 use haneul_types::error::{HaneulError, HaneulResult};
@@ -74,17 +73,7 @@ impl InMemoryObjectStore {
                         .ok_or_else(|| HaneulError::GenericAuthorityError {
                             error: "Shared object versions should have been assigned.".to_string(),
                         })?;
-                    let initial_shared_version = if epoch_store
-                        .epoch_start_config()
-                        .use_version_assignment_tables_v3()
-                    {
-                        *initial_shared_version
-                    } else {
-                        // (before ConsensusV2 objects, we didn't track initial shared
-                        // version for shared object locks)
-                        SequenceNumber::UNKNOWN
-                    };
-                    let version = shared_version_assignments.get(&(*id, initial_shared_version)).unwrap_or_else(|| {
+                    let version = shared_version_assignments.get(&(*id, *initial_shared_version)).unwrap_or_else(|| {
                         panic!("Shared object version should have been assigned. key: {tx_key:?}, obj id: {id:?}")
                     });
 
