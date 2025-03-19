@@ -17,6 +17,6 @@
   "dependencies": {
     "@haneullabs/kiosk": "^0.9.34",
     "@haneullabs/haneul": "^1.18.0",
-    "commander": "^11.0.0"
+    "commander": "^11.1.0"
   }
 }
