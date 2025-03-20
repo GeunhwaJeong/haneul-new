@@ -14100,6 +14100,7 @@ dependencies = [
  "serde_json",
  "haneul-default-config",
  "haneul-indexer-alt-metrics",
+ "haneul-protocol-config",
  "telemetry-subscribers",
  "thiserror 1.0.69",
  "tokio",
