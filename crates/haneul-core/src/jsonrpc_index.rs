@@ -192,7 +192,7 @@ impl IndexStoreMetrics {
 pub struct IndexStoreCaches {
     per_coin_type_balance: ShardedLruCache<(HaneulAddress, TypeTag), HaneulResult<TotalBalance>>,
     all_balances: ShardedLruCache<HaneulAddress, HaneulResult<Arc<HashMap<TypeTag, TotalBalance>>>>,
-    locks: MutexTable<HaneulAddress>,
+    pub locks: MutexTable<HaneulAddress>,
 }
 
 #[derive(Default)]
@@ -322,7 +322,7 @@ impl IndexStoreTables {
 pub struct IndexStore {
     next_sequence_number: AtomicU64,
     tables: IndexStoreTables,
-    caches: IndexStoreCaches,
+    pub caches: IndexStoreCaches,
     metrics: Arc<IndexStoreMetrics>,
     max_type_length: u64,
     remove_deprecated_tables: bool,
