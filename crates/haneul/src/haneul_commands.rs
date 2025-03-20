@@ -48,9 +48,10 @@ use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_move::manage_package::resolve_lock_file_path;
 use haneul_move::{self, execute_move_command};
 use haneul_move_build::{
-    check_invalid_dependencies, check_unpublished_dependencies, BuildConfig as HaneulBuildConfig,
-    HaneulPackageHooks,
+    check_invalid_dependencies, check_unpublished_dependencies, implicit_deps,
+    BuildConfig as HaneulBuildConfig, HaneulPackageHooks,
 };
+use haneul_package_management::system_package_versions::latest_system_packages;
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_swarm::memory::Swarm;
@@ -639,7 +640,7 @@ impl HaneulCommand {
             }
             HaneulCommand::FireDrill { fire_drill } => run_fire_drill(fire_drill).await,
             HaneulCommand::Analyzer => {
-                analyzer::run();
+                analyzer::run(implicit_deps(latest_system_packages()));
                 Ok(())
             }
         }
