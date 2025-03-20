@@ -1,0 +1,12 @@
+full_node_url: "https://fullnode.mainnet.haneul.io:443"
+# make sure this directory is created and has genesis.blob
+checkpoint_summary_dir: "checkpoints_dir"
+genesis_filename: "genesis.blob"
+object_store_url: "https://checkpoints.mainnet.haneul.io"
+graphql_url: "https://haneul-mainnet.haneul-labs.com/graphql"
+archive_store_config:
+  object-store: "S3"
+  bucket: "haneullabs-mainnet-archives"
+  no-sign-request: true
+  aws-region: "us-west-2"
+  object-store-connection-limit: 20
