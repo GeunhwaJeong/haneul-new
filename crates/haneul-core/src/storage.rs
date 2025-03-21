@@ -17,7 +17,6 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::committee::Committee;
 use haneul_types::committee::EpochId;
-use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::messages_checkpoint::CheckpointContentsDigest;
 use haneul_types::messages_checkpoint::CheckpointDigest;
@@ -206,7 +205,7 @@ impl ReadStore for RocksDbStore {
             .get_executed_effects(digest)
     }
 
-    fn get_events(&self, digest: &TransactionEventsDigest) -> Option<TransactionEvents> {
+    fn get_events(&self, digest: &TransactionDigest) -> Option<TransactionEvents> {
         self.cache_traits
             .transaction_cache_reader
             .get_events(digest)
@@ -426,7 +425,7 @@ impl ReadStore for RestReadStore {
         self.rocks.get_transaction_effects(digest)
     }
 
-    fn get_events(&self, digest: &TransactionEventsDigest) -> Option<TransactionEvents> {
+    fn get_events(&self, digest: &TransactionDigest) -> Option<TransactionEvents> {
         self.rocks.get_events(digest)
     }
 

@@ -66,7 +66,7 @@ use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_types::base_types::{SequenceNumber, VersionNumber};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::{get_authority_key_pair, RandomnessRound};
-use haneul_types::digests::{ConsensusCommitDigest, TransactionDigest, TransactionEventsDigest};
+use haneul_types::digests::{ConsensusCommitDigest, TransactionDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI, TransactionEvents};
 use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointContentsDigest, CheckpointSequenceNumber, VerifiedCheckpoint,
@@ -2584,8 +2584,8 @@ impl ReadStore for HaneulTestAdapter {
         self.executor.get_transaction_effects(tx_digest)
     }
 
-    fn get_events(&self, event_digest: &TransactionEventsDigest) -> Option<TransactionEvents> {
-        self.executor.get_events(event_digest)
+    fn get_events(&self, digest: &TransactionDigest) -> Option<TransactionEvents> {
+        self.executor.get_events(digest)
     }
 
     fn get_full_checkpoint_contents_by_sequence_number(

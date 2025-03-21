@@ -566,7 +566,7 @@ impl<T, V: store::SimulatorStore> ReadStore for Simulacrum<T, V> {
 
     fn get_events(
         &self,
-        event_digest: &haneul_types::digests::TransactionEventsDigest,
+        event_digest: &haneul_types::digests::TransactionDigest,
     ) -> Option<haneul_types::effects::TransactionEvents> {
         self.store().get_transaction_events(event_digest)
     }

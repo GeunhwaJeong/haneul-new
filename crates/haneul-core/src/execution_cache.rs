@@ -20,7 +20,7 @@ use std::sync::Arc;
 use haneul_config::ExecutionCacheConfig;
 use haneul_protocol_config::ProtocolVersion;
 use haneul_types::base_types::{FullObjectID, VerifiedExecutionData};
-use haneul_types::digests::{TransactionDigest, TransactionEffectsDigest, TransactionEventsDigest};
+use haneul_types::digests::{TransactionDigest, TransactionEffectsDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
@@ -499,12 +499,9 @@ pub trait TransactionCacheRead: Send + Sync {
             .expect("multi-get must return correct number of items")
     }
 
-    fn multi_get_events(
-        &self,
-        event_digests: &[TransactionEventsDigest],
-    ) -> Vec<Option<TransactionEvents>>;
+    fn multi_get_events(&self, digests: &[TransactionDigest]) -> Vec<Option<TransactionEvents>>;
 
-    fn get_events(&self, digest: &TransactionEventsDigest) -> Option<TransactionEvents> {
+    fn get_events(&self, digest: &TransactionDigest) -> Option<TransactionEvents> {
         self.multi_get_events(&[*digest])
             .pop()
             .expect("multi-get must return correct number of items")
