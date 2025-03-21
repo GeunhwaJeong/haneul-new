@@ -26,7 +26,7 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::signature::{GenericSignature, VerifyParams};
 use haneul_types::signature_verification::VerifiedDigestCache;
 use tap::TapFallible;
-use tracing::{debug, error, info, instrument, trace, warn};
+use tracing::{debug, error, instrument, trace, warn};
 
 use haneullabs_metrics::add_server_timing;
 use haneullabs_metrics::spawn_monitored_task;

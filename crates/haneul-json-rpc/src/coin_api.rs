@@ -12,7 +12,7 @@ use jsonrpsee::RpcModule;
 use move_core_types::language_storage::{StructTag, TypeTag};
 use haneul_core::jsonrpc_index::TotalBalance;
 use tap::TapFallible;
-use tracing::{debug, info, instrument};
+use tracing::{debug, instrument};
 
 use haneullabs_metrics::spawn_monitored_task;
 use haneul_core::authority::AuthorityState;
