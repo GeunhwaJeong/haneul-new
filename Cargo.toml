@@ -2,212 +2,211 @@
 resolver = "2"
 
 exclude = [
-    "examples/tic-tac-toe/cli",
-    "external-crates/move/crates/bytecode-interpreter-crypto",
-    "external-crates/move/crates/bytecode-verifier-libfuzzer",
-    "external-crates/move/crates/bytecode-verifier-tests",
-    "external-crates/move/crates/bytecode-verifier-prop-tests",
-    "external-crates/move/crates/bytecode-verifier-transactional-tests",
-    "external-crates/move/crates/enum-compat-util",
-    "external-crates/move/crates/invalid-mutations",
-    "external-crates/move/crates/language-benchmarks",
-    "external-crates/move/crates/module-generation",
-    "external-crates/move/crates/move-abstract-interpreter",
-    "external-crates/move/crates/move-abstract-stack",
-    "external-crates/move/crates/move-analyzer",
-    "external-crates/move/crates/move-binary-format",
-    "external-crates/move/crates/move-borrow-graph",
-    "external-crates/move/crates/move-bytecode-source-map",
-    "external-crates/move/crates/move-bytecode-utils",
-    "external-crates/move/crates/move-bytecode-verifier",
-    "external-crates/move/crates/move-bytecode-verifier-meter",
-    "external-crates/move/crates/move-bytecode-viewer",
-    "external-crates/move/crates/move-cli",
-    "external-crates/move/crates/move-command-line-common",
-    "external-crates/move/crates/move-compiler",
-    "external-crates/move/crates/move-compiler-transactional-tests",
-    "external-crates/move/crates/move-core-types",
-    "external-crates/move/crates/move-coverage",
-    "external-crates/move/crates/move-disassembler",
-    "external-crates/move/crates/move-docgen",
-    "external-crates/move/crates/move-ir-compiler",
-    "external-crates/move/crates/move-ir-compiler-transactional-tests",
-    "external-crates/move/crates/move-ir-to-bytecode",
-    "external-crates/move/crates/move-ir-to-bytecode-syntax",
-    "external-crates/move/crates/move-ir-types",
-    "external-crates/move/crates/move-model",
-    "external-crates/move/crates/move-package",
-    "external-crates/move/crates/move-proc-macros",
-    "external-crates/move/crates/move-stackless-bytecode",
-    "external-crates/move/crates/move-stdlib",
-    "external-crates/move/crates/move-stdlib-natives",
-    "external-crates/move/crates/move-symbol-pool",
-    "external-crates/move/crates/move-transactional-test-runner",
-    "external-crates/move/crates/move-trace-format",
-    "external-crates/move/crates/move-unit-test",
-    "external-crates/move/crates/move-vm-config",
-    "external-crates/move/crates/move-vm-integration-tests",
-    "external-crates/move/crates/move-vm-profiler",
-    "external-crates/move/crates/move-vm-runtime",
-    "external-crates/move/crates/move-vm-test-utils",
-    "external-crates/move/crates/move-vm-transactional-tests",
-    "external-crates/move/crates/move-vm-types",
-    "external-crates/move/crates/serializer-tests",
-    "external-crates/move/crates/test-generation",
-    "external-crates/move/move-execution/v0/crates/move-bytecode-verifier",
-    "external-crates/move/move-execution/v0/crates/move-stdlib-natives",
-    "external-crates/move/move-execution/v0/crates/move-vm-runtime",
-    "external-crates/move/move-execution/v0/crates/move-vm-types",
-    "external-crates/move/move-execution/v1/crates/move-bytecode-verifier",
-    "external-crates/move/move-execution/v1/crates/move-stdlib-natives",
-    "external-crates/move/move-execution/v1/crates/move-vm-runtime",
-    "external-crates/move/move-execution/v1/crates/move-vm-types",
-    "external-crates/move/move-execution/v2/crates/move-abstract-interpreter",
-    "external-crates/move/move-execution/v2/crates/move-bytecode-verifier",
-    "external-crates/move/move-execution/v2/crates/move-stdlib-natives",
-    "external-crates/move/move-execution/v2/crates/move-vm-runtime",
-    "external-crates/move/move-execution/v2/crates/move-vm-types",
+  "examples/tic-tac-toe/cli",
+  "external-crates/move/crates/bytecode-interpreter-crypto",
+  "external-crates/move/crates/bytecode-verifier-libfuzzer",
+  "external-crates/move/crates/bytecode-verifier-tests",
+  "external-crates/move/crates/bytecode-verifier-prop-tests",
+  "external-crates/move/crates/bytecode-verifier-transactional-tests",
+  "external-crates/move/crates/enum-compat-util",
+  "external-crates/move/crates/invalid-mutations",
+  "external-crates/move/crates/language-benchmarks",
+  "external-crates/move/crates/module-generation",
+  "external-crates/move/crates/move-abstract-interpreter",
+  "external-crates/move/crates/move-abstract-stack",
+  "external-crates/move/crates/move-analyzer",
+  "external-crates/move/crates/move-binary-format",
+  "external-crates/move/crates/move-borrow-graph",
+  "external-crates/move/crates/move-bytecode-source-map",
+  "external-crates/move/crates/move-bytecode-utils",
+  "external-crates/move/crates/move-bytecode-verifier",
+  "external-crates/move/crates/move-bytecode-verifier-meter",
+  "external-crates/move/crates/move-bytecode-viewer",
+  "external-crates/move/crates/move-cli",
+  "external-crates/move/crates/move-command-line-common",
+  "external-crates/move/crates/move-compiler",
+  "external-crates/move/crates/move-compiler-transactional-tests",
+  "external-crates/move/crates/move-core-types",
+  "external-crates/move/crates/move-coverage",
+  "external-crates/move/crates/move-disassembler",
+  "external-crates/move/crates/move-docgen",
+  "external-crates/move/crates/move-ir-compiler",
+  "external-crates/move/crates/move-ir-compiler-transactional-tests",
+  "external-crates/move/crates/move-ir-to-bytecode",
+  "external-crates/move/crates/move-ir-to-bytecode-syntax",
+  "external-crates/move/crates/move-ir-types",
+  "external-crates/move/crates/move-model",
+  "external-crates/move/crates/move-package",
+  "external-crates/move/crates/move-proc-macros",
+  "external-crates/move/crates/move-stackless-bytecode",
+  "external-crates/move/crates/move-stdlib",
+  "external-crates/move/crates/move-stdlib-natives",
+  "external-crates/move/crates/move-symbol-pool",
+  "external-crates/move/crates/move-transactional-test-runner",
+  "external-crates/move/crates/move-trace-format",
+  "external-crates/move/crates/move-unit-test",
+  "external-crates/move/crates/move-vm-config",
+  "external-crates/move/crates/move-vm-integration-tests",
+  "external-crates/move/crates/move-vm-profiler",
+  "external-crates/move/crates/move-vm-runtime",
+  "external-crates/move/crates/move-vm-test-utils",
+  "external-crates/move/crates/move-vm-transactional-tests",
+  "external-crates/move/crates/move-vm-types",
+  "external-crates/move/crates/serializer-tests",
+  "external-crates/move/crates/test-generation",
+  "external-crates/move/move-execution/v0/crates/move-bytecode-verifier",
+  "external-crates/move/move-execution/v0/crates/move-stdlib-natives",
+  "external-crates/move/move-execution/v0/crates/move-vm-runtime",
+  "external-crates/move/move-execution/v0/crates/move-vm-types",
+  "external-crates/move/move-execution/v1/crates/move-bytecode-verifier",
+  "external-crates/move/move-execution/v1/crates/move-stdlib-natives",
+  "external-crates/move/move-execution/v1/crates/move-vm-runtime",
+  "external-crates/move/move-execution/v1/crates/move-vm-types",
+  "external-crates/move/move-execution/v2/crates/move-abstract-interpreter",
+  "external-crates/move/move-execution/v2/crates/move-bytecode-verifier",
+  "external-crates/move/move-execution/v2/crates/move-stdlib-natives",
+  "external-crates/move/move-execution/v2/crates/move-vm-runtime",
+  "external-crates/move/move-execution/v2/crates/move-vm-types",
 ]
 
 members = [
-    "consensus/config",
-    "consensus/core",
-    "consensus/simtests",
-    "crates/anemo-benchmark",
-    "crates/bin-version",
-    "crates/haneullabs-common",
-    "crates/haneullabs-metrics",
-    "crates/haneullabs-network",
-    "crates/haneullabs-service",
-    "crates/prometheus-closure-metric",
-    "crates/shared-crypto",
-    "crates/simulacrum",
-    "crates/haneul",
-    "crates/haneul-adapter-transactional-tests",
-    "crates/haneul-analytics-indexer",
-    "crates/haneul-analytics-indexer-derive",
-    "crates/haneul-archival",
-    "crates/haneul-authority-aggregation",
-    "crates/haneul-aws-orchestrator",
-    "crates/haneul-benchmark",
-    "crates/haneul-bridge",
-    "crates/haneul-bridge-cli",
-    "crates/haneul-bridge-indexer",
-    "crates/haneul-cluster-test",
-    "crates/haneul-config",
-    "crates/haneul-core",
-    "crates/haneul-cost",
-    "crates/haneul-data-ingestion",
-    "crates/haneul-data-ingestion-core",
-    "crates/haneul-deepbook-indexer",
-    "crates/haneul-default-config",
-    "crates/haneul-display",
-    "crates/haneul-e2e-tests",
-    "crates/haneul-edge-proxy",
-    "crates/haneul-enum-compat-util",
-    "crates/haneul-faucet",
-    "crates/haneul-field-count",
-    "crates/haneul-field-count-derive",
-    "crates/haneul-framework",
-    "crates/haneul-framework-snapshot",
-    "crates/haneul-framework-tests",
-    "crates/haneul-genesis-builder",
-    "crates/haneul-graphql-e2e-tests",
-    "crates/haneul-graphql-rpc",
-    "crates/haneul-graphql-rpc-client",
-    "crates/haneul-graphql-rpc-headers",
-    "crates/haneul-http",
-    "crates/haneul-indexer",
-    "crates/haneul-indexer-alt",
-    "crates/haneul-indexer-alt-e2e-tests",
-    "crates/haneul-indexer-alt-framework",
-    "crates/haneul-indexer-alt-jsonrpc",
-    "crates/haneul-indexer-alt-metrics",
-    "crates/haneul-indexer-alt-restorer",
-    "crates/haneul-indexer-alt-schema",
-    "crates/haneul-indexer-builder",
-    "crates/haneul-json",
-    "crates/haneul-json-rpc",
-    "crates/haneul-json-rpc-api",
-    "crates/haneul-json-rpc-tests",
-    "crates/haneul-json-rpc-types",
-    "crates/haneul-keys",
-    "crates/haneul-kvstore",
-    "crates/haneul-light-client",
-    "crates/haneul-macros",
-    "crates/haneul-metric-checker",
-    "crates/haneul-move",
-    "crates/haneul-move-build",
-    "crates/haneul-move-lsp",
-    "crates/haneul-mvr-graphql-e2e-tests",
-    "crates/haneul-mvr-graphql-rpc",
-    "crates/haneul-name-service",
-    "crates/haneul-network",
-    "crates/haneul-node",
-    "crates/haneul-open-rpc",
-    "crates/haneul-open-rpc-macros",
-    "crates/haneul-oracle",
-    "crates/haneul-package-dump",
-    "crates/haneul-package-management",
-    "crates/haneul-package-resolver",
-    "crates/haneul-pg-db",
-    "crates/haneul-proc-macros",
-    "crates/haneul-protocol-config",
-    "crates/haneul-protocol-config-macros",
-    "crates/haneul-proxy",
-    "crates/haneul-replay",
-    "crates/haneul-rosetta",
-    "crates/haneul-rpc-api",
-    "crates/haneul-rpc-benchmark",
-    "crates/haneul-rpc-loadgen",
-    "crates/haneul-sdk",
-    "crates/haneul-security-watchdog",
-    "crates/haneul-simulator",
-    "crates/haneul-single-node-benchmark",
-    "crates/haneul-snapshot",
-    "crates/haneul-source-validation",
-    "crates/haneul-source-validation-service",
-    "crates/haneul-sql-macro",
-    "crates/haneul-storage",
-    "crates/haneul-surfer",
-    "crates/haneul-swarm",
-    "crates/haneul-swarm-config",
-    "crates/haneul-synthetic-ingestion",
-    "crates/haneul-telemetry",
-    "crates/haneul-test-transaction-builder",
-    "crates/haneul-test-validator",
-    "crates/haneul-tls",
-    "crates/haneul-tool",
-    "crates/haneul-transaction-builder",
-    "crates/haneul-transaction-checks",
-    "crates/haneul-transactional-test-runner",
-    "crates/haneul-types",
-    "crates/haneul-upgrade-compatibility-transactional-tests",
-    "crates/haneul-verifier-transactional-tests",
-    "crates/haneulns-indexer",
-    "crates/haneulop-cli",
-    "crates/telemetry-subscribers",
-    "crates/test-cluster",
-    "crates/transaction-fuzzer",
-    "crates/typed-store",
-    "crates/typed-store-derive",
-    "crates/typed-store-error",
-    "crates/typed-store-workspace-hack",
-    "crates/x",
-    "haneul-execution",
-    "haneul-execution/cut",
-    "haneul-execution/latest/haneul-adapter",
-    "haneul-execution/latest/haneul-move-natives",
-    "haneul-execution/latest/haneul-verifier",
-    "haneul-execution/v0/haneul-adapter",
-    "haneul-execution/v0/haneul-move-natives",
-    "haneul-execution/v0/haneul-verifier",
-    "haneul-execution/v1/haneul-adapter",
-    "haneul-execution/v1/haneul-move-natives",
-    "haneul-execution/v1/haneul-verifier",
-    "haneul-execution/v2/haneul-adapter",
-    "haneul-execution/v2/haneul-move-natives",
-    "haneul-execution/v2/haneul-verifier",
+  "consensus/config",
+  "consensus/core",
+  "consensus/simtests",
+  "crates/anemo-benchmark",
+  "crates/bin-version",
+  "crates/haneullabs-common",
+  "crates/haneullabs-metrics",
+  "crates/haneullabs-network",
+  "crates/haneullabs-service",
+  "crates/prometheus-closure-metric",
+  "crates/shared-crypto",
+  "crates/simulacrum",
+  "crates/haneul",
+  "crates/haneul-adapter-transactional-tests",
+  "crates/haneul-analytics-indexer",
+  "crates/haneul-analytics-indexer-derive",
+  "crates/haneul-archival",
+  "crates/haneul-authority-aggregation",
+  "crates/haneul-aws-orchestrator",
+  "crates/haneul-benchmark",
+  "crates/haneul-bridge",
+  "crates/haneul-bridge-cli",
+  "crates/haneul-bridge-indexer",
+  "crates/haneul-cluster-test",
+  "crates/haneul-config",
+  "crates/haneul-core",
+  "crates/haneul-cost",
+  "crates/haneul-data-ingestion",
+  "crates/haneul-data-ingestion-core",
+  "crates/haneul-deepbook-indexer",
+  "crates/haneul-default-config",
+  "crates/haneul-display",
+  "crates/haneul-e2e-tests",
+  "crates/haneul-edge-proxy",
+  "crates/haneul-enum-compat-util",
+  "crates/haneul-faucet",
+  "crates/haneul-field-count",
+  "crates/haneul-field-count-derive",
+  "crates/haneul-framework",
+  "crates/haneul-framework-snapshot",
+  "crates/haneul-framework-tests",
+  "crates/haneul-genesis-builder",
+  "crates/haneul-graphql-e2e-tests",
+  "crates/haneul-graphql-rpc",
+  "crates/haneul-graphql-rpc-client",
+  "crates/haneul-graphql-rpc-headers",
+  "crates/haneul-http",
+  "crates/haneul-indexer",
+  "crates/haneul-indexer-alt",
+  "crates/haneul-indexer-alt-e2e-tests",
+  "crates/haneul-indexer-alt-framework",
+  "crates/haneul-indexer-alt-jsonrpc",
+  "crates/haneul-indexer-alt-metrics",
+  "crates/haneul-indexer-alt-restorer",
+  "crates/haneul-indexer-alt-schema",
+  "crates/haneul-indexer-builder",
+  "crates/haneul-json",
+  "crates/haneul-json-rpc",
+  "crates/haneul-json-rpc-api",
+  "crates/haneul-json-rpc-tests",
+  "crates/haneul-json-rpc-types",
+  "crates/haneul-keys",
+  "crates/haneul-kvstore",
+  "crates/haneul-light-client",
+  "crates/haneul-macros",
+  "crates/haneul-metric-checker",
+  "crates/haneul-move",
+  "crates/haneul-move-build",
+  "crates/haneul-move-lsp",
+  "crates/haneul-mvr-graphql-e2e-tests",
+  "crates/haneul-mvr-graphql-rpc",
+  "crates/haneul-name-service",
+  "crates/haneul-network",
+  "crates/haneul-node",
+  "crates/haneul-open-rpc",
+  "crates/haneul-open-rpc-macros",
+  "crates/haneul-oracle",
+  "crates/haneul-package-dump",
+  "crates/haneul-package-management",
+  "crates/haneul-package-resolver",
+  "crates/haneul-pg-db",
+  "crates/haneul-proc-macros",
+  "crates/haneul-protocol-config",
+  "crates/haneul-protocol-config-macros",
+  "crates/haneul-proxy",
+  "crates/haneul-replay",
+  "crates/haneul-rosetta",
+  "crates/haneul-rpc-api",
+  "crates/haneul-rpc-benchmark",
+  "crates/haneul-rpc-loadgen",
+  "crates/haneul-sdk",
+  "crates/haneul-security-watchdog",
+  "crates/haneul-simulator",
+  "crates/haneul-single-node-benchmark",
+  "crates/haneul-snapshot",
+  "crates/haneul-source-validation",
+  "crates/haneul-source-validation-service",
+  "crates/haneul-sql-macro",
+  "crates/haneul-storage",
+  "crates/haneul-surfer",
+  "crates/haneul-swarm",
+  "crates/haneul-swarm-config",
+  "crates/haneul-synthetic-ingestion",
+  "crates/haneul-telemetry",
+  "crates/haneul-test-transaction-builder",
+  "crates/haneul-test-validator",
+  "crates/haneul-tls",
+  "crates/haneul-tool",
+  "crates/haneul-transaction-builder",
+  "crates/haneul-transaction-checks",
+  "crates/haneul-transactional-test-runner",
+  "crates/haneul-types",
+  "crates/haneul-upgrade-compatibility-transactional-tests",
+  "crates/haneul-verifier-transactional-tests",
+  "crates/haneulns-indexer",
+  "crates/telemetry-subscribers",
+  "crates/test-cluster",
+  "crates/transaction-fuzzer",
+  "crates/typed-store",
+  "crates/typed-store-derive",
+  "crates/typed-store-error",
+  "crates/typed-store-workspace-hack",
+  "crates/x",
+  "haneul-execution",
+  "haneul-execution/cut",
+  "haneul-execution/latest/haneul-adapter",
+  "haneul-execution/latest/haneul-move-natives",
+  "haneul-execution/latest/haneul-verifier",
+  "haneul-execution/v0/haneul-adapter",
+  "haneul-execution/v0/haneul-move-natives",
+  "haneul-execution/v0/haneul-verifier",
+  "haneul-execution/v1/haneul-adapter",
+  "haneul-execution/v1/haneul-move-natives",
+  "haneul-execution/v1/haneul-verifier",
+  "haneul-execution/v2/haneul-adapter",
+  "haneul-execution/v2/haneul-move-natives",
+  "haneul-execution/v2/haneul-verifier",
 ]
 
 [workspace.package]
@@ -258,8 +257,8 @@ opt-level = 1
 
 [workspace.lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = [
-    'cfg(msim)',
-    'cfg(fail_points)',
+  'cfg(msim)',
+  'cfg(fail_points)',
 ] }
 
 # Dependencies that should be kept in sync through the whole workspace
@@ -285,27 +284,27 @@ aws-sdk-kms = "1.60.0"
 aws-smithy-http = "0.60.12"
 aws-smithy-runtime-api = "1.7.3"
 axum = { version = "0.7", default-features = false, features = [
-    "macros",
-    "tokio",
-    "http1",
-    "http2",
-    "json",
-    "matched-path",
-    "original-uri",
-    "form",
-    "query",
-    "ws",
+  "macros",
+  "tokio",
+  "http1",
+  "http2",
+  "json",
+  "matched-path",
+  "original-uri",
+  "form",
+  "query",
+  "ws",
 ] }
 axum-extra = { version = "0.9", features = ["typed-header"] }
 axum-server = { git = "https://github.com/bmwill/axum-server.git", rev = "f44323e271afdd1365fd0c8b0a4c0bbdf4956cb7", version = "0.6", default-features = false, features = [
-    "tls-rustls",
+  "tls-rustls",
 ] }
 backoff = { version = "0.4.0", features = [
-    "futures",
-    "futures-core",
-    "pin-project-lite",
-    "tokio",
-    "tokio_1",
+  "futures",
+  "futures-core",
+  "pin-project-lite",
+  "tokio",
+  "tokio_1",
 ] }
 backon = "1.4.0"
 base64 = "0.21.2"
@@ -332,9 +331,9 @@ console-subscriber = "0.2"
 const-str = "0.5.3"
 count-min-sketch = "0.1.7"
 criterion = { version = "0.5.0", features = [
-    "async",
-    "async_tokio",
-    "html_reports",
+  "async",
+  "async_tokio",
+  "html_reports",
 ] }
 crossterm = "0.25.0"
 csv = "1.2.1"
@@ -377,11 +376,11 @@ humantime = "2.1.0"
 hyper = "1"
 hyper-util = "0.1.6"
 hyper-rustls = { version = "0.27", default-features = false, features = [
-    "webpki-roots",
-    "http1",
-    "http2",
-    "ring",
-    "tls12",
+  "webpki-roots",
+  "http1",
+  "http2",
+  "ring",
+  "tls12",
 ] }
 im = "15"
 impl-trait-for-tuples = "0.2.0"
@@ -394,7 +393,13 @@ integer-encoding = "3.0.1"
 ipnetwork = "0.20.0"
 itertools = "0.13.0"
 jemalloc-ctl = "^0.5"
-jsonrpsee = { version = "0.24.7", features = ["server", "macros", "ws-client", "http-client", "jsonrpsee-core"] }
+jsonrpsee = { version = "0.24.7", features = [
+  "server",
+  "macros",
+  "ws-client",
+  "http-client",
+  "jsonrpsee-core",
+] }
 json_to_table = { git = "https://github.com/zhiburt/tabled/", rev = "e449317a1c02eb6b29e409ad6617e5d9eb7b3bd4" }
 leb128 = "0.2.5"
 lru = "0.10"
@@ -403,8 +408,8 @@ miette = { version = "7", features = ["fancy"] }
 mime = "0.3"
 mockall = "0.11.4"
 moka = { version = "0.12", default-features = false, features = [
-    "sync",
-    "atomic64",
+  "sync",
+  "atomic64",
 ] }
 more-asserts = "0.3.1"
 msim = { git = "https://github.com/GeunhwaJeong/mysten-sim.git", rev = "9f175e3517812929ad6bdd8db443f1bbd8107965", package = "msim" }
@@ -419,7 +424,12 @@ ntest = "0.9.0"
 num-bigint = "0.4.4"
 num_cpus = "1.15.0"
 num_enum = "0.6.1"
-object_store = { version = "0.11.2", features = ["aws", "gcp", "azure", "http"] }
+object_store = { version = "0.11.2", features = [
+  "aws",
+  "gcp",
+  "azure",
+  "http",
+] }
 once_cell = "1.18.0"
 ouroboros = "0.17"
 parking_lot = { version = "0.12.3", features = ["arc_lock"] }
@@ -432,7 +442,7 @@ prettytable-rs = "0.10.0"
 proc-macro2 = "1.0.47"
 prometheus = "0.13.3"
 prometheus-http-query = { version = "0.8", default-features = false, features = [
-    "rustls-tls",
+  "rustls-tls",
 ] }
 prometheus-parse = { git = "https://github.com/asonnino/prometheus-parser.git", rev = "75334db" }
 proptest = "1.6.0"
@@ -448,9 +458,9 @@ rayon = "1.5.3"
 rcgen = "0.13"
 regex = "1.7.1"
 reqwest = { version = "0.12", default-features = false, features = [
-    "http2",
-    "json",
-    "rustls-tls",
+  "http2",
+  "json",
+  "rustls-tls",
 ] }
 roaring = "0.10.6"
 ron = "0.8.0"
@@ -459,9 +469,9 @@ russh = "0.38.0"
 russh-keys = "0.38.0"
 rust-version = "1.56.1"
 rustls = { version = "0.23", default-features = false, features = [
-    "std",
-    "tls12",
-    "ring",
+  "std",
+  "tls12",
+  "ring",
 ] }
 rustls-pemfile = "2"
 rustversion = "1.0.9"
@@ -506,45 +516,49 @@ tiny-bip39 = "1.0.0"
 tokio = "1.43.0"
 tokio-retry = "0.3"
 tokio-rustls = { version = "0.26", default-features = false, features = [
-    "tls12",
-    "ring",
+  "tls12",
+  "ring",
 ] }
 tokio-stream = { version = "0.1.14", features = ["sync", "net"] }
 tokio-util = "0.7.10"
 toml = { version = "0.7.4", features = ["preserve_order"] }
 toml_edit = { version = "0.19.10" }
-tonic = { version = "0.12", features = ["zstd", "transport", "tls-webpki-roots"] }
+tonic = { version = "0.12", features = [
+  "zstd",
+  "transport",
+  "tls-webpki-roots",
+] }
 tonic-build = { version = "0.12", features = ["prost", "transport"] }
 tonic-health = "0.12"
 tonic-reflection = "0.12"
 tonic-rustls = "0.1.0"
 tower = { version = "0.4.12", features = [
-    "full",
-    "util",
-    "timeout",
-    "load-shed",
-    "limit",
+  "full",
+  "util",
+  "timeout",
+  "load-shed",
+  "limit",
 ] }
 tower-http = { version = "0.5", features = [
-    "cors",
-    "full",
-    "trace",
-    "set-header",
-    "propagate-header",
+  "cors",
+  "full",
+  "trace",
+  "set-header",
+  "propagate-header",
 ] }
 tower-layer = "0.3.2"
 twox-hash = "1.6.3"
 tracing = "0.1.37"
 tracing-appender = "0.2.2"
 tracing-subscriber = { version = "0.3.15", default-features = false, features = [
-    "std",
-    "smallvec",
-    "fmt",
-    "ansi",
-    "time",
-    "json",
-    "registry",
-    "env-filter",
+  "std",
+  "smallvec",
+  "fmt",
+  "ansi",
+  "time",
+  "json",
+  "registry",
+  "env-filter",
 ] }
 ttl_cache = "0.5.1"
 uint = "0.9.4"
@@ -554,9 +568,9 @@ url = "2.3.1"
 uuid = { version = "1.1.2", features = ["v4", "fast-rng"] }
 walkdir = "2.5.0"
 webpki = { version = "0.103", package = "rustls-webpki", features = [
-    "alloc",
-    "std",
-    "ring",
+  "alloc",
+  "std",
+  "ring",
 ] }
 wiremock = "0.5"
 x509-parser = { version = "0.17.0", features = ["verify"] }
@@ -579,7 +593,7 @@ move-package = { path = "external-crates/move/crates/move-package" }
 move-unit-test = { path = "external-crates/move/crates/move-unit-test" }
 move-vm-config = { path = "external-crates/move/crates/move-vm-config" }
 move-vm-test-utils = { path = "external-crates/move/crates/move-vm-test-utils/", features = [
-    "tiered-gas",
+  "tiered-gas",
 ] }
 move-vm-profiler = { path = "external-crates/move/crates/move-vm-profiler" }
 move-command-line-common = { path = "external-crates/move/crates/move-command-line-common" }
@@ -596,7 +610,7 @@ fastcrypto = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "69d496
 fastcrypto-tbls = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "69d496c71fb37e3d22fe85e5bbfd4256d61422b9" }
 fastcrypto-zkp = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "69d496c71fb37e3d22fe85e5bbfd4256d61422b9", package = "fastcrypto-zkp" }
 fastcrypto-vdf = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "69d496c71fb37e3d22fe85e5bbfd4256d61422b9", features = [
-    "experimental",
+  "experimental",
 ] }
 passkey-types = { version = "0.4.0" }
 passkey-client = { version = "0.4.0" }
@@ -604,7 +618,10 @@ passkey-authenticator = { version = "0.4.0" }
 coset = "0.3"
 p256 = { version = "0.13.2", features = ["ecdsa"] }
 
-p384 = { version = "0.13.0", default-features = false, features = ["ecdsa","sha384"] }
+p384 = { version = "0.13.0", default-features = false, features = [
+  "ecdsa",
+  "sha384",
+] }
 ciborium = "0.2"
 
 # anemo dependencies
@@ -614,7 +631,10 @@ anemo-cli = { git = "https://github.com/GeunhwaJeong/anemo.git", rev = "9c52c3c7
 anemo-tower = { git = "https://github.com/GeunhwaJeong/anemo.git", rev = "9c52c3c7946532163a79129db15180cdb984bab4" }
 
 # core-types from the new sdk for use in gRPC
-haneul-sdk-types = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "5e11579031793f086178332219f5847ec94da0c4", features = ["hash", "serde"] }
+haneul-sdk-types = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "5e11579031793f086178332219f5847ec94da0c4", features = [
+  "hash",
+  "serde",
+] }
 haneul-sdk-transaction-builder = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "5e11579031793f086178332219f5847ec94da0c4", package = "haneul-transaction-builder" }
 
 ### Workspace Members ###
@@ -669,7 +689,7 @@ haneul-json-rpc = { path = "crates/haneul-json-rpc" }
 haneul-json-rpc-api = { path = "crates/haneul-json-rpc-api" }
 haneul-json-rpc-types = { path = "crates/haneul-json-rpc-types" }
 haneul-keys = { path = "crates/haneul-keys" }
-haneul-kvstore = {path = "crates/haneul-kvstore"}
+haneul-kvstore = { path = "crates/haneul-kvstore" }
 haneul-macros = { path = "crates/haneul-macros" }
 haneul-metric-checker = { path = "crates/haneul-metric-checker" }
 haneul-move = { path = "crates/haneul-move" }
@@ -733,12 +753,5 @@ haneul-execution = { path = "haneul-execution" }
 # move-stdlib = { path = "external-crates/move/move-stdlib" }
 # move-vm-runtime = { path = "external-crates/move/move-vm/runtime" }
 # move-bytecode-verifier = { path = "external-crates/move/move-bytecode-verifier" }
-
-# haneulop dependencies
-docker-api = "0.12.2"
-field_names = "0.2.0"
-semver = "1.0.16"
-spinners = "4.1.0"
-include_dir = "0.7.3"
 
 [patch.crates-io]
