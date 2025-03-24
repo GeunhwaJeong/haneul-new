@@ -17,6 +17,5 @@
         "haneul-metric-checker",
         "haneul-analytics-indexer",
         "haneul-security-watchdog",
-		"haneulop"
 	]
 }
