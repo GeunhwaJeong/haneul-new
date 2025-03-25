@@ -74,6 +74,7 @@ haneul-replay.workspace = true
 haneul-transaction-builder.workspace = true
 move-binary-format.workspace = true
 move-bytecode-source-map.workspace = true
+haneullabs-common.workspace = true
 test-cluster.workspace = true
 
 fastcrypto.workspace = true

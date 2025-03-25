@@ -18,11 +18,11 @@ rand.workspace = true
 serde.workspace = true
 serde_with.workspace = true
 serde_yaml.workspace = true
-tempfile.workspace = true
 tracing.workspace = true
 prometheus.workspace = true
 
 move-bytecode-utils.workspace = true
+haneullabs-common.workspace = true
 shared-crypto.workspace = true
 haneul-config.workspace = true
 haneul-macros.workspace = true

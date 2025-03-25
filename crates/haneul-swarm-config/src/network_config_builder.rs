@@ -9,7 +9,6 @@ use rand::rngs::OsRng;
 use haneul_config::genesis::{TokenAllocation, TokenDistributionScheduleBuilder};
 use haneul_config::node::AuthorityOverloadConfig;
 use haneul_config::ExecutionCacheConfig;
-use haneul_macros::nondeterministic;
 use haneul_protocol_config::Chain;
 use haneul_types::base_types::{AuthorityName, HaneulAddress};
 use haneul_types::committee::{Committee, ProtocolVersion};
@@ -109,7 +108,7 @@ impl ConfigBuilder {
     }
 
     pub fn new_with_temp_dir() -> Self {
-        Self::new(nondeterministic!(tempfile::tempdir().unwrap()).into_path())
+        Self::new(haneullabs_common::tempdir().unwrap().into_path())
     }
 }
 
