@@ -154,24 +154,6 @@ A <code><a href="../haneul/groth16.md#haneul_groth16_ProofPoints">ProofPoints</a
 ## Constants
 
 
-<a name="haneul_groth16_EInvalidCurve"></a>
-
-
-
-<pre><code><b>const</b> <a href="../haneul/groth16.md#haneul_groth16_EInvalidCurve">EInvalidCurve</a>: u64 = 1;
-</code></pre>
-
-
-
-<a name="haneul_groth16_EInvalidScalar"></a>
-
-
-
-<pre><code><b>const</b> <a href="../haneul/groth16.md#haneul_groth16_EInvalidScalar">EInvalidScalar</a>: u64 = 3;
-</code></pre>
-
-
-
 <a name="haneul_groth16_EInvalidVerifyingKey"></a>
 
 
@@ -181,11 +163,29 @@ A <code><a href="../haneul/groth16.md#haneul_groth16_ProofPoints">ProofPoints</a
 
 
 
+<a name="haneul_groth16_EInvalidCurve"></a>
+
+
+
+<pre><code><b>const</b> <a href="../haneul/groth16.md#haneul_groth16_EInvalidCurve">EInvalidCurve</a>: u64 = 1;
+</code></pre>
+
+
+
 <a name="haneul_groth16_ETooManyPublicInputs"></a>
 
 
 
 <pre><code><b>const</b> <a href="../haneul/groth16.md#haneul_groth16_ETooManyPublicInputs">ETooManyPublicInputs</a>: u64 = 2;
+</code></pre>
+
+
+
+<a name="haneul_groth16_EInvalidScalar"></a>
+
+
+
+<pre><code><b>const</b> <a href="../haneul/groth16.md#haneul_groth16_EInvalidScalar">EInvalidScalar</a>: u64 = 3;
 </code></pre>
 
 

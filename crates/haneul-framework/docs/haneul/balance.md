@@ -106,22 +106,22 @@ For when trying to destroy a non-zero balance.
 
 
 
+<a name="haneul_balance_EOverflow"></a>
+
+For when an overflow is happening on Supply operations.
+
+
+<pre><code><b>const</b> <a href="../haneul/balance.md#haneul_balance_EOverflow">EOverflow</a>: u64 = 1;
+</code></pre>
+
+
+
 <a name="haneul_balance_ENotEnough"></a>
 
 For when trying to withdraw more than there is.
 
 
 <pre><code><b>const</b> <a href="../haneul/balance.md#haneul_balance_ENotEnough">ENotEnough</a>: u64 = 2;
-</code></pre>
-
-
-
-<a name="haneul_balance_ENotHANEUL"></a>
-
-System operation performed for a coin other than HANEUL
-
-
-<pre><code><b>const</b> <a href="../haneul/balance.md#haneul_balance_ENotHANEUL">ENotHANEUL</a>: u64 = 4;
 </code></pre>
 
 
@@ -136,12 +136,12 @@ Sender is not @0x0 the system address.
 
 
 
-<a name="haneul_balance_EOverflow"></a>
+<a name="haneul_balance_ENotHANEUL"></a>
 
-For when an overflow is happening on Supply operations.
+System operation performed for a coin other than HANEUL
 
 
-<pre><code><b>const</b> <a href="../haneul/balance.md#haneul_balance_EOverflow">EOverflow</a>: u64 = 1;
+<pre><code><b>const</b> <a href="../haneul/balance.md#haneul_balance_ENotHANEUL">ENotHANEUL</a>: u64 = 4;
 </code></pre>
 
 

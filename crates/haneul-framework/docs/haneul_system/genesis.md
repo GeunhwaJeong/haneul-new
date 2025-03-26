@@ -309,22 +309,22 @@ title: Module `haneul_system::genesis`
 ## Constants
 
 
-<a name="haneul_system_genesis_EDuplicateValidator"></a>
-
-The <code><a href="../haneul_system/genesis.md#haneul_system_genesis_create">create</a></code> function was called with duplicate validators.
-
-
-<pre><code><b>const</b> <a href="../haneul_system/genesis.md#haneul_system_genesis_EDuplicateValidator">EDuplicateValidator</a>: u64 = 1;
-</code></pre>
-
-
-
 <a name="haneul_system_genesis_ENotCalledAtGenesis"></a>
 
 The <code><a href="../haneul_system/genesis.md#haneul_system_genesis_create">create</a></code> function was called at a non-genesis epoch.
 
 
 <pre><code><b>const</b> <a href="../haneul_system/genesis.md#haneul_system_genesis_ENotCalledAtGenesis">ENotCalledAtGenesis</a>: u64 = 0;
+</code></pre>
+
+
+
+<a name="haneul_system_genesis_EDuplicateValidator"></a>
+
+The <code><a href="../haneul_system/genesis.md#haneul_system_genesis_create">create</a></code> function was called with duplicate validators.
+
+
+<pre><code><b>const</b> <a href="../haneul_system/genesis.md#haneul_system_genesis_EDuplicateValidator">EDuplicateValidator</a>: u64 = 1;
 </code></pre>
 
 

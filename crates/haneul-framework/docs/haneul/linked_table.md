@@ -131,20 +131,20 @@ removal
 ## Constants
 
 
-<a name="haneul_linked_table_ETableIsEmpty"></a>
-
-
-
-<pre><code><b>const</b> <a href="../haneul/linked_table.md#haneul_linked_table_ETableIsEmpty">ETableIsEmpty</a>: u64 = 1;
-</code></pre>
-
-
-
 <a name="haneul_linked_table_ETableNotEmpty"></a>
 
 
 
 <pre><code><b>const</b> <a href="../haneul/linked_table.md#haneul_linked_table_ETableNotEmpty">ETableNotEmpty</a>: u64 = 0;
+</code></pre>
+
+
+
+<a name="haneul_linked_table_ETableIsEmpty"></a>
+
+
+
+<pre><code><b>const</b> <a href="../haneul/linked_table.md#haneul_linked_table_ETableIsEmpty">ETableIsEmpty</a>: u64 = 1;
 </code></pre>
 
 

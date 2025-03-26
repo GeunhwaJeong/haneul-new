@@ -97,22 +97,22 @@ The amount of Geunhwa per Haneul token based on the fact that geunhwa is
 
 
 
-<a name="haneul_haneul_TOTAL_SUPPLY_GEUNHWA"></a>
-
-The total supply of Haneul denominated in Geunhwa (10 Billion * 10^9)
-
-
-<pre><code><b>const</b> <a href="../haneul/haneul.md#haneul_haneul_TOTAL_SUPPLY_GEUNHWA">TOTAL_SUPPLY_GEUNHWA</a>: u64 = 10000000000000000000;
-</code></pre>
-
-
-
 <a name="haneul_haneul_TOTAL_SUPPLY_HANEUL"></a>
 
 The total supply of Haneul denominated in whole Haneul tokens (10 Billion)
 
 
 <pre><code><b>const</b> <a href="../haneul/haneul.md#haneul_haneul_TOTAL_SUPPLY_HANEUL">TOTAL_SUPPLY_HANEUL</a>: u64 = 10000000000;
+</code></pre>
+
+
+
+<a name="haneul_haneul_TOTAL_SUPPLY_GEUNHWA"></a>
+
+The total supply of Haneul denominated in Geunhwa (10 Billion * 10^9)
+
+
+<pre><code><b>const</b> <a href="../haneul/haneul.md#haneul_haneul_TOTAL_SUPPLY_GEUNHWA">TOTAL_SUPPLY_GEUNHWA</a>: u64 = 10000000000000000000;
 </code></pre>
 
 

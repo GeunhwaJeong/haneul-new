@@ -138,16 +138,6 @@ Nitro Attestation Document defined for AWS.
 ## Constants
 
 
-<a name="haneul_nitro_attestation_EInvalidPCRsError"></a>
-
-Error that the PCRs are invalid.
-
-
-<pre><code><b>const</b> <a href="../haneul/nitro_attestation.md#haneul_nitro_attestation_EInvalidPCRsError">EInvalidPCRsError</a>: u64 = 3;
-</code></pre>
-
-
-
 <a name="haneul_nitro_attestation_ENotSupportedError"></a>
 
 Error that the feature is not available on this network.
@@ -174,6 +164,16 @@ Error that the attestation failed to be verified.
 
 
 <pre><code><b>const</b> <a href="../haneul/nitro_attestation.md#haneul_nitro_attestation_EVerifyError">EVerifyError</a>: u64 = 2;
+</code></pre>
+
+
+
+<a name="haneul_nitro_attestation_EInvalidPCRsError"></a>
+
+Error that the PCRs are invalid.
+
+
+<pre><code><b>const</b> <a href="../haneul/nitro_attestation.md#haneul_nitro_attestation_EInvalidPCRsError">EInvalidPCRsError</a>: u64 = 3;
 </code></pre>
 
 

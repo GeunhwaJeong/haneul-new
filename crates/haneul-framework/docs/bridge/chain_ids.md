@@ -61,20 +61,29 @@ title: Module `bridge::chain_ids`
 ## Constants
 
 
-<a name="bridge_chain_ids_EInvalidBridgeRoute"></a>
+<a name="bridge_chain_ids_HaneulMainnet"></a>
 
 
 
-<pre><code><b>const</b> <a href="../bridge/chain_ids.md#bridge_chain_ids_EInvalidBridgeRoute">EInvalidBridgeRoute</a>: u64 = 0;
+<pre><code><b>const</b> <a href="../bridge/chain_ids.md#bridge_chain_ids_HaneulMainnet">HaneulMainnet</a>: u8 = 0;
 </code></pre>
 
 
 
-<a name="bridge_chain_ids_EthCustom"></a>
+<a name="bridge_chain_ids_HaneulTestnet"></a>
 
 
 
-<pre><code><b>const</b> <a href="../bridge/chain_ids.md#bridge_chain_ids_EthCustom">EthCustom</a>: u8 = 12;
+<pre><code><b>const</b> <a href="../bridge/chain_ids.md#bridge_chain_ids_HaneulTestnet">HaneulTestnet</a>: u8 = 1;
+</code></pre>
+
+
+
+<a name="bridge_chain_ids_HaneulCustom"></a>
+
+
+
+<pre><code><b>const</b> <a href="../bridge/chain_ids.md#bridge_chain_ids_HaneulCustom">HaneulCustom</a>: u8 = 2;
 </code></pre>
 
 
@@ -97,29 +106,20 @@ title: Module `bridge::chain_ids`
 
 
 
-<a name="bridge_chain_ids_HaneulCustom"></a>
+<a name="bridge_chain_ids_EthCustom"></a>
 
 
 
-<pre><code><b>const</b> <a href="../bridge/chain_ids.md#bridge_chain_ids_HaneulCustom">HaneulCustom</a>: u8 = 2;
+<pre><code><b>const</b> <a href="../bridge/chain_ids.md#bridge_chain_ids_EthCustom">EthCustom</a>: u8 = 12;
 </code></pre>
 
 
 
-<a name="bridge_chain_ids_HaneulMainnet"></a>
+<a name="bridge_chain_ids_EInvalidBridgeRoute"></a>
 
 
 
-<pre><code><b>const</b> <a href="../bridge/chain_ids.md#bridge_chain_ids_HaneulMainnet">HaneulMainnet</a>: u8 = 0;
-</code></pre>
-
-
-
-<a name="bridge_chain_ids_HaneulTestnet"></a>
-
-
-
-<pre><code><b>const</b> <a href="../bridge/chain_ids.md#bridge_chain_ids_HaneulTestnet">HaneulTestnet</a>: u8 = 1;
+<pre><code><b>const</b> <a href="../bridge/chain_ids.md#bridge_chain_ids_EInvalidBridgeRoute">EInvalidBridgeRoute</a>: u64 = 0;
 </code></pre>
 
 

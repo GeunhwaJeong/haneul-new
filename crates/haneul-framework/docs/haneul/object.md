@@ -115,32 +115,12 @@ This is a privileged type that can only be derived from a <code>TxContext</code>
 ## Constants
 
 
-<a name="haneul_object_ENotSystemAddress"></a>
+<a name="haneul_object_HANEUL_SYSTEM_STATE_OBJECT_ID"></a>
 
-Sender is not @0x0 the system address.
-
-
-<pre><code><b>const</b> <a href="../haneul/object.md#haneul_object_ENotSystemAddress">ENotSystemAddress</a>: u64 = 0;
-</code></pre>
+The hardcoded ID for the singleton Haneul System State Object.
 
 
-
-<a name="haneul_object_HANEUL_AUTHENTICATOR_STATE_ID"></a>
-
-The hardcoded ID for the singleton AuthenticatorState Object.
-
-
-<pre><code><b>const</b> <a href="../haneul/object.md#haneul_object_HANEUL_AUTHENTICATOR_STATE_ID">HANEUL_AUTHENTICATOR_STATE_ID</a>: <b>address</b> = 0x7;
-</code></pre>
-
-
-
-<a name="haneul_object_HANEUL_BRIDGE_ID"></a>
-
-The hardcoded ID for the Bridge Object.
-
-
-<pre><code><b>const</b> <a href="../haneul/object.md#haneul_object_HANEUL_BRIDGE_ID">HANEUL_BRIDGE_ID</a>: <b>address</b> = 0x9;
+<pre><code><b>const</b> <a href="../haneul/object.md#haneul_object_HANEUL_SYSTEM_STATE_OBJECT_ID">HANEUL_SYSTEM_STATE_OBJECT_ID</a>: <b>address</b> = 0x5;
 </code></pre>
 
 
@@ -155,12 +135,12 @@ The hardcoded ID for the singleton Clock Object.
 
 
 
-<a name="haneul_object_HANEUL_DENY_LIST_OBJECT_ID"></a>
+<a name="haneul_object_HANEUL_AUTHENTICATOR_STATE_ID"></a>
 
-The hardcoded ID for the singleton DenyList.
+The hardcoded ID for the singleton AuthenticatorState Object.
 
 
-<pre><code><b>const</b> <a href="../haneul/object.md#haneul_object_HANEUL_DENY_LIST_OBJECT_ID">HANEUL_DENY_LIST_OBJECT_ID</a>: <b>address</b> = 0x403;
+<pre><code><b>const</b> <a href="../haneul/object.md#haneul_object_HANEUL_AUTHENTICATOR_STATE_ID">HANEUL_AUTHENTICATOR_STATE_ID</a>: <b>address</b> = 0x7;
 </code></pre>
 
 
@@ -175,12 +155,32 @@ The hardcoded ID for the singleton Random Object.
 
 
 
-<a name="haneul_object_HANEUL_SYSTEM_STATE_OBJECT_ID"></a>
+<a name="haneul_object_HANEUL_DENY_LIST_OBJECT_ID"></a>
 
-The hardcoded ID for the singleton Haneul System State Object.
+The hardcoded ID for the singleton DenyList.
 
 
-<pre><code><b>const</b> <a href="../haneul/object.md#haneul_object_HANEUL_SYSTEM_STATE_OBJECT_ID">HANEUL_SYSTEM_STATE_OBJECT_ID</a>: <b>address</b> = 0x5;
+<pre><code><b>const</b> <a href="../haneul/object.md#haneul_object_HANEUL_DENY_LIST_OBJECT_ID">HANEUL_DENY_LIST_OBJECT_ID</a>: <b>address</b> = 0x403;
+</code></pre>
+
+
+
+<a name="haneul_object_HANEUL_BRIDGE_ID"></a>
+
+The hardcoded ID for the Bridge Object.
+
+
+<pre><code><b>const</b> <a href="../haneul/object.md#haneul_object_HANEUL_BRIDGE_ID">HANEUL_BRIDGE_ID</a>: <b>address</b> = 0x9;
+</code></pre>
+
+
+
+<a name="haneul_object_ENotSystemAddress"></a>
+
+Sender is not @0x0 the system address.
+
+
+<pre><code><b>const</b> <a href="../haneul/object.md#haneul_object_ENotSystemAddress">ENotSystemAddress</a>: u64 = 0;
 </code></pre>
 
 

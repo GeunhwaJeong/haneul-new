@@ -140,20 +140,20 @@ title: Module `haneul::config`
 
 
 
-<a name="haneul_config_EBCSSerializationFailure"></a>
-
-
-
-<pre><code><b>const</b> <a href="../haneul/config.md#haneul_config_EBCSSerializationFailure">EBCSSerializationFailure</a>: u64 = 2;
-</code></pre>
-
-
-
 <a name="haneul_config_ENotSetForEpoch"></a>
 
 
 
 <pre><code><b>const</b> <a href="../haneul/config.md#haneul_config_ENotSetForEpoch">ENotSetForEpoch</a>: u64 = 1;
+</code></pre>
+
+
+
+<a name="haneul_config_EBCSSerializationFailure"></a>
+
+
+
+<pre><code><b>const</b> <a href="../haneul/config.md#haneul_config_EBCSSerializationFailure">EBCSSerializationFailure</a>: u64 = 2;
 </code></pre>
 
 
