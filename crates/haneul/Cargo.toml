@@ -144,4 +144,5 @@ harness = false
 tracing = [
     "haneul-types/tracing",
     "haneul-execution/tracing",
+    "haneul-move/tracing",
 ]
