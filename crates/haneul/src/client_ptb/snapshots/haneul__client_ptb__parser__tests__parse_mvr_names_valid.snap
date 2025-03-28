@@ -1,0 +1,87 @@
+---
+source: crates/haneul/src/client_ptb/parser.rs
+expression: parsed
+---
+[
+    Spanned {
+        span: Span {
+            start: 0,
+            end: 1,
+        },
+        value: Named(
+            "@1/foo",
+        ),
+    },
+    Spanned {
+        span: Span {
+            start: 0,
+            end: 3,
+        },
+        value: Named(
+            "1.haneul/foo",
+        ),
+    },
+    Spanned {
+        span: Span {
+            start: 0,
+            end: 3,
+        },
+        value: Named(
+            "1.haneul/foo/1",
+        ),
+    },
+    Spanned {
+        span: Span {
+            start: 0,
+            end: 3,
+        },
+        value: Named(
+            "1.haneul/3/1",
+        ),
+    },
+    Spanned {
+        span: Span {
+            start: 0,
+            end: 1,
+        },
+        value: Named(
+            "1.haneul/3/1",
+        ),
+    },
+    Spanned {
+        span: Span {
+            start: 0,
+            end: 1,
+        },
+        value: Named(
+            "@foo/bar",
+        ),
+    },
+    Spanned {
+        span: Span {
+            start: 0,
+            end: 1,
+        },
+        value: Named(
+            "@foo/bar/1",
+        ),
+    },
+    Spanned {
+        span: Span {
+            start: 0,
+            end: 3,
+        },
+        value: Named(
+            "foo.haneul/bar",
+        ),
+    },
+    Spanned {
+        span: Span {
+            start: 0,
+            end: 3,
+        },
+        value: Named(
+            "foo.haneul/bar/1",
+        ),
+    },
+]
