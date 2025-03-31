@@ -2,19 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::checkpoints::checkpoint_executor::{CheckpointExecutionData, CheckpointTransactionData};
-use crate::execution_cache::{ObjectCacheRead, TransactionCacheRead};
+use crate::execution_cache::TransactionCacheRead;
 use std::collections::HashMap;
 use std::path::Path;
 use haneul_storage::blob::{Blob, BlobEncoding};
 use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
+use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::full_checkpoint_content::{CheckpointData, CheckpointTransaction};
-use haneul_types::storage::ObjectKey;
+use haneul_types::storage::ObjectStore;
 
 pub(crate) fn load_checkpoint_data(
     ckpt_data: &CheckpointExecutionData,
     ckpt_tx_data: &CheckpointTransactionData,
-    object_cache_reader: &dyn ObjectCacheRead,
+    object_store: &dyn ObjectStore,
     transaction_cache_reader: &dyn TransactionCacheRead,
 ) -> HaneulResult<CheckpointData> {
     let event_tx_digests = ckpt_tx_data
@@ -47,45 +47,10 @@ pub(crate) fn load_checkpoint_data(
                 .expect("event was already checked to be present")
         });
 
-        let input_object_keys = fx
-            .modified_at_versions()
-            .into_iter()
-            .map(|(object_id, version)| ObjectKey(object_id, version))
-            .collect::<Vec<_>>();
-
-        let input_objects = object_cache_reader
-            .multi_get_objects_by_key(&input_object_keys)
-            .into_iter()
-            .zip(&input_object_keys)
-            .map(|(object, object_key)| {
-                object.ok_or(HaneulError::UserInputError {
-                    error: UserInputError::ObjectNotFound {
-                        object_id: object_key.0,
-                        version: Some(object_key.1),
-                    },
-                })
-            })
-            .collect::<HaneulResult<Vec<_>>>()?;
-
-        let output_object_keys = fx
-            .all_changed_objects()
-            .into_iter()
-            .map(|(object_ref, _owner, _kind)| ObjectKey::from(object_ref))
-            .collect::<Vec<_>>();
-
-        let output_objects = object_cache_reader
-            .multi_get_objects_by_key(&output_object_keys)
-            .into_iter()
-            .zip(&output_object_keys)
-            .map(|(object, object_key)| {
-                object.ok_or(HaneulError::UserInputError {
-                    error: UserInputError::ObjectNotFound {
-                        object_id: object_key.0,
-                        version: Some(object_key.1),
-                    },
-                })
-            })
-            .collect::<HaneulResult<Vec<_>>>()?;
+        let input_objects = haneul_types::storage::get_transaction_input_objects(object_store, fx)
+            .map_err(|e| HaneulError::Unknown(e.to_string()))?;
+        let output_objects = haneul_types::storage::get_transaction_output_objects(object_store, fx)
+            .map_err(|e| HaneulError::Unknown(e.to_string()))?;
 
         let full_transaction = CheckpointTransaction {
             transaction: (*tx).clone().into_unsigned().into(),
