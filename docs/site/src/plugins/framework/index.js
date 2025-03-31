@@ -21,10 +21,12 @@ const STDLIB_PATH = path.join(
   __dirname,
   "../../../../../crates/haneul-framework/docs/std",
 );
+/*
+** Deprecated **
 const DEEPBOOK_PATH = path.join(
   __dirname,
   "../../../../../crates/haneul-framework/docs/deepbook",
-);
+);*/
 const HANEULSYS_PATH = path.join(
   __dirname,
   "../../../../../crates/haneul-framework/docs/haneul_system",
@@ -68,13 +70,13 @@ const frameworkPlugin = (context, options) => {
       const bridgeFiles = recurseFiles(BRIDGE_PATH);
       const frameworkFiles = recurseFiles(FRAMEWORK_PATH);
       const stdlibFiles = recurseFiles(STDLIB_PATH);
-      const deepbookFiles = recurseFiles(DEEPBOOK_PATH);
+      //const deepbookFiles = recurseFiles(DEEPBOOK_PATH);
       const haneulsysFiles = recurseFiles(HANEULSYS_PATH);
       const allFiles = [
         bridgeFiles,
         frameworkFiles,
         stdlibFiles,
-        deepbookFiles,
+        //deepbookFiles,
         haneulsysFiles,
       ];
       allFiles.forEach((theseFiles) => {
