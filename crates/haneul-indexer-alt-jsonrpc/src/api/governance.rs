@@ -22,7 +22,7 @@ use haneul_types::{
 
 use crate::{
     context::Context,
-    data::objects::load_live_deserialized,
+    data::load_live_deserialized,
     error::{rpc_bail, RpcError},
 };
 

@@ -13,9 +13,7 @@ use simulacrum::Simulacrum;
 use haneul_indexer_alt::config::{ConcurrentLayer, IndexerConfig, PipelineLayer, PrunerLayer};
 use haneul_indexer_alt_e2e_tests::{find_address_owned, FullCluster};
 use haneul_indexer_alt_framework::IndexerArgs;
-use haneul_indexer_alt_jsonrpc::{
-    config::RpcConfig, data::system_package_task::SystemPackageTaskArgs,
-};
+use haneul_indexer_alt_jsonrpc::{args::SystemPackageTaskArgs, config::RpcConfig};
 use haneul_types::{
     base_types::HaneulAddress,
     crypto::{get_account_key_pair, Signature, Signer},

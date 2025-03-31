@@ -12,14 +12,12 @@ use haneul_types::{
     TypeTag, HANEUL_FRAMEWORK_ADDRESS,
 };
 
-use crate::data::error::Error;
-
-use super::pg_reader::PgReader;
+use crate::{error::Error, pg_reader::PgReader};
 
 /// Key for fetching the  of a CoinMetadata object, based on its coin marker type, e.g.
 /// `0x2::haneul::HANEUL`.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub(crate) struct CoinMetadataKey(pub StructTag);
+pub struct CoinMetadataKey(pub StructTag);
 
 #[async_trait::async_trait]
 impl Loader<CoinMetadataKey> for PgReader {

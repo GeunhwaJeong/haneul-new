@@ -126,6 +126,7 @@ members = [
   "crates/haneul-indexer-alt-framework",
   "crates/haneul-indexer-alt-jsonrpc",
   "crates/haneul-indexer-alt-metrics",
+  "crates/haneul-indexer-alt-reader",
   "crates/haneul-indexer-alt-restorer",
   "crates/haneul-indexer-alt-schema",
   "crates/haneul-indexer-builder",
@@ -689,6 +690,7 @@ haneul-indexer-alt = { path = "crates/haneul-indexer-alt" }
 haneul-indexer-alt-framework = { path = "crates/haneul-indexer-alt-framework", default-features = false }
 haneul-indexer-alt-jsonrpc = { path = "crates/haneul-indexer-alt-jsonrpc" }
 haneul-indexer-alt-metrics = { path = "crates/haneul-indexer-alt-metrics" }
+haneul-indexer-alt-reader = { path = "crates/haneul-indexer-alt-reader" }
 haneul-indexer-alt-restorer = { path = "crates/haneul-indexer-alt-restorer" }
 haneul-indexer-alt-schema = { path = "crates/haneul-indexer-alt-schema" }
 haneul-indexer-builder = { path = "crates/haneul-indexer-builder" }

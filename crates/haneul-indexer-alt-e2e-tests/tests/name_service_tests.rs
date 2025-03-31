@@ -13,8 +13,8 @@ use haneul_indexer_alt::config::IndexerConfig;
 use haneul_indexer_alt_e2e_tests::{find_immutable, find_shared, FullCluster};
 use haneul_indexer_alt_framework::IndexerArgs;
 use haneul_indexer_alt_jsonrpc::{
+    args::SystemPackageTaskArgs,
     config::{NameServiceConfig, RpcConfig},
-    data::system_package_task::SystemPackageTaskArgs,
 };
 use haneul_move_build::BuildConfig;
 use haneul_types::{

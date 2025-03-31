@@ -14109,10 +14109,10 @@ dependencies = [
  "haneul-default-config",
  "haneul-display",
  "haneul-indexer-alt-metrics",
+ "haneul-indexer-alt-reader",
  "haneul-indexer-alt-schema",
  "haneul-json",
  "haneul-json-rpc-types",
- "haneul-kvstore",
  "haneul-name-service",
  "haneul-open-rpc",
  "haneul-open-rpc-macros",
@@ -14145,6 +14145,32 @@ dependencies = [
  "tokio",
  "tokio-util 0.7.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "tracing",
+]
+
+[[package]]
+name = "haneul-indexer-alt-reader"
+version = "1.48.0"
+dependencies = [
+ "anyhow",
+ "async-graphql",
+ "async-trait",
+ "bcs",
+ "clap",
+ "diesel",
+ "diesel-async",
+ "move-core-types",
+ "prometheus",
+ "haneul-indexer-alt-metrics",
+ "haneul-indexer-alt-schema",
+ "haneul-kvstore",
+ "haneul-package-resolver",
+ "haneul-pg-db",
+ "haneul-types",
+ "thiserror 1.0.69",
+ "tokio",
+ "tokio-util 0.7.13 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tracing",
+ "url",
 ]
 
 [[package]]

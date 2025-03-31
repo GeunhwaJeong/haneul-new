@@ -18,9 +18,7 @@ use serde_json::{json, Value};
 use haneul_indexer_alt::config::{IndexerConfig, Merge, PrunerLayer};
 use haneul_indexer_alt_e2e_tests::OffchainCluster;
 use haneul_indexer_alt_framework::{ingestion::ClientArgs, IndexerArgs};
-use haneul_indexer_alt_jsonrpc::{
-    config::RpcConfig, data::system_package_task::SystemPackageTaskArgs,
-};
+use haneul_indexer_alt_jsonrpc::{args::SystemPackageTaskArgs, config::RpcConfig};
 use haneul_transactional_test_runner::{
     create_adapter,
     offchain_state::{OffchainStateReader, TestResponse},
