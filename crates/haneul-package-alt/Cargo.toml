@@ -1,0 +1,13 @@
+[package]
+name = "haneul-package-alt"
+version.workspace = true
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[lints]
+workspace = true
+
+[dependencies]
+move-package-alt.workspace = true
