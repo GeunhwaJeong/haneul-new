@@ -311,6 +311,8 @@ Fails if scalar = 0. Else returns 1/scalar * e.
 
 Aborts with <code><a href="../haneul/group_ops.md#haneul_group_ops_EInputTooLong">EInputTooLong</a></code> if the vectors are too long.
 
+This function is currently only enabled on Devnet.
+
 
 <pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/group_ops.md#haneul_group_ops_multi_scalar_multiplication">multi_scalar_multiplication</a>&lt;S, G&gt;(type_: u8, scalars: &vector&lt;<a href="../haneul/group_ops.md#haneul_group_ops_Element">haneul::group_ops::Element</a>&lt;S&gt;&gt;, elements: &vector&lt;<a href="../haneul/group_ops.md#haneul_group_ops_Element">haneul::group_ops::Element</a>&lt;G&gt;&gt;): <a href="../haneul/group_ops.md#haneul_group_ops_Element">haneul::group_ops::Element</a>&lt;G&gt;
 </code></pre>
