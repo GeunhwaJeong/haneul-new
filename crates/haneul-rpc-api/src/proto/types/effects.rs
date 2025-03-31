@@ -601,7 +601,7 @@ impl From<haneul_sdk_types::UnchangedSharedKind> for super::unchanged_shared_obj
             }),
             MutateDeleted { version } => Self::MutateDeleted(version),
             ReadDeleted { version } => Self::ReadDeleted(version),
-            Cancelled { version } => Self::Cancelled(version),
+            Canceled { version } => Self::Cancelled(version),
             PerEpochConfig => Self::PerEpochConfig(()),
         }
     }
@@ -624,7 +624,7 @@ impl TryFrom<&super::unchanged_shared_object::Kind> for haneul_sdk_types::Unchan
             },
             MutateDeleted(version) => Self::MutateDeleted { version: *version },
             ReadDeleted(version) => Self::ReadDeleted { version: *version },
-            Cancelled(version) => Self::Cancelled { version: *version },
+            Cancelled(version) => Self::Canceled { version: *version },
             PerEpochConfig(()) => Self::PerEpochConfig,
         }
         .pipe(Ok)

@@ -146,7 +146,7 @@ impl From<haneul_sdk_types::ExecutionError> for super::failure_status::Execution
             HaneulMoveVerificationTimedout => Self::HaneulMoveVerificationTimedout(()),
             SharedObjectOperationNotAllowed => Self::SharedObjectOperationNotAllowed(()),
             InputObjectDeleted => Self::InputObjectDeleted(()),
-            ExecutionCancelledDueToSharedObjectCongestion { congested_objects } => {
+            ExecutionCanceledDueToSharedObjectCongestion { congested_objects } => {
                 Self::ExecutionCancelledDueToSharedObjectCongestion(super::CongestedObjectsError {
                     congested_objects: congested_objects.into_iter().map(Into::into).collect(),
                 })
@@ -158,7 +158,7 @@ impl From<haneul_sdk_types::ExecutionError> for super::failure_status::Execution
                 })
             }
             CoinTypeGlobalPause { coin_type } => Self::CoinTypeGlobalPause(coin_type),
-            ExecutionCancelledDueToRandomnessUnavailable => {
+            ExecutionCanceledDueToRandomnessUnavailable => {
                 Self::ExecutionCancelledDueToRandomnessUnavailable(())
             }
         }
@@ -273,7 +273,7 @@ impl TryFrom<&super::failure_status::ExecutionError> for haneul_sdk_types::Execu
             InputObjectDeleted(()) => Self::InputObjectDeleted,
             ExecutionCancelledDueToSharedObjectCongestion(super::CongestedObjectsError {
                 congested_objects,
-            }) => Self::ExecutionCancelledDueToSharedObjectCongestion {
+            }) => Self::ExecutionCanceledDueToSharedObjectCongestion {
                 congested_objects: congested_objects
                     .iter()
                     .map(TryInto::try_into)
@@ -295,7 +295,7 @@ impl TryFrom<&super::failure_status::ExecutionError> for haneul_sdk_types::Execu
                 coin_type: coin_type.to_owned(),
             },
             ExecutionCancelledDueToRandomnessUnavailable(()) => {
-                Self::ExecutionCancelledDueToRandomnessUnavailable
+                Self::ExecutionCanceledDueToRandomnessUnavailable
             }
         }
         .pipe(Ok)

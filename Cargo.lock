@@ -13333,7 +13333,7 @@ dependencies = [
  "haneul-swarm-config",
  "haneul-test-transaction-builder",
  "haneul-tool",
- "haneul-transaction-builder 0.1.0",
+ "haneul-transaction-builder 0.0.4",
  "haneul-types",
  "telemetry-subscribers",
  "tempfile",
@@ -15006,7 +15006,7 @@ dependencies = [
  "serde_with",
  "haneul-protocol-config",
  "haneul-sdk-types",
- "haneul-transaction-builder 0.1.0",
+ "haneul-transaction-builder 0.0.4",
  "haneul-types",
  "tap",
  "test-strategy",
@@ -15117,8 +15117,8 @@ dependencies = [
 
 [[package]]
 name = "haneul-sdk-types"
-version = "0.0.2"
-source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=5e11579031793f086178332219f5847ec94da0c4#5e11579031793f086178332219f5847ec94da0c4"
+version = "0.0.4"
+source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=83ff809bc11cbabda21b60130e1f5420170548bf#83ff809bc11cbabda21b60130e1f5420170548bf"
 dependencies = [
  "base64ct",
  "bcs",
@@ -15592,8 +15592,8 @@ dependencies = [
 
 [[package]]
 name = "haneul-transaction-builder"
-version = "0.1.0"
-source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=5e11579031793f086178332219f5847ec94da0c4#5e11579031793f086178332219f5847ec94da0c4"
+version = "0.0.4"
+source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=83ff809bc11cbabda21b60130e1f5420170548bf#83ff809bc11cbabda21b60130e1f5420170548bf"
 dependencies = [
  "base64ct",
  "bcs",
