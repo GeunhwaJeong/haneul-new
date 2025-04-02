@@ -5,6 +5,7 @@
 module haneul_system::voting_power_tests;
 
 use haneul_system::governance_test_utils as gtu;
+use haneul_system::validator_set;
 use haneul_system::voting_power;
 use haneul::test_scenario;
 use haneul::test_utils;
@@ -14,7 +15,8 @@ const TOTAL_VOTING_POWER: u64 = 10_000;
 
 fun check(stakes: vector<u64>, voting_power: vector<u64>, ctx: &mut TxContext) {
     let mut validators = gtu::create_validators_with_stakes(stakes, ctx);
-    voting_power::set_voting_power(&mut validators);
+    let total_stake = validator_set::calculate_total_stakes(&validators);
+    voting_power::set_voting_power(&mut validators, total_stake);
     test_utils::assert_eq(get_voting_power(&validators), voting_power);
     test_utils::destroy(validators);
 }

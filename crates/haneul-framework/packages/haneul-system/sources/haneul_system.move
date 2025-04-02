@@ -41,7 +41,6 @@
 module haneul_system::haneul_system;
 
 use haneul::balance::Balance;
-
 use haneul::coin::Coin;
 use haneul_system::staking_pool::{StakedHaneul, FungibleStakedHaneul};
 use haneul::haneul::HANEUL;
@@ -710,11 +709,10 @@ public fun set_epoch_for_testing(wrapper: &mut HaneulSystemState, epoch_num: u64
 #[test_only]
 public fun request_add_validator_for_testing(
     wrapper: &mut HaneulSystemState,
-    min_joining_stake_for_testing: u64,
     ctx: &TxContext,
 ) {
     let self = load_system_state_mut(wrapper);
-    self.request_add_validator_for_testing(min_joining_stake_for_testing, ctx)
+    self.request_add_validator_for_testing(ctx)
 }
 
 #[test_only]
