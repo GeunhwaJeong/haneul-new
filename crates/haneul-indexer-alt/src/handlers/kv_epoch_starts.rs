@@ -9,7 +9,6 @@ use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use haneul_indexer_alt_framework::{
     db,
-    models::cp_sequence_numbers::epoch_interval,
     pipeline::{concurrent::Handler, Processor},
     types::{
         full_checkpoint_content::CheckpointData,
@@ -18,6 +17,8 @@ use haneul_indexer_alt_framework::{
     },
 };
 use haneul_indexer_alt_schema::{epochs::StoredEpochStart, schema::kv_epoch_starts};
+
+use crate::handlers::cp_sequence_numbers::epoch_interval;
 
 pub(crate) struct KvEpochStarts;
 
