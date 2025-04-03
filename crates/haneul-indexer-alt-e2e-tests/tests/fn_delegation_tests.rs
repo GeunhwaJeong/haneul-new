@@ -10,6 +10,7 @@ use serde_json::{json, Value};
 use haneul_indexer_alt_jsonrpc::{
     args::SystemPackageTaskArgs, config::RpcConfig, start_rpc, NodeArgs, RpcArgs,
 };
+use haneul_indexer_alt_reader::bigtable_reader::BigtableArgs;
 use haneul_macros::sim_test;
 use haneul_pg_db::{temp::get_available_port, DbArgs};
 use haneul_swarm_config::genesis_config::AccountConfig;
@@ -64,6 +65,7 @@ impl FnDelegationTestCluster {
             None,
             None,
             DbArgs::default(),
+            BigtableArgs::default(),
             rpc_args,
             NodeArgs {
                 fullnode_rpc_url: Some(fullnode_rpc_url),

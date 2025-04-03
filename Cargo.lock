@@ -14022,6 +14022,7 @@ dependencies = [
  "haneul-indexer-alt",
  "haneul-indexer-alt-framework",
  "haneul-indexer-alt-jsonrpc",
+ "haneul-indexer-alt-reader",
  "haneul-json-rpc-types",
  "haneul-macros",
  "haneul-move-build",
@@ -14169,6 +14170,7 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "tokio-util 0.7.13 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tonic 0.12.3",
  "tracing",
  "url",
 ]

@@ -27,6 +27,7 @@ simulacrum.workspace = true
 haneul-indexer-alt.workspace = true
 haneul-indexer-alt-framework.workspace = true
 haneul-indexer-alt-jsonrpc.workspace = true
+haneul-indexer-alt-reader.workspace = true
 haneul-pg-db.workspace = true
 haneul-types.workspace = true
 
