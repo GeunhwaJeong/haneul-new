@@ -67,6 +67,15 @@ const concepts = [
 							'concepts/haneul-move-concepts/packages/automated-address-management',
 						],
 					},
+					{
+						type: 'category',
+						label: 'Dynamic Fields',
+						link: {
+							type: 'doc',
+							id: 'concepts/dynamic-fields',
+						},
+						items: ['concepts/dynamic-fields/tables-bags'],
+					},
 					'concepts/haneul-move-concepts/conventions',
 				],
 			},
