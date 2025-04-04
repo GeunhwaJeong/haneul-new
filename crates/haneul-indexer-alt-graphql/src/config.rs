@@ -163,6 +163,15 @@ impl Limits {
             BTreeMap::new(),
         )
     }
+
+    pub(crate) fn package_resolver(&self) -> haneul_package_resolver::Limits {
+        haneul_package_resolver::Limits {
+            max_type_argument_depth: self.max_type_argument_depth,
+            max_type_argument_width: self.max_type_argument_width,
+            max_type_nodes: self.max_type_nodes,
+            max_move_value_depth: self.max_move_value_depth,
+        }
+    }
 }
 
 impl LimitsLayer {
