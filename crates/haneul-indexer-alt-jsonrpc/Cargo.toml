@@ -58,7 +58,6 @@ haneul-name-service.workspace = true
 haneul-open-rpc.workspace = true
 haneul-open-rpc-macros.workspace = true
 haneul-package-resolver.workspace = true
-haneul-pg-db.workspace = true
 haneul-protocol-config.workspace = true
 haneul-sql-macro.workspace = true
 haneul-types.workspace = true
@@ -66,3 +65,5 @@ haneul-types.workspace = true
 [dev-dependencies]
 reqwest.workspace = true
 serde_json.workspace = true
+
+haneul-pg-db.workspace = true

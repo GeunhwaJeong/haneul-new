@@ -10,10 +10,10 @@ use haneul_indexer_alt_reader::{
     error::Error,
     kv_loader::KvLoader,
     package_resolver::{DbPackageStore, PackageCache, PackageResolver},
+    pg_reader::db::DbArgs,
     pg_reader::PgReader,
 };
 use haneul_package_resolver::Resolver;
-use haneul_pg_db::DbArgs;
 use tokio_util::sync::CancellationToken;
 use url::Url;
 
