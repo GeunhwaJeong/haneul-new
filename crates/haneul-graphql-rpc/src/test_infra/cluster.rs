@@ -179,7 +179,7 @@ pub async fn serve_executor(
     info!("Starting executor server on {}", executor_server_url);
 
     let executor_server_handle = tokio::spawn(async move {
-        haneul_rpc_api::RpcService::new_without_version(executor)
+        haneul_rpc_api::RpcService::new(executor)
             .start_service(executor_server_url)
             .await;
     });
