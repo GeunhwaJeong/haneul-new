@@ -56,7 +56,6 @@ use haneul_types::messages_consensus::ConsensusTransactionKind;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::transaction::VerifiedCertificate;
 use tap::tap::TapFallible;
-use tokio::runtime::Handle;
 use tokio::sync::oneshot;
 use tokio::sync::{broadcast, mpsc, watch, Mutex};
 use tokio::task::{JoinHandle, JoinSet};
@@ -300,12 +299,10 @@ impl HaneulNode {
     pub async fn start(
         config: NodeConfig,
         registry_service: RegistryService,
-        custom_rpc_runtime: Option<Handle>,
     ) -> Result<Arc<HaneulNode>> {
         Self::start_async(
             config,
             registry_service,
-            custom_rpc_runtime,
             ServerVersion::new("haneul-node", "unknown"),
         )
         .await
@@ -449,7 +446,6 @@ impl HaneulNode {
     pub async fn start_async(
         config: NodeConfig,
         registry_service: RegistryService,
-        custom_rpc_runtime: Option<Handle>,
         server_version: ServerVersion,
     ) -> Result<Arc<HaneulNode>> {
         NodeConfigMetrics::new(&registry_service.default_registry()).record_metrics(&config);
@@ -817,7 +813,6 @@ impl HaneulNode {
             &transaction_orchestrator.clone(),
             &config,
             &prometheus_registry,
-            custom_rpc_runtime,
             server_version,
         )
         .await?;
@@ -2204,7 +2199,6 @@ async fn build_http_servers(
     transaction_orchestrator: &Option<Arc<TransactiondOrchestrator<NetworkAuthorityClient>>>,
     config: &NodeConfig,
     prometheus_registry: &Registry,
-    _custom_runtime: Option<Handle>,
     server_version: ServerVersion,
 ) -> Result<(
     HttpServers,
