@@ -132,7 +132,6 @@ built_in_ids! {
 
 pub const HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION: SequenceNumber = OBJECT_START_VERSION;
 pub const HANEUL_CLOCK_OBJECT_SHARED_VERSION: SequenceNumber = OBJECT_START_VERSION;
-pub const HANEUL_AUTHENTICATOR_STATE_OBJECT_SHARED_VERSION: SequenceNumber = OBJECT_START_VERSION;
 
 pub fn haneul_framework_address_concat_string(suffix: &str) -> String {
     format!("{}{suffix}", HANEUL_FRAMEWORK_ADDRESS.to_hex_literal())

@@ -27,9 +27,8 @@ use crate::signature_verification::{
 };
 use crate::type_input::TypeInput;
 use crate::{
-    HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_AUTHENTICATOR_STATE_OBJECT_SHARED_VERSION,
-    HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION, HANEUL_FRAMEWORK_PACKAGE_ID,
-    HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
+    HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
+    HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
     HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
 };
 use enum_dispatch::enum_dispatch;
@@ -95,11 +94,6 @@ impl CallArg {
     pub const CLOCK_MUT: Self = Self::Object(ObjectArg::SharedObject {
         id: HANEUL_CLOCK_OBJECT_ID,
         initial_shared_version: HANEUL_CLOCK_OBJECT_SHARED_VERSION,
-        mutable: true,
-    });
-    pub const AUTHENTICATOR_MUT: Self = Self::Object(ObjectArg::SharedObject {
-        id: HANEUL_AUTHENTICATOR_STATE_OBJECT_ID,
-        initial_shared_version: HANEUL_AUTHENTICATOR_STATE_OBJECT_SHARED_VERSION,
         mutable: true,
     });
 }
@@ -3274,7 +3268,7 @@ impl InputObjects {
             .any(|obj| obj.is_consensus_stream_ended())
     }
 
-    // Returns IDs of objects responsible for a tranaction being cancelled, and the corresponding
+    // Returns IDs of objects responsible for a transaction being cancelled, and the corresponding
     // reason for cancellation.
     pub fn get_cancelled_objects(&self) -> Option<(Vec<ObjectID>, SequenceNumber)> {
         let mut contains_cancelled = false;
