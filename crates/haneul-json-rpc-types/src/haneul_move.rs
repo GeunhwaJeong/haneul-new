@@ -5,7 +5,7 @@ use colored::Colorize;
 use itertools::Itertools;
 use move_binary_format::file_format::{Ability, AbilitySet, DatatypeTyParameter, Visibility};
 use move_binary_format::normalized::{
-    Enum as NormalizedEnum, Field as NormalizedField, Function as HaneulNormalizedFunction,
+    self, Enum as NormalizedEnum, Field as NormalizedField, Function as NormalizedFunction,
     Module as NormalizedModule, Struct as NormalizedStruct, Type as NormalizedType,
 };
 use move_core_types::annotated_value::{MoveStruct, MoveValue, MoveVariant};
@@ -91,17 +91,23 @@ pub enum HaneulMoveNormalizedType {
     U256,
     Address,
     Signer,
-    #[serde(rename_all = "camelCase")]
     Struct {
-        address: String,
-        module: String,
-        name: String,
-        type_arguments: Vec<HaneulMoveNormalizedType>,
+        #[serde(flatten)]
+        inner: Box<HaneulMoveNormalizedStructType>,
     },
     Vector(Box<HaneulMoveNormalizedType>),
     TypeParameter(HaneulMoveTypeParameterIndex),
     Reference(Box<HaneulMoveNormalizedType>),
     MutableReference(Box<HaneulMoveNormalizedType>),
+}
+
+#[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct HaneulMoveNormalizedStructType {
+    pub address: String,
+    pub module: String,
+    pub name: String,
+    pub type_arguments: Vec<HaneulMoveNormalizedType>,
 }
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
@@ -141,45 +147,53 @@ impl PartialEq for HaneulMoveNormalizedModule {
     }
 }
 
-impl From<NormalizedModule> for HaneulMoveNormalizedModule {
-    fn from(module: NormalizedModule) -> Self {
+impl<S: std::hash::Hash + Eq + ToString> From<&NormalizedModule<S>> for HaneulMoveNormalizedModule {
+    fn from(module: &NormalizedModule<S>) -> Self {
         Self {
             file_format_version: module.file_format_version,
-            address: module.address.to_hex_literal(),
-            name: module.name.to_string(),
+            address: module.address().to_hex_literal(),
+            name: module.name().to_string(),
             friends: module
                 .friends
-                .into_iter()
+                .iter()
                 .map(|module_id| HaneulMoveModuleId {
-                    address: module_id.address().to_hex_literal(),
-                    name: module_id.name().to_string(),
+                    address: module_id.address.to_hex_literal(),
+                    name: module_id.name.to_string(),
                 })
                 .collect::<Vec<HaneulMoveModuleId>>(),
             structs: module
                 .structs
-                .into_iter()
-                .map(|(name, struct_)| (name.to_string(), HaneulMoveNormalizedStruct::from(struct_)))
+                .iter()
+                .map(|(name, struct_)| {
+                    (name.to_string(), HaneulMoveNormalizedStruct::from(&**struct_))
+                })
                 .collect::<BTreeMap<String, HaneulMoveNormalizedStruct>>(),
             enums: module
                 .enums
-                .into_iter()
-                .map(|(name, enum_)| (name.to_string(), HaneulMoveNormalizedEnum::from(enum_)))
+                .iter()
+                .map(|(name, enum_)| (name.to_string(), HaneulMoveNormalizedEnum::from(&**enum_)))
                 .collect(),
             exposed_functions: module
                 .functions
-                .into_iter()
-                .filter_map(|(name, function)| {
+                .iter()
+                .filter(|(_name, function)| {
+                    function.is_entry || function.visibility != Visibility::Private
+                })
+                .map(|(name, function)| {
                     // TODO: Do we want to expose the private functions as well?
-                    (function.is_entry || function.visibility != Visibility::Private)
-                        .then(|| (name.to_string(), HaneulMoveNormalizedFunction::from(function)))
+
+                    (
+                        name.to_string(),
+                        HaneulMoveNormalizedFunction::from(&**function),
+                    )
                 })
                 .collect::<BTreeMap<String, HaneulMoveNormalizedFunction>>(),
         }
     }
 }
 
-impl From<HaneulNormalizedFunction> for HaneulMoveNormalizedFunction {
-    fn from(function: HaneulNormalizedFunction) -> Self {
+impl<S: ToString> From<&NormalizedFunction<S>> for HaneulMoveNormalizedFunction {
+    fn from(function: &NormalizedFunction<S>) -> Self {
         Self {
             visibility: match function.visibility {
                 Visibility::Private => HaneulMoveVisibility::Private,
@@ -189,59 +203,62 @@ impl From<HaneulNormalizedFunction> for HaneulMoveNormalizedFunction {
             is_entry: function.is_entry,
             type_parameters: function
                 .type_parameters
-                .into_iter()
+                .iter()
+                .copied()
                 .map(|a| a.into())
                 .collect::<Vec<HaneulMoveAbilitySet>>(),
             parameters: function
                 .parameters
-                .into_iter()
-                .map(HaneulMoveNormalizedType::from)
+                .iter()
+                .map(|t| HaneulMoveNormalizedType::from(&**t))
                 .collect::<Vec<HaneulMoveNormalizedType>>(),
             return_: function
                 .return_
-                .into_iter()
-                .map(HaneulMoveNormalizedType::from)
+                .iter()
+                .map(|t| HaneulMoveNormalizedType::from(&**t))
                 .collect::<Vec<HaneulMoveNormalizedType>>(),
         }
     }
 }
 
-impl From<NormalizedStruct> for HaneulMoveNormalizedStruct {
-    fn from(struct_: NormalizedStruct) -> Self {
+impl<S: ToString> From<&NormalizedStruct<S>> for HaneulMoveNormalizedStruct {
+    fn from(struct_: &NormalizedStruct<S>) -> Self {
         Self {
             abilities: struct_.abilities.into(),
             type_parameters: struct_
                 .type_parameters
-                .into_iter()
+                .iter()
+                .copied()
                 .map(HaneulMoveStructTypeParameter::from)
                 .collect::<Vec<HaneulMoveStructTypeParameter>>(),
             fields: struct_
                 .fields
-                .into_iter()
-                .map(HaneulMoveNormalizedField::from)
+                .iter()
+                .map(|f| HaneulMoveNormalizedField::from(&**f))
                 .collect::<Vec<HaneulMoveNormalizedField>>(),
         }
     }
 }
 
-impl From<NormalizedEnum> for HaneulMoveNormalizedEnum {
-    fn from(value: NormalizedEnum) -> Self {
+impl<S: ToString> From<&NormalizedEnum<S>> for HaneulMoveNormalizedEnum {
+    fn from(value: &NormalizedEnum<S>) -> Self {
         Self {
             abilities: value.abilities.into(),
             type_parameters: value
                 .type_parameters
-                .into_iter()
+                .iter()
+                .copied()
                 .map(HaneulMoveStructTypeParameter::from)
                 .collect::<Vec<HaneulMoveStructTypeParameter>>(),
             variants: value
                 .variants
-                .into_iter()
+                .iter()
                 .map(|variant| {
                     (
                         variant.name.to_string(),
                         variant
                             .fields
-                            .into_iter()
+                            .iter()
                             .map(HaneulMoveNormalizedField::from)
                             .collect::<Vec<HaneulMoveNormalizedField>>(),
                     )
@@ -260,17 +277,17 @@ impl From<DatatypeTyParameter> for HaneulMoveStructTypeParameter {
     }
 }
 
-impl From<NormalizedField> for HaneulMoveNormalizedField {
-    fn from(normalized_field: NormalizedField) -> Self {
+impl<S: ToString> From<&NormalizedField<S>> for HaneulMoveNormalizedField {
+    fn from(normalized_field: &NormalizedField<S>) -> Self {
         Self {
             name: normalized_field.name.to_string(),
-            type_: HaneulMoveNormalizedType::from(normalized_field.type_),
+            type_: HaneulMoveNormalizedType::from(&normalized_field.type_),
         }
     }
 }
 
-impl From<NormalizedType> for HaneulMoveNormalizedType {
-    fn from(type_: NormalizedType) -> Self {
+impl<S: ToString> From<&NormalizedType<S>> for HaneulMoveNormalizedType {
+    fn from(type_: &NormalizedType<S>) -> Self {
         match type_ {
             NormalizedType::Bool => HaneulMoveNormalizedType::Bool,
             NormalizedType::U8 => HaneulMoveNormalizedType::U8,
@@ -281,30 +298,32 @@ impl From<NormalizedType> for HaneulMoveNormalizedType {
             NormalizedType::U256 => HaneulMoveNormalizedType::U256,
             NormalizedType::Address => HaneulMoveNormalizedType::Address,
             NormalizedType::Signer => HaneulMoveNormalizedType::Signer,
-            NormalizedType::Struct {
-                address,
-                module,
-                name,
-                type_arguments,
-            } => HaneulMoveNormalizedType::Struct {
-                address: address.to_hex_literal(),
-                module: module.to_string(),
-                name: name.to_string(),
-                type_arguments: type_arguments
-                    .into_iter()
-                    .map(HaneulMoveNormalizedType::from)
-                    .collect::<Vec<HaneulMoveNormalizedType>>(),
-            },
+            NormalizedType::Datatype(dt) => {
+                let normalized::Datatype {
+                    module,
+                    name,
+                    type_arguments,
+                } = &**dt;
+                HaneulMoveNormalizedType::new_struct(
+                    module.address.to_hex_literal(),
+                    module.name.to_string(),
+                    name.to_string(),
+                    type_arguments
+                        .iter()
+                        .map(HaneulMoveNormalizedType::from)
+                        .collect::<Vec<HaneulMoveNormalizedType>>(),
+                )
+            }
             NormalizedType::Vector(v) => {
-                HaneulMoveNormalizedType::Vector(Box::new(HaneulMoveNormalizedType::from(*v)))
+                HaneulMoveNormalizedType::Vector(Box::new(HaneulMoveNormalizedType::from(&**v)))
             }
-            NormalizedType::TypeParameter(t) => HaneulMoveNormalizedType::TypeParameter(t),
-            NormalizedType::Reference(r) => {
-                HaneulMoveNormalizedType::Reference(Box::new(HaneulMoveNormalizedType::from(*r)))
+            NormalizedType::TypeParameter(t) => HaneulMoveNormalizedType::TypeParameter(*t),
+            NormalizedType::Reference(false, r) => {
+                HaneulMoveNormalizedType::Reference(Box::new(HaneulMoveNormalizedType::from(&**r)))
             }
-            NormalizedType::MutableReference(mr) => {
-                HaneulMoveNormalizedType::MutableReference(Box::new(HaneulMoveNormalizedType::from(*mr)))
-            }
+            NormalizedType::Reference(true, mr) => HaneulMoveNormalizedType::MutableReference(
+                Box::new(HaneulMoveNormalizedType::from(&**mr)),
+            ),
         }
     }
 }
@@ -321,6 +340,24 @@ impl From<AbilitySet> for HaneulMoveAbilitySet {
                     Ability::Store => HaneulMoveAbility::Store,
                 })
                 .collect::<Vec<HaneulMoveAbility>>(),
+        }
+    }
+}
+
+impl HaneulMoveNormalizedType {
+    pub fn new_struct(
+        address: String,
+        module: String,
+        name: String,
+        type_arguments: Vec<HaneulMoveNormalizedType>,
+    ) -> Self {
+        HaneulMoveNormalizedType::Struct {
+            inner: Box::new(HaneulMoveNormalizedStructType {
+                address,
+                module,
+                name,
+                type_arguments,
+            }),
         }
     }
 }
@@ -652,4 +689,9 @@ impl From<MoveStruct> for HaneulMoveStruct {
                 .collect(),
         }
     }
+}
+
+#[test]
+fn enum_size() {
+    assert_eq!(std::mem::size_of::<HaneulMoveNormalizedType>(), 16);
 }
