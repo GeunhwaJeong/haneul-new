@@ -12,10 +12,7 @@ use simulacrum::Simulacrum;
 use haneul_indexer_alt::config::IndexerConfig;
 use haneul_indexer_alt_e2e_tests::{find_immutable, find_shared, FullCluster};
 use haneul_indexer_alt_framework::IndexerArgs;
-use haneul_indexer_alt_jsonrpc::{
-    args::SystemPackageTaskArgs,
-    config::{NameServiceConfig, RpcConfig},
-};
+use haneul_indexer_alt_jsonrpc::config::{NameServiceConfig, RpcConfig};
 use haneul_move_build::BuildConfig;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
@@ -438,7 +435,6 @@ impl HaneulNSCluster {
         let cluster = FullCluster::new_with_configs(
             sim,
             IndexerArgs::default(),
-            SystemPackageTaskArgs::default(),
             IndexerConfig::for_test(),
             rpc_config,
             &prometheus::Registry::new(),
