@@ -14021,6 +14021,7 @@ dependencies = [
  "simulacrum",
  "haneul-indexer-alt",
  "haneul-indexer-alt-framework",
+ "haneul-indexer-alt-graphql",
  "haneul-indexer-alt-jsonrpc",
  "haneul-indexer-alt-reader",
  "haneul-json-rpc-types",

@@ -26,6 +26,7 @@ url.workspace = true
 simulacrum.workspace = true
 haneul-indexer-alt.workspace = true
 haneul-indexer-alt-framework.workspace = true
+haneul-indexer-alt-graphql.workspace = true
 haneul-indexer-alt-jsonrpc.workspace = true
 haneul-indexer-alt-reader.workspace = true
 haneul-pg-db.workspace = true
@@ -48,7 +49,6 @@ telemetry-subscribers.workspace = true
 
 move-core-types.workspace = true
 
-haneul-indexer-alt-reader.workspace = true
 haneul-json-rpc-types.workspace = true
 haneul-macros.workspace = true
 haneul-move-build.workspace = true

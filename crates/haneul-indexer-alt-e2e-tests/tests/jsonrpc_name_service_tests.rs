@@ -12,7 +12,8 @@ use simulacrum::Simulacrum;
 use haneul_indexer_alt::config::IndexerConfig;
 use haneul_indexer_alt_e2e_tests::{find_immutable, find_shared, FullCluster};
 use haneul_indexer_alt_framework::IndexerArgs;
-use haneul_indexer_alt_jsonrpc::config::{NameServiceConfig, RpcConfig};
+use haneul_indexer_alt_graphql::config::RpcConfig as GraphQlConfig;
+use haneul_indexer_alt_jsonrpc::config::{NameServiceConfig, RpcConfig as JsonRpcConfig};
 use haneul_move_build::BuildConfig;
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
@@ -426,7 +427,7 @@ impl HaneulNSCluster {
             reverse_registry_id,
         };
 
-        let rpc_config = RpcConfig {
+        let jsonrpc_config = JsonRpcConfig {
             name_service: config.clone(),
             ..Default::default()
         };
@@ -436,7 +437,8 @@ impl HaneulNSCluster {
             sim,
             IndexerArgs::default(),
             IndexerConfig::for_test(),
-            rpc_config,
+            jsonrpc_config,
+            GraphQlConfig::default(),
             &prometheus::Registry::new(),
             CancellationToken::new(),
         )
@@ -522,7 +524,7 @@ impl HaneulNSCluster {
 
         let response = self
             .client
-            .post(self.cluster.rpc_url())
+            .post(self.cluster.jsonrpc_url())
             .json(&query)
             .send()
             .await
@@ -547,7 +549,7 @@ impl HaneulNSCluster {
 
         let response = self
             .client
-            .post(self.cluster.rpc_url())
+            .post(self.cluster.jsonrpc_url())
             .json(&query)
             .send()
             .await
