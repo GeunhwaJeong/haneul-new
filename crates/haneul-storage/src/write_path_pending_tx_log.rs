@@ -14,7 +14,6 @@ use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::message_envelope::TrustedEnvelope;
 use haneul_types::transaction::{SenderSignedData, VerifiedTransaction};
 use typed_store::rocks::MetricConf;
-use typed_store::traits::{TableSummary, TypedStoreDebug};
 use typed_store::DBMapUtils;
 use typed_store::{rocks::DBMap, traits::Map};
 
