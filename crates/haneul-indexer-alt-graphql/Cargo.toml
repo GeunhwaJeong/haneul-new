@@ -50,6 +50,7 @@ bin-version.workspace = true
 haneul-default-config.workspace = true
 haneul-indexer-alt-metrics.workspace = true
 haneul-indexer-alt-reader.workspace = true
+haneul-indexer-alt-schema.workspace = true
 haneul-package-resolver.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true

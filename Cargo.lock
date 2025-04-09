@@ -14110,6 +14110,7 @@ dependencies = [
  "haneul-default-config",
  "haneul-indexer-alt-metrics",
  "haneul-indexer-alt-reader",
+ "haneul-indexer-alt-schema",
  "haneul-package-resolver",
  "haneul-protocol-config",
  "haneul-types",
