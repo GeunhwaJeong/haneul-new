@@ -1,0 +1,20 @@
+// Copyright (c) Mysten Labs, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+use serde::{Deserialize, Serialize};
+use haneul_types::error::HaneulError;
+use thiserror::Error;
+
+/// Client facing errors regarding transaction submission via Transaction Driver.
+/// Every invariant needs detailed content to instruct client handling.
+#[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize, Error, Hash)]
+pub enum TransactionDriverError {
+    #[error("Serialization error: {0}")]
+    SerializationError(HaneulError),
+    #[error("Deserialization error: {0}")]
+    DeserializationError(HaneulError),
+    #[error("Transaction timed out before reaching finality")]
+    TimeoutBeforeFinality,
+    #[error("Failed to call validator {0}: {1}")]
+    RpcFailure(String, String),
+}

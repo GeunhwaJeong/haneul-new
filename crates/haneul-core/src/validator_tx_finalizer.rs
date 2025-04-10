@@ -303,8 +303,8 @@ mod tests {
     use haneul_types::messages_grpc::{
         HandleCertificateRequestV3, HandleCertificateResponseV2, HandleCertificateResponseV3,
         HandleSoftBundleCertificatesRequestV3, HandleSoftBundleCertificatesResponseV3,
-        HandleTransactionResponse, ObjectInfoRequest, ObjectInfoResponse, SystemStateRequest,
-        TransactionInfoRequest, TransactionInfoResponse,
+        HandleTransactionResponse, ObjectInfoRequest, ObjectInfoResponse, RawSubmitTxRequest,
+        RawSubmitTxResponse, SystemStateRequest, TransactionInfoRequest, TransactionInfoResponse,
     };
     use haneul_types::object::Object;
     use haneul_types::haneul_system_state::HaneulSystemState;
@@ -322,6 +322,14 @@ mod tests {
 
     #[async_trait]
     impl AuthorityAPI for MockAuthorityClient {
+        async fn submit_transaction(
+            &self,
+            _request: RawSubmitTxRequest,
+            _client_addr: Option<SocketAddr>,
+        ) -> Result<RawSubmitTxResponse, HaneulError> {
+            unimplemented!();
+        }
+
         async fn handle_transaction(
             &self,
             transaction: Transaction,
