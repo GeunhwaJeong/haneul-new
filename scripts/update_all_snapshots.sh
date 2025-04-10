@@ -11,8 +11,8 @@ SCRIPT_PATH=$(realpath "$0")
 SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
 ROOT="$SCRIPT_DIR/.."
 
+UPDATE=1 cargo test -p haneul-framework --test build-system-packages
 cd "$ROOT/crates/haneul-protocol-config" && cargo insta test --review
 cd "$ROOT/crates/haneul-swarm-config" && cargo insta test --review
 cd "$ROOT/crates/haneul-open-rpc" && cargo run --example generate-json-rpc-spec -- record
 cd "$ROOT/crates/haneul-core" && cargo run --example generate-format -- print > tests/staged/haneul.yaml
-UPDATE=1 cargo test -p haneul-framework --test build-system-packages
