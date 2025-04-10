@@ -229,7 +229,6 @@ Added min_validator_count.
 <code>max_validator_count: u64</code>
 </dt>
 <dd>
- Deprecated.
  Maximum number of active validators at any moment.
  We do not allow the number of validators in any epoch to go above this.
 </dd>
@@ -1039,6 +1038,10 @@ epoch has already reached the maximum.
     self: &<b>mut</b> <a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_HaneulSystemStateInnerV2">HaneulSystemStateInnerV2</a>,
     ctx: &TxContext,
 ) {
+    <b>assert</b>!(
+        self.validators.next_epoch_validator_count() &lt; self.parameters.max_validator_count,
+        <a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_ELimitExceeded">ELimitExceeded</a>,
+    );
     self.validators.<a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_request_add_validator">request_add_validator</a>(ctx);
 }
 </code></pre>
