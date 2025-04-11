@@ -5,7 +5,7 @@ use std::{fmt, str::FromStr};
 
 use async_graphql::{InputValueError, InputValueResult, Scalar, ScalarType, Value};
 use move_core_types::account_address::AccountAddress;
-use haneul_types::base_types::HaneulAddress as NativeHaneulAddress;
+use haneul_types::base_types::{ObjectID, HaneulAddress as NativeHaneulAddress};
 
 const HANEUL_ADDRESS_LENGTH: usize = 32;
 
@@ -104,6 +104,12 @@ impl From<HaneulAddress> for AccountAddress {
 impl From<HaneulAddress> for NativeHaneulAddress {
     fn from(value: HaneulAddress) -> Self {
         AccountAddress::from(value).into()
+    }
+}
+
+impl From<HaneulAddress> for ObjectID {
+    fn from(value: HaneulAddress) -> Self {
+        ObjectID::new(value.0)
     }
 }
 
