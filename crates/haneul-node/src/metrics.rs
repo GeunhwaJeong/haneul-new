@@ -4,7 +4,8 @@ use haneullabs_common::metrics::{push_metrics, MetricsPushClient};
 use haneullabs_network::metrics::MetricsCallbackProvider;
 use prometheus::{
     register_histogram_vec_with_registry, register_int_counter_vec_with_registry,
-    register_int_gauge_vec_with_registry, HistogramVec, IntCounterVec, IntGaugeVec, Registry,
+    register_int_gauge_vec_with_registry, register_int_gauge_with_registry, HistogramVec,
+    IntCounterVec, IntGauge, IntGaugeVec, Registry,
 };
 
 use std::time::Duration;
@@ -72,6 +73,10 @@ pub struct HaneulNodeMetrics {
     pub total_jwks: IntCounterVec,
     pub invalid_jwks: IntCounterVec,
     pub unique_jwks: IntCounterVec,
+
+    pub current_protocol_version: IntGauge,
+    pub binary_max_protocol_version: IntGauge,
+    pub configured_max_protocol_version: IntGauge,
 }
 
 impl HaneulNodeMetrics {
@@ -109,6 +114,24 @@ impl HaneulNodeMetrics {
                 "unique_jwks",
                 "Total number of unique JWKs",
                 &["provider"],
+                registry,
+            )
+            .unwrap(),
+            current_protocol_version: register_int_gauge_with_registry!(
+                "haneul_current_protocol_version",
+                "Current protocol version in this epoch",
+                registry,
+            )
+            .unwrap(),
+            binary_max_protocol_version: register_int_gauge_with_registry!(
+                "haneul_binary_max_protocol_version",
+                "Max protocol version supported by this binary",
+                registry,
+            )
+            .unwrap(),
+            configured_max_protocol_version: register_int_gauge_with_registry!(
+                "haneul_configured_max_protocol_version",
+                "Max protocol version configured in the node config",
                 registry,
             )
             .unwrap(),
