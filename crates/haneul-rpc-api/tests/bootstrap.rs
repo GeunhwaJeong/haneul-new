@@ -49,6 +49,7 @@ fn bootstrap() {
         .build_server(true)
         .bytes(["."])
         .btree_map([".haneul.node.v2alpha.GetProtocolConfigResponse"])
+        .boxed(".haneul.rpc.v2beta.Input.literal")
         .out_dir(&out_dir)
         .compile_fds(fds.clone())
     {

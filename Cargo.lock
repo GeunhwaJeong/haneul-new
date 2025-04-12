@@ -12788,7 +12788,7 @@ dependencies = [
  "haneul-swarm",
  "haneul-swarm-config",
  "haneul-test-transaction-builder",
- "haneul-transaction-builder 0.0.0",
+ "haneul-transaction-builder",
  "haneul-types",
  "tabled",
  "tap",
@@ -13585,7 +13585,6 @@ dependencies = [
  "haneul-swarm-config",
  "haneul-test-transaction-builder",
  "haneul-tool",
- "haneul-transaction-builder 0.0.4",
  "haneul-types",
  "telemetry-subscribers",
  "tempfile",
@@ -14057,7 +14056,7 @@ dependencies = [
  "haneul-storage",
  "haneul-swarm-config",
  "haneul-test-transaction-builder",
- "haneul-transaction-builder 0.0.0",
+ "haneul-transaction-builder",
  "haneul-types",
  "tap",
  "telemetry-subscribers",
@@ -14379,7 +14378,7 @@ dependencies = [
  "haneul-open-rpc-macros",
  "haneul-protocol-config",
  "haneul-storage",
- "haneul-transaction-builder 0.0.0",
+ "haneul-transaction-builder",
  "haneul-types",
  "tap",
  "telemetry-subscribers",
@@ -15235,7 +15234,6 @@ dependencies = [
  "serde_with",
  "haneul-protocol-config",
  "haneul-sdk-types",
- "haneul-transaction-builder 0.0.4",
  "haneul-types",
  "tap",
  "test-strategy",
@@ -15336,7 +15334,7 @@ dependencies = [
  "haneul-macros",
  "haneul-protocol-config",
  "haneul-simulator",
- "haneul-transaction-builder 0.0.0",
+ "haneul-transaction-builder",
  "haneul-types",
  "tempfile",
  "test-cluster",
@@ -15818,20 +15816,6 @@ dependencies = [
  "haneul-json-rpc-types",
  "haneul-protocol-config",
  "haneul-types",
-]
-
-[[package]]
-name = "haneul-transaction-builder"
-version = "0.0.4"
-source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=83ff809bc11cbabda21b60130e1f5420170548bf#83ff809bc11cbabda21b60130e1f5420170548bf"
-dependencies = [
- "base64ct",
- "bcs",
- "serde",
- "serde_json",
- "serde_with",
- "haneul-sdk-types",
- "thiserror 2.0.9",
 ]
 
 [[package]]
