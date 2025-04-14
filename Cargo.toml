@@ -156,6 +156,7 @@ members = [
   "crates/haneul-protocol-config-macros",
   "crates/haneul-proxy",
   "crates/haneul-replay",
+  "crates/haneul-replay-2",
   "crates/haneul-rosetta",
   "crates/haneul-rpc-api",
   "crates/haneul-rpc-benchmark",
@@ -640,6 +641,7 @@ haneul-sdk-types = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git"
   "serde",
 ] }
 haneul-sdk-transaction-builder = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "83ff809bc11cbabda21b60130e1f5420170548bf", package = "haneul-transaction-builder" }
+haneul-graphql-client = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "83ff809bc11cbabda21b60130e1f5420170548bf", package = "haneul-graphql-client" }
 
 ### Workspace Members ###
 anemo-benchmark = { path = "crates/anemo-benchmark" }
@@ -713,6 +715,7 @@ haneul-protocol-config = { path = "crates/haneul-protocol-config" }
 haneul-protocol-config-macros = { path = "crates/haneul-protocol-config-macros" }
 haneul-proxy = { path = "crates/haneul-proxy" }
 haneul-replay = { path = "crates/haneul-replay" }
+haneul-replay-2 = { path = "crates/haneul-replay-2" }
 haneul-rosetta = { path = "crates/haneul-rosetta" }
 haneul-rpc-loadgen = { path = "crates/haneul-rpc-loadgen" }
 haneul-sdk = { path = "crates/haneul-sdk" }
