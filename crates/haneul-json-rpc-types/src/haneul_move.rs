@@ -18,6 +18,7 @@ use serde_with::serde_as;
 use std::collections::BTreeMap;
 use std::fmt;
 use std::fmt::{Display, Formatter, Write};
+use std::hash::Hash;
 use haneul_macros::EnumVariantOrder;
 use tracing::warn;
 
@@ -192,7 +193,7 @@ impl<S: std::hash::Hash + Eq + ToString> From<&NormalizedModule<S>> for HaneulMo
     }
 }
 
-impl<S: ToString> From<&NormalizedFunction<S>> for HaneulMoveNormalizedFunction {
+impl<S: Hash + Eq + ToString> From<&NormalizedFunction<S>> for HaneulMoveNormalizedFunction {
     fn from(function: &NormalizedFunction<S>) -> Self {
         Self {
             visibility: match function.visibility {
@@ -221,7 +222,7 @@ impl<S: ToString> From<&NormalizedFunction<S>> for HaneulMoveNormalizedFunction 
     }
 }
 
-impl<S: ToString> From<&NormalizedStruct<S>> for HaneulMoveNormalizedStruct {
+impl<S: Hash + Eq + ToString> From<&NormalizedStruct<S>> for HaneulMoveNormalizedStruct {
     fn from(struct_: &NormalizedStruct<S>) -> Self {
         Self {
             abilities: struct_.abilities.into(),
@@ -233,14 +234,15 @@ impl<S: ToString> From<&NormalizedStruct<S>> for HaneulMoveNormalizedStruct {
                 .collect::<Vec<HaneulMoveStructTypeParameter>>(),
             fields: struct_
                 .fields
-                .iter()
+                .0
+                .values()
                 .map(|f| HaneulMoveNormalizedField::from(&**f))
                 .collect::<Vec<HaneulMoveNormalizedField>>(),
         }
     }
 }
 
-impl<S: ToString> From<&NormalizedEnum<S>> for HaneulMoveNormalizedEnum {
+impl<S: Hash + Eq + ToString> From<&NormalizedEnum<S>> for HaneulMoveNormalizedEnum {
     fn from(value: &NormalizedEnum<S>) -> Self {
         Self {
             abilities: value.abilities.into(),
@@ -252,14 +254,15 @@ impl<S: ToString> From<&NormalizedEnum<S>> for HaneulMoveNormalizedEnum {
                 .collect::<Vec<HaneulMoveStructTypeParameter>>(),
             variants: value
                 .variants
-                .iter()
+                .values()
                 .map(|variant| {
                     (
                         variant.name.to_string(),
                         variant
                             .fields
-                            .iter()
-                            .map(HaneulMoveNormalizedField::from)
+                            .0
+                            .values()
+                            .map(|f| HaneulMoveNormalizedField::from(&**f))
                             .collect::<Vec<HaneulMoveNormalizedField>>(),
                     )
                 })
