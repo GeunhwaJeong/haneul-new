@@ -618,15 +618,9 @@ impl ReadStore for PersistedStoreInnerReadOnlyWrapper {
             .expect("Fatal: DB read failed")
     }
 
-    fn get_full_checkpoint_contents_by_sequence_number(
-        &self,
-        _sequence_number: CheckpointSequenceNumber,
-    ) -> Option<haneul_types::messages_checkpoint::FullCheckpointContents> {
-        todo!()
-    }
-
     fn get_full_checkpoint_contents(
         &self,
+        _sequence_number: Option<CheckpointSequenceNumber>,
         _digest: &CheckpointContentsDigest,
     ) -> Option<haneul_types::messages_checkpoint::FullCheckpointContents> {
         todo!()
