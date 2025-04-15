@@ -106,7 +106,11 @@ impl Node {
         }
 
         if is_validator {
-            let network_address = self.config().network_address().clone();
+            let network_address = self
+                .config()
+                .network_address()
+                .clone()
+                .rewrite_http_to_https();
             let tls_config = haneul_tls::create_rustls_client_config(
                 self.config().network_key_pair().public().to_owned(),
                 haneul_tls::HANEUL_VALIDATOR_SERVER_NAME.to_string(),
