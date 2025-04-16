@@ -10,13 +10,11 @@
 
 module raffles::example1;
 
-use haneul::{
-    balance::{Self, Balance},
-    clock::Clock,
-    coin::{Self, Coin},
-    random::{Random, new_generator},
-    haneul::HANEUL
-};
+use haneul::balance::{Self, Balance};
+use haneul::clock::Clock;
+use haneul::coin::{Self, Coin};
+use haneul::random::{Random, new_generator};
+use haneul::haneul::HANEUL;
 
 /// Error codes
 const EGameInProgress: u64 = 0;

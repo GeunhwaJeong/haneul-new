@@ -3,7 +3,8 @@
 
 module basics::clock;
 
-use haneul::{clock::Clock, event};
+use haneul::clock::Clock;
+use haneul::event;
 
 public struct TimeEvent has copy, drop, store {
     timestamp_ms: u64,

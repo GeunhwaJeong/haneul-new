@@ -9,7 +9,8 @@
 /// - spend - spend the token in the shop
 module examples::loyalty;
 
-use haneul::{coin::{Self, TreasuryCap}, token::{Self, ActionRequest, Token}};
+use haneul::coin::{Self, TreasuryCap};
+use haneul::token::{Self, ActionRequest, Token};
 
 /// Token amount does not match the `GIFT_PRICE`.
 const EIncorrectAmount: u64 = 0;

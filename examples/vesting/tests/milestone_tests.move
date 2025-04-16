@@ -4,10 +4,10 @@
 #[test_only]
 module vesting::milestone_tests;
 
-use vesting::milestone::{Self, new_wallet, Wallet};
-use haneul::coin::{Self};
-use haneul::test_scenario as ts;
+use haneul::coin;
 use haneul::haneul::HANEUL;
+use haneul::test_scenario as ts;
+use vesting::milestone::{Self, new_wallet, Wallet};
 
 public struct Token has key, store { id: UID }
 

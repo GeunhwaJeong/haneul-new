@@ -4,14 +4,13 @@
 #[test_only]
 module raffles::tests;
 
-use raffles::{example1, example2};
-use haneul::{
-    clock,
-    coin::{Self, Coin},
-    random::{Self, update_randomness_state_for_testing, Random},
-    haneul::HANEUL,
-    test_scenario as ts
-};
+use raffles::example1;
+use raffles::example2;
+use haneul::clock;
+use haneul::coin::{Self, Coin};
+use haneul::random::{Self, update_randomness_state_for_testing, Random};
+use haneul::haneul::HANEUL;
+use haneul::test_scenario as ts;
 
 fun mint(addr: address, amount: u64, scenario: &mut ts::Scenario) {
     transfer::public_transfer(coin::mint_for_testing<HANEUL>(amount, scenario.ctx()), addr);

@@ -19,7 +19,8 @@
 /// only requires one transaction.
 module tic_tac_toe::owned;
 
-use haneul::{event, transfer::Receiving};
+use haneul::event;
+use haneul::transfer::Receiving;
 
 // === Object Types ===
 

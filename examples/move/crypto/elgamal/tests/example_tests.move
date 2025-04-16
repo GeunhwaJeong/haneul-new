@@ -5,7 +5,10 @@
 module elgamal::tests;
 
 use elgamal::example;
-use haneul::{bls12381::{Self, Scalar, G1}, group_ops::Element, random, test_utils::assert_eq};
+use haneul::bls12381::{Self, Scalar, G1};
+use haneul::group_ops::Element;
+use haneul::random;
+use haneul::test_utils::assert_eq;
 
 #[test]
 fun test_elgamal_equality() {

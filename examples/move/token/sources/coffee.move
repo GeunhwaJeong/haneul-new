@@ -5,13 +5,11 @@
 /// only rely on `TreasuryCap` for minting and burning tokens.
 module examples::coffee;
 
-use haneul::{
-    balance::{Self, Balance},
-    coin::{Self, TreasuryCap, Coin},
-    haneul::HANEUL,
-    token::{Self, Token},
-    tx_context::sender
-};
+use haneul::balance::{Self, Balance};
+use haneul::coin::{Self, TreasuryCap, Coin};
+use haneul::haneul::HANEUL;
+use haneul::token::{Self, Token};
+use haneul::tx_context::sender;
 
 /// Error code for incorrect amount.
 const EIncorrectAmount: u64 = 0;
@@ -37,7 +35,7 @@ public struct CoffeeShop has key {
 
 /// Event marking that a Coffee was purchased; transaction sender serves as
 /// the customer ID.
-public struct CoffeePurchased has copy, store, drop {}
+public struct CoffeePurchased has copy, drop, store {}
 
 // Create and share the `CoffeeShop` object.
 fun init(otw: COFFEE, ctx: &mut TxContext) {

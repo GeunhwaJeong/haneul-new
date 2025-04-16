@@ -1,16 +1,16 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useHaneulClient } from '@haneullabs/dapp-kit';
-import { normalizeHaneulAddress } from '@haneullabs/haneul/utils';
-import { useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
-import { Game } from 'hooks/useGameQuery';
-import { useTransactions } from 'hooks/useTransactions';
+import { useHaneulClient } from "@haneullabs/dapp-kit";
+import { normalizeHaneulAddress } from "@haneullabs/haneul/utils";
+import { useQuery, useQueryClient, UseQueryResult } from "@tanstack/react-query";
+import { Game } from "hooks/useGameQuery";
+import { useTransactions } from "hooks/useTransactions";
 
 export enum Trophy {
-	None = 0,
-	Draw,
-	Win,
+    None = 0,
+    Draw,
+    Win,
 }
 
 export type UseTrophyQueryResponse = UseQueryResult<Trophy, Error>;
@@ -29,36 +29,36 @@ const REFETCH_INTERVAL = 5000;
  * is available).
  */
 export function useTrophyQuery(game?: Game): [UseTrophyQueryResponse, InvalidateTrophyQuery] {
-	const client = useHaneulClient();
-	const queryClient = useQueryClient();
-	const tx = useTransactions()!!;
+    const client = useHaneulClient();
+    const queryClient = useQueryClient();
+    const tx = useTransactions()!!;
 
-	const response = useQuery({
-		enabled: !!game,
-		refetchInterval: REFETCH_INTERVAL,
-		// eslint-disable-next-line @tanstack/query/exhaustive-deps
-		queryKey: ['game-end-state', game?.id],
-		queryFn: async () => {
-			const { results } = await client.devInspectTransactionBlock({
-				// It doesn't matter who's sending this query.
-				sender: normalizeHaneulAddress('0x0'),
-				transactionBlock: tx.ended(game!!),
-			});
+    const response = useQuery({
+        enabled: !!game,
+        refetchInterval: REFETCH_INTERVAL,
+        // eslint-disable-next-line @tanstack/query/exhaustive-deps
+        queryKey: ["game-end-state", game?.id],
+        queryFn: async () => {
+            const { results } = await client.devInspectTransactionBlock({
+                // It doesn't matter who's sending this query.
+                sender: normalizeHaneulAddress("0x0"),
+                transactionBlock: tx.ended(game!!),
+            });
 
-			const trophy = results?.[0]?.returnValues?.[0]?.[0]?.[0];
-			if (trophy === undefined) {
-				throw new Error('Failed to get game state');
-			}
+            const trophy = results?.[0]?.returnValues?.[0]?.[0]?.[0];
+            if (trophy === undefined) {
+                throw new Error("Failed to get game state");
+            }
 
-			return trophy as Trophy;
-		},
-	});
+            return trophy as Trophy;
+        },
+    });
 
-	const invalidate = async () => {
-		await queryClient.invalidateQueries({
-			queryKey: ['game-end-state', game?.id],
-		});
-	};
+    const invalidate = async () => {
+        await queryClient.invalidateQueries({
+            queryKey: ["game-end-state", game?.id],
+        });
+    };
 
-	return [response, invalidate];
+    return [response, invalidate];
 }

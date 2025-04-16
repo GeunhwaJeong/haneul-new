@@ -4,8 +4,12 @@
 module locked_stake::locked_stake;
 
 use locked_stake::epoch_time_lock::{Self, EpochTimeLock};
-use haneul::{balance::{Self, Balance}, coin, haneul::HANEUL, vec_map::{Self, VecMap}};
-use haneul_system::{staking_pool::StakedHaneul, haneul_system::{Self, HaneulSystemState}};
+use haneul::balance::{Self, Balance};
+use haneul::coin;
+use haneul::haneul::HANEUL;
+use haneul::vec_map::{Self, VecMap};
+use haneul_system::staking_pool::StakedHaneul;
+use haneul_system::haneul_system::{Self, HaneulSystemState};
 
 const EInsufficientBalance: u64 = 0;
 const EStakeObjectNonExistent: u64 = 1;

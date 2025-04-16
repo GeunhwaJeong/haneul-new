@@ -3,16 +3,15 @@
 
 module reviews_rating::service;
 
-use reviews_rating::{moderator::Moderator, review::{Self, Review}};
+use reviews_rating::moderator::Moderator;
+use reviews_rating::review::{Self, Review};
 use std::string::String;
-use haneul::{
-    balance::{Self, Balance},
-    clock::Clock,
-    coin::{Self, Coin},
-    dynamic_field as df,
-    object_table::{Self, ObjectTable},
-    haneul::HANEUL
-};
+use haneul::balance::{Self, Balance};
+use haneul::clock::Clock;
+use haneul::coin::{Self, Coin};
+use haneul::dynamic_field as df;
+use haneul::object_table::{Self, ObjectTable};
+use haneul::haneul::HANEUL;
 
 const EInvalidPermission: u64 = 1;
 const ENotEnoughBalance: u64 = 2;
@@ -44,7 +43,7 @@ public struct ProofOfExperience has key {
 }
 
 /// Represents a review record
-public struct ReviewRecord has store, drop {
+public struct ReviewRecord has drop, store {
     owner: address,
     overall_rate: u8,
     time_issued: u64,

@@ -10,15 +10,13 @@
 
 module raffles::example2;
 
-use haneul::{
-    balance::{Self, Balance},
-    clock::Clock,
-    coin::{Self, Coin},
-    random::{Random, new_generator},
-    haneul::HANEUL,
-    table_vec::{Self, TableVec},
-    tx_context::sender
-};
+use haneul::balance::{Self, Balance};
+use haneul::clock::Clock;
+use haneul::coin::{Self, Coin};
+use haneul::random::{Random, new_generator};
+use haneul::haneul::HANEUL;
+use haneul::table_vec::{Self, TableVec};
+use haneul::tx_context::sender;
 
 /// Error codes
 const EGameInProgress: u64 = 0;

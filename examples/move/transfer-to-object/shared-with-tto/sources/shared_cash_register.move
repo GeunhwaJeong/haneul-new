@@ -5,7 +5,10 @@ module shared_with_tto::shared_cash_register;
 
 use common::identified_payment::{Self, IdentifiedPayment, EarmarkedPayment};
 use std::string::String;
-use haneul::{coin::Coin, haneul::HANEUL, transfer::Receiving, vec_set::{Self, VecSet}};
+use haneul::coin::Coin;
+use haneul::haneul::HANEUL;
+use haneul::transfer::Receiving;
+use haneul::vec_set::{Self, VecSet};
 
 const EInvalidOwner: u64 = 0;
 const ENotAuthorized: u64 = 2;

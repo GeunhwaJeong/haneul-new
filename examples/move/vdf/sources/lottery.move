@@ -22,7 +22,8 @@
 module vdf::lottery;
 
 use std::hash::sha2_256;
-use haneul::{clock::Clock, vdf::{hash_to_input, vdf_verify}};
+use haneul::clock::Clock;
+use haneul::vdf::{hash_to_input, vdf_verify};
 
 // === Receiver Functions ===
 

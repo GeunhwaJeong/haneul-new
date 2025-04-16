@@ -5,7 +5,10 @@ module shared_no_tto::shared_cash_register;
 
 use common::identified_payment::{Self, IdentifiedPayment};
 use std::string::String;
-use haneul::{coin::Coin, dynamic_field, haneul::HANEUL, vec_set::{Self, VecSet}};
+use haneul::coin::Coin;
+use haneul::dynamic_field;
+use haneul::haneul::HANEUL;
+use haneul::vec_set::{Self, VecSet};
 
 const EInvalidOwner: u64 = 0;
 const EInvalidPaymentID: u64 = 1;

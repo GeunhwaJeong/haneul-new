@@ -5,12 +5,10 @@
 module slot_machine::tests;
 
 use slot_machine::example;
-use haneul::{
-    coin::{Self, Coin},
-    random::{Self, update_randomness_state_for_testing, Random},
-    haneul::HANEUL,
-    test_scenario as ts
-};
+use haneul::coin::{Self, Coin};
+use haneul::random::{Self, update_randomness_state_for_testing, Random};
+use haneul::haneul::HANEUL;
+use haneul::test_scenario as ts;
 
 fun mint(addr: address, amount: u64, scenario: &mut ts::Scenario) {
     transfer::public_transfer(coin::mint_for_testing<HANEUL>(amount, scenario.ctx()), addr);

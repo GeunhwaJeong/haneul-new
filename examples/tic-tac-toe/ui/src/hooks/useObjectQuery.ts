@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useHaneulClientContext, useHaneulClientQuery, UseHaneulClientQueryOptions } from '@haneullabs/dapp-kit';
-import { GetObjectParams, HaneulObjectResponse } from '@haneullabs/haneul/client';
-import { useQueryClient, UseQueryResult } from '@tanstack/react-query';
+import { useHaneulClientContext, useHaneulClientQuery, UseHaneulClientQueryOptions } from "@haneullabs/dapp-kit";
+import { GetObjectParams, HaneulObjectResponse } from "@haneullabs/haneul/client";
+import { useQueryClient, UseQueryResult } from "@tanstack/react-query";
 
-export type UseObjectQueryOptions = UseHaneulClientQueryOptions<'getObject', HaneulObjectResponse>;
+export type UseObjectQueryOptions = UseHaneulClientQueryOptions<"getObject", HaneulObjectResponse>;
 export type UseObjectQueryResponse = UseQueryResult<HaneulObjectResponse, Error>;
 export type InvalidateUseObjectQuery = () => void;
 
@@ -14,18 +14,18 @@ export type InvalidateUseObjectQuery = () => void;
  * to invalidate it.
  */
 export function useObjectQuery(
-	params: GetObjectParams,
-	options?: UseObjectQueryOptions,
+    params: GetObjectParams,
+    options?: UseObjectQueryOptions,
 ): [UseObjectQueryResponse, InvalidateUseObjectQuery] {
-	const ctx = useHaneulClientContext();
-	const client = useQueryClient();
-	const response = useHaneulClientQuery('getObject', params, options);
+    const ctx = useHaneulClientContext();
+    const client = useQueryClient();
+    const response = useHaneulClientQuery("getObject", params, options);
 
-	const invalidate = async () => {
-		await client.invalidateQueries({
-			queryKey: [ctx.network, 'getObject', params],
-		});
-	};
+    const invalidate = async () => {
+        await client.invalidateQueries({
+            queryKey: [ctx.network, "getObject", params],
+        });
+    };
 
-	return [response, invalidate];
+    return [response, invalidate];
 }

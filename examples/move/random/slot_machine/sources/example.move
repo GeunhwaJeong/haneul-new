@@ -10,7 +10,10 @@
 ///
 module slot_machine::example;
 
-use haneul::{balance::Balance, coin::{Self, Coin}, random::{Random, new_generator}, haneul::HANEUL};
+use haneul::balance::Balance;
+use haneul::coin::{Self, Coin};
+use haneul::random::{Random, new_generator};
+use haneul::haneul::HANEUL;
 
 /// Error codes
 const EInvalidAmount: u64 = 0;

@@ -5,7 +5,8 @@
 /// perform an Action.
 module examples::allowlist_rule;
 
-use haneul::{bag::{Self, Bag}, token::{Self, TokenPolicy, TokenPolicyCap, ActionRequest}};
+use haneul::bag::{Self, Bag};
+use haneul::token::{Self, TokenPolicy, TokenPolicyCap, ActionRequest};
 
 /// The `sender` or `recipient` is not on the allowlist.
 const EUserNotAllowed: u64 = 0;

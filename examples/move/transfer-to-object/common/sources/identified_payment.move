@@ -4,7 +4,11 @@
 #[lint_allow(coin_field)]
 module common::identified_payment;
 
-use haneul::{coin::{Self, Coin}, dynamic_field, event, haneul::HANEUL, transfer::Receiving};
+use haneul::coin::{Self, Coin};
+use haneul::dynamic_field;
+use haneul::event;
+use haneul::haneul::HANEUL;
+use haneul::transfer::Receiving;
 
 const ENotEarmarkedForSender: u64 = 0;
 

@@ -5,14 +5,12 @@ module nft_rental::tests;
 
 use kiosk::kiosk_lock_rule as lock_rule;
 use nft_rental::rentables_ext::{Self, Promise, ProtectedTP, RentalPolicy, Listed};
-use haneul::{
-    clock::{Self, Clock},
-    kiosk::{Kiosk, KioskOwnerCap},
-    kiosk_test_utils,
-    package::{Self, Publisher},
-    test_scenario::{Self as ts, Scenario},
-    transfer_policy::{Self, TransferPolicy, TransferPolicyCap}
-};
+use haneul::clock::{Self, Clock};
+use haneul::kiosk::{Kiosk, KioskOwnerCap};
+use haneul::kiosk_test_utils;
+use haneul::package::{Self, Publisher};
+use haneul::test_scenario::{Self as ts, Scenario};
+use haneul::transfer_policy::{Self, TransferPolicy, TransferPolicyCap};
 
 const CREATOR: address = @0xCCCC;
 const RENTER: address = @0xAAAA;

@@ -4,7 +4,8 @@
 #[test_only]
 module tic_tac_toe::owned_tests;
 
-use haneul::{test_scenario::{Self as ts, Scenario}, transfer::Receiving};
+use haneul::test_scenario::{Self as ts, Scenario};
+use haneul::transfer::Receiving;
 use tic_tac_toe::owned as ttt;
 
 const ADMIN: address = @0xAD;

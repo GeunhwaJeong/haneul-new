@@ -4,7 +4,8 @@
 module examples::testnet_nft;
 
 use std::string;
-use haneul::{event, url::{Self, Url}};
+use haneul::event;
+use haneul::url::{Self, Url};
 
 /// An example NFT that can be minted by anybody
 public struct TestnetNFT has key, store {

@@ -4,7 +4,8 @@
 #[test_only]
 module vdf::lottery_tests;
 
-use haneul::{clock, test_scenario as ts};
+use haneul::clock;
+use haneul::test_scenario as ts;
 use vdf::lottery::{Self, Game, GameWinner};
 
 const OUTPUT: vector<u8> =

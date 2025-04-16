@@ -6,7 +6,9 @@
 /// the ability to modify those objects.
 module trusted_swap::example;
 
-use haneul::{balance::{Self, Balance}, coin::{Self, Coin}, haneul::HANEUL};
+use haneul::balance::{Self, Balance};
+use haneul::coin::{Self, Coin};
+use haneul::haneul::HANEUL;
 
 public struct Object has key, store {
     id: UID,

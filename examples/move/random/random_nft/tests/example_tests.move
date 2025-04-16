@@ -6,7 +6,8 @@ module random_nft::tests;
 
 use random_nft::example;
 use std::string;
-use haneul::{random::{Self, Random}, test_scenario as ts};
+use haneul::random::{Self, Random};
+use haneul::test_scenario as ts;
 
 #[test]
 fun test_e2e() {

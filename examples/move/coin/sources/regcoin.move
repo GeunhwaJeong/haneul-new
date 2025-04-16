@@ -4,7 +4,8 @@
 //docs::#regulate
 module examples::regcoin;
 
-use haneul::{coin::{Self, DenyCapV2}, deny_list::DenyList};
+use haneul::coin::{Self, DenyCapV2};
+use haneul::deny_list::DenyList;
 
 public struct REGCOIN has drop {}
 

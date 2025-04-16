@@ -4,11 +4,11 @@
 #[test_only]
 module vesting::hybrid_tests;
 
-use vesting::hybrid::{new_wallet, Wallet};
-use haneul::clock::{Self};
-use haneul::coin::{Self};
-use haneul::test_scenario as ts;
+use haneul::clock;
+use haneul::coin;
 use haneul::haneul::HANEUL;
+use haneul::test_scenario as ts;
+use vesting::hybrid::{new_wallet, Wallet};
 
 public struct Token has key, store { id: UID }
 

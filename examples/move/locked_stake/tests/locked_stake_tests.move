@@ -4,12 +4,15 @@
 #[test_only]
 module locked_stake::locked_stake_tests;
 
-use locked_stake::{epoch_time_lock, locked_stake as ls};
-use haneul::{balance, coin, test_scenario, test_utils::{assert_eq, destroy}, vec_map};
-use haneul_system::{
-    governance_test_utils::{advance_epoch, set_up_haneul_system_state},
-    haneul_system::{Self, HaneulSystemState}
-};
+use locked_stake::epoch_time_lock;
+use locked_stake::locked_stake as ls;
+use haneul::balance;
+use haneul::coin;
+use haneul::test_scenario;
+use haneul::test_utils::{assert_eq, destroy};
+use haneul::vec_map;
+use haneul_system::governance_test_utils::{advance_epoch, set_up_haneul_system_state};
+use haneul_system::haneul_system::{Self, HaneulSystemState};
 
 const GEUNHWA_PER_HANEUL: u64 = 1_000_000_000;
 

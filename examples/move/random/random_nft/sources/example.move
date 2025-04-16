@@ -6,7 +6,8 @@
 module random_nft::example;
 
 use std::string;
-use haneul::{object::delete, random::{Random, new_generator}};
+use haneul::object::delete;
+use haneul::random::{Random, new_generator};
 
 const EInvalidParams: u64 = 0;
 

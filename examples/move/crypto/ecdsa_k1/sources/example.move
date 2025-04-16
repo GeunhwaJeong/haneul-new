@@ -9,7 +9,8 @@
 /// 3) Verify a Secp256k1 signature, produce an event for whether it is verified.
 module ecdsa_k1::example;
 
-use haneul::{ecdsa_k1, event};
+use haneul::ecdsa_k1;
+use haneul::event;
 
 // === Object Types ===
 
