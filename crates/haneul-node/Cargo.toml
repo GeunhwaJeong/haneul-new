@@ -60,6 +60,7 @@ fastcrypto.workspace = true
 fastcrypto-zkp.workspace = true
 move-vm-profiler.workspace = true
 haneul-http.workspace = true
+haneul-metrics-push-client.workspace = true
 
 [target.'cfg(msim)'.dependencies]
 haneul-simulator.workspace = true

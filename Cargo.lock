@@ -8461,13 +8461,10 @@ dependencies = [
  "haneullabs-metrics",
  "once_cell",
  "parking_lot 0.12.3",
- "prometheus",
  "rand 0.8.5",
  "reqwest 0.12.9",
  "snap",
  "haneul-macros",
- "haneul-tls",
- "haneul-types",
  "tempfile",
  "tokio",
  "tracing",
@@ -13145,6 +13142,7 @@ dependencies = [
  "haneul-json-rpc-api",
  "haneul-json-rpc-types",
  "haneul-keys",
+ "haneul-metrics-push-client",
  "haneul-sdk",
  "haneul-test-transaction-builder",
  "haneul-types",
@@ -14586,6 +14584,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-metrics-push-client"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "fastcrypto",
+ "haneullabs-metrics",
+ "prometheus",
+ "reqwest 0.12.9",
+ "serde",
+ "snap",
+ "haneul-tls",
+ "haneul-types",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "haneul-move"
 version = "1.48.0"
 dependencies = [
@@ -14831,6 +14846,7 @@ dependencies = [
  "haneul-json-rpc",
  "haneul-json-rpc-api",
  "haneul-macros",
+ "haneul-metrics-push-client",
  "haneul-name-service",
  "haneul-network",
  "haneul-protocol-config",

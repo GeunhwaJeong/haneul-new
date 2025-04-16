@@ -139,6 +139,7 @@ members = [
   "crates/haneul-light-client",
   "crates/haneul-macros",
   "crates/haneul-metric-checker",
+  "crates/haneul-metrics-push-client",
   "crates/haneul-move",
   "crates/haneul-move-build",
   "crates/haneul-move-lsp",
@@ -699,6 +700,7 @@ haneul-keys = { path = "crates/haneul-keys" }
 haneul-kvstore = { path = "crates/haneul-kvstore" }
 haneul-macros = { path = "crates/haneul-macros" }
 haneul-metric-checker = { path = "crates/haneul-metric-checker" }
+haneul-metrics-push-client = { path = "crates/haneul-metrics-push-client" }
 haneul-move = { path = "crates/haneul-move" }
 haneul-move-build = { path = "crates/haneul-move-build" }
 haneul-move-lsp = { path = "crates/haneul-move-lsp" }

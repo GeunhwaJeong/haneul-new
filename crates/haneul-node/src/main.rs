@@ -14,9 +14,9 @@ use haneullabs_common::sync::async_once_cell::AsyncOnceCell;
 use haneul_config::node::RunWithRange;
 use haneul_config::{Config, NodeConfig};
 use haneul_core::runtime::HaneulRuntimes;
-use haneul_node::metrics;
 use haneul_telemetry::send_telemetry_event;
 use haneul_types::committee::EpochId;
+use haneul_types::crypto::KeypairTraits;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
@@ -97,7 +97,16 @@ fn main() {
 
     {
         let _enter = runtimes.metrics.enter();
-        metrics::start_metrics_push_task(&config, registry_service.clone());
+        if let Some(metrics_config) = &config.metrics {
+            if let Some(push_url) = &metrics_config.push_url {
+                haneul_metrics_push_client::start_metrics_push_task(
+                    metrics_config.push_interval_seconds,
+                    push_url.clone(),
+                    config.network_key_pair().copy(),
+                    registry_service.clone(),
+                );
+            }
+        }
     }
 
     if let Some(listen_address) = args.listen_address {
