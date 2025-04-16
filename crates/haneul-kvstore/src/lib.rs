@@ -7,6 +7,7 @@ pub use bigtable::client::BigTableClient;
 pub use bigtable::progress_store::BigTableProgressStore;
 pub use bigtable::worker::KvWorker;
 use haneul_types::base_types::ObjectID;
+use haneul_types::committee::EpochId;
 use haneul_types::crypto::AuthorityStrongQuorumSignInfo;
 use haneul_types::digests::{CheckpointDigest, TransactionDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
@@ -15,7 +16,7 @@ use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointSequenceNumber, CheckpointSummary,
 };
 use haneul_types::object::Object;
-use haneul_types::storage::ObjectKey;
+use haneul_types::storage::{EpochInfo, ObjectKey};
 use haneul_types::transaction::Transaction;
 
 #[async_trait]
@@ -35,6 +36,7 @@ pub trait KeyValueStoreReader {
     ) -> Result<Option<Checkpoint>>;
     async fn get_latest_checkpoint(&mut self) -> Result<CheckpointSequenceNumber>;
     async fn get_latest_object(&mut self, object_id: &ObjectID) -> Result<Option<Object>>;
+    async fn get_epoch(&mut self, epoch_id: EpochId) -> Result<Option<EpochInfo>>;
 }
 
 #[async_trait]
@@ -43,6 +45,7 @@ pub trait KeyValueStoreWriter {
     async fn save_transactions(&mut self, transactions: &[TransactionData]) -> Result<()>;
     async fn save_checkpoint(&mut self, checkpoint: &CheckpointData) -> Result<()>;
     async fn save_watermark(&mut self, watermark: CheckpointSequenceNumber) -> Result<()>;
+    async fn save_epoch(&mut self, epoch: EpochInfo) -> Result<()>;
 }
 
 #[derive(Clone, Debug)]
