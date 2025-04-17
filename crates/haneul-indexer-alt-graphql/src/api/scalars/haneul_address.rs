@@ -119,6 +119,12 @@ impl From<NativeHaneulAddress> for HaneulAddress {
     }
 }
 
+impl From<ObjectID> for HaneulAddress {
+    fn from(value: ObjectID) -> Self {
+        HaneulAddress(value.into_bytes())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
