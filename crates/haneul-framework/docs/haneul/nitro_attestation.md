@@ -198,10 +198,7 @@ may abort with errors described above.
 <summary>Implementation</summary>
 
 
-<pre><code><b>entry</b> <b>fun</b> <a href="../haneul/nitro_attestation.md#haneul_nitro_attestation_load_nitro_attestation">load_nitro_attestation</a>(
-    attestation: vector&lt;u8&gt;,
-    <a href="../haneul/clock.md#haneul_clock">clock</a>: &Clock
-): <a href="../haneul/nitro_attestation.md#haneul_nitro_attestation_NitroAttestationDocument">NitroAttestationDocument</a> {
+<pre><code><b>entry</b> <b>fun</b> <a href="../haneul/nitro_attestation.md#haneul_nitro_attestation_load_nitro_attestation">load_nitro_attestation</a>(attestation: vector&lt;u8&gt;, <a href="../haneul/clock.md#haneul_clock">clock</a>: &Clock): <a href="../haneul/nitro_attestation.md#haneul_nitro_attestation_NitroAttestationDocument">NitroAttestationDocument</a> {
     <a href="../haneul/nitro_attestation.md#haneul_nitro_attestation_load_nitro_attestation_internal">load_nitro_attestation_internal</a>(&attestation, <a href="../haneul/clock.md#haneul_clock_timestamp_ms">clock::timestamp_ms</a>(<a href="../haneul/clock.md#haneul_clock">clock</a>))
 }
 </code></pre>

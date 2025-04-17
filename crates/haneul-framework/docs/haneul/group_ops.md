@@ -391,7 +391,11 @@ This function is currently only enabled on Devnet.
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/group_ops.md#haneul_group_ops_convert">convert</a>&lt;From, To&gt;(from_type_: u8, to_type_: u8, e: &<a href="../haneul/group_ops.md#haneul_group_ops_Element">Element</a>&lt;From&gt;): <a href="../haneul/group_ops.md#haneul_group_ops_Element">Element</a>&lt;To&gt; {
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/group_ops.md#haneul_group_ops_convert">convert</a>&lt;From, To&gt;(
+    from_type_: u8,
+    to_type_: u8,
+    e: &<a href="../haneul/group_ops.md#haneul_group_ops_Element">Element</a>&lt;From&gt;,
+): <a href="../haneul/group_ops.md#haneul_group_ops_Element">Element</a>&lt;To&gt; {
     <a href="../haneul/group_ops.md#haneul_group_ops_Element">Element</a>&lt;To&gt; { <a href="../haneul/group_ops.md#haneul_group_ops_bytes">bytes</a>: <a href="../haneul/group_ops.md#haneul_group_ops_internal_convert">internal_convert</a>(from_type_, to_type_, &e.<a href="../haneul/group_ops.md#haneul_group_ops_bytes">bytes</a>) }
 }
 </code></pre>

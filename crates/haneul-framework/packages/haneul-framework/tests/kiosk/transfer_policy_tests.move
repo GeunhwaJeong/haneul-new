@@ -14,11 +14,11 @@ module haneul::malicious_policy {
 
 #[test_only]
 module haneul::transfer_policy_tests {
-    use haneul::transfer_policy::{Self as policy, TransferPolicy, TransferPolicyCap};
+    use haneul::coin;
     use haneul::dummy_policy;
     use haneul::malicious_policy;
     use haneul::package;
-    use haneul::coin;
+    use haneul::transfer_policy::{Self as policy, TransferPolicy, TransferPolicyCap};
 
     public struct OTW has drop {}
     public struct Asset has key, store { id: UID }
@@ -142,7 +142,11 @@ module haneul::transfer_policy_tests {
         (policy, cap)
     }
 
-    public fun wrapup(policy: TransferPolicy<Asset>, cap: TransferPolicyCap<Asset>, ctx: &mut TxContext): u64 {
+    public fun wrapup(
+        policy: TransferPolicy<Asset>,
+        cap: TransferPolicyCap<Asset>,
+        ctx: &mut TxContext,
+    ): u64 {
         let profits = policy.destroy_and_withdraw(cap, ctx);
         profits.burn_for_testing()
     }
