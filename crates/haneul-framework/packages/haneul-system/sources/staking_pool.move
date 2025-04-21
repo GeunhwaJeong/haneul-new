@@ -4,11 +4,10 @@
 #[allow(unused_const)]
 module haneul_system::staking_pool;
 
+use haneul::bag::{Self, Bag};
 use haneul::balance::{Self, Balance};
 use haneul::haneul::HANEUL;
 use haneul::table::{Self, Table};
-use haneul::bag::Bag;
-use haneul::bag;
 
 /// StakedHaneul objects cannot be split to below this amount.
 const MIN_STAKING_THRESHOLD: u64 = 1_000_000_000; // 1 HANEUL
@@ -67,7 +66,7 @@ public struct StakingPool has key, store {
 }
 
 /// Struct representing the exchange rate of the stake pool token to HANEUL.
-public struct PoolTokenExchangeRate has store, copy, drop {
+public struct PoolTokenExchangeRate has copy, drop, store {
     haneul_amount: u64,
     pool_token_amount: u64,
 }
@@ -105,13 +104,12 @@ public struct FungibleStakedHaneulData has key, store {
 }
 
 // === dynamic field keys ===
-public struct FungibleStakedHaneulDataKey has copy, store, drop {}
+public struct FungibleStakedHaneulDataKey has copy, drop, store {}
 
 // ==== initializer ====
 
 /// Create a new, empty staking pool.
 public(package) fun new(ctx: &mut TxContext): StakingPool {
-    let exchange_rates = table::new(ctx);
     StakingPool {
         id: object::new(ctx),
         activation_epoch: option::none(),
@@ -119,7 +117,7 @@ public(package) fun new(ctx: &mut TxContext): StakingPool {
         haneul_balance: 0,
         rewards_pool: balance::zero(),
         pool_token_balance: 0,
-        exchange_rates,
+        exchange_rates: table::new(ctx),
         pending_stake: 0,
         pending_total_haneul_withdraw: 0,
         pending_pool_token_withdraw: 0,
@@ -134,19 +132,19 @@ public(package) fun request_add_stake(
     pool: &mut StakingPool,
     stake: Balance<HANEUL>,
     stake_activation_epoch: u64,
-    ctx: &mut TxContext
+    ctx: &mut TxContext,
 ): StakedHaneul {
     let haneul_amount = stake.value();
-    assert!(!is_inactive(pool), EDelegationToInactivePool);
+    assert!(!pool.is_inactive(), EDelegationToInactivePool);
     assert!(haneul_amount > 0, EDelegationOfZeroHaneul);
-    let staked_haneul = StakedHaneul {
+
+    pool.pending_stake = pool.pending_stake + haneul_amount;
+    StakedHaneul {
         id: object::new(ctx),
         pool_id: object::id(pool),
         stake_activation_epoch,
         principal: stake,
-    };
-    pool.pending_stake = pool.pending_stake + haneul_amount;
-    staked_haneul
+    }
 }
 
 /// Request to withdraw the given stake plus rewards from a staking pool.
@@ -155,30 +153,34 @@ public(package) fun request_add_stake(
 public(package) fun request_withdraw_stake(
     pool: &mut StakingPool,
     staked_haneul: StakedHaneul,
-    ctx: &TxContext
+    ctx: &TxContext,
 ): Balance<HANEUL> {
     // stake is inactive
     if (staked_haneul.stake_activation_epoch > ctx.epoch()) {
-        let principal = unwrap_staked_haneul(staked_haneul);
+        let principal = staked_haneul.into_balance();
         pool.pending_stake = pool.pending_stake - principal.value();
 
         return principal
     };
 
-    let (pool_token_withdraw_amount, mut principal_withdraw) =
-        withdraw_from_principal(pool, staked_haneul);
+    let (pool_token_withdraw_amount, mut principal_withdraw) = pool.withdraw_from_principal(
+        staked_haneul,
+    );
     let principal_withdraw_amount = principal_withdraw.value();
 
-    let rewards_withdraw = withdraw_rewards(
-        pool, principal_withdraw_amount, pool_token_withdraw_amount, ctx.epoch()
+    let rewards_withdraw = pool.withdraw_rewards(
+        principal_withdraw_amount,
+        pool_token_withdraw_amount,
+        ctx.epoch(),
     );
     let total_haneul_withdraw_amount = principal_withdraw_amount + rewards_withdraw.value();
 
     pool.pending_total_haneul_withdraw = pool.pending_total_haneul_withdraw + total_haneul_withdraw_amount;
-    pool.pending_pool_token_withdraw = pool.pending_pool_token_withdraw + pool_token_withdraw_amount;
+    pool.pending_pool_token_withdraw =
+        pool.pending_pool_token_withdraw + pool_token_withdraw_amount;
 
     // If the pool is inactive, we immediately process the withdrawal.
-    if (is_inactive(pool)) process_pending_stake_withdraw(pool);
+    if (pool.is_inactive()) pool.process_pending_stake_withdraw();
 
     // TODO: implement withdraw bonding period here.
     principal_withdraw.join(rewards_withdraw);
@@ -188,35 +190,32 @@ public(package) fun request_withdraw_stake(
 public(package) fun redeem_fungible_staked_haneul(
     pool: &mut StakingPool,
     fungible_staked_haneul: FungibleStakedHaneul,
-    ctx: &TxContext
+    ctx: &TxContext,
 ): Balance<HANEUL> {
     let FungibleStakedHaneul { id, pool_id, value } = fungible_staked_haneul;
     assert!(pool_id == object::id(pool), EWrongPool);
 
-    object::delete(id);
+    id.delete();
 
-    let latest_exchange_rate = pool_token_exchange_rate_at_epoch(pool, tx_context::epoch(ctx));
-    let fungible_staked_haneul_data: &mut FungibleStakedHaneulData = bag::borrow_mut(
-        &mut pool.extra_fields,
-        FungibleStakedHaneulDataKey {}
-    );
+    let latest_exchange_rate = pool.pool_token_exchange_rate_at_epoch(ctx.epoch());
+    let fungible_staked_haneul_data: &mut FungibleStakedHaneulData =
+        &mut pool.extra_fields[FungibleStakedHaneulDataKey {}];
 
-    let (principal_amount, rewards_amount) = calculate_fungible_staked_haneul_withdraw_amount(
-        latest_exchange_rate,
+    let (
+        principal_amount,
+        rewards_amount,
+    ) = latest_exchange_rate.calculate_fungible_staked_haneul_withdraw_amount(
         value,
-        balance::value(&fungible_staked_haneul_data.principal),
-        fungible_staked_haneul_data.total_supply
+        fungible_staked_haneul_data.principal.value(),
+        fungible_staked_haneul_data.total_supply,
     );
 
     fungible_staked_haneul_data.total_supply = fungible_staked_haneul_data.total_supply - value;
 
-    let mut haneul_out = balance::split(&mut fungible_staked_haneul_data.principal, principal_amount);
-    balance::join(
-        &mut haneul_out,
-        balance::split(&mut pool.rewards_pool, rewards_amount)
-    );
+    let mut haneul_out = fungible_staked_haneul_data.principal.split(principal_amount);
+    haneul_out.join(pool.rewards_pool.split(rewards_amount));
 
-    pool.pending_total_haneul_withdraw = pool.pending_total_haneul_withdraw + balance::value(&haneul_out);
+    pool.pending_total_haneul_withdraw = pool.pending_total_haneul_withdraw + haneul_out.value();
     pool.pending_pool_token_withdraw = pool.pending_pool_token_withdraw + value;
 
     haneul_out
@@ -231,29 +230,37 @@ fun calculate_fungible_staked_haneul_withdraw_amount(
     fungible_staked_haneul_data_total_supply: u64, // fungible_staked_haneul_data.total_supply
 ): (u64, u64) {
     // 1. if the entire FungibleStakedHaneulData supply is redeemed, how much haneul should we receive?
-    let total_haneul_amount = get_haneul_amount(&latest_exchange_rate, fungible_staked_haneul_data_total_supply);
+    let total_haneul_amount = latest_exchange_rate.get_haneul_amount(
+        fungible_staked_haneul_data_total_supply,
+    );
 
     // min with total_haneul_amount to prevent underflow
-    let fungible_staked_haneul_data_principal_amount = std::u64::min(
-        fungible_staked_haneul_data_principal_amount,
-        total_haneul_amount
+    let fungible_staked_haneul_data_principal_amount = fungible_staked_haneul_data_principal_amount.min(
+        total_haneul_amount,
     );
 
     // 2. how much do we need to withdraw from the rewards pool?
     let total_rewards = total_haneul_amount - fungible_staked_haneul_data_principal_amount;
 
     // 3. proportionally withdraw from both wrt the fungible_staked_haneul_value.
-    let principal_withdraw_amount = ((fungible_staked_haneul_value as u128)
-        * (fungible_staked_haneul_data_principal_amount as u128)
-        / (fungible_staked_haneul_data_total_supply as u128)) as u64;
+    let principal_withdraw_amount = mul_div!(
+        fungible_staked_haneul_value,
+        fungible_staked_haneul_data_principal_amount,
+        fungible_staked_haneul_data_total_supply,
+    );
 
-    let rewards_withdraw_amount = ((fungible_staked_haneul_value as u128)
-        * (total_rewards as u128)
-        / (fungible_staked_haneul_data_total_supply as u128)) as u64;
+    let rewards_withdraw_amount = mul_div!(
+        fungible_staked_haneul_value,
+        total_rewards,
+        fungible_staked_haneul_data_total_supply,
+    );
 
     // invariant check, just in case
-    let expected_haneul_amount = get_haneul_amount(&latest_exchange_rate, fungible_staked_haneul_value);
-    assert!(principal_withdraw_amount + rewards_withdraw_amount <= expected_haneul_amount, EInvariantFailure);
+    let expected_haneul_amount = latest_exchange_rate.get_haneul_amount(fungible_staked_haneul_value);
+    assert!(
+        principal_withdraw_amount + rewards_withdraw_amount <= expected_haneul_amount,
+        EInvariantFailure,
+    );
 
     (principal_withdraw_amount, rewards_withdraw_amount)
 }
@@ -262,47 +269,38 @@ fun calculate_fungible_staked_haneul_withdraw_amount(
 public(package) fun convert_to_fungible_staked_haneul(
     pool: &mut StakingPool,
     staked_haneul: StakedHaneul,
-    ctx: &mut TxContext
+    ctx: &mut TxContext,
 ): FungibleStakedHaneul {
     let StakedHaneul { id, pool_id, stake_activation_epoch, principal } = staked_haneul;
 
     assert!(pool_id == object::id(pool), EWrongPool);
-    assert!(
-        tx_context::epoch(ctx) >= stake_activation_epoch,
-        ECannotMintFungibleStakedHaneulYet
+    assert!(ctx.epoch() >= stake_activation_epoch, ECannotMintFungibleStakedHaneulYet);
+
+    id.delete();
+
+    let exchange_rate_at_staking_epoch = pool.pool_token_exchange_rate_at_epoch(
+        stake_activation_epoch,
     );
 
-    object::delete(id);
+    let pool_token_amount = exchange_rate_at_staking_epoch.get_token_amount(principal.value());
+    let key = FungibleStakedHaneulDataKey {};
 
-
-    let exchange_rate_at_staking_epoch = pool_token_exchange_rate_at_epoch(
-        pool,
-        stake_activation_epoch
-    );
-
-    let pool_token_amount = get_token_amount(
-        &exchange_rate_at_staking_epoch,
-        balance::value(&principal)
-    );
-
-    if (!bag::contains(&pool.extra_fields, FungibleStakedHaneulDataKey {})) {
-        bag::add(
-            &mut pool.extra_fields,
-            FungibleStakedHaneulDataKey {},
-            FungibleStakedHaneulData {
-                id: object::new(ctx),
-                total_supply: pool_token_amount,
-                principal
-            }
-        );
-    }
-    else {
-        let fungible_staked_haneul_data: &mut FungibleStakedHaneulData = bag::borrow_mut(
-            &mut pool.extra_fields,
-            FungibleStakedHaneulDataKey {}
-        );
-        fungible_staked_haneul_data.total_supply = fungible_staked_haneul_data.total_supply + pool_token_amount;
-        balance::join(&mut fungible_staked_haneul_data.principal, principal);
+    if (!pool.extra_fields.contains(key)) {
+        pool
+            .extra_fields
+            .add(
+                key,
+                FungibleStakedHaneulData {
+                    id: object::new(ctx),
+                    total_supply: pool_token_amount,
+                    principal,
+                },
+            );
+    } else {
+        let fungible_staked_haneul_data: &mut FungibleStakedHaneulData = &mut pool.extra_fields[key];
+        fungible_staked_haneul_data.total_supply =
+            fungible_staked_haneul_data.total_supply + pool_token_amount;
+        fungible_staked_haneul_data.principal.join(principal);
     };
 
     FungibleStakedHaneul {
@@ -319,36 +317,24 @@ public(package) fun withdraw_from_principal(
     pool: &StakingPool,
     staked_haneul: StakedHaneul,
 ): (u64, Balance<HANEUL>) {
-
     // Check that the stake information matches the pool.
     assert!(staked_haneul.pool_id == object::id(pool), EWrongPool);
 
-    let exchange_rate_at_staking_epoch = pool_token_exchange_rate_at_epoch(pool, staked_haneul.stake_activation_epoch);
-    let principal_withdraw = unwrap_staked_haneul(staked_haneul);
-    let pool_token_withdraw_amount = get_token_amount(
-    &exchange_rate_at_staking_epoch,
-    principal_withdraw.value()
-);
+    let exchange_rate_at_staking_epoch = pool.pool_token_exchange_rate_at_epoch(staked_haneul.stake_activation_epoch);
+    let principal_withdraw = staked_haneul.into_balance();
+    let pool_token_withdraw_amount = exchange_rate_at_staking_epoch.get_token_amount(principal_withdraw.value());
 
-    (
-        pool_token_withdraw_amount,
-        principal_withdraw,
-    )
-}
-
-fun unwrap_staked_haneul(staked_haneul: StakedHaneul): Balance<HANEUL> {
-    let StakedHaneul {
-        id,
-        pool_id: _,
-        stake_activation_epoch: _,
-        principal,
-    } = staked_haneul;
-    object::delete(id);
-    principal
+    (pool_token_withdraw_amount, principal_withdraw)
 }
 
 /// Allows calling `.into_balance()` on `StakedHaneul` to invoke `unwrap_staked_haneul`
 public use fun unwrap_staked_haneul as StakedHaneul.into_balance;
+
+fun unwrap_staked_haneul(staked_haneul: StakedHaneul): Balance<HANEUL> {
+    let StakedHaneul { id, principal, .. } = staked_haneul;
+    id.delete();
+    principal
+}
 
 // ==== functions called at epoch boundaries ===
 
@@ -360,13 +346,19 @@ public(package) fun deposit_rewards(pool: &mut StakingPool, rewards: Balance<HAN
 
 public(package) fun process_pending_stakes_and_withdraws(pool: &mut StakingPool, ctx: &TxContext) {
     let new_epoch = ctx.epoch() + 1;
-    process_pending_stake_withdraw(pool);
-    process_pending_stake(pool);
-    pool.exchange_rates.add(
-        new_epoch,
-        PoolTokenExchangeRate { haneul_amount: pool.haneul_balance, pool_token_amount: pool.pool_token_balance },
-    );
-    check_balance_invariants(pool, new_epoch);
+    pool.process_pending_stake_withdraw();
+    pool.process_pending_stake();
+    pool
+        .exchange_rates
+        .add(
+            new_epoch,
+            PoolTokenExchangeRate {
+                haneul_amount: pool.haneul_balance,
+                pool_token_amount: pool.pool_token_balance,
+            },
+        );
+
+    pool.check_balance_invariants(new_epoch);
 }
 
 /// Called at epoch boundaries to process pending stake withdraws requested during the epoch.
@@ -381,10 +373,12 @@ fun process_pending_stake_withdraw(pool: &mut StakingPool) {
 /// Called at epoch boundaries to process the pending stake.
 public(package) fun process_pending_stake(pool: &mut StakingPool) {
     // Use the most up to date exchange rate with the rewards deposited and withdraws effectuated.
-    let latest_exchange_rate =
-        PoolTokenExchangeRate { haneul_amount: pool.haneul_balance, pool_token_amount: pool.pool_token_balance };
+    let latest_exchange_rate = PoolTokenExchangeRate {
+        haneul_amount: pool.haneul_balance,
+        pool_token_amount: pool.pool_token_balance,
+    };
     pool.haneul_balance = pool.haneul_balance + pool.pending_stake;
-    pool.pool_token_balance = get_token_amount(&latest_exchange_rate, pool.haneul_balance);
+    pool.pool_token_balance = latest_exchange_rate.get_token_amount(pool.haneul_balance);
     pool.pending_stake = 0;
 }
 
@@ -401,12 +395,12 @@ fun withdraw_rewards(
     pool_token_withdraw_amount: u64,
     epoch: u64,
 ): Balance<HANEUL> {
-    let exchange_rate = pool_token_exchange_rate_at_epoch(pool, epoch);
-    let total_haneul_withdraw_amount = get_haneul_amount(&exchange_rate, pool_token_withdraw_amount);
-    let mut reward_withdraw_amount =
-        if (total_haneul_withdraw_amount >= principal_withdraw_amount)
-            total_haneul_withdraw_amount - principal_withdraw_amount
-        else 0;
+    let exchange_rate = pool.pool_token_exchange_rate_at_epoch(epoch);
+    let total_haneul_withdraw_amount = exchange_rate.get_haneul_amount(pool_token_withdraw_amount);
+    let mut reward_withdraw_amount = if (total_haneul_withdraw_amount >= principal_withdraw_amount) {
+        total_haneul_withdraw_amount - principal_withdraw_amount
+    } else 0;
+
     // This may happen when we are withdrawing everything from the pool and
     // the rewards pool balance may be less than reward_withdraw_amount.
     // TODO: FIGURE OUT EXACTLY WHY THIS CAN HAPPEN.
@@ -419,13 +413,10 @@ fun withdraw_rewards(
 /// Called by `validator` module to activate a staking pool.
 public(package) fun activate_staking_pool(pool: &mut StakingPool, activation_epoch: u64) {
     // Add the initial exchange rate to the table.
-    pool.exchange_rates.add(
-        activation_epoch,
-        initial_exchange_rate()
-    );
+    pool.exchange_rates.add(activation_epoch, initial_exchange_rate());
     // Check that the pool is preactive and not inactive.
-    assert!(is_preactive(pool), EPoolAlreadyActive);
-    assert!(!is_inactive(pool), EActivationOfInactivePool);
+    assert!(pool.is_preactive(), EPoolAlreadyActive);
+    assert!(!pool.is_inactive(), EActivationOfInactivePool);
     // Fill in the active epoch.
     pool.activation_epoch.fill(activation_epoch);
 }
@@ -437,7 +428,7 @@ public(package) fun activate_staking_pool(pool: &mut StakingPool, activation_epo
 /// withdraws can be made to the pool.
 public(package) fun deactivate_staking_pool(pool: &mut StakingPool, deactivation_epoch: u64) {
     // We can't deactivate an already deactivated pool.
-    assert!(!is_inactive(pool), EDeactivationOfInactivePool);
+    assert!(!pool.is_inactive(), EDeactivationOfInactivePool);
     pool.deactivation_epoch = option::some(deactivation_epoch);
 }
 
@@ -448,19 +439,22 @@ public fun haneul_balance(pool: &StakingPool): u64 { pool.haneul_balance }
 public fun pool_id(staked_haneul: &StakedHaneul): ID { staked_haneul.pool_id }
 
 public use fun fungible_staked_haneul_pool_id as FungibleStakedHaneul.pool_id;
-public fun fungible_staked_haneul_pool_id(fungible_staked_haneul: &FungibleStakedHaneul): ID { fungible_staked_haneul.pool_id }
 
-public fun staked_haneul_amount(staked_haneul: &StakedHaneul): u64 { staked_haneul.principal.value() }
+public fun fungible_staked_haneul_pool_id(fungible_staked_haneul: &FungibleStakedHaneul): ID {
+    fungible_staked_haneul.pool_id
+}
 
 /// Allows calling `.amount()` on `StakedHaneul` to invoke `staked_haneul_amount`
 public use fun staked_haneul_amount as StakedHaneul.amount;
+
+public fun staked_haneul_amount(staked_haneul: &StakedHaneul): u64 { staked_haneul.principal.value() }
 
 public fun stake_activation_epoch(staked_haneul: &StakedHaneul): u64 {
     staked_haneul.stake_activation_epoch
 }
 
 /// Returns true if the input staking pool is preactive.
-public fun is_preactive(pool: &StakingPool): bool{
+public fun is_preactive(pool: &StakingPool): bool {
     pool.activation_epoch.is_none()
 }
 
@@ -470,13 +464,17 @@ public fun is_inactive(pool: &StakingPool): bool {
 }
 
 public use fun fungible_staked_haneul_value as FungibleStakedHaneul.value;
-public fun fungible_staked_haneul_value(fungible_staked_haneul: &FungibleStakedHaneul): u64 { fungible_staked_haneul.value }
+
+public fun fungible_staked_haneul_value(fungible_staked_haneul: &FungibleStakedHaneul): u64 {
+    fungible_staked_haneul.value
+}
 
 public use fun split_fungible_staked_haneul as FungibleStakedHaneul.split;
+
 public fun split_fungible_staked_haneul(
     fungible_staked_haneul: &mut FungibleStakedHaneul,
     split_amount: u64,
-    ctx: &mut TxContext
+    ctx: &mut TxContext,
 ): FungibleStakedHaneul {
     assert!(split_amount <= fungible_staked_haneul.value, EInsufficientPoolTokenBalance);
 
@@ -490,11 +488,12 @@ public fun split_fungible_staked_haneul(
 }
 
 public use fun join_fungible_staked_haneul as FungibleStakedHaneul.join;
+
 public fun join_fungible_staked_haneul(self: &mut FungibleStakedHaneul, other: FungibleStakedHaneul) {
     let FungibleStakedHaneul { id, pool_id, value } = other;
     assert!(self.pool_id == pool_id, EWrongPool);
 
-    object::delete(id);
+    id.delete();
 
     self.value = self.value + value;
 }
@@ -517,25 +516,20 @@ public fun split(self: &mut StakedHaneul, split_amount: u64, ctx: &mut TxContext
     }
 }
 
+/// Allows calling `.split_to_sender()` on `StakedHaneul` to invoke `split_staked_haneul`
+public use fun split_staked_haneul as StakedHaneul.split_to_sender;
+
 /// Split the given StakedHaneul to the two parts, one with principal `split_amount`,
 /// transfer the newly split part to the sender address.
 public entry fun split_staked_haneul(stake: &mut StakedHaneul, split_amount: u64, ctx: &mut TxContext) {
-    transfer::transfer(split(stake, split_amount, ctx), ctx.sender());
+    transfer::transfer(stake.split(split_amount, ctx), ctx.sender());
 }
-
-/// Allows calling `.split_to_sender()` on `StakedHaneul` to invoke `split_staked_haneul`
-public use fun split_staked_haneul as StakedHaneul.split_to_sender;
 
 /// Consume the staked haneul `other` and add its value to `self`.
 /// Aborts if some of the staking parameters are incompatible (pool id, stake activation epoch, etc.)
 public entry fun join_staked_haneul(self: &mut StakedHaneul, other: StakedHaneul) {
     assert!(is_equal_staking_metadata(self, &other), EIncompatibleStakedHaneul);
-    let StakedHaneul {
-        id,
-        pool_id: _,
-        stake_activation_epoch: _,
-        principal,
-    } = other;
+    let StakedHaneul { id, principal, .. } = other;
 
     id.delete();
     self.principal.join(principal);
@@ -550,9 +544,12 @@ public fun is_equal_staking_metadata(self: &StakedHaneul, other: &StakedHaneul):
     (self.stake_activation_epoch == other.stake_activation_epoch)
 }
 
-public fun pool_token_exchange_rate_at_epoch(pool: &StakingPool, epoch: u64): PoolTokenExchangeRate {
+public fun pool_token_exchange_rate_at_epoch(
+    pool: &StakingPool,
+    epoch: u64,
+): PoolTokenExchangeRate {
     // If the pool is preactive then the exchange rate is always 1:1.
-    if (is_preactive_at_epoch(pool, epoch)) {
+    if (pool.is_preactive_at_epoch(epoch)) {
         return initial_exchange_rate()
     };
     let clamped_epoch = pool.deactivation_epoch.get_with_default(epoch);
@@ -593,9 +590,9 @@ public fun pool_token_amount(exchange_rate: &PoolTokenExchangeRate): u64 {
 }
 
 /// Returns true if the provided staking pool is preactive at the provided epoch.
-fun is_preactive_at_epoch(pool: &StakingPool, epoch: u64): bool{
+fun is_preactive_at_epoch(pool: &StakingPool, epoch: u64): bool {
     // Either the pool is currently preactive or the pool's starting epoch is later than the provided epoch.
-    is_preactive(pool) || (*pool.activation_epoch.borrow() > epoch)
+    pool.is_preactive() || (*pool.activation_epoch.borrow() > epoch)
 }
 
 fun get_haneul_amount(exchange_rate: &PoolTokenExchangeRate, token_amount: u64): u64 {
@@ -604,10 +601,8 @@ fun get_haneul_amount(exchange_rate: &PoolTokenExchangeRate, token_amount: u64):
     if (exchange_rate.haneul_amount == 0 || exchange_rate.pool_token_amount == 0) {
         return token_amount
     };
-    let res = exchange_rate.haneul_amount as u128
-            * (token_amount as u128)
-            / (exchange_rate.pool_token_amount as u128);
-    res as u64
+
+    mul_div!(exchange_rate.haneul_amount, token_amount, exchange_rate.pool_token_amount)
 }
 
 fun get_token_amount(exchange_rate: &PoolTokenExchangeRate, haneul_amount: u64): u64 {
@@ -616,10 +611,8 @@ fun get_token_amount(exchange_rate: &PoolTokenExchangeRate, haneul_amount: u64):
     if (exchange_rate.haneul_amount == 0 || exchange_rate.pool_token_amount == 0) {
         return haneul_amount
     };
-    let res = exchange_rate.pool_token_amount as u128
-            * (haneul_amount as u128)
-            / (exchange_rate.haneul_amount as u128);
-    res as u64
+
+    mul_div!(exchange_rate.pool_token_amount, haneul_amount, exchange_rate.haneul_amount)
 }
 
 fun initial_exchange_rate(): PoolTokenExchangeRate {
@@ -627,35 +620,36 @@ fun initial_exchange_rate(): PoolTokenExchangeRate {
 }
 
 fun check_balance_invariants(pool: &StakingPool, epoch: u64) {
-    let exchange_rate = pool_token_exchange_rate_at_epoch(pool, epoch);
+    let exchange_rate = pool.pool_token_exchange_rate_at_epoch(epoch);
     // check that the pool token balance and haneul balance ratio matches the exchange rate stored.
-    let expected = get_token_amount(&exchange_rate, pool.haneul_balance);
+    let expected = exchange_rate.get_token_amount(pool.haneul_balance);
     let actual = pool.pool_token_balance;
     assert!(expected == actual, ETokenBalancesDoNotMatchExchangeRate)
+}
+
+macro fun mul_div($a: u64, $b: u64, $c: u64): u64 {
+    (($a as u128) * ($b as u128) / ($c as u128)) as u64
 }
 
 // ==== test-related functions ====
 
 // Given the `staked_haneul` receipt calculate the current rewards (in terms of HANEUL) for it.
 #[test_only]
-public fun calculate_rewards(
-    pool: &StakingPool,
-    staked_haneul: &StakedHaneul,
-    current_epoch: u64,
-): u64 {
-    let staked_amount = staked_haneul_amount(staked_haneul);
+public fun calculate_rewards(pool: &StakingPool, staked_haneul: &StakedHaneul, current_epoch: u64): u64 {
+    let staked_amount = staked_haneul.amount();
     let pool_token_withdraw_amount = {
-        let exchange_rate_at_staking_epoch = pool_token_exchange_rate_at_epoch(pool, staked_haneul.stake_activation_epoch);
-        get_token_amount(&exchange_rate_at_staking_epoch, staked_amount)
+        let exchange_rate_at_staking_epoch = pool.pool_token_exchange_rate_at_epoch(staked_haneul.stake_activation_epoch);
+        exchange_rate_at_staking_epoch.get_token_amount(staked_amount)
     };
 
-    let new_epoch_exchange_rate = pool_token_exchange_rate_at_epoch(pool, current_epoch);
-    let total_haneul_withdraw_amount = get_haneul_amount(&new_epoch_exchange_rate, pool_token_withdraw_amount);
+    let new_epoch_exchange_rate = pool.pool_token_exchange_rate_at_epoch(current_epoch);
+    let total_haneul_withdraw_amount = new_epoch_exchange_rate.get_haneul_amount(
+        pool_token_withdraw_amount,
+    );
 
-    let mut reward_withdraw_amount =
-        if (total_haneul_withdraw_amount >= staked_amount)
-            total_haneul_withdraw_amount - staked_amount
-        else 0;
+    let mut reward_withdraw_amount = if (total_haneul_withdraw_amount >= staked_amount) {
+        total_haneul_withdraw_amount - staked_amount
+    } else 0;
     reward_withdraw_amount = reward_withdraw_amount.min(pool.rewards_pool.value());
 
     staked_amount + reward_withdraw_amount
@@ -670,7 +664,9 @@ public(package) fun fungible_staked_haneul_data(pool: &StakingPool): &FungibleSt
 public use fun fungible_staked_haneul_data_total_supply as FungibleStakedHaneulData.total_supply;
 
 #[test_only]
-public(package) fun fungible_staked_haneul_data_total_supply(fungible_staked_haneul_data: &FungibleStakedHaneulData): u64 {
+public(package) fun fungible_staked_haneul_data_total_supply(
+    fungible_staked_haneul_data: &FungibleStakedHaneulData,
+): u64 {
     fungible_staked_haneul_data.total_supply
 }
 
@@ -678,7 +674,9 @@ public(package) fun fungible_staked_haneul_data_total_supply(fungible_staked_han
 public use fun fungible_staked_haneul_data_principal_value as FungibleStakedHaneulData.principal_value;
 
 #[test_only]
-public(package) fun fungible_staked_haneul_data_principal_value(fungible_staked_haneul_data: &FungibleStakedHaneulData): u64 {
+public(package) fun fungible_staked_haneul_data_principal_value(
+    fungible_staked_haneul_data: &FungibleStakedHaneulData,
+): u64 {
     fungible_staked_haneul_data.principal.value()
 }
 
@@ -691,7 +689,7 @@ public(package) fun pending_pool_token_withdraw_amount(pool: &StakingPool): u64 
 public(package) fun create_fungible_staked_haneul_for_testing(
     self: &StakingPool,
     value: u64,
-    ctx: &mut TxContext
+    ctx: &mut TxContext,
 ): FungibleStakedHaneul {
     FungibleStakedHaneul {
         id: object::new(ctx),
@@ -709,49 +707,49 @@ fun test_calculate_fungible_staked_haneul_withdraw_amount(
     mut pool_token_frac: u16,
     mut fungible_staked_haneul_data_total_supply_frac: u16,
     mut fungible_staked_haneul_data_principal_frac: u16,
-    mut fungible_staked_haneul_value_bps: u16
+    mut fungible_staked_haneul_value_bps: u16,
 ) {
-    use std::u128::max;
+    total_haneul_amount = total_haneul_amount.max(1);
 
-    total_haneul_amount = std::u64::max(total_haneul_amount, 1);
+    pool_token_frac = pool_token_frac % 10_000;
+    fungible_staked_haneul_data_total_supply_frac =
+        fungible_staked_haneul_data_total_supply_frac % 10_000;
+    fungible_staked_haneul_data_principal_frac = fungible_staked_haneul_data_principal_frac % 10_000;
+    fungible_staked_haneul_value_bps = fungible_staked_haneul_value_bps % 10_000;
 
-    pool_token_frac = pool_token_frac % 10000;
-    fungible_staked_haneul_data_total_supply_frac = fungible_staked_haneul_data_total_supply_frac % 10000;
-    fungible_staked_haneul_data_principal_frac = fungible_staked_haneul_data_principal_frac % 10000;
-    fungible_staked_haneul_value_bps = fungible_staked_haneul_value_bps % 10000;
-
-
-    let total_pool_token_amount = max(
-        (total_haneul_amount as u128) * (pool_token_frac as u128) / 10000,
-        1
-    );
+    let total_pool_token_amount = mul_div!(total_haneul_amount, pool_token_frac as u64, 10_000).max(1);
 
     let exchange_rate = PoolTokenExchangeRate {
         haneul_amount: total_haneul_amount,
-        pool_token_amount: total_pool_token_amount as u64,
+        pool_token_amount: total_pool_token_amount,
     };
 
-    let fungible_staked_haneul_data_total_supply = max(
-        total_pool_token_amount * (fungible_staked_haneul_data_total_supply_frac as u128) / 10000,
-        1
+    let fungible_staked_haneul_data_total_supply = mul_div!(
+        total_pool_token_amount,
+        fungible_staked_haneul_data_total_supply_frac as u64,
+        10_000,
+    ).max(1);
+    let fungible_staked_haneul_value = mul_div!(
+        fungible_staked_haneul_data_total_supply,
+        fungible_staked_haneul_value_bps as u64,
+        10_000,
     );
-    let fungible_staked_haneul_value = fungible_staked_haneul_data_total_supply
-        * (fungible_staked_haneul_value_bps as u128) / 10000;
 
-    let max_principal = get_haneul_amount(&exchange_rate, fungible_staked_haneul_data_total_supply as u64);
-    let fungible_staked_haneul_data_principal_amount = max(
-        (max_principal as u128) * (fungible_staked_haneul_data_principal_frac as u128) / 10000,
-        1
-    );
+    let max_principal = exchange_rate.get_haneul_amount(fungible_staked_haneul_data_total_supply);
+    let fungible_staked_haneul_data_principal_amount = mul_div!(
+        max_principal,
+        fungible_staked_haneul_data_principal_frac as u64,
+        10_000,
+    ).max(1);
 
     let (principal_amount, rewards_amount) = calculate_fungible_staked_haneul_withdraw_amount(
         exchange_rate,
-        fungible_staked_haneul_value as u64,
-        fungible_staked_haneul_data_principal_amount as u64,
-        fungible_staked_haneul_data_total_supply as u64,
+        fungible_staked_haneul_value,
+        fungible_staked_haneul_data_principal_amount,
+        fungible_staked_haneul_data_total_supply,
     );
 
-    let expected_out = get_haneul_amount(&exchange_rate, fungible_staked_haneul_value as u64);
+    let expected_out = exchange_rate.get_haneul_amount(fungible_staked_haneul_value);
 
     assert!(principal_amount + rewards_amount <= expected_out, 0);
 

@@ -140,7 +140,9 @@ Called by <code><a href="../haneul_system/haneul_system.md#haneul_system_haneul_
     // into `<a href="../haneul_system/storage_fund.md#haneul_system_storage_fund_total_object_storage_rebates">total_object_storage_rebates</a>`.
     self.<a href="../haneul_system/storage_fund.md#haneul_system_storage_fund_total_object_storage_rebates">total_object_storage_rebates</a>.join(storage_charges);
     // Split out the non-refundable portion of the storage rebate and put it into the non-refundable balance.
-    <b>let</b> non_refundable_storage_fee = self.<a href="../haneul_system/storage_fund.md#haneul_system_storage_fund_total_object_storage_rebates">total_object_storage_rebates</a>.split(non_refundable_storage_fee_amount);
+    <b>let</b> non_refundable_storage_fee = self
+        .<a href="../haneul_system/storage_fund.md#haneul_system_storage_fund_total_object_storage_rebates">total_object_storage_rebates</a>
+        .split(non_refundable_storage_fee_amount);
     self.non_refundable_balance.join(non_refundable_storage_fee);
     // `storage_rebates` include the already refunded rebates of deleted objects and old rebates of modified objects and
     // should be taken out of the `<a href="../haneul_system/storage_fund.md#haneul_system_storage_fund_total_object_storage_rebates">total_object_storage_rebates</a>`.
