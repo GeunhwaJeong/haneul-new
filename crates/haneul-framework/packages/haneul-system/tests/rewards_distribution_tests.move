@@ -4,10 +4,10 @@
 #[test_only]
 module haneul_system::rewards_distribution_tests;
 
+use haneul::address;
 use haneul::balance;
 use haneul::test_scenario::{Self, Scenario};
-use haneul_system::haneul_system::HaneulSystemState;
-use haneul_system::validator_cap::UnverifiedValidatorOperationCap;
+use haneul::test_utils::assert_eq;
 use haneul_system::governance_test_utils::{
     advance_epoch,
     advance_epoch_with_reward_amounts,
@@ -18,10 +18,11 @@ use haneul_system::governance_test_utils::{
     create_validator_for_testing,
     create_haneul_system_state_for_testing,
     stake_with,
-    total_haneul_balance, unstake
+    total_haneul_balance,
+    unstake
 };
-use haneul::test_utils::assert_eq;
-use haneul::address;
+use haneul_system::haneul_system::HaneulSystemState;
+use haneul_system::validator_cap::UnverifiedValidatorOperationCap;
 
 const VALIDATOR_ADDR_1: address = @0x1;
 const VALIDATOR_ADDR_2: address = @0x2;
@@ -48,7 +49,7 @@ fun test_validator_rewards() {
     assert_validator_total_stake_amounts(
         validator_addrs(),
         vector[125 * GEUNHWA_PER_HANEUL, 225 * GEUNHWA_PER_HANEUL, 325 * GEUNHWA_PER_HANEUL, 425 * GEUNHWA_PER_HANEUL],
-        scenario
+        scenario,
     );
 
     stake_with(VALIDATOR_ADDR_2, VALIDATOR_ADDR_2, 720, scenario);
@@ -60,7 +61,7 @@ fun test_validator_rewards() {
     assert_validator_total_stake_amounts(
         validator_addrs(),
         vector[150 * GEUNHWA_PER_HANEUL, 970 * GEUNHWA_PER_HANEUL, 350 * GEUNHWA_PER_HANEUL, 450 * GEUNHWA_PER_HANEUL],
-        scenario
+        scenario,
     );
     scenario_val.end();
 }
@@ -75,7 +76,16 @@ fun test_stake_subsidy() {
     advance_epoch(scenario);
 
     advance_epoch_with_reward_amounts(0, 100, scenario);
-    assert_validator_total_stake_amounts(validator_addrs(), vector[100_000_025 * GEUNHWA_PER_HANEUL, 200_000_025 * GEUNHWA_PER_HANEUL, 300_000_025 * GEUNHWA_PER_HANEUL, 400_000_025 * GEUNHWA_PER_HANEUL], scenario);
+    assert_validator_total_stake_amounts(
+        validator_addrs(),
+        vector[
+            100_000_025 * GEUNHWA_PER_HANEUL,
+            200_000_025 * GEUNHWA_PER_HANEUL,
+            300_000_025 * GEUNHWA_PER_HANEUL,
+            400_000_025 * GEUNHWA_PER_HANEUL,
+        ],
+        scenario,
+    );
     scenario_val.end();
 }
 
@@ -89,19 +99,35 @@ fun test_stake_rewards() {
     stake_with(STAKER_ADDR_2, VALIDATOR_ADDR_2, 100, scenario);
     advance_epoch(scenario);
 
-    assert_validator_total_stake_amounts(validator_addrs(), vector[300 * GEUNHWA_PER_HANEUL, 300 * GEUNHWA_PER_HANEUL, 300 * GEUNHWA_PER_HANEUL, 400 * GEUNHWA_PER_HANEUL], scenario);
-    assert_validator_self_stake_amounts(validator_addrs(), vector[100 * GEUNHWA_PER_HANEUL, 200 * GEUNHWA_PER_HANEUL, 300 * GEUNHWA_PER_HANEUL, 400 * GEUNHWA_PER_HANEUL], scenario);
+    assert_validator_total_stake_amounts(
+        validator_addrs(),
+        vector[300 * GEUNHWA_PER_HANEUL, 300 * GEUNHWA_PER_HANEUL, 300 * GEUNHWA_PER_HANEUL, 400 * GEUNHWA_PER_HANEUL],
+        scenario,
+    );
+    assert_validator_self_stake_amounts(
+        validator_addrs(),
+        vector[100 * GEUNHWA_PER_HANEUL, 200 * GEUNHWA_PER_HANEUL, 300 * GEUNHWA_PER_HANEUL, 400 * GEUNHWA_PER_HANEUL],
+        scenario,
+    );
 
     // Each pool gets 30 HANEUL.
     advance_epoch_with_reward_amounts(0, 120, scenario);
-    assert_validator_self_stake_amounts(validator_addrs(), vector[110 * GEUNHWA_PER_HANEUL, 220 * GEUNHWA_PER_HANEUL, 330 * GEUNHWA_PER_HANEUL, 430 * GEUNHWA_PER_HANEUL], scenario);
+    assert_validator_self_stake_amounts(
+        validator_addrs(),
+        vector[110 * GEUNHWA_PER_HANEUL, 220 * GEUNHWA_PER_HANEUL, 330 * GEUNHWA_PER_HANEUL, 430 * GEUNHWA_PER_HANEUL],
+        scenario,
+    );
     unstake(STAKER_ADDR_1, 0, scenario);
     stake_with(STAKER_ADDR_2, VALIDATOR_ADDR_1, 600, scenario);
     // Each pool gets 30 HANEUL.
     advance_epoch_with_reward_amounts(0, 120, scenario);
     // staker 1 receives only 20 HANEUL of rewards, not 40 since we are using pre-epoch exchange rate.
     assert_eq(total_haneul_balance(STAKER_ADDR_1, scenario), 220 * GEUNHWA_PER_HANEUL);
-    assert_validator_self_stake_amounts(validator_addrs(), vector[140 * GEUNHWA_PER_HANEUL, 240 * GEUNHWA_PER_HANEUL, 360 * GEUNHWA_PER_HANEUL, 460 * GEUNHWA_PER_HANEUL], scenario);
+    assert_validator_self_stake_amounts(
+        validator_addrs(),
+        vector[140 * GEUNHWA_PER_HANEUL, 240 * GEUNHWA_PER_HANEUL, 360 * GEUNHWA_PER_HANEUL, 460 * GEUNHWA_PER_HANEUL],
+        scenario,
+    );
     unstake(STAKER_ADDR_2, 0, scenario);
     assert_eq(total_haneul_balance(STAKER_ADDR_2, scenario), 120 * GEUNHWA_PER_HANEUL); // 20 HANEUL of rewards received
 
@@ -158,21 +184,41 @@ fun test_validator_commission() {
     advance_epoch_with_reward_amounts(0, 120, scenario);
     // V1: 230, V2: 330, V3: 330, V4: 430
     // 2 HANEUL, or 20 % of staker_2's rewards, goes to validator_2
-    assert_validator_non_self_stake_amounts(validator_addrs(), vector[115 * GEUNHWA_PER_HANEUL, 108 * GEUNHWA_PER_HANEUL, 0, 0], scenario);
-    assert_validator_self_stake_amounts(validator_addrs(), vector[115 * GEUNHWA_PER_HANEUL, 222 * GEUNHWA_PER_HANEUL, 330 * GEUNHWA_PER_HANEUL, 430 * GEUNHWA_PER_HANEUL], scenario);
+    assert_validator_non_self_stake_amounts(
+        validator_addrs(),
+        vector[115 * GEUNHWA_PER_HANEUL, 108 * GEUNHWA_PER_HANEUL, 0, 0],
+        scenario,
+    );
+    assert_validator_self_stake_amounts(
+        validator_addrs(),
+        vector[115 * GEUNHWA_PER_HANEUL, 222 * GEUNHWA_PER_HANEUL, 330 * GEUNHWA_PER_HANEUL, 430 * GEUNHWA_PER_HANEUL],
+        scenario,
+    );
 
     set_commission_rate_and_advance_epoch(VALIDATOR_ADDR_1, 1000, scenario); // 10% commission
 
     advance_epoch_with_reward_amounts(0, 240, scenario);
-    assert_validator_total_stake_amounts(validator_addrs(), vector[290 * GEUNHWA_PER_HANEUL, 390 * GEUNHWA_PER_HANEUL, 390 * GEUNHWA_PER_HANEUL, 490 * GEUNHWA_PER_HANEUL], scenario);
+    assert_validator_total_stake_amounts(
+        validator_addrs(),
+        vector[290 * GEUNHWA_PER_HANEUL, 390 * GEUNHWA_PER_HANEUL, 390 * GEUNHWA_PER_HANEUL, 490 * GEUNHWA_PER_HANEUL],
+        scenario,
+    );
 
     // Staker 1 rewards in the recent distribution is 0.9 x 30 = 27 HANEUL
     // Validator 1 rewards in the recent distribution is 60 - 27 = 33 HANEUL
 
     // Staker 2 amounts for 0.8 * 60 * (108 / 330) + 108 = 123.709 HANEUL
     // Validator 2 amounts for 390 - 123.709 = 266.291 HANEUL
-    assert_validator_non_self_stake_amounts(validator_addrs(), vector[142 * GEUNHWA_PER_HANEUL, 123709090909, 0, 0], scenario);
-    assert_validator_self_stake_amounts(validator_addrs(), vector[148 * GEUNHWA_PER_HANEUL, 266290909091, 390 * GEUNHWA_PER_HANEUL, 490 * GEUNHWA_PER_HANEUL], scenario);
+    assert_validator_non_self_stake_amounts(
+        validator_addrs(),
+        vector[142 * GEUNHWA_PER_HANEUL, 123709090909, 0, 0],
+        scenario,
+    );
+    assert_validator_self_stake_amounts(
+        validator_addrs(),
+        vector[148 * GEUNHWA_PER_HANEUL, 266290909091, 390 * GEUNHWA_PER_HANEUL, 490 * GEUNHWA_PER_HANEUL],
+        scenario,
+    );
 
     scenario_val.end();
 }
@@ -201,7 +247,10 @@ fun test_rewards_slashing() {
     // 3600 HANEUL of total rewards, 50% threshold and 10% reward slashing.
     // So validator_2 is the only one whose rewards should get slashed.
     advance_epoch_with_reward_amounts_and_slashing_rates(
-        0, 3600, 1000, scenario
+        0,
+        3600,
+        1000,
+        scenario,
     );
 
     // Without reward slashing, the validator's stakes should be [100+450, 200+600, 300+900, 400+900]
@@ -209,7 +258,11 @@ fun test_rewards_slashing() {
     // Since 60 HANEUL, or 10% of validator_2's rewards (600) are slashed, she only has 800 - 60 = 740 now.
     // There are in total 90 HANEUL of rewards slashed (60 from the validator, and 30 from her staker)
     // so the unslashed validators each get their share of additional rewards, which is 30.
-    assert_validator_self_stake_amounts(validator_addrs(), vector[565 * GEUNHWA_PER_HANEUL, 740 * GEUNHWA_PER_HANEUL, 1230 * GEUNHWA_PER_HANEUL, 1330 * GEUNHWA_PER_HANEUL], scenario);
+    assert_validator_self_stake_amounts(
+        validator_addrs(),
+        vector[565 * GEUNHWA_PER_HANEUL, 740 * GEUNHWA_PER_HANEUL, 1230 * GEUNHWA_PER_HANEUL, 1330 * GEUNHWA_PER_HANEUL],
+        scenario,
+    );
 
     // Unstake so we can check the stake rewards as well.
     unstake(STAKER_ADDR_1, 0, scenario);
@@ -239,18 +292,29 @@ fun test_entire_rewards_slashing() {
     report_validator(VALIDATOR_ADDR_3, VALIDATOR_ADDR_2, scenario);
     report_validator(VALIDATOR_ADDR_4, VALIDATOR_ADDR_2, scenario);
 
-
     // 3600 HANEUL of total rewards, 100% reward slashing.
     // So validator_2 is the only one whose rewards should get slashed.
     advance_epoch_with_reward_amounts_and_slashing_rates(
-        0, 3600, 10_000, scenario
+        0,
+        3600,
+        10_000,
+        scenario,
     );
 
     // Without reward slashing, the validator's stakes should be [100+450, 200+600, 300+900, 400+900]
     // after the last epoch advancement.
     // The entire rewards of validator 2's staking pool are slashed, which is 900 HANEUL.
     // so the unslashed validators each get their share of additional rewards, which is 300.
-    assert_validator_self_stake_amounts(validator_addrs(), vector[(550 + 150) * GEUNHWA_PER_HANEUL, 200 * GEUNHWA_PER_HANEUL, (1200 + 300) * GEUNHWA_PER_HANEUL, (1300 + 300) * GEUNHWA_PER_HANEUL], scenario);
+    assert_validator_self_stake_amounts(
+        validator_addrs(),
+        vector[
+            (550 + 150) * GEUNHWA_PER_HANEUL,
+            200 * GEUNHWA_PER_HANEUL,
+            (1200 + 300) * GEUNHWA_PER_HANEUL,
+            (1300 + 300) * GEUNHWA_PER_HANEUL,
+        ],
+        scenario,
+    );
 
     // Unstake so we can check the stake rewards as well.
     unstake(STAKER_ADDR_1, 0, scenario);
@@ -284,7 +348,10 @@ fun test_rewards_slashing_with_storage_fund() {
     // 1000 HANEUL of storage rewards, 1500 HANEUL of computation rewards, 50% slashing threshold
     // and 20% slashing rate
     advance_epoch_with_reward_amounts_and_slashing_rates(
-        1000, 1500, 2000, scenario
+        1000,
+        1500,
+        2000,
+        scenario,
     );
 
     // Each unslashed validator staking pool gets 300 HANEUL of computation rewards + 75 HANEUL of storage fund rewards +
@@ -292,7 +359,11 @@ fun test_rewards_slashing_with_storage_fund() {
     // storage fund reward, so in total it gets 400 HANEUL of rewards.
     // Validator 3 has a delegator with her so she gets 320 * 3/4 + 75 + 5 = 320 HANEUL of rewards.
     // Validator 4's should get 300 * 4/5 * (1 - 20%) = 192 in computation rewards and 75 * (1 - 20%) = 60 in storage rewards.
-    assert_validator_self_stake_amounts(validator_addrs(), vector[500 * GEUNHWA_PER_HANEUL, 600 * GEUNHWA_PER_HANEUL, 620 * GEUNHWA_PER_HANEUL, 652 * GEUNHWA_PER_HANEUL], scenario);
+    assert_validator_self_stake_amounts(
+        validator_addrs(),
+        vector[500 * GEUNHWA_PER_HANEUL, 600 * GEUNHWA_PER_HANEUL, 620 * GEUNHWA_PER_HANEUL, 652 * GEUNHWA_PER_HANEUL],
+        scenario,
+    );
 
     // Unstake so we can check the stake rewards as well.
     unstake(STAKER_ADDR_1, 0, scenario);
@@ -328,11 +399,18 @@ fun test_everyone_slashed() {
     report_validator(VALIDATOR_ADDR_4, VALIDATOR_ADDR_1, scenario);
 
     advance_epoch_with_reward_amounts_and_slashing_rates(
-        1000, 3000, 10_000, scenario
+        1000,
+        3000,
+        10_000,
+        scenario,
     );
 
     // All validators should have 0 rewards added so their stake stays the same.
-    assert_validator_self_stake_amounts(validator_addrs(), vector[100 * GEUNHWA_PER_HANEUL, 200 * GEUNHWA_PER_HANEUL, 300 * GEUNHWA_PER_HANEUL, 400 * GEUNHWA_PER_HANEUL], scenario);
+    assert_validator_self_stake_amounts(
+        validator_addrs(),
+        vector[100 * GEUNHWA_PER_HANEUL, 200 * GEUNHWA_PER_HANEUL, 300 * GEUNHWA_PER_HANEUL, 400 * GEUNHWA_PER_HANEUL],
+        scenario,
+    );
 
     scenario.next_tx(@0x0);
     // Storage fund balance should increase by 4000 HANEUL.
@@ -420,7 +498,11 @@ fun test_uncapped_rewards() {
     // Create a set of 20 validators, each with 481 + i * 2 HANEUL of stake.
     // The stake total sums up to be 481 + 483 + ... + 517 + 519 = 1000 HANEUL.
     while (i < num_validators) {
-        let validator = create_validator_for_testing(address::from_u256(i as u256), (481 + i * 2), ctx);
+        let validator = create_validator_for_testing(
+            address::from_u256(i as u256),
+            (481 + i * 2),
+            ctx,
+        );
         validators.push_back(validator);
         i = i + 1;
     };
@@ -472,11 +554,15 @@ fun set_up_haneul_system_state_with_big_amounts() {
     scenario_val.end();
 }
 
-fun validator_addrs() : vector<address> {
+fun validator_addrs(): vector<address> {
     vector[VALIDATOR_ADDR_1, VALIDATOR_ADDR_2, VALIDATOR_ADDR_3, VALIDATOR_ADDR_4]
 }
 
-fun set_commission_rate_and_advance_epoch(addr: address, commission_rate: u64, scenario: &mut Scenario) {
+fun set_commission_rate_and_advance_epoch(
+    addr: address,
+    commission_rate: u64,
+    scenario: &mut Scenario,
+) {
     scenario.next_tx(addr);
     let mut system_state = scenario.take_shared<HaneulSystemState>();
     let ctx = scenario.ctx();
@@ -525,7 +611,18 @@ fun test_stake_subsidy_with_safe_mode_epoch_562_to_563() {
     // perform advance epoch
     haneul_system
         .inner_mut_for_testing()
-        .advance_epoch(start_epoch + 1, 65, balance::zero(), balance::zero(), 0, 0, 0, 0, epoch_start_time, ctx)
+        .advance_epoch(
+            start_epoch + 1,
+            65,
+            balance::zero(),
+            balance::zero(),
+            0,
+            0,
+            0,
+            0,
+            epoch_start_time,
+            ctx,
+        )
         .destroy_for_testing(); // balance returned from `advance_epoch`
     ctx.increment_epoch_number();
 
@@ -536,7 +633,18 @@ fun test_stake_subsidy_with_safe_mode_epoch_562_to_563() {
     // ensure that next epoch change only distributes one epoch's worth
     haneul_system
         .inner_mut_for_testing()
-        .advance_epoch(start_epoch + 2, 65, balance::zero(), balance::zero(), 0, 0, 0, 0, epoch_start_time + epoch_duration, ctx)
+        .advance_epoch(
+            start_epoch + 2,
+            65,
+            balance::zero(),
+            balance::zero(),
+            0,
+            0,
+            0,
+            0,
+            epoch_start_time + epoch_duration,
+            ctx,
+        )
         .destroy_for_testing(); // balance returned from `advance_epoch`
     ctx.increment_epoch_number();
 
@@ -573,7 +681,18 @@ fun test_stake_subsidy_with_safe_mode_epoch_563_to_564() {
     // perform advance epoch
     haneul_system
         .inner_mut_for_testing()
-        .advance_epoch(start_epoch + 1, 65, balance::zero(), balance::zero(), 0, 0, 0, 0, epoch_start_time, ctx)
+        .advance_epoch(
+            start_epoch + 1,
+            65,
+            balance::zero(),
+            balance::zero(),
+            0,
+            0,
+            0,
+            0,
+            epoch_start_time,
+            ctx,
+        )
         .destroy_for_testing(); // balance returned from `advance_epoch`
     ctx.increment_epoch_number();
 
@@ -584,7 +703,18 @@ fun test_stake_subsidy_with_safe_mode_epoch_563_to_564() {
     // ensure that next epoch change only distributes one epoch's worth
     haneul_system
         .inner_mut_for_testing()
-        .advance_epoch(start_epoch + 2, 65, balance::zero(), balance::zero(), 0, 0, 0, 0, epoch_start_time + epoch_duration, ctx)
+        .advance_epoch(
+            start_epoch + 2,
+            65,
+            balance::zero(),
+            balance::zero(),
+            0,
+            0,
+            0,
+            0,
+            epoch_start_time + epoch_duration,
+            ctx,
+        )
         .destroy_for_testing(); // balance returned from `advance_epoch`
     ctx.increment_epoch_number();
 
