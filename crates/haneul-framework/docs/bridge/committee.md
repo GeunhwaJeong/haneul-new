@@ -47,7 +47,6 @@ title: Module `bridge::committee`
 <b>use</b> <a href="../haneul/hash.md#haneul_hash">haneul::hash</a>;
 <b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
 <b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;
-<b>use</b> <a href="../haneul/pay.md#haneul_pay">haneul::pay</a>;
 <b>use</b> <a href="../haneul/priority_queue.md#haneul_priority_queue">haneul::priority_queue</a>;
 <b>use</b> <a href="../haneul/haneul.md#haneul_haneul">haneul::haneul</a>;
 <b>use</b> <a href="../haneul/table.md#haneul_table">haneul::table</a>;
