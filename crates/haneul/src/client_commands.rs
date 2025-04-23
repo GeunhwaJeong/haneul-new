@@ -550,6 +550,10 @@ pub enum HaneulClientCommands {
         profile_output: Option<PathBuf>,
     },
 
+    /// Remove an existing address by its alias or hexadecimal string.
+    #[clap(name = "remove-address")]
+    RemoveAddress { alias_or_address: String },
+
     /// Replay a given transaction to view transaction effects. Set environment variable MOVE_VM_STEP=1 to debug.
     #[clap(name = "replay-transaction")]
     ReplayTransaction {
@@ -1495,6 +1499,23 @@ impl HaneulClientCommands {
                     recovery_phrase: phrase,
                 })
             }
+
+            HaneulClientCommands::RemoveAddress { alias_or_address } => {
+                let address: HaneulAddress = match context
+                    .config
+                    .keystore
+                    .get_address_by_alias(alias_or_address.clone())
+                {
+                    Ok(addr) => *addr,
+                    Err(_) => HaneulAddress::from_str(&alias_or_address)
+                        .map_err(|e| anyhow!("Invalid address or alias: {}", e))?,
+                };
+
+                context.config.keystore.remove_key(address)?;
+
+                HaneulClientCommandResult::RemoveAddress(RemoveAddressOutput { alias_or_address })
+            }
+
             HaneulClientCommands::Gas { address } => {
                 let address = get_identity_address(address, context)?;
                 let coins = context
@@ -2164,6 +2185,25 @@ impl Display for HaneulClientCommandResult {
 
                 write!(f, "{}", table)?
             }
+            HaneulClientCommandResult::RemoveAddress(remove_address) => {
+                let mut builder = TableBuilder::default();
+                builder.push_record(vec![remove_address.alias_or_address.as_str()]);
+
+                let mut table = builder.build();
+                table.with(TableStyle::rounded());
+                table.with(TablePanel::header("removed the keypair from keystore."));
+
+                table.with(
+                    TableModify::new(TableCell::new(0, 0))
+                        .with(TableBorder::default().corner_bottom_right('┬')),
+                );
+                table.with(
+                    TableModify::new(TableCell::new(0, 0))
+                        .with(TableBorder::default().corner_top_right('─')),
+                );
+
+                write!(f, "{}", table)?
+            }
             HaneulClientCommandResult::Object(object_read) => match object_read.object() {
                 Ok(obj) => {
                     let object = ObjectOutput::from(obj);
@@ -2473,6 +2513,7 @@ impl HaneulClientCommandResult {
             | HaneulClientCommandResult::NoOutput
             | HaneulClientCommandResult::Object(_)
             | HaneulClientCommandResult::Objects(_)
+            | HaneulClientCommandResult::RemoveAddress(_)
             | HaneulClientCommandResult::RawObject(_)
             | HaneulClientCommandResult::SerializedSignedTransaction(_)
             | HaneulClientCommandResult::SerializedUnsignedTransaction(_)
@@ -2507,6 +2548,12 @@ pub struct NewAddressOutput {
     pub address: HaneulAddress,
     pub key_scheme: SignatureScheme,
     pub recovery_phrase: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RemoveAddressOutput {
+    pub alias_or_address: String,
 }
 
 #[derive(Serialize)]
@@ -2624,6 +2671,7 @@ pub enum HaneulClientCommandResult {
     Object(HaneulObjectResponse),
     Objects(Vec<HaneulObjectResponse>),
     RawObject(HaneulObjectResponse),
+    RemoveAddress(RemoveAddressOutput),
     SerializedSignedTransaction(SenderSignedData),
     SerializedUnsignedTransaction(TransactionData),
     Switch(SwitchResponse),
