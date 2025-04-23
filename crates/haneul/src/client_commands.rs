@@ -1540,11 +1540,11 @@ impl HaneulClientCommands {
 
                     if let Ok(env) = active_env {
                         let network = match env.rpc.as_str() {
-                            HANEUL_DEVNET_URL => "https://faucet.devnet.haneul.io/v1/gas",
+                            HANEUL_DEVNET_URL => "https://faucet.devnet.haneul.io/v2/gas",
                             HANEUL_TESTNET_URL => {
                                 bail!("For testnet tokens, please use the Web UI: https://faucet.haneul.io/?address={address}");
                             }
-                            HANEUL_LOCAL_NETWORK_URL | HANEUL_LOCAL_NETWORK_URL_0 => "http://127.0.0.1:9123/gas",
+                            HANEUL_LOCAL_NETWORK_URL | HANEUL_LOCAL_NETWORK_URL_0 => "http://127.0.0.1:9123/v2/gas",
                             _ => bail!("Cannot recognize the active network. Please provide the gas faucet full URL.")
                         };
                         network.to_string()

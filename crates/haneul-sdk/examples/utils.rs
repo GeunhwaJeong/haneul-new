@@ -36,11 +36,12 @@ struct FaucetResponse {
     error: Option<String>,
 }
 
-// const HANEUL_FAUCET: &str = "https://faucet.devnet.haneul.io/gas"; // devnet faucet
+// const HANEUL_FAUCET: &str = "https://faucet.devnet.haneul.io/v2/gas"; // devnet faucet
 
-pub const HANEUL_FAUCET: &str = "https://faucet.testnet.haneul.io/v1/gas"; // testnet faucet
+// Testnet faucet is under heavy rate limit, we recommend using devnet for these examples
+pub const HANEUL_FAUCET: &str = "https://faucet.testnet.haneul.io/v2/gas"; // testnet faucet
 
-// const HANEUL_FAUCET: &str = "http://127.0.0.1:9123/gas";
+// const HANEUL_FAUCET: &str = "http://127.0.0.1:9123/v2/gas";
 
 /// Return a haneul client to interact with the APIs,
 /// the active address of the local wallet, and another address that can be used as a recipient.
