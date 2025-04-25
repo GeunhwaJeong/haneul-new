@@ -28,6 +28,7 @@ tempfile.workspace = true
 tap.workspace = true
 haneul-protocol-config.workspace = true
 haneul-rpc-api.workspace = true
+once_cell.workspace = true
 
 [dev-dependencies]
 rand.workspace = true
