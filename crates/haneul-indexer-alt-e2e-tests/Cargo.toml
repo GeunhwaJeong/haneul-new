@@ -25,7 +25,7 @@ url.workspace = true
 
 simulacrum.workspace = true
 haneul-indexer-alt.workspace = true
-haneul-indexer-alt-framework.workspace = true
+haneul-indexer-alt-framework = { workspace = true, features = ["postgres"] }
 haneul-indexer-alt-graphql.workspace = true
 haneul-indexer-alt-jsonrpc.workspace = true
 haneul-indexer-alt-reader.workspace = true

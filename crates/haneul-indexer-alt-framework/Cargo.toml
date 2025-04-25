@@ -35,19 +35,21 @@ url.workspace = true
 haneul-field-count.workspace = true
 haneul-indexer-alt-framework-store-traits.workspace = true
 haneul-indexer-alt-metrics.workspace = true
-haneul-pg-db.workspace = true
 haneul-rpc-api.workspace = true
-haneul-sql-macro.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
+
+haneul-pg-db = { workspace = true, optional = true }
 
 [dev-dependencies]
 rand.workspace = true
 telemetry-subscribers.workspace = true
 wiremock.workspace = true
+haneul-pg-db.workspace = true
 
 haneul-synthetic-ingestion.workspace = true
 
 [features]
 default = ["cluster"]
-cluster = ["dep:tracing-subscriber"]
+cluster = ["dep:tracing-subscriber", "postgres"]
+postgres = ["dep:haneul-pg-db"]

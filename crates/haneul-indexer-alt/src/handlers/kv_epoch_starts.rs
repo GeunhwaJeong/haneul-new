@@ -8,8 +8,8 @@ use anyhow::{bail, Context, Result};
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use haneul_indexer_alt_framework::{
-    db::{Connection, Db},
     pipeline::{concurrent::Handler, Processor},
+    postgres::{Connection, Db},
     types::{
         full_checkpoint_content::CheckpointData,
         haneul_system_state::{get_haneul_system_state, HaneulSystemStateTrait},

@@ -13,8 +13,7 @@ use haneul_indexer_alt::args::Command;
 use haneul_indexer_alt::config::IndexerConfig;
 use haneul_indexer_alt::config::Merge;
 use haneul_indexer_alt::setup_indexer;
-use haneul_indexer_alt_framework::db::reset_database;
-use haneul_indexer_alt_framework::Indexer;
+use haneul_indexer_alt_framework::postgres::reset_database;
 use haneul_indexer_alt_metrics::MetricsService;
 use haneul_indexer_alt_schema::MIGRATIONS;
 use tokio::fs;
@@ -125,7 +124,11 @@ async fn main() -> Result<()> {
             reset_database(
                 database_url,
                 db_args,
-                (!skip_migrations).then(|| Indexer::migrations(Some(&MIGRATIONS))),
+                if !skip_migrations {
+                    Some(&MIGRATIONS)
+                } else {
+                    None
+                },
             )
             .await?;
         }

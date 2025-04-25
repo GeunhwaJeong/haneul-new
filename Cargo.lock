@@ -14443,7 +14443,6 @@ dependencies = [
  "haneul-indexer-alt-metrics",
  "haneul-pg-db",
  "haneul-rpc-api",
- "haneul-sql-macro",
  "haneul-storage",
  "haneul-synthetic-ingestion",
  "haneul-types",
