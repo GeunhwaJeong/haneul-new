@@ -27,18 +27,19 @@ thiserror.workspace = true
 tokio.workspace = true
 tokio-stream.workspace = true
 tokio-util.workspace = true
+tonic.workspace = true
 tracing.workspace = true
 tracing-subscriber = { workspace = true, optional = true }
 url.workspace = true
 
 haneul-field-count.workspace = true
+haneul-indexer-alt-framework-store-traits.workspace = true
 haneul-indexer-alt-metrics.workspace = true
 haneul-pg-db.workspace = true
+haneul-rpc-api.workspace = true
 haneul-sql-macro.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
-haneul-rpc-api.workspace = true
-tonic.workspace = true
 
 [dev-dependencies]
 rand.workspace = true

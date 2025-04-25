@@ -1,0 +1,13 @@
+[package]
+name = "haneul-indexer-alt-framework-store-traits"
+version.workspace = true
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+
+[dependencies]
+anyhow.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+scoped-futures.workspace = true
