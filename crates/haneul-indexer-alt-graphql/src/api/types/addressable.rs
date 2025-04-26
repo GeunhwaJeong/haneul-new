@@ -4,7 +4,7 @@
 use async_graphql::{Interface, Object};
 use haneul_types::base_types::HaneulAddress as NativeHaneulAddress;
 
-use crate::api::scalars::haneul_address::HaneulAddress;
+use crate::{api::scalars::haneul_address::HaneulAddress, scope::Scope};
 
 use super::{move_package::MovePackage, object::Object};
 
@@ -19,7 +19,9 @@ pub(crate) enum IAddressable {
     Object(Object),
 }
 
+#[derive(Clone)]
 pub(crate) struct Addressable {
+    pub(crate) scope: Scope,
     pub(crate) address: NativeHaneulAddress,
 }
 
@@ -34,8 +36,8 @@ impl Addressable {
 }
 
 impl Addressable {
-    pub(crate) fn with_address(address: NativeHaneulAddress) -> Self {
-        Self { address }
+    pub(crate) fn with_address(scope: Scope, address: NativeHaneulAddress) -> Self {
+        Self { scope, address }
     }
 }
 
