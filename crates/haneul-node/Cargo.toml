@@ -35,7 +35,6 @@ bin-version.workspace = true
 url.workspace = true
 humantime.workspace = true
 
-haneul-archival.workspace = true
 haneul-tls.workspace = true
 haneul-macros.workspace = true
 haneul-config.workspace = true

@@ -24,6 +24,7 @@ haneul-config.workspace = true
 haneul-swarm-config.workspace = true
 haneul-simulator.workspace = true
 haneul-protocol-config.workspace = true
+haneul-data-ingestion-core.workspace = true
 
 arc-swap.workspace = true
 bcs.workspace = true

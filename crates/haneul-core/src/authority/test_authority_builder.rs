@@ -24,7 +24,6 @@ use fastcrypto::traits::KeyPair;
 use prometheus::Registry;
 use std::path::PathBuf;
 use std::sync::Arc;
-use haneul_archival::reader::ArchiveReaderBalancer;
 use haneul_config::certificate_deny_config::CertificateDenyConfig;
 use haneul_config::genesis::Genesis;
 use haneul_config::node::AuthorityOverloadConfig;
@@ -364,7 +363,6 @@ impl<'a> TestAuthorityBuilder<'a> {
             genesis.objects(),
             &DBCheckpointConfig::default(),
             config.clone(),
-            ArchiveReaderBalancer::default(),
             None,
             chain_identifier,
             pruner_db,
