@@ -25,7 +25,7 @@ serde.workspace = true
 tokio = { workspace = true, features = ["full"] }
 serde_yaml.workspace = true
 serde_json.workspace = true
-haneul-archival.workspace = true
+haneul-data-ingestion-core.workspace = true
 haneul-types.workspace = true
 haneul-config.workspace = true
 haneul-rpc-api.workspace = true
