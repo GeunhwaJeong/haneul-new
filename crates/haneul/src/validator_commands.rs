@@ -545,7 +545,7 @@ impl HaneulValidatorCommand {
                     bail!("Address {} is not in the committee", address);
                 }
                 println!("Starting bridge committee registration for Haneul validator: {address}, with bridge public key: {} and url: {}", ecdsa_keypair.public, bridge_authority_url);
-                let haneul_rpc_url = &context.config.get_active_env().unwrap().rpc;
+                let haneul_rpc_url = &context.get_active_env().unwrap().rpc;
                 let bridge_metrics = Arc::new(BridgeMetrics::new_for_testing());
                 let bridge_client = HaneulBridgeClient::new(haneul_rpc_url, bridge_metrics).await?;
                 let bridge = bridge_client
@@ -607,7 +607,7 @@ impl HaneulValidatorCommand {
                     validator_address,
                     print_unsigned_transaction_only,
                 )?;
-                let haneul_rpc_url = &context.config.get_active_env().unwrap().rpc;
+                let haneul_rpc_url = &context.get_active_env().unwrap().rpc;
                 let bridge_metrics = Arc::new(BridgeMetrics::new_for_testing());
                 let bridge_client = HaneulBridgeClient::new(haneul_rpc_url, bridge_metrics).await?;
                 let committee_members = bridge_client

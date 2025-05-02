@@ -718,7 +718,7 @@ impl HaneulClientCommands {
                     profile_output,
                     config_objects: None,
                 };
-                let rpc = context.config.get_active_env()?.rpc.clone();
+                let rpc = context.get_active_env()?.rpc.clone();
                 let _command_result =
                     haneul_replay::execute_replay_command(Some(rpc), false, false, None, None, cmd)
                         .await?;
@@ -740,7 +740,7 @@ impl HaneulClientCommands {
                     config_objects: None,
                 };
 
-                let rpc = context.config.get_active_env()?.rpc.clone();
+                let rpc = context.get_active_env()?.rpc.clone();
                 let _command_result =
                     haneul_replay::execute_replay_command(Some(rpc), false, false, None, None, cmd)
                         .await?;
@@ -757,7 +757,7 @@ impl HaneulClientCommands {
                     num_tasks: 16,
                     persist_path: None,
                 };
-                let rpc = context.config.get_active_env()?.rpc.clone();
+                let rpc = context.get_active_env()?.rpc.clone();
                 let _command_result =
                     haneul_replay::execute_replay_command(Some(rpc), false, false, None, None, cmd)
                         .await?;
@@ -775,7 +775,7 @@ impl HaneulClientCommands {
                     terminate_early,
                     max_tasks: 16,
                 };
-                let rpc = context.config.get_active_env()?.rpc.clone();
+                let rpc = context.get_active_env()?.rpc.clone();
                 let _command_result =
                     haneul_replay::execute_replay_command(Some(rpc), false, false, None, None, cmd)
                         .await?;
@@ -930,11 +930,7 @@ impl HaneulClientCommands {
                 } else {
                     None
                 };
-                let env_alias = context
-                    .config
-                    .get_active_env()
-                    .map(|e| e.alias.clone())
-                    .ok();
+                let env_alias = context.get_active_env().map(|e| e.alias.clone()).ok();
                 let verify =
                     check_dep_verification_flags(skip_dependency_verification, verify_deps)?;
 
@@ -1536,7 +1532,7 @@ impl HaneulClientCommands {
                     );
                     url
                 } else {
-                    let active_env = context.config.get_active_env();
+                    let active_env = context.get_active_env();
 
                     if let Ok(env) = active_env {
                         let network = match env.rpc.as_str() {
@@ -1695,12 +1691,12 @@ impl HaneulClientCommands {
                 context.config.save()?;
                 HaneulClientCommandResult::NewEnv(env)
             }
-            HaneulClientCommands::ActiveEnv => {
-                HaneulClientCommandResult::ActiveEnv(context.config.active_env.clone())
-            }
+            HaneulClientCommands::ActiveEnv => HaneulClientCommandResult::ActiveEnv(
+                context.get_active_env().ok().map(|e| e.alias.clone()),
+            ),
             HaneulClientCommands::Envs => HaneulClientCommandResult::Envs(
                 context.config.envs.clone(),
-                context.config.active_env.clone(),
+                context.get_active_env().ok().map(|e| e.alias.clone()),
             ),
             HaneulClientCommands::VerifySource {
                 package_path,
