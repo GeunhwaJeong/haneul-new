@@ -6,10 +6,8 @@ use crate::programmable_transactions::{
     context::load_type,
     linkage_view::{LinkageInfo, LinkageView},
 };
-use move_core_types::account_address::AccountAddress;
 use move_core_types::annotated_value as A;
 use move_core_types::language_storage::{StructTag, TypeTag};
-use move_core_types::resolver::ResourceResolver;
 use move_vm_runtime::{move_vm::MoveVM, session::Session};
 use haneul_types::base_types::ObjectID;
 use haneul_types::error::HaneulResult;
@@ -62,17 +60,5 @@ impl LayoutResolver for TypeLayoutResolver<'_, '_> {
 impl BackingPackageStore for NullHaneulResolver<'_> {
     fn get_package_object(&self, package_id: &ObjectID) -> HaneulResult<Option<PackageObject>> {
         self.0.get_package_object(package_id)
-    }
-}
-
-impl ResourceResolver for NullHaneulResolver<'_> {
-    type Error = HaneulError;
-
-    fn get_resource(
-        &self,
-        _address: &AccountAddress,
-        _typ: &StructTag,
-    ) -> Result<Option<Vec<u8>>, Self::Error> {
-        Ok(None)
     }
 }

@@ -2,26 +2,25 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use move_binary_format::file_format::AbilitySet;
-use move_core_types::{identifier::IdentStr, resolver::ResourceResolver};
+use move_core_types::identifier::IdentStr;
 use move_vm_types::loaded_data::runtime_types::Type;
 use serde::Deserialize;
 use haneul_types::{
     base_types::{ObjectID, SequenceNumber, HaneulAddress},
     coin::Coin,
-    error::{ExecutionError, ExecutionErrorKind, HaneulError},
+    error::{ExecutionError, ExecutionErrorKind},
     execution_status::CommandArgumentError,
     object::Owner,
     storage::{BackingPackageStore, ChildObjectResolver, StorageView},
     transfer::Receiving,
 };
 
-pub trait HaneulResolver: ResourceResolver<Error = HaneulError> + BackingPackageStore {
+pub trait HaneulResolver: BackingPackageStore {
     fn as_backing_package_store(&self) -> &dyn BackingPackageStore;
 }
 
 impl<T> HaneulResolver for T
 where
-    T: ResourceResolver<Error = HaneulError>,
     T: BackingPackageStore,
 {
     fn as_backing_package_store(&self) -> &dyn BackingPackageStore {

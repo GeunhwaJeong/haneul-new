@@ -2,9 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::gas_charger::GasCharger;
-use move_core_types::account_address::AccountAddress;
-use move_core_types::language_storage::StructTag;
-use move_core_types::resolver::ResourceResolver;
 use parking_lot::RwLock;
 use std::collections::{BTreeMap, HashSet};
 use haneul_protocol_config::ProtocolConfig;
@@ -22,9 +19,8 @@ use haneul_types::{
         ObjectDigest, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
         VersionDigest,
     },
-    error::{ExecutionError, HaneulError, HaneulResult},
+    error::{ExecutionError, HaneulResult},
     event::Event,
-    fp_bail,
     gas::GasCostSummary,
     object::Owner,
     object::{Data, Object},
@@ -1045,44 +1041,6 @@ impl BackingPackageStore for TemporaryStore<'_> {
                     }
                 }
             })
-        }
-    }
-}
-
-impl ResourceResolver for TemporaryStore<'_> {
-    type Error = HaneulError;
-
-    fn get_resource(
-        &self,
-        address: &AccountAddress,
-        struct_tag: &StructTag,
-    ) -> Result<Option<Vec<u8>>, Self::Error> {
-        let object = match self.read_object(&ObjectID::from(*address)) {
-            Some(x) => x,
-            None => match self.read_object(&ObjectID::from(*address)) {
-                None => return Ok(None),
-                Some(x) => {
-                    if !x.is_immutable() {
-                        fp_bail!(HaneulError::ExecutionInvariantViolation);
-                    }
-                    x
-                }
-            },
-        };
-
-        match &object.data {
-            Data::Move(m) => {
-                assert!(
-                    m.is_type(struct_tag),
-                    "Invariant violation: ill-typed object in storage \
-                or bad object request from caller"
-                );
-                Ok(Some(m.contents().to_vec()))
-            }
-            other => unimplemented!(
-                "Bad object lookup: expected Move object, but got {:?}",
-                other
-            ),
         }
     }
 }
