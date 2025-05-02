@@ -3,7 +3,7 @@
 
 use std::{
     cell::RefCell,
-    collections::{hash_map::Entry, BTreeMap, HashMap, HashSet},
+    collections::{BTreeMap, HashMap, HashSet, hash_map::Entry},
     str::FromStr,
 };
 
@@ -14,7 +14,7 @@ use move_core_types::{
     language_storage::{ModuleId, StructTag},
     resolver::{LinkageResolver, ModuleResolver, ResourceResolver},
 };
-use haneul_types::storage::{get_module, PackageObject};
+use haneul_types::storage::{PackageObject, get_module};
 use haneul_types::{
     base_types::ObjectID,
     error::{ExecutionError, HaneulError, HaneulResult},

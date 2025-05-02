@@ -11,7 +11,7 @@ pub mod checked {
     use crate::temporary_store::TemporaryStore;
     use haneul_protocol_config::ProtocolConfig;
     use haneul_types::deny_list_v2::CONFIG_SETTING_DYNAMIC_FIELD_SIZE_FOR_GAS;
-    use haneul_types::gas::{deduct_gas, GasCostSummary, HaneulGasStatus};
+    use haneul_types::gas::{GasCostSummary, HaneulGasStatus, deduct_gas};
     use haneul_types::gas_model::gas_predicates::{
         charge_upgrades, dont_charge_budget_on_storage_oog,
     };

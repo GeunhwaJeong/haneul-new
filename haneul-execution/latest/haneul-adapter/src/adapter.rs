@@ -29,7 +29,7 @@ mod checked {
     use haneul_verifier::check_for_verifier_timeout;
     use tracing::instrument;
 
-    use haneul_move_natives::{object_runtime::ObjectRuntime, NativesCostTable};
+    use haneul_move_natives::{NativesCostTable, object_runtime::ObjectRuntime};
     use haneul_protocol_config::ProtocolConfig;
     use haneul_types::{
         base_types::*,
@@ -141,9 +141,9 @@ mod checked {
 
     pub fn missing_unwrapped_msg(id: &ObjectID) -> String {
         format!(
-        "Unable to unwrap object {}. Was unable to retrieve last known version in the parent sync",
-        id
-    )
+            "Unable to unwrap object {}. Was unable to retrieve last known version in the parent sync",
+            id
+        )
     }
 
     /// Run the bytecode verifier with a meter limit
