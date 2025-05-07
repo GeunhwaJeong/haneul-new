@@ -24,7 +24,6 @@ use haneul_json_rpc_types::{
     HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponseOptions,
 };
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
-use haneul_types::effects::{TransactionEffectsAPI, TransactionEvents};
 use haneul_types::gas::GasCostSummary;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::quorum_driver_types::EffectsFinalityInfo;
@@ -44,6 +43,10 @@ use haneul_types::{base_types::SequenceNumber, gas_coin::GasCoin};
 use haneul_types::{
     base_types::{AuthorityName, HaneulAddress},
     haneul_system_state::HaneulSystemStateTrait,
+};
+use haneul_types::{
+    effects::{TransactionEffectsAPI, TransactionEvents},
+    execution_status::ExecutionFailureStatus,
 };
 use tokio::time::sleep;
 use tracing::{info, warn};
@@ -148,6 +151,28 @@ impl ExecutionEffects {
             }
             ExecutionEffects::HaneulTransactionBlockEffects(haneul_tx_effects) => {
                 haneul_tx_effects.status().is_ok()
+            }
+        }
+    }
+
+    pub fn is_cancelled(&self) -> bool {
+        match self {
+            ExecutionEffects::FinalizedTransactionEffects(effects, ..) => {
+                match effects.data().status() {
+                    haneul_types::execution_status::ExecutionStatus::Success => false,
+                    haneul_types::execution_status::ExecutionStatus::Failure {
+                        error:
+                            ExecutionFailureStatus::ExecutionCancelledDueToSharedObjectCongestion {
+                                ..
+                            },
+                        ..
+                    } => true,
+                    _ => false,
+                }
+            }
+            ExecutionEffects::HaneulTransactionBlockEffects(haneul_tx_effects) => {
+                let status = format!("{}", haneul_tx_effects.status());
+                status.contains("ExecutionCancelledDueToSharedObjectCongestion")
             }
         }
     }
