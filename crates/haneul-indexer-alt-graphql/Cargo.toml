@@ -53,7 +53,9 @@ haneul-indexer-alt-metrics.workspace = true
 haneul-indexer-alt-reader.workspace = true
 haneul-indexer-alt-schema.workspace = true
 haneul-package-resolver.workspace = true
+haneul-pg-db.workspace = true
 haneul-protocol-config.workspace = true
+haneul-sql-macro.workspace = true
 haneul-types.workspace = true
 
 [dev-dependencies]
