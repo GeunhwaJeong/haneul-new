@@ -9040,6 +9040,16 @@
               "$ref": "#/components/schemas/HaneulMoveStructTypeParameter"
             }
           },
+          "variantDeclarationOrder": {
+            "default": null,
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
           "variants": {
             "type": "object",
             "additionalProperties": {

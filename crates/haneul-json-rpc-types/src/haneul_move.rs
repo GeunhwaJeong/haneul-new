@@ -79,6 +79,8 @@ pub struct HaneulMoveNormalizedEnum {
     pub abilities: HaneulMoveAbilitySet,
     pub type_parameters: Vec<HaneulMoveStructTypeParameter>,
     pub variants: BTreeMap<String, Vec<HaneulMoveNormalizedField>>,
+    #[serde(default)]
+    pub variant_declaration_order: Option<Vec<String>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema, Clone)]
@@ -244,6 +246,26 @@ impl<S: Hash + Eq + ToString> From<&NormalizedStruct<S>> for HaneulMoveNormalize
 
 impl<S: Hash + Eq + ToString> From<&NormalizedEnum<S>> for HaneulMoveNormalizedEnum {
     fn from(value: &NormalizedEnum<S>) -> Self {
+        let variants = value
+            .variants
+            .values()
+            .map(|variant| {
+                (
+                    variant.name.to_string(),
+                    variant
+                        .fields
+                        .0
+                        .values()
+                        .map(|f| HaneulMoveNormalizedField::from(&**f))
+                        .collect::<Vec<HaneulMoveNormalizedField>>(),
+                )
+            })
+            .collect::<Vec<(String, Vec<HaneulMoveNormalizedField>)>>();
+        let variant_declaration_order = variants
+            .iter()
+            .map(|(name, _)| name.clone())
+            .collect::<Vec<String>>();
+        let variants = variants.into_iter().collect();
         Self {
             abilities: value.abilities.into(),
             type_parameters: value
@@ -252,21 +274,8 @@ impl<S: Hash + Eq + ToString> From<&NormalizedEnum<S>> for HaneulMoveNormalizedE
                 .copied()
                 .map(HaneulMoveStructTypeParameter::from)
                 .collect::<Vec<HaneulMoveStructTypeParameter>>(),
-            variants: value
-                .variants
-                .values()
-                .map(|variant| {
-                    (
-                        variant.name.to_string(),
-                        variant
-                            .fields
-                            .0
-                            .values()
-                            .map(|f| HaneulMoveNormalizedField::from(&**f))
-                            .collect::<Vec<HaneulMoveNormalizedField>>(),
-                    )
-                })
-                .collect::<BTreeMap<String, Vec<HaneulMoveNormalizedField>>>(),
+            variants,
+            variant_declaration_order: Some(variant_declaration_order),
         }
     }
 }
