@@ -49,7 +49,7 @@ use haneul_types::crypto::{
 };
 use haneul_types::digests::{ChainIdentifier, TransactionEffectsDigest};
 use haneul_types::dynamic_field::get_dynamic_field_from_store;
-use haneul_types::effects::TransactionEffects;
+use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::executable_transaction::{
     TrustedExecutableTransaction, VerifiedExecutableTransaction,
@@ -1230,6 +1230,7 @@ impl AuthorityPerEpochStore {
     pub fn record_local_execution_time(
         &self,
         tx: &TransactionData,
+        effects: &TransactionEffects,
         timings: Vec<ExecutionTiming>,
         total_duration: Duration,
     ) {
@@ -1237,6 +1238,10 @@ impl AuthorityPerEpochStore {
             // Drop observations if no ExecutionTimeObserver has been configured.
             return;
         };
+
+        if effects.status().is_cancelled() {
+            return;
+        }
 
         // Only record timings for PTBs with shared inputs.
         let TransactionKind::ProgrammableTransaction(ptb) = tx.kind() else {
