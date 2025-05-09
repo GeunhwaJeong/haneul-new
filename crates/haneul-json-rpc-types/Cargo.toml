@@ -34,3 +34,6 @@ haneullabs-metrics.workspace = true
 haneul-types.workspace = true
 haneul-json.workspace = true
 haneul-package-resolver.workspace = true
+
+[dev-dependencies]
+insta.workspace = true

@@ -146,6 +146,117 @@ fn test_serde() {
 }
 
 #[test]
+fn test_move_type_serde() {
+    use crate::haneul_move as SM;
+    use crate::haneul_move::HaneulMoveNormalizedType as SNT;
+    let test_types = vec![
+        SNT::Bool,
+        SNT::U8,
+        SNT::U16,
+        SNT::U32,
+        SNT::U64,
+        SNT::U128,
+        SNT::U256,
+        SNT::Address,
+        SNT::Signer,
+        SNT::Vector(Box::new(SNT::U8)),
+        SNT::Struct {
+            address: HANEUL_FRAMEWORK_ADDRESS.to_string(),
+            module: "coin".to_owned(),
+            name: "Coin".to_owned(),
+            type_arguments: vec![SNT::Address],
+        },
+        SNT::Vector(Box::new(SNT::U16)),
+        SNT::Vector(Box::new(SNT::Vector(Box::new(SNT::U8)))),
+        SNT::TypeParameter(0),
+        SNT::Reference(Box::new(SNT::U8)),
+        SNT::MutableReference(Box::new(SNT::Struct {
+            address: HANEUL_FRAMEWORK_ADDRESS.to_string(),
+            module: "coin".to_owned(),
+            name: "Coin".to_owned(),
+            type_arguments: vec![SNT::Address],
+        })),
+    ];
+
+    let mut acc = vec![];
+
+    for value in test_types {
+        let json = serde_json::to_string(&value).unwrap();
+        acc.push(json);
+    }
+
+    let s = SM::HaneulMoveNormalizedStruct {
+        abilities: SM::HaneulMoveAbilitySet {
+            abilities: vec![SM::HaneulMoveAbility::Copy],
+        },
+        type_parameters: vec![SM::HaneulMoveStructTypeParameter {
+            constraints: SM::HaneulMoveAbilitySet {
+                abilities: vec![SM::HaneulMoveAbility::Drop],
+            },
+            is_phantom: false,
+        }],
+        fields: vec![
+            SM::HaneulMoveNormalizedField {
+                name: "field1".to_string(),
+                type_: SNT::U8,
+            },
+            SM::HaneulMoveNormalizedField {
+                name: "field2".to_string(),
+                type_: SNT::U16,
+            },
+        ],
+    };
+
+    let json = serde_json::to_string(&s).unwrap();
+    acc.push(json);
+
+    // NB: variants declaration and lexicographic ordering are different here
+    let variants = vec![
+        ("b", vec![SNT::U16]),
+        ("a", vec![]),
+        (
+            "c",
+            vec![
+                SNT::U32,
+                SNT::Struct {
+                    address: HANEUL_FRAMEWORK_ADDRESS.to_string(),
+                    module: "coin".to_owned(),
+                    name: "Coin".to_owned(),
+                    type_arguments: vec![SNT::Address],
+                },
+            ],
+        ),
+    ]
+    .into_iter()
+    .map(|(name, type_)| {
+        (
+            name.to_string(),
+            type_
+                .into_iter()
+                .enumerate()
+                .map(|(i, t)| SM::HaneulMoveNormalizedField {
+                    name: format!("field{}", i),
+                    type_: t,
+                })
+                .collect(),
+        )
+    })
+    .collect();
+
+    let e = SM::HaneulMoveNormalizedEnum {
+        abilities: SM::HaneulMoveAbilitySet {
+            abilities: vec![SM::HaneulMoveAbility::Copy],
+        },
+        type_parameters: vec![],
+        variants,
+    };
+
+    acc.push(serde_json::to_string(&e).unwrap());
+
+    insta::assert_snapshot!(acc.join("\n"));
+}
+
+#[test]
 fn test_serde_bytearray() {
     // ensure that we serialize byte arrays as number array
     let test_values = MoveValue::Vector(vec![MoveValue::U8(1), MoveValue::U8(2), MoveValue::U8(3)]);
