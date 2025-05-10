@@ -329,7 +329,7 @@ public(package) fun withdraw_from_principal(
 }
 
 /// Allows calling `.into_balance()` on `StakedHaneul` to invoke `unwrap_staked_haneul`
-public use fun unwrap_staked_haneul as StakedHaneul.into_balance;
+use fun unwrap_staked_haneul as StakedHaneul.into_balance;
 
 fun unwrap_staked_haneul(staked_haneul: StakedHaneul): Balance<HANEUL> {
     let StakedHaneul { id, principal, .. } = staked_haneul;
