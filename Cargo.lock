@@ -14583,6 +14583,7 @@ dependencies = [
  "haneul-kvstore",
  "haneul-package-resolver",
  "haneul-pg-db",
+ "haneul-sql-macro",
  "haneul-types",
  "thiserror 1.0.69",
  "tokio",

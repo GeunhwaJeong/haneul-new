@@ -32,4 +32,5 @@ haneul-indexer-alt-schema.workspace = true
 haneul-kvstore.workspace = true
 haneul-package-resolver.workspace = true
 haneul-pg-db.workspace = true
+haneul-sql-macro.workspace = true
 haneul-types.workspace = true
