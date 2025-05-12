@@ -38,6 +38,7 @@ fastcrypto.workspace = true
 
 haneul-config.workspace = true
 haneul-core.workspace = true
+haneul-data-ingestion-core.workspace = true
 haneul-network.workspace = true
 haneul-snapshot.workspace = true
 haneul-protocol-config.workspace = true
@@ -45,7 +46,6 @@ haneul-replay.workspace = true
 haneul-sdk.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
-haneul-archival.workspace = true
 haneul-package-dump.workspace = true
 haneul-tls.workspace = true
 bin-version.workspace = true
