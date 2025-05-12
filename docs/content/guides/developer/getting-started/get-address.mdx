@@ -16,20 +16,9 @@ If you'd like to understand how a Haneul address is derived from private keys an
 
 Haneul provides multiple ways to obtain a Haneul address. The following are the two most common. 
 
-### Haneul Wallet
-
-One of the most straightforward ways to obtain a Haneul address for first-time users is through the [Haneul Wallet Chrome browser extension](https://chrome.google.com/webstore/detail/haneul-wallet/opcgpfmipidbgpenhmajoajpbobppdil). After you install the extension, there are several ways to create an address. 
-
-Open the Chrome Haneul Wallet browser extension and then:
-- Use your gmail/twitch/facebook account (ZkLogin) and follow the on-screen instructions
-- Click **More Options** → **Create a new passphrase account**. Then follow the on-screen instructions. 
-
-For more information on the Haneul Wallet and how to keep it secure, see the [Haneul Wallet documentation](https://haneullabs-docs-site.vercel.app/wallet). 
-
 ### Command line interface
 
 If you are using the Haneul command line interface (CLI) to interact with the Haneul network, you can use the `haneul client` command to generate a new address. By default, when the Haneul CLI runs for the first time it will prompt you to set up your local wallet, and then it generates one Haneul address and the associated secret recovery phrase. Make sure you write down the secret recovery phrase and store it in a safe place. 
-
 
 To generate a new Haneul address use `haneul client new-address ed25519`, which specifies the keypair scheme flag to be of type `ed25519`.
 
@@ -42,3 +31,22 @@ To see all the generated addresses in the local wallet on your machine, run `han
 The private keys associated with the Haneul addresses are stored locally on the machine where the CLI is installed, in the `~/.haneul/haneul_config/haneul.keystore` file. Make sure you do not expose this to anyone, as they can use it to get access to your account.
 
 :::
+
+### Haneul wallets
+
+One of the most straightforward ways to obtain a Haneul address for first-time users is through wallets that access the Haneul network. Unlike the cli option, wallets connected to the Haneul network provide visual workflows that might be preferable to some users. The Haneul Foundation does not offer this type of wallet, but there are several options available from builders on the Haneul network. 
+
+The following Chrome extension wallets integrate with your browser and have a UI workflow that walks you through the process of creating an address. Consult documentation for your chosen extension for the exact process of obtaining an address.
+
+:::info
+
+Links to these extensions are provided for your convenience. Their inclusion is not an endorsement, recommendation, or approval of any kind. Perform your own due diligence before making a decision on what extension to use.
+
+:::
+
+- [Slush — A Haneul wallet](https://chromewebstore.google.com/detail/haneul-wallet/opcgpfmipidbgpenhmajoajpbobppdil): Formerly known as Haneul Wallet, Slush is a wallet from the same team that built Haneul - Haneul Labs.
+- [Haneulet | Haneul Wallet](https://chromewebstore.google.com/detail/haneulet-haneul-wallet/khpkpbbcccdmmclmpigdgddabeilkdpd): The Haneulet wallet for everyone, built on the Haneul blockchain. 
+- [Glass wallet](https://chromewebstore.google.com/detail/glass-wallet-haneul-wallet/loinekcabhlmhjjbocijdoimmejangoa): Glass Wallet is a non-custodial wallet that allows you to control your coins, keys, and NFT securely.
+- [Martian Aptos & Haneul Wallet Extension](https://chromewebstore.google.com/detail/martian-aptos-haneul-wallet/efbglgofoippbgcjepnhiblaibcnclgk): Martian is a self-custodial crypto wallet for Aptos and Haneul.
+- [Surf Wallet](https://chromewebstore.google.com/detail/surf-wallet/emeeapjkbcbpbpgaagfchmcgglmebnen): Surf Wallet is a platform that allows for convenient and secure transfer of tokens and collection of NFTs on the blockchain.
+- Visit the [chrome web store](https://chromewebstore.google.com/search/haneul%20wallet) for a complete list of available Haneul wallet extensions.
