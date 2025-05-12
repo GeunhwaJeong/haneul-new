@@ -21,6 +21,10 @@ module a::m {
     public fun t4(p: &mut UID, s: Receiving<other::S>): other::S {
         transfer::receive(p, s)
     }
+
+    public fun t6(s: other::S, p: haneul::party::Party) {
+        transfer::party_transfer(s, p);
+    }
 }
 
 module a::other {
@@ -48,6 +52,14 @@ module haneul::transfer {
         abort 0
     }
 
+    public fun party_transfer<T: key>(_: T, _: haneul::party::Party) {
+        abort 0
+    }
+
+    public fun public_party_transfer<T: key + store>(_: T, _: haneul::party::Party) {
+        abort 0
+    }
+
     public fun freeze_object<T: key>(_: T) {
         abort 0
     }
@@ -71,4 +83,8 @@ module haneul::transfer {
     public fun public_receive<T: key + store>(_: &mut UID, _: Receiving<T>): T {
         abort 0
     }
+}
+
+module haneul::party {
+    struct Party has copy, drop {}
 }

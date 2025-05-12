@@ -94,6 +94,7 @@ control over the currency which a simple open-loop system can't provide.
 <b>use</b> <a href="../haneul/event.md#haneul_event">haneul::event</a>;
 <b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
 <b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;
+<b>use</b> <a href="../haneul/party.md#haneul_party">haneul::party</a>;
 <b>use</b> <a href="../haneul/table.md#haneul_table">haneul::table</a>;
 <b>use</b> <a href="../haneul/transfer.md#haneul_transfer">haneul::transfer</a>;
 <b>use</b> <a href="../haneul/tx_context.md#haneul_tx_context">haneul::tx_context</a>;

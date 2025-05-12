@@ -98,12 +98,14 @@ title: Module `deepbook::clob_v2`
 <b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
 <b>use</b> <a href="../haneul/linked_table.md#haneul_linked_table">haneul::linked_table</a>;
 <b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;
+<b>use</b> <a href="../haneul/party.md#haneul_party">haneul::party</a>;
 <b>use</b> <a href="../haneul/haneul.md#haneul_haneul">haneul::haneul</a>;
 <b>use</b> <a href="../haneul/table.md#haneul_table">haneul::table</a>;
 <b>use</b> <a href="../haneul/transfer.md#haneul_transfer">haneul::transfer</a>;
 <b>use</b> <a href="../haneul/tx_context.md#haneul_tx_context">haneul::tx_context</a>;
 <b>use</b> <a href="../haneul/types.md#haneul_types">haneul::types</a>;
 <b>use</b> <a href="../haneul/url.md#haneul_url">haneul::url</a>;
+<b>use</b> <a href="../haneul/vec_map.md#haneul_vec_map">haneul::vec_map</a>;
 <b>use</b> <a href="../haneul/vec_set.md#haneul_vec_set">haneul::vec_set</a>;
 </code></pre>
 

@@ -8,6 +8,8 @@ title: Module `haneul::transfer`
 -  [Constants](#@Constants_0)
 -  [Function `transfer`](#haneul_transfer_transfer)
 -  [Function `public_transfer`](#haneul_transfer_public_transfer)
+-  [Function `party_transfer`](#haneul_transfer_party_transfer)
+-  [Function `public_party_transfer`](#haneul_transfer_public_party_transfer)
 -  [Function `freeze_object`](#haneul_transfer_freeze_object)
 -  [Function `public_freeze_object`](#haneul_transfer_public_freeze_object)
 -  [Function `share_object`](#haneul_transfer_share_object)
@@ -17,6 +19,7 @@ title: Module `haneul::transfer`
 -  [Function `receiving_object_id`](#haneul_transfer_receiving_object_id)
 -  [Function `freeze_object_impl`](#haneul_transfer_freeze_object_impl)
 -  [Function `share_object_impl`](#haneul_transfer_share_object_impl)
+-  [Function `party_transfer_impl`](#haneul_transfer_party_transfer_impl)
 -  [Function `transfer_impl`](#haneul_transfer_transfer_impl)
 -  [Function `receive_impl`](#haneul_transfer_receive_impl)
 
@@ -29,7 +32,9 @@ title: Module `haneul::transfer`
 <b>use</b> <a href="../haneul/address.md#haneul_address">haneul::address</a>;
 <b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
 <b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;
+<b>use</b> <a href="../haneul/party.md#haneul_party">haneul::party</a>;
 <b>use</b> <a href="../haneul/tx_context.md#haneul_tx_context">haneul::tx_context</a>;
+<b>use</b> <a href="../haneul/vec_map.md#haneul_vec_map">haneul::vec_map</a>;
 </code></pre>
 
 
@@ -129,6 +134,26 @@ Shared object operations such as wrapping, freezing, and converting to owned are
 
 
 
+<a name="haneul_transfer_ENotSupported"></a>
+
+Operation is not yet supported by the network. The functionality might still be in development.
+
+
+<pre><code><b>const</b> <a href="../haneul/transfer.md#haneul_transfer_ENotSupported">ENotSupported</a>: u64 = 5;
+</code></pre>
+
+
+
+<a name="haneul_transfer_EInvalidPartyPermissions"></a>
+
+
+
+<pre><code>#[error]
+<b>const</b> <a href="../haneul/transfer.md#haneul_transfer_EInvalidPartyPermissions">EInvalidPartyPermissions</a>: vector&lt;u8&gt; = b"Party <a href="../haneul/transfer.md#haneul_transfer">transfer</a> is currently limited to one <a href="../haneul/party.md#haneul_party">party</a>.";
+</code></pre>
+
+
+
 <a name="haneul_transfer_transfer"></a>
 
 ## Function `transfer`
@@ -182,6 +207,80 @@ The object must have <code>store</code> to be transferred outside of its module.
 
 <pre><code><b>public</b> <b>fun</b> <a href="../haneul/transfer.md#haneul_transfer_public_transfer">public_transfer</a>&lt;T: key + store&gt;(obj: T, recipient: <b>address</b>) {
     <a href="../haneul/transfer.md#haneul_transfer_transfer_impl">transfer_impl</a>(obj, recipient)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_transfer_party_transfer"></a>
+
+## Function `party_transfer`
+
+NOT YET SUPPORTED. The function will abort with <code><a href="../haneul/transfer.md#haneul_transfer_ENotSupported">ENotSupported</a></code> if used on a network,
+e.g. mainnet, where party objects are not yet supported.
+Transfer ownership of <code>obj</code> to the <code><a href="../haneul/party.md#haneul_party">party</a></code>. This transfer behaves similar to both
+<code><a href="../haneul/transfer.md#haneul_transfer">transfer</a></code> and <code><a href="../haneul/transfer.md#haneul_transfer_share_object">share_object</a></code>. It is similar to <code><a href="../haneul/transfer.md#haneul_transfer">transfer</a></code> in that the object be authenticated
+only by the recipient(s), in this case the <code><a href="../haneul/party.md#haneul_party">party</a></code>. This means that only the members
+can use the object as an input to a transaction. It is similar to <code><a href="../haneul/transfer.md#haneul_transfer_share_object">share_object</a></code> two ways. One
+in that the object can potentially be used by anyone, as defined by the <code>default</code> permissions of
+the <code>Party</code> value. The other in that the object must be used in consensus and cannot be
+used in the fast path.
+This function has custom rules performed by the Haneul Move bytecode verifier that ensures that <code>T</code>
+is an object defined in the module where <code><a href="../haneul/transfer.md#haneul_transfer">transfer</a></code> is invoked. Use <code><a href="../haneul/transfer.md#haneul_transfer_public_party_transfer">public_party_transfer</a></code>
+to transfer an object with <code>store</code> outside of its module.
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/transfer.md#haneul_transfer_party_transfer">party_transfer</a>&lt;T: key&gt;(obj: T, <a href="../haneul/party.md#haneul_party">party</a>: <a href="../haneul/party.md#haneul_party_Party">haneul::party::Party</a>)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/transfer.md#haneul_transfer_party_transfer">party_transfer</a>&lt;T: key&gt;(obj: T, <a href="../haneul/party.md#haneul_party">party</a>: <a href="../haneul/party.md#haneul_party_Party">haneul::party::Party</a>) {
+    <b>assert</b>!(<a href="../haneul/party.md#haneul_party">party</a>.is_single_owner(), <a href="../haneul/transfer.md#haneul_transfer_EInvalidPartyPermissions">EInvalidPartyPermissions</a>);
+    <b>let</b> (default, addresses, permissions) = <a href="../haneul/party.md#haneul_party">party</a>.into_native();
+    <a href="../haneul/transfer.md#haneul_transfer_party_transfer_impl">party_transfer_impl</a>(obj, default, addresses, permissions)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_transfer_public_party_transfer"></a>
+
+## Function `public_party_transfer`
+
+NOT YET SUPPORTED. The function will abort with <code><a href="../haneul/transfer.md#haneul_transfer_ENotSupported">ENotSupported</a></code> if used on a network,
+e.g. mainnet, where party objects are not yet supported.
+Transfer ownership of <code>obj</code> to the <code><a href="../haneul/party.md#haneul_party">party</a></code>. This transfer behaves similar to both
+<code><a href="../haneul/transfer.md#haneul_transfer">transfer</a></code> and <code><a href="../haneul/transfer.md#haneul_transfer_share_object">share_object</a></code>. It is similar to <code><a href="../haneul/transfer.md#haneul_transfer">transfer</a></code> in that the object be authenticated
+only by the recipient(s), in this case the <code><a href="../haneul/party.md#haneul_party">party</a></code>. This means that only the members
+can use the object as an input to a transaction. It is similar to <code><a href="../haneul/transfer.md#haneul_transfer_share_object">share_object</a></code> two ways. One
+in that the object can potentially be used by anyone, as defined by the <code>default</code> permissions of
+the <code>Party</code> value. The other in that the object must be used in consensus and cannot be
+used in the fast path.
+The object must have <code>store</code> to be transferred outside of its module.
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/transfer.md#haneul_transfer_public_party_transfer">public_party_transfer</a>&lt;T: key, store&gt;(obj: T, <a href="../haneul/party.md#haneul_party">party</a>: <a href="../haneul/party.md#haneul_party_Party">haneul::party::Party</a>)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/transfer.md#haneul_transfer_public_party_transfer">public_party_transfer</a>&lt;T: key + store&gt;(obj: T, <a href="../haneul/party.md#haneul_party">party</a>: <a href="../haneul/party.md#haneul_party_Party">haneul::party::Party</a>) {
+    <b>assert</b>!(<a href="../haneul/party.md#haneul_party">party</a>.is_single_owner(), <a href="../haneul/transfer.md#haneul_transfer_EInvalidPartyPermissions">EInvalidPartyPermissions</a>);
+    <b>let</b> (default, addresses, permissions) = <a href="../haneul/party.md#haneul_party">party</a>.into_native();
+    <a href="../haneul/transfer.md#haneul_transfer_party_transfer_impl">party_transfer_impl</a>(obj, default, addresses, permissions)
 }
 </code></pre>
 
@@ -428,6 +527,33 @@ Return the object ID that the given <code><a href="../haneul/transfer.md#haneul_
 
 
 <pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>native</b> <b>fun</b> <a href="../haneul/transfer.md#haneul_transfer_share_object_impl">share_object_impl</a>&lt;T: key&gt;(obj: T);
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_transfer_party_transfer_impl"></a>
+
+## Function `party_transfer_impl`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/transfer.md#haneul_transfer_party_transfer_impl">party_transfer_impl</a>&lt;T: key&gt;(obj: T, default_permissions: u64, addresses: vector&lt;<b>address</b>&gt;, permissions: vector&lt;u64&gt;)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>native</b> <b>fun</b> <a href="../haneul/transfer.md#haneul_transfer_party_transfer_impl">party_transfer_impl</a>&lt;T: key&gt;(
+    obj: T,
+    default_permissions: u64,
+    addresses: vector&lt;<b>address</b>&gt;,
+    permissions: vector&lt;u64&gt;,
+);
 </code></pre>
 
 
