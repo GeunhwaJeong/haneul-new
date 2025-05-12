@@ -75,7 +75,6 @@ typed-store.workspace = true
 
 haneullabs-metrics.workspace = true
 shared-crypto.workspace = true
-haneul-archival.workspace = true
 haneul-config.workspace = true
 haneul-authority-aggregation.workspace = true
 haneul-execution.workspace = true

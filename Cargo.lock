@@ -13259,37 +13259,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "haneul-archival"
-version = "1.49.0"
-dependencies = [
- "anyhow",
- "byteorder",
- "bytes",
- "ed25519-consensus",
- "fastcrypto",
- "futures",
- "indicatif",
- "more-asserts",
- "move-binary-format",
- "move-core-types",
- "num_enum 0.6.1",
- "object_store",
- "prometheus",
- "rand 0.8.5",
- "serde",
- "serde_json",
- "haneul-config",
- "haneul-macros",
- "haneul-simulator",
- "haneul-storage",
- "haneul-swarm-config",
- "haneul-types",
- "tempfile",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "haneul-authority-aggregation"
 version = "0.1.0"
 dependencies = [
@@ -13645,7 +13614,6 @@ dependencies = [
  "static_assertions",
  "strum 0.27.1",
  "strum_macros 0.27.1",
- "haneul-archival",
  "haneul-authority-aggregation",
  "haneul-config",
  "haneul-execution",
@@ -13718,7 +13686,6 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_yaml 0.8.26",
- "haneul-archival",
  "haneul-data-ingestion-core",
  "haneul-kvstore",
  "haneul-storage",
@@ -15137,7 +15104,6 @@ dependencies = [
  "rand 0.8.5",
  "serde",
  "shared-crypto",
- "haneul-archival",
  "haneul-config",
  "haneul-data-ingestion-core",
  "haneul-macros",

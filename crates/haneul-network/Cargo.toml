@@ -16,7 +16,6 @@ dashmap.workspace = true
 tower.workspace = true
 shared-crypto.workspace = true
 
-haneul-archival.workspace = true
 haneul-macros.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true

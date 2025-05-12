@@ -26,7 +26,6 @@ prometheus.workspace = true
 telemetry-subscribers.workspace = true
 tokio = { workspace = true, features = ["full"] }
 tracing.workspace = true
-haneul-archival.workspace = true
 haneul-storage.workspace = true
 haneul-data-ingestion-core.workspace = true
 haneul-kvstore.workspace = true

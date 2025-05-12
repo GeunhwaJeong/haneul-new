@@ -52,7 +52,6 @@ scripts/simtest/cargo-simtest simtest \
   --color always \
   --test-threads "$NUM_CPUS" \
   --package haneul-core \
-  --package haneul-archival \
   --package haneul-e2e-tests \
   --profile simtestnightly \
   -E "$TEST_FILTER" 2>&1 | tee "$LOG_FILE"
