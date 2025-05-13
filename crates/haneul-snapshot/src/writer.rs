@@ -24,13 +24,13 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use haneul_config::object_storage_config::ObjectStoreConfig;
 use haneul_core::authority::authority_store_tables::{AuthorityPerpetualTables, LiveObject};
-use haneul_core::state_accumulator::StateAccumulator;
+use haneul_core::global_state_hasher::GlobalStateHasher;
 use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
 use haneul_storage::blob::{Blob, BlobEncoding, BLOB_ENCODING_BYTES};
 use haneul_storage::object_store::util::{copy_file, delete_recursively, path_to_filesystem};
-use haneul_types::accumulator::Accumulator;
 use haneul_types::base_types::{ObjectID, ObjectRef};
 use haneul_types::digests::ChainIdentifier;
+use haneul_types::global_state_hash::GlobalStateHash;
 use haneul_types::messages_checkpoint::ECMHLiveObjectSetDigest;
 use haneul_types::haneul_system_state::get_haneul_system_state;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
@@ -379,9 +379,9 @@ impl StateSnapshotWriterV1 {
         let mut object_writers: HashMap<u32, LiveObjectSetWriterV1> = HashMap::new();
         let local_staging_dir_path =
             path_to_filesystem(self.local_staging_dir.clone(), &self.epoch_dir(epoch))?;
-        let mut acc = Accumulator::default();
+        let mut acc = GlobalStateHash::default();
         for object in perpetual_db.iter_live_object_set(include_wrapped_tombstone) {
-            StateAccumulator::accumulate_live_object(&mut acc, &object);
+            GlobalStateHasher::accumulate_live_object(&mut acc, &object);
             let bucket_num = bucket_func(&object);
             if let Vacant(entry) = object_writers.entry(bucket_num) {
                 entry.insert(LiveObjectSetWriterV1::new(

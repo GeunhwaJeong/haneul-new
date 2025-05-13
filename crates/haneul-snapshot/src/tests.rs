@@ -12,10 +12,10 @@ use std::num::NonZeroUsize;
 use std::sync::Arc;
 use haneul_config::object_storage_config::{ObjectStoreConfig, ObjectStoreType};
 use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
-use haneul_core::state_accumulator::StateAccumulator;
+use haneul_core::global_state_hasher::GlobalStateHasher;
 use haneul_protocol_config::ProtocolConfig;
-use haneul_types::accumulator::Accumulator;
 use haneul_types::base_types::ObjectID;
+use haneul_types::global_state_hash::GlobalStateHash;
 use haneul_types::messages_checkpoint::ECMHLiveObjectSetDigest;
 use haneul_types::object::Object;
 use tempfile::tempdir;
@@ -58,12 +58,12 @@ fn compare_live_objects(
 fn accumulate_live_object_set(
     perpetual_db: &AuthorityPerpetualTables,
     include_wrapped_tombstone: bool,
-) -> Accumulator {
-    let mut acc = Accumulator::default();
+) -> GlobalStateHash {
+    let mut acc = GlobalStateHash::default();
     perpetual_db
         .iter_live_object_set(include_wrapped_tombstone)
         .for_each(|live_object| {
-            StateAccumulator::accumulate_live_object(&mut acc, &live_object);
+            GlobalStateHasher::accumulate_live_object(&mut acc, &live_object);
         });
     acc
 }

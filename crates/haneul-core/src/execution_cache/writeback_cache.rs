@@ -46,7 +46,7 @@ use crate::authority::backpressure::BackpressureManager;
 use crate::authority::epoch_start_configuration::{EpochFlag, EpochStartConfiguration};
 use crate::authority::AuthorityStore;
 use crate::fallback_fetch::{do_fallback_lookup, do_fallback_lookup_fallible};
-use crate::state_accumulator::AccumulatorStore;
+use crate::global_state_hasher::GlobalStateHashStore;
 use crate::transaction_outputs::TransactionOutputs;
 
 use dashmap::mapref::entry::Entry as DashMapEntry;
@@ -63,7 +63,6 @@ use std::sync::Arc;
 use haneul_config::ExecutionCacheConfig;
 use haneul_macros::fail_point;
 use haneul_protocol_config::ProtocolVersion;
-use haneul_types::accumulator::Accumulator;
 use haneul_types::base_types::{
     EpochId, FullObjectID, ObjectID, ObjectRef, SequenceNumber, VerifiedExecutionData,
 };
@@ -72,6 +71,7 @@ use haneul_types::digests::{ObjectDigest, TransactionDigest, TransactionEffectsD
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
+use haneul_types::global_state_hash::GlobalStateHash;
 use haneul_types::message_envelope::Message;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::object::Object;
@@ -2178,7 +2178,7 @@ impl ExecutionCacheWrite for WritebackCache {
 
 implement_passthrough_traits!(WritebackCache);
 
-impl AccumulatorStore for WritebackCache {
+impl GlobalStateHashStore for WritebackCache {
     fn get_object_ref_prior_to_key_deprecated(
         &self,
         object_id: &ObjectID,
@@ -2231,27 +2231,27 @@ impl AccumulatorStore for WritebackCache {
         Ok(candidates.pop())
     }
 
-    fn get_root_state_accumulator_for_epoch(
+    fn get_root_state_hash_for_epoch(
         &self,
         epoch: EpochId,
-    ) -> HaneulResult<Option<(CheckpointSequenceNumber, Accumulator)>> {
-        self.store.get_root_state_accumulator_for_epoch(epoch)
+    ) -> HaneulResult<Option<(CheckpointSequenceNumber, GlobalStateHash)>> {
+        self.store.get_root_state_hash_for_epoch(epoch)
     }
 
-    fn get_root_state_accumulator_for_highest_epoch(
+    fn get_root_state_hash_for_highest_epoch(
         &self,
-    ) -> HaneulResult<Option<(EpochId, (CheckpointSequenceNumber, Accumulator))>> {
-        self.store.get_root_state_accumulator_for_highest_epoch()
+    ) -> HaneulResult<Option<(EpochId, (CheckpointSequenceNumber, GlobalStateHash))>> {
+        self.store.get_root_state_hash_for_highest_epoch()
     }
 
-    fn insert_state_accumulator_for_epoch(
+    fn insert_state_hash_for_epoch(
         &self,
         epoch: EpochId,
         checkpoint_seq_num: &CheckpointSequenceNumber,
-        acc: &Accumulator,
+        acc: &GlobalStateHash,
     ) -> HaneulResult {
         self.store
-            .insert_state_accumulator_for_epoch(epoch, checkpoint_seq_num, acc)
+            .insert_state_hash_for_epoch(epoch, checkpoint_seq_num, acc)
     }
 
     fn iter_live_object_set(

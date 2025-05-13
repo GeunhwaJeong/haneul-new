@@ -29,12 +29,12 @@ use haneul_core::authority::epoch_start_configuration::EpochFlag;
 use haneul_core::authority::epoch_start_configuration::EpochStartConfiguration;
 use haneul_core::checkpoints::CheckpointStore;
 use haneul_core::epoch::committee_store::CommitteeStore;
-use haneul_core::state_accumulator::WrappedObject;
+use haneul_core::global_state_hasher::WrappedObject;
 use haneul_protocol_config::Chain;
 use haneul_storage::object_store::util::path_to_filesystem;
 use haneul_storage::{compute_sha3_checksum, FileCompression, SHA3_BYTES};
-use haneul_types::accumulator::Accumulator;
 use haneul_types::base_types::ObjectID;
+use haneul_types::global_state_hash::GlobalStateHash;
 use haneul_types::messages_checkpoint::ECMHLiveObjectSetDigest;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::get_haneul_system_state;
@@ -227,7 +227,7 @@ pub fn create_file_metadata(
 
 pub async fn setup_db_state(
     epoch: u64,
-    accumulator: Accumulator,
+    accumulator: GlobalStateHash,
     perpetual_db: Arc<AuthorityPerpetualTables>,
     checkpoint_store: Arc<CheckpointStore>,
     committee_store: Arc<CommitteeStore>,
@@ -291,7 +291,7 @@ pub async fn accumulate_live_object_iter(
     iter: Box<dyn Iterator<Item = LiveObject> + '_>,
     m: MultiProgress,
     num_live_objects: u64,
-) -> Accumulator {
+) -> GlobalStateHash {
     // Monitor progress of live object accumulation
     let accum_progress_bar = m.add(ProgressBar::new(num_live_objects).with_style(
         ProgressStyle::with_template("[{elapsed_precise}] {wide_bar} {pos}/{len} ({msg})").unwrap(),
@@ -321,7 +321,7 @@ pub async fn accumulate_live_object_iter(
     });
 
     // Accumulate live objects
-    let mut acc = Accumulator::default();
+    let mut acc = GlobalStateHash::default();
     for live_object in iter {
         match live_object {
             LiveObject::Normal(object) => {
