@@ -4,24 +4,22 @@
 use diesel::associations::HasTable;
 use diesel::QueryDsl;
 use diesel_async::RunQueryDsl;
-use diesel_migrations::{embed_migrations, EmbeddedMigrations};
 use prometheus::Registry;
 use std::time::Duration;
 use haneul_bridge::e2e_tests::test_utils::{
     initiate_bridge_eth_to_haneul, BridgeTestCluster, BridgeTestClusterBuilder,
 };
 use haneul_bridge_indexer::config::IndexerConfig;
+use haneul_bridge_indexer::create_haneul_indexer;
 use haneul_bridge_indexer::metrics::BridgeIndexerMetrics;
-use haneul_bridge_indexer::models::{GovernanceAction, TokenTransfer};
 use haneul_bridge_indexer::postgres_manager::get_connection_pool;
 use haneul_bridge_indexer::storage::PgBridgePersistent;
-use haneul_bridge_indexer::{create_haneul_indexer, schema};
+use haneul_bridge_schema::models::{GovernanceAction, TokenTransfer};
+use haneul_bridge_schema::{schema, MIGRATIONS};
 use haneul_data_ingestion_core::DataIngestionMetrics;
 use haneul_indexer::database::Connection;
 use haneul_indexer_builder::indexer_builder::IndexerProgressStore;
 use haneul_pg_db::temp::TempDb;
-
-const MIGRATIONS: EmbeddedMigrations = embed_migrations!("src/migrations");
 
 #[tokio::test]
 async fn test_indexing_transfer() {

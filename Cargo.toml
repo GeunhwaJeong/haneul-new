@@ -96,6 +96,7 @@ members = [
   "crates/haneul-bridge",
   "crates/haneul-bridge-cli",
   "crates/haneul-bridge-indexer",
+  "crates/haneul-bridge-schema",
   "crates/haneul-cluster-test",
   "crates/haneul-config",
   "crates/haneul-core",
@@ -668,6 +669,7 @@ haneul-analytics-indexer-derive = { path = "crates/haneul-analytics-indexer-deri
 haneul-authority-aggregation = { path = "crates/haneul-authority-aggregation" }
 haneul-benchmark = { path = "crates/haneul-benchmark" }
 haneul-bridge = { path = "crates/haneul-bridge" }
+haneul-bridge-schema = { path = "crates/haneul-bridge-schema" }
 haneul-cluster-test = { path = "crates/haneul-cluster-test" }
 haneul-config = { path = "crates/haneul-config" }
 haneul-core = { path = "crates/haneul-core", features = ["rocksdb"] }

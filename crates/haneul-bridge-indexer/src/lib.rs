@@ -6,9 +6,6 @@ use crate::eth_bridge_indexer::{
     EthDataMapper, EthFinalizedSyncDatasource, EthSubscriptionDatasource,
 };
 use crate::metrics::BridgeIndexerMetrics;
-use crate::models::GovernanceAction as DBGovernanceAction;
-use crate::models::TokenTransferData as DBTokenTransferData;
-use crate::models::{HaneulErrorTransactions, TokenTransfer as DBTokenTransfer};
 use crate::postgres_manager::PgPool;
 use crate::storage::PgBridgePersistent;
 use crate::haneul_bridge_indexer::HaneulBridgeDataMapper;
@@ -22,6 +19,9 @@ use haneul_bridge::eth_client::EthClient;
 use haneul_bridge::metered_eth_provider::MeteredEthHttpProvier;
 use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge::utils::get_eth_contract_addresses;
+use haneul_bridge_schema::models::GovernanceAction as DBGovernanceAction;
+use haneul_bridge_schema::models::TokenTransferData as DBTokenTransferData;
+use haneul_bridge_schema::models::{HaneulErrorTransactions, TokenTransfer as DBTokenTransfer};
 use haneul_data_ingestion_core::DataIngestionMetrics;
 use haneul_indexer_builder::indexer_builder::{BackfillStrategy, Datasource, Indexer, IndexerBuilder};
 use haneul_indexer_builder::metrics::IndexerMetricProvider;
@@ -34,9 +34,7 @@ use haneul_types::base_types::{HaneulAddress, TransactionDigest};
 
 pub mod config;
 pub mod metrics;
-pub mod models;
 pub mod postgres_manager;
-pub mod schema;
 pub mod storage;
 pub mod haneul_transaction_handler;
 pub mod haneul_transaction_queries;

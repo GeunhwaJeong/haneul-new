@@ -1,11 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::models::HaneulProgressStore;
-use crate::schema::governance_actions;
-use crate::schema::haneul_progress_store::txn_digest;
-use crate::schema::{haneul_error_transactions, token_transfer_data};
-use crate::{schema, schema::token_transfer, ProcessedTxnData};
+use crate::ProcessedTxnData;
 use diesel::query_dsl::methods::FilterDsl;
 use diesel::upsert::excluded;
 use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, SelectableHelper};
@@ -15,6 +11,11 @@ use diesel_async::scoped_futures::ScopedFutureExt;
 use diesel_async::AsyncConnection;
 use diesel_async::AsyncPgConnection;
 use diesel_async::RunQueryDsl;
+use haneul_bridge_schema::models::HaneulProgressStore;
+use haneul_bridge_schema::schema::governance_actions;
+use haneul_bridge_schema::schema::haneul_progress_store::txn_digest;
+use haneul_bridge_schema::schema::{haneul_error_transactions, token_transfer_data};
+use haneul_bridge_schema::{schema, schema::token_transfer};
 use haneul_types::digests::TransactionDigest;
 
 pub(crate) type PgPool =
@@ -147,7 +148,7 @@ pub async fn update_haneul_progress_store(
 
 pub async fn read_haneul_progress_store(pool: &PgPool) -> anyhow::Result<Option<TransactionDigest>> {
     let mut conn = pool.get().await?;
-    let val: Option<HaneulProgressStore> = crate::schema::haneul_progress_store::dsl::haneul_progress_store
+    let val: Option<HaneulProgressStore> = schema::haneul_progress_store::dsl::haneul_progress_store
         .select(HaneulProgressStore::as_select())
         .first(&mut conn)
         .await
