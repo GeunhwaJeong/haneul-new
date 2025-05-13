@@ -18,19 +18,19 @@ const STAKER_ADDR_1: address = @42;
 const STAKER_ADDR_2: address = @43;
 const STAKER_ADDR_3: address = @44;
 
-const NEW_VALIDATOR_ADDR: address =
-    @0x1a4623343cd42be47d67314fce0ad042f3c82685544bc91d8c11d24e74ba7357;
-
+// prettier-ignore
+const NEW_VALIDATOR_ADDR: address = @0x1a4623343cd42be47d67314fce0ad042f3c82685544bc91d8c11d24e74ba7357;
 const GEUNHWA_PER_HANEUL: u64 = 1_000_000_000;
 
 #[test]
-fun test_split_join_staked_haneul() {
-    let mut runner = test_runner::new()
-        .validators(vector[
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1),
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_2),
-        ])
-        .build();
+// Scenario:
+// 1. Stake 60 HANEUL to VALIDATOR_ADDR_1
+// 2. Split the stake into 20 and 40
+// 3. Join the 20 and 40 back together
+// 4. Check that the stake is 60 again
+fun split_join_staked_haneul() {
+    let validator = validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1);
+    let mut runner = test_runner::new().validators(vector[validator]).build();
 
     runner.set_sender(STAKER_ADDR_1).stake_with(VALIDATOR_ADDR_1, 60);
 
@@ -53,17 +53,18 @@ fun test_split_join_staked_haneul() {
         runner.keep(stake_1);
     });
 
+    runner.owned_tx!<StakedHaneul>(|stake| {
+        assert_eq!(stake.amount(), 60 * GEUNHWA_PER_HANEUL);
+        runner.keep(stake);
+    });
+
     runner.finish();
 }
 
 #[test, expected_failure(abort_code = staking_pool::EIncompatibleStakedHaneul)]
-fun test_join_different_epochs() {
-    let mut runner = test_runner::new()
-        .validators(vector[
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1),
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_2),
-        ])
-        .build();
+fun join_different_epochs() {
+    let validator = validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1);
+    let mut runner = test_runner::new().validators(vector[validator]).build();
 
     // stake 1
     runner.set_sender(STAKER_ADDR_1).stake_with(VALIDATOR_ADDR_1, 60);
@@ -83,13 +84,9 @@ fun test_join_different_epochs() {
 }
 
 #[test, expected_failure(abort_code = staking_pool::EStakedHaneulBelowThreshold)]
-fun test_split_below_threshold() {
-    let mut runner = test_runner::new()
-        .validators(vector[
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1),
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_2),
-        ])
-        .build();
+fun split_below_threshold() {
+    let validator = validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1);
+    let mut runner = test_runner::new().validators(vector[validator]).build();
 
     // Stake 2 HANEUL to the validator.
     runner.set_sender(STAKER_ADDR_1).stake_with(VALIDATOR_ADDR_1, 2);
@@ -102,13 +99,9 @@ fun test_split_below_threshold() {
 }
 
 #[test, expected_failure(abort_code = staking_pool::EStakedHaneulBelowThreshold)]
-fun test_split_nonentry_below_threshold() {
-    let mut runner = test_runner::new()
-        .validators(vector[
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1),
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_2),
-        ])
-        .build();
+fun split_nonentry_below_threshold() {
+    let validator = validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1);
+    let mut runner = test_runner::new().validators(vector[validator]).build();
 
     // Stake 2 HANEUL to the validator.
     runner.set_sender(STAKER_ADDR_1).stake_with(VALIDATOR_ADDR_1, 2);
@@ -128,7 +121,7 @@ fun test_split_nonentry_below_threshold() {
 // 4. Check that the stake is added to the validator
 // 5. Withdraw the stake and advance epoch
 // 6. Check that the stake is not added to the validator again
-fun test_add_remove_stake_flow() {
+fun add_remove_stake_flow() {
     let mut runner = test_runner::new()
         .validators(vector[
             validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1),
@@ -171,13 +164,13 @@ fun test_add_remove_stake_flow() {
 }
 
 #[test]
-fun test_remove_stake_post_active_flow_no_rewards() {
-    test_remove_stake_post_active_flow(false)
+fun remove_stake_post_active_flow_no_rewards() {
+    remove_stake_post_active_flow(false)
 }
 
 #[test]
-fun test_remove_stake_post_active_flow_with_rewards() {
-    test_remove_stake_post_active_flow(true)
+fun remove_stake_post_active_flow_with_rewards() {
+    remove_stake_post_active_flow(true)
 }
 
 // Scenario:
@@ -187,7 +180,7 @@ fun test_remove_stake_post_active_flow_with_rewards() {
 // 4. Remove the validator and advance epoch
 // 5. Check that the stake is withdrawn immediately
 // 6. Check that the validator unstakes and gets the rewards
-fun test_remove_stake_post_active_flow(should_distribute_rewards: bool) {
+fun remove_stake_post_active_flow(should_distribute_rewards: bool) {
     let mut runner = test_runner::new()
         .validators(vector[
             validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1),
@@ -228,9 +221,9 @@ fun test_remove_stake_post_active_flow(should_distribute_rewards: bool) {
     runner.set_sender(STAKER_ADDR_1);
     runner.owned_tx!<StakedHaneul>(|stake| {
         assert_eq!(stake.amount(), 100 * GEUNHWA_PER_HANEUL);
-        runner.system_tx!(|system, _| {
+        runner.system_tx!(|system, ctx| {
             assert!(!system.validators().is_active_validator_by_haneul_address(VALIDATOR_ADDR_1));
-            system.request_withdraw_stake(stake, runner.ctx());
+            system.request_withdraw_stake(stake, ctx);
         });
     });
 
@@ -248,11 +241,11 @@ fun test_remove_stake_post_active_flow(should_distribute_rewards: bool) {
 }
 
 #[test]
-fun test_earns_rewards_at_last_epoch() {
+fun earns_rewards_at_last_epoch() {
     let mut runner = test_runner::new()
         .validators(vector[
             validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1),
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_2),
+            validator_builder::new().initial_stake(100),
         ])
         .haneul_supply_amount(300)
         .storage_fund_amount(100)
@@ -277,9 +270,9 @@ fun test_earns_rewards_at_last_epoch() {
     runner.set_sender(STAKER_ADDR_1);
     runner.owned_tx!<StakedHaneul>(|stake| {
         assert_eq!(stake.amount(), 100 * GEUNHWA_PER_HANEUL);
-        runner.system_tx!(|system, _| {
+        runner.system_tx!(|system, ctx| {
             // Make sure stake withdrawal happens
-            system.request_withdraw_stake(stake, runner.ctx());
+            system.request_withdraw_stake(stake, ctx);
         });
     });
 
@@ -298,11 +291,11 @@ fun test_earns_rewards_at_last_epoch() {
 }
 
 #[test, expected_failure(abort_code = validator_set::ENotAValidator)]
-fun test_add_stake_post_active_flow() {
+fun add_stake_post_active_flow() {
     let mut runner = test_runner::new()
         .validators(vector[
             validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1),
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_2),
+            validator_builder::new().initial_stake(100),
         ])
         .build();
 
@@ -335,14 +328,8 @@ fun test_add_stake_post_active_flow() {
 // 2. Stake 100 HANEUL to the validator candidate
 // 3. Advance epoch twice with some rewards
 // 4. Unstake from the preactive validator. There should be no rewards earned.
-fun test_add_preactive_remove_preactive() {
-    let mut runner = test_runner::new()
-        .validators(vector[
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1),
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_2),
-        ])
-        .build();
-
+fun add_preactive_remove_preactive() {
+    let mut runner = test_runner::new().validators_initial_stake(100).validators_count(2).build();
     let validator = validator_builder::preset().haneul_address(NEW_VALIDATOR_ADDR).build(runner.ctx());
 
     runner.add_validator_candidate(validator);
@@ -369,14 +356,8 @@ fun test_add_preactive_remove_preactive() {
 // 2. Stake 100 HANEUL to the validator candidate
 // 3. Request to add the validator candidate to the active validator set.
 // 4. Try staking to the validator candidate. This should fail because the validator candidate is pending.
-fun test_add_preactive_remove_pending_failure() {
-    let mut runner = test_runner::new()
-        .validators(vector[
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1),
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_2),
-        ])
-        .build();
-
+fun add_preactive_remove_pending_failure() {
+    let mut runner = test_runner::new().validators_initial_stake(100).validators_count(2).build();
     let validator = validator_builder::preset().haneul_address(NEW_VALIDATOR_ADDR).build(runner.ctx());
 
     // Add the validator candidate.
@@ -399,7 +380,7 @@ fun test_add_preactive_remove_pending_failure() {
 // 1. Add a validator candidate
 // 2. Perform different stake and unstake transactions in different epochs
 // 3. Make sure that the rewards are distributed correctly and proportionally
-fun test_add_preactive_remove_active() {
+fun add_preactive_remove_active() {
     let mut runner = test_runner::new()
         .validators(vector[
             validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1),
@@ -483,14 +464,8 @@ fun test_add_preactive_remove_active() {
 }
 
 #[test]
-fun test_add_preactive_remove_post_active() {
-    let mut runner = test_runner::new()
-        .validators(vector[
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1),
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_2),
-        ])
-        .build();
-
+fun add_preactive_remove_post_active() {
+    let mut runner = test_runner::new().validators_initial_stake(100).validators_count(2).build();
     let validator = validator_builder::preset().haneul_address(NEW_VALIDATOR_ADDR).build(runner.ctx());
 
     // Add the validator candidate.
@@ -523,6 +498,49 @@ fun test_add_preactive_remove_post_active() {
     runner.finish();
 }
 
+#[test, expected_failure]
+// TODO: fix the reason this test is failing as a separate feature
+fun add_remove_stake_preactive_candidate() {
+    let mut runner = test_runner::new().validators_initial_stake(100).validators_count(2).build();
+    let validator = validator_builder::preset().haneul_address(NEW_VALIDATOR_ADDR).build(runner.ctx());
+    runner.add_validator_candidate(validator);
+
+    // Stake 100 HANEUL to the validator candidate from each of the two stakers.
+    runner.set_sender(STAKER_ADDR_1).stake_with(NEW_VALIDATOR_ADDR, 100);
+    runner.set_sender(STAKER_ADDR_2).stake_with(NEW_VALIDATOR_ADDR, 100);
+
+    // Check values for the candidate.
+    runner.system_tx!(|system, _| {
+        let validator = system.validators().get_candidate_validator_ref(NEW_VALIDATOR_ADDR);
+
+        assert_eq!(validator.total_stake(), 200 * GEUNHWA_PER_HANEUL);
+        assert_eq!(validator.pending_stake_amount(), 0);
+        assert_eq!(validator.pending_stake_withdraw_amount(), 0);
+    });
+
+    // Withdraw the stake. And check that the stake is withdrawn and appears in the sender balance.
+    runner.set_sender(STAKER_ADDR_1).unstake(0);
+    assert_eq!(runner.haneul_balance(), 100 * GEUNHWA_PER_HANEUL);
+
+    // Advance epoch, so that the stake 2 becomes active.
+    runner.advance_epoch(option::none()).destroy_for_testing();
+
+    // Unstake and check that the stake is withdrawn immediately and appears in the sender balance.
+    runner.set_sender(STAKER_ADDR_2).unstake(0);
+    assert_eq!(runner.haneul_balance(), 100 * GEUNHWA_PER_HANEUL);
+
+    // Check that the stake is removed completely, and that no pending stake is present.
+    runner.system_tx!(|system, _| {
+        let validator = system.validators().get_candidate_validator_ref(NEW_VALIDATOR_ADDR);
+
+        assert_eq!(validator.total_stake(), 0);
+        assert_eq!(validator.pending_stake_amount(), 0);
+        assert_eq!(validator.pending_stake_withdraw_amount(), 0);
+    });
+
+    runner.finish();
+}
+
 #[test]
 // Scenario:
 // 1. Add a validator candidate
@@ -530,14 +548,8 @@ fun test_add_preactive_remove_post_active() {
 // 3. Advance epoch and give out some rewards. The candidate should get nothing.
 // 4. Remove the candidate
 // 5. Staker unstakes and gets no rewards.
-fun test_add_preactive_candidate_drop_out() {
-    let mut runner = test_runner::new()
-        .validators(vector[
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1),
-            validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_2),
-        ])
-        .build();
-
+fun add_preactive_candidate_drop_out() {
+    let mut runner = test_runner::new().validators_initial_stake(100).validators_count(2).build();
     let validator = validator_builder::preset().haneul_address(NEW_VALIDATOR_ADDR).build(runner.ctx());
     runner.add_validator_candidate(validator);
 
@@ -569,7 +581,7 @@ fun test_add_preactive_candidate_drop_out() {
 /// 2. Advance epoch.
 /// 3. Advance epoch with rewards.
 /// 4. Check the exchange rates in the system state.
-fun test_staking_pool_exchange_rate_getter() {
+fun staking_pool_exchange_rate_getter() {
     let mut runner = test_runner::new()
         .validators(vector[
             validator_builder::new().initial_stake(100).haneul_address(VALIDATOR_ADDR_1),
@@ -598,13 +610,16 @@ fun test_staking_pool_exchange_rate_getter() {
     runner.system_tx!(|system, _| {
         let rates = system.pool_exchange_rates(&pool_id);
         assert_eq!(rates.length(), 3);
-        assert_exchange_rate_eq(rates, 0, 0, 0); // no tokens at epoch 0
-        assert_exchange_rate_eq(rates, 1, 200, 200); // 200 HANEUL of self + delegate stake at epoch 1
-        assert_exchange_rate_eq(rates, 2, 210, 200); // 10 HANEUL of rewards at epoch 2
+        rates.assert_exchange_rate_eq(0, 0, 0); // no tokens at epoch 0
+        rates.assert_exchange_rate_eq(1, 200, 200); // 200 HANEUL of self + delegate stake at epoch 1
+        rates.assert_exchange_rate_eq(2, 210, 200); // 10 HANEUL of rewards at epoch 2
     });
 
     runner.finish();
 }
+
+// trick or treat
+use fun assert_exchange_rate_eq as Table.assert_exchange_rate_eq;
 
 fun assert_exchange_rate_eq(
     rates: &Table<u64, PoolTokenExchangeRate>,
