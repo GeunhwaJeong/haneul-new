@@ -44,7 +44,7 @@ Haneul is for the community. Contribute for the benefit of all.
 - [Repo contributing guidelines](https://docs.haneul.io/contribute-to-haneul-repos)
 - [Style guide](https://docs.haneul.io/style-guide)
 - [Localization](https://docs.haneul.io/localize-haneul-docs)
-- [Code of conduct](https://docs.haneul.io/contribute/code-of-conduct)
+- [Code of conduct](https://docs.haneul.io/code-of-conduct)
 
 ## License
 
