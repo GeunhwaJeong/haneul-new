@@ -57,7 +57,7 @@ use haneul_package_management::system_package_versions::latest_system_packages;
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_swarm::memory::Swarm;
-use haneul_swarm_config::genesis_config::{GenesisConfig, DEFAULT_NUMBER_OF_AUTHORITIES};
+use haneul_swarm_config::genesis_config::GenesisConfig;
 use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_swarm_config::network_config_builder::ConfigBuilder;
 use haneul_swarm_config::node_config_builder::FullnodeConfigBuilder;
@@ -742,9 +742,10 @@ async fn start(
     let config_dir = if force_regenesis {
         let committee_size = match committee_size {
             Some(x) => NonZeroUsize::new(x),
-            None => NonZeroUsize::new(DEFAULT_NUMBER_OF_AUTHORITIES),
+            None => NonZeroUsize::new(1),
         }
         .ok_or_else(|| anyhow!("Committee size must be at least 1."))?;
+        println!("committee_size: {}", committee_size);
         swarm_builder = swarm_builder.committee_size(committee_size);
         let genesis_config = GenesisConfig::custom_genesis(1, 100);
         swarm_builder = swarm_builder.with_genesis_config(genesis_config);
@@ -1126,7 +1127,7 @@ async fn genesis(
     }
     let committee_size = match committee_size {
         Some(x) => NonZeroUsize::new(x),
-        None => NonZeroUsize::new(DEFAULT_NUMBER_OF_AUTHORITIES),
+        None => NonZeroUsize::new(1),
     }
     .ok_or_else(|| anyhow!("Committee size must be at least 1."))?;
 
