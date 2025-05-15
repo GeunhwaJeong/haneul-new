@@ -7,13 +7,14 @@ pub use checked::*;
 mod checked {
     use crate::{
         adapter::substitute_package_id,
+        data_store::haneul_data_store::HaneulDataStore,
         execution_mode::ExecutionMode,
         execution_value::{
             CommandKind, ExecutionState, ObjectContents, ObjectValue, RawValueType, Value,
             ensure_serialized_size,
         },
         gas_charger::GasCharger,
-        programmable_transactions::{context::*, data_store::HaneulDataStore},
+        programmable_transactions::context::*,
         type_resolver::TypeTagResolver,
     };
     use move_binary_format::file_format::AbilitySet;
