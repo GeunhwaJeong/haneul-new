@@ -49,6 +49,7 @@ serde_with.workspace = true
 serde_yaml.workspace = true
 shared-crypto.workspace = true
 similar.workspace = true
+haneul-display.workspace = true
 haneul-name-service.workspace = true
 haneul-pg-db.workspace = true
 haneul-sdk.workspace = true
@@ -70,7 +71,6 @@ downcast = "0.11.0"
 haneul-default-config.workspace = true
 haneul-graphql-rpc-headers.workspace = true
 haneul-graphql-rpc-client.workspace = true
-
 
 # TODO: put these behind feature flag to prevent leakage
 # Used for dummy data

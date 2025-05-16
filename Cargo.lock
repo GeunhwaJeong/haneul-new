@@ -14232,6 +14232,7 @@ dependencies = [
  "similar",
  "simulacrum",
  "haneul-default-config",
+ "haneul-display",
  "haneul-framework",
  "haneul-graphql-rpc-client",
  "haneul-graphql-rpc-headers",
