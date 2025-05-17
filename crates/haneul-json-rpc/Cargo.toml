@@ -43,6 +43,7 @@ base64.workspace = true
 tap.workspace = true
 
 haneul-core.workspace = true
+haneul-display.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
 haneul-json.workspace = true

@@ -14763,6 +14763,7 @@ dependencies = [
  "signature 1.6.4",
  "haneul-config",
  "haneul-core",
+ "haneul-display",
  "haneul-json",
  "haneul-json-rpc-api",
  "haneul-json-rpc-types",
