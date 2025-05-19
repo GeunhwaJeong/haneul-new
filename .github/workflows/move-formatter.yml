@@ -25,6 +25,7 @@ jobs:
           - crates/haneul-framework/packages/haneul-framework # haneul framework
           - crates/haneul-framework/packages/move-stdlib # move stdlib
           - crates/haneul-framework/packages/haneul-system # haneul system
+          - crates/haneul-framework/packages/bridge # bridge
     defaults:
       run:
         working-directory: ${{ matrix.working-directory }}
