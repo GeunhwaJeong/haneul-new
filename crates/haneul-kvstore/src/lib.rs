@@ -6,6 +6,7 @@ use async_trait::async_trait;
 pub use bigtable::client::BigTableClient;
 pub use bigtable::progress_store::BigTableProgressStore;
 pub use bigtable::worker::KvWorker;
+use serde::{Deserialize, Serialize};
 use haneul_types::base_types::ObjectID;
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::AuthorityStrongQuorumSignInfo;
@@ -49,14 +50,14 @@ pub trait KeyValueStoreWriter {
     async fn save_epoch(&mut self, epoch: EpochInfo) -> Result<()>;
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Checkpoint {
     pub summary: CheckpointSummary,
     pub contents: CheckpointContents,
     pub signatures: AuthorityStrongQuorumSignInfo,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TransactionData {
     pub transaction: Transaction,
     pub effects: TransactionEffects,
