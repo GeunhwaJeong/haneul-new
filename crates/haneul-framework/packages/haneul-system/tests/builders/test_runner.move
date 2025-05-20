@@ -582,11 +582,7 @@ public fun staking_rewards_balance(runner: &mut TestRunner): u64 {
     scenario.next_tx(sender);
     let total_balance = scenario.ids_for_sender<StakedHaneul>().fold!(0, |mut sum, staked_haneul_id| {
         let staked_haneul = scenario.take_from_sender_by_id<StakedHaneul>(staked_haneul_id);
-        let validator = system.validator_address_by_pool_id(&staked_haneul.pool_id());
-        let rewards = system
-            .active_validator_by_address(validator)
-            .get_staking_pool_ref()
-            .calculate_rewards(&staked_haneul, current_epoch);
+        let rewards = system.calculate_rewards(&staked_haneul, current_epoch);
 
         sum = sum + rewards;
         scenario.return_to_sender(staked_haneul);

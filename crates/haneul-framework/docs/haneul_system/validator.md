@@ -869,7 +869,7 @@ Max gas price a validator can set is 100K GEUNHWA.
 
 ## Function `deactivate`
 
-Deactivate this validator's staking pool
+Mark Validator's <code>StakingPool</code> as inactive by setting the <code>deactivation_epoch</code>.
 
 
 <pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/validator.md#haneul_system_validator_deactivate">deactivate</a>(self: &<b>mut</b> <a href="../haneul_system/validator.md#haneul_system_validator_Validator">haneul_system::validator::Validator</a>, deactivation_epoch: u64)
@@ -894,6 +894,7 @@ Deactivate this validator's staking pool
 
 ## Function `activate`
 
+Activate Validator's <code>StakingPool</code> by setting the <code>activation_epoch</code>.
 
 
 <pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/validator.md#haneul_system_validator_activate">activate</a>(self: &<b>mut</b> <a href="../haneul_system/validator.md#haneul_system_validator_Validator">haneul_system::validator::Validator</a>, activation_epoch: u64)
@@ -1006,8 +1007,8 @@ Request to add stake to the validator's staking pool, processed at the end of th
     staked_haneul: StakedHaneul,
     ctx: &<b>mut</b> TxContext,
 ): FungibleStakedHaneul {
-    <b>let</b> stake_activation_epoch = staked_haneul.stake_activation_epoch();
-    <b>let</b> staked_haneul_principal_amount = staked_haneul.staked_haneul_amount();
+    <b>let</b> stake_activation_epoch = staked_haneul.activation_epoch();
+    <b>let</b> staked_haneul_principal_amount = staked_haneul.amount();
     <b>let</b> fungible_staked_haneul = self.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool">staking_pool</a>.<a href="../haneul_system/validator.md#haneul_system_validator_convert_to_fungible_staked_haneul">convert_to_fungible_staked_haneul</a>(staked_haneul, ctx);
     event::emit(<a href="../haneul_system/validator.md#haneul_system_validator_ConvertingToFungibleStakedHaneulEvent">ConvertingToFungibleStakedHaneulEvent</a> {
         pool_id: self.<a href="../haneul_system/validator.md#haneul_system_validator_staking_pool_id">staking_pool_id</a>(),
@@ -1118,8 +1119,8 @@ Request to withdraw stake from the validator's staking pool, processed at the en
     staked_haneul: StakedHaneul,
     ctx: &TxContext,
 ): Balance&lt;HANEUL&gt; {
-    <b>let</b> principal_amount = staked_haneul.staked_haneul_amount();
-    <b>let</b> stake_activation_epoch = staked_haneul.stake_activation_epoch();
+    <b>let</b> principal_amount = staked_haneul.amount();
+    <b>let</b> stake_activation_epoch = staked_haneul.activation_epoch();
     <b>let</b> withdrawn_stake = self.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool">staking_pool</a>.<a href="../haneul_system/validator.md#haneul_system_validator_request_withdraw_stake">request_withdraw_stake</a>(staked_haneul, ctx);
     <b>let</b> withdraw_amount = withdrawn_stake.value();
     <b>let</b> reward_amount = withdraw_amount - principal_amount;

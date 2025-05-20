@@ -155,11 +155,12 @@ public(package) fun request_withdraw_stake(
     staked_haneul: StakedHaneul,
     ctx: &TxContext,
 ): Balance<HANEUL> {
-    // stake is inactive
-    if (staked_haneul.stake_activation_epoch > ctx.epoch()) {
+    // stake is inactive and the pool is not preactive - allow direct withdraw
+    // the reason why we exclude preactive pools is to avoid potential underflow
+    // on subtraction, and we need to enforce `pending_stake_withdraw` call.
+    if (staked_haneul.stake_activation_epoch > ctx.epoch() && !pool.is_preactive()) {
         let principal = staked_haneul.into_balance();
         pool.pending_stake = pool.pending_stake - principal.value();
-
         return principal
     };
 
@@ -448,8 +449,12 @@ public fun fungible_staked_haneul_pool_id(fungible_staked_haneul: &FungibleStake
 /// Allows calling `.amount()` on `StakedHaneul` to invoke `staked_haneul_amount`
 public use fun staked_haneul_amount as StakedHaneul.amount;
 
+/// Returns the principal amount of `StakedHaneul`.
 public fun staked_haneul_amount(staked_haneul: &StakedHaneul): u64 { staked_haneul.principal.value() }
 
+public use fun stake_activation_epoch as StakedHaneul.activation_epoch;
+
+/// Returns the activation epoch of `StakedHaneul`.
 public fun stake_activation_epoch(staked_haneul: &StakedHaneul): u64 {
     staked_haneul.stake_activation_epoch
 }
@@ -457,6 +462,13 @@ public fun stake_activation_epoch(staked_haneul: &StakedHaneul): u64 {
 /// Returns true if the input staking pool is preactive.
 public fun is_preactive(pool: &StakingPool): bool {
     pool.activation_epoch.is_none()
+}
+
+/// Returns the activation epoch of the `StakingPool`. For validator candidates,
+/// or pending validators, the value returned is `None`. For active validators,
+/// the value is the epoch before the validator was activated.
+public(package) fun activation_epoch(pool: &StakingPool): Option<u64> {
+    pool.activation_epoch
 }
 
 /// Returns true if the input staking pool is inactive.
@@ -526,6 +538,9 @@ public entry fun split_staked_haneul(stake: &mut StakedHaneul, split_amount: u64
     transfer::transfer(stake.split(split_amount, ctx), ctx.sender());
 }
 
+/// Allows calling `.join()` on `StakedHaneul` to invoke `join_staked_haneul`
+public use fun join_staked_haneul as StakedHaneul.join;
+
 /// Consume the staked haneul `other` and add its value to `self`.
 /// Aborts if some of the staking parameters are incompatible (pool id, stake activation epoch, etc.)
 public entry fun join_staked_haneul(self: &mut StakedHaneul, other: StakedHaneul) {
@@ -535,9 +550,6 @@ public entry fun join_staked_haneul(self: &mut StakedHaneul, other: StakedHaneul
     id.delete();
     self.principal.join(principal);
 }
-
-/// Allows calling `.join()` on `StakedHaneul` to invoke `join_staked_haneul`
-public use fun join_staked_haneul as StakedHaneul.join;
 
 /// Returns true if all the staking parameters of the staked haneul except the principal are identical
 public fun is_equal_staking_metadata(self: &StakedHaneul, other: &StakedHaneul): bool {
