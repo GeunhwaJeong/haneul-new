@@ -14,7 +14,7 @@ use haneul_bridge_indexer::create_haneul_indexer;
 use haneul_bridge_indexer::metrics::BridgeIndexerMetrics;
 use haneul_bridge_indexer::postgres_manager::get_connection_pool;
 use haneul_bridge_indexer::storage::PgBridgePersistent;
-use haneul_bridge_schema::models::{GovernanceAction, TokenTransfer};
+use haneul_bridge_schema::models::{GovernanceAction, TokenTransfer, TokenTransferStatus};
 use haneul_bridge_schema::{schema, MIGRATIONS};
 use haneul_data_ingestion_core::DataIngestionMetrics;
 use haneul_indexer::database::Connection;
@@ -86,14 +86,14 @@ async fn test_indexing_transfer() {
         .await
         .unwrap()
         .iter()
-        .map(|t| (t.chain_id, t.nonce, t.status.clone()))
+        .map(|t| (t.chain_id, t.nonce, t.status))
         .collect::<Vec<_>>();
 
     assert_eq!(2, data.len());
     assert_eq!(
         vec![
-            (12, 0, "Approved".to_string()),
-            (12, 0, "Claimed".to_string())
+            (12, 0, TokenTransferStatus::Approved),
+            (12, 0, TokenTransferStatus::Claimed)
         ],
         data
     );
