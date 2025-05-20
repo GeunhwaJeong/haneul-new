@@ -30,11 +30,12 @@ use haneul_bridge::abi::{
 
 use crate::metrics::BridgeIndexerMetrics;
 use crate::{
-    BridgeDataSource, GovernanceAction, GovernanceActionType, ProcessedTxnData, TokenTransfer,
-    TokenTransferData, TokenTransferStatus,
+    BridgeDataSource, GovernanceAction, ProcessedTxnData, TokenTransfer, TokenTransferData,
+    TokenTransferStatus,
 };
 use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge::types::{EthEvent, RawEthLog};
+use haneul_bridge_schema::models::GovernanceActionType;
 use haneul_indexer_builder::indexer_builder::{DataMapper, DataSender, Datasource};
 use haneul_indexer_builder::metrics::IndexerMetricProvider;
 

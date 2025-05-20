@@ -13519,6 +13519,7 @@ dependencies = [
  "move-core-types",
  "haneullabs-metrics",
  "prometheus",
+ "serde_json",
  "haneul-bridge",
  "haneul-bridge-schema",
  "haneul-indexer-alt-framework",
