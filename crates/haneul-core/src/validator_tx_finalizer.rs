@@ -304,7 +304,8 @@ mod tests {
         HandleCertificateRequestV3, HandleCertificateResponseV2, HandleCertificateResponseV3,
         HandleSoftBundleCertificatesRequestV3, HandleSoftBundleCertificatesResponseV3,
         HandleTransactionResponse, ObjectInfoRequest, ObjectInfoResponse, RawSubmitTxRequest,
-        RawSubmitTxResponse, SystemStateRequest, TransactionInfoRequest, TransactionInfoResponse,
+        RawSubmitTxResponse, RawWaitForEffectsRequest, RawWaitForEffectsResponse,
+        SystemStateRequest, TransactionInfoRequest, TransactionInfoResponse,
     };
     use haneul_types::object::Object;
     use haneul_types::haneul_system_state::HaneulSystemState;
@@ -385,6 +386,14 @@ mod tests {
             _request: HandleCertificateRequestV3,
             _client_addr: Option<SocketAddr>,
         ) -> Result<HandleCertificateResponseV3, HaneulError> {
+            unimplemented!()
+        }
+
+        async fn wait_for_effects(
+            &self,
+            _request: RawWaitForEffectsRequest,
+            _client_addr: Option<SocketAddr>,
+        ) -> Result<RawWaitForEffectsResponse, HaneulError> {
             unimplemented!()
         }
 
