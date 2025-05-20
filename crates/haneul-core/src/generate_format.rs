@@ -19,7 +19,7 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{
     AggregateAuthoritySignature, AuthorityQuorumSignInfo, AuthorityStrongQuorumSignInfo,
 };
-use haneul_types::effects::TransactionEvents;
+use haneul_types::effects::{AccumulatorOperation, AccumulatorValue, TransactionEvents};
 use haneul_types::event::Event;
 use haneul_types::execution::ExecutionTimeObservationKey;
 use haneul_types::execution_status::{
@@ -239,6 +239,8 @@ fn get_registry() -> Result<Registry> {
     tracer.trace_type::<ObjectIn>(&samples).unwrap();
     tracer.trace_type::<ObjectOut>(&samples).unwrap();
     tracer.trace_type::<UnchangedSharedKind>(&samples).unwrap();
+    tracer.trace_type::<AccumulatorValue>(&samples).unwrap();
+    tracer.trace_type::<AccumulatorOperation>(&samples).unwrap();
     tracer.trace_type::<TransactionEffects>(&samples).unwrap();
 
     // uncomment once GenericSignature is added
