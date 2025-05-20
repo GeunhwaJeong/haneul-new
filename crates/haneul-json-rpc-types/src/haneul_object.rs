@@ -620,6 +620,7 @@ impl TryInto<Object> for HaneulObjectData {
                     o.version,
                     o.bcs_bytes,
                     &protocol_config,
+                    /* system_mutation */ false,
                 )?
             }),
             Some(HaneulRawData::Package(p)) => Data::Package(MovePackage::new(
