@@ -117,7 +117,7 @@ pub struct TokenTransferData {
     pub is_finalized: bool,
 }
 
-#[derive(Queryable, Selectable, Insertable, Identifiable, Debug)]
+#[derive(Queryable, Selectable, Insertable, Identifiable, Debug, FieldCount)]
 #[diesel(table_name = haneul_error_transactions, primary_key(txn_digest))]
 pub struct HaneulErrorTransactions {
     pub txn_digest: Vec<u8>,
