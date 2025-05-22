@@ -461,7 +461,7 @@ impl HaneulNode {
         );
 
         // Initialize metrics to track db usage before creating any stores
-        DBMetrics::init(&prometheus_registry);
+        DBMetrics::init(registry_service.clone());
 
         // Initialize Haneullabs metrics.
         haneullabs_metrics::init_metrics(&prometheus_registry);
