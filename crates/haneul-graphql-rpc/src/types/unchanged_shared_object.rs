@@ -13,7 +13,7 @@ use super::{object_read::ObjectRead, haneul_address::HaneulAddress, uint53::UInt
 #[derive(Union)]
 pub(crate) enum UnchangedSharedObject {
     Read(SharedObjectRead),
-    // TODO: Update `Delete` to `ConsensusStreamEnded` to account for ConsensusV2 objects.
+    // TODO: Update `Delete` to `ConsensusStreamEnded` to account for ConsensusAddressOwner objects.
     Delete(SharedObjectDelete),
     Cancelled(SharedObjectCancelled),
 }

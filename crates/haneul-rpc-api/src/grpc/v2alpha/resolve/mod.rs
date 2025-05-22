@@ -565,7 +565,8 @@ fn resolve_object(
             }
             .pipe(Ok)
         }
-        haneul_types::object::Owner::Shared { .. } | haneul_types::object::Owner::ConsensusV2 { .. } => {
+        haneul_types::object::Owner::Shared { .. }
+        | haneul_types::object::Owner::ConsensusAddressOwner { .. } => {
             resolve_shared_input_with_object(called_packages, commands, arg_idx, object)
         }
         haneul_types::object::Owner::ObjectOwner(_) => Err(RpcError::new(
@@ -668,7 +669,7 @@ fn resolve_shared_input_with_object(
     let initial_shared_version = if let haneul_types::object::Owner::Shared {
         initial_shared_version,
     }
-    | haneul_types::object::Owner::ConsensusV2 {
+    | haneul_types::object::Owner::ConsensusAddressOwner {
         start_version: initial_shared_version,
         ..
     } = object.owner()
