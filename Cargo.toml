@@ -673,7 +673,7 @@ haneul-bridge = { path = "crates/haneul-bridge" }
 haneul-bridge-schema = { path = "crates/haneul-bridge-schema" }
 haneul-cluster-test = { path = "crates/haneul-cluster-test" }
 haneul-config = { path = "crates/haneul-config" }
-haneul-core = { path = "crates/haneul-core", features = ["rocksdb"] }
+haneul-core = { path = "crates/haneul-core" }
 haneul-cost = { path = "crates/haneul-cost" }
 haneul-data-ingestion = { path = "crates/haneul-data-ingestion" }
 haneul-data-ingestion-core = { path = "crates/haneul-data-ingestion-core" }

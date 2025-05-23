@@ -92,10 +92,6 @@ haneul-tls.workspace = true
 haneul-types.workspace = true
 nonempty.workspace = true
 
-[features]
-tide_hunter = ["typed-store/tide_hunter"]
-rocksdb = []
-
 [dev-dependencies]
 haneul-move-build.workspace = true
 clap.workspace = true
