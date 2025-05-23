@@ -29,11 +29,9 @@ Manifest {
             "Haneul",
         ): ManifestDependency {
             dependency_info: Local(
-                Unpinned(
-                    UnpinnedLocalDependency {
-                        local: "../../../../../../../../../crates/haneul-framework/packages/haneul-framework",
-                    },
-                ),
+                LocalDependency {
+                    local: "../../../../../../../../../crates/haneul-framework/packages/haneul-framework",
+                },
             ),
             is_override: false,
             rename_from: None,
