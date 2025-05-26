@@ -13949,6 +13949,7 @@ name = "haneul-display"
 version = "1.54.0"
 dependencies = [
  "anyhow",
+ "insta",
  "move-core-types",
  "haneul-json-rpc-types",
  "haneul-types",
