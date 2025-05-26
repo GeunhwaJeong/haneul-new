@@ -8,7 +8,9 @@ use std::io::Read;
 use std::os::unix::fs::FileExt;
 use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
-use haneul::client_commands::{OptsWithGas, HaneulClientCommandResult, HaneulClientCommands};
+use haneul::client_commands::{
+    GasDataArgs, PaymentArgs, HaneulClientCommandResult, HaneulClientCommands, TxProcessingArgs,
+};
 use haneul_json_rpc_types::{HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI};
 use haneul_move_build::{BuildConfig, HaneulPackageHooks};
 use haneul_sdk::rpc_types::{
@@ -183,7 +185,14 @@ async fn run_publish(
         skip_dependency_verification: false,
         verify_deps: true,
         with_unpublished_dependencies: false,
-        opts: OptsWithGas::for_testing(Some(gas_obj_id), rgp * TEST_ONLY_GAS_UNIT_FOR_PUBLISH),
+        payment: PaymentArgs {
+            gas: vec![gas_obj_id],
+        },
+        gas_data: GasDataArgs {
+            gas_budget: Some(rgp * TEST_ONLY_GAS_UNIT_FOR_PUBLISH),
+            ..Default::default()
+        },
+        processing: TxProcessingArgs::default(),
     }
     .execute(context)
     .await?;
@@ -211,8 +220,15 @@ async fn run_upgrade(
         skip_dependency_verification: false,
         verify_deps: true,
         with_unpublished_dependencies: false,
-        opts: OptsWithGas::for_testing(Some(gas_obj_id), rgp * TEST_ONLY_GAS_UNIT_FOR_PUBLISH),
         verify_compatibility: true,
+        payment: PaymentArgs {
+            gas: vec![gas_obj_id],
+        },
+        gas_data: GasDataArgs {
+            gas_budget: Some(rgp * TEST_ONLY_GAS_UNIT_FOR_PUBLISH),
+            ..Default::default()
+        },
+        processing: TxProcessingArgs::default(),
     }
     .execute(context)
     .await?;
