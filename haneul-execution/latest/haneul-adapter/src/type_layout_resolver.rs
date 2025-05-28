@@ -36,7 +36,7 @@ impl LayoutResolver for TypeLayoutResolver<'_, '_> {
         &mut self,
         struct_tag: &StructTag,
     ) -> Result<A::MoveDatatypeLayout, HaneulError> {
-        let Ok(ty) = load_type_from_struct(self.vm, &mut self.linkage_view, &[], struct_tag) else {
+        let Ok(ty) = load_type_from_struct(self.vm, &self.linkage_view, &[], struct_tag) else {
             return Err(HaneulError::FailObjectLayout {
                 st: format!("{}", struct_tag),
             });
