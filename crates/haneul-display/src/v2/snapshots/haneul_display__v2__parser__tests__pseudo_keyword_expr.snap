@@ -1,0 +1,19 @@
+---
+source: crates/haneul-display/src/v2/parser.rs
+expression: "strands(r#\"{b}\"#)"
+---
+Expr(
+    Expr {
+        alternates: [
+            Chain {
+                root: None,
+                accessors: [
+                    Field(
+                        "b",
+                    ),
+                ],
+            },
+        ],
+        transform: None,
+    },
+)
