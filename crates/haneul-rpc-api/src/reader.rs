@@ -71,6 +71,13 @@ impl StateReader {
         Ok(summary)
     }
 
+    pub fn get_authenticator_state(
+        &self,
+    ) -> Result<Option<haneul_types::authenticator_state::AuthenticatorStateInner>> {
+        haneul_types::authenticator_state::get_authenticator_state(self.inner())
+            .map_err(StorageError::custom)
+    }
+
     #[tracing::instrument(skip(self))]
     pub fn get_transaction(
         &self,

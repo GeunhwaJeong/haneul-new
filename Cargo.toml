@@ -648,6 +648,7 @@ anemo-tower = { git = "https://github.com/GeunhwaJeong/anemo.git", rev = "9c52c3
 
 # core-types from the new sdk for use in gRPC
 haneul-sdk-types = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "bf1875211b15bd67ce5f7a72152bf952479f1668", features = [ "hash", "serde" ] }
+haneul-crypto = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "bf1875211b15bd67ce5f7a72152bf952479f1668", features = [ "ed25519", "secp256r1", "secp256k1", "passkey", "zklogin" ] }
 haneul-graphql-client = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "bf1875211b15bd67ce5f7a72152bf952479f1668" }
 haneul-graphql-client-build = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "bf1875211b15bd67ce5f7a72152bf952479f1668" }
 
