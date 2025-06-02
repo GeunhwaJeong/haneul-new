@@ -6,6 +6,7 @@ use crate::{
     message::{MessageField, MessageFields, MessageMerge},
     proto::TryFromProtoError,
 };
+use haneul_sdk_types::PasskeyPublicKey;
 use tap::Pipe;
 
 //
@@ -623,6 +624,10 @@ impl From<&haneul_sdk_types::MultisigMemberPublicKey> for super::MultisigMemberP
                 message.zklogin = Some(zklogin_id.into());
                 SignatureScheme::Zklogin
             }
+            Passkey(public_key) => {
+                message.public_key = Some(public_key.inner().as_bytes().to_vec().into());
+                SignatureScheme::Passkey
+            }
         };
 
         message.set_scheme(scheme);
@@ -653,7 +658,10 @@ impl TryFrom<&super::MultisigMemberPublicKey> for haneul_sdk_types::MultisigMemb
                     .ok_or_else(|| TryFromProtoError::missing("zklogin"))?
                     .try_into()?,
             ),
-            SignatureScheme::Multisig | SignatureScheme::Bls12381 | SignatureScheme::Passkey => {
+            SignatureScheme::Passkey => Self::Passkey(PasskeyPublicKey::new(
+                Secp256r1PublicKey::from_bytes(value.public_key())?,
+            )),
+            SignatureScheme::Multisig | SignatureScheme::Bls12381 => {
                 return Err(TryFromProtoError::from_error(
                     "invalid MultisigMemberPublicKey scheme",
                 ))
@@ -752,6 +760,10 @@ impl From<&haneul_sdk_types::MultisigMemberSignature> for super::MultisigMemberS
                 message.zklogin = Some((**zklogin_id).clone().into());
                 SignatureScheme::Zklogin
             }
+            Passkey(p) => {
+                message.passkey = Some(p.clone().into());
+                SignatureScheme::Passkey
+            }
         };
 
         message.set_scheme(scheme);
@@ -782,7 +794,14 @@ impl TryFrom<&super::MultisigMemberSignature> for haneul_sdk_types::MultisigMemb
                     .ok_or_else(|| TryFromProtoError::missing("zklogin"))?
                     .try_into()?,
             )),
-            SignatureScheme::Multisig | SignatureScheme::Bls12381 | SignatureScheme::Passkey => {
+            SignatureScheme::Passkey => Self::Passkey(
+                value
+                    .passkey
+                    .as_ref()
+                    .ok_or_else(|| TryFromProtoError::missing("passkey"))?
+                    .try_into()?,
+            ),
+            SignatureScheme::Multisig | SignatureScheme::Bls12381 => {
                 return Err(TryFromProtoError::from_error(
                     "invalid MultisigMemberSignature scheme",
                 ))
