@@ -19,6 +19,7 @@ serde-reflection.workspace = true
 haneul-types.workspace = true
 haneul-protocol-config.workspace = true
 haneul-package-management.workspace = true
+haneullabs-common.workspace = true
 
 move-binary-format.workspace = true
 move-bytecode-utils.workspace = true

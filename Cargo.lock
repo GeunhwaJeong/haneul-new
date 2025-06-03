@@ -15127,6 +15127,7 @@ dependencies = [
  "move-ir-types",
  "move-package",
  "move-symbol-pool",
+ "haneullabs-common",
  "serde-reflection",
  "haneul-package-management",
  "haneul-protocol-config",
