@@ -7,12 +7,15 @@ publish = false
 edition = "2021"
 
 [dependencies]
+anyhow.workspace = true
+async-trait.workspace = true
 base64ct = "1.6.0"
 bcs.workspace = true
 clap.workspace = true
 chrono.workspace = true
 cynic.workspace = true
 cynic-codegen.workspace = true
+fastcrypto.workspace = true
 futures.workspace = true
 move-binary-format.workspace = true
 move-bytecode-source-map.workspace = true
@@ -22,22 +25,19 @@ move-disassembler.workspace = true
 move-ir-types.workspace = true
 move-trace-format.workspace = true
 prometheus.workspace = true
+reqwest = { workspace = true, features = ["json"] }
+serde.workspace = true
 similar.workspace = true
 haneul-execution.workspace = true
-haneul-graphql-client.workspace = true
 haneul-framework.workspace = true
-haneul-sdk-types.workspace = true
 haneul-types.workspace = true
 telemetry-subscribers.workspace = true
 thiserror.workspace = true
 tokio = { workspace = true, features = ["full"] }
 tracing.workspace = true
 
-[build-dependencies]
-haneul-graphql-client-build.workspace = true
-
-[features]
-tracing = [
-    "haneul-types/tracing",
-    "haneul-execution/tracing",
-]
+# [features]
+# tracing = [
+#     "haneul-types/tracing",
+#     "haneul-execution/tracing",
+# ]
