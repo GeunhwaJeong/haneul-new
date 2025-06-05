@@ -14934,6 +14934,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-kv-rpc"
+version = "1.50.0"
+dependencies = [
+ "haneul-kvstore",
+ "haneul-protocol-config",
+ "haneul-rpc-api",
+ "haneul-sdk-types",
+ "haneul-types",
+ "tonic 0.13.1",
+]
+
+[[package]]
 name = "haneul-kvstore"
 version = "1.50.0"
 dependencies = [

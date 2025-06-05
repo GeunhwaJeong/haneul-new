@@ -1,0 +1,15 @@
+[package]
+name = "haneul-kv-rpc"
+authors = ["Haneul Labs <build@haneul-labs.com>"]
+license = "Apache-2.0"
+publish = false
+edition = "2021"
+version.workspace = true
+
+[dependencies]
+haneul-kvstore.workspace = true
+haneul-rpc-api.workspace = true
+haneul-types.workspace = true
+haneul-sdk-types.workspace = true
+tonic.workspace = true
+haneul-protocol-config.workspace = true
