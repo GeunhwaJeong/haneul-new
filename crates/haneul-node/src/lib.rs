@@ -36,6 +36,7 @@ use haneul_core::consensus_adapter::ConsensusClient;
 use haneul_core::consensus_manager::UpdatableConsensusClient;
 use haneul_core::epoch::randomness::RandomnessManager;
 use haneul_core::execution_cache::build_execution_cache;
+use haneul_core::execution_scheduler::SchedulingSource;
 use haneul_core::global_state_hasher::GlobalStateHashMetrics;
 use haneul_core::storage::RestReadStore;
 use haneul_core::traffic_controller::metrics::TrafficControllerMetrics;
@@ -753,7 +754,12 @@ impl HaneulNode {
                     ),
                 );
             state
-                .try_execute_immediately(&transaction, None, &epoch_store)
+                .try_execute_immediately(
+                    &transaction,
+                    None,
+                    &epoch_store,
+                    SchedulingSource::NonFastPath,
+                )
                 .instrument(span)
                 .await
                 .unwrap();

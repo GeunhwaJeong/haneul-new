@@ -14,6 +14,7 @@ use haneul_core::checkpoints::checkpoint_executor::CheckpointExecutor;
 use haneul_core::consensus_adapter::{
     ConnectionMonitorStatusForTests, ConsensusAdapter, ConsensusAdapterMetrics,
 };
+use haneul_core::execution_scheduler::SchedulingSource;
 use haneul_core::global_state_hasher::GlobalStateHasher;
 use haneul_core::mock_consensus::{ConsensusMode, MockConsensusClient};
 use haneul_test_transaction_builder::{PublishData, TestTransactionBuilder};
@@ -117,7 +118,12 @@ impl SingleValidator {
         );
         let effects = self
             .get_validator()
-            .try_execute_immediately(&executable, None, &self.epoch_store)
+            .try_execute_immediately(
+                &executable,
+                None,
+                &self.epoch_store,
+                SchedulingSource::NonFastPath,
+            )
             .await
             .unwrap()
             .0;
@@ -149,7 +155,12 @@ impl SingleValidator {
                     VerifiedCertificate::new_unchecked(cert),
                 );
                 self.get_validator()
-                    .try_execute_immediately(&cert, None, &self.epoch_store)
+                    .try_execute_immediately(
+                        &cert,
+                        None,
+                        &self.epoch_store,
+                        SchedulingSource::NonFastPath,
+                    )
                     .await
                     .unwrap()
                     .0
