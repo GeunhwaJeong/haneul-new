@@ -42,8 +42,9 @@ use haneul_types::{
     metrics::LimitsMetrics,
     object::{MoveObject, Owner},
     storage::ChildObjectResolver,
-    HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_BRIDGE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID,
-    HANEUL_DENY_LIST_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
+    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_BRIDGE_OBJECT_ID,
+    HANEUL_CLOCK_OBJECT_ID, HANEUL_DENY_LIST_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID,
+    HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
 use tracing::error;
 
@@ -270,6 +271,7 @@ impl<'a> ObjectRuntime<'a> {
             HANEUL_RANDOMNESS_STATE_OBJECT_ID,
             HANEUL_DENY_LIST_OBJECT_ID,
             HANEUL_BRIDGE_OBJECT_ID,
+            HANEUL_ACCUMULATOR_ROOT_OBJECT_ID,
         ]
         .contains(&id);
         let transfer_result = if self.state.new_ids.contains(&id) {

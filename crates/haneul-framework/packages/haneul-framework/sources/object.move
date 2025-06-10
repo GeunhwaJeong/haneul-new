@@ -40,6 +40,9 @@ const HANEUL_RANDOM_ID: address = @0x8;
 /// The hardcoded ID for the singleton DenyList.
 const HANEUL_DENY_LIST_OBJECT_ID: address = @0x403;
 
+/// The hardcoded ID for the singleton AccumulatorRoot Object.
+const HANEUL_ACCUMULATOR_ROOT_OBJECT_ID: address = @0xacc;
+
 /// The hardcoded ID for the Bridge Object.
 const HANEUL_BRIDGE_ID: address = @0x9;
 
@@ -134,6 +137,16 @@ public(package) fun haneul_deny_list_object_id(): UID {
     UID {
         id: ID { bytes: HANEUL_DENY_LIST_OBJECT_ID },
     }
+}
+
+public(package) fun haneul_accumulator_root_object_id(): UID {
+    UID {
+        id: ID { bytes: HANEUL_ACCUMULATOR_ROOT_OBJECT_ID },
+    }
+}
+
+public(package) fun haneul_accumulator_root_address(): address {
+    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID
 }
 
 #[allow(unused_function)]

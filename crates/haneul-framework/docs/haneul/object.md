@@ -17,6 +17,8 @@ Haneul object identifiers
 -  [Function `authenticator_state`](#haneul_object_authenticator_state)
 -  [Function `randomness_state`](#haneul_object_randomness_state)
 -  [Function `haneul_deny_list_object_id`](#haneul_object_haneul_deny_list_object_id)
+-  [Function `haneul_accumulator_root_object_id`](#haneul_object_haneul_accumulator_root_object_id)
+-  [Function `haneul_accumulator_root_address`](#haneul_object_haneul_accumulator_root_address)
 -  [Function `bridge`](#haneul_object_bridge)
 -  [Function `uid_as_inner`](#haneul_object_uid_as_inner)
 -  [Function `uid_to_inner`](#haneul_object_uid_to_inner)
@@ -161,6 +163,16 @@ The hardcoded ID for the singleton DenyList.
 
 
 <pre><code><b>const</b> <a href="../haneul/object.md#haneul_object_HANEUL_DENY_LIST_OBJECT_ID">HANEUL_DENY_LIST_OBJECT_ID</a>: <b>address</b> = 0x403;
+</code></pre>
+
+
+
+<a name="haneul_object_HANEUL_ACCUMULATOR_ROOT_OBJECT_ID"></a>
+
+The hardcoded ID for the singleton AccumulatorRoot Object.
+
+
+<pre><code><b>const</b> <a href="../haneul/object.md#haneul_object_HANEUL_ACCUMULATOR_ROOT_OBJECT_ID">HANEUL_ACCUMULATOR_ROOT_OBJECT_ID</a>: <b>address</b> = 0xacc;
 </code></pre>
 
 
@@ -419,6 +431,56 @@ This should only be called once from <code><a href="../haneul/deny_list.md#haneu
     <a href="../haneul/object.md#haneul_object_UID">UID</a> {
         <a href="../haneul/object.md#haneul_object_id">id</a>: <a href="../haneul/object.md#haneul_object_ID">ID</a> { bytes: <a href="../haneul/object.md#haneul_object_HANEUL_DENY_LIST_OBJECT_ID">HANEUL_DENY_LIST_OBJECT_ID</a> },
     }
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_object_haneul_accumulator_root_object_id"></a>
+
+## Function `haneul_accumulator_root_object_id`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/object.md#haneul_object_haneul_accumulator_root_object_id">haneul_accumulator_root_object_id</a>(): <a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/object.md#haneul_object_haneul_accumulator_root_object_id">haneul_accumulator_root_object_id</a>(): <a href="../haneul/object.md#haneul_object_UID">UID</a> {
+    <a href="../haneul/object.md#haneul_object_UID">UID</a> {
+        <a href="../haneul/object.md#haneul_object_id">id</a>: <a href="../haneul/object.md#haneul_object_ID">ID</a> { bytes: <a href="../haneul/object.md#haneul_object_HANEUL_ACCUMULATOR_ROOT_OBJECT_ID">HANEUL_ACCUMULATOR_ROOT_OBJECT_ID</a> },
+    }
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_object_haneul_accumulator_root_address"></a>
+
+## Function `haneul_accumulator_root_address`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/object.md#haneul_object_haneul_accumulator_root_address">haneul_accumulator_root_address</a>(): <b>address</b>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/object.md#haneul_object_haneul_accumulator_root_address">haneul_accumulator_root_address</a>(): <b>address</b> {
+    <a href="../haneul/object.md#haneul_object_HANEUL_ACCUMULATOR_ROOT_OBJECT_ID">HANEUL_ACCUMULATOR_ROOT_OBJECT_ID</a>
 }
 </code></pre>
 

@@ -72,6 +72,7 @@ static_symbols!(
     "TxContext",
     "ID",
     "HANEUL",
+    "accumulator",
     "authenticator_state",
     "AuthenticatorState",
     "random",

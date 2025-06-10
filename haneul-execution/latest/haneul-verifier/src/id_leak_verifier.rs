@@ -31,6 +31,7 @@ use std::{collections::BTreeMap, error::Error, num::NonZeroU64};
 use haneul_types::bridge::BRIDGE_MODULE_NAME;
 use haneul_types::deny_list_v1::{DENY_LIST_CREATE_FUNC, DENY_LIST_MODULE};
 use haneul_types::{
+    accumulator_event::ACCUMULATOR_MODULE_NAME,
     authenticator_state::AUTHENTICATOR_STATE_MODULE_NAME,
     clock::CLOCK_MODULE_NAME,
     error::{ExecutionError, VMMVerifierErrorSubStatusCode},
@@ -98,6 +99,11 @@ const HANEUL_DENY_LIST_CREATE: FunctionIdent = (
 
 const HANEUL_BRIDGE_CREATE: FunctionIdent =
     (&BRIDGE_ADDRESS, BRIDGE_MODULE_NAME, ident_str!("create"));
+const HANEUL_ACCUMULATOR_CREATE: FunctionIdent = (
+    &HANEUL_FRAMEWORK_ADDRESS,
+    ACCUMULATOR_MODULE_NAME,
+    ident_str!("create"),
+);
 const FRESH_ID_FUNCTIONS: &[FunctionIdent] = &[OBJECT_NEW, OBJECT_NEW_UID_FROM_HASH, TS_NEW_OBJECT];
 const FUNCTIONS_TO_SKIP: &[FunctionIdent] = &[
     HANEUL_SYSTEM_CREATE,
@@ -106,6 +112,7 @@ const FUNCTIONS_TO_SKIP: &[FunctionIdent] = &[
     HANEUL_RANDOMNESS_STATE_CREATE,
     HANEUL_DENY_LIST_CREATE,
     HANEUL_BRIDGE_CREATE,
+    HANEUL_ACCUMULATOR_CREATE,
 ];
 
 impl AbstractValue {
