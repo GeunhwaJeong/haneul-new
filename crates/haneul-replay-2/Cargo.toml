@@ -36,8 +36,8 @@ thiserror.workspace = true
 tokio = { workspace = true, features = ["full"] }
 tracing.workspace = true
 
-# [features]
-# tracing = [
-#     "haneul-types/tracing",
-#     "haneul-execution/tracing",
-# ]
+[features]
+tracing = [
+    "haneul-types/tracing",
+    "haneul-execution/tracing",
+]
