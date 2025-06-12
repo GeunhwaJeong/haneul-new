@@ -12,7 +12,9 @@ use std::sync::{Arc, Weak};
 use std::time::Duration;
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
-use haneul_types::messages_consensus::{ConsensusTransaction, ConsensusTransactionKind};
+use haneul_types::messages_consensus::{
+    ConsensusPosition, ConsensusTransaction, ConsensusTransactionKind,
+};
 use haneul_types::transaction::{VerifiedCertificate, VerifiedTransaction};
 use tokio::sync::{mpsc, oneshot};
 use tokio::task::JoinHandle;
@@ -99,16 +101,24 @@ impl MockConsensusClient {
         }
     }
 
-    fn submit_impl(&self, transactions: &[ConsensusTransaction]) -> HaneulResult<BlockStatusReceiver> {
+    fn submit_impl(
+        &self,
+        transactions: &[ConsensusTransaction],
+    ) -> HaneulResult<(Vec<ConsensusPosition>, BlockStatusReceiver)> {
         // TODO: maybe support multi-transactions and remove this check
         assert!(transactions.len() == 1);
         let transaction = &transactions[0];
         self.tx_sender
             .try_send(transaction.clone())
             .map_err(|_| HaneulError::from("MockConsensusClient channel overflowed"))?;
-        Ok(with_block_status(consensus_core::BlockStatus::Sequenced(
-            BlockRef::MIN,
-        )))
+        // TODO(fastpath): Add some way to simulate consensus positions across blocks
+        Ok((
+            vec![ConsensusPosition {
+                block: BlockRef::MIN,
+                index: 0,
+            }],
+            with_block_status(consensus_core::BlockStatus::Sequenced(BlockRef::MIN)),
+        ))
     }
 }
 
@@ -137,7 +147,7 @@ impl ConsensusClient for MockConsensusClient {
         &self,
         transactions: &[ConsensusTransaction],
         _epoch_store: &Arc<AuthorityPerEpochStore>,
-    ) -> HaneulResult<BlockStatusReceiver> {
+    ) -> HaneulResult<(Vec<ConsensusPosition>, BlockStatusReceiver)> {
         self.submit_impl(transactions)
     }
 }

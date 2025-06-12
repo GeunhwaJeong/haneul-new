@@ -20,7 +20,7 @@ use haneul_config::{ConsensusConfig, NodeConfig};
 use haneul_protocol_config::ProtocolVersion;
 use haneul_types::committee::EpochId;
 use haneul_types::error::HaneulResult;
-use haneul_types::messages_consensus::ConsensusTransaction;
+use haneul_types::messages_consensus::{ConsensusPosition, ConsensusTransaction};
 use tokio::sync::{Mutex, MutexGuard};
 use tokio::time::{sleep, timeout};
 use tracing::info;
@@ -222,7 +222,7 @@ impl ConsensusClient for UpdatableConsensusClient {
         &self,
         transactions: &[ConsensusTransaction],
         epoch_store: &Arc<AuthorityPerEpochStore>,
-    ) -> HaneulResult<BlockStatusReceiver> {
+    ) -> HaneulResult<(Vec<ConsensusPosition>, BlockStatusReceiver)> {
         let client = self.get().await;
         client.submit(transactions, epoch_store).await
     }
