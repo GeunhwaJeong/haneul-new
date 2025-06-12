@@ -14937,11 +14937,19 @@ dependencies = [
 name = "haneul-kv-rpc"
 version = "1.51.0"
 dependencies = [
+ "anyhow",
+ "bin-version",
+ "clap",
+ "haneullabs-metrics",
+ "haneullabs-network",
+ "prometheus",
  "haneul-kvstore",
  "haneul-protocol-config",
  "haneul-rpc-api",
  "haneul-sdk-types",
  "haneul-types",
+ "telemetry-subscribers",
+ "tokio",
  "tonic 0.13.1",
 ]
 

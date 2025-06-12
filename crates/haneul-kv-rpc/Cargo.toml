@@ -7,9 +7,17 @@ edition = "2021"
 version.workspace = true
 
 [dependencies]
+anyhow.workspace = true
+bin-version.workspace = true
+clap.workspace = true
+prometheus.workspace = true
+haneullabs-metrics.workspace = true
+haneullabs-network.workspace = true
 haneul-kvstore.workspace = true
 haneul-rpc-api.workspace = true
 haneul-types.workspace = true
 haneul-sdk-types.workspace = true
+telemetry-subscribers.workspace = true
+tokio.workspace = true
 tonic.workspace = true
 haneul-protocol-config.workspace = true
