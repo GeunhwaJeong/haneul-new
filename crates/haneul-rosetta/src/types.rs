@@ -468,6 +468,7 @@ pub enum OperationType {
     AuthenticatorStateUpdate,
     RandomnessStateUpdate,
     EndOfEpochTransaction,
+    ProgrammableSystemTransaction,
 }
 
 impl From<&HaneulTransactionBlockKind> for OperationType {
@@ -492,6 +493,9 @@ impl From<&HaneulTransactionBlockKind> for OperationType {
             }
             HaneulTransactionBlockKind::EndOfEpochTransaction(_) => {
                 OperationType::EndOfEpochTransaction
+            }
+            HaneulTransactionBlockKind::ProgrammableSystemTransaction(_) => {
+                OperationType::ProgrammableSystemTransaction
             }
         }
     }
