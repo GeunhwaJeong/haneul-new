@@ -10,10 +10,11 @@ use std::{
 
 use crate::{
     adapter::new_native_extensions,
+    data_store::haneul_data_store::HaneulDataStore,
     execution_mode::ExecutionMode,
     gas_charger::GasCharger,
     gas_meter::HaneulGasMeter,
-    programmable_transactions::{context::finish, data_store::HaneulDataStore},
+    programmable_transactions::context::finish,
     sp,
     static_programmable_transactions::{
         better_todo,
