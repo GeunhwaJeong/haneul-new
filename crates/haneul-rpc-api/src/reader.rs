@@ -59,13 +59,19 @@ impl StateReader {
     }
 
     #[tracing::instrument(skip(self))]
+    pub fn get_system_state(&self) -> Result<haneul_types::haneul_system_state::HaneulSystemState> {
+        haneul_types::haneul_system_state::get_haneul_system_state(self.inner())
+            .map_err(StorageError::custom)
+            .map_err(StorageError::custom)
+    }
+
+    #[tracing::instrument(skip(self))]
     pub fn get_system_state_summary(
         &self,
     ) -> Result<haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary> {
         use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 
-        let system_state = haneul_types::haneul_system_state::get_haneul_system_state(self.inner())
-            .map_err(StorageError::custom)?;
+        let system_state = self.get_system_state()?;
         let summary = system_state.into_haneul_system_state_summary();
 
         Ok(summary)
