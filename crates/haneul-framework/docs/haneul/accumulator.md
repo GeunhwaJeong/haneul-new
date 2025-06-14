@@ -4,7 +4,7 @@ title: Module `haneul::accumulator`
 
 
 
--  [Struct `Accumulator`](#haneul_accumulator_Accumulator)
+-  [Struct `AccumulatorRoot`](#haneul_accumulator_AccumulatorRoot)
 -  [Constants](#@Constants_0)
 -  [Function `create`](#haneul_accumulator_create)
 
@@ -25,13 +25,13 @@ title: Module `haneul::accumulator`
 
 
 
-<a name="haneul_accumulator_Accumulator"></a>
+<a name="haneul_accumulator_AccumulatorRoot"></a>
 
-## Struct `Accumulator`
+## Struct `AccumulatorRoot`
 
 
 
-<pre><code><b>public</b> <b>struct</b> <a href="../haneul/accumulator.md#haneul_accumulator_Accumulator">Accumulator</a> <b>has</b> key
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul/accumulator.md#haneul_accumulator_AccumulatorRoot">AccumulatorRoot</a> <b>has</b> key
 </code></pre>
 
 
@@ -82,7 +82,7 @@ title: Module `haneul::accumulator`
 
 <pre><code><b>fun</b> <a href="../haneul/accumulator.md#haneul_accumulator_create">create</a>(ctx: &TxContext) {
     <b>assert</b>!(ctx.sender() == @0x0, <a href="../haneul/accumulator.md#haneul_accumulator_ENotSystemAddress">ENotSystemAddress</a>);
-    <a href="../haneul/transfer.md#haneul_transfer_share_object">transfer::share_object</a>(<a href="../haneul/accumulator.md#haneul_accumulator_Accumulator">Accumulator</a> {
+    <a href="../haneul/transfer.md#haneul_transfer_share_object">transfer::share_object</a>(<a href="../haneul/accumulator.md#haneul_accumulator_AccumulatorRoot">AccumulatorRoot</a> {
         id: <a href="../haneul/object.md#haneul_object_haneul_accumulator_root_object_id">object::haneul_accumulator_root_object_id</a>(),
     })
 }
