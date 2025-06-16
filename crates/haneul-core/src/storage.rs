@@ -28,6 +28,8 @@ use haneul_types::messages_checkpoint::VerifiedCheckpointContents;
 use haneul_types::object::Object;
 use haneul_types::storage::error::Error as StorageError;
 use haneul_types::storage::error::Result;
+use haneul_types::storage::BalanceInfo;
+use haneul_types::storage::BalanceIterator;
 use haneul_types::storage::CoinInfo;
 use haneul_types::storage::DynamicFieldIndexInfo;
 use haneul_types::storage::DynamicFieldKey;
@@ -581,5 +583,32 @@ impl RpcIndexes for RpcIndexStore {
                 },
             )
             .pipe(Ok)
+    }
+
+    fn get_balance(
+        &self,
+        owner: &HaneulAddress,
+        coin_type: &StructTag,
+    ) -> haneul_types::storage::error::Result<Option<BalanceInfo>> {
+        self.get_balance(owner, coin_type)?
+            .map(|info| info.into())
+            .pipe(Ok)
+    }
+
+    fn balance_iter(
+        &self,
+        owner: &HaneulAddress,
+        cursor: Option<(HaneulAddress, StructTag)>,
+    ) -> haneul_types::storage::error::Result<BalanceIterator<'_>> {
+        let cursor_key =
+            cursor.map(|(owner, coin_type)| crate::rpc_index::BalanceKey { owner, coin_type });
+
+        Ok(Box::new(self.balance_iter(*owner, cursor_key)?.map(
+            |result| {
+                result
+                    .map(|(key, info)| (key.coin_type, info.into()))
+                    .map_err(Into::into)
+            },
+        )))
     }
 }
