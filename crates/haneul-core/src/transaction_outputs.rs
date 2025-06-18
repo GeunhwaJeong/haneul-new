@@ -5,10 +5,12 @@ use std::collections::HashSet;
 use std::sync::Arc;
 use haneul_types::accumulator_event::AccumulatorEvent;
 use haneul_types::base_types::{FullObjectID, ObjectRef};
+use haneul_types::config::is_config;
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI, TransactionEvents};
 use haneul_types::inner_temporary_store::{InnerTemporaryStore, WrittenObjects};
 use haneul_types::storage::{FullObjectKey, InputKey, MarkerValue, ObjectKey};
 use haneul_types::transaction::{TransactionDataAPI, VerifiedTransaction};
+use haneul_types::HANEUL_DENY_LIST_OBJECT_ID;
 
 /// TransactionOutputs
 #[derive(Debug, Clone)]
@@ -146,11 +148,34 @@ impl TransactionOutputs {
                 )
             });
 
+            // Create markers for each config update. Note that we always place it under the same
+            // object key. This way we can easily query to see if the config marker has already
+            // been updated this epoch.
+            let mutated_config_objects = input_objects
+                .iter()
+                .filter_map(|(id, obj)| {
+                    if obj.struct_tag().is_some_and(|tag| is_config(&tag))
+                        || *id == HANEUL_DENY_LIST_OBJECT_ID
+                    {
+                        if let Some(((seqno, _), _)) = mutable_inputs.get(id) {
+                            return Some((*id, *seqno));
+                        }
+                    }
+                    None
+                })
+                .map(|(id, version)| {
+                    (
+                        FullObjectKey::config_key_for_id(&id),
+                        MarkerValue::ConfigUpdate(version),
+                    )
+                });
+
             received
                 .chain(tombstones)
                 .chain(fastpath_stream_ended)
                 .chain(consensus_stream_ended)
                 .chain(consensus_smears)
+                .chain(mutated_config_objects)
                 .collect()
         };
 
