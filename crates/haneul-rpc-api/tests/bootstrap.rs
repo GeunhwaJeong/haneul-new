@@ -50,7 +50,10 @@ fn bootstrap() {
         .bytes(["."])
         .boxed(".haneul.rpc.v2beta.Input.literal")
         .boxed(".haneul.rpc.v2beta.Epoch.system_state")
+        .boxed(".haneul.rpc.v2beta2.Input.literal")
+        .boxed(".haneul.rpc.v2beta2.Epoch.system_state")
         .boxed("json")
+        .extern_path(".google", "crate::proto::google")
         .out_dir(&out_dir)
         .compile_fds(fds.clone())
     {

@@ -73,7 +73,7 @@ use haneul_types::traffic_control::{
     PolicyConfig, RemoteFirewallConfig, TrafficControlReconfigParams,
 };
 use haneul_types::transaction_executor::SimulateTransactionResult;
-use haneul_types::transaction_executor::VmChecks;
+use haneul_types::transaction_executor::TransactionChecks;
 use tap::TapFallible;
 use tokio::sync::mpsc::unbounded_channel;
 use tokio::sync::RwLock;
@@ -2151,7 +2151,7 @@ impl AuthorityState {
     pub fn simulate_transaction(
         &self,
         mut transaction: TransactionData,
-        checks: VmChecks,
+        checks: TransactionChecks,
     ) -> HaneulResult<SimulateTransactionResult> {
         if transaction.kind().is_system_tx() {
             return Err(HaneulError::UnsupportedFeatureError {

@@ -39,7 +39,7 @@ use haneul_types::quorum_driver_types::{
 };
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::transaction::{TransactionData, VerifiedTransaction};
-use haneul_types::transaction_executor::{SimulateTransactionResult, VmChecks};
+use haneul_types::transaction_executor::{SimulateTransactionResult, TransactionChecks};
 use tokio::sync::broadcast::error::RecvError;
 use tokio::sync::broadcast::Receiver;
 use tokio::task::JoinHandle;
@@ -706,7 +706,7 @@ where
     fn simulate_transaction(
         &self,
         transaction: TransactionData,
-        checks: VmChecks,
+        checks: TransactionChecks,
     ) -> Result<SimulateTransactionResult, HaneulError> {
         self.validator_state
             .simulate_transaction(transaction, checks)
