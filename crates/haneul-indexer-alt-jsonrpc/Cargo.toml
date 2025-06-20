@@ -53,6 +53,7 @@ haneul-indexer-alt-metrics.workspace = true
 haneul-indexer-alt-reader.workspace = true
 haneul-indexer-alt-schema.workspace = true
 haneul-json.workspace = true
+haneul-json-rpc-api.workspace = true
 haneul-json-rpc-types.workspace = true
 haneul-name-service.workspace = true
 haneul-open-rpc.workspace = true
