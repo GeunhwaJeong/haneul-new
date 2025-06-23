@@ -7,14 +7,17 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use std::sync::Arc;
 use haneul_core::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use haneul_core::authority::authority_store_tables::LiveObject;
+use haneul_core::authority::shared_object_version_manager::{
+    AssignedTxAndVersions, AssignedVersions, Schedulable,
+};
 use haneul_core::authority::test_authority_builder::TestAuthorityBuilder;
-use haneul_core::authority::AuthorityState;
+use haneul_core::authority::{AuthorityState, ExecutionEnv};
 use haneul_core::authority_server::{ValidatorService, ValidatorServiceMetrics};
 use haneul_core::checkpoints::checkpoint_executor::CheckpointExecutor;
 use haneul_core::consensus_adapter::{
     ConnectionMonitorStatusForTests, ConsensusAdapter, ConsensusAdapterMetrics,
 };
-use haneul_core::execution_scheduler::SchedulingSource;
+use haneul_core::execution_scheduler::{ExecutionSchedulerAPI, SchedulingSource};
 use haneul_core::global_state_hasher::GlobalStateHasher;
 use haneul_core::mock_consensus::{ConsensusMode, MockConsensusClient};
 use haneul_test_transaction_builder::{PublishData, TestTransactionBuilder};
@@ -120,9 +123,8 @@ impl SingleValidator {
             .get_validator()
             .try_execute_immediately(
                 &executable,
-                None,
+                ExecutionEnv::new().with_scheduling_source(SchedulingSource::NonFastPath),
                 &self.epoch_store,
-                SchedulingSource::NonFastPath,
             )
             .await
             .unwrap()
@@ -147,6 +149,7 @@ impl SingleValidator {
     pub async fn execute_certificate(
         &self,
         cert: CertifiedTransaction,
+        assigned_versions: &AssignedVersions,
         component: Component,
     ) -> TransactionEffects {
         let effects = match component {
@@ -157,9 +160,8 @@ impl SingleValidator {
                 self.get_validator()
                     .try_execute_immediately(
                         &cert,
-                        None,
+                        ExecutionEnv::new().with_assigned_versions(assigned_versions.clone()),
                         &self.epoch_store,
-                        SchedulingSource::NonFastPath,
                     )
                     .await
                     .unwrap()
@@ -170,8 +172,14 @@ impl SingleValidator {
                 if cert.contains_shared_object() {
                     // For shared objects transactions, `execute_certificate` won't enqueue it because
                     // it expects consensus to do so. However we don't have consensus, hence the manual enqueue.
-                    self.get_validator()
-                        .enqueue_certificates_for_execution(vec![cert.clone()], &self.epoch_store);
+                    self.get_validator().execution_scheduler().enqueue(
+                        vec![(
+                            VerifiedExecutableTransaction::new_from_certificate(cert.clone())
+                                .into(),
+                            ExecutionEnv::new().with_assigned_versions(assigned_versions.clone()),
+                        )],
+                        &self.epoch_store,
+                    );
                 }
                 self.get_validator()
                     .wait_for_certificate_execution(&cert, &self.epoch_store)
@@ -199,10 +207,11 @@ impl SingleValidator {
         &self,
         store: InMemoryObjectStore,
         transaction: CertifiedTransaction,
+        assigned_versions: &AssignedVersions,
     ) -> TransactionEffects {
         let input_objects = transaction.transaction_data().input_objects().unwrap();
         let objects = store
-            .read_objects_for_execution(&self.epoch_store, &transaction.key(), &input_objects)
+            .read_objects_for_execution(&transaction.key(), assigned_versions, &input_objects)
             .unwrap();
 
         let executable = VerifiedExecutableTransaction::new_from_certificate(
@@ -306,7 +315,7 @@ impl SingleValidator {
     pub(crate) async fn assigned_shared_object_versions(
         &self,
         transactions: &[CertifiedTransaction],
-    ) {
+    ) -> AssignedTxAndVersions {
         let transactions: Vec<_> = transactions
             .iter()
             .map(|tx| {
@@ -315,12 +324,13 @@ impl SingleValidator {
                 )
             })
             .collect();
+        let assignables: Vec<_> = transactions.iter().map(Schedulable::Transaction).collect();
         self.epoch_store
             .assign_shared_object_versions_idempotent(
                 self.get_validator().get_object_cache_reader().as_ref(),
-                &transactions,
+                assignables.iter(),
             )
-            .unwrap();
+            .unwrap()
     }
 }
 

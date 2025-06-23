@@ -20,6 +20,7 @@ use std::path::Path;
 use std::sync::Arc;
 use haneul_core::authority::authority_per_epoch_store::CertLockGuard;
 use haneul_core::authority::authority_test_utils::send_and_confirm_transaction_with_execution_error;
+use haneul_core::authority::shared_object_version_manager::AssignedVersions;
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc::authority_state::StateRead;
 use haneul_json_rpc_types::EventFilter;
@@ -99,7 +100,11 @@ pub trait TransactionalAdapter: Send + Sync + ReadStore {
         transaction: Transaction,
     ) -> anyhow::Result<(TransactionEffects, Option<ExecutionError>)>;
 
-    async fn read_input_objects(&self, transaction: Transaction) -> HaneulResult<InputObjects>;
+    async fn read_input_objects(
+        &self,
+        transaction: Transaction,
+        assigned_versions: AssignedVersions,
+    ) -> HaneulResult<InputObjects>;
 
     fn prepare_txn(
         &self,
@@ -166,7 +171,11 @@ impl TransactionalAdapter for ValidatorWithFullnode {
         Ok((effects.into_data(), execution_error))
     }
 
-    async fn read_input_objects(&self, transaction: Transaction) -> HaneulResult<InputObjects> {
+    async fn read_input_objects(
+        &self,
+        transaction: Transaction,
+        assigned_versions: AssignedVersions,
+    ) -> HaneulResult<InputObjects> {
         let tx = VerifiedExecutableTransaction::new_unchecked(
             ExecutableTransaction::new_from_data_and_sig(
                 transaction.data().clone(),
@@ -178,6 +187,7 @@ impl TransactionalAdapter for ValidatorWithFullnode {
         self.validator.read_objects_for_execution(
             &CertLockGuard::dummy_for_tests(),
             &tx,
+            assigned_versions,
             &epoch_store,
         )
     }
@@ -422,7 +432,11 @@ impl TransactionalAdapter for Simulacrum<StdRng, PersistedStore> {
         Ok(self.execute_transaction(transaction)?)
     }
 
-    async fn read_input_objects(&self, _transaction: Transaction) -> HaneulResult<InputObjects> {
+    async fn read_input_objects(
+        &self,
+        _transaction: Transaction,
+        _assigned_versions: AssignedVersions,
+    ) -> HaneulResult<InputObjects> {
         unimplemented!("read_input_objects not supported in simulator mode")
     }
 
