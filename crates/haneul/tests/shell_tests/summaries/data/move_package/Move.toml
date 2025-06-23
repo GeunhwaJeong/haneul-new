@@ -2,5 +2,8 @@
 name = "move_package"
 edition = "2024"
 
+[dependencies]
+Haneul = { local = "../../haneul-framework" }
+
 [addresses]
 move_package = "0x0"
