@@ -46,7 +46,6 @@ use haneul_types::storage::ReadStore;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::transaction::Transaction;
-use haneul_types::transaction::TransactionDataAPI;
 use haneul_types::transaction::TransactionKind;
 use haneul_types::transaction::{InputObjects, TransactionData};
 use test_adapter::{HaneulTestAdapter, PRE_COMPILED};
@@ -155,16 +154,12 @@ impl TransactionalAdapter for ValidatorWithFullnode {
         &mut self,
         transaction: Transaction,
     ) -> anyhow::Result<(TransactionEffects, Option<ExecutionError>)> {
-        let with_shared = transaction
-            .data()
-            .intent_message()
-            .value
-            .contains_shared_object();
+        let is_consensus_tx = transaction.is_consensus_tx();
         let (_, effects, execution_error) = send_and_confirm_transaction_with_execution_error(
             &self.validator,
             Some(&self.fullnode),
             transaction,
-            with_shared,
+            is_consensus_tx,
             false,
         )
         .await?;
