@@ -14,7 +14,7 @@ use crate::{
     execution_scheduler::ExecutionSchedulerAPI,
 };
 use async_trait::async_trait;
-use consensus_core::BlockRef;
+use consensus_types::block::BlockRef;
 use haneullabs_metrics::spawn_monitored_task;
 use haneul_config::genesis::Genesis;
 use haneul_types::{

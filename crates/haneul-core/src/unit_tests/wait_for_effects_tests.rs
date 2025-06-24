@@ -4,7 +4,7 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use consensus_core::{BlockRef, TransactionIndex};
+use consensus_types::block::{BlockRef, TransactionIndex};
 use fastcrypto::traits::KeyPair;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{ObjectRef, HaneulAddress, TransactionDigest};

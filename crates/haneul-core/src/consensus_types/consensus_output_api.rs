@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 use std::{cmp::Ordering, fmt::Display};
 
-use consensus_core::{BlockAPI, BlockRef, CommitDigest, TransactionIndex, VerifiedBlock};
+use consensus_core::{BlockAPI, CommitDigest, VerifiedBlock};
+use consensus_types::block::{BlockRef, TransactionIndex};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::{
     digests::ConsensusCommitDigest,

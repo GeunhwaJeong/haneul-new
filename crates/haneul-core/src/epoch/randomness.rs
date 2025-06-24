@@ -815,7 +815,8 @@ mod tests {
         epoch::randomness::*,
         mock_consensus::with_block_status,
     };
-    use consensus_core::{BlockRef, BlockStatus};
+    use consensus_core::BlockStatus;
+    use consensus_types::block::BlockRef;
     use std::num::NonZeroUsize;
     use haneul_protocol_config::ProtocolConfig;
     use haneul_protocol_config::{Chain, ProtocolVersion};
