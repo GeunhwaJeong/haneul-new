@@ -46,6 +46,7 @@ rand.workspace = true
 telemetry-subscribers.workspace = true
 wiremock.workspace = true
 haneul-pg-db.workspace = true
+dashmap.workspace = true
 
 haneul-synthetic-ingestion.workspace = true
 
