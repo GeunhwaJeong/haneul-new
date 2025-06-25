@@ -33,7 +33,8 @@ use haneul_types::messages_grpc::ObjectInfoRequestKind;
 use haneul_types::move_package::TypeOrigin;
 use haneul_types::object::Object;
 use haneul_types::transaction::{
-    GenesisObject, SenderSignedData, StoredExecutionTimeObservations, TransactionData,
+    GenesisObject, Reservation, SenderSignedData, StoredExecutionTimeObservations, TransactionData,
+    WithdrawFrom, WithdrawTypeParam,
 };
 use haneul_types::type_input::{StructInput, TypeInput};
 use haneul_types::{
@@ -199,6 +200,9 @@ fn get_registry() -> Result<Registry> {
     tracer
         .trace_type::<ExecutionFailureStatus>(&samples)
         .unwrap();
+    tracer.trace_type::<Reservation>(&samples).unwrap();
+    tracer.trace_type::<WithdrawFrom>(&samples).unwrap();
+    tracer.trace_type::<WithdrawTypeParam>(&samples).unwrap();
     tracer.trace_type::<CallArg>(&samples).unwrap();
     tracer.trace_type::<ObjectArg>(&samples).unwrap();
     tracer.trace_type::<Data>(&samples).unwrap();
