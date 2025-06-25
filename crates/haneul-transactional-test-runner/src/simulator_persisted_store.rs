@@ -12,7 +12,7 @@ use haneul_config::genesis;
 use haneul_protocol_config::ProtocolVersion;
 use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_swarm_config::network_config_builder::ConfigBuilder;
-use haneul_types::storage::{ConfigStore, ReadStore, RpcStateReader};
+use haneul_types::storage::{ReadStore, RpcStateReader};
 use haneul_types::{
     base_types::{ObjectID, SequenceNumber, HaneulAddress, VersionNumber},
     committee::{Committee, EpochId},
@@ -385,18 +385,6 @@ impl SimulatorStore for PersistedStore {
 
     fn backing_store(&self) -> &dyn haneul_types::storage::BackingStore {
         self
-    }
-}
-
-impl ConfigStore for PersistedStore {
-    fn get_current_epoch_stable_sequence_number(
-        &self,
-        _object_id: &ObjectID,
-        _epoch_id: EpochId,
-    ) -> Option<VersionNumber> {
-        unimplemented!(
-            "TODO PersistedStore::get_current_epoch_stable_sequence_number is not yet implemented",
-        )
     }
 }
 

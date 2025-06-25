@@ -699,10 +699,6 @@ impl From<haneul_sdk_types::UnchangedSharedObject> for super::UnchangedSharedObj
                 UnchangedSharedObjectKind::Canceled
             }
             PerEpochConfig => UnchangedSharedObjectKind::PerEpochConfig,
-            PerEpochConfigWithSequenceNumber { version } => {
-                message.version = Some(version);
-                UnchangedSharedObjectKind::PerEpochConfigWithSequenceNumber
-            }
         };
 
         message.set_kind(kind);
@@ -757,13 +753,6 @@ impl TryFrom<&super::UnchangedSharedObject> for haneul_sdk_types::UnchangedShare
                     .ok_or_else(|| TryFromProtoError::missing("version"))?,
             },
             UnchangedSharedObjectKind::PerEpochConfig => UnchangedSharedKind::PerEpochConfig,
-            UnchangedSharedObjectKind::PerEpochConfigWithSequenceNumber => {
-                UnchangedSharedKind::PerEpochConfigWithSequenceNumber {
-                    version: value
-                        .version
-                        .ok_or_else(|| TryFromProtoError::missing("version"))?,
-                }
-            }
         };
 
         Ok(Self { object_id, kind })
