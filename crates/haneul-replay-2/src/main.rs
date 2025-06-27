@@ -8,12 +8,13 @@ use core::panic;
 use move_trace_format::format::MoveTraceBuilder;
 use similar::{ChangeTag, TextDiff};
 use std::path::PathBuf;
+use haneul_replay_2::build::handle_build_command;
 use haneul_replay_2::{
     data_store::DataStore,
     execution::execute_transaction_to_effects,
     replay_txn::ReplayTransaction,
     tracing::{get_trace_output_path, save_trace_output},
-    ReplayConfig,
+    Commands, Config, ReplayConfig,
 };
 use haneul_types::{effects::TransactionEffects, gas::HaneulGasStatus};
 use tracing::debug;
@@ -26,8 +27,23 @@ fn main() -> anyhow::Result<()> {
         .with_env()
         .init();
 
-    let config = ReplayConfig::parse();
+    let config = Config::parse();
     debug!("Parsed config: {:#?}", config);
+
+    match config.command {
+        Some(Commands::Build(build_config)) => {
+            handle_build_command(build_config)?;
+        }
+        None => {
+            // Default to replay behavior when no subcommand is specified
+            handle_replay_command(config.replay)?;
+        }
+    }
+
+    Ok(())
+}
+
+fn handle_replay_command(config: ReplayConfig) -> anyhow::Result<()> {
     let ReplayConfig {
         node,
         digest,
