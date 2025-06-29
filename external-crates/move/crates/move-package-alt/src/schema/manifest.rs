@@ -5,10 +5,11 @@ use move_core_types::account_address::AccountAddress;
 use serde::{Deserialize, Deserializer, de};
 use serde_spanned::Spanned;
 
-use super::shared::ser_opt_account;
 use crate::dependency::DependencySet;
 
-use super::{EnvironmentName, LocalDepInfo, OnChainDepInfo, PackageName, ResolverName};
+use super::{
+    EnvironmentName, LocalDepInfo, OnChainDepInfo, PackageName, PublishedID, ResolverName,
+};
 
 // TODO: look at Brandon's serialization code (https://github.com/GeunhwaJeong/haneul-rust-sdk/blob/master/crates/haneul-sdk-types/src/object.rs)
 
@@ -66,8 +67,8 @@ pub struct ReplacementDependency {
     #[serde(flatten, default)]
     pub dependency: Option<DefaultDependency>,
 
-    #[serde(default, serialize_with = "ser_opt_account")]
-    pub published_at: Option<AccountAddress>,
+    #[serde(default)]
+    pub published_at: Option<PublishedID>,
 
     #[serde(default)]
     pub use_environment: Option<EnvironmentName>,
