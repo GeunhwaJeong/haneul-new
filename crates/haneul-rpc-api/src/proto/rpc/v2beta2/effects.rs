@@ -699,6 +699,7 @@ impl From<haneul_sdk_types::UnchangedSharedObject> for super::UnchangedSharedObj
                 UnchangedSharedObjectKind::Canceled
             }
             PerEpochConfig => UnchangedSharedObjectKind::PerEpochConfig,
+            PerEpochConfigWithSequenceNumber { .. } => todo!(),
         };
 
         message.set_kind(kind);

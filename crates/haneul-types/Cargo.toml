@@ -83,6 +83,7 @@ better_any.workspace = true
 lru.workspace = true
 
 haneul-sdk-types.workspace = true
+haneul-rpc.workspace = true
 
 ciborium.workspace = true
 x509-parser.workspace = true
