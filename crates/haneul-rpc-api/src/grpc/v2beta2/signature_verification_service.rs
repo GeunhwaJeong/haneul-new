@@ -7,13 +7,13 @@ use haneul_sdk_types::Jwk;
 use haneul_sdk_types::JwkId;
 use tap::Pipe;
 
-use crate::proto::google::rpc::bad_request::FieldViolation;
-use crate::proto::rpc::v2beta2::signature_verification_service_server::SignatureVerificationService;
-use crate::proto::rpc::v2beta2::VerifySignatureRequest;
-use crate::proto::rpc::v2beta2::VerifySignatureResponse;
 use crate::ErrorReason;
 use crate::Result;
 use crate::RpcService;
+use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
+use haneul_rpc::proto::haneul::rpc::v2beta2::signature_verification_service_server::SignatureVerificationService;
+use haneul_rpc::proto::haneul::rpc::v2beta2::VerifySignatureRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::VerifySignatureResponse;
 
 #[tonic::async_trait]
 impl SignatureVerificationService for RpcService {

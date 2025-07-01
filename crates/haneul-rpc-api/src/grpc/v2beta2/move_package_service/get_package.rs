@@ -6,10 +6,10 @@ use crate::{
         conversions::{convert_error, convert_module},
         load_package,
     },
-    proto::google::rpc::bad_request::FieldViolation,
-    proto::rpc::v2beta2::{GetPackageRequest, GetPackageResponse, Package},
     ErrorReason, Result, RpcService,
 };
+use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
+use haneul_rpc::proto::haneul::rpc::v2beta2::{GetPackageRequest, GetPackageResponse, Package};
 
 #[tracing::instrument(skip(service))]
 pub fn get_package(service: &RpcService, request: GetPackageRequest) -> Result<GetPackageResponse> {

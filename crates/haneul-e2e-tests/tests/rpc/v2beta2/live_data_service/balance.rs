@@ -4,9 +4,9 @@
 use std::path::PathBuf;
 use haneul_macros::sim_test;
 use haneul_move_build::BuildConfig;
-use haneul_rpc_api::proto::rpc::v2beta2::live_data_service_client::LiveDataServiceClient;
-use haneul_rpc_api::proto::rpc::v2beta2::{ExecutedTransaction, GasCostSummary};
-use haneul_rpc_api::proto::rpc::v2beta2::{GetBalanceRequest, ListBalancesRequest};
+use haneul_rpc::proto::haneul::rpc::v2beta2::live_data_service_client::LiveDataServiceClient;
+use haneul_rpc::proto::haneul::rpc::v2beta2::{ExecutedTransaction, GasCostSummary};
+use haneul_rpc::proto::haneul::rpc::v2beta2::{GetBalanceRequest, ListBalancesRequest};
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{
@@ -116,7 +116,7 @@ async fn test_custom_coin_balance() {
         .changed_objects
         .iter()
         .find_map(|o| {
-            use haneul_rpc_api::proto::rpc::v2beta2::changed_object::OutputObjectState;
+            use haneul_rpc::proto::haneul::rpc::v2beta2::changed_object::OutputObjectState;
             if o.output_state == Some(OutputObjectState::PackageWrite as i32) {
                 o.object_id.clone()
             } else {

@@ -3,7 +3,7 @@
 
 use prost_types::FieldMask;
 use haneul_macros::sim_test;
-use haneul_rpc_api::field_mask::FieldMaskUtil;
+use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc_api::proto::rpc::v2beta::transaction_execution_service_client::TransactionExecutionServiceClient;
 use haneul_rpc_api::proto::rpc::v2beta::Bcs;
 use haneul_rpc_api::proto::rpc::v2beta::ExecuteTransactionRequest;

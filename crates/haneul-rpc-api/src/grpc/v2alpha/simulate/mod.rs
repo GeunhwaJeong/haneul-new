@@ -1,8 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::field_mask::FieldMaskTree;
-use crate::message::MessageMergeFrom;
 use crate::proto::google::rpc::bad_request::FieldViolation;
 use crate::proto::rpc::v2alpha::CommandOutput;
 use crate::proto::rpc::v2alpha::CommandResult;
@@ -20,6 +18,8 @@ use crate::RpcError;
 use crate::RpcService;
 use itertools::Itertools;
 use haneul_protocol_config::ProtocolConfig;
+use haneul_rpc::field::FieldMaskTree;
+use haneul_rpc::merge::Merge;
 use haneul_types::balance_change::derive_balance_changes;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::ObjectRef;

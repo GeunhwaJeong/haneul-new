@@ -4,14 +4,12 @@
 use std::time::Duration;
 
 use prost_types::FieldMask;
-use haneul_rpc_api::{
-    field_mask::FieldMaskUtil,
-    proto::rpc::v2beta2::{
-        ledger_service_client::LedgerServiceClient,
-        transaction_execution_service_client::TransactionExecutionServiceClient, Bcs,
-        ExecuteTransactionRequest, ExecuteTransactionResponse, ExecutedTransaction,
-        GetTransactionRequest, Transaction, UserSignature,
-    },
+use haneul_rpc::field::FieldMaskUtil;
+use haneul_rpc::proto::haneul::rpc::v2beta2::{
+    ledger_service_client::LedgerServiceClient,
+    transaction_execution_service_client::TransactionExecutionServiceClient, Bcs,
+    ExecuteTransactionRequest, ExecuteTransactionResponse, ExecutedTransaction,
+    GetTransactionRequest, Transaction, UserSignature,
 };
 
 mod ledger_service;

@@ -2,27 +2,28 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::error::CheckpointNotFoundError;
-use crate::field_mask::FieldMaskTree;
-use crate::field_mask::FieldMaskUtil;
-use crate::message::MessageMerge;
-use crate::message::MessageMergeFrom;
-use crate::proto::google::rpc::bad_request::FieldViolation;
-use crate::proto::rpc::v2beta2::get_checkpoint_request::CheckpointId;
-use crate::proto::rpc::v2beta2::Checkpoint;
-use crate::proto::rpc::v2beta2::ExecutedTransaction;
-use crate::proto::rpc::v2beta2::GetCheckpointRequest;
-use crate::proto::rpc::v2beta2::GetCheckpointResponse;
-use crate::proto::rpc::v2beta2::Object;
-use crate::proto::rpc::v2beta2::Transaction;
-use crate::proto::rpc::v2beta2::TransactionEffects;
-use crate::proto::rpc::v2beta2::TransactionEvents;
-use crate::proto::rpc::v2beta2::UserSignature;
-use crate::proto::timestamp_ms_to_proto;
 use crate::ErrorReason;
 use crate::RpcError;
 use crate::RpcService;
 use prost_types::FieldMask;
+use haneul_rpc::field::FieldMaskTree;
+use haneul_rpc::field::FieldMaskUtil;
+use haneul_rpc::merge::Merge;
+use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
+use haneul_rpc::proto::haneul::rpc::v2beta2::get_checkpoint_request::CheckpointId;
+use haneul_rpc::proto::haneul::rpc::v2beta2::Checkpoint;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ExecutedTransaction;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetCheckpointRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetCheckpointResponse;
+use haneul_rpc::proto::haneul::rpc::v2beta2::Object;
+use haneul_rpc::proto::haneul::rpc::v2beta2::Transaction;
+use haneul_rpc::proto::haneul::rpc::v2beta2::TransactionEffects;
+use haneul_rpc::proto::haneul::rpc::v2beta2::TransactionEvents;
+use haneul_rpc::proto::haneul::rpc::v2beta2::UserSignature;
+use haneul_rpc::proto::timestamp_ms_to_proto;
 use haneul_sdk_types::CheckpointDigest;
+
+pub const READ_MASK_DEFAULT: &str = "sequence_number,digest";
 
 #[tracing::instrument(skip(service))]
 pub fn get_checkpoint(
@@ -32,7 +33,7 @@ pub fn get_checkpoint(
     let read_mask = {
         let read_mask = request
             .read_mask
-            .unwrap_or_else(|| FieldMask::from_str(GetCheckpointRequest::READ_MASK_DEFAULT));
+            .unwrap_or_else(|| FieldMask::from_str(READ_MASK_DEFAULT));
         read_mask.validate::<Checkpoint>().map_err(|path| {
             FieldViolation::new("read_mask")
                 .with_description(format!("invalid read_mask path: {path}"))

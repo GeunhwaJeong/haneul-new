@@ -4,24 +4,24 @@
 use shared_crypto::intent::Intent;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::sim_test;
-use haneul_rpc_api::proto::rpc::v2beta2::live_data_service_client::LiveDataServiceClient;
-use haneul_rpc_api::proto::rpc::v2beta2::Argument;
-use haneul_rpc_api::proto::rpc::v2beta2::Command;
-use haneul_rpc_api::proto::rpc::v2beta2::GasPayment;
-use haneul_rpc_api::proto::rpc::v2beta2::Input;
-use haneul_rpc_api::proto::rpc::v2beta2::MoveCall;
-use haneul_rpc_api::proto::rpc::v2beta2::ProgrammableTransaction;
-use haneul_rpc_api::proto::rpc::v2beta2::SimulateTransactionRequest;
-use haneul_rpc_api::proto::rpc::v2beta2::Transaction;
-use haneul_rpc_api::proto::rpc::v2beta2::TransactionKind;
-use haneul_rpc_api::proto::rpc::v2beta2::TransferObjects;
+use haneul_rpc::proto::haneul::rpc::v2beta2::live_data_service_client::LiveDataServiceClient;
+use haneul_rpc::proto::haneul::rpc::v2beta2::Argument;
+use haneul_rpc::proto::haneul::rpc::v2beta2::Command;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GasPayment;
+use haneul_rpc::proto::haneul::rpc::v2beta2::Input;
+use haneul_rpc::proto::haneul::rpc::v2beta2::MoveCall;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ProgrammableTransaction;
+use haneul_rpc::proto::haneul::rpc::v2beta2::SimulateTransactionRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::Transaction;
+use haneul_rpc::proto::haneul::rpc::v2beta2::TransactionKind;
+use haneul_rpc::proto::haneul::rpc::v2beta2::TransferObjects;
 use haneul_rpc_api::Client;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::effects::TransactionEffectsAPI;
 use test_cluster::TestClusterBuilder;
 
 fn proto_to_response(
-    proto: haneul_rpc_api::proto::rpc::v2beta2::SimulateTransactionResponse,
+    proto: haneul_rpc::proto::haneul::rpc::v2beta2::SimulateTransactionResponse,
 ) -> (
     haneul_types::transaction::TransactionData,
     haneul_types::effects::TransactionEffects,

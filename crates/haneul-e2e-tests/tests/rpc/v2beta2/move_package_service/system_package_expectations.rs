@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use haneul_rpc_api::proto::rpc::v2beta2::{
+use haneul_rpc::proto::haneul::rpc::v2beta2::{
     datatype_descriptor::DatatypeKind, function_descriptor::Visibility, open_signature,
     open_signature_body, Ability, DatatypeDescriptor, FunctionDescriptor, Module, Package,
 };

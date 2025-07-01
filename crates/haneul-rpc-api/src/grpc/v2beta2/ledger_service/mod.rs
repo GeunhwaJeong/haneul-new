@@ -1,22 +1,22 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::proto::rpc::v2beta2::ledger_service_server::LedgerService;
-use crate::proto::rpc::v2beta2::BatchGetObjectsRequest;
-use crate::proto::rpc::v2beta2::BatchGetObjectsResponse;
-use crate::proto::rpc::v2beta2::BatchGetTransactionsRequest;
-use crate::proto::rpc::v2beta2::BatchGetTransactionsResponse;
-use crate::proto::rpc::v2beta2::GetCheckpointRequest;
-use crate::proto::rpc::v2beta2::GetCheckpointResponse;
-use crate::proto::rpc::v2beta2::GetEpochRequest;
-use crate::proto::rpc::v2beta2::GetEpochResponse;
-use crate::proto::rpc::v2beta2::GetObjectRequest;
-use crate::proto::rpc::v2beta2::GetObjectResponse;
-use crate::proto::rpc::v2beta2::GetServiceInfoRequest;
-use crate::proto::rpc::v2beta2::GetServiceInfoResponse;
-use crate::proto::rpc::v2beta2::GetTransactionRequest;
-use crate::proto::rpc::v2beta2::GetTransactionResponse;
 use crate::RpcService;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ledger_service_server::LedgerService;
+use haneul_rpc::proto::haneul::rpc::v2beta2::BatchGetObjectsRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::BatchGetObjectsResponse;
+use haneul_rpc::proto::haneul::rpc::v2beta2::BatchGetTransactionsRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::BatchGetTransactionsResponse;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetCheckpointRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetCheckpointResponse;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetEpochRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetEpochResponse;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetObjectRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetObjectResponse;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetServiceInfoRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetServiceInfoResponse;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetTransactionRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetTransactionResponse;
 
 pub(crate) mod get_checkpoint;
 mod get_epoch;

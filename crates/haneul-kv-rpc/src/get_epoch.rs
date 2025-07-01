@@ -3,10 +3,10 @@
 
 use haneul_kvstore::{BigTableClient, KeyValueStoreReader};
 use haneul_protocol_config::{Chain, ProtocolConfig};
+use haneul_rpc::field::{FieldMask, FieldMaskTree, FieldMaskUtil};
+use haneul_rpc::merge::Merge;
 use haneul_rpc_api::{
     config_to_proto,
-    field_mask::{FieldMask, FieldMaskTree, FieldMaskUtil},
-    message::MessageMergeFrom,
     proto::{
         google::rpc::bad_request::FieldViolation,
         rpc::v2beta::{Epoch, GetEpochRequest, ProtocolConfig as RpcProtocolConfig},

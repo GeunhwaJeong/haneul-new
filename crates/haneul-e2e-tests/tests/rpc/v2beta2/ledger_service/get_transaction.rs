@@ -3,10 +3,10 @@
 
 use crate::stake_with_validator;
 use haneul_macros::sim_test;
-use haneul_rpc_api::field_mask::FieldMask;
-use haneul_rpc_api::field_mask::FieldMaskUtil;
-use haneul_rpc_api::proto::rpc::v2beta2::ledger_service_client::LedgerServiceClient;
-use haneul_rpc_api::proto::rpc::v2beta2::{ExecutedTransaction, GetTransactionRequest};
+use haneul_rpc::field::FieldMask;
+use haneul_rpc::field::FieldMaskUtil;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ledger_service_client::LedgerServiceClient;
+use haneul_rpc::proto::haneul::rpc::v2beta2::{ExecutedTransaction, GetTransactionRequest};
 use test_cluster::TestClusterBuilder;
 
 #[sim_test]

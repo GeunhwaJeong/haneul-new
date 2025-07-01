@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_macros::sim_test;
-use haneul_rpc_api::proto::rpc::v2beta2::{
+use haneul_rpc::proto::haneul::rpc::v2beta2::{
     move_package_service_client::MovePackageServiceClient, GetPackageRequest,
 };
 use test_cluster::TestClusterBuilder;

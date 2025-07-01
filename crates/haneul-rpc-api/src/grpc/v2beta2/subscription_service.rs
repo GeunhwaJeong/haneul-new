@@ -3,11 +3,11 @@
 
 use std::pin::Pin;
 
-use crate::field_mask::FieldMaskTree;
-use crate::proto::rpc::v2beta2::subscription_service_server::SubscriptionService;
-use crate::proto::rpc::v2beta2::SubscribeCheckpointsRequest;
-use crate::proto::rpc::v2beta2::SubscribeCheckpointsResponse;
 use crate::subscription::SubscriptionServiceHandle;
+use haneul_rpc::field::FieldMaskTree;
+use haneul_rpc::proto::haneul::rpc::v2beta2::subscription_service_server::SubscriptionService;
+use haneul_rpc::proto::haneul::rpc::v2beta2::SubscribeCheckpointsRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::SubscribeCheckpointsResponse;
 
 #[tonic::async_trait]
 impl SubscriptionService for SubscriptionServiceHandle {

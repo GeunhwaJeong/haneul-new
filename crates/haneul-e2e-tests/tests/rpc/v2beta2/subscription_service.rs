@@ -3,10 +3,10 @@
 
 use crate::transfer_coin;
 use haneul_macros::sim_test;
-use haneul_rpc_api::field_mask::FieldMask;
-use haneul_rpc_api::field_mask::FieldMaskUtil;
-use haneul_rpc_api::proto::rpc::v2beta2::subscription_service_client::SubscriptionServiceClient;
-use haneul_rpc_api::proto::rpc::v2beta2::SubscribeCheckpointsRequest;
+use haneul_rpc::field::FieldMask;
+use haneul_rpc::field::FieldMaskUtil;
+use haneul_rpc::proto::haneul::rpc::v2beta2::subscription_service_client::SubscriptionServiceClient;
+use haneul_rpc::proto::haneul::rpc::v2beta2::SubscribeCheckpointsRequest;
 use test_cluster::TestClusterBuilder;
 use tokio_stream::StreamExt;
 

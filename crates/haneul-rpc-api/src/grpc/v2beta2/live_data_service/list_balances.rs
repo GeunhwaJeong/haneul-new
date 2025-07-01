@@ -1,15 +1,15 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::proto::google::rpc::bad_request::FieldViolation;
-use crate::proto::rpc::v2beta2::Balance;
-use crate::proto::rpc::v2beta2::ListBalancesRequest;
-use crate::proto::rpc::v2beta2::ListBalancesResponse;
 use crate::ErrorReason;
 use crate::Result;
 use crate::RpcError;
 use crate::RpcService;
 use bytes::Bytes;
+use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
+use haneul_rpc::proto::haneul::rpc::v2beta2::Balance;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ListBalancesRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ListBalancesResponse;
 use haneul_sdk_types::Address;
 use haneul_types::storage::BalanceInfo;
 use tap::Pipe;

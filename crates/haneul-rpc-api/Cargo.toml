@@ -21,6 +21,7 @@ tokio.workspace = true
 async-trait.workspace = true
 itertools.workspace = true
 haneul-sdk-types.workspace = true
+haneul-rpc.workspace = true
 haneul-crypto.workspace = true
 prometheus.workspace = true
 http.workspace = true

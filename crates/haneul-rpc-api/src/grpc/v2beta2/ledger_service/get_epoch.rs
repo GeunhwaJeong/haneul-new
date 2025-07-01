@@ -1,27 +1,30 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::field_mask::FieldMaskTree;
-use crate::field_mask::FieldMaskUtil;
-use crate::message::MessageMergeFrom;
-use crate::proto::google::rpc::bad_request::FieldViolation;
-use crate::proto::rpc::v2beta2::Epoch;
-use crate::proto::rpc::v2beta2::GetEpochRequest;
-use crate::proto::rpc::v2beta2::GetEpochResponse;
-use crate::proto::rpc::v2beta2::ProtocolConfig;
-use crate::proto::timestamp_ms_to_proto;
 use crate::ErrorReason;
 use crate::Result;
 use crate::RpcService;
 use prost_types::FieldMask;
+use haneul_rpc::field::FieldMaskTree;
+use haneul_rpc::field::FieldMaskUtil;
+use haneul_rpc::merge::Merge;
+use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
+use haneul_rpc::proto::haneul::rpc::v2beta2::Epoch;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetEpochRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetEpochResponse;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ProtocolConfig;
+use haneul_rpc::proto::timestamp_ms_to_proto;
 use haneul_sdk_types::EpochId;
+
+pub const READ_MASK_DEFAULT: &str =
+        "epoch,committee,first_checkpoint,last_checkpoint,start,end,reference_gas_price,protocol_config.protocol_version";
 
 #[tracing::instrument(skip(service))]
 pub fn get_epoch(service: &RpcService, request: GetEpochRequest) -> Result<GetEpochResponse> {
     let read_mask = {
         let read_mask = request
             .read_mask
-            .unwrap_or_else(|| FieldMask::from_str(GetEpochRequest::READ_MASK_DEFAULT));
+            .unwrap_or_else(|| FieldMask::from_str(READ_MASK_DEFAULT));
         read_mask.validate::<Epoch>().map_err(|path| {
             FieldViolation::new("read_mask")
                 .with_description(format!("invalid read_mask path: {path}"))

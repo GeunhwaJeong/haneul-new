@@ -1,11 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
-    proto::google::rpc::bad_request::FieldViolation,
-    proto::rpc::v2beta2::{Balance, GetBalanceRequest, GetBalanceResponse},
-    ErrorReason, Result, RpcError, RpcService,
-};
+use crate::{ErrorReason, Result, RpcError, RpcService};
+use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
+use haneul_rpc::proto::haneul::rpc::v2beta2::{Balance, GetBalanceRequest, GetBalanceResponse};
 use haneul_sdk_types::StructTag;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::haneul_sdk_types_conversions::struct_tag_sdk_to_core;

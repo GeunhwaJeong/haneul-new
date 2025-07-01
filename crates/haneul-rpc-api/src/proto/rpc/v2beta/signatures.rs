@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use super::SignatureScheme;
-use crate::{
-    message::{MessageField, MessageFields, MessageMerge},
-    proto::TryFromProtoError,
-};
+use crate::proto::TryFromProtoError;
+use haneul_rpc::field::FieldMaskTree;
+use haneul_rpc::field::MessageField;
+use haneul_rpc::field::MessageFields;
+use haneul_rpc::merge::Merge;
 use haneul_sdk_types::PasskeyPublicKey;
 use tap::Pipe;
 
@@ -467,17 +468,13 @@ impl TryFrom<&super::SignatureScheme> for haneul_sdk_types::SignatureScheme {
 impl From<haneul_sdk_types::SimpleSignature> for super::UserSignature {
     fn from(value: haneul_sdk_types::SimpleSignature) -> Self {
         let mut message = Self::default();
-        message.merge(value, &crate::field_mask::FieldMaskTree::new_wildcard());
+        message.merge(value, &FieldMaskTree::new_wildcard());
         message
     }
 }
 
-impl MessageMerge<haneul_sdk_types::SimpleSignature> for super::UserSignature {
-    fn merge(
-        &mut self,
-        source: haneul_sdk_types::SimpleSignature,
-        mask: &crate::field_mask::FieldMaskTree,
-    ) {
+impl Merge<haneul_sdk_types::SimpleSignature> for super::UserSignature {
+    fn merge(&mut self, source: haneul_sdk_types::SimpleSignature, mask: &FieldMaskTree) {
         let scheme: super::SignatureScheme = source.scheme().into();
         let (signature, public_key) = match &source {
             haneul_sdk_types::SimpleSignature::Ed25519 {
@@ -893,17 +890,13 @@ impl MessageFields for super::UserSignature {
 impl From<haneul_sdk_types::UserSignature> for super::UserSignature {
     fn from(value: haneul_sdk_types::UserSignature) -> Self {
         let mut message = Self::default();
-        message.merge(value, &crate::field_mask::FieldMaskTree::new_wildcard());
+        message.merge(value, &FieldMaskTree::new_wildcard());
         message
     }
 }
 
-impl MessageMerge<haneul_sdk_types::UserSignature> for super::UserSignature {
-    fn merge(
-        &mut self,
-        source: haneul_sdk_types::UserSignature,
-        mask: &crate::field_mask::FieldMaskTree,
-    ) {
+impl Merge<haneul_sdk_types::UserSignature> for super::UserSignature {
+    fn merge(&mut self, source: haneul_sdk_types::UserSignature, mask: &FieldMaskTree) {
         use haneul_sdk_types::UserSignature::*;
 
         if mask.contains(Self::BCS_FIELD.name) {
@@ -939,8 +932,8 @@ impl MessageMerge<haneul_sdk_types::UserSignature> for super::UserSignature {
     }
 }
 
-impl MessageMerge<&super::UserSignature> for super::UserSignature {
-    fn merge(&mut self, source: &super::UserSignature, mask: &crate::field_mask::FieldMaskTree) {
+impl Merge<&super::UserSignature> for super::UserSignature {
+    fn merge(&mut self, source: &super::UserSignature, mask: &FieldMaskTree) {
         let super::UserSignature {
             bcs,
             scheme,

@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_macros::sim_test;
-use haneul_rpc_api::proto::rpc::v2beta2::ledger_service_client::LedgerServiceClient;
-use haneul_rpc_api::proto::rpc::v2beta2::GetServiceInfoRequest;
-use haneul_rpc_api::proto::rpc::v2beta2::GetServiceInfoResponse;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ledger_service_client::LedgerServiceClient;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetServiceInfoRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetServiceInfoResponse;
 use test_cluster::TestClusterBuilder;
 
 #[sim_test]
@@ -23,7 +23,7 @@ async fn get_service_info() {
         timestamp,
         lowest_available_checkpoint,
         lowest_available_checkpoint_objects,
-        server_version,
+        server,
     } = grpc_client
         .get_service_info(GetServiceInfoRequest {})
         .await
@@ -37,5 +37,5 @@ async fn get_service_info() {
     assert!(timestamp.is_some());
     assert!(lowest_available_checkpoint.is_some());
     assert!(lowest_available_checkpoint_objects.is_some());
-    assert!(server_version.is_some());
+    assert!(server.is_some());
 }

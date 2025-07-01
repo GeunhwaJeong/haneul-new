@@ -1,13 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::proto::rpc::v2beta2::ListOwnedObjectsRequest;
-use crate::proto::rpc::v2beta2::ListOwnedObjectsResponse;
-use crate::proto::rpc::v2beta2::OwnedObject;
 use crate::Result;
 use crate::RpcError;
 use crate::RpcService;
 use bytes::Bytes;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ListOwnedObjectsRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ListOwnedObjectsResponse;
+use haneul_rpc::proto::haneul::rpc::v2beta2::OwnedObject;
 use haneul_sdk_types::Address;
 use haneul_types::storage::OwnedObjectInfo;
 use tap::Pipe;

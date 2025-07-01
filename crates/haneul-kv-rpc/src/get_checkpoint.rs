@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_kvstore::{BigTableClient, KeyValueStoreReader};
+use haneul_rpc::field::{FieldMask, FieldMaskTree, FieldMaskUtil};
+use haneul_rpc::merge::Merge;
 use haneul_rpc_api::{
-    field_mask::{FieldMask, FieldMaskTree, FieldMaskUtil},
-    message::MessageMerge,
     proto::{
         google::rpc::bad_request::FieldViolation,
         rpc::v2beta::{get_checkpoint_request::CheckpointId, Checkpoint, GetCheckpointRequest},

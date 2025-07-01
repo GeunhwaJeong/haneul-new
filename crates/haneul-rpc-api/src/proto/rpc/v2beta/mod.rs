@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::message::{MessageField, MessageFields};
+use haneul_rpc::field::MessageField;
+use haneul_rpc::field::MessageFields;
 
 // Include the generated proto definitions
 include!("../../generated/haneul.rpc.v2beta.rs");

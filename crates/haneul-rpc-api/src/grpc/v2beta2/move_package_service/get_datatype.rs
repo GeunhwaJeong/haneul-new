@@ -1,11 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::{
-    proto::google::rpc::bad_request::FieldViolation,
-    proto::rpc::v2beta2::{GetDatatypeRequest, GetDatatypeResponse},
-    ErrorReason, Result, RpcService,
-};
+use crate::{ErrorReason, Result, RpcService};
+use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
+use haneul_rpc::proto::haneul::rpc::v2beta2::{GetDatatypeRequest, GetDatatypeResponse};
 
 use super::{
     conversions::{convert_datatype, convert_error},

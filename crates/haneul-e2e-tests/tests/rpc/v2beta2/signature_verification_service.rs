@@ -3,10 +3,10 @@
 
 use shared_crypto::intent::{Intent, IntentMessage};
 use haneul_macros::sim_test;
-use haneul_rpc_api::proto::rpc::v2beta2::signature_verification_service_client::SignatureVerificationServiceClient;
-use haneul_rpc_api::proto::rpc::v2beta2::Bcs;
-use haneul_rpc_api::proto::rpc::v2beta2::UserSignature;
-use haneul_rpc_api::proto::rpc::v2beta2::VerifySignatureRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::signature_verification_service_client::SignatureVerificationServiceClient;
+use haneul_rpc::proto::haneul::rpc::v2beta2::Bcs;
+use haneul_rpc::proto::haneul::rpc::v2beta2::UserSignature;
+use haneul_rpc::proto::haneul::rpc::v2beta2::VerifySignatureRequest;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::Signature;

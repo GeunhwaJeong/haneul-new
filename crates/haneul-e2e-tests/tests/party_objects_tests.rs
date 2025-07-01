@@ -609,8 +609,8 @@ async fn party_object_read() {
 /// indexes
 #[sim_test]
 async fn party_object_grpc() {
-    use haneul_rpc_api::field_mask::FieldMask;
-    use haneul_rpc_api::field_mask::FieldMaskUtil;
+    use haneul_rpc::field::FieldMask;
+    use haneul_rpc::field::FieldMaskUtil;
     use haneul_rpc_api::proto::rpc::v2alpha::live_data_service_client::LiveDataServiceClient;
     use haneul_rpc_api::proto::rpc::v2alpha::ListOwnedObjectsRequest;
     use haneul_rpc_api::proto::rpc::v2beta::ledger_service_client::LedgerServiceClient;
@@ -742,8 +742,8 @@ async fn party_object_grpc() {
 /// selection
 #[sim_test]
 async fn party_coin_grpc() {
-    use haneul_rpc_api::field_mask::FieldMask;
-    use haneul_rpc_api::field_mask::FieldMaskUtil;
+    use haneul_rpc::field::FieldMask;
+    use haneul_rpc::field::FieldMaskUtil;
     use haneul_rpc_api::proto::rpc::v2alpha::live_data_service_client::LiveDataServiceClient;
     use haneul_rpc_api::proto::rpc::v2alpha::ListOwnedObjectsRequest;
     use haneul_rpc_api::proto::rpc::v2alpha::SimulateTransactionRequest;

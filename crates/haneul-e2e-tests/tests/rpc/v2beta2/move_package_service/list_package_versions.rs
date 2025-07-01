@@ -5,7 +5,7 @@ use move_core_types::ident_str;
 use haneul_json_rpc_types::ObjectChange;
 use haneul_macros::sim_test;
 use haneul_move_build::BuildConfig;
-use haneul_rpc_api::proto::rpc::v2beta2::{
+use haneul_rpc::proto::haneul::rpc::v2beta2::{
     move_package_service_client::MovePackageServiceClient, ListPackageVersionsRequest,
 };
 use haneul_types::{

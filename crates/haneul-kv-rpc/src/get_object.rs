@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_kvstore::{BigTableClient, KeyValueStoreReader};
+use haneul_rpc::merge::Merge;
 use haneul_rpc_api::proto::google::rpc::bad_request::FieldViolation;
 use haneul_rpc_api::{
     ledger_service::validate_get_object_requests,
-    message::MessageMerge,
     proto::rpc::v2beta::{
         BatchGetObjectsRequest, BatchGetObjectsResponse, GetObjectRequest, Object,
     },

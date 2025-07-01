@@ -1,14 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::proto::rpc::v2beta2::CoinMetadata;
-use crate::proto::rpc::v2beta2::CoinTreasury;
-use crate::proto::rpc::v2beta2::GetCoinInfoRequest;
-use crate::proto::rpc::v2beta2::GetCoinInfoResponse;
-use crate::proto::rpc::v2beta2::RegulatedCoinMetadata;
 use crate::Result;
 use crate::RpcError;
 use crate::RpcService;
+use haneul_rpc::proto::haneul::rpc::v2beta2::CoinMetadata;
+use haneul_rpc::proto::haneul::rpc::v2beta2::CoinTreasury;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetCoinInfoRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetCoinInfoResponse;
+use haneul_rpc::proto::haneul::rpc::v2beta2::RegulatedCoinMetadata;
 use haneul_sdk_types::{ObjectId, StructTag};
 use haneul_types::haneul_sdk_types_conversions::struct_tag_sdk_to_core;
 

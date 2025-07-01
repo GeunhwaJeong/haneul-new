@@ -2,8 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use super::{Bcs, Object};
-use crate::message::{MessageField, MessageFields, MessageMerge};
 use crate::proto::TryFromProtoError;
+use haneul_rpc::field::FieldMaskTree;
+use haneul_rpc::field::MessageField;
+use haneul_rpc::field::MessageFields;
+use haneul_rpc::merge::Merge;
 use tap::Pipe;
 
 //
@@ -55,13 +58,13 @@ impl MessageFields for Object {
 impl From<haneul_sdk_types::Object> for Object {
     fn from(value: haneul_sdk_types::Object) -> Self {
         let mut message = Self::default();
-        message.merge(value, &crate::field_mask::FieldMaskTree::new_wildcard());
+        message.merge(value, &FieldMaskTree::new_wildcard());
         message
     }
 }
 
-impl MessageMerge<&Object> for Object {
-    fn merge(&mut self, source: &Object, mask: &crate::field_mask::FieldMaskTree) {
+impl Merge<&Object> for Object {
+    fn merge(&mut self, source: &Object, mask: &FieldMaskTree) {
         let Object {
             bcs,
             object_id,
@@ -137,8 +140,8 @@ impl MessageMerge<&Object> for Object {
     }
 }
 
-impl MessageMerge<haneul_sdk_types::Object> for Object {
-    fn merge(&mut self, source: haneul_sdk_types::Object, mask: &crate::field_mask::FieldMaskTree) {
+impl Merge<haneul_sdk_types::Object> for Object {
+    fn merge(&mut self, source: haneul_sdk_types::Object, mask: &FieldMaskTree) {
         if mask.contains(Self::BCS_FIELD.name) {
             let mut bcs = super::Bcs::serialize(&source).unwrap();
             bcs.name = Some("Object".to_owned());
@@ -180,12 +183,8 @@ impl MessageMerge<haneul_sdk_types::Object> for Object {
     }
 }
 
-impl MessageMerge<&haneul_sdk_types::MoveStruct> for Object {
-    fn merge(
-        &mut self,
-        source: &haneul_sdk_types::MoveStruct,
-        mask: &crate::field_mask::FieldMaskTree,
-    ) {
+impl Merge<&haneul_sdk_types::MoveStruct> for Object {
+    fn merge(&mut self, source: &haneul_sdk_types::MoveStruct, mask: &FieldMaskTree) {
         if mask.contains(Self::OBJECT_TYPE_FIELD.name) {
             self.object_type = Some(source.object_type().to_string());
         }
@@ -203,12 +202,8 @@ impl MessageMerge<&haneul_sdk_types::MoveStruct> for Object {
     }
 }
 
-impl MessageMerge<&haneul_sdk_types::MovePackage> for Object {
-    fn merge(
-        &mut self,
-        source: &haneul_sdk_types::MovePackage,
-        mask: &crate::field_mask::FieldMaskTree,
-    ) {
+impl Merge<&haneul_sdk_types::MovePackage> for Object {
+    fn merge(&mut self, source: &haneul_sdk_types::MovePackage, mask: &FieldMaskTree) {
         if mask.contains(Self::OBJECT_TYPE_FIELD.name) {
             self.object_type = Some(PACKAGE_TYPE.to_owned());
         }
@@ -466,16 +461,10 @@ impl From<haneul_sdk_types::GenesisObject> for Object {
 
         match value.data() {
             haneul_sdk_types::ObjectData::Struct(move_struct) => {
-                message.merge(
-                    move_struct,
-                    &crate::field_mask::FieldMaskTree::new_wildcard(),
-                );
+                message.merge(move_struct, &FieldMaskTree::new_wildcard());
             }
             haneul_sdk_types::ObjectData::Package(move_package) => {
-                message.merge(
-                    move_package,
-                    &crate::field_mask::FieldMaskTree::new_wildcard(),
-                );
+                message.merge(move_package, &FieldMaskTree::new_wildcard());
             }
         }
 

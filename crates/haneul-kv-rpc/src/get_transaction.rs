@@ -3,10 +3,10 @@
 
 use std::str::FromStr;
 use haneul_kvstore::{BigTableClient, KeyValueStoreReader, TransactionData};
+use haneul_rpc::field::{FieldMask, FieldMaskTree, FieldMaskUtil};
+use haneul_rpc::merge::Merge;
 use haneul_rpc_api::proto::rpc::v2beta::{BatchGetTransactionsRequest, BatchGetTransactionsResponse};
 use haneul_rpc_api::{
-    field_mask::{FieldMask, FieldMaskTree, FieldMaskUtil},
-    message::MessageMergeFrom,
     proto::google::rpc::bad_request::FieldViolation,
     proto::rpc::v2beta::{
         ExecutedTransaction, GetTransactionRequest, Transaction, TransactionEffects,

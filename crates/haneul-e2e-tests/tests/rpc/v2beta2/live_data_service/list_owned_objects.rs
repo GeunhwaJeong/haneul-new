@@ -4,9 +4,9 @@
 use std::path::PathBuf;
 use haneul_macros::sim_test;
 use haneul_move_build::BuildConfig;
-use haneul_rpc_api::proto::rpc::v2beta2::changed_object::{IdOperation, OutputObjectState};
-use haneul_rpc_api::proto::rpc::v2beta2::live_data_service_client::LiveDataServiceClient;
-use haneul_rpc_api::proto::rpc::v2beta2::{
+use haneul_rpc::proto::haneul::rpc::v2beta2::changed_object::{IdOperation, OutputObjectState};
+use haneul_rpc::proto::haneul::rpc::v2beta2::live_data_service_client::LiveDataServiceClient;
+use haneul_rpc::proto::haneul::rpc::v2beta2::{
     GetCoinInfoRequest, GetCoinInfoResponse, ListOwnedObjectsRequest,
 };
 use haneul_sdk_types::TypeTag;

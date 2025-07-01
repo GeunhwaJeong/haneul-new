@@ -1,20 +1,20 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::proto::rpc::v2beta2::live_data_service_server::LiveDataService;
-use crate::proto::rpc::v2beta2::GetBalanceRequest;
-use crate::proto::rpc::v2beta2::GetBalanceResponse;
-use crate::proto::rpc::v2beta2::GetCoinInfoRequest;
-use crate::proto::rpc::v2beta2::GetCoinInfoResponse;
-use crate::proto::rpc::v2beta2::ListBalancesRequest;
-use crate::proto::rpc::v2beta2::ListBalancesResponse;
-use crate::proto::rpc::v2beta2::ListDynamicFieldsRequest;
-use crate::proto::rpc::v2beta2::ListDynamicFieldsResponse;
-use crate::proto::rpc::v2beta2::ListOwnedObjectsRequest;
-use crate::proto::rpc::v2beta2::ListOwnedObjectsResponse;
-use crate::proto::rpc::v2beta2::SimulateTransactionRequest;
-use crate::proto::rpc::v2beta2::SimulateTransactionResponse;
 use crate::RpcService;
+use haneul_rpc::proto::haneul::rpc::v2beta2::live_data_service_server::LiveDataService;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetBalanceRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetBalanceResponse;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetCoinInfoRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::GetCoinInfoResponse;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ListBalancesRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ListBalancesResponse;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ListDynamicFieldsRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ListDynamicFieldsResponse;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ListOwnedObjectsRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ListOwnedObjectsResponse;
+use haneul_rpc::proto::haneul::rpc::v2beta2::SimulateTransactionRequest;
+use haneul_rpc::proto::haneul::rpc::v2beta2::SimulateTransactionResponse;
 
 mod get_balance;
 mod get_coin_info;
