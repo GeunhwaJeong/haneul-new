@@ -10,7 +10,6 @@
 /// Functionality:
 /// - Defines a cliff vesting schedule.
 /// ===========================================================================================
-#[allow(unused_const)]
 module vesting::cliff;
 
 use haneul::balance::Balance;

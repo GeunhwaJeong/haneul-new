@@ -9,7 +9,6 @@
 /// Functionality:
 /// - Defines a linear vesting schedule.
 /// ===========================================================================================
-#[allow(unused_const)]
 module vesting::linear;
 
 use haneul::balance::Balance;
