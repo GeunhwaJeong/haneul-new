@@ -644,11 +644,12 @@ macro fun mul_div($a: u64, $b: u64, $c: u64): u64 {
     (($a as u128) * ($b as u128) / ($c as u128)) as u64
 }
 
-// ==== test-related functions ====
-
 // Given the `staked_haneul` receipt calculate the current rewards (in terms of HANEUL) for it.
-#[test_only]
-public fun calculate_rewards(pool: &StakingPool, staked_haneul: &StakedHaneul, current_epoch: u64): u64 {
+public(package) fun calculate_rewards(
+    pool: &StakingPool,
+    staked_haneul: &StakedHaneul,
+    current_epoch: u64,
+): u64 {
     let staked_amount = staked_haneul.amount();
     let pool_token_withdraw_amount = {
         let exchange_rate_at_staking_epoch = pool.pool_token_exchange_rate_at_epoch(staked_haneul.stake_activation_epoch);
@@ -667,6 +668,8 @@ public fun calculate_rewards(pool: &StakingPool, staked_haneul: &StakedHaneul, c
 
     staked_amount + reward_withdraw_amount
 }
+
+// ==== test-related functions ====
 
 #[test_only]
 public(package) fun fungible_staked_haneul_data(pool: &StakingPool): &FungibleStakedHaneulData {

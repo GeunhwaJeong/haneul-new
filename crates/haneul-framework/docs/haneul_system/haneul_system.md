@@ -82,6 +82,7 @@ the HaneulSystemStateInner version, or vice versa.
 -  [Function `validator_address_by_pool_id`](#haneul_system_haneul_system_validator_address_by_pool_id)
 -  [Function `pool_exchange_rates`](#haneul_system_haneul_system_pool_exchange_rates)
 -  [Function `active_validator_addresses`](#haneul_system_haneul_system_active_validator_addresses)
+-  [Function `calculate_rewards`](#haneul_system_haneul_system_calculate_rewards)
 -  [Function `advance_epoch`](#haneul_system_haneul_system_advance_epoch)
 -  [Function `load_system_state`](#haneul_system_haneul_system_load_system_state)
 -  [Function `load_system_state_mut`](#haneul_system_haneul_system_load_system_state_mut)
@@ -1418,6 +1419,42 @@ Getter returning addresses of the currently active validators.
 
 <pre><code><b>public</b> <b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_active_validator_addresses">active_validator_addresses</a>(wrapper: &<b>mut</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">HaneulSystemState</a>): vector&lt;<b>address</b>&gt; {
     wrapper.<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_system_state_mut">load_system_state_mut</a>().<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_active_validator_addresses">active_validator_addresses</a>()
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_system_haneul_system_calculate_rewards"></a>
+
+## Function `calculate_rewards`
+
+Calculate the rewards for a given staked HANEUL object.
+Used in the package, and can be dev-inspected.
+
+
+<pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_calculate_rewards">calculate_rewards</a>(self: &<b>mut</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">haneul_system::haneul_system::HaneulSystemState</a>, staked_haneul: &<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakedHaneul">haneul_system::staking_pool::StakedHaneul</a>, ctx: &<a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): u64
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_calculate_rewards">calculate_rewards</a>(
+    self: &<b>mut</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">HaneulSystemState</a>,
+    staked_haneul: &StakedHaneul,
+    ctx: &TxContext,
+): u64 {
+    <b>let</b> system_state = self.<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_system_state_mut">load_system_state_mut</a>();
+    <b>let</b> validator_address = system_state.<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_validator_address_by_pool_id">validator_address_by_pool_id</a>(&staked_haneul.pool_id());
+    system_state
+        .validators()
+        .get_active_validator_ref(validator_address)
+        .get_staking_pool_ref()
+        .<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_calculate_rewards">calculate_rewards</a>(staked_haneul, ctx.epoch())
 }
 </code></pre>
 

@@ -511,21 +511,26 @@ public fun pool_exchange_rates(
     wrapper.load_system_state_mut().pool_exchange_rates(pool_id)
 }
 
-#[test_only]
+/// Getter returning addresses of the currently active validators.
+public fun active_validator_addresses(wrapper: &mut HaneulSystemState): vector<address> {
+    wrapper.load_system_state_mut().active_validator_addresses()
+}
+
 /// Calculate the rewards for a given staked HANEUL object.
-public fun calculate_rewards(self: &mut HaneulSystemState, staked_haneul: &StakedHaneul, epoch: u64): u64 {
+/// Used in the package, and can be dev-inspected.
+public(package) fun calculate_rewards(
+    self: &mut HaneulSystemState,
+    staked_haneul: &StakedHaneul,
+    ctx: &TxContext,
+): u64 {
     let system_state = self.load_system_state_mut();
     let validator_address = system_state.validator_address_by_pool_id(&staked_haneul.pool_id());
 
     system_state
-        .active_validator_by_address(validator_address)
+        .validators()
+        .get_active_validator_ref(validator_address)
         .get_staking_pool_ref()
-        .calculate_rewards(staked_haneul, epoch)
-}
-
-/// Getter returning addresses of the currently active validators.
-public fun active_validator_addresses(wrapper: &mut HaneulSystemState): vector<address> {
-    wrapper.load_system_state_mut().active_validator_addresses()
+        .calculate_rewards(staked_haneul, ctx.epoch())
 }
 
 #[allow(unused_function)]

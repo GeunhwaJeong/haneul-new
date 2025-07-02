@@ -577,12 +577,11 @@ public fun staking_rewards_balance(runner: &mut TestRunner): u64 {
     let sender = runner.sender;
     let scenario = runner.scenario_mut();
     let mut system = scenario.take_shared<HaneulSystemState>();
-    let current_epoch = scenario.ctx().epoch();
 
     scenario.next_tx(sender);
     let total_balance = scenario.ids_for_sender<StakedHaneul>().fold!(0, |mut sum, staked_haneul_id| {
         let staked_haneul = scenario.take_from_sender_by_id<StakedHaneul>(staked_haneul_id);
-        let rewards = system.calculate_rewards(&staked_haneul, current_epoch);
+        let rewards = system.calculate_rewards(&staked_haneul, scenario.ctx());
 
         sum = sum + rewards;
         scenario.return_to_sender(staked_haneul);
