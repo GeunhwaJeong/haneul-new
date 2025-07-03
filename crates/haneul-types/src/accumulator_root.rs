@@ -6,7 +6,8 @@ use crate::{
     base_types::{ObjectID, SequenceNumber, HaneulAddress},
     dynamic_field::{derive_dynamic_field_id, DOFWrapper},
     error::HaneulResult,
-    object::Owner,
+    gas_coin::GasCoin,
+    object::{Object, Owner},
     storage::ObjectStore,
     transaction::WithdrawTypeParam,
     MoveTypeTagTrait, HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_FRAMEWORK_PACKAGE_ID,
@@ -78,4 +79,31 @@ pub fn derive_balance_account_object_id(
         &bcs::to_bytes(&key)?,
     )
     .map_err(|e| e.into())
+}
+
+/// Given an account object, return the balance of the account.
+/// This is a temporary function for testing.
+pub fn get_balance_from_account_for_testing(account_object: &Object) -> u64 {
+    // TODO(address-balances): Implement this properly.
+    GasCoin::try_from(account_object).unwrap().value()
+}
+
+pub fn update_account_balance_for_testing(account_object: &mut Object, balance_change: i128) {
+    let new_balance = get_balance_from_account_for_testing(account_object) as i128 + balance_change;
+    account_object
+        .data
+        .try_as_move_mut()
+        .unwrap()
+        .set_coin_value_unsafe(new_balance as u64);
+}
+
+/// Create an account object for testing.
+/// This is a temporary function for testing.
+pub fn create_account_for_testing(
+    owner: HaneulAddress,
+    type_param: WithdrawTypeParam,
+    balance: u64,
+) -> Object {
+    let account_object_id = derive_balance_account_object_id(owner, type_param).unwrap();
+    Object::with_id_owner_gas_for_testing(account_object_id, owner, balance)
 }
