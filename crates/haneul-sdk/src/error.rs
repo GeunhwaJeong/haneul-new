@@ -35,4 +35,6 @@ pub enum Error {
     InsufficientFund { address: HaneulAddress, amount: u128 },
     #[error("Invalid signature")]
     InvalidSignature,
+    #[error("Invalid Header key-value pair: {0}")]
+    CustomHeadersError(String),
 }
