@@ -61,8 +61,5 @@ move-vm-profiler.workspace = true
 haneul-http.workspace = true
 haneul-metrics-push-client.workspace = true
 
-[target.'cfg(not(target_env = "msvc"))'.dependencies]
-tikv-jemallocator.workspace = true
-
 [target.'cfg(msim)'.dependencies]
 haneul-simulator.workspace = true
