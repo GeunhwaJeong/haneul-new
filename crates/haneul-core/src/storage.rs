@@ -31,7 +31,6 @@ use haneul_types::storage::error::Result;
 use haneul_types::storage::BalanceInfo;
 use haneul_types::storage::BalanceIterator;
 use haneul_types::storage::CoinInfo;
-use haneul_types::storage::DynamicFieldIndexInfo;
 use haneul_types::storage::DynamicFieldKey;
 use haneul_types::storage::ObjectStore;
 use haneul_types::storage::OwnedObjectInfo;
@@ -530,20 +529,14 @@ impl RpcIndexes for RpcIndexStore {
                         object_type,
                         inverted_balance,
                     },
-                    OwnerIndexInfo {
-                        version,
-                        digest,
-                        start_version,
-                    },
+                    OwnerIndexInfo { version },
                 )| {
                     OwnedObjectInfo {
                         owner,
-                        start_version,
                         object_type,
                         balance: inverted_balance.map(std::ops::Not::not),
                         object_id,
                         version,
-                        digest,
                     }
                 },
             )
@@ -557,10 +550,7 @@ impl RpcIndexes for RpcIndexStore {
         parent: ObjectID,
         cursor: Option<ObjectID>,
     ) -> haneul_types::storage::error::Result<
-        Box<
-            dyn Iterator<Item = Result<(DynamicFieldKey, DynamicFieldIndexInfo), TypedStoreError>>
-                + '_,
-        >,
+        Box<dyn Iterator<Item = Result<DynamicFieldKey, TypedStoreError>> + '_>,
     > {
         let iter = self.dynamic_field_iter(parent, cursor)?;
         Ok(Box::new(iter) as _)
