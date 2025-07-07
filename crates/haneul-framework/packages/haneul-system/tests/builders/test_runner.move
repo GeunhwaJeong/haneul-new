@@ -583,7 +583,7 @@ public fun staking_rewards_balance(runner: &mut TestRunner): u64 {
         let staked_haneul = scenario.take_from_sender_by_id<StakedHaneul>(staked_haneul_id);
         let rewards = system.calculate_rewards(&staked_haneul, scenario.ctx());
 
-        sum = sum + rewards;
+        sum = sum + rewards + staked_haneul.amount();
         scenario.return_to_sender(staked_haneul);
         sum
     });

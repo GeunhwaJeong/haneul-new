@@ -402,7 +402,8 @@ public fun stake_plus_current_rewards(
     while (!stake_ids.is_empty()) {
         let staked_haneul_id = stake_ids.pop_back();
         let staked_haneul = scenario.take_from_sender_by_id<StakedHaneul>(staked_haneul_id);
-        sum = sum + staking_pool.calculate_rewards(&staked_haneul, current_epoch);
+        sum =
+            sum + staked_haneul.amount() + staking_pool.calculate_rewards(&staked_haneul, current_epoch);
         scenario.return_to_sender(staked_haneul);
     };
     sum

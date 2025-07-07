@@ -1449,10 +1449,9 @@ Used in the package, and can be dev-inspected.
     ctx: &TxContext,
 ): u64 {
     <b>let</b> system_state = self.<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_system_state_mut">load_system_state_mut</a>();
-    <b>let</b> validator_address = system_state.<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_validator_address_by_pool_id">validator_address_by_pool_id</a>(&staked_haneul.pool_id());
     system_state
-        .validators()
-        .get_active_validator_ref(validator_address)
+        .validators_mut()
+        .validator_by_pool_id(&staked_haneul.pool_id())
         .get_staking_pool_ref()
         .<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_calculate_rewards">calculate_rewards</a>(staked_haneul, ctx.epoch())
 }

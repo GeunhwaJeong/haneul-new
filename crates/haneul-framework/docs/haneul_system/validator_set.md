@@ -36,6 +36,7 @@ title: Module `haneul_system::validator_set`
 -  [Function `staking_pool_mappings`](#haneul_system_validator_set_staking_pool_mappings)
 -  [Function `validator_address_by_pool_id`](#haneul_system_validator_set_validator_address_by_pool_id)
 -  [Function `pool_exchange_rates`](#haneul_system_validator_set_pool_exchange_rates)
+-  [Function `validator_by_pool_id`](#haneul_system_validator_set_validator_by_pool_id)
 -  [Function `next_epoch_validator_count`](#haneul_system_validator_set_next_epoch_validator_count)
 -  [Function `is_active_validator_by_haneul_address`](#haneul_system_validator_set_is_active_validator_by_haneul_address)
 -  [Function `is_duplicate_with_active_validator`](#haneul_system_validator_set_is_duplicate_with_active_validator)
@@ -1665,6 +1666,38 @@ gas price, weighted by stake.
         self.inactive_validators[*pool_id].load_validator_maybe_upgrade()
     };
     <a href="../haneul_system/validator.md#haneul_system_validator">validator</a>.get_staking_pool_ref().exchange_rates()
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_system_validator_set_validator_by_pool_id"></a>
+
+## Function `validator_by_pool_id`
+
+
+
+<pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set_validator_by_pool_id">validator_by_pool_id</a>(self: &<b>mut</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set_ValidatorSet">haneul_system::validator_set::ValidatorSet</a>, pool_id: &<a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>): &<a href="../haneul_system/validator.md#haneul_system_validator_Validator">haneul_system::validator::Validator</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set_validator_by_pool_id">validator_by_pool_id</a>(self: &<b>mut</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set_ValidatorSet">ValidatorSet</a>, pool_id: &ID): &Validator {
+    // If the pool id is recorded in the mapping, then it must be either candidate or active.
+    <b>let</b> <a href="../haneul_system/validator.md#haneul_system_validator">validator</a> = <b>if</b> (self.<a href="../haneul_system/validator_set.md#haneul_system_validator_set_staking_pool_mappings">staking_pool_mappings</a>.contains(*pool_id)) {
+        <b>let</b> validator_address = self.<a href="../haneul_system/validator_set.md#haneul_system_validator_set_staking_pool_mappings">staking_pool_mappings</a>[*pool_id];
+        self.<a href="../haneul_system/validator_set.md#haneul_system_validator_set_get_active_or_pending_or_candidate_validator_ref">get_active_or_pending_or_candidate_validator_ref</a>(validator_address, <a href="../haneul_system/validator_set.md#haneul_system_validator_set_ANY_VALIDATOR">ANY_VALIDATOR</a>)
+    } <b>else</b> {
+        // otherwise it's inactive
+        self.inactive_validators[*pool_id].load_validator_maybe_upgrade()
+    };
+    <a href="../haneul_system/validator.md#haneul_system_validator">validator</a>
 }
 </code></pre>
 

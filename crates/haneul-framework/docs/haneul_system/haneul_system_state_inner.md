@@ -68,6 +68,7 @@ title: Module `haneul_system::haneul_system_state_inner`
 -  [Function `extract_coin_balance`](#haneul_system_haneul_system_state_inner_extract_coin_balance)
 -  [Function `store_execution_time_estimates`](#haneul_system_haneul_system_state_inner_store_execution_time_estimates)
 -  [Function `validators`](#haneul_system_haneul_system_state_inner_validators)
+-  [Function `validators_mut`](#haneul_system_haneul_system_state_inner_validators_mut)
 -  [Macro function `mul_div`](#haneul_system_haneul_system_state_inner_mul_div)
 
 
@@ -2771,6 +2772,30 @@ Return the current validator set
 
 <pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_validators">validators</a>(self: &<a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_HaneulSystemStateInnerV2">HaneulSystemStateInnerV2</a>): &ValidatorSet {
     &self.<a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_validators">validators</a>
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_system_haneul_system_state_inner_validators_mut"></a>
+
+## Function `validators_mut`
+
+
+
+<pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_validators_mut">validators_mut</a>(self: &<b>mut</b> <a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_HaneulSystemStateInnerV2">haneul_system::haneul_system_state_inner::HaneulSystemStateInnerV2</a>): &<b>mut</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set_ValidatorSet">haneul_system::validator_set::ValidatorSet</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_validators_mut">validators_mut</a>(self: &<b>mut</b> <a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_HaneulSystemStateInnerV2">HaneulSystemStateInnerV2</a>): &<b>mut</b> ValidatorSet {
+    &<b>mut</b> self.<a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_validators">validators</a>
 }
 </code></pre>
 
