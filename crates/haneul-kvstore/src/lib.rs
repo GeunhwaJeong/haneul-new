@@ -16,6 +16,7 @@ use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointSequenceNumber, CheckpointSummary,
 };
+use haneul_types::messages_consensus::TimestampMs;
 use haneul_types::object::Object;
 use haneul_types::storage::{EpochInfo, ObjectKey};
 use haneul_types::transaction::Transaction;
@@ -44,7 +45,7 @@ pub trait KeyValueStoreReader {
 
 #[async_trait]
 pub trait KeyValueStoreWriter {
-    async fn save_objects(&mut self, objects: &[&Object]) -> Result<()>;
+    async fn save_objects(&mut self, objects: &[&Object], timestamp_ms: TimestampMs) -> Result<()>;
     async fn save_transactions(&mut self, transactions: &[TransactionData]) -> Result<()>;
     async fn save_checkpoint(&mut self, checkpoint: &CheckpointData) -> Result<()>;
     async fn save_watermark(&mut self, watermark: CheckpointSequenceNumber) -> Result<()>;
