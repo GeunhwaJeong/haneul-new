@@ -3,7 +3,7 @@
 
 use clap::*;
 use colored::Colorize;
-use haneul::client_commands::HaneulClientCommands::{ProfileTransaction, ReplayBatch, ReplayTransaction};
+use haneul::client_commands::HaneulClientCommands::{ReplayBatch, ReplayTransaction};
 use haneul::haneul_commands::HaneulCommand;
 use haneul_types::exit_main;
 use tracing::debug;
@@ -63,16 +63,6 @@ async fn main() {
                 config = config.with_trace_target("replay_ptb_info");
             }
             config.init()
-        }
-
-        HaneulCommand::Client {
-            cmd: Some(ProfileTransaction { .. }),
-            ..
-        } => {
-            // enable full logging for ProfileTransaction and ReplayTransaction
-            telemetry_subscribers::TelemetryConfig::new()
-                .with_env()
-                .init()
         }
 
         _ => telemetry_subscribers::TelemetryConfig::new()

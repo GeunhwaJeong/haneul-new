@@ -70,7 +70,6 @@ haneul-move-build.workspace = true
 haneul-package-management.workspace = true
 haneul-protocol-config.workspace = true
 shared-crypto.workspace = true
-haneul-replay.workspace = true
 haneul-transaction-builder.workspace = true
 move-binary-format.workspace = true
 move-bytecode-source-map.workspace = true

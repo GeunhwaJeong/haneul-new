@@ -60,7 +60,6 @@ use haneul_package_management::{
     system_package_versions::{latest_system_packages, system_packages_for_protocol},
     LockCommand, PublishedAtError,
 };
-use haneul_replay::ReplayToolCommand;
 use haneul_sdk::{
     apis::ReadApi,
     haneul_client_config::{HaneulClientConfig, HaneulEnv},
@@ -103,10 +102,6 @@ use tabled::{
 use move_symbol_pool::Symbol;
 use haneul_types::digests::ChainIdentifier;
 use tracing::{debug, info};
-
-#[path = "unit_tests/profiler_tests.rs"]
-#[cfg(test)]
-mod profiler_tests;
 
 static USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
 
@@ -614,19 +609,6 @@ pub enum HaneulClientCommands {
         address_override: Option<ObjectID>,
     },
 
-    /// Profile the gas usage of a transaction. Unless an output filepath is not specified, outputs a file `gas_profile_{tx_digest}_{unix_timestamp}.json` which can be opened in a flamegraph tool such as speedscope.
-    #[clap(name = "profile-transaction")]
-    ProfileTransaction {
-        /// The digest of the transaction to replay
-        #[arg(long, short)]
-        tx_digest: String,
-
-        /// If specified, overrides the filepath of the output profile, for example -- /temp/my_profile_name.json will write output to `/temp/my_profile_name_{tx_digest}_{unix_timestamp}.json`
-        /// If an output filepath is not specified, it will output a file `gas_profile_{tx_digest}_{unix_timestamp}.json` to the working directory
-        #[arg(long, short)]
-        profile_output: Option<PathBuf>,
-    },
-
     /// Remove an existing address by its alias or hexadecimal string.
     #[clap(name = "remove-address")]
     RemoveAddress { alias_or_address: String },
@@ -685,22 +667,6 @@ pub enum HaneulClientCommands {
         /// should be overwritten or an error raised if they already exist.
         #[arg(long, default_value = "false")]
         overwrite_existing: bool,
-    },
-
-    /// Replay all transactions in a range of checkpoints.
-    #[command(name = "replay-checkpoint")]
-    ReplayCheckpoints {
-        /// The starting checkpoint sequence number of the range of checkpoints to replay
-        #[arg(long, short)]
-        start: u64,
-
-        /// The ending checkpoint sequence number of the range of checkpoints to replay
-        #[arg(long, short)]
-        end: u64,
-
-        /// If an error is encountered during a transaction, this specifies whether to terminate or continue
-        #[arg(long, short)]
-        terminate_early: bool,
     },
 }
 
@@ -783,31 +749,6 @@ impl HaneulClientCommands {
         context: &mut WalletContext,
     ) -> Result<HaneulClientCommandResult, anyhow::Error> {
         let ret = match self {
-            HaneulClientCommands::ProfileTransaction {
-                tx_digest,
-                profile_output,
-            } => {
-                move_vm_profiler::tracing_feature_disabled! {
-                    bail!(
-                        "tracing feature is not enabled, rebuild or reinstall with \
-                         --features tracing"
-                    );
-                };
-
-                let cmd = ReplayToolCommand::ProfileTransaction {
-                    tx_digest,
-                    executor_version: None,
-                    protocol_version: None,
-                    profile_output,
-                    config_objects: None,
-                };
-                let rpc = context.get_active_env()?.rpc.clone();
-                let _command_result =
-                    haneul_replay::execute_replay_command(Some(rpc), false, false, None, None, cmd)
-                        .await?;
-                // this will be displayed via trace info, so no output is needed here
-                HaneulClientCommandResult::NoOutput
-            }
             HaneulClientCommands::ReplayTransaction {
                 tx_digest,
                 gas_info: _,
@@ -868,24 +809,6 @@ impl HaneulClientCommands {
                     artifact_path.display()
                 );
 
-                // this will be displayed via trace info, so no output is needed here
-                HaneulClientCommandResult::NoOutput
-            }
-            HaneulClientCommands::ReplayCheckpoints {
-                start,
-                end,
-                terminate_early,
-            } => {
-                let cmd = ReplayToolCommand::ReplayCheckpoints {
-                    start,
-                    end,
-                    terminate_early,
-                    max_tasks: 16,
-                };
-                let rpc = context.get_active_env()?.rpc.clone();
-                let _command_result =
-                    haneul_replay::execute_replay_command(Some(rpc), false, false, None, None, cmd)
-                        .await?;
                 // this will be displayed via trace info, so no output is needed here
                 HaneulClientCommandResult::NoOutput
             }

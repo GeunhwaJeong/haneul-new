@@ -13091,7 +13091,6 @@ dependencies = [
  "haneul-move-build",
  "haneul-package-management",
  "haneul-protocol-config",
- "haneul-replay",
  "haneul-replay-2",
  "haneul-sdk",
  "haneul-simulator",
