@@ -508,7 +508,7 @@ impl HaneulCommand {
             HaneulCommand::Move {
                 package_path,
                 build_config,
-                cmd,
+                mut cmd,
                 config: client_config,
             } => {
                 match cmd {
@@ -644,6 +644,20 @@ impl HaneulCommand {
                     }
                     _ => (),
                 };
+
+                // If a specific environment is specified for the build command we set the chain ID
+                // to the one that is specified.
+                if client_config.env.is_some() && matches!(cmd, haneul_move::Command::Build(_)) {
+                    let (chain_id, _) =
+                        get_chain_id_and_client(client_config, "haneul move build").await?;
+
+                    let haneul_move::Command::Build(build_config) = &mut cmd else {
+                        unreachable!("We checked for Build above, so this should never happen");
+                    };
+
+                    build_config.chain_id = chain_id;
+                }
+
                 execute_move_command(package_path.as_deref(), build_config, cmd, None)
             }
             HaneulCommand::BridgeInitialize {
