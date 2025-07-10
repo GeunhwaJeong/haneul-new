@@ -145,4 +145,5 @@ tracing = [
     "haneul-types/tracing",
     "haneul-execution/tracing",
     "haneul-move/tracing",
+    "haneul-replay-2/tracing",
 ]
