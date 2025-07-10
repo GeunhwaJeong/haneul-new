@@ -22,7 +22,6 @@ use crate::{
 
 use super::{
     address::Address,
-    addressable::Addressable,
     transaction_effects::{EffectsContents, TransactionEffects},
 };
 
@@ -66,10 +65,8 @@ impl TransactionContents {
         };
 
         let sender = content.data()?.sender();
-        Ok((sender != NativeHaneulAddress::ZERO).then(|| {
-            let addressable = Addressable::with_address(self.scope.clone(), sender.into());
-            Address::new(addressable)
-        }))
+        Ok((sender != NativeHaneulAddress::ZERO)
+            .then(|| Address::with_address(self.scope.clone(), sender.into())))
     }
 
     /// The Base64-encoded BCS serialization of this transaction, as a `TransactionData`.
