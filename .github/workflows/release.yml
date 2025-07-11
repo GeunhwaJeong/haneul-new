@@ -175,7 +175,9 @@ jobs:
 
           mv ./target/debug/haneul${{ env.extention }} ${{ env.TMP_BUILD_DIR }}/haneul-debug${{ env.extention }}
           tar -cvzf ./tmp/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz -C ${{ env.TMP_BUILD_DIR }} .
-          [[ ${{ env.haneul_tag }} == *"testnet"* ]] && aws s3 cp ./tmp/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz s3://haneul-releases/releases/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz || true
+
+          # Upload tar balls to s3 so that we don't have to rebuild if they have already built
+          aws s3 cp ./tmp/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz s3://haneul-releases/releases/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz || true
 
       - name: Publish Windows haneul binary to Chocolatey
         if: ${{ matrix.os == 'windows-ghcloud' && contains(env.haneul_tag, 'testnet') }}
