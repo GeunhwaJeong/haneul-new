@@ -14466,15 +14466,21 @@ name = "haneul-indexer-alt-consistent-store"
 version = "1.54.0"
 dependencies = [
  "anyhow",
+ "async-trait",
  "bcs",
  "bincode",
+ "futures",
  "ouroboros 0.17.2",
  "rocksdb",
+ "scoped-futures",
  "serde",
  "haneul-default-config",
  "haneul-indexer-alt-framework",
  "tempfile",
  "thiserror 1.0.69",
+ "tokio",
+ "tokio-util 0.7.13 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tracing",
 ]
 
 [[package]]
