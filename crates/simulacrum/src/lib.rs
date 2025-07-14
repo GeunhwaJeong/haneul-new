@@ -34,7 +34,7 @@ use haneul_types::storage::{ObjectStore, ReadStore, RpcStateReader};
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use haneul_types::transaction::EndOfEpochTransactionKind;
 use haneul_types::{
-    base_types::HaneulAddress,
+    base_types::{EpochId, HaneulAddress},
     committee::Committee,
     effects::TransactionEffects,
     error::ExecutionError,
@@ -498,6 +498,10 @@ impl<T, V: store::SimulatorStore> ReadStore for Simulacrum<T, V> {
 
     fn get_latest_checkpoint(&self) -> haneul_types::storage::error::Result<VerifiedCheckpoint> {
         Ok(self.store().get_highest_checkpint().unwrap())
+    }
+
+    fn get_latest_epoch_id(&self) -> haneul_types::storage::error::Result<EpochId> {
+        Ok(self.epoch_state.epoch())
     }
 
     fn get_highest_verified_checkpoint(
