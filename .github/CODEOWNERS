@@ -12,8 +12,13 @@ CHANGELOG.md
 /crates/haneul-framework/src/natives/ @dariorussi
 
 # GraphQL RPC working group
-/crates/haneul-graphql-rpc/ @amnn @wlmyng @stefan-haneullabs @emmazzz
-/crates/haneul-graphql-e2e-tests/ @amnn @wlmyng @stefan-haneullabs @emmazzz
+/crates/haneul-default-config @HaneulLabs/devx-indexers-and-rpcs
+/crates/haneul-display @HaneulLabs/devx-indexers-and-rpcs
+/crates/haneul-field-count* @HaneulLabs/devx-indexers-and-rpcs
+/crates/haneul-graphql* @HaneulLabs/devx-indexers-and-rpcs
+/crates/haneul-indexer* @HaneulLabs/devx-indexers-and-rpcs
+/crates/haneul-pg-db @HaneulLabs/devx-indexers-and-rpcs
+/crates/haneul-sql-macro @HaneulLabs/devx-indexers-and-rpcs
 
 # Consensus working group
 /consensus/ @HaneulLabs/consensus
