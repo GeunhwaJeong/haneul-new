@@ -5,7 +5,7 @@ use async_graphql::{
     connection::{Connection, CursorType, Edge},
     *,
 };
-use haneul_types::transaction::GasData;
+use haneul_types::{base_types::HaneulAddress, transaction::GasData};
 
 use crate::{
     api::scalars::{big_int::BigInt, cursor::JsonCursor},
@@ -37,7 +37,8 @@ type CGasPayment = JsonCursor<usize>;
 impl GasInput {
     /// Address of the owner of the gas object(s) used.
     async fn gas_sponsor(&self) -> Option<Address> {
-        Some(Address::with_address(self.scope.clone(), self.native.owner))
+        (self.native.owner != HaneulAddress::ZERO)
+            .then(|| Address::with_address(self.scope.clone(), self.native.owner))
     }
 
     /// An unsigned integer specifying the number of native tokens per gas unit this transaction will pay (in GEUNHWA).
@@ -59,6 +60,11 @@ impl GasInput {
         last: Option<u64>,
         before: Option<CGasPayment>,
     ) -> Result<Option<Connection<String, Object>>, RpcError> {
+        // Return empty connection for system transactions.
+        if self.native.owner == HaneulAddress::ZERO {
+            return Ok(Some(Connection::new(false, false)));
+        }
+
         let pagination: &PaginationConfig = ctx.data()?;
         let limits = pagination.limits("GasInput", "gasPayment");
         let page = Page::from_params(limits, first, after, last, before)?;
