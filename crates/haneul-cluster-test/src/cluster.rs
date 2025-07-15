@@ -366,7 +366,7 @@ pub fn new_wallet_context_from_cluster(
     let mut keystore = Keystore::from(FileBasedKeystore::new(&keystore_path).unwrap());
     let address: HaneulAddress = key_pair.public().into();
     keystore
-        .add_key(None, HaneulKeyPair::Ed25519(key_pair))
+        .import(None, HaneulKeyPair::Ed25519(key_pair))
         .unwrap();
     HaneulClientConfig {
         keystore,

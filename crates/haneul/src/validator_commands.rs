@@ -285,7 +285,7 @@ impl HaneulValidatorCommand {
             } => {
                 let dir = std::env::current_dir()?;
                 let protocol_key_file_name = dir.join("protocol.key");
-                let account_key = match context.config.keystore.get_key(&haneul_address)? {
+                let account_key = match context.config.keystore.export(&haneul_address)? {
                     HaneulKeyPair::Ed25519(account_key) => HaneulKeyPair::Ed25519(account_key.copy()),
                     _ => panic!(
                         "Other account key types supported yet, please use Ed25519 keys for now."

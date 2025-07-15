@@ -14,6 +14,7 @@ use haneul_json_rpc_types::{
     HaneulObjectData, HaneulObjectDataFilter, HaneulObjectDataOptions, HaneulObjectResponse,
     HaneulObjectResponseQuery, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
+use haneul_keys::key_identity::KeyIdentity;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::crypto::HaneulKeyPair;
@@ -72,6 +73,17 @@ impl WalletContext {
         self.env_override.clone()
     }
 
+    pub fn get_identity_address(
+        &mut self,
+        input: Option<KeyIdentity>,
+    ) -> Result<HaneulAddress, anyhow::Error> {
+        if let Some(key_identity) = input {
+            Ok(self.config.keystore.get_by_identity(key_identity)?)
+        } else {
+            self.active_address()
+        }
+    }
+
     pub async fn get_client(&self) -> Result<HaneulClient, anyhow::Error> {
         let read = self.client.read().await;
 
@@ -102,7 +114,7 @@ impl WalletContext {
 
     // TODO: Ger rid of mut
     pub fn active_address(&mut self) -> Result<HaneulAddress, anyhow::Error> {
-        if self.config.keystore.addresses().is_empty() {
+        if self.config.keystore.entries().is_empty() {
             return Err(anyhow!(
                 "No managed addresses. Create new address with `new-address` command."
             ));
@@ -326,7 +338,7 @@ impl WalletContext {
 
     /// Add an account
     pub fn add_account(&mut self, alias: Option<String>, keypair: HaneulKeyPair) {
-        self.config.keystore.add_key(alias, keypair).unwrap();
+        self.config.keystore.import(alias, keypair).unwrap();
     }
 
     /// Sign a transaction with a key currently managed by the WalletContext
