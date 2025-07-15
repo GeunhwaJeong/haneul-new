@@ -94,8 +94,8 @@ exports.processOptions = (text, options) => {
     )
     .replace(/^\s*\/\/\s*docs::\/?.*\r?$\n?/gm, "")
     .replace(
-      /haneul\s?=\s?{\s?local\s?=.*haneul-framework.*/i,
-      'Haneul = { git = "https://github.com/GeunhwaJeong/haneul.git", subdir = "crates/haneul-framework/packages/haneul-framework", rev = "framework/testnet" }',
+      /\[dependencies\]\nhaneul\s?=\s?{\s?local\s?=.*haneul-framework.*\n/i,
+      "[dependencies]",
     );
   processed = removeComments(processed, options);
   processed = removeTests(processed, options);
