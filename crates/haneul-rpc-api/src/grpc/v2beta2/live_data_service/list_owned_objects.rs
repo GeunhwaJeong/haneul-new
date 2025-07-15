@@ -9,7 +9,6 @@ use prost::Message;
 use prost_types::FieldMask;
 use haneul_rpc::field::FieldMaskTree;
 use haneul_rpc::field::FieldMaskUtil;
-use haneul_rpc::merge::Merge;
 use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
 use haneul_rpc::proto::haneul::rpc::v2beta2::ErrorReason;
 use haneul_rpc::proto::haneul::rpc::v2beta2::ListOwnedObjectsRequest;
@@ -109,11 +108,14 @@ pub fn list_owned_objects(
                 continue;
             };
 
-            let mut object = Object::merge_from(object, &read_mask);
-            if read_mask.contains(Object::BALANCE_FIELD) {
-                object.balance = object_info.balance;
+            let mut message = Object::default();
+
+            if read_mask.contains(Object::JSON_FIELD) {
+                message.json =
+                    crate::grpc::v2beta2::render_object_to_json(service, &object).map(Box::new);
             }
-            object
+            haneul_rpc::merge::Merge::merge(&mut message, object, &read_mask);
+            message
         } else {
             owned_object_to_proto(object_info, &read_mask)
         };
