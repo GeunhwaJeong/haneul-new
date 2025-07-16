@@ -18,6 +18,7 @@ use consensus_types::block::BlockRef;
 use haneullabs_metrics::spawn_monitored_task;
 use haneul_config::genesis::Genesis;
 use haneul_types::{
+    committee::EpochId,
     crypto::AuthorityKeyPair,
     error::HaneulError,
     executable_transaction::VerifiedExecutableTransaction,
@@ -105,6 +106,7 @@ impl AuthorityAPI for LocalAuthorityClient {
         // dummy consensus position
         // TODO(fastpath): Return the actual consensus position
         let consensus_position = ConsensusPosition {
+            epoch: EpochId::MIN,
             block: BlockRef::MIN,
             index: 0,
         };
