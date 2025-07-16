@@ -126,6 +126,7 @@ members = [
   "crates/haneul-http",
   "crates/haneul-indexer",
   "crates/haneul-indexer-alt",
+  "crates/haneul-indexer-alt-consistent-api",
   "crates/haneul-indexer-alt-consistent-store",
   "crates/haneul-indexer-alt-e2e-tests",
   "crates/haneul-indexer-alt-framework",
