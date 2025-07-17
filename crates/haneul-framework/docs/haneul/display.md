@@ -259,12 +259,8 @@ Create a new Display<T> object with a set of fields.
 ): <a href="../haneul/display.md#haneul_display_Display">Display</a>&lt;T&gt; {
     <b>let</b> len = <a href="../haneul/display.md#haneul_display_fields">fields</a>.length();
     <b>assert</b>!(len == values.length(), <a href="../haneul/display.md#haneul_display_EVecLengthMismatch">EVecLengthMismatch</a>);
-    <b>let</b> <b>mut</b> i = 0;
     <b>let</b> <b>mut</b> <a href="../haneul/display.md#haneul_display">display</a> = <a href="../haneul/display.md#haneul_display_new">new</a>&lt;T&gt;(pub, ctx);
-    <b>while</b> (i &lt; len) {
-        <a href="../haneul/display.md#haneul_display">display</a>.<a href="../haneul/display.md#haneul_display_add_internal">add_internal</a>(<a href="../haneul/display.md#haneul_display_fields">fields</a>[i], values[i]);
-        i = i + 1;
-    };
+    <a href="../haneul/display.md#haneul_display_fields">fields</a>.zip_do!(values, |field, value| <a href="../haneul/display.md#haneul_display">display</a>.<a href="../haneul/display.md#haneul_display_add_internal">add_internal</a>(field, value));
     <a href="../haneul/display.md#haneul_display">display</a>
 }
 </code></pre>
@@ -376,11 +372,7 @@ Sets multiple <code><a href="../haneul/display.md#haneul_display_fields">fields<
 ) {
     <b>let</b> len = <a href="../haneul/display.md#haneul_display_fields">fields</a>.length();
     <b>assert</b>!(len == values.length(), <a href="../haneul/display.md#haneul_display_EVecLengthMismatch">EVecLengthMismatch</a>);
-    <b>let</b> <b>mut</b> i = 0;
-    <b>while</b> (i &lt; len) {
-        self.<a href="../haneul/display.md#haneul_display_add_internal">add_internal</a>(<a href="../haneul/display.md#haneul_display_fields">fields</a>[i], values[i]);
-        i = i + 1;
-    };
+    <a href="../haneul/display.md#haneul_display_fields">fields</a>.zip_do!(values, |field, value| self.<a href="../haneul/display.md#haneul_display_add_internal">add_internal</a>(field, value));
 }
 </code></pre>
 

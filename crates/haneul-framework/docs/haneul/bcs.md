@@ -246,12 +246,7 @@ Read address from the bcs-serialized bytes.
 
 <pre><code><b>public</b> <b>fun</b> <a href="../haneul/bcs.md#haneul_bcs_peel_address">peel_address</a>(<a href="../haneul/bcs.md#haneul_bcs">bcs</a>: &<b>mut</b> <a href="../haneul/bcs.md#haneul_bcs_BCS">BCS</a>): <b>address</b> {
     <b>assert</b>!(<a href="../haneul/bcs.md#haneul_bcs">bcs</a>.bytes.length() &gt;= <a href="../haneul/address.md#haneul_address_length">address::length</a>(), <a href="../haneul/bcs.md#haneul_bcs_EOutOfRange">EOutOfRange</a>);
-    <b>let</b> (<b>mut</b> addr_bytes, <b>mut</b> i) = (vector[], 0);
-    <b>while</b> (i &lt; <a href="../haneul/address.md#haneul_address_length">address::length</a>()) {
-        addr_bytes.push_back(<a href="../haneul/bcs.md#haneul_bcs">bcs</a>.bytes.pop_back());
-        i = i + 1;
-    };
-    <a href="../haneul/address.md#haneul_address_from_bytes">address::from_bytes</a>(addr_bytes)
+    <a href="../haneul/address.md#haneul_address_from_bytes">address::from_bytes</a>(vector::tabulate!(<a href="../haneul/address.md#haneul_address_length">address::length</a>(), |_| <a href="../haneul/bcs.md#haneul_bcs">bcs</a>.bytes.pop_back()))
 }
 </code></pre>
 
