@@ -700,6 +700,8 @@ haneul-genesis-builder = { path = "crates/haneul-genesis-builder" }
 haneul-http = { path = "crates/haneul-http" }
 haneul-indexer = { path = "crates/haneul-indexer" }
 haneul-indexer-alt = { path = "crates/haneul-indexer-alt" }
+haneul-indexer-alt-consistent-api = { path = "crates/haneul-indexer-alt-consistent-api" }
+haneul-indexer-alt-consistent-store = { path = "crates/haneul-indexer-alt-consistent-store" }
 haneul-indexer-alt-framework = { path = "crates/haneul-indexer-alt-framework", default-features = false }
 haneul-indexer-alt-framework-store-traits = { path = "crates/haneul-indexer-alt-framework-store-traits" }
 haneul-indexer-alt-graphql = { path = "crates/haneul-indexer-alt-graphql" }
