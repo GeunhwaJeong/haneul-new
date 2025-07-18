@@ -9,7 +9,7 @@ use haneullabs_network::callback::CallbackLayer;
 use prometheus::Registry;
 use std::sync::Arc;
 use haneul_kv_rpc::KvRpcServer;
-use haneul_rpc_api::proto::rpc::v2beta::ledger_service_server::LedgerServiceServer;
+use haneul_rpc::proto::haneul::rpc::v2beta2::ledger_service_server::LedgerServiceServer;
 use haneul_rpc_api::{RpcMetrics, RpcMetricsMakeCallbackHandler, ServerVersion};
 use telemetry_subscribers::TelemetryConfig;
 use tonic::transport::{Identity, Server, ServerTlsConfig};
