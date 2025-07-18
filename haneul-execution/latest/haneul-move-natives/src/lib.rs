@@ -72,6 +72,7 @@ use haneul_protocol_config::ProtocolConfig;
 use haneul_types::{MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS};
 use transfer::TransferReceiveObjectInternalCostParams;
 
+mod accumulator;
 mod address;
 mod config;
 mod crypto;
@@ -877,6 +878,16 @@ pub fn make_stdlib_gas_params_for_protocol_config(
 
 pub fn all_natives(silent: bool, protocol_config: &ProtocolConfig) -> NativeFunctionTable {
     let haneul_framework_natives: &[(&str, &str, NativeFunction)] = &[
+        (
+            "accumulator",
+            "emit_deposit_event",
+            make_native!(accumulator::emit_deposit_event),
+        ),
+        (
+            "accumulator",
+            "emit_withdraw_event",
+            make_native!(accumulator::emit_withdraw_event),
+        ),
         ("address", "from_bytes", make_native!(address::from_bytes)),
         ("address", "to_u256", make_native!(address::to_u256)),
         ("address", "from_u256", make_native!(address::from_u256)),

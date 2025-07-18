@@ -23,14 +23,26 @@ custom coins with <code><a href="../haneul/balance.md#haneul_balance_Supply">Sup
 -  [Function `create_staking_rewards`](#haneul_balance_create_staking_rewards)
 -  [Function `destroy_storage_rebates`](#haneul_balance_destroy_storage_rebates)
 -  [Function `destroy_supply`](#haneul_balance_destroy_supply)
+-  [Function `send_to_account`](#haneul_balance_send_to_account)
+-  [Function `withdraw_from_account`](#haneul_balance_withdraw_from_account)
 
 
 <pre><code><b>use</b> <a href="../std/address.md#std_address">std::address</a>;
 <b>use</b> <a href="../std/ascii.md#std_ascii">std::ascii</a>;
+<b>use</b> <a href="../std/bcs.md#std_bcs">std::bcs</a>;
 <b>use</b> <a href="../std/option.md#std_option">std::option</a>;
+<b>use</b> <a href="../std/string.md#std_string">std::string</a>;
 <b>use</b> <a href="../std/type_name.md#std_type_name">std::type_name</a>;
 <b>use</b> <a href="../std/vector.md#std_vector">std::vector</a>;
+<b>use</b> <a href="../haneul/accumulator.md#haneul_accumulator">haneul::accumulator</a>;
+<b>use</b> <a href="../haneul/address.md#haneul_address">haneul::address</a>;
+<b>use</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field">haneul::dynamic_field</a>;
+<b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
+<b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;
+<b>use</b> <a href="../haneul/party.md#haneul_party">haneul::party</a>;
+<b>use</b> <a href="../haneul/transfer.md#haneul_transfer">haneul::transfer</a>;
 <b>use</b> <a href="../haneul/tx_context.md#haneul_tx_context">haneul::tx_context</a>;
+<b>use</b> <a href="../haneul/vec_map.md#haneul_vec_map">haneul::vec_map</a>;
 </code></pre>
 
 
@@ -493,6 +505,60 @@ Destroy a <code><a href="../haneul/balance.md#haneul_balance_Supply">Supply</a><
 <pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/balance.md#haneul_balance_destroy_supply">destroy_supply</a>&lt;T&gt;(self: <a href="../haneul/balance.md#haneul_balance_Supply">Supply</a>&lt;T&gt;): u64 {
     <b>let</b> <a href="../haneul/balance.md#haneul_balance_Supply">Supply</a> { <a href="../haneul/balance.md#haneul_balance_value">value</a> } = self;
     <a href="../haneul/balance.md#haneul_balance_value">value</a>
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_balance_send_to_account"></a>
+
+## Function `send_to_account`
+
+
+
+<pre><code><b>fun</b> <a href="../haneul/balance.md#haneul_balance_send_to_account">send_to_account</a>&lt;T&gt;(<a href="../haneul/balance.md#haneul_balance">balance</a>: <a href="../haneul/balance.md#haneul_balance_Balance">haneul::balance::Balance</a>&lt;T&gt;, recipient: <b>address</b>)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>fun</b> <a href="../haneul/balance.md#haneul_balance_send_to_account">send_to_account</a>&lt;T&gt;(<a href="../haneul/balance.md#haneul_balance">balance</a>: <a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;, recipient: <b>address</b>) {
+    <b>let</b> <a href="../haneul/balance.md#haneul_balance_Balance">Balance</a> { <a href="../haneul/balance.md#haneul_balance_value">value</a> } = <a href="../haneul/balance.md#haneul_balance">balance</a>;
+    <b>let</b> <a href="../haneul/accumulator.md#haneul_accumulator">accumulator</a> = <a href="../haneul/accumulator.md#haneul_accumulator_accumulator_address">haneul::accumulator::accumulator_address</a>&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt;(recipient);
+    <a href="../haneul/accumulator.md#haneul_accumulator_emit_deposit_event">haneul::accumulator::emit_deposit_event</a>&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt;(<a href="../haneul/accumulator.md#haneul_accumulator">accumulator</a>, recipient, <a href="../haneul/balance.md#haneul_balance_value">value</a>);
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_balance_withdraw_from_account"></a>
+
+## Function `withdraw_from_account`
+
+
+
+<pre><code><b>fun</b> <a href="../haneul/balance.md#haneul_balance_withdraw_from_account">withdraw_from_account</a>&lt;T&gt;(amount: u64, ctx: &<a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/balance.md#haneul_balance_Balance">haneul::balance::Balance</a>&lt;T&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>fun</b> <a href="../haneul/balance.md#haneul_balance_withdraw_from_account">withdraw_from_account</a>&lt;T&gt;(amount: u64, ctx: &TxContext): <a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt; {
+    <b>let</b> owner = ctx.sender();
+    <b>let</b> <a href="../haneul/accumulator.md#haneul_accumulator">accumulator</a> = <a href="../haneul/accumulator.md#haneul_accumulator_accumulator_address">haneul::accumulator::accumulator_address</a>&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt;(owner);
+    <b>let</b> credit = <a href="../haneul/balance.md#haneul_balance_Balance">Balance</a> { <a href="../haneul/balance.md#haneul_balance_value">value</a>: amount };
+    <a href="../haneul/accumulator.md#haneul_accumulator_emit_withdraw_event">haneul::accumulator::emit_withdraw_event</a>&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt;(<a href="../haneul/accumulator.md#haneul_accumulator">accumulator</a>, owner, amount);
+    credit
 }
 </code></pre>
 

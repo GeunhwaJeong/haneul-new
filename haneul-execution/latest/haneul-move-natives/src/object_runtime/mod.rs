@@ -23,10 +23,7 @@ use move_core_types::{
     vm_status::StatusCode,
 };
 use move_vm_runtime::native_extensions::NativeExtensionMarker;
-use move_vm_types::{
-    loaded_data::runtime_types::Type,
-    values::{GlobalValue, Value},
-};
+use move_vm_types::values::{GlobalValue, Value};
 use object_store::{ActiveChildObject, ChildObjectStore};
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -42,9 +39,9 @@ use haneul_types::{
     metrics::LimitsMetrics,
     object::{MoveObject, Owner},
     storage::ChildObjectResolver,
-    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_BRIDGE_OBJECT_ID,
-    HANEUL_CLOCK_OBJECT_ID, HANEUL_DENY_LIST_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID,
-    HANEUL_SYSTEM_STATE_OBJECT_ID,
+    TypeTag, HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_AUTHENTICATOR_STATE_OBJECT_ID,
+    HANEUL_BRIDGE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_DENY_LIST_OBJECT_ID,
+    HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
 use tracing::error;
 
@@ -352,7 +349,7 @@ impl<'a> ObjectRuntime<'a> {
         accumulator_id: ObjectID,
         action: MoveAccumulatorAction,
         target_addr: AccountAddress,
-        target_ty: Type,
+        target_ty: TypeTag,
         value: MoveAccumulatorValue,
     ) -> PartialVMResult<()> {
         let event = MoveAccumulatorEvent {

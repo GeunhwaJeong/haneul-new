@@ -50,6 +50,7 @@ title: Module `deepbook::clob`
 <b>use</b> <a href="../std/string.md#std_string">std::string</a>;
 <b>use</b> <a href="../std/type_name.md#std_type_name">std::type_name</a>;
 <b>use</b> <a href="../std/vector.md#std_vector">std::vector</a>;
+<b>use</b> <a href="../haneul/accumulator.md#haneul_accumulator">haneul::accumulator</a>;
 <b>use</b> <a href="../haneul/address.md#haneul_address">haneul::address</a>;
 <b>use</b> <a href="../haneul/bag.md#haneul_bag">haneul::bag</a>;
 <b>use</b> <a href="../haneul/balance.md#haneul_balance">haneul::balance</a>;
