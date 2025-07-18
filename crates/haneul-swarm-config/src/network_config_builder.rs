@@ -565,11 +565,11 @@ mod tests {
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashSet;
     use std::sync::Arc;
     use haneul_config::genesis::Genesis;
     use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
     use haneul_types::epoch_data::EpochData;
+    use haneul_types::execution_params::ExecutionOrEarlyError;
     use haneul_types::gas::HaneulGasStatus;
     use haneul_types::in_memory_storage::InMemoryStorage;
     use haneul_types::metrics::LimitsMetrics;
@@ -609,7 +609,6 @@ mod test {
         let registry = prometheus::Registry::new();
         let metrics = Arc::new(LimitsMetrics::new(&registry));
         let expensive_checks = false;
-        let certificate_deny_set = HashSet::new();
         let epoch = EpochData::new_test();
         let transaction_data = &genesis_transaction.data().intent_message().value;
         let (kind, signer, mut gas_data) = transaction_data.execution_parts();
@@ -622,7 +621,7 @@ mod test {
                 &protocol_config,
                 metrics,
                 expensive_checks,
-                &certificate_deny_set,
+                ExecutionOrEarlyError::Ok(()),
                 &epoch.epoch_id(),
                 epoch.epoch_start_timestamp(),
                 input_objects,

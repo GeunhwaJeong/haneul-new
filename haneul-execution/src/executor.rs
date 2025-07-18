@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use move_trace_format::format::MoveTraceBuilder;
-use std::{collections::HashSet, sync::Arc};
+use std::sync::Arc;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::execution::ExecutionTiming;
+use haneul_types::execution_params::ExecutionOrEarlyError;
 use haneul_types::storage::BackingStore;
 use haneul_types::transaction::GasData;
 use haneul_types::{
@@ -30,7 +31,7 @@ pub trait Executor {
         protocol_config: &ProtocolConfig,
         metrics: Arc<LimitsMetrics>,
         enable_expensive_checks: bool,
-        certificate_deny_set: &HashSet<TransactionDigest>,
+        execution_params: ExecutionOrEarlyError,
         // Epoch
         epoch_id: &EpochId,
         epoch_timestamp_ms: u64,
@@ -59,7 +60,7 @@ pub trait Executor {
         protocol_config: &ProtocolConfig,
         metrics: Arc<LimitsMetrics>,
         enable_expensive_checks: bool,
-        certificate_deny_set: &HashSet<TransactionDigest>,
+        execution_params: ExecutionOrEarlyError,
         // Epoch
         epoch_id: &EpochId,
         epoch_timestamp_ms: u64,

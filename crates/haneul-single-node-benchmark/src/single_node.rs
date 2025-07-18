@@ -3,7 +3,7 @@
 
 use crate::command::Component;
 use crate::mock_storage::InMemoryObjectStore;
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 use haneul_core::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use haneul_core::authority::authority_store_tables::LiveObject;
@@ -26,6 +26,7 @@ use haneul_types::committee::Committee;
 use haneul_types::crypto::{AccountKeyPair, AuthoritySignature, Signer};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
+use haneul_types::execution_params::ExecutionOrEarlyError;
 use haneul_types::messages_checkpoint::{VerifiedCheckpoint, VerifiedCheckpointContents};
 use haneul_types::messages_grpc::HandleTransactionResponse;
 use haneul_types::mock_checkpoint_builder::{MockCheckpointBuilder, ValidatorKeypairProvider};
@@ -231,7 +232,7 @@ impl SingleValidator {
                 self.epoch_store.protocol_config(),
                 self.get_validator().metrics.limits_metrics.clone(),
                 false,
-                &HashSet::new(),
+                ExecutionOrEarlyError::Ok(()),
                 &self.epoch_store.epoch(),
                 0,
                 input_objects,
