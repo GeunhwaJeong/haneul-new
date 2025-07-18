@@ -8,7 +8,7 @@ pub mod policies;
 
 use dashmap::DashMap;
 use fs::File;
-use haneullabs_common::{debug_fatal, fatal};
+use haneullabs_common::fatal;
 use prometheus::IntGauge;
 use std::fs;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
@@ -330,7 +330,7 @@ impl TrafficController {
                     // that clearly the system is overloaded
                 }
                 Err(TrySendError::Closed(_)) => {
-                    debug_fatal!("TrafficController tally channel closed unexpectedly");
+                    warn!("TrafficController tally channel closed unexpectedly");
                 }
                 Ok(_) => {}
             }
