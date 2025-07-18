@@ -39,6 +39,7 @@ fastcrypto.workspace = true
 fastcrypto-zkp.workspace = true
 move-core-types.workspace = true
 
+haneullabs-common.workspace = true
 haneul-core.workspace = true
 haneul-framework.workspace = true
 haneul-json-rpc.workspace = true
