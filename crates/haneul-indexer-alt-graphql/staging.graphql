@@ -117,9 +117,13 @@ type Epoch {
 	"""
 	totalCheckpoints: UInt53
 	"""
-	The total amount of gas fees (in GEUNHWA) that were paid in this epoch.
+	The total amount of gas fees (in GEUNHWA) that were paid in this epoch (or `null` if the epoch has not finished yet).
 	"""
 	totalGasFees: BigInt
+	"""
+	The total GEUNHWA rewarded as stake (or `null` if the epoch has not finished yet).
+	"""
+	totalStakeRewards: BigInt
 }
 
 """
