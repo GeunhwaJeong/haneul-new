@@ -117,8 +117,11 @@ async fn main() -> Result<()> {
     .await?;
     tasks.push(spawn_logged_monitored_task!(eth_sync_indexer.start()));
 
-    let indexer = create_haneul_indexer(pool, indexer_meterics, ingestion_metrics, &config).await?;
-    tasks.push(spawn_logged_monitored_task!(indexer.start()));
+    if !config.eth_only {
+        let indexer =
+            create_haneul_indexer(pool, indexer_meterics, ingestion_metrics, &config).await?;
+        tasks.push(spawn_logged_monitored_task!(indexer.start()));
+    }
 
     let haneul_bridge_client =
         Arc::new(HaneulBridgeClient::new(&config.haneul_rpc_url, bridge_metrics.clone()).await?);
