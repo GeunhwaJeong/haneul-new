@@ -14549,6 +14549,8 @@ dependencies = [
  "serde_json",
  "simulacrum",
  "haneul-indexer-alt",
+ "haneul-indexer-alt-consistent-api",
+ "haneul-indexer-alt-consistent-store",
  "haneul-indexer-alt-framework",
  "haneul-indexer-alt-graphql",
  "haneul-indexer-alt-jsonrpc",

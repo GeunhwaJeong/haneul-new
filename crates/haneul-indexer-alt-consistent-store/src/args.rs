@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use haneul_indexer_alt_framework::{ingestion::ClientArgs, IndexerArgs};
 use haneul_indexer_alt_metrics::MetricsArgs;
 
-use crate::rpc::RpcArgs;
+pub use crate::rpc::RpcArgs;
 
 #[derive(clap::Parser, Debug, Clone)]
 pub struct Args {
