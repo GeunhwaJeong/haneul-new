@@ -20,7 +20,7 @@ use haneullabs_metrics::spawn_monitored_task;
 use shared_crypto::intent::{AppId, Intent, IntentMessage, IntentScope, IntentVersion};
 use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::NetworkAuthorityClient;
-use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
+use haneul_core::transaction_orchestrator::TransactionOrchestrator;
 use haneul_json_rpc_api::{JsonRpcMetrics, WriteApiOpenRpc, WriteApiServer};
 use haneul_json_rpc_types::{
     DevInspectArgs, DevInspectResults, DryRunTransactionBlockResponse, HaneulTransactionBlock,
@@ -44,14 +44,14 @@ use tracing::instrument;
 
 pub struct TransactionExecutionApi {
     state: Arc<dyn StateRead>,
-    transaction_orchestrator: Arc<TransactiondOrchestrator<NetworkAuthorityClient>>,
+    transaction_orchestrator: Arc<TransactionOrchestrator<NetworkAuthorityClient>>,
     metrics: Arc<JsonRpcMetrics>,
 }
 
 impl TransactionExecutionApi {
     pub fn new(
         state: Arc<AuthorityState>,
-        transaction_orchestrator: Arc<TransactiondOrchestrator<NetworkAuthorityClient>>,
+        transaction_orchestrator: Arc<TransactionOrchestrator<NetworkAuthorityClient>>,
         metrics: Arc<JsonRpcMetrics>,
     ) -> Self {
         Self {

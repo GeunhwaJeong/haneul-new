@@ -4,7 +4,7 @@
 use std::sync::Arc;
 use std::time::Duration;
 use haneul_core::authority_client::NetworkAuthorityClient;
-use haneul_core::transaction_orchestrator::TransactiondOrchestrator;
+use haneul_core::transaction_orchestrator::TransactionOrchestrator;
 use haneul_macros::sim_test;
 use haneul_storage::key_value_store::TransactionKeyValueStore;
 use haneul_storage::key_value_store_metrics::KeyValueStoreMetrics;
@@ -285,7 +285,7 @@ async fn test_tx_across_epoch_boundaries() {
 }
 
 async fn execute_with_orchestrator(
-    orchestrator: &TransactiondOrchestrator<NetworkAuthorityClient>,
+    orchestrator: &TransactionOrchestrator<NetworkAuthorityClient>,
     txn: Transaction,
     request_type: ExecuteTransactionRequestType,
 ) -> Result<(ExecuteTransactionResponseV3, IsTransactionExecutedLocally), QuorumDriverError> {
