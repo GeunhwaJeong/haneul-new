@@ -34,7 +34,9 @@ use haneul_json_rpc_types::{
 };
 use haneul_protocol_config::{Chain, ProtocolConfig};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
-use haneul_types::execution_params::{get_early_execution_error, ExecutionOrEarlyError};
+use haneul_types::execution_params::{
+    get_early_execution_error, BalanceWithdrawStatus, ExecutionOrEarlyError,
+};
 use haneul_types::in_memory_storage::InMemoryStorage;
 use haneul_types::message_envelope::Message;
 use haneul_types::storage::{get_module, PackageObject};
@@ -782,8 +784,13 @@ impl LocalExec {
             budget: tx_info.gas_budget,
         };
         let checked_input_objects = CheckedInputObjects::new_for_replay(input_objects.clone());
-        let early_execution_error =
-            get_early_execution_error(tx_digest, &checked_input_objects, &HashSet::new());
+        let early_execution_error = get_early_execution_error(
+            tx_digest,
+            &checked_input_objects,
+            &HashSet::new(),
+            // TODO(address-balances): Support balance withdraw status for replay
+            &BalanceWithdrawStatus::NoWithdraw,
+        );
         let execution_params = match early_execution_error {
             Some(error) => ExecutionOrEarlyError::Err(error),
             None => ExecutionOrEarlyError::Ok(()),
@@ -854,8 +861,13 @@ impl LocalExec {
             budget: tx_info.gas_budget,
         };
         let checked_input_objects = CheckedInputObjects::new_for_replay(input_objects.clone());
-        let early_execution_error =
-            get_early_execution_error(&tx_info.tx_digest, &checked_input_objects, &HashSet::new());
+        let early_execution_error = get_early_execution_error(
+            &tx_info.tx_digest,
+            &checked_input_objects,
+            &HashSet::new(),
+            // TODO(address-balances): Support balance withdraw status for replay
+            &BalanceWithdrawStatus::NoWithdraw,
+        );
         let execution_params = match early_execution_error {
             Some(error) => ExecutionOrEarlyError::Err(error),
             None => ExecutionOrEarlyError::Ok(()),
@@ -965,8 +977,13 @@ impl LocalExec {
         .unwrap();
         let (kind, signer, gas_data) = executable.transaction_data().execution_parts();
         let executor = haneul_execution::executor(&protocol_config, true, None).unwrap();
-        let early_execution_error =
-            get_early_execution_error(executable.digest(), &input_objects, &HashSet::new());
+        let early_execution_error = get_early_execution_error(
+            executable.digest(),
+            &input_objects,
+            &HashSet::new(),
+            // TODO(address-balances): Support balance withdraw status for replay
+            &BalanceWithdrawStatus::NoWithdraw,
+        );
         let execution_params = match early_execution_error {
             Some(error) => ExecutionOrEarlyError::Err(error),
             None => ExecutionOrEarlyError::Ok(()),

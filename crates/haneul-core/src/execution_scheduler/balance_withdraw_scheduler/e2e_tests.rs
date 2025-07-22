@@ -11,6 +11,7 @@ use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::accumulator_root::update_account_balance_for_testing;
 use haneul_types::base_types::ObjectID;
 use haneul_types::digests::TransactionDigest;
+use haneul_types::execution_params::BalanceWithdrawStatus;
 use haneul_types::transaction::WithdrawTypeParam;
 use haneul_types::type_input::TypeInput;
 use haneul_types::HANEUL_ACCUMULATOR_ROOT_OBJECT_ID;
@@ -31,7 +32,7 @@ use crate::execution_scheduler::balance_withdraw_scheduler::BalanceSettlement;
 use crate::{
     authority::{
         shared_object_version_manager::Schedulable, test_authority_builder::TestAuthorityBuilder,
-        AuthorityState, BalanceWithdrawStatus, ExecutionEnv,
+        AuthorityState, ExecutionEnv,
     },
     execution_scheduler::{
         ExecutionScheduler, ExecutionSchedulerAPI, ExecutionSchedulerWrapper, PendingCertificate,
