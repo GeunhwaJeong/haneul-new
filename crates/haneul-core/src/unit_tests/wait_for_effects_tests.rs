@@ -11,6 +11,7 @@ use haneul_types::base_types::{ObjectRef, HaneulAddress, TransactionDigest};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::{get_account_key_pair, AccountKeyPair};
 use haneul_types::effects::TransactionEffectsAPI as _;
+use haneul_types::error::HaneulError;
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::message_envelope::Message;
 use haneul_types::messages_consensus::ConsensusPosition;
@@ -27,7 +28,7 @@ use crate::authority::{AuthorityState, ExecutionEnv};
 use crate::authority_client::{AuthorityAPI, NetworkAuthorityClient};
 use crate::authority_server::AuthorityServer;
 use crate::execution_scheduler::SchedulingSource;
-use crate::transaction_driver::{RejectReason, WaitForEffectsRequest, WaitForEffectsResponse};
+use crate::transaction_driver::{WaitForEffectsRequest, WaitForEffectsResponse};
 
 use super::AuthorityServerHandle;
 
@@ -172,9 +173,9 @@ async fn test_wait_for_effects_post_commit_rejected() {
         .unwrap();
 
     match response {
-        WaitForEffectsResponse::Rejected { reason } => {
+        WaitForEffectsResponse::Rejected { error } => {
             // TODO(fastpath): Test reject reason.
-            assert_eq!(reason, RejectReason::None);
+            assert!(matches!(error, HaneulError::Unknown(_)));
         }
         _ => panic!("Expected Rejected response"),
     }
@@ -266,8 +267,8 @@ async fn test_wait_for_effects_quorum_rejected() {
         .unwrap();
 
     match response {
-        WaitForEffectsResponse::Rejected { reason } => {
-            assert_eq!(reason, RejectReason::None);
+        WaitForEffectsResponse::Rejected { error } => {
+            assert!(matches!(error, HaneulError::Unknown(_)));
         }
         _ => panic!("Expected Rejected response"),
     }
