@@ -148,16 +148,16 @@ impl Epoch {
             return Ok(None);
         };
 
-        let validator_set: ValidatorSet =
-            match bcs::from_bytes::<HaneulSystemState>(&start.system_state) {
-                Ok(HaneulSystemState::V1(inner)) => inner.validators.into(),
-                Ok(HaneulSystemState::V2(inner)) => inner.validators.into(),
-                #[cfg(msim)]
-                Ok(HaneulSystemState::SimTestV1(_))
-                | Ok(HaneulSystemState::SimTestShallowV2(_))
-                | Ok(HaneulSystemState::SimTestDeepV2(_)) => return Ok(None),
-                Err(e) => return Err(RpcError::InternalError(Arc::new(e.into()))),
-            };
+        let validator_set = match bcs::from_bytes::<HaneulSystemState>(&start.system_state)
+            .context("Failed to deserialize system state")?
+        {
+            HaneulSystemState::V1(inner) => inner.validators.into(),
+            HaneulSystemState::V2(inner) => inner.validators.into(),
+            #[cfg(msim)]
+            HaneulSystemState::SimTestV1(_)
+            | HaneulSystemState::SimTestShallowV2(_)
+            | HaneulSystemState::SimTestDeepV2(_) => return Ok(None),
+        };
 
         Ok(Some(validator_set))
     }
