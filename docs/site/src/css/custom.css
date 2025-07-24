@@ -50,8 +50,8 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
   --haneul-black: #090B1A;
   --haneul-blue: #6fbcf0;
-  --haneul-blue-bright: #00f9fb;
-  --haneul-blue-light: #e1f3ff;
+  --haneul-blue-bright: 0 249 251;
+  --haneul-blue-light: 225 243 255;
   --haneul-blue-lighter: #B4C2D0;
   --haneul-blue-dark: 52 99 151;
   --haneul-blue-darker: #303846;
@@ -71,11 +71,13 @@
   --haneul-warning-dark: #8D6E15;
   --haneul-warning-light: #FFF8E2;
   --haneul-code: #845ED6;
-  --haneul-gray-35: #FEFEFE;
-  --haneul-gray-40: #F7F8F8;
-  --haneul-gray-45: #EBECED;
+  --haneul-gray-3s: 51 51 51;
+  --haneul-gray-5s: 85 85 85;
+  --haneul-gray-35: 247 248 250;
+  --haneul-gray-40: 240 241 245;
+  --haneul-gray-45: 235 235 237;
   --haneul-gray-50: #E9EAEB;
-  --haneul-gray-55: #D7D8DA;
+  --haneul-gray-55: 222 222 224;
   --haneul-gray-60: #C3C5C8;
   --haneul-gray-65: #9C9FA4;
   --haneul-gray-70: #898D93;
@@ -85,6 +87,7 @@
   --haneul-gray-90: #383F47;
   --haneul-gray-95: #2A3645;
   --haneul-gray-100: #182435;
+  --haneul-disabled: 41 41 51;
   --haneul-link-color: #1068a6;
   --haneul-link-color-dark: #057fd1;
   --haneul-link-color-light: #1f98e9;
@@ -323,6 +326,7 @@ div[role="tabpanel"] {
 .DocSearch-Button-Container {
   width: 100%;
   justify-content: space-between;
+  z-index: calc(var(--ifm-z-index-fixed) + 1);
 }
 
 .DocSearch-Button {
@@ -337,7 +341,16 @@ div[role="tabpanel"] {
   letter-spacing: -0.01em;
   background: linear-gradient(0deg, rgba(247, 247, 248, 0.1), rgba(247, 247, 248, 0.1)),
   linear-gradient(0deg, rgba(247, 247, 248, 0.05), rgba(247, 247, 248, 0.05)) !important;
+  margin: 0;
+  transition: all var(--ifm-transition-fast)
+    var(--ifm-transition-timing-default);
 }
+
+.DocSearch-Button:hover, .DocSearch-Button:focus, .DocSearch-Button:active {
+  box-shadow: inset 0 0 0 2px #4ca2ff;
+  outline: 0;
+}
+
 
 @media screen and (max-width: 599px) {
   .DocSearch-Button {
@@ -348,10 +361,16 @@ div[role="tabpanel"] {
 .DocSearch-Search-Icon {
   order: 2;
   margin-left: auto;
+  stroke-width: 1.6;
 }
 
 .DocSearch-Search-Icon path {
   stroke: var(--haneul-white);
+}
+
+.DocSearch-Button-Placeholder {
+  font-size: 1rem;
+  padding: 0 12px 0 6px;
 }
 
 .DocSearch-Button-Keys {
@@ -370,6 +389,34 @@ div[role="tabpanel"] {
 /*Targeting the search container so that the "start here" button displays alongside the search bar*/
 [class^="navbarSearchContainer"] {
   @apply min-[997px]:flex min-[997px]:gap-4
+}
+
+/*Full search page*/
+
+.search-page-wrapper main p {
+  @apply !not-italic;
+}
+
+.search-page-wrapper main em {
+  @apply font-bold;
+}
+
+.tooltip-delay {
+  @apply opacity-0 transition-opacity duration-200;
+  transition-delay: 0ms;
+}
+
+.group:hover .tooltip-delay {
+  @apply opacity-100;
+  transition-delay: 700ms; 
+}
+
+.haneul-search mark {
+  @apply bg-haneul-blue-bright/40;
+}
+
+.modal-result mark {
+  @apply bg-haneul-steel-dark;
 }
 
 /** Globals **/
