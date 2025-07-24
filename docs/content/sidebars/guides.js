@@ -209,5 +209,20 @@ const guides = [
 			'guides/operator/validator-tasks',
 		],
 	},
+	{
+		type: 'category',
+		label: 'HaneulPlay0X1',
+		collapsed: false,
+		link: {
+			type: 'doc',
+			id: 'guides/haneulplay0x1',
+		},
+		items: [
+			'guides/haneulplay0x1/integration',
+			'guides/haneulplay0x1/migration-strategies',
+			'guides/haneulplay0x1/wallet-integration',
+			'guides/haneulplay0x1/best-practices',
+		],
+	}
 ];
 module.exports = guides;
