@@ -51,6 +51,7 @@ fun new(ctx: &mut TxContext): Balance<HANEUL> {
     total_haneul
 }
 
+#[allow(lint(public_entry))]
 public entry fun transfer(c: coin::Coin<HANEUL>, recipient: address) {
     transfer::public_transfer(c, recipient)
 }

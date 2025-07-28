@@ -532,6 +532,7 @@ public fun split(self: &mut StakedHaneul, split_amount: u64, ctx: &mut TxContext
 /// Allows calling `.split_to_sender()` on `StakedHaneul` to invoke `split_staked_haneul`
 public use fun split_staked_haneul as StakedHaneul.split_to_sender;
 
+#[allow(lint(public_entry))]
 /// Split the given StakedHaneul to the two parts, one with principal `split_amount`,
 /// transfer the newly split part to the sender address.
 public entry fun split_staked_haneul(stake: &mut StakedHaneul, split_amount: u64, ctx: &mut TxContext) {
@@ -541,6 +542,7 @@ public entry fun split_staked_haneul(stake: &mut StakedHaneul, split_amount: u64
 /// Allows calling `.join()` on `StakedHaneul` to invoke `join_staked_haneul`
 public use fun join_staked_haneul as StakedHaneul.join;
 
+#[allow(lint(public_entry))]
 /// Consume the staked haneul `other` and add its value to `self`.
 /// Aborts if some of the staking parameters are incompatible (pool id, stake activation epoch, etc.)
 public entry fun join_staked_haneul(self: &mut StakedHaneul, other: StakedHaneul) {
