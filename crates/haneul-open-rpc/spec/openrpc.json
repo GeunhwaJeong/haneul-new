@@ -8752,6 +8752,32 @@
                 ]
               }
             }
+          },
+          {
+            "type": "object",
+            "required": [
+              "reservation",
+              "type",
+              "typeParam",
+              "withdrawFrom"
+            ],
+            "properties": {
+              "reservation": {
+                "$ref": "#/components/schemas/HaneulReservation"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "balanceWithdraw"
+                ]
+              },
+              "typeParam": {
+                "$ref": "#/components/schemas/HaneulWithdrawTypeParam"
+              },
+              "withdrawFrom": {
+                "$ref": "#/components/schemas/HaneulWithdrawFrom"
+              }
+            }
           }
         ]
       },
@@ -9576,6 +9602,28 @@
           }
         }
       },
+      "HaneulReservation": {
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": [
+              "entireBalance"
+            ]
+          },
+          {
+            "type": "object",
+            "required": [
+              "maxAmountU64"
+            ],
+            "properties": {
+              "maxAmountU64": {
+                "$ref": "#/components/schemas/BigInt_for_uint64"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
       "HaneulSystemStateSummary": {
         "description": "This is the JSON-RPC type for the HANEUL system state object. It flattens all fields to make them top-level fields such that it as minimum dependencies to the internal data structures of the HANEUL system state type.",
         "type": "object",
@@ -10378,6 +10426,28 @@
             "$ref": "#/components/schemas/Base64"
           }
         }
+      },
+      "HaneulWithdrawFrom": {
+        "type": "string",
+        "enum": [
+          "sender"
+        ]
+      },
+      "HaneulWithdrawTypeParam": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "balance"
+            ],
+            "properties": {
+              "balance": {
+                "$ref": "#/components/schemas/TypeTag"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
       },
       "Supply": {
         "type": "object",

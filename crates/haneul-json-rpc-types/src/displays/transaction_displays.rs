@@ -52,6 +52,9 @@ impl Display for Pretty<'_, HaneulProgrammableTransactionBlock> {
                             object_id
                         )]);
                     }
+                    HaneulCallArg::BalanceWithdraw(arg) => {
+                        builder.push_record(vec![format!("{i:<3} Balance Withdraw: {:?}", arg)]);
+                    }
                 }
             }
 

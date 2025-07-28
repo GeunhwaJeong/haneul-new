@@ -48,8 +48,9 @@ use haneul_types::haneul_serde::{
 };
 use haneul_types::transaction::{
     Argument, CallArg, ChangeEpoch, Command, EndOfEpochTransactionKind, GenesisObject,
-    InputObjectKind, ObjectArg, ProgrammableMoveCall, ProgrammableTransaction, SenderSignedData,
-    TransactionData, TransactionDataAPI, TransactionKind,
+    InputObjectKind, ObjectArg, ProgrammableMoveCall, ProgrammableTransaction, Reservation,
+    SenderSignedData, TransactionData, TransactionDataAPI, TransactionKind, WithdrawFrom,
+    WithdrawTypeParam,
 };
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 
@@ -2130,7 +2131,7 @@ impl From<InputObjectKind> for HaneulInputObjectKind {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Eq, PartialEq)]
 #[serde(rename = "TypeTag", rename_all = "camelCase")]
 pub struct HaneulTypeTag(String);
 
@@ -2236,6 +2237,9 @@ pub enum HaneulCallArg {
     Object(HaneulObjectArg),
     // pure value, bcs encoded
     Pure(HaneulPureValue),
+    // Reservation to withdraw balance. This will be converted into a Withdrawal struct and passed into Move.
+    // It is allowed to have multiple withdraw arguments even for the same balance type.
+    BalanceWithdraw(HaneulBalanceWithdrawArg),
 }
 
 impl HaneulCallArg {
@@ -2271,10 +2275,20 @@ impl HaneulCallArg {
                     digest,
                 })
             }
-            CallArg::BalanceWithdraw(_) => {
-                // TODO(address-balances): Add support for balance withdraws.
-                todo!("Balance withdraws not yet supported in json rpc types")
-            }
+            CallArg::BalanceWithdraw(arg) => HaneulCallArg::BalanceWithdraw(HaneulBalanceWithdrawArg {
+                reservation: match arg.reservation {
+                    Reservation::EntireBalance => HaneulReservation::EntireBalance,
+                    Reservation::MaxAmountU64(amount) => HaneulReservation::MaxAmountU64(amount),
+                },
+                type_param: match arg.type_param {
+                    WithdrawTypeParam::Balance(type_input) => {
+                        HaneulWithdrawTypeParam::Balance(type_input.to_type_tag()?.into())
+                    }
+                },
+                withdraw_from: match arg.withdraw_from {
+                    WithdrawFrom::Sender => HaneulWithdrawFrom::Sender,
+                },
+            }),
         })
     }
 
@@ -2347,6 +2361,38 @@ pub enum HaneulObjectArg {
         version: SequenceNumber,
         digest: ObjectDigest,
     },
+}
+
+#[serde_as]
+#[derive(Eq, PartialEq, Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub enum HaneulReservation {
+    EntireBalance,
+    MaxAmountU64(
+        #[schemars(with = "BigInt<u64>")]
+        #[serde_as(as = "BigInt<u64>")]
+        u64,
+    ),
+}
+
+#[derive(Eq, PartialEq, Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub enum HaneulWithdrawTypeParam {
+    Balance(HaneulTypeTag),
+}
+
+#[derive(Eq, PartialEq, Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub enum HaneulWithdrawFrom {
+    Sender,
+}
+
+#[derive(Eq, PartialEq, Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct HaneulBalanceWithdrawArg {
+    pub reservation: HaneulReservation,
+    pub type_param: HaneulWithdrawTypeParam,
+    pub withdraw_from: HaneulWithdrawFrom,
 }
 
 #[derive(Clone)]
