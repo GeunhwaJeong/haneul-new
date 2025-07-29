@@ -10,7 +10,7 @@ use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::{
 };
 use haneul_indexer_alt_e2e_tests::{find_address_mutated, find_address_owned, FullCluster};
 use haneul_types::{
-    base_types::{ObjectRef, HaneulAddress},
+    base_types::{FullObjectRef, ObjectRef, HaneulAddress},
     crypto::{get_account_key_pair, Signature, Signer},
     effects::{TransactionEffects, TransactionEffectsAPI},
     programmable_transaction_builder::ProgrammableTransactionBuilder,
@@ -657,7 +657,9 @@ fn transfer_object(
     recipient: HaneulAddress,
 ) -> TransactionEffects {
     let mut builder = ProgrammableTransactionBuilder::new();
-    builder.transfer_object(recipient, object).unwrap();
+    builder
+        .transfer_object(recipient, FullObjectRef::from_fastpath_ref(object))
+        .unwrap();
 
     let data = TransactionData::new_programmable(
         sender,

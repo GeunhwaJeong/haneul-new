@@ -16,7 +16,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_keys::key_identity::KeyIdentity;
 use haneul_keys::keystore::AccountKeystore;
-use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
+use haneul_types::base_types::{FullObjectRef, ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::crypto::HaneulKeyPair;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::transaction::{Transaction, TransactionData, TransactionDataAPI};
@@ -140,6 +140,24 @@ impl WalletContext {
             .await?
             .into_object()?
             .object_ref())
+    }
+
+    /// Get the latest full object reference given a object id
+    pub async fn get_full_object_ref(
+        &self,
+        object_id: ObjectID,
+    ) -> Result<FullObjectRef, anyhow::Error> {
+        let client = self.get_client().await?;
+        let object = client
+            .read_api()
+            .get_object_with_options(object_id, HaneulObjectDataOptions::new().with_owner())
+            .await?
+            .into_object()?;
+        let object_ref = object.object_ref();
+        let owner = object
+            .owner
+            .expect("Owner should be present if `with_owner` is set");
+        Ok(FullObjectRef::from_object_ref_and_owner(object_ref, &owner))
     }
 
     /// Get all the gas objects (and conveniently, gas amounts) for the address

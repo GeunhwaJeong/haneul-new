@@ -43,7 +43,7 @@ use haneul_protocol_config::ProtocolConfig;
 use haneul_types::balance::Supply;
 use haneul_types::base_types::random_object_ref;
 use haneul_types::base_types::{
-    MoveObjectType, ObjectDigest, ObjectID, ObjectType, SequenceNumber, HaneulAddress,
+    FullObjectRef, MoveObjectType, ObjectDigest, ObjectID, ObjectType, SequenceNumber, HaneulAddress,
     TransactionDigest,
 };
 use haneul_types::committee::Committee;
@@ -185,11 +185,11 @@ impl RpcExampleProvider {
             builder
                 .transfer_object(
                     recipient,
-                    (
+                    FullObjectRef::from_fastpath_ref((
                         object_id,
                         SequenceNumber::from_u64(1),
                         ObjectDigest::new(self.rng.gen()),
-                    ),
+                    )),
                 )
                 .unwrap();
             builder.finish()
@@ -675,11 +675,11 @@ impl RpcExampleProvider {
             SequenceNumber::from_u64(2),
             ObjectDigest::new(self.rng.gen()),
         );
-        let object_ref = (
+        let object_ref = FullObjectRef::from_fastpath_ref((
             obj_id,
             SequenceNumber::from_u64(2),
             ObjectDigest::new(self.rng.gen()),
-        );
+        ));
 
         let data = TransactionData::new_transfer(
             recipient,
@@ -701,7 +701,7 @@ impl RpcExampleProvider {
             sender: signer,
             recipient: Owner::AddressOwner(recipient),
             object_type: parse_haneul_struct_tag("0x2::example::Object").unwrap(),
-            object_id: object_ref.0,
+            object_id: object_ref.0.id(),
             version: object_ref.1,
             digest: ObjectDigest::new(self.rng.gen()),
         };
@@ -735,7 +735,7 @@ impl RpcExampleProvider {
                         },
                         OwnedObjectRef {
                             owner: Owner::AddressOwner(recipient),
-                            reference: object_ref.into(),
+                            reference: object_ref.as_object_ref().into(),
                         },
                     ],
                     unwrapped: vec![],

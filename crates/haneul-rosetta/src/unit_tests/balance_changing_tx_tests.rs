@@ -27,7 +27,7 @@ use haneul_sdk::rpc_types::{
     HaneulTransactionBlockResponse,
 };
 use haneul_sdk::HaneulClient;
-use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
+use haneul_types::base_types::{FullObjectRef, ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::gas_coin::{GasCoin, GAS};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
@@ -114,7 +114,9 @@ async fn test_transfer_object() {
     let object_ref = get_random_haneul(&client, sender, vec![]).await;
     let pt = {
         let mut builder = ProgrammableTransactionBuilder::new();
-        builder.transfer_object(recipient, object_ref).unwrap();
+        builder
+            .transfer_object(recipient, FullObjectRef::from_fastpath_ref(object_ref))
+            .unwrap();
         builder.finish()
     };
     test_transaction(

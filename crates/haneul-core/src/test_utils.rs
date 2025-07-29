@@ -9,7 +9,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use haneul_config::genesis::Genesis;
 use haneul_macros::nondeterministic;
-use haneul_types::base_types::{random_object_ref, ObjectID};
+use haneul_types::base_types::{random_object_ref, FullObjectRef, ObjectID};
 use haneul_types::crypto::AuthorityKeyPair;
 use haneul_types::crypto::{AccountKeyPair, AuthorityPublicKeyBytes, Signer};
 use haneul_types::effects::{SignedTransactionEffects, TestEffectsBuilder};
@@ -225,7 +225,7 @@ pub fn make_transfer_object_transaction(
 ) -> Transaction {
     let data = TransactionData::new_transfer(
         recipient,
-        object_ref,
+        FullObjectRef::from_fastpath_ref(object_ref),
         sender,
         gas_object,
         gas_price * TEST_ONLY_GAS_UNIT_FOR_TRANSFER * 10,
@@ -275,7 +275,7 @@ pub fn make_dummy_tx(
     Transaction::from_data_and_signer(
         TransactionData::new_transfer(
             receiver,
-            random_object_ref(),
+            FullObjectRef::from_fastpath_ref(random_object_ref()),
             sender,
             random_object_ref(),
             TEST_ONLY_GAS_UNIT_FOR_TRANSFER * 10,

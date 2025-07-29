@@ -8,7 +8,7 @@ use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
 use haneul_macros::sim_test;
 use haneul_swarm_config::genesis_config::{AccountConfig, DEFAULT_GAS_AMOUNT};
 use haneul_test_transaction_builder::publish_basics_package_and_make_party_object;
-use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::{FullObjectRef, HaneulAddress};
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::object::Owner;
 use haneul_types::transaction::{CallArg, ObjectArg};
@@ -840,7 +840,9 @@ async fn party_coin_grpc() {
         vec!["0x2::coin::Coin<0x2::haneul::HANEUL>".parse().unwrap()],
         vec![party_coin_arg, party_owner],
     );
-    builder.transfer_object(recipient, owned_coin).unwrap();
+    builder
+        .transfer_object(recipient, FullObjectRef::from_fastpath_ref(owned_coin))
+        .unwrap();
     let ptb = builder.finish();
 
     let gas_data = haneul_types::transaction::GasData {

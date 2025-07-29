@@ -8,7 +8,7 @@ use std::sync::Arc;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{
-    random_object_ref, ExecutionDigests, ObjectID, SequenceNumber, VersionNumber,
+    random_object_ref, ExecutionDigests, FullObjectRef, ObjectID, SequenceNumber, VersionNumber,
 };
 use haneul_types::committee::Committee;
 use haneul_types::crypto::KeypairTraits;
@@ -34,7 +34,10 @@ fn random_tx() -> Transaction {
     let (sender, key): (_, AccountKeyPair) = get_key_pair();
     let gas = random_object_ref();
     TestTransactionBuilder::new(sender, gas, 1)
-        .transfer(random_object_ref(), sender)
+        .transfer(
+            FullObjectRef::from_fastpath_ref(random_object_ref()),
+            sender,
+        )
         .build_and_sign(&key)
 }
 

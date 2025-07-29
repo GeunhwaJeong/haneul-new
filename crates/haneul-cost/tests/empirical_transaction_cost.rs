@@ -10,7 +10,7 @@ use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
 use haneul_swarm_config::genesis_config::{AccountConfig, DEFAULT_GAS_AMOUNT};
 use haneul_test_transaction_builder::publish_basics_package_and_make_counter;
 use haneul_test_transaction_builder::TestTransactionBuilder;
-use haneul_types::base_types::{ObjectRef, HaneulAddress};
+use haneul_types::base_types::{FullObjectRef, ObjectRef, HaneulAddress};
 use haneul_types::coin::PAY_JOIN_FUNC_NAME;
 use haneul_types::coin::PAY_MODULE_NAME;
 use haneul_types::coin::PAY_SPLIT_VEC_FUNC_NAME;
@@ -140,7 +140,10 @@ async fn create_txes(
     // Transfer Whole Coin Object
     //
     let whole_coin_tx = TestTransactionBuilder::new(sender, gas_objects.pop().unwrap(), gas_price)
-        .transfer(gas_objects.pop().unwrap(), HaneulAddress::default())
+        .transfer(
+            FullObjectRef::from_fastpath_ref(gas_objects.pop().unwrap()),
+            HaneulAddress::default(),
+        )
         .build();
 
     ret.insert(CommonTransactionCosts::TransferWholeCoin, whole_coin_tx);

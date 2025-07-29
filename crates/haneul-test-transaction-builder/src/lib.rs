@@ -11,7 +11,7 @@ use haneul_sdk::rpc_types::{
     HaneulTransactionBlockResponse,
 };
 use haneul_sdk::wallet_context::WalletContext;
-use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
+use haneul_types::base_types::{FullObjectRef, ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
 use haneul_types::crypto::{get_key_pair, AccountKeyPair, Signature, Signer};
 use haneul_types::digests::TransactionDigest;
 use haneul_types::multisig::{BitmapUnit, MultiSig, MultiSigPublicKey};
@@ -285,7 +285,7 @@ impl TestTransactionBuilder {
         )
     }
 
-    pub fn transfer(mut self, object: ObjectRef, recipient: HaneulAddress) -> Self {
+    pub fn transfer(mut self, object: FullObjectRef, recipient: HaneulAddress) -> Self {
         self.test_data = TestTransactionData::Transfer(TransferData { object, recipient });
         self
     }
@@ -497,7 +497,7 @@ pub enum PublishData {
 }
 
 struct TransferData {
-    object: ObjectRef,
+    object: FullObjectRef,
     recipient: HaneulAddress,
 }
 

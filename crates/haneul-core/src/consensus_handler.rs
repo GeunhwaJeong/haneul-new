@@ -1440,7 +1440,7 @@ mod tests {
         Chain, ConsensusTransactionOrdering, PerObjectCongestionControlMode, ProtocolVersion,
     };
     use haneul_types::{
-        base_types::{random_object_ref, AuthorityName, ObjectID, HaneulAddress},
+        base_types::{random_object_ref, AuthorityName, FullObjectRef, ObjectID, HaneulAddress},
         committee::Committee,
         crypto::deterministic_random_account_key,
         messages_consensus::{
@@ -1950,7 +1950,7 @@ mod tests {
         let data = SenderSignedData::new(
             TransactionData::new_transfer(
                 HaneulAddress::default(),
-                random_object_ref(),
+                FullObjectRef::from_fastpath_ref(random_object_ref()),
                 HaneulAddress::default(),
                 random_object_ref(),
                 1000 * gas_price,
