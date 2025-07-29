@@ -21,6 +21,7 @@ use crate::{
 };
 use anyhow::Context as _;
 use async_graphql::{connection::Connection, dataloader::DataLoader, Context, Error, Object};
+use fastcrypto::encoding::{Base58, Encoding};
 use futures::try_join;
 use std::sync::Arc;
 use haneul_indexer_alt_reader::cp_sequence_numbers::CpSequenceNumberKey;
@@ -30,6 +31,7 @@ use haneul_indexer_alt_reader::{
 };
 use haneul_indexer_alt_schema::cp_sequence_numbers::StoredCpSequenceNumbers;
 use haneul_indexer_alt_schema::epochs::{StoredEpochEnd, StoredEpochStart};
+use haneul_types::messages_checkpoint::CheckpointCommitment;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::HANEUL_DENY_LIST_OBJECT_ID;
@@ -357,6 +359,25 @@ impl Epoch {
         };
 
         Ok(Some(stake_subsidy))
+    }
+
+    /// A commitment by the committee at the end of epoch on the contents of the live object set at that time.
+    /// This can be used to verify state snapshots.
+    async fn live_object_set_digest(&self, ctx: &Context<'_>) -> Result<Option<String>, RpcError> {
+        let Some(end) = self.end(ctx).await? else {
+            return Ok(None);
+        };
+
+        let commitments: Vec<CheckpointCommitment> = bcs::from_bytes(&end.epoch_commitments)
+            .context("Failed to deserialize epoch commitments")?;
+
+        let digest = commitments.into_iter().next().map(
+            |CheckpointCommitment::ECMHLiveObjectSetDigest(digest)| {
+                Base58::encode(digest.digest.into_inner())
+            },
+        );
+
+        Ok(digest)
     }
 }
 
