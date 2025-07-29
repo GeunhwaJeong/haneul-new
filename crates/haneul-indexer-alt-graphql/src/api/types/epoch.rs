@@ -6,7 +6,11 @@ use super::{
     object::{self, Object},
     protocol_configs::ProtocolConfigs,
 };
+use crate::api::types::stake_subsidy::{from_stake_subsidy_v1, StakeSubsidy};
 use crate::api::types::storage_fund::StorageFund;
+use crate::api::types::system_parameters::{
+    from_system_parameters_v1, from_system_parameters_v2, SystemParameters,
+};
 use crate::{
     api::scalars::{big_int::BigInt, date_time::DateTime, uint53::UInt53},
     api::types::validator_set::ValidatorSet,
@@ -26,6 +30,7 @@ use haneul_indexer_alt_reader::{
 use haneul_indexer_alt_schema::cp_sequence_numbers::StoredCpSequenceNumbers;
 use haneul_indexer_alt_schema::epochs::{StoredEpochEnd, StoredEpochStart};
 use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::HANEUL_DENY_LIST_OBJECT_ID;
 use tokio::sync::OnceCell;
 
@@ -288,6 +293,58 @@ impl Epoch {
         };
 
         Ok(Some(storage_fund))
+    }
+
+    /// The value of the `version` field of `0x5`, the `0x3::haneul::HaneulSystemState` object.
+    /// This version changes whenever the fields contained in the system state object (held in a dynamic field attached to `0x5`) change.
+    async fn system_state_version(&self, ctx: &Context<'_>) -> Result<Option<UInt53>, RpcError> {
+        let Some(system_state) = self.system_state(ctx).await? else {
+            return Ok(None);
+        };
+
+        Ok(Some(system_state.system_state_version().into()))
+    }
+
+    /// Details of the system that are decided during genesis.
+    async fn system_parameters(
+        &self,
+        ctx: &Context<'_>,
+    ) -> Result<Option<SystemParameters>, RpcError> {
+        let Some(system_state) = self.system_state(ctx).await? else {
+            return Ok(None);
+        };
+
+        let system_parameters = match system_state {
+            HaneulSystemState::V1(inner) => from_system_parameters_v1(inner.parameters),
+            HaneulSystemState::V2(inner) => from_system_parameters_v2(inner.parameters),
+            #[cfg(msim)]
+            HaneulSystemState::SimTestV1(_)
+            | HaneulSystemState::SimTestShallowV2(_)
+            | HaneulSystemState::SimTestDeepV2(_) => return Ok(None),
+        };
+
+        Ok(Some(system_parameters))
+    }
+
+    /// Parameters related to the subsidy that supplements staking rewards
+    async fn system_stake_subsidy(
+        &self,
+        ctx: &Context<'_>,
+    ) -> Result<Option<StakeSubsidy>, RpcError> {
+        let Some(system_state) = self.system_state(ctx).await? else {
+            return Ok(None);
+        };
+
+        let stake_subsidy = match system_state {
+            HaneulSystemState::V1(inner) => from_stake_subsidy_v1(inner.stake_subsidy),
+            HaneulSystemState::V2(inner) => from_stake_subsidy_v1(inner.stake_subsidy),
+            #[cfg(msim)]
+            HaneulSystemState::SimTestV1(_)
+            | HaneulSystemState::SimTestShallowV2(_)
+            | HaneulSystemState::SimTestDeepV2(_) => return Ok(None),
+        };
+
+        Ok(Some(stake_subsidy))
     }
 }
 
