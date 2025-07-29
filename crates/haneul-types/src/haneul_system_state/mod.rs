@@ -1,12 +1,15 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use self::haneul_system_state_inner_v1::{HaneulSystemStateInnerV1, ValidatorV1};
+use self::haneul_system_state_summary::{HaneulSystemStateSummary, HaneulValidatorSummary};
 use crate::base_types::ObjectID;
 use crate::committee::CommitteeWithNetworkMetadata;
 use crate::dynamic_field::{
     get_dynamic_field_from_store, get_dynamic_field_object_from_store, Field,
 };
 use crate::error::HaneulError;
+use crate::gas::GasCostSummary;
 use crate::object::{MoveObject, Object};
 use crate::storage::ObjectStore;
 use crate::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
@@ -20,9 +23,6 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
-
-use self::haneul_system_state_inner_v1::{HaneulSystemStateInnerV1, ValidatorV1};
-use self::haneul_system_state_summary::{HaneulSystemStateSummary, HaneulValidatorSummary};
 
 pub mod epoch_start_haneul_system_state;
 pub mod haneul_system_state_inner_v1;
@@ -173,6 +173,7 @@ pub trait HaneulSystemStateTrait {
     fn epoch_start_timestamp_ms(&self) -> u64;
     fn epoch_duration_ms(&self) -> u64;
     fn safe_mode(&self) -> bool;
+    fn safe_mode_gas_cost_summary(&self) -> GasCostSummary;
     fn advance_epoch_safe_mode(&mut self, params: &AdvanceEpochParams);
     fn get_current_epoch_committee(&self) -> CommitteeWithNetworkMetadata;
     fn get_pending_active_validators<S: ObjectStore + ?Sized>(

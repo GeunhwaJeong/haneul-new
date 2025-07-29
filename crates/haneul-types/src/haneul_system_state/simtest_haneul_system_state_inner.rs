@@ -7,6 +7,7 @@ use crate::collection_types::{Bag, Table};
 use crate::committee::{CommitteeWithNetworkMetadata, NetworkMetadata};
 use crate::crypto::{AuthorityPublicKey, AuthorityPublicKeyBytes, NetworkPublicKey};
 use crate::error::HaneulError;
+use crate::gas::GasCostSummary;
 use crate::storage::ObjectStore;
 use crate::haneul_system_state::epoch_start_haneul_system_state::{
     EpochStartSystemState, EpochStartValidatorInfoV1,
@@ -153,6 +154,10 @@ impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerV1 {
         self.safe_mode
     }
 
+    fn safe_mode_gas_cost_summary(&self) -> GasCostSummary {
+        GasCostSummary::default()
+    }
+
     fn advance_epoch_safe_mode(&mut self, params: &AdvanceEpochParams) {
         self.epoch = params.epoch;
         self.safe_mode = true;
@@ -268,6 +273,10 @@ impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerShallowV2 {
 
     fn safe_mode(&self) -> bool {
         self.safe_mode
+    }
+
+    fn safe_mode_gas_cost_summary(&self) -> GasCostSummary {
+        GasCostSummary::default()
     }
 
     fn advance_epoch_safe_mode(&mut self, params: &AdvanceEpochParams) {
@@ -414,6 +423,10 @@ impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerDeepV2 {
 
     fn safe_mode(&self) -> bool {
         self.safe_mode
+    }
+
+    fn safe_mode_gas_cost_summary(&self) -> GasCostSummary {
+        GasCostSummary::default()
     }
 
     fn advance_epoch_safe_mode(&mut self, params: &AdvanceEpochParams) {
