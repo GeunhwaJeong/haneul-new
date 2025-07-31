@@ -936,6 +936,20 @@ impl HaneulError {
                     _ => false,
                 }
             }
+
+            // Non retryable errors
+            HaneulError::ByzantineAuthoritySuspicion { .. } => false,
+            HaneulError::ObjectLockConflict { .. } => false,
+            HaneulError::TransactionExpired => false,
+            HaneulError::InvalidTxKindInSoftBundle { .. } => false,
+            HaneulError::UnsupportedFeatureError { .. } => false,
+
+            HaneulError::InvalidSignature { .. } => false,
+            HaneulError::SignerSignatureAbsent { .. } => false,
+            HaneulError::SignerSignatureNumberMismatch { .. } => false,
+            HaneulError::IncorrectSigner { .. } => false,
+            HaneulError::UnknownSigner { .. } => false,
+
             // Other variants are assumed to be retriable.
             _ => true,
         }
