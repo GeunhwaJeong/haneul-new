@@ -14805,6 +14805,7 @@ dependencies = [
  "diesel-async",
  "move-core-types",
  "prometheus",
+ "haneul-indexer-alt-consistent-api",
  "haneul-indexer-alt-metrics",
  "haneul-indexer-alt-schema",
  "haneul-kvstore",

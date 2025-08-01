@@ -27,6 +27,7 @@ url.workspace = true
 
 move-core-types.workspace = true
 
+haneul-indexer-alt-consistent-api.workspace = true
 haneul-indexer-alt-metrics.workspace = true
 haneul-indexer-alt-schema.workspace = true
 haneul-kvstore.workspace = true
