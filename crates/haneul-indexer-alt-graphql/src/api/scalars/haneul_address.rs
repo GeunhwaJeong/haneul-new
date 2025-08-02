@@ -119,6 +119,12 @@ impl From<NativeHaneulAddress> for HaneulAddress {
     }
 }
 
+impl From<AccountAddress> for HaneulAddress {
+    fn from(value: AccountAddress) -> Self {
+        HaneulAddress(value.into_bytes())
+    }
+}
+
 impl From<ObjectID> for HaneulAddress {
     fn from(value: ObjectID) -> Self {
         HaneulAddress(value.into_bytes())
