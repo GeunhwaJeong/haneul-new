@@ -82,10 +82,13 @@ the HaneulSystemStateInner version, or vice versa.
 -  [Function `validator_address_by_pool_id`](#haneul_system_haneul_system_validator_address_by_pool_id)
 -  [Function `pool_exchange_rates`](#haneul_system_haneul_system_pool_exchange_rates)
 -  [Function `active_validator_addresses`](#haneul_system_haneul_system_active_validator_addresses)
+-  [Function `active_validator_addresses_ref`](#haneul_system_haneul_system_active_validator_addresses_ref)
+-  [Function `active_validator_voting_powers`](#haneul_system_haneul_system_active_validator_voting_powers)
 -  [Function `calculate_rewards`](#haneul_system_haneul_system_calculate_rewards)
 -  [Function `advance_epoch`](#haneul_system_haneul_system_advance_epoch)
 -  [Function `load_system_state`](#haneul_system_haneul_system_load_system_state)
 -  [Function `load_system_state_mut`](#haneul_system_haneul_system_load_system_state_mut)
+-  [Function `load_system_state_ref`](#haneul_system_haneul_system_load_system_state_ref)
 -  [Function `load_inner_maybe_upgrade`](#haneul_system_haneul_system_load_inner_maybe_upgrade)
 -  [Function `validator_voting_powers`](#haneul_system_haneul_system_validator_voting_powers)
 -  [Function `store_execution_time_estimates`](#haneul_system_haneul_system_store_execution_time_estimates)
@@ -1427,6 +1430,56 @@ Getter returning addresses of the currently active validators.
 
 </details>
 
+<a name="haneul_system_haneul_system_active_validator_addresses_ref"></a>
+
+## Function `active_validator_addresses_ref`
+
+Getter returning addresses of the currently active validators by reference.
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_active_validator_addresses_ref">active_validator_addresses_ref</a>(wrapper: &<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">haneul_system::haneul_system::HaneulSystemState</a>): vector&lt;<b>address</b>&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_active_validator_addresses_ref">active_validator_addresses_ref</a>(wrapper: &<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">HaneulSystemState</a>): vector&lt;<b>address</b>&gt; {
+    wrapper.<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_system_state_ref">load_system_state_ref</a>().<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_active_validator_addresses">active_validator_addresses</a>()
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_system_haneul_system_active_validator_voting_powers"></a>
+
+## Function `active_validator_voting_powers`
+
+Getter returns the voting power of the active validators, values are voting power in the scale of 10000.
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_active_validator_voting_powers">active_validator_voting_powers</a>(wrapper: &<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">haneul_system::haneul_system::HaneulSystemState</a>): <a href="../haneul/vec_map.md#haneul_vec_map_VecMap">haneul::vec_map::VecMap</a>&lt;<b>address</b>, u64&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_active_validator_voting_powers">active_validator_voting_powers</a>(wrapper: &<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">HaneulSystemState</a>): VecMap&lt;<b>address</b>, u64&gt; {
+    wrapper.<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_system_state_ref">load_system_state_ref</a>().<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_active_validator_voting_powers">active_validator_voting_powers</a>()
+}
+</code></pre>
+
+
+
+</details>
+
 <a name="haneul_system_haneul_system_calculate_rewards"></a>
 
 ## Function `calculate_rewards`
@@ -1570,6 +1623,35 @@ gas coins.
 
 </details>
 
+<a name="haneul_system_haneul_system_load_system_state_ref"></a>
+
+## Function `load_system_state_ref`
+
+
+
+<pre><code><b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_system_state_ref">load_system_state_ref</a>(self: &<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">haneul_system::haneul_system::HaneulSystemState</a>): &<a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_HaneulSystemStateInnerV2">haneul_system::haneul_system_state_inner::HaneulSystemStateInnerV2</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_system_state_ref">load_system_state_ref</a>(self: &<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">HaneulSystemState</a>): &HaneulSystemStateInnerV2 {
+    <b>let</b> inner: &HaneulSystemStateInnerV2 = dynamic_field::borrow(
+        &self.id,
+        self.version,
+    );
+    <b>assert</b>!(inner.system_state_version() == self.version, <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_EWrongInnerVersion">EWrongInnerVersion</a>);
+    inner
+}
+</code></pre>
+
+
+
+</details>
+
 <a name="haneul_system_haneul_system_load_inner_maybe_upgrade"></a>
 
 ## Function `load_inner_maybe_upgrade`
@@ -1622,7 +1704,7 @@ Returns the voting power of the active validators, values are voting power in th
 
 
 <pre><code><b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_validator_voting_powers">validator_voting_powers</a>(wrapper: &<b>mut</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">HaneulSystemState</a>): VecMap&lt;<b>address</b>, u64&gt; {
-    wrapper.<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_system_state">load_system_state</a>().active_validator_voting_powers()
+    wrapper.<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_system_state">load_system_state</a>().<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_active_validator_voting_powers">active_validator_voting_powers</a>()
 }
 </code></pre>
 
