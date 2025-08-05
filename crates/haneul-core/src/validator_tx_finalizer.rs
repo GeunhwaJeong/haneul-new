@@ -443,6 +443,25 @@ mod tests {
         ) -> Result<HaneulSystemState, HaneulError> {
             unimplemented!()
         }
+
+        async fn validator_health(
+            &self,
+            _request: haneul_types::messages_grpc::RawValidatorHealthRequest,
+        ) -> Result<haneul_types::messages_grpc::RawValidatorHealthResponse, HaneulError> {
+            let typed_response = haneul_types::messages_grpc::ValidatorHealthResponse {
+                num_inflight_consensus_transactions: 0,
+                num_inflight_execution_transactions: 0,
+                last_committed_leader_round: 1000,
+                last_locally_built_checkpoint: 500,
+            };
+
+            typed_response.try_into().map_err(|e| {
+                haneul_types::error::HaneulError::GrpcMessageSerializeError {
+                    type_info: "ValidatorHealthResponse".to_string(),
+                    error: format!("Failed to convert to raw response: {}", e),
+                }
+            })
+        }
     }
 
     #[sim_test]

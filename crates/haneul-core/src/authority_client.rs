@@ -108,6 +108,12 @@ pub trait AuthorityAPI {
         &self,
         request: SystemStateRequest,
     ) -> Result<HaneulSystemState, HaneulError>;
+
+    /// Get validator health metrics (for latency measurement)
+    async fn validator_health(
+        &self,
+        request: haneul_types::messages_grpc::RawValidatorHealthRequest,
+    ) -> Result<haneul_types::messages_grpc::RawValidatorHealthResponse, HaneulError>;
 }
 
 #[derive(Clone)]
@@ -314,6 +320,17 @@ impl AuthorityAPI for NetworkAuthorityClient {
     ) -> Result<HaneulSystemState, HaneulError> {
         self.client()?
             .get_system_state_object(request)
+            .await
+            .map(tonic::Response::into_inner)
+            .map_err(Into::into)
+    }
+
+    async fn validator_health(
+        &self,
+        request: haneul_types::messages_grpc::RawValidatorHealthRequest,
+    ) -> Result<haneul_types::messages_grpc::RawValidatorHealthResponse, HaneulError> {
+        self.client()?
+            .validator_health(request)
             .await
             .map(tonic::Response::into_inner)
             .map_err(Into::into)

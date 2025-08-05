@@ -695,4 +695,30 @@ where
             .handle_system_state_object(SystemStateRequest { _unused: false })
             .await
     }
+
+    /// Handle validator health check requests (for latency measurement)
+    #[instrument(level = "trace", skip_all, fields(authority = ?self.address.concise()))]
+    pub async fn validator_health(
+        &self,
+        request: haneul_types::messages_grpc::ValidatorHealthRequest,
+    ) -> Result<haneul_types::messages_grpc::ValidatorHealthResponse, HaneulError> {
+        // Convert typed request to raw for gRPC
+        let raw_request = request.try_into().map_err(|e| {
+            haneul_types::error::HaneulError::GrpcMessageSerializeError {
+                type_info: "ValidatorHealthRequest".to_string(),
+                error: format!("Failed to convert to raw request: {}", e),
+            }
+        })?;
+
+        // Call the raw gRPC interface
+        let raw_response = self.authority_client.validator_health(raw_request).await?;
+
+        // Convert raw response back to typed
+        raw_response.try_into().map_err(|e| {
+            haneul_types::error::HaneulError::GrpcMessageDeserializeError {
+                type_info: "RawValidatorHealthResponse".to_string(),
+                error: format!("Failed to convert from raw response: {}", e),
+            }
+        })
+    }
 }

@@ -796,6 +796,7 @@ impl HaneulNode {
                 end_of_epoch_receiver,
                 &config.db_path(),
                 &prometheus_registry,
+                &config,
             )))
         } else {
             None
