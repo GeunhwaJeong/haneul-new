@@ -105,6 +105,7 @@ use haneul_core::overload_monitor::overload_monitor;
 use haneul_core::rpc_index::RpcIndexStore;
 use haneul_core::signature_verifier::SignatureVerifierMetrics;
 use haneul_core::storage::RocksDbStore;
+use haneul_core::transaction_orchestrator::QuorumTransactionEffectsResult;
 use haneul_core::transaction_orchestrator::TransactionOrchestrator;
 use haneul_core::{
     authority::{AuthorityState, AuthorityStore},
@@ -138,7 +139,6 @@ use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages_consensus::{
     check_total_jwk_size, AuthorityCapabilitiesV1, ConsensusTransaction,
 };
-use haneul_types::quorum_driver_types::QuorumDriverEffectsQueueResult;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
@@ -1717,7 +1717,7 @@ impl HaneulNode {
 
     pub fn subscribe_to_transaction_orchestrator_effects(
         &self,
-    ) -> Result<tokio::sync::broadcast::Receiver<QuorumDriverEffectsQueueResult>> {
+    ) -> Result<tokio::sync::broadcast::Receiver<QuorumTransactionEffectsResult>> {
         self.transaction_orchestrator
             .as_ref()
             .map(|to| to.subscribe_to_effects_queue())
