@@ -139,7 +139,7 @@ fn get_keypair() -> Result<SignerInfo> {
     // TODO(chris) allow pass in custom path for keystore
     // Load keystore from ~/.haneul/haneul_config/haneul.keystore
     let keystore_path = get_haneul_config_directory().join("haneul.keystore");
-    let keystore = Keystore::from(FileBasedKeystore::new(&keystore_path)?);
+    let keystore = Keystore::from(FileBasedKeystore::load_or_create(&keystore_path)?);
     let active_address = keystore.addresses().pop().unwrap();
     let keypair: &HaneulKeyPair = keystore.export(&active_address)?;
     println!("using address {active_address} for signing");

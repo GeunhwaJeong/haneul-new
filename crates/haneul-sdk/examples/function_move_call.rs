@@ -84,8 +84,11 @@ async fn main() -> Result<(), anyhow::Error> {
     );
 
     // 4) sign transaction
-    let keystore = FileBasedKeystore::new(&haneul_config_dir()?.join(HANEUL_KEYSTORE_FILENAME))?;
-    let signature = keystore.sign_secure(&sender, &tx_data, Intent::haneul_transaction())?;
+    let keystore =
+        FileBasedKeystore::load_or_create(&haneul_config_dir()?.join(HANEUL_KEYSTORE_FILENAME))?;
+    let signature = keystore
+        .sign_secure(&sender, &tx_data, Intent::haneul_transaction())
+        .await?;
 
     // 5) execute the transaction
     print!("Executing the transaction...");

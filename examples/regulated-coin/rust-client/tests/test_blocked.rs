@@ -31,7 +31,8 @@ fn cmd_haneul_client_switch(new_addr: HaneulAddress) -> Result<()> {
 }
 
 fn get_other_address(different_from: HaneulAddress) -> Result<HaneulAddress> {
-    let keystore = FileBasedKeystore::new(&haneul_config_dir()?.join(HANEUL_KEYSTORE_FILENAME))?;
+    let keystore =
+        FileBasedKeystore::load_or_create(&haneul_config_dir()?.join(HANEUL_KEYSTORE_FILENAME))?;
     Ok(keystore
         .keys()
         .into_iter()

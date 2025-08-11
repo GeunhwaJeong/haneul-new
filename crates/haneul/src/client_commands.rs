@@ -104,6 +104,7 @@ use tabled::{
 };
 
 use move_symbol_pool::Symbol;
+use haneul_keys::key_derive;
 use haneul_types::digests::ChainIdentifier;
 use tracing::{debug, info};
 
@@ -1604,12 +1605,14 @@ impl HaneulClientCommands {
                 derivation_path,
                 word_length,
             } => {
-                let (address, phrase, scheme) = context.config.keystore.generate(
-                    key_scheme,
-                    alias.clone(),
-                    derivation_path,
-                    word_length,
-                )?;
+                let (address, keypair, scheme, phrase) =
+                    key_derive::generate_new_key(key_scheme, derivation_path, word_length)
+                        .map_err(|e| anyhow!("Failed to generate new key: {}", e))?;
+                context
+                    .config
+                    .keystore
+                    .import(alias.clone(), keypair)
+                    .await?;
 
                 let alias = match alias {
                     Some(x) => x,
@@ -1629,7 +1632,7 @@ impl HaneulClientCommands {
                     .map_err(|e| anyhow!("Invalid address or alias: {}", e))?;
                 let address: HaneulAddress = context.config.keystore.get_by_identity(identity)?;
 
-                context.config.keystore.remove(address)?;
+                context.config.keystore.remove(address).await?;
 
                 HaneulClientCommandResult::RemoveAddress(RemoveAddressOutput { alias_or_address })
             }
@@ -3398,7 +3401,8 @@ pub(crate) async fn dry_run_or_execute_or_serialize(
         let mut signatures = vec![context
             .config
             .keystore
-            .sign_secure(&signer, &tx_data, Intent::haneul_transaction())?
+            .sign_secure(&signer, &tx_data, Intent::haneul_transaction())
+            .await?
             .into()];
 
         if let Some(gas_sponsor) = gas_sponsor {
@@ -3407,7 +3411,8 @@ pub(crate) async fn dry_run_or_execute_or_serialize(
                     context
                         .config
                         .keystore
-                        .sign_secure(&gas_sponsor, &tx_data, Intent::haneul_transaction())?
+                        .sign_secure(&gas_sponsor, &tx_data, Intent::haneul_transaction())
+                        .await?
                         .into(),
                 );
             }

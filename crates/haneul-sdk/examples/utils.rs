@@ -9,7 +9,7 @@ use haneul_config::{
     haneul_config_dir, Config, PersistedConfig, HANEUL_CLIENT_CONFIG, HANEUL_KEYSTORE_FILENAME,
 };
 use haneul_json_rpc_types::{Coin, HaneulObjectDataOptions};
-use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore};
+use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, GenerateOptions};
 use haneul_sdk::{
     haneul_client_config::{HaneulClientConfig, HaneulEnv},
     wallet_context::WalletContext,
@@ -21,7 +21,6 @@ use serde_json::json;
 use shared_crypto::intent::Intent;
 use haneul_sdk::types::{
     base_types::{ObjectID, HaneulAddress},
-    crypto::SignatureScheme::ED25519,
     digests::TransactionDigest,
     programmable_transaction_builder::ProgrammableTransactionBuilder,
     quorum_driver_types::ExecuteTransactionRequestType,
@@ -56,7 +55,7 @@ pub async fn setup_for_write() -> Result<(HaneulClient, HaneulAddress, HaneulAdd
     if coin.is_none() {
         request_tokens_from_faucet(active_address, &client).await?;
     }
-    let wallet = retrieve_wallet()?;
+    let wallet = retrieve_wallet().await?;
     let addresses = wallet.get_addresses();
     let addresses = addresses
         .into_iter()
@@ -78,7 +77,7 @@ pub async fn setup_for_write() -> Result<(HaneulClient, HaneulAddress, HaneulAdd
 pub async fn setup_for_read() -> Result<(HaneulClient, HaneulAddress), anyhow::Error> {
     let client = HaneulClientBuilder::default().build_testnet().await?;
     println!("Haneul testnet version is: {}", client.api_version());
-    let mut wallet = retrieve_wallet()?;
+    let mut wallet = retrieve_wallet().await?;
     assert!(wallet.get_addresses().len() >= 2);
     let active_address = wallet.active_address()?;
 
@@ -253,8 +252,11 @@ pub async fn split_coin_digest(
     );
 
     // sign & execute the transaction
-    let keystore = FileBasedKeystore::new(&haneul_config_dir()?.join(HANEUL_KEYSTORE_FILENAME))?;
-    let signature = keystore.sign_secure(sender, &tx_data, Intent::haneul_transaction())?;
+    let keystore =
+        FileBasedKeystore::load_or_create(&haneul_config_dir()?.join(HANEUL_KEYSTORE_FILENAME))?;
+    let signature = keystore
+        .sign_secure(sender, &tx_data, Intent::haneul_transaction())
+        .await?;
 
     let transaction_response = haneul
         .quorum_driver_api()
@@ -267,18 +269,18 @@ pub async fn split_coin_digest(
     Ok(transaction_response.digest)
 }
 
-pub fn retrieve_wallet() -> Result<WalletContext, anyhow::Error> {
+pub async fn retrieve_wallet() -> Result<WalletContext, anyhow::Error> {
     let wallet_conf = haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG);
     let keystore_path = haneul_config_dir()?.join(HANEUL_KEYSTORE_FILENAME);
 
     // check if a wallet exists and if not, create a wallet and a haneul client config
     if !keystore_path.exists() {
-        let keystore = FileBasedKeystore::new(&keystore_path)?;
-        keystore.save()?;
+        let keystore = FileBasedKeystore::load_or_create(&keystore_path)?;
+        keystore.save().await?;
     }
 
     if !wallet_conf.exists() {
-        let keystore = FileBasedKeystore::new(&keystore_path)?;
+        let keystore = FileBasedKeystore::load_or_create(&keystore_path)?;
         let mut client_config = HaneulClientConfig::new(keystore.into());
 
         client_config.add_env(HaneulEnv::testnet());
@@ -293,17 +295,20 @@ pub fn retrieve_wallet() -> Result<WalletContext, anyhow::Error> {
         info!("Client config file is stored in {:?}.", &wallet_conf);
     }
 
-    let mut keystore = FileBasedKeystore::new(&keystore_path)?;
+    let mut keystore = FileBasedKeystore::load_or_create(&keystore_path)?;
     let mut client_config: HaneulClientConfig = PersistedConfig::read(&wallet_conf)?;
 
     let default_active_address = if let Some(address) = keystore.addresses().first() {
         *address
     } else {
-        keystore.generate(ED25519, None, None, None)?.0
+        keystore
+            .generate(None, GenerateOptions::default())
+            .await?
+            .address
     };
 
     if keystore.addresses().len() < 2 {
-        keystore.generate(ED25519, None, None, None)?;
+        keystore.generate(None, GenerateOptions::default()).await?;
     }
 
     client_config.active_address = Some(default_active_address);
