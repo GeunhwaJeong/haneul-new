@@ -11,7 +11,7 @@ use haneul_rpc::proto::haneul::rpc::v2beta2::{
 };
 use haneul_rpc_api::proto::timestamp_ms_to_proto;
 use haneul_rpc_api::{CheckpointNotFoundError, RpcError, ServerVersion};
-use haneul_sdk_types::CheckpointDigest;
+use haneul_sdk_types::Digest;
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::message_envelope::Message;
 
@@ -147,7 +147,7 @@ async fn get_service_info(
         return Err(CheckpointNotFoundError::sequence_number(0).into());
     };
     Ok(GetServiceInfoResponse {
-        chain_id: Some(CheckpointDigest::new(chain_id.as_bytes().to_owned()).to_string()),
+        chain_id: Some(Digest::new(chain_id.as_bytes().to_owned()).to_string()),
         chain: Some(chain_id.chain().as_str().into()),
         epoch: Some(checkpoint.epoch),
         checkpoint_height: Some(checkpoint.sequence_number),

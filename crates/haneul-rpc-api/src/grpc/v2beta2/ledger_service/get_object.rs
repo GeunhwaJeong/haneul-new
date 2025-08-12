@@ -16,11 +16,11 @@ use haneul_rpc::proto::haneul::rpc::v2beta2::GetObjectRequest;
 use haneul_rpc::proto::haneul::rpc::v2beta2::GetObjectResponse;
 use haneul_rpc::proto::haneul::rpc::v2beta2::GetObjectResult;
 use haneul_rpc::proto::haneul::rpc::v2beta2::Object;
-use haneul_sdk_types::ObjectId;
+use haneul_sdk_types::Address;
 
 pub const READ_MASK_DEFAULT: &str = "object_id,version,digest";
 
-type ValidationResult = Result<(Vec<(ObjectId, Option<u64>)>, FieldMaskTree), RpcError>;
+type ValidationResult = Result<(Vec<(Address, Option<u64>)>, FieldMaskTree), RpcError>;
 
 pub fn validate_get_object_requests(
     requests: Vec<(Option<String>, Option<u64>)>,
@@ -103,7 +103,7 @@ pub fn batch_get_objects(
 #[tracing::instrument(skip(service))]
 fn get_object_impl(
     service: &RpcService,
-    object_id: ObjectId,
+    object_id: Address,
     version: Option<u64>,
     read_mask: &FieldMaskTree,
 ) -> Result<Object, RpcError> {

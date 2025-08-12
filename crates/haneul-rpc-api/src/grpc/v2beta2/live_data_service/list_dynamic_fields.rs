@@ -17,7 +17,7 @@ use haneul_rpc::proto::haneul::rpc::v2beta2::ErrorReason;
 use haneul_rpc::proto::haneul::rpc::v2beta2::ListDynamicFieldsRequest;
 use haneul_rpc::proto::haneul::rpc::v2beta2::ListDynamicFieldsResponse;
 use haneul_rpc::proto::haneul::rpc::v2beta2::Object;
-use haneul_sdk_types::ObjectId;
+use haneul_sdk_types::Address;
 use haneul_types::base_types::ObjectID;
 
 const MAX_PAGE_SIZE: usize = 1000;
@@ -36,7 +36,7 @@ pub fn list_dynamic_fields(
         .indexes()
         .ok_or_else(RpcError::not_found)?;
 
-    let parent: ObjectId = request
+    let parent: Address = request
         .parent
         .as_ref()
         .ok_or_else(|| {
@@ -135,8 +135,8 @@ fn encode_page_token(page_token: PageToken) -> Bytes {
 
 #[derive(serde::Serialize, serde::Deserialize)]
 struct PageToken {
-    parent: ObjectId,
-    field_id: ObjectId,
+    parent: Address,
+    field_id: Address,
 }
 
 fn get_dynamic_field(

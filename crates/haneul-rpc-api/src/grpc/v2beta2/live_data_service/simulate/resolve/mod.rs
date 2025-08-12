@@ -16,9 +16,9 @@ use move_binary_format::normalized;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
 use haneul_rpc::proto::haneul::rpc::v2beta2::Transaction;
+use haneul_sdk_types::Address;
 use haneul_sdk_types::Argument;
 use haneul_sdk_types::Command;
-use haneul_sdk_types::ObjectId;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::move_package::MovePackage;
 use haneul_types::transaction::CallArg;
@@ -87,7 +87,7 @@ pub fn resolve_transaction(
 
 pub(super) struct NormalizedPackages {
     pool: normalized::RcPool,
-    packages: HashMap<ObjectId, NormalizedPackage>,
+    packages: HashMap<Address, NormalizedPackage>,
 }
 
 struct NormalizedPackage {
@@ -450,9 +450,9 @@ fn resolve_object(
     called_packages: &NormalizedPackages,
     commands: &[Command],
     arg_idx: usize,
-    object_id: ObjectId,
+    object_id: Address,
     version: Option<haneul_sdk_types::Version>,
-    digest: Option<haneul_sdk_types::ObjectDigest>,
+    digest: Option<haneul_sdk_types::Digest>,
     _mutable: Option<bool>,
 ) -> Result<ObjectArg> {
     let id = object_id.into();
@@ -505,7 +505,7 @@ fn resolve_shared_input(
     called_packages: &NormalizedPackages,
     commands: &[Command],
     arg_idx: usize,
-    object_id: ObjectId,
+    object_id: Address,
 ) -> Result<ObjectArg> {
     let id = object_id.into();
     let object = reader
@@ -701,9 +701,9 @@ fn find_arg_uses(
 }
 
 struct UnresolvedObjectReference {
-    object_id: ObjectId,
+    object_id: Address,
     version: Option<haneul_sdk_types::Version>,
-    digest: Option<haneul_sdk_types::ObjectDigest>,
+    digest: Option<haneul_sdk_types::Digest>,
 }
 
 impl TryFrom<&haneul_rpc::proto::haneul::rpc::v2beta2::ObjectReference> for UnresolvedObjectReference {
@@ -740,9 +740,9 @@ impl TryFrom<&haneul_rpc::proto::haneul::rpc::v2beta2::ObjectReference> for Unre
 struct UnresolvedInput<'a> {
     pub kind: Option<haneul_rpc::proto::haneul::rpc::v2beta2::input::InputKind>,
     pub pure: Option<&'a Bytes>,
-    pub object_id: Option<haneul_sdk_types::ObjectId>,
+    pub object_id: Option<haneul_sdk_types::Address>,
     pub version: Option<haneul_sdk_types::Version>,
-    pub digest: Option<haneul_sdk_types::ObjectDigest>,
+    pub digest: Option<haneul_sdk_types::Digest>,
     pub mutable: Option<bool>,
     pub literal: Option<&'a prost_types::Value>,
 }

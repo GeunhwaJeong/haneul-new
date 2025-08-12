@@ -22,7 +22,7 @@ use haneul_macros::{register_fail_point_arg, sim_test};
 use haneul_protocol_config::{Chain, PerObjectCongestionControlMode, ProtocolConfig, ProtocolVersion};
 use haneul_types::base_types::ConsensusObjectSequenceKey;
 use haneul_types::digests::TransactionDigest;
-use haneul_types::effects::{InputSharedObject, TransactionEffectsAPI};
+use haneul_types::effects::{InputConsensusObject, TransactionEffectsAPI};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::transaction::{ObjectArg, Transaction};
 use haneul_types::{
@@ -337,12 +337,12 @@ async fn test_congestion_control_execution_cancellation() {
         }
     );
 
-    // Tests shared object versions in effects are set correctly.
+    // Tests consensus object versions in effects are set correctly.
     assert_eq!(
-        effects.input_shared_objects(),
+        effects.input_consensus_objects(),
         vec![
-            InputSharedObject::Cancelled(shared_object_1.0, SequenceNumber::CONGESTED),
-            InputSharedObject::Cancelled(shared_object_2.0, SequenceNumber::CANCELLED_READ)
+            InputConsensusObject::Cancelled(shared_object_1.0, SequenceNumber::CONGESTED),
+            InputConsensusObject::Cancelled(shared_object_2.0, SequenceNumber::CANCELLED_READ)
         ]
     );
 

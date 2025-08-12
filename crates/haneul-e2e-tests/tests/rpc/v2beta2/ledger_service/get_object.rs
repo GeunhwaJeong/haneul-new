@@ -9,14 +9,14 @@ use haneul_rpc::proto::haneul::rpc::v2beta2::BatchGetObjectsRequest;
 use haneul_rpc::proto::haneul::rpc::v2beta2::BatchGetObjectsResponse;
 use haneul_rpc::proto::haneul::rpc::v2beta2::GetObjectRequest;
 use haneul_rpc::proto::haneul::rpc::v2beta2::Object;
-use haneul_sdk_types::ObjectId;
+use haneul_sdk_types::Address;
 use test_cluster::TestClusterBuilder;
 
 #[sim_test]
 async fn get_object() {
     let test_cluster = TestClusterBuilder::new().build().await;
 
-    let id: ObjectId = "0x5".parse().unwrap();
+    let id: Address = "0x5".parse().unwrap();
 
     let mut client = LedgerServiceClient::connect(test_cluster.rpc_url().to_owned())
         .await
@@ -191,14 +191,14 @@ async fn batch_get_objects() {
 
     assert_eq!(
         objects[0].object().unwrap().object_id,
-        Some("0x1".parse::<ObjectId>().unwrap().to_string())
+        Some("0x1".parse::<Address>().unwrap().to_string())
     );
     assert_eq!(
         objects[1].object().unwrap().object_id,
-        Some("0x2".parse::<ObjectId>().unwrap().to_string())
+        Some("0x2".parse::<Address>().unwrap().to_string())
     );
     assert_eq!(
         objects[2].object().unwrap().object_id,
-        Some("0x3".parse::<ObjectId>().unwrap().to_string())
+        Some("0x3".parse::<Address>().unwrap().to_string())
     );
 }

@@ -4,8 +4,8 @@
 use crate::transfer_coin;
 use haneul_macros::sim_test;
 use haneul_rpc_api::Client;
+use haneul_sdk_types::Address;
 use haneul_sdk_types::BalanceChange;
-use haneul_sdk_types::ObjectId;
 use haneul_test_transaction_builder::make_transfer_haneul_transaction;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::effects::TransactionEffectsAPI;
@@ -16,7 +16,7 @@ use test_cluster::TestClusterBuilder;
 async fn get_object() {
     let test_cluster = TestClusterBuilder::new().build().await;
 
-    let id: ObjectId = "0x5".parse().unwrap();
+    let id: Address = "0x5".parse().unwrap();
 
     let client = Client::new(test_cluster.rpc_url()).unwrap();
 

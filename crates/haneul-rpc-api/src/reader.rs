@@ -4,8 +4,8 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use haneul_sdk_types::{Address, Object, Version};
 use haneul_sdk_types::{CheckpointSequenceNumber, EpochId, SignedTransaction, ValidatorCommittee};
-use haneul_sdk_types::{Object, ObjectId, Version};
 use haneul_types::balance_change::BalanceChange;
 use haneul_types::base_types::{ObjectID, ObjectType};
 use haneul_types::storage::error::{Error as StorageError, Result};
@@ -30,7 +30,7 @@ impl StateReader {
     }
 
     #[tracing::instrument(skip(self))]
-    pub fn get_object(&self, object_id: ObjectId) -> crate::Result<Option<Object>> {
+    pub fn get_object(&self, object_id: Address) -> crate::Result<Option<Object>> {
         self.inner
             .get_object(&object_id.into())
             .map(TryInto::try_into)
@@ -41,7 +41,7 @@ impl StateReader {
     #[tracing::instrument(skip(self))]
     pub fn get_object_with_version(
         &self,
-        object_id: ObjectId,
+        object_id: Address,
         version: Version,
     ) -> crate::Result<Option<Object>> {
         self.inner
@@ -87,7 +87,7 @@ impl StateReader {
     #[tracing::instrument(skip(self))]
     pub fn get_transaction(
         &self,
-        digest: haneul_sdk_types::TransactionDigest,
+        digest: haneul_sdk_types::Digest,
     ) -> crate::Result<(
         haneul_sdk_types::SignedTransaction,
         haneul_sdk_types::TransactionEffects,
@@ -138,7 +138,7 @@ impl StateReader {
     #[tracing::instrument(skip(self))]
     pub fn get_transaction_read(
         &self,
-        digest: haneul_sdk_types::TransactionDigest,
+        digest: haneul_sdk_types::Digest,
     ) -> crate::Result<TransactionRead> {
         let (
             SignedTransaction {
@@ -201,7 +201,7 @@ impl StateReader {
 
 #[derive(Debug)]
 pub struct TransactionRead {
-    pub digest: haneul_sdk_types::TransactionDigest,
+    pub digest: haneul_sdk_types::Digest,
     pub transaction: haneul_sdk_types::Transaction,
     pub signatures: Vec<haneul_sdk_types::UserSignature>,
     pub effects: haneul_sdk_types::TransactionEffects,
@@ -375,7 +375,7 @@ impl Iterator for CheckpointIter {
 }
 
 #[derive(Debug)]
-pub struct TransactionNotFoundError(pub haneul_sdk_types::TransactionDigest);
+pub struct TransactionNotFoundError(pub haneul_sdk_types::Digest);
 
 impl std::fmt::Display for TransactionNotFoundError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
