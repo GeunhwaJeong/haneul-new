@@ -1,6 +1,7 @@
 ---
 title: Database Snapshots
 description: Database snapshots of the Haneul network enable Full node operators a way to bootstrap a Full node without having to execute all the transactions that occurred after genesis.
+keywords: [ node snapshots, database snapshots, full node snapshots, formal snapshots, rocksdb, rocksdb snapshot, restoring a node, restoring a full node, restoring from snapshot, managed snapshots, enabling snapshots ]
 ---
 
 Database snapshots provide a point-in-time view of a database's store. In Haneul, the database snapshot captures a running database's view of the Haneul network from a particular node at the end of an epoch. While validators can enable snapshots, they are typically most valuable for Full node operators.
@@ -131,7 +132,7 @@ Mainnet: `s3://haneullabs-mainnet-snapshots/`,  `s3://haneullabs-mainnet-formal/
 Testnet: `gs://haneullabs-testnet-snapshots/`, `gs://haneullabs-testnet-formal/`
 Mainnet: `gs://haneullabs-mainnet-snapshots/`,  `gs://haneullabs-mainnet-formal/`
 
-![Haneullabs Managed Snapshots](./images/haneullabs-cloud-snapshots.png "A diagram that shows the current architecture of haneullabs snapshot availability")
+![Haneullabs Managed Snapshots](./images/haneullabs-cloud-snapshots.png "A diagram that shows the current architecture of Haneullabs snapshot availability")
 
 ## Enabling snapshots
 
@@ -140,8 +141,8 @@ Full nodes do not take snapshots by default. To enable this feature you must app
 Follow these steps to change the configs for a Full node:
 
 1. Stop your node, if it's running.
-2. Open your fullnode.yaml config file and apply config updates as the following sections show.
-3. Save the fullnode.yaml file and restart the node.
+2. Open your `fullnode.yaml` config file and apply config updates as the following sections show.
+3. Save the `fullnode.yaml` file and restart the node.
 
 ### Enabling DB snapshots
 
