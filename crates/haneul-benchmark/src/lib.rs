@@ -27,8 +27,8 @@ use haneul_json_rpc_types::{
     HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulTransactionBlockEffects,
     HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponseOptions,
 };
+use haneul_protocol_config::ProtocolConfig;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
-use haneul_types::gas::GasCostSummary;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::quorum_driver_types::EffectsFinalityInfo;
 use haneul_types::quorum_driver_types::FinalizedEffects;
@@ -48,6 +48,7 @@ use haneul_types::{
     base_types::{AuthorityName, HaneulAddress},
     haneul_system_state::HaneulSystemStateTrait,
 };
+use haneul_types::{digests::ChainIdentifier, gas::GasCostSummary};
 use haneul_types::{
     effects::{TransactionEffectsAPI, TransactionEvents},
     execution_status::ExecutionFailureStatus,
@@ -528,7 +529,10 @@ impl ValidatorProxy for LocalValidatorAggregatorProxy {
 
 pub struct FullNodeProxy {
     haneul_client: HaneulClient,
+
+    // Committee and protocol config are initialized on startup and not updated on epoch changes.
     committee: Arc<Committee>,
+    protocol_config: Arc<ProtocolConfig>,
 }
 
 impl FullNodeProxy {
@@ -539,16 +543,24 @@ impl FullNodeProxy {
             .build(http_url)
             .await?;
 
-        let resp = haneul_client.read_api().get_committee_info(None).await?;
-        let epoch = resp.epoch;
-        let committee_vec = resp.validators;
-        let committee_map = BTreeMap::from_iter(committee_vec.into_iter());
-        let committee =
-            Committee::new_for_testing_with_normalized_voting_power(epoch, committee_map);
+        let committee = {
+            let resp = haneul_client.read_api().get_committee_info(None).await?;
+            let epoch = resp.epoch;
+            let committee_map = resp.validators.into_iter().collect();
+            Committee::new(epoch, committee_map)
+        };
+
+        let protocol_config = {
+            let resp = haneul_client.read_api().get_protocol_config(None).await?;
+            // Basically set by the HANEUL_PROTOCOL_CONFIG_CHAIN_OVERRIDE env var.
+            let chain = ChainIdentifier::default().chain();
+            ProtocolConfig::get_for_version(resp.protocol_version, chain)
+        };
 
         Ok(Self {
             haneul_client,
             committee: Arc::new(committee),
+            protocol_config: Arc::new(protocol_config),
         })
     }
 }
@@ -563,7 +575,7 @@ impl ValidatorProxy for FullNodeProxy {
             .await?;
 
         if let Some(haneul_object) = response.data {
-            haneul_object.try_into()
+            haneul_object.try_into_object(&self.protocol_config)
         } else if let Some(error) = response.error {
             bail!("Error getting object {:?}: {}", object_id, error)
         } else {
@@ -605,9 +617,12 @@ impl ValidatorProxy for FullNodeProxy {
         for object in objects {
             let o = object.data;
             if let Some(o) = o {
-                let temp: Object = o.clone().try_into()?;
+                let temp: Object = o.clone().try_into_object(&self.protocol_config)?;
                 let gas_coin = GasCoin::try_from(&temp)?;
-                values_objects.push((gas_coin.value(), o.clone().try_into()?));
+                values_objects.push((
+                    gas_coin.value(),
+                    o.clone().try_into_object(&self.protocol_config)?,
+                ));
             }
         }
 
@@ -680,6 +695,7 @@ impl ValidatorProxy for FullNodeProxy {
         Box::new(Self {
             haneul_client: self.haneul_client.clone(),
             committee: self.clone_committee(),
+            protocol_config: self.protocol_config.clone(),
         })
     }
 
