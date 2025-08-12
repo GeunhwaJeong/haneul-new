@@ -15,9 +15,15 @@ use haneul_types::base_types::*;
 #[serde_as]
 #[derive(Serialize, Deserialize)]
 pub struct HaneulClientConfig {
+    /// The keystore that holds the user's private keys, typically filebased keystore
     pub keystore: Keystore,
+    /// Optional external keystore for managing keys that are not stored in the main keystore.
+    pub external_keys: Option<Keystore>,
+    /// List of environments that the client can connect to.
     pub envs: Vec<HaneulEnv>,
+    /// The alias of the currently active environment.
     pub active_env: Option<String>,
+    /// The address that is currently active in the keystore.
     pub active_address: Option<HaneulAddress>,
 }
 
@@ -25,6 +31,7 @@ impl HaneulClientConfig {
     pub fn new(keystore: Keystore) -> Self {
         HaneulClientConfig {
             keystore,
+            external_keys: None,
             envs: vec![],
             active_env: None,
             active_address: None,

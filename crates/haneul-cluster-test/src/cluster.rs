@@ -371,6 +371,7 @@ pub async fn new_wallet_context_from_cluster(
         .unwrap();
     HaneulClientConfig {
         keystore,
+        external_keys: None,
         envs: vec![HaneulEnv {
             alias: "localnet".to_string(),
             rpc: fullnode_url.into(),
