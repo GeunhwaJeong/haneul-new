@@ -19,8 +19,8 @@ use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::{
     consistent_service_client::ConsistentServiceClient, AvailableRangeRequest,
 };
 use haneul_indexer_alt_consistent_store::{
-    args::RpcArgs as ConsistentArgs, config::ServiceConfig as ConsistentConfig,
-    start_service as start_consistent_store,
+    args::RpcArgs as ConsistentArgs, args::TlsArgs as ConsistentTlsArgs,
+    config::ServiceConfig as ConsistentConfig, start_service as start_consistent_store,
 };
 use haneul_indexer_alt_framework::{ingestion::ClientArgs, postgres::schema::watermarks, IndexerArgs};
 use haneul_indexer_alt_graphql::{
@@ -335,6 +335,7 @@ impl OffchainCluster {
 
         let consistent_args = ConsistentArgs {
             rpc_listen_address: consistent_listen_address,
+            tls: ConsistentTlsArgs::default(),
         };
 
         let jsonrpc_args = JsonRpcArgs {
