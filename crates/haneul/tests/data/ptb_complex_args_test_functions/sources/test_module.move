@@ -2,9 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module test_functions::test_module {
-    use haneul::object::{Self, UID};
-    use haneul::tx_context::TxContext;
-    use haneul::transfer;
     use std::ascii::String as AS;
     use std::string::String as US;
 
