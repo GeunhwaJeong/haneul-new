@@ -13968,6 +13968,7 @@ dependencies = [
  "haneul-config",
  "haneul-core",
  "haneul-framework",
+ "haneul-framework-snapshot",
  "haneul-json-rpc",
  "haneul-json-rpc-api",
  "haneul-json-rpc-types",

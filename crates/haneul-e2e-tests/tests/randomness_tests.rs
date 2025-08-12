@@ -2,6 +2,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 use haneul_types::HANEUL_RANDOMNESS_STATE_OBJECT_ID;
 use test_cluster::TestClusterBuilder;
 
@@ -9,9 +10,17 @@ use haneul_macros::sim_test;
 
 #[sim_test]
 async fn test_create_randomness_state_object() {
+    #[cfg(msim)]
+    {
+        use haneul_core::authority::framework_injection;
+        let framework = haneul_framework_snapshot::load_bytecode_snapshot(54).unwrap();
+        framework_injection::set_system_packages(framework);
+    }
+
     let test_cluster = TestClusterBuilder::new()
         .with_protocol_version(31.into())
         .with_epoch_duration_ms(10000)
+        .with_supported_protocol_versions(SupportedProtocolVersions::new_for_testing(31, 54))
         .build()
         .await;
 

@@ -14,6 +14,7 @@ use haneul_types::committee::EpochId;
 use haneul_types::crypto::Signature;
 use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
 use haneul_types::signature::GenericSignature;
+use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 use haneul_types::transaction::Transaction;
 use haneul_types::utils::load_test_vectors;
 use haneul_types::utils::{
@@ -218,10 +219,18 @@ async fn test_expired_zklogin_sig() {
 
 #[sim_test]
 async fn test_auth_state_creation() {
+    #[cfg(msim)]
+    {
+        use haneul_core::authority::framework_injection;
+        let framework = haneul_framework_snapshot::load_bytecode_snapshot(25).unwrap();
+        framework_injection::set_system_packages(framework);
+    }
+
     // Create test cluster without auth state object in genesis
     let test_cluster = TestClusterBuilder::new()
         .with_protocol_version(23.into())
         .with_epoch_duration_ms(15000)
+        .with_supported_protocol_versions(SupportedProtocolVersions::new_for_testing(23, 25))
         .with_default_jwks()
         .build()
         .await;
@@ -234,9 +243,17 @@ async fn test_auth_state_creation() {
 
 #[sim_test]
 async fn test_create_authenticator_state_object() {
+    #[cfg(msim)]
+    {
+        use haneul_core::authority::framework_injection;
+        let framework = haneul_framework_snapshot::load_bytecode_snapshot(25).unwrap();
+        framework_injection::set_system_packages(framework);
+    }
+
     let test_cluster = TestClusterBuilder::new()
         .with_protocol_version(23.into())
         .with_epoch_duration_ms(15000)
+        .with_supported_protocol_versions(SupportedProtocolVersions::new_for_testing(23, 25))
         .build()
         .await;
 
