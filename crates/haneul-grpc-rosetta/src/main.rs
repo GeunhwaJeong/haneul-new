@@ -1,0 +1,299 @@
+// Copyright (c) Mysten Labs, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+use std::collections::BTreeMap;
+use std::fs;
+use std::fs::File;
+use std::io::BufReader;
+use std::net::SocketAddr;
+use std::path::{Path, PathBuf};
+use std::time::Duration;
+
+use anyhow::anyhow;
+use clap::Parser;
+use fastcrypto::encoding::{Encoding, Hex};
+use fastcrypto::traits::EncodeDecodeBase64;
+use serde_json::{json, Value};
+use haneul_config::{haneul_config_dir, Config, NodeConfig, HANEUL_FULLNODE_CONFIG, HANEUL_KEYSTORE_FILENAME};
+use haneul_grpc_rosetta::types::{CurveType, PrefundedAccount, HaneulEnv};
+use haneul_grpc_rosetta::{RosettaOfflineServer, RosettaOnlineServer, HANEUL};
+use haneul_node::HaneulNode;
+use haneul_sdk::{HaneulClient, HaneulClientBuilder};
+use haneul_types::base_types::HaneulAddress;
+use haneul_types::crypto::{KeypairTraits, HaneulKeyPair, ToFromBytes};
+use tracing::info;
+use tracing::log::warn;
+
+#[derive(Parser)]
+#[clap(name = "haneul-grpc-rosetta", rename_all = "kebab-case", author, version)]
+pub enum RosettaServerCommand {
+    GenerateRosettaCLIConfig {
+        #[clap(long)]
+        keystore_path: Option<PathBuf>,
+        #[clap(long, default_value = "localnet")]
+        env: HaneulEnv,
+        #[clap(long, default_value = "http://rosetta-online:9002")]
+        online_url: String,
+        #[clap(long, default_value = "http://rosetta-offline:9003")]
+        offline_url: String,
+    },
+    StartOnlineRemoteServer {
+        #[clap(long, default_value = "localnet")]
+        env: HaneulEnv,
+        #[clap(long, default_value = "0.0.0.0:9002")]
+        addr: SocketAddr,
+        #[clap(long)]
+        full_node_url: String,
+        #[clap(long, default_value = "/data")]
+        data_path: PathBuf,
+    },
+    StartOnlineServer {
+        #[clap(long, default_value = "localnet")]
+        env: HaneulEnv,
+        #[clap(long, default_value = "0.0.0.0:9002")]
+        addr: SocketAddr,
+        #[clap(long)]
+        node_config: Option<PathBuf>,
+        #[clap(long, default_value = "/data")]
+        data_path: PathBuf,
+    },
+    StartOfflineServer {
+        #[clap(long, default_value = "localnet")]
+        env: HaneulEnv,
+        #[clap(long, default_value = "0.0.0.0:9003")]
+        addr: SocketAddr,
+    },
+}
+
+impl RosettaServerCommand {
+    async fn execute(self) -> Result<(), anyhow::Error> {
+        match self {
+            RosettaServerCommand::GenerateRosettaCLIConfig {
+                keystore_path,
+                env,
+                online_url,
+                offline_url,
+            } => {
+                let path = keystore_path
+                    .unwrap_or_else(|| haneul_config_dir().unwrap().join(HANEUL_KEYSTORE_FILENAME));
+
+                let prefunded_accounts = read_prefunded_account(&path)?;
+
+                info!(
+                    "Retrieved {} Haneul address from keystore file {:?}",
+                    prefunded_accounts.len(),
+                    &path
+                );
+
+                let mut config: Value =
+                    serde_json::from_str(include_str!("../resources/rosetta_cli.json"))?;
+
+                config
+                    .as_object_mut()
+                    .unwrap()
+                    .insert("online_url".into(), json!(online_url));
+
+                // Set network.
+                let network = config.pointer_mut("/network").ok_or_else(|| {
+                    anyhow!("Cannot find construction config in default config file.")
+                })?;
+                network
+                    .as_object_mut()
+                    .unwrap()
+                    .insert("network".into(), json!(env));
+
+                // Add prefunded accounts.
+                let construction = config.pointer_mut("/construction").ok_or_else(|| {
+                    anyhow!("Cannot find construction config in default config file.")
+                })?;
+
+                let construction = construction.as_object_mut().unwrap();
+                construction.insert("prefunded_accounts".into(), json!(prefunded_accounts));
+                construction.insert("offline_url".into(), json!(offline_url));
+
+                let config_path = PathBuf::from(".").join("rosetta_cli.json");
+                fs::write(&config_path, serde_json::to_string_pretty(&config)?)?;
+                info!(
+                    "Rosetta CLI configuration file is stored in {:?}",
+                    config_path
+                );
+
+                let dsl_path = PathBuf::from(".").join("haneul.ros");
+                let dsl = include_str!("../resources/haneul.ros");
+                fs::write(
+                    &dsl_path,
+                    dsl.replace("{{haneul.env}}", json!(env).as_str().unwrap()),
+                )?;
+                info!("Rosetta DSL file is stored in {:?}", dsl_path);
+            }
+            RosettaServerCommand::StartOfflineServer { env, addr } => {
+                info!("Starting Rosetta Offline Server.");
+                let server = RosettaOfflineServer::new(env);
+                server.serve(addr).await;
+            }
+            RosettaServerCommand::StartOnlineRemoteServer {
+                env,
+                addr,
+                full_node_url,
+                data_path,
+            } => {
+                info!(
+                    "Starting Rosetta Online Server with remove Haneul full node [{full_node_url}]."
+                );
+                let haneul_client = wait_for_haneul_client(full_node_url).await;
+                let rosetta_path = data_path.join("rosetta_db");
+                info!("Rosetta db path : {rosetta_path:?}");
+                let rosetta = RosettaOnlineServer::new(env, haneul_client);
+                rosetta.serve(addr).await;
+            }
+
+            RosettaServerCommand::StartOnlineServer {
+                env,
+                addr,
+                node_config,
+                data_path,
+            } => {
+                info!("Starting Rosetta Online Server with embedded Haneul full node.");
+                info!("Data directory path: {data_path:?}");
+
+                let node_config = node_config.unwrap_or_else(|| {
+                    let path = haneul_config_dir().unwrap().join(HANEUL_FULLNODE_CONFIG);
+                    info!("Using default node config from {path:?}");
+                    path
+                });
+
+                let mut config = NodeConfig::load(&node_config)?;
+                config.db_path = data_path.join("haneul_db");
+                info!("Overriding Haneul db path to : {:?}", config.db_path);
+
+                let registry_service =
+                    haneullabs_metrics::start_prometheus_server(config.metrics_address);
+                // Staring a full node for the rosetta server.
+                let rpc_address = format!("http://127.0.0.1:{}", config.json_rpc_address.port());
+                let _node = HaneulNode::start(config, registry_service).await?;
+
+                let haneul_client = wait_for_haneul_client(rpc_address).await;
+
+                let rosetta_path = data_path.join("rosetta_db");
+                info!("Rosetta db path : {rosetta_path:?}");
+                let rosetta = RosettaOnlineServer::new(env, haneul_client);
+                rosetta.serve(addr).await;
+            }
+        };
+        Ok(())
+    }
+}
+
+async fn wait_for_haneul_client(rpc_address: String) -> HaneulClient {
+    loop {
+        match HaneulClientBuilder::default().build(&rpc_address).await {
+            Ok(client) => return client,
+            Err(e) => {
+                warn!("Error connecting to Haneul RPC server [{rpc_address}]: {e}, retrying in 5 seconds.");
+                tokio::time::sleep(Duration::from_millis(5000)).await;
+            }
+        }
+    }
+}
+
+/// This method reads the keypairs from the Haneul keystore to create the PrefundedAccount objects,
+/// PrefundedAccount will be written to the rosetta-cli config file for testing.
+///
+fn read_prefunded_account(path: &Path) -> Result<Vec<PrefundedAccount>, anyhow::Error> {
+    let reader = BufReader::new(File::open(path).unwrap());
+    let kp_strings: Vec<String> = serde_json::from_reader(reader).unwrap();
+    let keys = kp_strings
+        .iter()
+        .map(|kpstr| {
+            let key = HaneulKeyPair::decode_base64(kpstr);
+            key.map(|k| (HaneulAddress::from(&k.public()), k))
+        })
+        .collect::<Result<BTreeMap<_, _>, _>>()
+        .unwrap();
+
+    Ok(keys
+        .into_iter()
+        .map(|(address, key)| {
+            let (privkey, curve_type) = match key {
+                HaneulKeyPair::Ed25519(k) => {
+                    (Hex::encode(k.private().as_bytes()), CurveType::Edwards25519)
+                }
+                HaneulKeyPair::Secp256k1(k) => {
+                    (Hex::encode(k.private().as_bytes()), CurveType::Secp256k1)
+                }
+                HaneulKeyPair::Secp256r1(k) => {
+                    (Hex::encode(k.private().as_bytes()), CurveType::Secp256r1)
+                }
+            };
+            PrefundedAccount {
+                privkey,
+                account_identifier: address.into(),
+                curve_type,
+                currency: HANEUL.clone(),
+            }
+        })
+        .collect())
+}
+
+#[tokio::test]
+async fn test_read_keystore() {
+    use haneul_keys::keystore::{
+        AccountKeystore, FileBasedKeystore, GenerateOptions, Keystore, LocalGenerate,
+    };
+    use haneul_types::crypto::SignatureScheme;
+
+    let temp_dir = tempfile::tempdir().unwrap();
+    let path = temp_dir.path().join("haneul.keystore");
+    let mut ks = Keystore::from(FileBasedKeystore::load_or_create(&path).unwrap());
+    let key1 = ks
+        .generate(
+            None,
+            GenerateOptions::Local(LocalGenerate {
+                key_scheme: SignatureScheme::ED25519,
+                derivation_path: None,
+                word_length: None,
+            }),
+        )
+        .await
+        .unwrap();
+    let key2 = ks
+        .generate(
+            None,
+            GenerateOptions::Local(LocalGenerate {
+                key_scheme: SignatureScheme::Secp256k1,
+                derivation_path: None,
+                word_length: None,
+            }),
+        )
+        .await
+        .unwrap();
+
+    let accounts = read_prefunded_account(&path).unwrap();
+    let acc_map = accounts
+        .into_iter()
+        .map(|acc| (acc.account_identifier.address, acc))
+        .collect::<BTreeMap<_, _>>();
+
+    assert_eq!(2, acc_map.len());
+    assert!(acc_map.contains_key(&key1.address));
+    assert!(acc_map.contains_key(&key2.address));
+
+    let acc1 = acc_map[&key1.address].clone();
+    let acc2 = acc_map[&key2.address].clone();
+
+    let schema1: SignatureScheme = acc1.curve_type.into();
+    let schema2: SignatureScheme = acc2.curve_type.into();
+    assert!(matches!(schema1, SignatureScheme::ED25519));
+    assert!(matches!(schema2, SignatureScheme::Secp256k1));
+}
+
+#[tokio::main]
+async fn main() -> Result<(), anyhow::Error> {
+    let cmd: RosettaServerCommand = RosettaServerCommand::parse();
+
+    let (_guard, _) = telemetry_subscribers::TelemetryConfig::new()
+        .with_env()
+        .init();
+
+    cmd.execute().await
+}
