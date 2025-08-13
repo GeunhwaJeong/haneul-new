@@ -57,3 +57,4 @@ haneul-framework-snapshot.workspace = true
 haneul-macros.workspace = true
 haneul-simulator.workspace = true
 typed-store.workspace = true
+haneullabs-common.workspace = true
