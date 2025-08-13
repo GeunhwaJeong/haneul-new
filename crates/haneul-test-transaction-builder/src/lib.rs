@@ -7,8 +7,7 @@ use std::path::PathBuf;
 use haneul_genesis_builder::validator_info::GenesisValidatorMetadata;
 use haneul_move_build::{BuildConfig, CompiledPackage};
 use haneul_sdk::rpc_types::{
-    get_new_package_obj_from_response, HaneulObjectDataOptions, HaneulTransactionBlockEffectsAPI,
-    HaneulTransactionBlockResponse,
+    HaneulObjectDataOptions, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
 };
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::base_types::{FullObjectRef, ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
@@ -622,7 +621,7 @@ pub async fn publish_package(context: &WalletContext, path: PathBuf) -> ObjectRe
         )
         .await;
     let resp = context.execute_transaction_must_succeed(txn).await;
-    get_new_package_obj_from_response(&resp).unwrap()
+    resp.get_new_package_obj().unwrap()
 }
 
 /// Executes a transaction to publish the `basics` package and returns the package object ref.
@@ -637,7 +636,7 @@ pub async fn publish_basics_package(context: &WalletContext) -> ObjectRef {
         )
         .await;
     let resp = context.execute_transaction_must_succeed(txn).await;
-    get_new_package_obj_from_response(&resp).unwrap()
+    resp.get_new_package_obj().unwrap()
 }
 
 /// Executes a transaction to publish the `basics` package and another one to create a counter.
@@ -791,7 +790,7 @@ pub async fn publish_nfts_package(
         )
         .await;
     let resp = context.execute_transaction_must_succeed(txn).await;
-    let package_id = get_new_package_obj_from_response(&resp).unwrap().0;
+    let package_id = resp.get_new_package_obj().unwrap().0;
     (package_id, gas_id, resp.digest)
 }
 
