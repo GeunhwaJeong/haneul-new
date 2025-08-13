@@ -14,7 +14,7 @@ use std::collections::{BTreeMap, HashMap};
 use std::ops::Deref;
 use std::sync::Arc;
 use haneul_config::node::RunWithRange;
-use haneul_core::authority::shared_object_version_manager::AssignedTxAndVersions;
+use haneul_core::authority::shared_object_version_manager::{AssignedTxAndVersions, AssignedVersions};
 use haneul_test_transaction_builder::PublishData;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
@@ -313,7 +313,13 @@ impl BenchmarkContext {
                     let validator = self.validator();
                     let component = self.benchmark_component;
                     tokio::spawn(async move {
-                        validator.execute_certificate(tx, &vec![], component).await
+                        validator
+                            .execute_certificate(
+                                tx,
+                                &AssignedVersions::non_withdraw(vec![]),
+                                component,
+                            )
+                            .await
                     })
                 })
                 .collect();
@@ -513,7 +519,11 @@ impl BenchmarkContext {
                     let validator = self.validator();
                     tokio::spawn(async move {
                         validator
-                            .execute_transaction_in_memory(store, tx, &vec![])
+                            .execute_transaction_in_memory(
+                                store,
+                                tx,
+                                &AssignedVersions::non_withdraw(vec![]),
+                            )
                             .await
                     })
                 })
