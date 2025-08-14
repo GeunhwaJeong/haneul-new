@@ -262,7 +262,7 @@ impl ValidatorServiceMetrics {
             handle_submit_transaction_latency: register_histogram_with_registry!(
                 "validator_service_submit_transaction_latency",
                 "Latency of submit transaction handler",
-                haneullabs_metrics::SUBSECOND_LATENCY_SEC_BUCKETS.to_vec(),
+                haneullabs_metrics::LATENCY_SEC_BUCKETS.to_vec(),
                 registry,
             )
             .unwrap(),
