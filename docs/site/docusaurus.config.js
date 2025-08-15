@@ -73,9 +73,27 @@ const config = {
     [
       "@graphql-markdown/docusaurus",
       {
+        id: "alpha",
         schema: "../../crates/haneul-graphql-rpc/schema.graphql",
         rootPath: "../content", // docs will be generated under rootPath/baseURL
-        baseURL: "references/haneul-api/haneul-graphql/reference",
+        baseURL: "references/haneul-api/haneul-graphql/alpha/reference",
+        loaders: {
+          GraphQLFileLoader: "@graphql-tools/graphql-file-loader",
+        },
+      },
+    ],
+    [
+      "@graphql-markdown/docusaurus",
+      {
+        id: "beta",
+        schema: "../../crates/haneul-indexer-alt-graphql/schema.graphql",
+        rootPath: "../content",
+        baseURL: "references/haneul-api/haneul-graphql/beta/reference",
+        docOptions: {
+          frontMatter: {
+            isGraphQlBeta: true,
+          },
+        },
         loaders: {
           GraphQLFileLoader: "@graphql-tools/graphql-file-loader",
         },

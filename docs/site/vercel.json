@@ -120,6 +120,7 @@
       { "source": "/concepts/haneul-move-concepts/one-time-witness", "destination": "/concepts/haneul-move-concepts", "permanent": true },
       { "source": "/references/framework/haneul-framework/:path*", "destination": "/references/framework/haneul/:path*", "permanent": true },
       { "source": "/references/framework/move-stdlib/:path*", "destination": "/references/framework/std/:path*", "permanent": true },
-      { "source": "/references/framework/haneul-system/:path*", "destination": "/references/framework/haneul_system/:path*", "permanent": true }
+      { "source": "/references/framework/haneul-system/:path*", "destination": "/references/framework/haneul_system/:path*", "permanent": true },
+      { "source": "/references/haneul-api/haneul-graphql/reference/:path*", "destination": "/references/haneul-api/haneul-graphql/beta/reference/:path*"}
     ]
   }
