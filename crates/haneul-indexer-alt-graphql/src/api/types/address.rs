@@ -6,7 +6,7 @@ use haneul_types::base_types::HaneulAddress as NativeHaneulAddress;
 
 use crate::{api::scalars::haneul_address::HaneulAddress, scope::Scope};
 
-use super::{move_package::MovePackage, object::Object};
+use super::{move_object::MoveObject, move_package::MovePackage, object::Object};
 
 /// Interface implemented by GraphQL types representing entities that are identified by an address.
 ///
@@ -15,6 +15,7 @@ use super::{move_package::MovePackage, object::Object};
 #[graphql(name = "IAddressable", field(name = "address", ty = "HaneulAddress"))]
 pub(crate) enum IAddressable {
     Address(Address),
+    MoveObject(MoveObject),
     MovePackage(MovePackage),
     Object(Object),
 }
