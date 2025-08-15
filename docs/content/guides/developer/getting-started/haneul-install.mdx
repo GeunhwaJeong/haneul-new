@@ -15,7 +15,7 @@ Haneul supports the following operating systems:
 - macOS - macOS Monterey or later
 - Microsoft Windows - Windows 10 and 11
 
-::::info[Fastest method]
+:::info[Fastest method]
 
 ## Quick install using Homebrew, Chocolatey, or haneulup {#install-homebrew}
 
@@ -23,7 +23,7 @@ Haneul supports the following operating systems:
 
 :::note
 
-If you use this method to install Haneul, you are all set. The quick install is suitable for most use cases. The remaining installation methods are for those wanting more control over the installation process.
+The quick install is suitable for most use cases. The remaining installation methods are for those wanting more control over the installation process.
 
 :::
 ::::
@@ -99,15 +99,19 @@ Each Haneul release provides a set of binaries for several operating systems. Yo
 
 </Tabs>
 
-:::info
-
-Running binaries other than `haneul` might require installing prerequisites itemized in the following section.
-
-:::
+:::tip
+Running binaries other than `haneul` might require installing prerequisites listed in the following section.
+::::
 
 #### Confirm the installation {#confirm-the-installation}
 
-To confirm that Haneul installed correctly, type `haneul --version` in your console or terminal and press Enter. The response should provide the Haneul version installed. If the console or terminal responds with a command not found error, make sure the full path to your Haneul binaries is included in your `PATH` variable.
+To confirm that Haneul installed correctly:
+
+1. Open a terminal or console
+2. Type `haneul --version` and press Enter
+3. Verify the displayed version matches your expected installation
+
+If you receive a "command not found" error, verify the Haneul binaries directory is in your `PATH` environment variable.
 
 ## Install from Cargo {#install-haneul-binaries-from-source}
 
@@ -137,7 +141,9 @@ If you previously installed the Haneul binaries, you can update them to the most
 $ cargo install --locked --git https://github.com/GeunhwaJeong/haneul.git --branch testnet haneul --features tracing
 ```
 
-The `tracing` feature is important as it adds Move test coverage and debugger support in the Haneul CLI. Unless it is enabled you will not be able to use these two features.
+:::info
+The `tracing` feature enables Move test coverage and debugger support in the Haneul CLI. These features are not available unless you enable tracing.
+:::
 
 ## Install `haneul-node` for Ubuntu from AWS {#aws-haneul-node}
 
@@ -150,7 +156,7 @@ After downloading, open a console to the file's location and change its permissi
 $ chmod 755 haneul-node
 ```
 
-Add the file's location to your PATH variable if it's directory is not already included. Follow the steps in [Haneul Full Node Configuration](../../operator/haneul-full-node) to complete the setup.
+Add the file's location to your PATH variable if its directory is not already included. Follow the steps in [Configure a Haneul full node](../../operator/haneul-full-node.mdx) to complete the setup.
 
 ## Build from source
 
@@ -160,7 +166,7 @@ To install Haneul from source, you first need to install its [prerequisites](#pr
 
 You can also download the [source code](/references/contribute/haneul-environment.mdx) to have local access to files.
 
-#### Prerequisites {#prerequisites}
+### Prerequisites {#prerequisites}
 
 Your system needs the following prerequisites available to successfully install Haneul.
 
@@ -432,7 +438,7 @@ Haneul requires the following additional tools on computers running Windows.
 
 </Tabs>
 
-## Using Haneul from command line
+## Using Haneul from the command line
 
 With Haneul installed, you can interact with Haneul networks using the Haneul CLI. For more details, see the [Haneul CLI](/references/cli.mdx) reference.
 
@@ -442,13 +448,17 @@ If you use VSCode, you can install the [Move extension](https://marketplace.visu
 You can install the extension either by searching the fully-qualified extension name, `Haneullabs.move`, in the extension view, or by pressing `Ctrl-P` or `Cmd-P` and typing `ext install haneullabs.move`.
 Installing the Move extension also installs the appropriate `move-analyzer` binary for your operating system, as well as the [Move Trace Debugger](https://marketplace.visualstudio.com/items?itemName=haneullabs.move-trace-debug) extension, and [Move Syntax](https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax) extension.
 
-There are also community Move packages for [Emacs](https://github.com/amnn/move-mode), [Vim](https://github.com/yanganto/move.vim), and [Zed](https://github.com/Tzal3x/move-zed-extension).
+Community-supported Move packages are available for these editors:
+
+- [Emacs](https://github.com/amnn/move-mode)
+- [Vim](https://github.com/yanganto/move.vim)
+- [Zed](https://github.com/Tzal3x/move-zed-extension)
 
 ## Next steps {#next-steps}
 
-Now that you have Haneul installed, it's time to start developing. Check out the following topics to start working with Haneul:
+Now that you have Haneul installed:
 
-- Read about the [Haneul CLI](/references/cli.mdx), the most straightforward way to start exploring Haneul networks.
-- [Learn about the available networks](./connect.mdx) and connect to one.
-- [Get some coins](./get-coins.mdx) on a development network.
-- [Build your first dApp](../first-app.mdx) to start your on-chain journey.
+- Explore the [Haneul CLI reference](/references/cli.mdx) to learn command line operations.
+- [Connect to a network](./connect.mdx) to interact with the Haneul ecosystem.
+- [Acquire test coins](./get-coins.mdx) for development purposes.
+- [Build your first dApp](../first-app.mdx) using Haneul's programmable transaction model.
