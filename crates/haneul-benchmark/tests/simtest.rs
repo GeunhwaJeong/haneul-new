@@ -27,7 +27,7 @@ mod test {
         util::get_ed25519_keypair_from_keystore,
         FullNodeProxy, LocalValidatorAggregatorProxy, ValidatorProxy,
     };
-    use haneul_config::node::{AuthorityOverloadConfig, ForkRecoveryConfig};
+    use haneul_config::node::{AuthorityOverloadConfig, ForkCrashBehavior, ForkRecoveryConfig};
     use haneul_config::ExecutionCacheConfig;
     use haneul_config::{AUTHORITIES_DB_NAME, HANEUL_KEYSTORE_FILENAME};
     use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
@@ -1466,6 +1466,7 @@ mod test {
         let fork_recovery_config = ForkRecoveryConfig {
             transaction_overrides: captured_effects,
             checkpoint_overrides: checkpoint_overrides_computed,
+            fork_crash_behavior: ForkCrashBehavior::ReturnError,
         };
 
         info!(
