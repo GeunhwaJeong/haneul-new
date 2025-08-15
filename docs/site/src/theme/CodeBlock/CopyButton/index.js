@@ -13,7 +13,7 @@ export default function CopyButton({ code, className }) {
   const copyTimeout = useRef(undefined);
   const handleCopyCode = useCallback(() => {
     // HANEUL CHANGE: `.replace()` added
-    copy(code.replace(/^\$ /, ""));
+    copy(code.replace(/^\$ /gm, ""));
     setIsCopied(true);
     copyTimeout.current = window.setTimeout(() => {
       setIsCopied(false);
