@@ -5,11 +5,9 @@
 use async_graphql::{CustomValidator, InputObject, InputValueError};
 
 use crate::{
-    api::scalars::{owner_kind::OwnerKind, haneul_address::HaneulAddress},
+    api::scalars::{owner_kind::OwnerKind, haneul_address::HaneulAddress, type_filter::TypeFilter},
     intersect,
 };
-
-use super::type_filter::TypeFilter;
 
 /// A filter over the live object set, the filter can be one of:
 ///
