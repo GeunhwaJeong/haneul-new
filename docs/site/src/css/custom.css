@@ -321,6 +321,16 @@ div[role="tabpanel"] {
   @apply !bg-haneul-blue-primary
 }
 
+/** code **/
+
+code { 
+  @apply p-1;
+}
+
+a code:not(:is(.table-of-contents a code)) { 
+  @apply bg-haneul-blue-bright/10 text-haneul-hero-dark dark:bg-haneul-hero-dark dark:text-haneul-blue-bright/90;
+}
+
 /** navbar search field **/
 
 .DocSearch-Button-Container {
