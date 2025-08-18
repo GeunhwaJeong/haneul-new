@@ -15,6 +15,7 @@ use strum_macros::EnumIter;
 use strum_macros::EnumString;
 
 use haneul_sdk::rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockKind};
+use haneul_sdk_types::Address;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest};
 use haneul_types::crypto::PublicKey as HaneulPublicKey;
 use haneul_types::crypto::SignatureScheme;
@@ -193,8 +194,8 @@ pub struct AmountMetadata {
 
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 pub struct SubBalance {
-    pub stake_id: ObjectID,
-    pub validator: HaneulAddress,
+    pub stake_id: Address,
+    pub validator: Address,
     #[serde(with = "str_format")]
     pub value: i128,
 }

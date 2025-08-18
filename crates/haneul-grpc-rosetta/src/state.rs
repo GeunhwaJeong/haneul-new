@@ -5,6 +5,7 @@ use async_trait::async_trait;
 use futures::future::try_join_all;
 use std::sync::Arc;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
+use haneul_rpc::client::Client as GrpcClient;
 use haneul_sdk::rpc_types::Checkpoint;
 use haneul_sdk::HaneulClient;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
@@ -22,6 +23,7 @@ mod balance_changing_tx_tests;
 #[derive(Clone)]
 pub struct OnlineServerContext {
     pub client: HaneulClient,
+    pub grpc_client: GrpcClient,
     pub coin_metadata_cache: CoinMetadataCache,
     block_provider: Arc<dyn BlockProvider + Send + Sync>,
 }
@@ -29,11 +31,13 @@ pub struct OnlineServerContext {
 impl OnlineServerContext {
     pub fn new(
         client: HaneulClient,
+        grpc_client: GrpcClient,
         block_provider: Arc<dyn BlockProvider + Send + Sync>,
         coin_metadata_cache: CoinMetadataCache,
     ) -> Self {
         Self {
             client: client.clone(),
+            grpc_client,
             block_provider,
             coin_metadata_cache,
         }

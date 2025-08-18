@@ -24,12 +24,16 @@ use haneul_grpc_rosetta::types::{
 use haneul_grpc_rosetta::{RosettaOfflineServer, RosettaOnlineServer};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
+use haneul_rpc::client::Client as GrpcClient;
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::HaneulSignature;
 
-pub async fn start_rosetta_test_server(client: HaneulClient) -> (RosettaClient, Vec<JoinHandle<()>>) {
-    let online_server = RosettaOnlineServer::new(HaneulEnv::LocalNet, client);
+pub async fn start_rosetta_test_server(
+    client: HaneulClient,
+    grpc_client: GrpcClient,
+) -> (RosettaClient, Vec<JoinHandle<()>>) {
+    let online_server = RosettaOnlineServer::new(HaneulEnv::LocalNet, client, grpc_client);
     let offline_server = RosettaOfflineServer::new(HaneulEnv::LocalNet);
     let local_ip = local_ip_utils::localhost_for_testing();
     let port = local_ip_utils::get_available_port(&local_ip);

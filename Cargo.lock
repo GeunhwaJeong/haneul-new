@@ -13809,7 +13809,7 @@ dependencies = [
 [[package]]
 name = "haneul-crypto"
 version = "0.0.6"
-source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=cab42748a4c00072c6be00a08755b6c71274aaee#cab42748a4c00072c6be00a08755b6c71274aaee"
+source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=8bc0ff524a3a60561f1ba6315399f6f09e2b85b3#8bc0ff524a3a60561f1ba6315399f6f09e2b85b3"
 dependencies = [
  "ark-bn254",
  "ark-ff",
@@ -14361,6 +14361,7 @@ dependencies = [
  "move-core-types",
  "haneullabs-metrics",
  "once_cell",
+ "prost-types",
  "quick-js",
  "rand 0.8.5",
  "reqwest 0.12.9",
@@ -14375,7 +14376,9 @@ dependencies = [
  "haneul-keys",
  "haneul-move-build",
  "haneul-node",
+ "haneul-rpc",
  "haneul-sdk",
+ "haneul-sdk-types",
  "haneul-swarm-config",
  "haneul-types",
  "telemetry-subscribers",
@@ -14383,6 +14386,7 @@ dependencies = [
  "test-cluster",
  "thiserror 1.0.69",
  "tokio",
+ "tonic 0.13.1",
  "tracing",
  "typed-store",
 ]
@@ -15852,7 +15856,7 @@ dependencies = [
 [[package]]
 name = "haneul-rpc"
 version = "0.0.6"
-source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=cab42748a4c00072c6be00a08755b6c71274aaee#cab42748a4c00072c6be00a08755b6c71274aaee"
+source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=8bc0ff524a3a60561f1ba6315399f6f09e2b85b3#8bc0ff524a3a60561f1ba6315399f6f09e2b85b3"
 dependencies = [
  "base64 0.22.1",
  "bcs",
@@ -16009,7 +16013,7 @@ dependencies = [
 [[package]]
 name = "haneul-sdk-types"
 version = "0.0.6"
-source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=cab42748a4c00072c6be00a08755b6c71274aaee#cab42748a4c00072c6be00a08755b6c71274aaee"
+source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=8bc0ff524a3a60561f1ba6315399f6f09e2b85b3#8bc0ff524a3a60561f1ba6315399f6f09e2b85b3"
 dependencies = [
  "base64ct",
  "bcs",

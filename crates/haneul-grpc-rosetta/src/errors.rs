@@ -72,7 +72,9 @@ pub enum Error {
     #[error(transparent)]
     HaneulError(#[from] HaneulError),
     #[error(transparent)]
-    HaneulRpcError(#[from] haneul_sdk::error::Error),
+    HaneulJsonRpcError(#[from] haneul_sdk::error::Error),
+    #[error(transparent)]
+    HaneulRpcError(#[from] tonic::Status),
     #[error(transparent)]
     EncodingError(#[from] eyre::Report),
     #[error(transparent)]

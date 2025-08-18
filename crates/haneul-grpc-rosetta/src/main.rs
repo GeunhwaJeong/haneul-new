@@ -18,6 +18,7 @@ use haneul_config::{haneul_config_dir, Config, NodeConfig, HANEUL_FULLNODE_CONFI
 use haneul_grpc_rosetta::types::{CurveType, PrefundedAccount, HaneulEnv};
 use haneul_grpc_rosetta::{RosettaOfflineServer, RosettaOnlineServer, HANEUL};
 use haneul_node::HaneulNode;
+use haneul_rpc::client::Client as GrpcClient;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{KeypairTraits, HaneulKeyPair, ToFromBytes};
@@ -140,10 +141,12 @@ impl RosettaServerCommand {
                 info!(
                     "Starting Rosetta Online Server with remove Haneul full node [{full_node_url}]."
                 );
-                let haneul_client = wait_for_haneul_client(full_node_url).await;
+                let haneul_client = wait_for_haneul_client(full_node_url.clone()).await;
                 let rosetta_path = data_path.join("rosetta_db");
                 info!("Rosetta db path : {rosetta_path:?}");
-                let rosetta = RosettaOnlineServer::new(env, haneul_client);
+                let grpc_client = GrpcClient::new(&full_node_url)
+                    .map_err(|e| anyhow::anyhow!("Failed to create gRPC client: {}", e))?;
+                let rosetta = RosettaOnlineServer::new(env, haneul_client, grpc_client);
                 rosetta.serve(addr).await;
             }
 
@@ -172,11 +175,13 @@ impl RosettaServerCommand {
                 let rpc_address = format!("http://127.0.0.1:{}", config.json_rpc_address.port());
                 let _node = HaneulNode::start(config, registry_service).await?;
 
-                let haneul_client = wait_for_haneul_client(rpc_address).await;
+                let haneul_client = wait_for_haneul_client(rpc_address.clone()).await;
 
                 let rosetta_path = data_path.join("rosetta_db");
                 info!("Rosetta db path : {rosetta_path:?}");
-                let rosetta = RosettaOnlineServer::new(env, haneul_client);
+                let grpc_client = GrpcClient::new(&rpc_address)
+                    .map_err(|e| anyhow::anyhow!("Failed to create gRPC client: {}", e))?;
+                let rosetta = RosettaOnlineServer::new(env, haneul_client, grpc_client);
                 rosetta.serve(addr).await;
             }
         };

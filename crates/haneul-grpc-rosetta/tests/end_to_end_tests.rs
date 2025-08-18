@@ -15,6 +15,7 @@ use haneul_grpc_rosetta::types::{
 use haneul_grpc_rosetta::CoinMetadataCache;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_keys::keystore::AccountKeystore;
+use haneul_rpc::client::Client as GrpcClient;
 use haneul_sdk::rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI};
 use haneul_swarm_config::genesis_config::{DEFAULT_GAS_AMOUNT, DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT};
 use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
@@ -32,7 +33,8 @@ async fn test_get_staked_haneul() {
     let client = test_cluster.wallet.get_client().await.unwrap();
     let keystore = &test_cluster.wallet.config.keystore;
 
-    let (rosetta_client, _handle) = start_rosetta_test_server(client.clone()).await;
+    let grpc_client = GrpcClient::new(test_cluster.rpc_url()).unwrap();
+    let (rosetta_client, _handle) = start_rosetta_test_server(client.clone(), grpc_client).await;
 
     tokio::time::sleep(Duration::from_secs(1)).await;
 
@@ -133,7 +135,8 @@ async fn test_stake() {
     let client = test_cluster.wallet.get_client().await.unwrap();
     let keystore = &test_cluster.wallet.config.keystore;
 
-    let (rosetta_client, _handle) = start_rosetta_test_server(client.clone()).await;
+    let grpc_client = GrpcClient::new(test_cluster.rpc_url()).unwrap();
+    let (rosetta_client, _handle) = start_rosetta_test_server(client.clone(), grpc_client).await;
 
     let validator = client
         .governance_api()
@@ -197,7 +200,8 @@ async fn test_stake_all() {
     let client = test_cluster.wallet.get_client().await.unwrap();
     let keystore = &test_cluster.wallet.config.keystore;
 
-    let (rosetta_client, _handle) = start_rosetta_test_server(client.clone()).await;
+    let grpc_client = GrpcClient::new(test_cluster.rpc_url()).unwrap();
+    let (rosetta_client, _handle) = start_rosetta_test_server(client.clone(), grpc_client).await;
 
     let validator = client
         .governance_api()
@@ -265,7 +269,8 @@ async fn test_withdraw_stake() {
     let client = test_cluster.wallet.get_client().await.unwrap();
     let keystore = &test_cluster.wallet.config.keystore;
 
-    let (rosetta_client, _handle) = start_rosetta_test_server(client.clone()).await;
+    let grpc_client = GrpcClient::new(test_cluster.rpc_url()).unwrap();
+    let (rosetta_client, _handle) = start_rosetta_test_server(client.clone(), grpc_client).await;
 
     // First add some stakes
     let validator = client
@@ -391,7 +396,8 @@ async fn test_pay_haneul() {
     let client = test_cluster.wallet.get_client().await.unwrap();
     let keystore = &test_cluster.wallet.config.keystore;
 
-    let (rosetta_client, _handle) = start_rosetta_test_server(client.clone()).await;
+    let grpc_client = GrpcClient::new(test_cluster.rpc_url()).unwrap();
+    let (rosetta_client, _handle) = start_rosetta_test_server(client.clone(), grpc_client).await;
 
     let ops = serde_json::from_value(json!(
         [{
@@ -451,7 +457,8 @@ async fn test_pay_haneul_multiple_times() {
     let client = test_cluster.wallet.get_client().await.unwrap();
     let keystore = &test_cluster.wallet.config.keystore;
 
-    let (rosetta_client, _handle) = start_rosetta_test_server(client.clone()).await;
+    let grpc_client = GrpcClient::new(test_cluster.rpc_url()).unwrap();
+    let (rosetta_client, _handle) = start_rosetta_test_server(client.clone(), grpc_client).await;
     let coin_cache = CoinMetadataCache::new(client.clone(), NonZeroUsize::new(2).unwrap());
 
     for i in 1..20 {
