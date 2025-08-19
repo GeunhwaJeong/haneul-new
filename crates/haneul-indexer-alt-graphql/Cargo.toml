@@ -56,6 +56,9 @@ haneul-indexer-alt-schema.workspace = true
 haneul-package-resolver.workspace = true
 haneul-pg-db.workspace = true
 haneul-protocol-config.workspace = true
+haneul-rpc.workspace = true
+haneul-rpc-api.workspace = true
+haneul-sdk-types.workspace = true
 haneul-sql-macro.workspace = true
 haneul-types.workspace = true
 
