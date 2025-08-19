@@ -5,11 +5,12 @@ use std::{fmt, str::FromStr};
 
 use async_graphql::{InputValueError, InputValueResult, Scalar, ScalarType, Value};
 use move_core_types::account_address::AccountAddress;
+use serde::{Deserialize, Serialize};
 use haneul_types::base_types::{ObjectID, HaneulAddress as NativeHaneulAddress};
 
 const HANEUL_ADDRESS_LENGTH: usize = 32;
 
-#[derive(Copy, Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Copy, Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
 pub(crate) struct HaneulAddress([u8; HANEUL_ADDRESS_LENGTH]);
 
 #[derive(thiserror::Error, Debug)]
