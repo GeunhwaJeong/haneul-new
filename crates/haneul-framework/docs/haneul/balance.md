@@ -448,7 +448,10 @@ and nowhere else.
 
 <pre><code><b>fun</b> <a href="../haneul/balance.md#haneul_balance_create_staking_rewards">create_staking_rewards</a>&lt;T&gt;(<a href="../haneul/balance.md#haneul_balance_value">value</a>: u64, ctx: &TxContext): <a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt; {
     <b>assert</b>!(ctx.sender() == @0x0, <a href="../haneul/balance.md#haneul_balance_ENotSystemAddress">ENotSystemAddress</a>);
-    <b>assert</b>!(<a href="../std/type_name.md#std_type_name_get">std::type_name::get</a>&lt;T&gt;().into_string().into_bytes() == <a href="../haneul/balance.md#haneul_balance_HANEUL_TYPE_NAME">HANEUL_TYPE_NAME</a>, <a href="../haneul/balance.md#haneul_balance_ENotHANEUL">ENotHANEUL</a>);
+    <b>assert</b>!(
+        <a href="../std/type_name.md#std_type_name_with_defining_ids">std::type_name::with_defining_ids</a>&lt;T&gt;().into_string().into_bytes() == <a href="../haneul/balance.md#haneul_balance_HANEUL_TYPE_NAME">HANEUL_TYPE_NAME</a>,
+        <a href="../haneul/balance.md#haneul_balance_ENotHANEUL">ENotHANEUL</a>,
+    );
     <a href="../haneul/balance.md#haneul_balance_Balance">Balance</a> { <a href="../haneul/balance.md#haneul_balance_value">value</a> }
 }
 </code></pre>
@@ -477,7 +480,10 @@ and nowhere else.
 
 <pre><code><b>fun</b> <a href="../haneul/balance.md#haneul_balance_destroy_storage_rebates">destroy_storage_rebates</a>&lt;T&gt;(self: <a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;, ctx: &TxContext) {
     <b>assert</b>!(ctx.sender() == @0x0, <a href="../haneul/balance.md#haneul_balance_ENotSystemAddress">ENotSystemAddress</a>);
-    <b>assert</b>!(<a href="../std/type_name.md#std_type_name_get">std::type_name::get</a>&lt;T&gt;().into_string().into_bytes() == <a href="../haneul/balance.md#haneul_balance_HANEUL_TYPE_NAME">HANEUL_TYPE_NAME</a>, <a href="../haneul/balance.md#haneul_balance_ENotHANEUL">ENotHANEUL</a>);
+    <b>assert</b>!(
+        <a href="../std/type_name.md#std_type_name_with_defining_ids">std::type_name::with_defining_ids</a>&lt;T&gt;().into_string().into_bytes() == <a href="../haneul/balance.md#haneul_balance_HANEUL_TYPE_NAME">HANEUL_TYPE_NAME</a>,
+        <a href="../haneul/balance.md#haneul_balance_ENotHANEUL">ENotHANEUL</a>,
+    );
     <b>let</b> <a href="../haneul/balance.md#haneul_balance_Balance">Balance</a> { <a href="../haneul/balance.md#haneul_balance_value">value</a>: _ } = self;
 }
 </code></pre>

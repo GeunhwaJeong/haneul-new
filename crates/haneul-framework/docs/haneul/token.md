@@ -1092,7 +1092,7 @@ required by the <code><a href="../haneul/token.md#haneul_token_TokenPolicy">Toke
 
 
 <pre><code><b>public</b> <b>fun</b> <a href="../haneul/token.md#haneul_token_add_approval">add_approval</a>&lt;T, W: drop&gt;(_t: W, request: &<b>mut</b> <a href="../haneul/token.md#haneul_token_ActionRequest">ActionRequest</a>&lt;T&gt;, _ctx: &<b>mut</b> TxContext) {
-    request.<a href="../haneul/token.md#haneul_token_approvals">approvals</a>.insert(type_name::get&lt;W&gt;())
+    request.<a href="../haneul/token.md#haneul_token_approvals">approvals</a>.insert(type_name::with_defining_ids&lt;W&gt;())
 }
 </code></pre>
 
@@ -1397,7 +1397,7 @@ Aborts if the <code><a href="../haneul/token.md#haneul_token_TokenPolicyCap">Tok
     <b>if</b> (!self.<a href="../haneul/token.md#haneul_token_rules">rules</a>.contains(&<a href="../haneul/token.md#haneul_token_action">action</a>)) {
         <a href="../haneul/token.md#haneul_token_allow">allow</a>(self, cap, <a href="../haneul/token.md#haneul_token_action">action</a>, ctx);
     };
-    self.<a href="../haneul/token.md#haneul_token_rules">rules</a>.get_mut(&<a href="../haneul/token.md#haneul_token_action">action</a>).insert(type_name::get&lt;Rule&gt;())
+    self.<a href="../haneul/token.md#haneul_token_rules">rules</a>.get_mut(&<a href="../haneul/token.md#haneul_token_action">action</a>).insert(type_name::with_defining_ids&lt;Rule&gt;())
 }
 </code></pre>
 
@@ -1431,7 +1431,7 @@ Aborts if the <code><a href="../haneul/token.md#haneul_token_TokenPolicyCap">Tok
     _ctx: &<b>mut</b> TxContext,
 ) {
     <b>assert</b>!(<a href="../haneul/object.md#haneul_object_id">object::id</a>(self) == cap.`<b>for</b>`, <a href="../haneul/token.md#haneul_token_ENotAuthorized">ENotAuthorized</a>);
-    self.<a href="../haneul/token.md#haneul_token_rules">rules</a>.get_mut(&<a href="../haneul/token.md#haneul_token_action">action</a>).remove(&type_name::get&lt;Rule&gt;())
+    self.<a href="../haneul/token.md#haneul_token_rules">rules</a>.get_mut(&<a href="../haneul/token.md#haneul_token_action">action</a>).remove(&type_name::with_defining_ids&lt;Rule&gt;())
 }
 </code></pre>
 

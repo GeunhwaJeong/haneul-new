@@ -102,7 +102,10 @@ const HANEUL_TYPE_NAME: vector<u8> =
 /// and nowhere else.
 fun create_staking_rewards<T>(value: u64, ctx: &TxContext): Balance<T> {
     assert!(ctx.sender() == @0x0, ENotSystemAddress);
-    assert!(std::type_name::get<T>().into_string().into_bytes() == HANEUL_TYPE_NAME, ENotHANEUL);
+    assert!(
+        std::type_name::with_defining_ids<T>().into_string().into_bytes() == HANEUL_TYPE_NAME,
+        ENotHANEUL,
+    );
     Balance { value }
 }
 
@@ -112,7 +115,10 @@ fun create_staking_rewards<T>(value: u64, ctx: &TxContext): Balance<T> {
 /// and nowhere else.
 fun destroy_storage_rebates<T>(self: Balance<T>, ctx: &TxContext) {
     assert!(ctx.sender() == @0x0, ENotSystemAddress);
-    assert!(std::type_name::get<T>().into_string().into_bytes() == HANEUL_TYPE_NAME, ENotHANEUL);
+    assert!(
+        std::type_name::with_defining_ids<T>().into_string().into_bytes() == HANEUL_TYPE_NAME,
+        ENotHANEUL,
+    );
     let Balance { value: _ } = self;
 }
 
