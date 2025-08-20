@@ -102,12 +102,12 @@
       { "source": "/concepts/haneul-move-concepts/patterns/transferrable-witness", "destination": "https://move-book.com/programmability/witness-pattern.html", "permanent": true },
       { "source": "/guides/developer/advanced/asset-tokenization", "destination": "/guides/developer/nft/asset-tokenization", "permanent": true },
       { "source": "/references/move/move-toml", "destination": "https://move-book.com/concepts/manifest.html", "permanent": true },
-      { "source": "/standards/deepbook-pools", "destination": "/standards/deepbookv2/pools", "permanent": true },
-      { "source": "/standards/routing-a-swap", "destination": "/standards/deepbookv2/routing-a-swap", "permanent": true },
-      { "source": "/standards/trade-and-swap", "destination": "/standards/deepbookv2/trade-and-swap", "permanent": true },
-      { "source": "/standards/query-the-pool", "destination": "/standards/deepbookv2/query-the-pool", "permanent": true },
-      { "source": "/standards/deepbook-design", "destination": "/standards/deepbookv2/design", "permanent": true },
-      { "source": "/standards/deepbook-orders", "destination": "/standards/deepbookv2/orders", "permanent": true },
+      { "source": "/standards/deepbook-pools", "destination": "/standards/deepbook", "permanent": true },
+      { "source": "/standards/routing-a-swap", "destination": "/standards/deepbook", "permanent": true },
+      { "source": "/standards/trade-and-swap", "destination": "/standards/deepbook", "permanent": true },
+      { "source": "/standards/query-the-pool", "destination": "/standards/deepbookv3/query-the-pool", "permanent": true },
+      { "source": "/standards/deepbook-design", "destination": "/standards/deepbookv3/design", "permanent": true },
+      { "source": "/standards/deepbook-orders", "destination": "/standards/deepbookv3/orders", "permanent": true },
       { "source": "/concepts/events", "destination": "/guides/developer/haneul-101/using-events", "permanent": true },
       { "source": "/concepts/tokenomics/haneul-coin", "destination": "/concepts/tokenomics#haneul-coin", "permanent": true },
       { "source": "/concepts/tokenomics/storage-fund", "destination": "/concepts/tokenomics#storage-fund", "permanent": true },
@@ -121,6 +121,7 @@
       { "source": "/references/framework/haneul-framework/:path*", "destination": "/references/framework/haneul/:path*", "permanent": true },
       { "source": "/references/framework/move-stdlib/:path*", "destination": "/references/framework/std/:path*", "permanent": true },
       { "source": "/references/framework/haneul-system/:path*", "destination": "/references/framework/haneul_system/:path*", "permanent": true },
-      { "source": "/references/haneul-api/haneul-graphql/reference/:path*", "destination": "/references/haneul-api/haneul-graphql/beta/reference/:path*"}
+      { "source": "/references/haneul-api/haneul-graphql/reference/:path*", "destination": "/references/haneul-api/haneul-graphql/beta/reference/:path*"},
+      { "source": "/standards/deepbookv2/:path*", "destination": "/standards/deepbook"}
     ]
   }
