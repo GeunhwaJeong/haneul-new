@@ -6,7 +6,7 @@ use async_graphql::*;
 use crate::{
     api::{
         scalars::{haneul_address::HaneulAddress, uint53::UInt53},
-        types::{address::Address, object::Object},
+        types::object::Object,
     },
     scope::Scope,
 };
@@ -49,8 +49,7 @@ impl OwnedOrImmutable {
         digest: ObjectDigest,
         scope: Scope,
     ) -> Self {
-        let address = Address::with_address(scope, object_id.into());
-        let object = Object::with_ref(address, version, digest);
+        let object = Object::with_ref(&scope, object_id.into(), version, digest);
         Self {
             object: Some(object),
         }
@@ -78,8 +77,7 @@ impl Receiving {
         digest: ObjectDigest,
         scope: Scope,
     ) -> Self {
-        let address = Address::with_address(scope, object_id.into());
-        let object = Object::with_ref(address, version, digest);
+        let object = Object::with_ref(&scope, object_id.into(), version, digest);
         Self {
             object: Some(object),
         }
