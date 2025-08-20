@@ -29,6 +29,7 @@ use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::transaction::TransactionData;
 use haneul_types::{HANEUL_SYSTEM_ADDRESS, HANEUL_SYSTEM_PACKAGE_ID};
 
+use crate::types::internal_operation::{PayCoin, PayHaneul, Stake, WithdrawStake};
 use crate::types::{
     AccountIdentifier, Amount, CoinAction, CoinChange, CoinID, CoinIdentifier, Currency,
     InternalOperation, OperationIdentifier, OperationStatus, OperationType,
@@ -129,11 +130,11 @@ impl Operations {
             }
         }
         let sender = sender.ok_or_else(|| Error::MissingInput("Sender address".to_string()))?;
-        Ok(InternalOperation::PayHaneul {
+        Ok(InternalOperation::PayHaneul(PayHaneul {
             sender,
             recipients,
             amounts,
-        })
+        }))
     }
 
     fn pay_coin_ops_to_internal(self) -> Result<InternalOperation, Error> {
@@ -160,12 +161,12 @@ impl Operations {
         }
         let sender = sender.ok_or_else(|| Error::MissingInput("Sender address".to_string()))?;
         let currency = currency.ok_or_else(|| Error::MissingInput("Currency".to_string()))?;
-        Ok(InternalOperation::PayCoin {
+        Ok(InternalOperation::PayCoin(PayCoin {
             sender,
             recipients,
             amounts,
             currency,
-        })
+        }))
     }
 
     fn stake_ops_to_internal(self) -> Result<InternalOperation, Error> {
@@ -207,11 +208,11 @@ impl Operations {
             ));
         };
 
-        Ok(InternalOperation::Stake {
+        Ok(InternalOperation::Stake(Stake {
             sender,
             validator,
             amount,
-        })
+        }))
     }
 
     fn withdraw_stake_ops_to_internal(self) -> Result<InternalOperation, Error> {
@@ -243,7 +244,10 @@ impl Operations {
             vec![]
         };
 
-        Ok(InternalOperation::WithdrawStake { sender, stake_ids })
+        Ok(InternalOperation::WithdrawStake(WithdrawStake {
+            sender,
+            stake_ids,
+        }))
     }
 
     fn from_transaction(
@@ -432,6 +436,10 @@ impl Operations {
                 HaneulCommand::MoveCall(m) if Self::is_unstake_call(m) => {
                     let stake_id = unstake_call(inputs, m)?;
                     stake_ids.push(stake_id);
+                    Some(vec![])
+                }
+                HaneulCommand::MergeCoins(_merge_into, _merges) => {
+                    // We don't care about merge-coins, we can just skip it.
                     Some(vec![])
                 }
                 _ => None,

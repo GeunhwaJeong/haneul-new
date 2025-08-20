@@ -9,11 +9,11 @@ use rosetta_client::start_rosetta_test_server;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_rosetta::operations::Operations;
-use haneul_rosetta::types::Currencies;
 use haneul_rosetta::types::{
     AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, Currency, NetworkIdentifier,
     SubAccount, SubAccountType, HaneulEnv,
 };
+use haneul_rosetta::types::{Currencies, TransactionIdentifierResponse};
 use haneul_rosetta::CoinMetadataCache;
 use haneul_sdk::rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI};
 use haneul_swarm_config::genesis_config::{DEFAULT_GAS_AMOUNT, DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT};
@@ -23,6 +23,7 @@ use test_cluster::TestClusterBuilder;
 
 use crate::rosetta_client::RosettaEndpoint;
 
+#[allow(dead_code)]
 mod rosetta_client;
 
 #[tokio::test]
@@ -53,7 +54,8 @@ async fn test_get_staked_haneul() {
 
     let response: AccountBalanceResponse = rosetta_client
         .call(RosettaEndpoint::Balance, &request)
-        .await;
+        .await
+        .unwrap();
     assert_eq!(1, response.balances.len());
     assert_eq!(
         (DEFAULT_GAS_AMOUNT * DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT as u64) as i128,
@@ -73,7 +75,8 @@ async fn test_get_staked_haneul() {
     };
     let response: AccountBalanceResponse = rosetta_client
         .call(RosettaEndpoint::Balance, &request)
-        .await;
+        .await
+        .unwrap();
     assert_eq!(response.balances[0].value, 0);
 
     // Stake some haneul
@@ -154,7 +157,12 @@ async fn test_stake() {
     ))
     .unwrap();
 
-    let response = rosetta_client.rosetta_flow(&ops, keystore).await;
+    let response: TransactionIdentifierResponse = rosetta_client
+        .rosetta_flow(&ops, keystore, None)
+        .await
+        .submit
+        .unwrap()
+        .unwrap();
 
     let tx = client
         .read_api()
@@ -217,7 +225,12 @@ async fn test_stake_all() {
     ))
     .unwrap();
 
-    let response = rosetta_client.rosetta_flow(&ops, keystore).await;
+    let response = rosetta_client
+        .rosetta_flow(&ops, keystore, None)
+        .await
+        .submit
+        .unwrap()
+        .unwrap();
 
     let tx = client
         .read_api()
@@ -287,7 +300,12 @@ async fn test_withdraw_stake() {
     ))
     .unwrap();
 
-    let response = rosetta_client.rosetta_flow(&ops, keystore).await;
+    let response = rosetta_client
+        .rosetta_flow(&ops, keystore, None)
+        .await
+        .submit
+        .unwrap()
+        .unwrap();
 
     let tx = client
         .read_api()
@@ -337,7 +355,12 @@ async fn test_withdraw_stake() {
     ))
     .unwrap();
 
-    let response = rosetta_client.rosetta_flow(&ops, keystore).await;
+    let response = rosetta_client
+        .rosetta_flow(&ops, keystore, None)
+        .await
+        .submit
+        .unwrap()
+        .unwrap();
 
     let tx = client
         .read_api()
@@ -408,7 +431,12 @@ async fn test_pay_haneul() {
     ))
     .unwrap();
 
-    let response = rosetta_client.rosetta_flow(&ops, keystore).await;
+    let response = rosetta_client
+        .rosetta_flow(&ops, keystore, None)
+        .await
+        .submit
+        .unwrap()
+        .unwrap();
 
     let tx = client
         .read_api()
@@ -471,7 +499,12 @@ async fn test_pay_haneul_multiple_times() {
         ))
         .unwrap();
 
-        let response = rosetta_client.rosetta_flow(&ops, keystore).await;
+        let response = rosetta_client
+            .rosetta_flow(&ops, keystore, None)
+            .await
+            .submit
+            .unwrap()
+            .unwrap();
 
         let tx = client
             .read_api()

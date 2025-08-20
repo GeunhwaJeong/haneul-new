@@ -138,7 +138,7 @@ impl RosettaServerCommand {
                 data_path,
             } => {
                 info!(
-                    "Starting Rosetta Online Server with remove Haneul full node [{full_node_url}]."
+                    "Starting Rosetta Online Server with remote Haneul full node [{full_node_url}]."
                 );
                 let haneul_client = wait_for_haneul_client(full_node_url).await;
                 let rosetta_path = data_path.join("rosetta_db");
