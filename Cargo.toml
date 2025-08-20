@@ -125,7 +125,6 @@ members = [
   "crates/haneul-graphql-rpc",
   "crates/haneul-graphql-rpc-client",
   "crates/haneul-graphql-rpc-headers",
-  "crates/haneul-grpc-rosetta",
   "crates/haneul-http",
   "crates/haneul-indexer",
   "crates/haneul-indexer-alt",
@@ -749,7 +748,6 @@ haneul-proxy = { path = "crates/haneul-proxy" }
 haneul-replay = { path = "crates/haneul-replay" }
 haneul-replay-2 = { path = "crates/haneul-replay-2" }
 haneul-rosetta = { path = "crates/haneul-rosetta" }
-haneul-grpc-rosetta = { path = "crates/haneul-grpc-rosetta" }
 haneul-rpc-loadgen = { path = "crates/haneul-rpc-loadgen" }
 haneul-sdk = { path = "crates/haneul-sdk" }
 haneul-simulator = { path = "crates/haneul-simulator" }
