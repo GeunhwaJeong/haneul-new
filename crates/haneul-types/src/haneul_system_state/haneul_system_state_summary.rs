@@ -1,6 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use std::collections::HashMap;
+
 use super::{HaneulSystemState, HaneulSystemStateTrait};
 use crate::base_types::{AuthorityName, ObjectID, HaneulAddress};
 use crate::committee::{CommitteeWithNetworkMetadata, NetworkMetadata};
@@ -213,6 +215,18 @@ impl HaneulSystemStateSummary {
             })
             .collect();
         CommitteeWithNetworkMetadata::new(self.epoch, validators)
+    }
+
+    pub fn get_committee_authority_names_to_hostnames(&self) -> HashMap<AuthorityName, String> {
+        self.active_validators
+            .iter()
+            .map(|validator| {
+                let name = AuthorityName::from_bytes(&validator.protocol_pubkey_bytes).unwrap();
+                let hostname = validator.name.clone();
+
+                (name, hostname)
+            })
+            .collect()
     }
 }
 
