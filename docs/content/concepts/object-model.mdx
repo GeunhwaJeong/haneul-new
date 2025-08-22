@@ -2,9 +2,9 @@
 title: Object Model
 description: Everything on the Haneul blockchain is an object, with metadata, type of ownership, and a referencing scheme. 
 keywords: [ object model, objects on haneul, haneul move package, haneul move object, move objects, move packages, objects, packages, referring to objects, object metadata, transaction-objects, transaction objects, relating objects and transactions ]
+mdx:
+  format: md
 ---
-
-import ProtocolConfig from "@site/src/components/ProtocolConfig";
 
 The basic unit of storage in Haneul is the object. In contrast to many other blockchains where storage is centered around accounts containing key-value stores, Haneul's storage is centered around objects addressable on-chain by unique IDs. A smart contract is an object (called a Haneul Move package), and these smart contracts manipulate objects on the Haneul network:
 
@@ -53,9 +53,13 @@ The `ProtocolConfig` struct in the [`haneul-protocol-config` crate](https://gith
 
 <details>
 <summary>
+
 `lib.rs`
+
 </summary>
+
 {@inject: crates/haneul-protocol-config/src/lib.rs#struct=ProtocolConfig}
+
 </details>
 
 Select a network from the following tabs to see the currently configured limits and values.
