@@ -29,6 +29,7 @@ use haneul_types::{
 use crate::{
     api::scalars::{
         base64::Base64,
+        big_int::BigInt,
         cursor::{BcsCursor, JsonCursor},
         haneul_address::HaneulAddress,
         type_filter::TypeInput,
@@ -351,6 +352,14 @@ impl MovePackage {
             .collect();
 
         Some(linkage)
+    }
+
+    /// The HANEUL returned to the sponsor or sender of the transaction that modifies or deletes this object.
+    pub(crate) async fn storage_rebate(
+        &self,
+        ctx: &Context<'_>,
+    ) -> Result<Option<BigInt>, RpcError<object::Error>> {
+        self.super_.storage_rebate(ctx).await
     }
 
     /// A table identifying which versions of a package introduced each of its types.
