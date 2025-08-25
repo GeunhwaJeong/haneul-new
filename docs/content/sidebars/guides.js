@@ -56,7 +56,7 @@ const guides = [
 					id: 'guides/developer/haneul-101',
 				},
 				items: [
-					'guides/developer/haneul-101/shared-owned',
+					'guides/developer/haneul-101/object-ownership',
 					'guides/developer/haneul-101/using-events',
 					'guides/developer/haneul-101/access-time',
 					'guides/developer/haneul-101/sign-and-send-txn',
