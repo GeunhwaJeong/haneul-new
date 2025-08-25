@@ -52,6 +52,7 @@ move-binary-format.workspace = true
 
 bin-version.workspace = true
 haneul-default-config.workspace = true
+haneul-display.workspace = true
 haneul-indexer-alt-metrics.workspace = true
 haneul-indexer-alt-reader.workspace = true
 haneul-indexer-alt-schema.workspace = true
