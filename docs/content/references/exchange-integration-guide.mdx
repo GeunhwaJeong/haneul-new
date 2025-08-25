@@ -3,7 +3,7 @@ title: Exchange Integration Guide
 sidebar_label: Exchange Integration
 slug: /exchange-integration-guide
 description: Learn the primary tasks necessary to integrate the HANEUL token with a cryptocurrency exchange. 
-keywords: [ integrate haneul, haneul token, HANEUL, integrate with exchange, integrate with cryptocurrency exchange, decentralized exchange, dex, integration with dex, dex integration, haneul staking, staking ]
+keywords: [ integrate haneul, HANEUL token, HANEUL, integrate with exchange, integrate with cryptocurrency exchange, decentralized exchange, dex, integration with dex, dex integration, haneul staking, staking ]
 ---
 
 This topic describes how to integrate HANEUL, the token native to the Haneul network, into a cryptocurrency exchange. The specific requirements and processes to implement an integration vary between exchanges. Rather than provide a step-by-step guide, this topic provides information about the primary tasks necessary to complete an integration. After the guidance about how to configure an integration, you can also find information and code samples related to staking on the Haneul network.
@@ -12,19 +12,19 @@ This topic describes how to integrate HANEUL, the token native to the Haneul net
 
 The requirements to configure a HANEUL integration include:
 
-- A Haneul Full node. You can operate your own Haneul Full node or use a Full node from a node operator.
-- Suggested minimum hardware to run a Haneul Full node:
+- A Haneul full node. You can operate your own Haneul full node or use a full node from a node operator.
+- Suggested minimum hardware to run a Haneul full node:
   - CPUs: 8 physical cores / 16 vCPUs
   - RAM: 128 GB
   - Storage (SSD): 4 TB NVMe drive
 
-For best results, run Haneul Full nodes on Linux. Haneul supports the Ubuntu and Debian distributions. You can also fun a Full node on macOS.
+For best results, run Haneul Full nodes on Linux. Haneul supports the Ubuntu and Debian distributions. You can also fun a full node on macOS.
 
-## Configure a Haneul Full node {#configure-full-node}
+## Configure a Haneul full node {#configure-full-node}
 
-You can set up and configure a Haneul Full node using Docker or directly from source code in the Haneul GitHub repository.
+You can set up and configure a Haneul full node using Docker or directly from source code in the Haneul GitHub repository.
 
-### Install a Haneul Full node using Docker {#full-node-docker}
+### Install a Haneul full node using Docker {#full-node-docker}
 
 Run the command in this section using the same branch of the repository for each. Replace `branch-name` with the branch you use. For example, use `devnet` to use the Haneul Devnet network, or use `testnet` to use the Haneul Testnet network. You must download all files to, and run all commands from, the same folder location.
 
@@ -56,14 +56,14 @@ Run the command in this section using the same branch of the repository for each
     Replace `mainnet` in the URL with the desired target branch if necessary. For example, `https://github.com/GeunhwaJeong/haneul-genesis/blob/main/testnet/genesis.blob` for Testnet.
 
     :::
-1.  Start the Full node. The -d switch starts it in the background (detached mode).
+1.  Start the full node. The -d switch starts it in the background (detached mode).
     ```sh
     $ docker-compose up -d
     ```
 
-## Install a Haneul Full node from source {#install-full-node-source}
+## Install a Haneul full node from source {#install-full-node-source}
 
-Use the steps in this section to install and configure a Haneul Full node directly from the Haneul GitHub repository. These steps use [Cargo](https://doc.rust-lang.org/cargo/), the Rust package manager.
+Use the steps in this section to install and configure a Haneul full node directly from the Haneul GitHub repository. These steps use [Cargo](https://doc.rust-lang.org/cargo/), the Rust package manager.
 
 1.  Install prerequisites for Haneul.
 1.  Clone the Haneul repository:
@@ -87,7 +87,7 @@ Use the steps in this section to install and configure a Haneul Full node direct
 1.  Optionally, if you installed Haneul to a path other than the default, modify the fullnode.yaml file to use the path you used. Update the path to the folder where you installed haneul-fullnode for the `db-path` and `genesis-file-location` as appropriate:
     `db-path: "/db-files/haneul-fullnode-folder"`
     `genesis-file-location: "/haneul-fullnode-folder/genesis.blob"`
-1.  Start you Haneul Full node:
+1.  Start you Haneul full node:
     ```sh
     $ cargo run --release --bin haneul-node -- --config-path fullnode.yaml
     ```
@@ -118,7 +118,7 @@ Haneul supports both addresses with and without a 0x prefix. Haneul recommends t
 
 You can track balance changes by calling `haneul_getBalance` at predefined intervals. This call returns the total balance for an address. The total includes any coin or token type, but this document focuses on HANEUL. You can track changes in the total balance for an address between subsequent `haneul_getBalance` requests.
 
-The following bash example demonstrates how to use `haneul_getBalance` for address 0x849d63687330447431a2e76fecca4f3c10f6884ebaa9909674123c6c662612a3. If you use a network other than Devnet, replace the value for `rpc` with the URL to the appropriate Full node.
+The following bash example demonstrates how to use `haneul_getBalance` for address 0x849d63687330447431a2e76fecca4f3c10f6884ebaa9909674123c6c662612a3. If you use a network other than Devnet, replace the value for `rpc` with the URL to the appropriate full node.
 
 ```sh
 rpc="https://fullnode.devnet.haneul.io:443"
