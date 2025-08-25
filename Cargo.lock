@@ -13808,7 +13808,7 @@ dependencies = [
 [[package]]
 name = "haneul-crypto"
 version = "0.0.6"
-source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=8bc0ff524a3a60561f1ba6315399f6f09e2b85b3#8bc0ff524a3a60561f1ba6315399f6f09e2b85b3"
+source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=0a15520575a413f41c855609b829a62e4594f890#0a15520575a413f41c855609b829a62e4594f890"
 dependencies = [
  "ark-bn254",
  "ark-ff",
@@ -15864,7 +15864,7 @@ dependencies = [
 [[package]]
 name = "haneul-rpc"
 version = "0.0.6"
-source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=8bc0ff524a3a60561f1ba6315399f6f09e2b85b3#8bc0ff524a3a60561f1ba6315399f6f09e2b85b3"
+source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=0a15520575a413f41c855609b829a62e4594f890#0a15520575a413f41c855609b829a62e4594f890"
 dependencies = [
  "base64 0.22.1",
  "bcs",
@@ -15908,6 +15908,7 @@ dependencies = [
  "serde_with",
  "haneul-config",
  "haneul-crypto",
+ "haneul-name-service",
  "haneul-package-resolver",
  "haneul-protocol-config",
  "haneul-rpc",
@@ -16021,7 +16022,7 @@ dependencies = [
 [[package]]
 name = "haneul-sdk-types"
 version = "0.0.6"
-source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=8bc0ff524a3a60561f1ba6315399f6f09e2b85b3#8bc0ff524a3a60561f1ba6315399f6f09e2b85b3"
+source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=0a15520575a413f41c855609b829a62e4594f890#0a15520575a413f41c855609b829a62e4594f890"
 dependencies = [
  "base64ct",
  "bcs",
