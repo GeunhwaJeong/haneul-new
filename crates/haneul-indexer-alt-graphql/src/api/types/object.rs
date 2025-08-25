@@ -254,6 +254,14 @@ impl Object {
         self.super_.balances(ctx, first, after, last, before).await
     }
 
+    /// The domain explicitly configured as the default HaneulNS name for this address.
+    pub(crate) async fn default_haneulns_name(
+        &self,
+        ctx: &Context<'_>,
+    ) -> Result<Option<String>, RpcError<Error>> {
+        self.super_.default_haneulns_name(ctx).await
+    }
+
     /// Fetch the total balances keyed by coin types (e.g. `0x2::haneul::HANEUL`) owned by this address.
     ///
     /// Returns `None` when no checkpoint is set in scope (e.g. execution scope).

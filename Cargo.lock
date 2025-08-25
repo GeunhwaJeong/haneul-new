@@ -14705,6 +14705,7 @@ dependencies = [
  "haneul-indexer-alt-metrics",
  "haneul-indexer-alt-reader",
  "haneul-indexer-alt-schema",
+ "haneul-name-service",
  "haneul-package-resolver",
  "haneul-pg-db",
  "haneul-protocol-config",
