@@ -81,7 +81,7 @@ impl MoveFlavor for HaneulFlavor {
         "haneul".to_string()
     }
 
-    type PublishedMetadata = (); // TODO
+    type PublishedMetadata = PublishedMetadata;
 
     type AddressInfo = (); // TODO
 
