@@ -7,10 +7,18 @@
 #   cargo run --bin haneul-framework-snapshot
 # 2. Generate a version bump PR
 
-set -Eeuo pipefail
+set -euo pipefail
+set -x
+
+# check required params
+if [[ $# -ne 1 ]]; then
+  echo "USAGE: gen_branch_cut_prs.sh <snapshot|version-bump>"
+  exit 1
+fi
+PR_TYPE=$1
 
 # Ensure required binaries are available
-for cmd in gh git; do
+for cmd in gh git cargo; do
   if ! command -v "$cmd" >/dev/null 2>&1; then
     echo "Error: required command '$cmd' not found in PATH." >&2
     exit 1
@@ -22,88 +30,83 @@ if [[ -z "${GITHUB_ACTOR:-}" ]]; then
   GITHUB_ACTOR="$(whoami 2>/dev/null || echo github-actions[bot])"
 fi
 
+# Configure git user
+git config user.name "github-actions[bot]"
+git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
 # Get current main version
 HANEUL_VERSION=$(sed -nE 's/^version = "([0-9]+\.[0-9]+\.[0-9]+)"/\1/p' ./Cargo.toml)
-
-# Set up branch for changes.
 STAMP="$(date +%Y%m%d%H%M%S)"
-BRANCH="${GITHUB_ACTOR}/haneul-v${HANEUL_VERSION}-bytecode-framework-snapshot-${STAMP}"
-git checkout -b "$BRANCH"
 
-# Generate framework bytecode snapshot
-cargo run --bin haneul-framework-snapshot
+if [[ "$PR_TYPE" == *snapshot* ]]; then
+  echo "Generating framework bytecode snapshot..."
+  # Set up branch for changes.
+  BRANCH="${GITHUB_ACTOR}/haneul-v${HANEUL_VERSION}-bytecode-framework-snapshot-${STAMP}"
+  git checkout -b "$BRANCH"
 
-# Staged all changes
-echo "Staging all changed files..."
-git add -A .
+  # Generate framework bytecode snapshot
+  cargo run --bin haneul-framework-snapshot
 
-# Commit, push, and create PR.
-git config user.name "github-actions[bot]"
-git config user.email \
-  "41898282+github-actions[bot]@users.noreply.github.com"
+  # Staged all changes
+  echo "Staging all changed files..."
+  git add -A .
 
-git commit -m "Haneul v${HANEUL_VERSION} Framework Bytecode snapshot"
-git push -u origin "$BRANCH"
+  # Generate PR body
+  BODY="Haneul v${HANEUL_VERSION} Framework Bytecode snapshot"
 
-# Generate PR body
-BODY=$(cat <<-EOF
-Haneul v${HANEUL_VERSION} Framework Bytecode snapshot
-EOF
-)
+  # Commit, push, and create PR.
+  git commit -m "$BODY"
+  git push -u origin "$BRANCH"
 
-PR_URL=$(gh pr create \
-  --base main \
-  --head "$BRANCH" \
-  --title "Haneul v${HANEUL_VERSION} Framework Bytecode snapshot" \
-  --reviewer "HaneulLabs/haneullabs-pe" \
-  --body "$BODY" \
-  2>&1 | grep -Eo 'https://github.com/[^ ]+')
+  PR_URL=$(gh pr create \
+    --base main \
+    --head "$BRANCH" \
+    --title "$BODY" \
+    --reviewer "HaneulLabs/haneullabs-pe" \
+    --body "$BODY" \
+    2>&1 | grep -Eo 'https://github.com/[^ ]+')
 
-echo "Pull request for Haneul v${HANEUL_VERSION} Framework Bytecode snapshot created: $PR_URL"
+  # Setting the PR to auto merge
+  gh pr merge --auto --squash --delete-branch "$BRANCH"
+  echo "Pull request for Haneul v${HANEUL_VERSION} Framework Bytecode snapshot created: $PR_URL"
 
-# Setting the PR to auto merge
-gh pr merge --auto --squash --delete-branch "$BRANCH"
+elif [[ "$PR_TYPE" == *version-bump* ]]; then
+  # Generate the version bump PR
+  echo "Generating version bump..."
+  # Bump main branhch version
+  IFS=. read -r major minor patch <<<"$HANEUL_VERSION"; NEW_HANEUL_VERSION="$major.$((minor+1)).$patch"
 
-# Generate the version bump PR
-# Bump main branhch version
-IFS=. read -r major minor patch <<<"$HANEUL_VERSION"; NEW_HANEUL_VERSION="$major.$((minor+1)).$patch"
+  # Setup new branch for staging
+  BRANCH="${GITHUB_ACTOR}/haneul-v${NEW_HANEUL_VERSION}-version-bump-${STAMP}"
+  git checkout -b "$BRANCH"
 
-# Setup new branch for staging
-BRANCH="${GITHUB_ACTOR}/haneul-v${NEW_HANEUL_VERSION}-version-bump-${STAMP}"
-git checkout main && git pull origin main
-git checkout -b "$BRANCH"
+  # Update the version in Cargo.toml and openrpc.json
+  sed -i -E "s/^(version = \")[0-9]+\.[0-9]+\.[0-9]+(\"$)/\1${NEW_HANEUL_VERSION}\2/" Cargo.toml
+  sed -i -E "s/(\"version\": \")([0-9]+\.[0-9]+\.[0-9]+)(\")/\1${NEW_HANEUL_VERSION}\3/" crates/haneul-open-rpc/spec/openrpc.json
 
-# Update the version in Cargo.toml and openrpc.json
-sed -i -E "s/^(version = \")[0-9]+\.[0-9]+\.[0-9]+(\"$)/\1${NEW_HANEUL_VERSION}\2/" Cargo.toml
-sed -i -E "s/(\"version\": \")([0-9]+\.[0-9]+\.[0-9]+)(\")/\1${NEW_HANEUL_VERSION}\3/" crates/haneul-open-rpc/spec/openrpc.json
+  # Cargo check to generate Cargo.lock changes
+  cargo check || true
 
-# Cargo check to generate Cargo.lock changes
-cargo check || true
+  # Staged all changes
+  echo "Staging all changed files..."
+  git add -A .
 
-# Staged all changes
-echo "Staging all changed files..."
-git add -A .
+  # Generate PR body
+  BODY="Haneul v${NEW_HANEUL_VERSION} Version Bump"
 
-# Commit, push, and create PR.
-git config user.name "github-actions[bot]"
-git config user.email \
-  "41898282+github-actions[bot]@users.noreply.github.com"
+  git commit -m "$BODY"
+  git push -u origin "$BRANCH"
 
-git commit -m "Haneul v${NEW_HANEUL_VERSION} Version Bump"
-git push -u origin "$BRANCH"
+  PR_URL=$(gh pr create \
+    --base main \
+    --head "$BRANCH" \
+    --title "$BODY" \
+    --reviewer "HaneulLabs/haneullabs-pe" \
+    --body "$BODY" \
+    2>&1 | grep -Eo 'https://github.com/[^ ]+')
 
-# Generate PR body
-BODY=$(cat <<-EOF
-Haneul v${NEW_HANEUL_VERSION} Version Bump
-EOF
-)
-
-PR_URL=$(gh pr create \
-  --base main \
-  --head "$BRANCH" \
-  --title "Haneul v${NEW_HANEUL_VERSION} Version Bump" \
-  --reviewer "HaneulLabs/haneullabs-pe" \
-  --body "$BODY" \
-  2>&1 | grep -Eo 'https://github.com/[^ ]+')
-
-echo "Pull request for Haneul v${NEW_HANEUL_VERSION} Version Bump created: $PR_URL"
+  echo "Pull request for Haneul v${NEW_HANEUL_VERSION} Version Bump created: $PR_URL"
+else
+  echo "Invalid argument. Use 'snapshot' or 'version-bump'."
+  exit 1
+fi
