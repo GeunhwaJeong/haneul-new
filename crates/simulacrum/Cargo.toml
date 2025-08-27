@@ -24,6 +24,7 @@ move-bytecode-utils.workspace = true
 shared-crypto.workspace = true
 haneul-config.workspace = true
 haneul-framework.workspace = true
+haneul-framework-snapshot.workspace = true
 haneul-keys.workspace = true
 haneul-protocol-config.workspace = true
 haneul-storage.workspace = true

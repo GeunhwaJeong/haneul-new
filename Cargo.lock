@@ -12558,6 +12558,7 @@ dependencies = [
  "haneul-config",
  "haneul-execution",
  "haneul-framework",
+ "haneul-framework-snapshot",
  "haneul-genesis-builder",
  "haneul-keys",
  "haneul-protocol-config",
