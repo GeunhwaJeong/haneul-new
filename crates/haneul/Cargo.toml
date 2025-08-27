@@ -72,6 +72,7 @@ haneul-protocol-config.workspace = true
 shared-crypto.workspace = true
 haneul-transaction-builder.workspace = true
 move-binary-format.workspace = true
+move-trace-format.workspace = true
 move-bytecode-source-map.workspace = true
 haneullabs-common.workspace = true
 test-cluster.workspace = true
