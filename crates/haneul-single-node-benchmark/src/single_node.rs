@@ -17,7 +17,7 @@ use haneul_core::checkpoints::checkpoint_executor::CheckpointExecutor;
 use haneul_core::consensus_adapter::{
     ConnectionMonitorStatusForTests, ConsensusAdapter, ConsensusAdapterMetrics,
 };
-use haneul_core::execution_scheduler::{ExecutionSchedulerAPI, SchedulingSource};
+use haneul_core::execution_scheduler::SchedulingSource;
 use haneul_core::global_state_hasher::GlobalStateHasher;
 use haneul_core::mock_consensus::{ConsensusMode, MockConsensusClient};
 use haneul_test_transaction_builder::{PublishData, TestTransactionBuilder};
