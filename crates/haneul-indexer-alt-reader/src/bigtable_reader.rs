@@ -8,7 +8,9 @@ use std::time::Duration;
 use anyhow::{bail, Context};
 use async_graphql::dataloader::DataLoader;
 use prometheus::Registry;
-use haneul_kvstore::{BigTableClient, Checkpoint, KeyValueStoreReader, TransactionData};
+use haneul_kvstore::{
+    BigTableClient, Checkpoint, KeyValueStoreReader, TransactionData, TransactionEventsData,
+};
 use haneul_types::digests::TransactionDigest;
 use haneul_types::messages_checkpoint::{CheckpointSequenceNumber, CheckpointSummary};
 use haneul_types::object::Object;
@@ -101,6 +103,19 @@ impl BigtableReader {
     /// Multi-get objects by object ID and version.
     pub(crate) async fn objects(&self, keys: &[ObjectKey]) -> anyhow::Result<Vec<Object>> {
         measure("objects", &keys, self.0.clone().get_objects(keys)).await
+    }
+
+    // Multi-get events from transactions.
+    pub(crate) async fn transactions_events(
+        &self,
+        keys: &[TransactionDigest],
+    ) -> anyhow::Result<Vec<(TransactionDigest, TransactionEventsData)>> {
+        measure(
+            "events",
+            &keys,
+            self.0.clone().get_events_for_transactions(keys),
+        )
+        .await
     }
 }
 

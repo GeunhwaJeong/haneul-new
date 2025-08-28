@@ -12,6 +12,7 @@ use haneul_types::committee::EpochId;
 use haneul_types::crypto::AuthorityStrongQuorumSignInfo;
 use haneul_types::digests::{CheckpointDigest, TransactionDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
+use haneul_types::event::Event;
 use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointSequenceNumber, CheckpointSummary,
@@ -41,6 +42,10 @@ pub trait KeyValueStoreReader {
     async fn get_latest_object(&mut self, object_id: &ObjectID) -> Result<Option<Object>>;
     async fn get_epoch(&mut self, epoch_id: EpochId) -> Result<Option<EpochInfo>>;
     async fn get_latest_epoch(&mut self) -> Result<Option<EpochInfo>>;
+    async fn get_events_for_transactions(
+        &mut self,
+        keys: &[TransactionDigest],
+    ) -> Result<Vec<(TransactionDigest, TransactionEventsData)>>;
 }
 
 #[async_trait]
@@ -66,4 +71,11 @@ pub struct TransactionData {
     pub events: Option<TransactionEvents>,
     pub checkpoint_number: CheckpointSequenceNumber,
     pub timestamp: u64,
+}
+
+/// Partial transaction and events for when we only need transaction content for events
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct TransactionEventsData {
+    pub events: Vec<Event>,
+    pub timestamp_ms: u64,
 }
