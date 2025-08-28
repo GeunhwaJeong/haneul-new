@@ -250,6 +250,31 @@ fun convert_to_fungible_staked_haneul_happy() {
 }
 
 #[test]
+fun test_process_pending_stake_withdraw_no_underflow() {
+    let mut test = test_scenario::begin(@0x0);
+    let mut staking_pool = staking_pool::new(test.ctx());
+    staking_pool.activate_staking_pool(0);
+
+    let haneul = balance::create_for_testing(1_000_000_000);
+    let staked_haneul_1 = staking_pool.request_add_stake(haneul, test.ctx().epoch() + 1, test.ctx());
+    assert_eq!(distribute_rewards_and_advance_epoch(&mut staking_pool, &mut test, 0), 1);
+
+    staking_pool.increase_pending_pool_token_withdraw_for_testing(1_000_000_000);
+    staking_pool.increase_pending_total_haneul_withdraw_for_testing(1_000_000_000);
+
+    staking_pool.process_pending_stake_withdraw_for_testing();
+
+    assert_eq!(staking_pool.haneul_balance(), 0);
+    assert_eq!(staking_pool.pending_stake_withdraw_amount(), 0);
+    assert_eq!(staking_pool.pool_token_balance(), 0);
+    assert_eq!(staking_pool.pending_pool_token_withdraw_amount(), 0);
+
+    destroy(staking_pool);
+    destroy(staked_haneul_1);
+    test.end();
+}
+
+#[test]
 fun redeem_fungible_staked_haneul_happy() {
     let mut scenario = test_scenario::begin(@0x0);
     let mut staking_pool = staking_pool::new(scenario.ctx());
@@ -330,7 +355,6 @@ fun redeem_fungible_staked_haneul_happy() {
     assert_eq!(staking_pool.pending_pool_token_withdraw_amount(), 0);
 
     let haneul_1 = staking_pool.redeem_fungible_staked_haneul(fungible_staked_haneul_1, scenario.ctx());
-    assert!(haneul_1.value() <= 4_000_000_000, 0);
     assert_eq!(haneul_1.value(), 4_000_000_000 - 1);
 
     let fungible_staked_haneul_data = staking_pool.fungible_staked_haneul_data();
@@ -424,14 +448,13 @@ fun redeem_fungible_staked_haneul_regression_rounding() {
     scenario.end();
 }
 
-#[test_only]
 fun distribute_rewards_and_advance_epoch(
     staking_pool: &mut StakingPool,
     scenario: &mut Scenario,
     reward_amount: u64,
 ): u64 {
-    use haneul::tx_context::{epoch};
-    use haneul::coin::{Self};
+    use haneul::tx_context::epoch;
+    use haneul::coin;
     use haneul::haneul::HANEUL;
 
     let rewards = coin::mint_for_testing<HANEUL>(reward_amount, scenario.ctx());

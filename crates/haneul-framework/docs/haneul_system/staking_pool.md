@@ -10,6 +10,7 @@ title: Module `haneul_system::staking_pool`
 -  [Struct `FungibleStakedHaneul`](#haneul_system_staking_pool_FungibleStakedHaneul)
 -  [Struct `FungibleStakedHaneulData`](#haneul_system_staking_pool_FungibleStakedHaneulData)
 -  [Struct `FungibleStakedHaneulDataKey`](#haneul_system_staking_pool_FungibleStakedHaneulDataKey)
+-  [Struct `UnderflowHaneulBalance`](#haneul_system_staking_pool_UnderflowHaneulBalance)
 -  [Constants](#@Constants_0)
 -  [Function `new`](#haneul_system_staking_pool_new)
 -  [Function `request_add_stake`](#haneul_system_staking_pool_request_add_stake)
@@ -347,6 +348,29 @@ Holds useful information
 
 
 <pre><code><b>public</b> <b>struct</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_FungibleStakedHaneulDataKey">FungibleStakedHaneulDataKey</a> <b>has</b> <b>copy</b>, drop, store
+</code></pre>
+
+
+
+<details>
+<summary>Fields</summary>
+
+
+<dl>
+</dl>
+
+
+</details>
+
+<a name="haneul_system_staking_pool_UnderflowHaneulBalance"></a>
+
+## Struct `UnderflowHaneulBalance`
+
+Holds the amount of HANEUL that was underflowed when withdrawing from the pool
+post safe mode. Cleaned up in the same transaction.
+
+
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_UnderflowHaneulBalance">UnderflowHaneulBalance</a> <b>has</b> <b>copy</b>, drop, store
 </code></pre>
 
 
@@ -1003,8 +1027,19 @@ Also called immediately upon withdrawal if the pool is inactive.
 
 
 <pre><code><b>fun</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_process_pending_stake_withdraw">process_pending_stake_withdraw</a>(pool: &<b>mut</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakingPool">StakingPool</a>) {
-    pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a> = pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a> - pool.pending_total_haneul_withdraw;
-    pool.pool_token_balance = pool.pool_token_balance - pool.pending_pool_token_withdraw;
+    pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a> = <b>if</b> (pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a> &gt;= pool.pending_total_haneul_withdraw) {
+        pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a> - pool.pending_total_haneul_withdraw
+    } <b>else</b> {
+        // the diff will be applied in the `<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_process_pending_stake">process_pending_stake</a>` function.
+        <b>let</b> diff = pool.pending_total_haneul_withdraw - pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a>;
+        pool.extra_fields.add(<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_UnderflowHaneulBalance">UnderflowHaneulBalance</a> {}, diff);
+        0
+    };
+    pool.pool_token_balance = <b>if</b> (pool.pool_token_balance &gt;= pool.pending_pool_token_withdraw) {
+        pool.pool_token_balance - pool.pending_pool_token_withdraw
+    } <b>else</b> {
+        0
+    };
     pool.pending_total_haneul_withdraw = 0;
     pool.pending_pool_token_withdraw = 0;
 }
@@ -1036,7 +1071,13 @@ Called at epoch boundaries to process the pending stake.
         <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_amount">haneul_amount</a>: pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a>,
         <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_pool_token_amount">pool_token_amount</a>: pool.pool_token_balance,
     };
-    pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a> = pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a> + pool.pending_stake;
+    // This key is only present <b>if</b> the `<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a>` underflowed, hence, the current value of `<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a>`
+    // is `0`. Pool token balance will be recalculated automatically <b>for</b> `0` value.
+    <b>let</b> haneul_diff = {
+        <b>let</b> key = <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_UnderflowHaneulBalance">UnderflowHaneulBalance</a> {};
+        <b>if</b> (pool.extra_fields.contains(key)) pool.extra_fields.remove(key) <b>else</b> 0
+    };
+    pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a> = pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a> + pool.pending_stake - haneul_diff;
     pool.pool_token_balance = latest_exchange_rate.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_get_token_amount">get_token_amount</a>(pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a>);
     pool.pending_stake = 0;
 }
