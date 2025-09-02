@@ -34,7 +34,7 @@ use haneul_indexer_alt_jsonrpc::{
 };
 use haneul_indexer_alt_reader::{
     bigtable_reader::BigtableArgs, consistent_reader::ConsistentReaderArgs,
-    full_node_client::FullNodeArgs, system_package_task::SystemPackageTaskArgs,
+    fullnode_client::FullnodeArgs, system_package_task::SystemPackageTaskArgs,
 };
 use haneul_pg_db::{
     temp::{get_available_port, TempDb},
@@ -409,7 +409,7 @@ impl OffchainCluster {
         let graphql = start_graphql(
             Some(database_url.clone()),
             None,
-            FullNodeArgs::default(),
+            FullnodeArgs::default(),
             DbArgs::default(),
             BigtableArgs::default(),
             consistent_reader_args,
