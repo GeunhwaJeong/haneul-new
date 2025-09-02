@@ -953,6 +953,13 @@ impl TemporaryStore<'_> {
         let mut total_input_haneul = 0;
         // total amount of HANEUL in output objects, including both coins and storage rebates
         let mut total_output_haneul = 0;
+
+        // settlement input/output haneul is used by the settlement transactions to accound for
+        // Haneul that has been gathered from the accumulator writes of transactions which it is
+        // settling.
+        total_input_haneul += self.execution_results.settlement_input_haneul;
+        total_output_haneul += self.execution_results.settlement_output_haneul;
+
         for (id, input, output) in self.get_modified_objects() {
             if let Some(input) = input {
                 total_input_haneul += self.get_input_haneul(&id, input.version, layout_resolver)?;

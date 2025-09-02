@@ -7,6 +7,7 @@ title: Module `haneul::accumulator_settlement`
 -  [Constants](#@Constants_0)
 -  [Function `settlement_prologue`](#haneul_accumulator_settlement_settlement_prologue)
 -  [Function `settle_u128`](#haneul_accumulator_settlement_settle_u128)
+-  [Function `record_settlement_haneul_conservation`](#haneul_accumulator_settlement_record_settlement_haneul_conservation)
 
 
 <pre><code><b>use</b> <a href="../std/ascii.md#std_ascii">std::ascii</a>;
@@ -60,7 +61,7 @@ Called by settlement transactions to ensure that the settlement transaction has 
 digest.
 
 
-<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_settlement_prologue">settlement_prologue</a>(_epoch: u64, _checkpoint_height: u64, _idx: u64, ctx: &<a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
+<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_settlement_prologue">settlement_prologue</a>(_epoch: u64, _checkpoint_height: u64, _idx: u64, input_haneul: u64, output_haneul: u64, ctx: &<a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -69,8 +70,18 @@ digest.
 <summary>Implementation</summary>
 
 
-<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_settlement_prologue">settlement_prologue</a>(_epoch: u64, _checkpoint_height: u64, _idx: u64, ctx: &TxContext) {
+<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_settlement_prologue">settlement_prologue</a>(
+    _epoch: u64,
+    _checkpoint_height: u64,
+    _idx: u64,
+    // Total input <a href="../haneul/haneul.md#haneul_haneul">haneul</a> received from user transactions
+    input_haneul: u64,
+    // Total output <a href="../haneul/haneul.md#haneul_haneul">haneul</a> withdrawn by user transactions
+    output_haneul: u64,
+    ctx: &TxContext,
+) {
     <b>assert</b>!(ctx.sender() == @0x0, <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_ENotSystemAddress">ENotSystemAddress</a>);
+    <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_record_settlement_haneul_conservation">record_settlement_haneul_conservation</a>(input_haneul, output_haneul);
 }
 </code></pre>
 
@@ -123,6 +134,29 @@ digest.
         accumulator_root.create_metadata&lt;T&gt;(owner, ctx);
     };
 }
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_accumulator_settlement_record_settlement_haneul_conservation"></a>
+
+## Function `record_settlement_haneul_conservation`
+
+Called by the settlement transaction to track conservation of HANEUL.
+
+
+<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_record_settlement_haneul_conservation">record_settlement_haneul_conservation</a>(input_haneul: u64, output_haneul: u64)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>native</b> <b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_record_settlement_haneul_conservation">record_settlement_haneul_conservation</a>(input_haneul: u64, output_haneul: u64);
 </code></pre>
 
 

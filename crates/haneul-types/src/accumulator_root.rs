@@ -6,11 +6,11 @@ use crate::{
     base_types::{ObjectID, SequenceNumber, HaneulAddress},
     digests::TransactionDigest,
     dynamic_field::{
-        serialize_dynamic_field, BoundedDynamicFieldID, DynamicFieldKey, DynamicFieldObject,
+        serialize_dynamic_field, BoundedDynamicFieldID, DynamicFieldKey, DynamicFieldObject, Field,
         DYNAMIC_FIELD_FIELD_STRUCT_NAME, DYNAMIC_FIELD_MODULE_NAME,
     },
     error::{HaneulError, HaneulResult},
-    object::{Object, Owner},
+    object::{MoveObject, Object, Owner},
     storage::{ChildObjectResolver, ObjectStore},
     MoveTypeTagTrait, MoveTypeTagTraitGeneric, HANEUL_ACCUMULATOR_ROOT_ADDRESS,
     HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID,
@@ -206,6 +206,28 @@ impl AccumulatorValue {
             Owner::ObjectOwner(HANEUL_ACCUMULATOR_ROOT_ADDRESS.into()),
             TransactionDigest::genesis_marker(),
         )
+    }
+}
+
+impl TryFrom<&MoveObject> for AccumulatorValue {
+    type Error = HaneulError;
+    fn try_from(value: &MoveObject) -> Result<Self, Self::Error> {
+        value
+            .type_()
+            .is_balance_accumulator_field()
+            .then(|| {
+                value
+                    .to_rust::<Field<AccumulatorKey, U128>>()
+                    .map(|f| f.value)
+            })
+            .flatten()
+            .map(Self::U128)
+            .ok_or_else(|| {
+                HaneulError::DynamicFieldReadError(format!(
+                    "Dynamic field {:?} is not a AccumulatorValue",
+                    value.id()
+                ))
+            })
     }
 }
 

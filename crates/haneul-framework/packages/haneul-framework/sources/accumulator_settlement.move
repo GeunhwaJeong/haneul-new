@@ -16,8 +16,18 @@ use fun haneul::accumulator_metadata::create_accumulator_metadata as Accumulator
 /// Called by settlement transactions to ensure that the settlement transaction has a unique
 /// digest.
 #[allow(unused_function)]
-fun settlement_prologue(_epoch: u64, _checkpoint_height: u64, _idx: u64, ctx: &TxContext) {
+fun settlement_prologue(
+    _epoch: u64,
+    _checkpoint_height: u64,
+    _idx: u64,
+    // Total input haneul received from user transactions
+    input_haneul: u64,
+    // Total output haneul withdrawn by user transactions
+    output_haneul: u64,
+    ctx: &TxContext,
+) {
     assert!(ctx.sender() == @0x0, ENotSystemAddress);
+    record_settlement_haneul_conservation(input_haneul, output_haneul);
 }
 
 #[allow(unused_function)]
@@ -55,3 +65,6 @@ fun settle_u128<T>(
         accumulator_root.create_metadata<T>(owner, ctx);
     };
 }
+
+/// Called by the settlement transaction to track conservation of HANEUL.
+native fun record_settlement_haneul_conservation(input_haneul: u64, output_haneul: u64);

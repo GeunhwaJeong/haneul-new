@@ -362,6 +362,8 @@ impl<'env, 'pc, 'vm, 'state, 'linkage, 'gas> Context<'env, 'pc, 'vm, 'state, 'li
             mut created_object_ids,
             deleted_object_ids,
             accumulator_events,
+            settlement_input_haneul,
+            settlement_output_haneul,
         } = object_runtime.finish()?;
         assert_invariant!(
             remaining_events.is_empty(),
@@ -458,6 +460,8 @@ impl<'env, 'pc, 'vm, 'state, 'linkage, 'gas> Context<'env, 'pc, 'vm, 'state, 'li
             deleted_object_ids,
             user_events,
             accumulator_events,
+            settlement_input_haneul,
+            settlement_output_haneul,
         )
     }
 

@@ -81,6 +81,14 @@ pub struct ExecutionResultsV2 {
     pub user_events: Vec<Event>,
     /// All accumulator events emitted in this transaction.
     pub accumulator_events: Vec<AccumulatorEvent>,
+
+    /// Used to track HANEUL conservation in settlement transactions. Settlement transactions
+    /// gather up withdraws and deposits from other transactions, and record them to accumulator
+    /// fields. The settlement transaction records the total amount of HANEUL being disbursed here,
+    /// so that we can verify that the amount stored in the fields at the end of the transaction
+    /// is correct.
+    pub settlement_input_haneul: u64,
+    pub settlement_output_haneul: u64,
 }
 
 pub type ExecutionResult = (
@@ -108,6 +116,8 @@ impl ExecutionResultsV2 {
         self.user_events.extend(new_results.user_events);
         self.accumulator_events
             .extend(new_results.accumulator_events);
+        self.settlement_input_haneul += new_results.settlement_input_haneul;
+        self.settlement_output_haneul += new_results.settlement_output_haneul;
     }
 
     pub fn update_version_and_previous_tx(
