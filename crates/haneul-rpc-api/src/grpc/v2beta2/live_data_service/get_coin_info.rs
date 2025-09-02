@@ -12,10 +12,10 @@ use haneul_rpc::proto::haneul::rpc::v2beta2::RegulatedCoinMetadata;
 use haneul_sdk_types::{Address, StructTag};
 use haneul_types::haneul_sdk_types_conversions::struct_tag_sdk_to_core;
 
-const HANEUL_COIN_TREASURY: CoinTreasury = CoinTreasury {
-    id: None,
-    total_supply: Some(haneul_types::gas_coin::TOTAL_SUPPLY_GEUNHWA),
-    supply_state: None,
+const HANEUL_COIN_TREASURY: CoinTreasury = {
+    let mut treasury = CoinTreasury::const_default();
+    treasury.total_supply = Some(haneul_types::gas_coin::TOTAL_SUPPLY_GEUNHWA);
+    treasury
 };
 
 #[tracing::instrument(skip(service))]
@@ -62,14 +62,15 @@ pub fn get_coin_info(
                     ),
                 )
             })?
-            .map(|value| CoinMetadata {
-                id: Some(Address::from(value.id.id.bytes).to_string()),
-                decimals: Some(value.decimals.into()),
-                name: Some(value.name),
-                symbol: Some(value.symbol),
-                description: Some(value.description),
-                icon_url: value.icon_url,
-                metadata_cap_id: None,
+            .map(|value| {
+                let mut metadata = CoinMetadata::default();
+                metadata.id = Some(Address::from(value.id.id.bytes).to_string());
+                metadata.decimals = Some(value.decimals.into());
+                metadata.name = Some(value.name);
+                metadata.symbol = Some(value.symbol);
+                metadata.description = Some(value.description);
+                metadata.icon_url = value.icon_url;
+                metadata
             })
     } else {
         None
@@ -91,10 +92,11 @@ pub fn get_coin_info(
                     ),
                 )
             })?
-            .map(|treasury| CoinTreasury {
-                id: Some(Address::from(treasury.id.id.bytes).to_string()),
-                total_supply: Some(treasury.total_supply.value),
-                supply_state: None,
+            .map(|treasury| {
+                let mut message = CoinTreasury::default();
+                message.id = Some(Address::from(treasury.id.id.bytes).to_string());
+                message.total_supply = Some(treasury.total_supply.value);
+                message
             })
     } else if haneul_types::gas_coin::GAS::is_gas(&core_coin_type) {
         Some(HANEUL_COIN_TREASURY)
@@ -119,23 +121,25 @@ pub fn get_coin_info(
                         ),
                     )
                 })?
-                .map(|value| RegulatedCoinMetadata {
-                    id: Some(Address::from(value.id.id.bytes).to_string()),
-                    coin_metadata_object: Some(
-                        Address::from(value.coin_metadata_object.bytes).to_string(),
-                    ),
-                    deny_cap_object: Some(Address::from(value.deny_cap_object.bytes).to_string()),
+                .map(|value| {
+                    let mut message = RegulatedCoinMetadata::default();
+                    message.id = Some(Address::from(value.id.id.bytes).to_string());
+                    message.coin_metadata_object =
+                        Some(Address::from(value.coin_metadata_object.bytes).to_string());
+                    message.deny_cap_object =
+                        Some(Address::from(value.deny_cap_object.bytes).to_string());
+                    message
                 })
         } else {
             None
         };
 
-    Ok(GetCoinInfoResponse {
-        coin_type: Some(coin_type.to_string()),
-        metadata,
-        treasury,
-        regulated_metadata,
-    })
+    let mut response = GetCoinInfoResponse::default();
+    response.coin_type = Some(coin_type.to_string());
+    response.metadata = metadata;
+    response.treasury = treasury;
+    response.regulated_metadata = regulated_metadata;
+    Ok(response)
 }
 
 #[derive(Debug)]
