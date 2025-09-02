@@ -92,7 +92,7 @@ use haneul_core::checkpoints::{
 use haneul_core::consensus_adapter::{
     CheckConnection, ConnectionMonitorStatus, ConsensusAdapter, ConsensusAdapterMetrics,
 };
-use haneul_core::consensus_manager::{ConsensusManager, ConsensusManagerTrait};
+use haneul_core::consensus_manager::ConsensusManager;
 use haneul_core::consensus_throughput_calculator::{
     ConsensusThroughputCalculator, ConsensusThroughputProfiler, ThroughputProfileRanges,
 };

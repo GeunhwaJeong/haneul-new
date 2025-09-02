@@ -22,10 +22,11 @@ CHANGELOG.md
 
 # Consensus working group
 /consensus/ @HaneulLabs/consensus
-/crates/haneul-core/src/consensus_handler.rs @HaneulLabs/consensus
 /crates/haneul-core/src/consensus_adapter.rs @HaneulLabs/consensus
-/crates/haneul-core/src/transaction_orchestrator.rs @HaneulLabs/consensus
+/crates/haneul-core/src/consensus_handler.rs @HaneulLabs/consensus
+/crates/haneul-core/src/consensus_manager/ @HaneulLabs/consensus
 /crates/haneul-core/src/transaction_driver/ @HaneulLabs/consensus
+/crates/haneul-core/src/transaction_orchestrator.rs @HaneulLabs/consensus
 /crates/haneul-core/src/validator_client_monitor/ @HaneulLabs/consensus
 
 /docker/ @HaneulLabs/haneullabs-pe
