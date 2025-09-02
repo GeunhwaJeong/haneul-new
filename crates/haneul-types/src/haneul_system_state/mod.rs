@@ -25,6 +25,7 @@ use std::fmt;
 use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
 
 pub mod epoch_start_haneul_system_state;
+pub mod mock;
 pub mod haneul_system_state_inner_v1;
 pub mod haneul_system_state_inner_v2;
 pub mod haneul_system_state_summary;
