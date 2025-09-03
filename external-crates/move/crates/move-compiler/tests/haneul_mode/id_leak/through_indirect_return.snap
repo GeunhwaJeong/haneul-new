@@ -11,5 +11,5 @@ error[Haneul E01001]: invalid object construction
 11 │         Foo { id }
    │         ^^^^^^^^^^
    │         │     │
-   │         │     The UID must come directly from haneul::object::new. Or for tests, it can come from haneul::test_scenario::new_object
+   │         │     The UID must come directly from `haneul::object::new`, or `haneul::derived_object::claim`. For tests, it can come from `haneul::test_scenario::new_object`
    │         Invalid object creation without a newly created UID.
