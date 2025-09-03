@@ -2,8 +2,6 @@
 title: Offline Signing
 description: Offline signing can be used to sign a Haneul transaction when a device is not connected to a Haneul network, or if the signing wallet uses a different programming language than that of the transaction being signed.
 keywords: [ offline signing, sign offline, sign transaction offline, offline transaction, serialize data, sign data, sign serialized data, sign with Haneul Keystore, Haneul Keystore, Keystore ]
-mdx:
-  format: md
 ---
 
 Haneul supports offline signing, which is signing transactions using a device not connected to a Haneul network, or in a wallet implemented in a different programming language without relying on the Haneul key store. The steps to implement offline signing include:
@@ -18,7 +16,7 @@ You must serialize transaction data following [Binary Canonical Serialization](h
 
 The following example demonstrates how to serialize data for a transfer using the [Haneul CLI](/references/cli.mdx). This returns serialized transaction data in Base64. Submit the raw transaction to execute as `tx_bytes`.
 
-{@include: ../../../snippets/info-gas-budget.mdx}
+<ImportContent source="info-gas-budget.mdx" mode="snippet" />
 
 ```sh
 $ haneul client transfer-haneul --to <HANEUL-ADDRESS> --haneul-coin-object-id <COIN-OBJECT-ID> --gas-budget <GAS-AMOUNT> --serialize-unsigned-transaction

@@ -2,8 +2,6 @@
 title: Multisig Authentication
 description: Guide on how to create a multisig transaction and then submit it against a local network using the Haneul CLI.
 keywords: [ multisig, multi-sig, multisig auth, multi-sig auth, multi signatures, multiple signatures, multisig transaction, multi-sig transaction ]
-mdx:
-  format: md
 ---
 
 The following steps demonstrate how to create a multisig transaction and then submit it against a network using the [Haneul CLI](/references/cli.mdx). A transaction can be the transfer of an object, the publish or upgrade of a package, the payment of HANEUL, and so on.
@@ -187,7 +185,7 @@ $ COIN=<COIN-OBJECT-ID>
 
 Use the `haneul client transfer` command to set up the transfer. The `--serialize-unsigned-transaction` flag outputs the Base64-encoded transaction bytes.
 
-{@include: ../../../snippets/info-gas-budget.mdx}
+<ImportContent source="info-gas-budget.mdx" mode="snippet" />
 
 ```sh
 $ haneul client transfer --to $ACTIVE --object-id $COIN --gas-budget <GAS-AMOUNT> --serialize-unsigned-transaction
@@ -398,7 +396,7 @@ Transaction Digest: 7mBWUxT6HUVDa8bii3PZJc7nhWqefTLNTsGbHYnx7ZA4
 
 ## Related links
 
-- [Multisig](../../../concepts/cryptography/transaction-auth/multisig.mdx): Definition of multisig transactions on the Haneul network and how to use it with CLI.
-- [Multisig TypeScript SDK](https://sdk.haneul-labs.com/typescript/cryptography/multisig): How to create multisig addresses and sign transactions using the Haneul SDK.
-- [SDK documentation](https://sdk.haneul-labs.com/typescript/cryptography/multisig): See the Haneul TypeScript SDK documentation to learn how to use the library with multisig transactions.
-- [Haneul CLI](../../../references/cli.mdx): Interact with the Haneul network, its features, and the Move programming language from a command line.
+<RelatedLink to="/concepts/cryptography/transaction-auth/multisig.mdx" />
+<RelatedLink href="https://sdk.haneul-labs.com/typescript/cryptography/multisig" label="Multisig TypeScript SDK" desc=" How to create multisig addresses and sign transactions using the Haneul SDK." />
+<RelatedLink href="https://sdk.haneul-labs.com/typescript/cryptography/multisig" label="SDK documentation" desc="See the Haneul TypeScript SDK documentation to learn how to use the library with multisig transactions." />
+<RelatedLink to="/references/cli.mdx" />

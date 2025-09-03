@@ -2,8 +2,6 @@
 title: Custom Indexing Framework
 description: The `haneul-indexer-alt-framework` is a powerful Rust framework for building high-performance, custom blockchain indexers on Haneul. It provides customizable, production-ready components for data ingestion, processing, and storage.
 keywords: [ indexer, framework, indexer framework, dex, events, framework architecture ]
-mdx:
-    format: md
 pagination_prev: null
 ---
 
@@ -73,7 +71,7 @@ Sequential and concurrent pipeline types and their trade-offs are detailed in [P
 
 </summary>
 
-{@inject: ../../../crates/haneul-types/src/full_checkpoint_content.rs#struct=CheckpointData}
+<ImportContent source="crates/haneul-types/src/full_checkpoint_content.rs" mode="code" struct="CheckpointData" />
 
 </details>
 
@@ -87,6 +85,6 @@ Your indexer runs as one executable program with multiple coordinated background
 
 ## Related links
 
-- [Pipeline Architecture](./custom-indexer/pipeline-architecture.mdx): The structure of the available indexer pipelines (sequential and concurrent) and the advantages of using one over the other.
-- [Life of a Transaction](./haneul-architecture/transaction-lifecycle.mdx): The life of a transaction on the Haneul network has some differences compared to those from other blockchains.
-- [Build Your First Custom Indexer](../guides/developer/advanced/custom-indexer.mdx): Establishing a custom indexer helps improve latency, allows pruning the data of your Haneul full node, and provides efficient assemblage of checkpoint data. This guide walks you through the process.
+<RelatedLink to="/concepts/custom-indexer/pipeline-architecture.mdx" />
+<RelatedLink to="/concepts/haneul-architecture/transaction-lifecycle.mdx" />
+<RelatedLink to="/guides/developer/advanced/custom-indexer.mdx" />

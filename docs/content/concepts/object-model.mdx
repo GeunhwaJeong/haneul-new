@@ -2,8 +2,6 @@
 title: Object Model
 description: Everything on the Haneul blockchain is an object, with metadata, type of ownership, and a referencing scheme. 
 keywords: [ object model, objects on haneul, haneul move package, haneul move object, move objects, move packages, objects, packages, referring to objects, object metadata, transaction-objects, transaction objects, relating objects and transactions ]
-mdx:
-  format: md
 ---
 
 The basic unit of storage in Haneul is the object. In contrast to many other blockchains where storage is centered around accounts containing key-value stores, Haneul's storage is centered around objects addressable on-chain by unique IDs. A smart contract is an object (called a Haneul Move package), and these smart contracts manipulate objects on the Haneul network:
@@ -58,7 +56,7 @@ The `ProtocolConfig` struct in the [`haneul-protocol-config` crate](https://gith
 
 </summary>
 
-{@inject: crates/haneul-protocol-config/src/lib.rs#struct=ProtocolConfig}
+<ImportContent source="crates/haneul-protocol-config/src/lib.rs" mode="code" struct="ProtocolConfig" />
 
 </details>
 
@@ -68,9 +66,9 @@ Select a network from the following tabs to see the currently configured limits 
 
 ## Related links
 
-- [Object and Package Versioning](./versioning.mdx): Versioning provides the ability to upgrade packages and objects on the Haneul network.
-- [Object Ownership](./object-ownership.mdx): Every object has an owner field that dictates how you can use it in transactions.
-- [`haneul-protocol-config`](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-protocol-config/src/lib.rs): Crate that defines the `ProtocolConfig` struct with limit definitions.
-- [Building against Limits](https://move-book.com/guides/building-against-limits.html): The Move Book provides a concise overview for limits most projects deal with.
-- [The Move Book](https://move-book.com/): A comprehensive guide to the Move programming language used on the Haneul network.
-- [The Move Reference](https://move-book.com/reference/): Reference guide for the Move language.
+<RelatedLink to="/concepts/versioning.mdx" />
+<RelatedLink to="/concepts/object-ownership.mdx" />
+<RelatedLink href="https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-protocol-config/src/lib.rs" label="`haneul-protocol-config`" desc=" Crate that defines the `ProtocolConfig` struct with limit definitions." />
+<RelatedLink href="https://move-book.com/guides/building-against-limits.html" label="Building against Limits" desc=" The Move Book provides a concise overview for limits most projects deal with." />
+<RelatedLink href="https://move-book.com/" label="The Move Book" desc=" A comprehensive guide to the Move programming language used on the Haneul network." />
+<RelatedLink href="https://move-book.com/reference/" label="The Move Reference" desc=" Reference guide for the Move language." />
