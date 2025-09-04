@@ -5,11 +5,12 @@
 #[deprecated(note = b"Use haneul_system::test_runner instead")]
 module haneul_system::governance_test_utils;
 
+use std::unit_test::assert_eq;
 use haneul::balance::{Self, Balance};
 use haneul::coin::{Self, Coin};
 use haneul::haneul::HANEUL;
 use haneul::test_scenario::{Self, Scenario};
-use haneul::test_utils::{Self, assert_eq};
+use haneul::test_utils;
 use haneul_system::stake_subsidy;
 use haneul_system::staking_pool::{StakedHaneul, StakingPool};
 use haneul_system::haneul_system::{Self, HaneulSystemState};
@@ -319,7 +320,7 @@ public fun assert_validator_self_stake_amounts(
             &mut system_state,
             scenario,
         );
-        assert_eq(stake_plus_rewards, amount);
+        assert_eq!(stake_plus_rewards, amount);
         test_scenario::return_shared(system_state);
         i = i + 1;
     };
@@ -357,7 +358,7 @@ public fun assert_validator_non_self_stake_amounts(
         let mut system_state = scenario.take_shared<HaneulSystemState>();
         let non_self_stake_amount =
             system_state.validator_stake_amount(validator_addr) - stake_plus_current_rewards_for_validator(validator_addr, &mut system_state, scenario);
-        assert_eq(non_self_stake_amount, amount);
+        assert_eq!(non_self_stake_amount, amount);
         test_scenario::return_shared(system_state);
         i = i + 1;
     };

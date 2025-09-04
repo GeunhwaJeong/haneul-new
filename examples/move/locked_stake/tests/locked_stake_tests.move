@@ -7,10 +7,11 @@ module locked_stake::locked_stake_tests;
 
 use locked_stake::epoch_time_lock;
 use locked_stake::locked_stake as ls;
+use std::unit_test::assert_eq;
 use haneul::balance;
 use haneul::coin;
 use haneul::test_scenario;
-use haneul::test_utils::{assert_eq, destroy};
+use haneul::test_utils::destroy;
 use haneul::vec_map;
 use haneul_system::governance_test_utils::{advance_epoch, set_up_haneul_system_state};
 use haneul_system::haneul_system::{Self, HaneulSystemState};
@@ -29,7 +30,7 @@ fun test_incorrect_creation() {
     advance_epoch(scenario);
     advance_epoch(scenario);
     let ctx = test_scenario::ctx(scenario);
-    assert_eq(tx_context::epoch(ctx), 2);
+    assert_eq!(tx_context::epoch(ctx), 2);
 
     // Create a locked stake with epoch 1. Should fail here.
     let ls = ls::new(1, ctx);
@@ -50,7 +51,7 @@ fun test_deposit_stake_unstake() {
     // Deposit 100 HANEUL.
     ls::deposit_haneul(&mut ls, balance::create_for_testing(100 * GEUNHWA_PER_HANEUL));
 
-    assert_eq(ls::haneul_balance(&ls), 100 * GEUNHWA_PER_HANEUL);
+    assert_eq!(ls::haneul_balance(&ls), 100 * GEUNHWA_PER_HANEUL);
 
     test_scenario::next_tx(scenario, @0x1);
     let mut system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
@@ -59,8 +60,8 @@ fun test_deposit_stake_unstake() {
     ls::stake(&mut ls, &mut system_state, 10 * GEUNHWA_PER_HANEUL, @0x1, test_scenario::ctx(scenario));
     test_scenario::return_shared(system_state);
 
-    assert_eq(ls::haneul_balance(&ls), 90 * GEUNHWA_PER_HANEUL);
-    assert_eq(vec_map::length(ls::staked_haneul(&ls)), 1);
+    assert_eq!(ls::haneul_balance(&ls), 90 * GEUNHWA_PER_HANEUL);
+    assert_eq!(vec_map::length(ls::staked_haneul(&ls)), 1);
 
     test_scenario::next_tx(scenario, @0x1);
     let mut system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
@@ -76,8 +77,8 @@ fun test_deposit_stake_unstake() {
     test_scenario::return_shared(system_state);
 
     ls::deposit_staked_haneul(&mut ls, staked_haneul);
-    assert_eq(ls::haneul_balance(&ls), 90 * GEUNHWA_PER_HANEUL);
-    assert_eq(vec_map::length(ls::staked_haneul(&ls)), 2);
+    assert_eq!(ls::haneul_balance(&ls), 90 * GEUNHWA_PER_HANEUL);
+    assert_eq!(vec_map::length(ls::staked_haneul(&ls)), 2);
     advance_epoch(scenario);
 
     test_scenario::next_tx(scenario, @0x1);
@@ -87,16 +88,16 @@ fun test_deposit_stake_unstake() {
     // Unstake both stake objects
     ls::unstake(&mut ls, &mut system_state, *staked_haneul_id, test_scenario::ctx(scenario));
     test_scenario::return_shared(system_state);
-    assert_eq(ls::haneul_balance(&ls), 100 * GEUNHWA_PER_HANEUL);
-    assert_eq(vec_map::length(ls::staked_haneul(&ls)), 1);
+    assert_eq!(ls::haneul_balance(&ls), 100 * GEUNHWA_PER_HANEUL);
+    assert_eq!(vec_map::length(ls::staked_haneul(&ls)), 1);
 
     test_scenario::next_tx(scenario, @0x1);
     let (staked_haneul_id, _) = vec_map::get_entry_by_idx(ls::staked_haneul(&ls), 0);
     let mut system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
     ls::unstake(&mut ls, &mut system_state, *staked_haneul_id, test_scenario::ctx(scenario));
     test_scenario::return_shared(system_state);
-    assert_eq(ls::haneul_balance(&ls), 120 * GEUNHWA_PER_HANEUL);
-    assert_eq(vec_map::length(ls::staked_haneul(&ls)), 0);
+    assert_eq!(ls::haneul_balance(&ls), 120 * GEUNHWA_PER_HANEUL);
+    assert_eq!(vec_map::length(ls::staked_haneul(&ls)), 0);
 
     destroy(ls);
     test_scenario::end(scenario_val);
@@ -113,7 +114,7 @@ fun test_unlock_correct_epoch() {
 
     ls::deposit_haneul(&mut ls, balance::create_for_testing(100 * GEUNHWA_PER_HANEUL));
 
-    assert_eq(ls::haneul_balance(&ls), 100 * GEUNHWA_PER_HANEUL);
+    assert_eq!(ls::haneul_balance(&ls), 100 * GEUNHWA_PER_HANEUL);
 
     test_scenario::next_tx(scenario, @0x1);
     let mut system_state = test_scenario::take_shared<HaneulSystemState>(scenario);
@@ -126,8 +127,8 @@ fun test_unlock_correct_epoch() {
     advance_epoch(scenario);
 
     let (staked_haneul, haneul_balance) = ls::unlock(ls, test_scenario::ctx(scenario));
-    assert_eq(balance::value(&haneul_balance), 90 * GEUNHWA_PER_HANEUL);
-    assert_eq(vec_map::length(&staked_haneul), 1);
+    assert_eq!(balance::value(&haneul_balance), 90 * GEUNHWA_PER_HANEUL);
+    assert_eq!(vec_map::length(&staked_haneul), 1);
 
     destroy(staked_haneul);
     destroy(haneul_balance);
