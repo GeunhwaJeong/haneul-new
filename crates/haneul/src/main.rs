@@ -3,7 +3,7 @@
 
 use clap::*;
 use colored::Colorize;
-use haneul::client_commands::HaneulClientCommands::{ReplayBatch, ReplayTransaction};
+use haneul::client_commands::HaneulClientCommands::ReplayTransaction;
 use haneul::haneul_commands::HaneulCommand;
 use haneul_types::exit_main;
 use tracing::debug;
@@ -38,14 +38,6 @@ async fn main() {
                 .with_env()
                 .init()
         }
-
-        HaneulCommand::Client {
-            cmd: Some(ReplayBatch { .. }),
-            ..
-        } => telemetry_subscribers::TelemetryConfig::new()
-            .with_log_level("info")
-            .with_env()
-            .init(),
 
         HaneulCommand::Client {
             cmd: Some(ReplayTransaction {
