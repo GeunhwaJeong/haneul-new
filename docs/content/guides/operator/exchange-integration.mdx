@@ -132,9 +132,9 @@ Haneul is a DAG-based blockchain and uses checkpoints for node synchronization a
 ### Checkpoint API operations
 
 Haneul Checkpoint API operations include:
- - [haneul_getCheckpoint](/haneul-api-ref#haneul_getCheckpoint) - Retrieves the specified checkpoint.
- - [haneul_getLatestCheckpointSequenceNumber](/haneul-api-ref#haneul_getLatestCheckpointSequenceNumber) - Retrieves the sequence number of the most recently executed checkpoint.
- - [haneul_getCheckpoints](/haneul-api-ref#haneul_getCheckpoints) - Retrieves a paginated list of checkpoints that occurred during the specified interval. Pending a future release.
+ - [`haneul_getCheckpoint`](/haneul-api-ref#haneul_getCheckpoint): Retrieves the specified checkpoint.
+ - [`haneul_getLatestCheckpointSequenceNumber`](/haneul-api-ref#haneul_getLatestCheckpointSequenceNumber): Retrieves the sequence number of the most recently executed checkpoint.
+ - [`haneul_getCheckpoints`](/haneul-api-ref#haneul_getCheckpoints): Retrieves a paginated list of checkpoints that occurred during the specified interval. Pending a future release.
 
 ## HANEUL balance transfer
 
@@ -148,16 +148,13 @@ To transfer a specific amount of HANEUL, you need a HANEUL token worth that spec
 
 Haneul supports the following API operations related to transferring HANEUL between addresses:
 
- - [haneul_transferObject](/haneul-api-ref#haneul_transferObject)
-   Because HANEUL tokens are objects, you can transfer HANEUL tokens just like any other object. This method requires a gas token, and is useful in niche cases only.
+ - [`haneul_transferObject`](/haneul-api-ref#haneul_transferObject): Because HANEUL tokens are objects, you can transfer HANEUL tokens just like any other object. This method requires a gas token, and is useful in niche cases only.
 
- - [haneul_payAllHaneul](/haneul-api-ref#haneul_payAllHaneul)
-   This method accepts an array of HANEUL token IDs. It merges all existing tokens into one, deducts the gas fee, then sends the merged token to the recipient address.
+ - [`haneul_payAllHaneul`](/haneul-api-ref#haneul_payAllHaneul): This method accepts an array of HANEUL token IDs. It merges all existing tokens into one, deducts the gas fee, then sends the merged token to the recipient address.
 
    The method is especially useful if you want to transfer all HANEUL from an address. To merge together all coins for an address, set the recipient as the same address. This is a native Haneul method and does not produce additional on-chain transaction objects for the internal merge operation.
 
- - [haneul_payHaneul](/haneul-api-ref#haneul_payHaneul)
-   This operation accepts an array of HANEUL token IDs, an array of amounts, and an array of recipient addresses.
+ - [`haneul_payHaneul`](/haneul-api-ref#haneul_payHaneul): This operation accepts an array of HANEUL token IDs, an array of amounts, and an array of recipient addresses.
 
    The amounts and recipients array map one to one. Even if you use only one recipient address, you must include it for each amount in the amount array.
 
@@ -165,11 +162,9 @@ Haneul supports the following API operations related to transferring HANEUL betw
 
    The benefits of this method include: no gas fees for merging or splitting tokens, and the abstracted token merge and split. The `haneul_payHaneul` operation is a native function, so the merge and split operations are not considered Haneul transactions. The gas fees for them match typical transactions on Haneul.You can use this operation to split coins in your own address by setting the recipient as your own address. Note that the total value of the input coins must be greater than the total value of the amounts to send.
 
- - [haneul_pay](/haneul-api-ref#haneul_pay)
-   This method is similar to haneul_payHaneul, but it accepts any kind of coin or token instead of only HANEUL. You must include a gas token, and all of the coins or tokens must be the same type.
+ - [`haneul_pay`](/haneul-api-ref#haneul_pay): This method is similar to haneul_payHaneul, but it accepts any kind of coin or token instead of only HANEUL. You must include a gas token, and all of the coins or tokens must be the same type.
 
- - [haneul_transferHaneul](/haneul-api-ref#haneul_transferHaneul)
-    This method accepts only one HANEUL token object and an amount to send to the recipient. It uses the same token for gas fees, so the amount to transfer must be strictly less than the value of the HANEUL token used.
+ - [`haneul_transferHaneul`](/haneul-api-ref#haneul_transferHaneul): This method accepts only one HANEUL token object and an amount to send to the recipient. It uses the same token for gas fees, so the amount to transfer must be strictly less than the value of the HANEUL token used.
 
 ## Signing transactions
 
@@ -187,74 +182,70 @@ The total voting power in the Haneul Network is always 10,000. The voting power 
 
 Haneul supports the following API operations related to staking. You can find the source code in the [haneul_system](https://github.com/GeunhwaJeong/haneul/blob/main/crates/haneul-framework/packages/haneul-system/sources/haneul_system.move) module.
 
- - `request_add_stake`
- Add user stake to a validator's staking pool.
+ - `request_add_stake`: Add user stake to a validator's staking pool.
 
-```move
-public fun request_add_stake(
-   self: &mut HaneulSystemState,
-   stake: Coin<HANEUL>,
-   validator_address: address,
-   ctx: &mut TxContext,
-) {
-   validator_set::request_add_stake(
-       &mut self.validators,
-       validator_address,
-       coin::into_balance(stake),
-       option::none(),
-       ctx,
-   );
-}
-```
+   ```move
+   public fun request_add_stake(
+      self: &mut HaneulSystemState,
+      stake: Coin<HANEUL>,
+      validator_address: address,
+      ctx: &mut TxContext,
+   ) {
+      validator_set::request_add_stake(
+         &mut self.validators,
+         validator_address,
+         coin::into_balance(stake),
+         option::none(),
+         ctx,
+      );
+   }
+   ```
 
- - `request_add_stake_mul_coin`
- Add user stake to a validator's staking pool using multiple coins.
+ - `request_add_stake_mul_coin`: Add user stake to a validator's staking pool using multiple coins.
 
-```move
-public fun request_add_stake_mul_coin(
-   self: &mut HaneulSystemState,
-   delegate_stakes: vector<Coin<HANEUL>>,
-   stake_amount: option::Option<u64>,
-   validator_address: address,
-   ctx: &mut TxContext,
-) {
-   let balance = extract_coin_balance(delegate_stakes, stake_amount, ctx);
-   validator_set::request_add_stake(&mut self.validators, validator_address, balance, option::none(), ctx);
-}
-```
+   ```move
+   public fun request_add_stake_mul_coin(
+      self: &mut HaneulSystemState,
+      delegate_stakes: vector<Coin<HANEUL>>,
+      stake_amount: option::Option<u64>,
+      validator_address: address,
+      ctx: &mut TxContext,
+   ) {
+      let balance = extract_coin_balance(delegate_stakes, stake_amount, ctx);
+      validator_set::request_add_stake(&mut self.validators, validator_address, balance, option::none(), ctx);
+   }
+   ```
 
- - `request_add_stake_with_locked_coin`
- Add user stake to a validator's staking pool using a locked HANEUL coin.
+ - `request_add_stake_with_locked_coin`: Add user stake to a validator's staking pool using a locked HANEUL coin.
 
-```move
-public fun request_add_stake_with_locked_coin(
-   self: &mut HaneulSystemState,
-   stake: LockedCoin<HANEUL>,
-   validator_address: address,
-   ctx: &mut TxContext,
-) {
-   let (balance, lock) = locked_coin::into_balance(stake);
-   validator_set::request_add_stake(&mut self.validators, validator_address, balance, option::some(lock), ctx);
-}
-```
+   ```move
+   public fun request_add_stake_with_locked_coin(
+      self: &mut HaneulSystemState,
+      stake: LockedCoin<HANEUL>,
+      validator_address: address,
+      ctx: &mut TxContext,
+   ) {
+      let (balance, lock) = locked_coin::into_balance(stake);
+      validator_set::request_add_stake(&mut self.validators, validator_address, balance, option::some(lock), ctx);
+   }
+   ```
 
- - `request_withdraw_stake`
- Withdraw some portion of a user stake from a validator's staking pool.
+ - `request_withdraw_stake`: Withdraw some portion of a user stake from a validator's staking pool.
 
-```move
-public fun request_withdraw_stake(
-   self: &mut HaneulSystemState,
-   delegation: &mut Delegation,
-   staked_haneul: &mut StakedHaneul,
-   principal_withdraw_amount: u64,
-   ctx: &mut TxContext,
-) {
-   validator_set::request_withdraw_stake(
-       &mut self.validators,
-       delegation,
-       staked_haneul,
-       principal_withdraw_amount,
-       ctx,
-   );
-}
-```
+   ```move
+   public fun request_withdraw_stake(
+      self: &mut HaneulSystemState,
+      delegation: &mut Delegation,
+      staked_haneul: &mut StakedHaneul,
+      principal_withdraw_amount: u64,
+      ctx: &mut TxContext,
+   ) {
+      validator_set::request_withdraw_stake(
+         &mut self.validators,
+         delegation,
+         staked_haneul,
+         principal_withdraw_amount,
+         ctx,
+      );
+   }
+   ```
