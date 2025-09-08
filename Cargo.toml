@@ -183,7 +183,6 @@ members = [
   "crates/haneul-single-node-benchmark",
   "crates/haneul-snapshot",
   "crates/haneul-source-validation",
-  "crates/haneul-source-validation-service",
   "crates/haneul-sql-macro",
   "crates/haneul-storage",
   "crates/haneul-surfer",
@@ -756,7 +755,6 @@ haneul-sdk = { path = "crates/haneul-sdk" }
 haneul-simulator = { path = "crates/haneul-simulator" }
 haneul-snapshot = { path = "crates/haneul-snapshot" }
 haneul-source-validation = { path = "crates/haneul-source-validation" }
-haneul-source-validation-service = { path = "crates/haneul-source-validation-service" }
 haneul-sql-macro = { path = "crates/haneul-sql-macro" }
 haneul-storage = { path = "crates/haneul-storage" }
 haneul-surfer = { path = "crates/haneul-surfer" }

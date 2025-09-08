@@ -16185,44 +16185,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "haneul-source-validation-service"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum 0.8.3",
- "bin-version",
- "clap",
- "expect-test",
- "fs_extra",
- "hyper 1.5.2",
- "jsonrpsee",
- "move-compiler",
- "move-core-types",
- "move-package",
- "move-symbol-pool",
- "haneullabs-metrics",
- "prometheus",
- "reqwest 0.12.9",
- "serde",
- "haneul",
- "haneul-json-rpc-types",
- "haneul-move",
- "haneul-move-build",
- "haneul-package-management",
- "haneul-sdk",
- "haneul-source-validation",
- "telemetry-subscribers",
- "tempfile",
- "test-cluster",
- "tokio",
- "toml 0.7.4",
- "tower 0.5.2",
- "tower-http",
- "tracing",
- "url",
-]
-
-[[package]]
 name = "haneul-sql-macro"
 version = "1.57.0"
 dependencies = [
