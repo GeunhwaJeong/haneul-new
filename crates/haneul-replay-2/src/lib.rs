@@ -35,8 +35,8 @@ pub mod summary_metrics;
 pub mod tracing;
 
 const DEFAULT_OUTPUT_DIR: &str = ".replay";
-const MAINNET_GQL_URL: &str = "https://public-rpc.haneul-mainnet.haneul-labs.com/graphql";
-const TESTNET_GQL_URL: &str = "https://public-rpc.haneul-testnet.haneul-labs.com/graphql";
+const MAINNET_GQL_URL: &str = "https://graphql.mainnet.haneul.io/graphql";
+const TESTNET_GQL_URL: &str = "https://graphql.testnet.haneul.io/graphql";
 
 // Arguments to the replay tool.
 // It allows to replay a single transaction by digest or
