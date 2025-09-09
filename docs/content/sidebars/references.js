@@ -166,7 +166,6 @@ const references = [
 		},
 		items: [
 			'references/contribute/haneul-environment',
-			'references/contribute/contribution-process',
 			'references/contribute/contribute-to-haneul-repos',
 			{
 				type: 'link',
