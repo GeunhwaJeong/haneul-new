@@ -18,12 +18,9 @@ use haneul_indexer_alt_reader::{
 use haneul_indexer_alt_schema::transactions::BalanceChange as NativeBalanceChange;
 use haneul_rpc::proto::haneul::rpc::v2beta2::ExecutedTransaction;
 use haneul_types::{
-    digests::TransactionDigest,
-    effects::TransactionEffectsAPI,
-    execution_status::ExecutionStatus as NativeExecutionStatus,
-    object::Object as NativeObject,
-    signature::GenericSignature,
-    transaction::{TransactionData, TransactionDataAPI},
+    digests::TransactionDigest, effects::TransactionEffectsAPI,
+    execution_status::ExecutionStatus as NativeExecutionStatus, object::Object as NativeObject,
+    signature::GenericSignature, transaction::TransactionData,
 };
 
 use crate::{
@@ -142,16 +139,7 @@ impl EffectsContents {
         let effects = content.effects()?;
         let status = effects.status();
 
-        // Extract programmable transaction if available
-        let programmable_tx = content
-            .data()
-            .ok()
-            .and_then(|tx_data| match tx_data.into_kind() {
-                haneul_types::transaction::TransactionKind::ProgrammableTransaction(tx) => Some(tx),
-                _ => None,
-            });
-
-        ExecutionError::from_execution_status(&self.scope, status, programmable_tx.as_ref()).await
+        ExecutionError::from_execution_status(&self.scope, status).await
     }
 
     /// Timestamp corresponding to the checkpoint this transaction was finalized in.
