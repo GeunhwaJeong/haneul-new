@@ -59,8 +59,8 @@ const references = [
 					id: 'references/haneul-graphql',
 				},
 				items: [
-					graphqlAlpha,
 					graphqlBeta,
+					graphqlAlpha,
 				],
 			},
 			{
