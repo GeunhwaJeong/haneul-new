@@ -13,7 +13,10 @@ mod upgrade;
 use async_graphql::*;
 use haneul_types::transaction::Command as NativeCommand;
 
-use crate::api::scalars::{base64::Base64, haneul_address::HaneulAddress};
+use crate::api::{
+    scalars::{base64::Base64, haneul_address::HaneulAddress},
+    types::move_type::MoveType,
+};
 
 pub use make_move_vec::MakeMoveVecCommand;
 pub use merge_coins::MergeCoinsCommand;
@@ -50,8 +53,10 @@ pub struct OtherCommand {
 impl Command {
     pub fn from(scope: Scope, command: NativeCommand) -> Self {
         match command {
-            NativeCommand::MakeMoveVec(_type_opt, elements) => {
+            NativeCommand::MakeMoveVec(type_opt, elements) => {
                 Command::MakeMoveVec(MakeMoveVecCommand {
+                    type_: type_opt
+                        .map(|type_input| MoveType::from_input(type_input, scope.clone())),
                     elements: Some(
                         elements
                             .into_iter()
