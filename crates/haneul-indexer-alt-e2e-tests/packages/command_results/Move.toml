@@ -1,0 +1,9 @@
+[package]
+name = "command_results"
+edition = "2024.beta"
+
+[dependencies]
+Haneul = { local = "../../../haneul-framework/packages/haneul-framework" }
+
+[addresses]
+command_results = "0x0"
