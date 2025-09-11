@@ -292,11 +292,11 @@ fn withdraw_from_balance_tx_with_reservation(
     let mut builder = ProgrammableTransactionBuilder::new();
 
     // Add withdraw reservation
-    let withdraw_arg = haneul_types::transaction::BalanceWithdrawArg::new_with_amount(
+    let withdraw_arg = haneul_types::transaction::FundsWithdrawalArg::balance_from_sender(
         reservation_amount,
         haneul_types::type_input::TypeInput::from(haneul_types::gas_coin::GAS::type_tag()),
     );
-    builder.balance_withdraw(withdraw_arg).unwrap();
+    builder.funds_withdrawal(withdraw_arg).unwrap();
 
     let amount = builder.pure(amount).unwrap();
 

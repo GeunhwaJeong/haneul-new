@@ -50,7 +50,7 @@ use haneul_types::transaction::{
     Argument, CallArg, ChangeEpoch, Command, EndOfEpochTransactionKind, GenesisObject,
     InputObjectKind, ObjectArg, ProgrammableMoveCall, ProgrammableTransaction, Reservation,
     SenderSignedData, TransactionData, TransactionDataAPI, TransactionKind, WithdrawFrom,
-    WithdrawTypeParam,
+    WithdrawalTypeArg,
 };
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 
@@ -2235,7 +2235,7 @@ pub enum HaneulCallArg {
     Pure(HaneulPureValue),
     // Reservation to withdraw balance. This will be converted into a Withdrawal struct and passed into Move.
     // It is allowed to have multiple withdraw arguments even for the same balance type.
-    BalanceWithdraw(HaneulBalanceWithdrawArg),
+    FundsWithdrawal(HaneulFundsWithdrawalArg),
 }
 
 impl HaneulCallArg {
@@ -2271,14 +2271,14 @@ impl HaneulCallArg {
                     digest,
                 })
             }
-            CallArg::BalanceWithdraw(arg) => HaneulCallArg::BalanceWithdraw(HaneulBalanceWithdrawArg {
+            CallArg::FundsWithdrawal(arg) => HaneulCallArg::FundsWithdrawal(HaneulFundsWithdrawalArg {
                 reservation: match arg.reservation {
                     Reservation::EntireBalance => HaneulReservation::EntireBalance,
                     Reservation::MaxAmountU64(amount) => HaneulReservation::MaxAmountU64(amount),
                 },
-                type_param: match arg.type_param {
-                    WithdrawTypeParam::Balance(type_input) => {
-                        HaneulWithdrawTypeParam::Balance(type_input.to_type_tag()?.into())
+                type_arg: match arg.type_arg {
+                    WithdrawalTypeArg::Balance(type_input) => {
+                        HaneulWithdrawalTypeArg::Balance(type_input.to_type_tag()?.into())
                     }
                 },
                 withdraw_from: match arg.withdraw_from {
@@ -2373,7 +2373,7 @@ pub enum HaneulReservation {
 
 #[derive(Eq, PartialEq, Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub enum HaneulWithdrawTypeParam {
+pub enum HaneulWithdrawalTypeArg {
     Balance(HaneulTypeTag),
 }
 
@@ -2385,9 +2385,9 @@ pub enum HaneulWithdrawFrom {
 
 #[derive(Eq, PartialEq, Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct HaneulBalanceWithdrawArg {
+pub struct HaneulFundsWithdrawalArg {
     pub reservation: HaneulReservation,
-    pub type_param: HaneulWithdrawTypeParam,
+    pub type_arg: HaneulWithdrawalTypeArg,
     pub withdraw_from: HaneulWithdrawFrom,
 }
 
