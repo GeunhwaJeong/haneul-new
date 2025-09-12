@@ -69,6 +69,7 @@ async fn main() -> Result<()> {
             haneul_rpc_api::proto::google::protobuf::FILE_DESCRIPTOR_SET,
         )
         .register_encoded_file_descriptor_set(haneul_rpc_api::proto::google::rpc::FILE_DESCRIPTOR_SET)
+        .register_encoded_file_descriptor_set(haneul_rpc::proto::haneul::rpc::v2::FILE_DESCRIPTOR_SET)
         .register_encoded_file_descriptor_set(
             haneul_rpc::proto::haneul::rpc::v2beta2::FILE_DESCRIPTOR_SET,
         )
@@ -78,6 +79,7 @@ async fn main() -> Result<()> {
             haneul_rpc_api::proto::google::protobuf::FILE_DESCRIPTOR_SET,
         )
         .register_encoded_file_descriptor_set(haneul_rpc_api::proto::google::rpc::FILE_DESCRIPTOR_SET)
+        .register_encoded_file_descriptor_set(haneul_rpc::proto::haneul::rpc::v2::FILE_DESCRIPTOR_SET)
         .register_encoded_file_descriptor_set(
             haneul_rpc::proto::haneul::rpc::v2beta2::FILE_DESCRIPTOR_SET,
         )
@@ -95,7 +97,10 @@ async fn main() -> Result<()> {
         .layer(CallbackLayer::new(RpcMetricsMakeCallbackHandler::new(
             Arc::new(RpcMetrics::new(&registry)),
         )))
-        .add_service(LedgerServiceServer::new(server))
+        .add_service(LedgerServiceServer::new(server.clone()))
+        .add_service(
+            haneul_rpc::proto::haneul::rpc::v2::ledger_service_server::LedgerServiceServer::new(server),
+        )
         .add_service(reflection_v1)
         .add_service(reflection_v1alpha)
         .serve(addr)
