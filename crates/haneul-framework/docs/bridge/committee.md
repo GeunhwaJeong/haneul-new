@@ -45,6 +45,7 @@ title: Module `bridge::committee`
 <b>use</b> <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field">haneul::dynamic_object_field</a>;
 <b>use</b> <a href="../haneul/ecdsa_k1.md#haneul_ecdsa_k1">haneul::ecdsa_k1</a>;
 <b>use</b> <a href="../haneul/event.md#haneul_event">haneul::event</a>;
+<b>use</b> <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator">haneul::funds_accumulator</a>;
 <b>use</b> <a href="../haneul/hash.md#haneul_hash">haneul::hash</a>;
 <b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
 <b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;

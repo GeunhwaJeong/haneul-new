@@ -39,6 +39,7 @@ title: Module `deepbook::order_query`
 <b>use</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field">haneul::dynamic_field</a>;
 <b>use</b> <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field">haneul::dynamic_object_field</a>;
 <b>use</b> <a href="../haneul/event.md#haneul_event">haneul::event</a>;
+<b>use</b> <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator">haneul::funds_accumulator</a>;
 <b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
 <b>use</b> <a href="../haneul/linked_table.md#haneul_linked_table">haneul::linked_table</a>;
 <b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;

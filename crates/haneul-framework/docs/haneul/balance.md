@@ -20,6 +20,9 @@ custom coins with <code><a href="../haneul/balance.md#haneul_balance_Supply">Sup
 -  [Function `split`](#haneul_balance_split)
 -  [Function `withdraw_all`](#haneul_balance_withdraw_all)
 -  [Function `destroy_zero`](#haneul_balance_destroy_zero)
+-  [Function `send_funds`](#haneul_balance_send_funds)
+-  [Function `redeem_funds`](#haneul_balance_redeem_funds)
+-  [Function `withdraw_funds_from_object`](#haneul_balance_withdraw_funds_from_object)
 -  [Function `create_staking_rewards`](#haneul_balance_create_staking_rewards)
 -  [Function `destroy_storage_rebates`](#haneul_balance_destroy_storage_rebates)
 -  [Function `destroy_supply`](#haneul_balance_destroy_supply)
@@ -37,6 +40,7 @@ custom coins with <code><a href="../haneul/balance.md#haneul_balance_Supply">Sup
 <b>use</b> <a href="../haneul/accumulator.md#haneul_accumulator">haneul::accumulator</a>;
 <b>use</b> <a href="../haneul/address.md#haneul_address">haneul::address</a>;
 <b>use</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field">haneul::dynamic_field</a>;
+<b>use</b> <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator">haneul::funds_accumulator</a>;
 <b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
 <b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;
 <b>use</b> <a href="../haneul/party.md#haneul_party">haneul::party</a>;
@@ -428,6 +432,87 @@ Destroy a zero <code><a href="../haneul/balance.md#haneul_balance_Balance">Balan
 
 </details>
 
+<a name="haneul_balance_send_funds"></a>
+
+## Function `send_funds`
+
+Send a <code><a href="../haneul/balance.md#haneul_balance_Balance">Balance</a></code> to an address's funds accumulator.
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/balance.md#haneul_balance_send_funds">send_funds</a>&lt;T&gt;(<a href="../haneul/balance.md#haneul_balance">balance</a>: <a href="../haneul/balance.md#haneul_balance_Balance">haneul::balance::Balance</a>&lt;T&gt;, recipient: <b>address</b>)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/balance.md#haneul_balance_send_funds">send_funds</a>&lt;T&gt;(<a href="../haneul/balance.md#haneul_balance">balance</a>: <a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;, recipient: <b>address</b>) {
+    <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_add_impl">haneul::funds_accumulator::add_impl</a>(<a href="../haneul/balance.md#haneul_balance">balance</a>, recipient);
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_balance_redeem_funds"></a>
+
+## Function `redeem_funds`
+
+Redeem a <code>Withdrawal&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt;</code> to get the underlying <code><a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;</code> from an address's funds
+accumulator.
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/balance.md#haneul_balance_redeem_funds">redeem_funds</a>&lt;T&gt;(withdrawal: <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_Withdrawal">haneul::funds_accumulator::Withdrawal</a>&lt;<a href="../haneul/balance.md#haneul_balance_Balance">haneul::balance::Balance</a>&lt;T&gt;&gt;): <a href="../haneul/balance.md#haneul_balance_Balance">haneul::balance::Balance</a>&lt;T&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/balance.md#haneul_balance_redeem_funds">redeem_funds</a>&lt;T&gt;(
+    withdrawal: <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_Withdrawal">haneul::funds_accumulator::Withdrawal</a>&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt;,
+): <a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt; {
+    withdrawal.redeem()
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_balance_withdraw_funds_from_object"></a>
+
+## Function `withdraw_funds_from_object`
+
+Create a <code>Withdrawal&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt;</code> from an object to withdraw funds from it.
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/balance.md#haneul_balance_withdraw_funds_from_object">withdraw_funds_from_object</a>&lt;T&gt;(obj: &<b>mut</b> <a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>, <a href="../haneul/balance.md#haneul_balance_value">value</a>: u64): <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_Withdrawal">haneul::funds_accumulator::Withdrawal</a>&lt;<a href="../haneul/balance.md#haneul_balance_Balance">haneul::balance::Balance</a>&lt;T&gt;&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/balance.md#haneul_balance_withdraw_funds_from_object">withdraw_funds_from_object</a>&lt;T&gt;(
+    obj: &<b>mut</b> UID,
+    <a href="../haneul/balance.md#haneul_balance_value">value</a>: u64,
+): Withdrawal&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt; {
+    <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_withdraw_from_object">haneul::funds_accumulator::withdraw_from_object</a>(obj, <a href="../haneul/balance.md#haneul_balance_value">value</a> <b>as</b> u256)
+}
+</code></pre>
+
+
+
+</details>
+
 <a name="haneul_balance_create_staking_rewards"></a>
 
 ## Function `create_staking_rewards`
@@ -534,9 +619,7 @@ Destroy a <code><a href="../haneul/balance.md#haneul_balance_Supply">Supply</a><
 
 
 <pre><code><b>fun</b> <a href="../haneul/balance.md#haneul_balance_send_to_account">send_to_account</a>&lt;T&gt;(<a href="../haneul/balance.md#haneul_balance">balance</a>: <a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;, recipient: <b>address</b>) {
-    <b>let</b> <a href="../haneul/balance.md#haneul_balance_Balance">Balance</a> { <a href="../haneul/balance.md#haneul_balance_value">value</a> } = <a href="../haneul/balance.md#haneul_balance">balance</a>;
-    <b>let</b> <a href="../haneul/accumulator.md#haneul_accumulator">accumulator</a> = <a href="../haneul/accumulator.md#haneul_accumulator_accumulator_address">haneul::accumulator::accumulator_address</a>&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt;(recipient);
-    <a href="../haneul/accumulator.md#haneul_accumulator_emit_deposit_event">haneul::accumulator::emit_deposit_event</a>&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt;(<a href="../haneul/accumulator.md#haneul_accumulator">accumulator</a>, recipient, <a href="../haneul/balance.md#haneul_balance_value">value</a>);
+    <a href="../haneul/balance.md#haneul_balance">balance</a>.<a href="../haneul/balance.md#haneul_balance_send_funds">send_funds</a>(recipient)
 }
 </code></pre>
 
@@ -561,10 +644,8 @@ Destroy a <code><a href="../haneul/balance.md#haneul_balance_Supply">Supply</a><
 
 <pre><code><b>fun</b> <a href="../haneul/balance.md#haneul_balance_withdraw_from_account">withdraw_from_account</a>&lt;T&gt;(amount: u64, ctx: &TxContext): <a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt; {
     <b>let</b> owner = ctx.sender();
-    <b>let</b> <a href="../haneul/accumulator.md#haneul_accumulator">accumulator</a> = <a href="../haneul/accumulator.md#haneul_accumulator_accumulator_address">haneul::accumulator::accumulator_address</a>&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt;(owner);
-    <b>let</b> credit = <a href="../haneul/balance.md#haneul_balance_Balance">Balance</a> { <a href="../haneul/balance.md#haneul_balance_value">value</a>: amount };
-    <a href="../haneul/accumulator.md#haneul_accumulator_emit_withdraw_event">haneul::accumulator::emit_withdraw_event</a>&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt;(<a href="../haneul/accumulator.md#haneul_accumulator">accumulator</a>, owner, amount);
-    credit
+    <b>let</b> withdrawal = <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_create_withdrawal">haneul::funds_accumulator::create_withdrawal</a>&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt;(owner, amount <b>as</b> u256);
+    withdrawal.redeem()
 }
 </code></pre>
 
