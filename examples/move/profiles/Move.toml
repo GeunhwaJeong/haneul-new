@@ -1,0 +1,9 @@
+[package]
+name = "profiles"
+edition = "2024.beta"
+
+[dependencies]
+Haneul = { local = "../../../crates/haneul-framework/packages/haneul-framework" }
+
+[addresses]
+profiles = "0x0"
