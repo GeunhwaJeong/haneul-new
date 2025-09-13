@@ -109,6 +109,11 @@ const HANEUL_ACCUMULATOR_CREATE: FunctionIdent = (
     ACCUMULATOR_MODULE_NAME,
     ident_str!("create"),
 );
+const HANEUL_COIN_REGISTRY_CREATE: FunctionIdent = (
+    &HANEUL_FRAMEWORK_ADDRESS,
+    ident_str!("coin_registry"),
+    ident_str!("create"),
+);
 const FRESH_ID_FUNCTIONS: &[FunctionIdent] = &[
     OBJECT_NEW,
     OBJECT_NEW_UID_FROM_HASH,
@@ -123,6 +128,7 @@ const FUNCTIONS_TO_SKIP: &[FunctionIdent] = &[
     HANEUL_DENY_LIST_CREATE,
     HANEUL_BRIDGE_CREATE,
     HANEUL_ACCUMULATOR_CREATE,
+    HANEUL_COIN_REGISTRY_CREATE,
 ];
 
 impl AbstractValue {

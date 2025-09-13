@@ -35,6 +35,7 @@ pub mod base_types;
 pub mod bridge;
 pub mod clock;
 pub mod coin;
+pub mod coin_registry;
 pub mod collection_types;
 pub mod committee;
 pub mod config;
@@ -138,6 +139,7 @@ built_in_ids! {
     HANEUL_BRIDGE_ADDRESS / HANEUL_BRIDGE_OBJECT_ID = 0x9;
     HANEUL_DENY_LIST_ADDRESS / HANEUL_DENY_LIST_OBJECT_ID = 0x403;
     HANEUL_ACCUMULATOR_ROOT_ADDRESS / HANEUL_ACCUMULATOR_ROOT_OBJECT_ID = 0xacc;
+    HANEUL_COIN_REGISTRY_ADDRESS / HANEUL_COIN_REGISTRY_OBJECT_ID = 0xc;
 }
 
 pub const HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION: SequenceNumber = OBJECT_START_VERSION;

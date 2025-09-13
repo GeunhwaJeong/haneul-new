@@ -55,6 +55,11 @@ tokens and coins. <code><a href="../haneul/coin.md#haneul_coin_Coin">Coin</a></c
 -  [Function `get_symbol`](#haneul_coin_get_symbol)
 -  [Function `get_description`](#haneul_coin_get_description)
 -  [Function `get_icon_url`](#haneul_coin_get_icon_url)
+-  [Function `destroy_metadata`](#haneul_coin_destroy_metadata)
+-  [Function `deny_cap_id`](#haneul_coin_deny_cap_id)
+-  [Function `new_deny_cap_v2`](#haneul_coin_new_deny_cap_v2)
+-  [Function `new_treasury_cap`](#haneul_coin_new_treasury_cap)
+-  [Function `allow_global_pause`](#haneul_coin_allow_global_pause)
 -  [Function `supply`](#haneul_coin_supply)
 -  [Function `create_regulated_currency`](#haneul_coin_create_regulated_currency)
 -  [Function `deny_list_add`](#haneul_coin_deny_list_add)
@@ -266,7 +271,7 @@ coins of type <code>T</code>. Transferable
 Capability allowing the bearer to deny addresses from using the currency's coins--
 immediately preventing those addresses from interacting with the coin as an input to a
 transaction and at the start of the next preventing them from receiving the coin.
-If <code>allow_global_pause</code> is true, the bearer can enable a global pause that behaves as if
+If <code><a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a></code> is true, the bearer can enable a global pause that behaves as if
 all addresses were added to the deny list.
 
 
@@ -286,7 +291,7 @@ all addresses were added to the deny list.
 <dd>
 </dd>
 <dt>
-<code>allow_global_pause: bool</code>
+<code><a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>: bool</code>
 </dt>
 <dd>
 </dd>
@@ -884,12 +889,12 @@ allows for specific addresses to have their coins frozen. When an address is add
 deny list, it is immediately unable to interact with the currency's coin as input objects.
 Additionally at the start of the next epoch, they will be unable to receive the currency's
 coin.
-The <code>allow_global_pause</code> flag enables an additional API that will cause all addresses to
+The <code><a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a></code> flag enables an additional API that will cause all addresses to
 be denied. Note however, that this doesn't affect per-address entries of the deny list and
 will not change the result of the "contains" APIs.
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin.md#haneul_coin_create_regulated_currency_v2">create_regulated_currency_v2</a>&lt;T: drop&gt;(witness: T, decimals: u8, symbol: vector&lt;u8&gt;, name: vector&lt;u8&gt;, description: vector&lt;u8&gt;, icon_url: <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<a href="../haneul/url.md#haneul_url_Url">haneul::url::Url</a>&gt;, allow_global_pause: bool, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../haneul/coin.md#haneul_coin_TreasuryCap">haneul::coin::TreasuryCap</a>&lt;T&gt;, <a href="../haneul/coin.md#haneul_coin_DenyCapV2">haneul::coin::DenyCapV2</a>&lt;T&gt;, <a href="../haneul/coin.md#haneul_coin_CoinMetadata">haneul::coin::CoinMetadata</a>&lt;T&gt;)
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin.md#haneul_coin_create_regulated_currency_v2">create_regulated_currency_v2</a>&lt;T: drop&gt;(witness: T, decimals: u8, symbol: vector&lt;u8&gt;, name: vector&lt;u8&gt;, description: vector&lt;u8&gt;, icon_url: <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;<a href="../haneul/url.md#haneul_url_Url">haneul::url::Url</a>&gt;, <a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>: bool, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../haneul/coin.md#haneul_coin_TreasuryCap">haneul::coin::TreasuryCap</a>&lt;T&gt;, <a href="../haneul/coin.md#haneul_coin_DenyCapV2">haneul::coin::DenyCapV2</a>&lt;T&gt;, <a href="../haneul/coin.md#haneul_coin_CoinMetadata">haneul::coin::CoinMetadata</a>&lt;T&gt;)
 </code></pre>
 
 
@@ -905,7 +910,7 @@ will not change the result of the "contains" APIs.
     name: vector&lt;u8&gt;,
     description: vector&lt;u8&gt;,
     icon_url: Option&lt;Url&gt;,
-    allow_global_pause: bool,
+    <a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>: bool,
     ctx: &<b>mut</b> TxContext,
 ): (<a href="../haneul/coin.md#haneul_coin_TreasuryCap">TreasuryCap</a>&lt;T&gt;, <a href="../haneul/coin.md#haneul_coin_DenyCapV2">DenyCapV2</a>&lt;T&gt;, <a href="../haneul/coin.md#haneul_coin_CoinMetadata">CoinMetadata</a>&lt;T&gt;) {
     <b>let</b> (treasury_cap, metadata) = <a href="../haneul/coin.md#haneul_coin_create_currency">create_currency</a>(
@@ -919,7 +924,7 @@ will not change the result of the "contains" APIs.
     );
     <b>let</b> deny_cap = <a href="../haneul/coin.md#haneul_coin_DenyCapV2">DenyCapV2</a> {
         id: <a href="../haneul/object.md#haneul_object_new">object::new</a>(ctx),
-        allow_global_pause,
+        <a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>,
     };
     <a href="../haneul/transfer.md#haneul_transfer_freeze_object">transfer::freeze_object</a>(<a href="../haneul/coin.md#haneul_coin_RegulatedCoinMetadata">RegulatedCoinMetadata</a>&lt;T&gt; {
         id: <a href="../haneul/object.md#haneul_object_new">object::new</a>(ctx),
@@ -943,7 +948,7 @@ All entries in the deny list will be migrated to the new format.
 See <code><a href="../haneul/coin.md#haneul_coin_create_regulated_currency_v2">create_regulated_currency_v2</a></code> for details on the new v2 of the deny list.
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin.md#haneul_coin_migrate_regulated_currency_to_v2">migrate_regulated_currency_to_v2</a>&lt;T&gt;(<a href="../haneul/deny_list.md#haneul_deny_list">deny_list</a>: &<b>mut</b> <a href="../haneul/deny_list.md#haneul_deny_list_DenyList">haneul::deny_list::DenyList</a>, cap: <a href="../haneul/coin.md#haneul_coin_DenyCap">haneul::coin::DenyCap</a>&lt;T&gt;, allow_global_pause: bool, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/coin.md#haneul_coin_DenyCapV2">haneul::coin::DenyCapV2</a>&lt;T&gt;
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin.md#haneul_coin_migrate_regulated_currency_to_v2">migrate_regulated_currency_to_v2</a>&lt;T&gt;(<a href="../haneul/deny_list.md#haneul_deny_list">deny_list</a>: &<b>mut</b> <a href="../haneul/deny_list.md#haneul_deny_list_DenyList">haneul::deny_list::DenyList</a>, cap: <a href="../haneul/coin.md#haneul_coin_DenyCap">haneul::coin::DenyCap</a>&lt;T&gt;, <a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>: bool, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/coin.md#haneul_coin_DenyCapV2">haneul::coin::DenyCapV2</a>&lt;T&gt;
 </code></pre>
 
 
@@ -955,7 +960,7 @@ See <code><a href="../haneul/coin.md#haneul_coin_create_regulated_currency_v2">c
 <pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin.md#haneul_coin_migrate_regulated_currency_to_v2">migrate_regulated_currency_to_v2</a>&lt;T&gt;(
     <a href="../haneul/deny_list.md#haneul_deny_list">deny_list</a>: &<b>mut</b> DenyList,
     cap: <a href="../haneul/coin.md#haneul_coin_DenyCap">DenyCap</a>&lt;T&gt;,
-    allow_global_pause: bool,
+    <a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>: bool,
     ctx: &<b>mut</b> TxContext,
 ): <a href="../haneul/coin.md#haneul_coin_DenyCapV2">DenyCapV2</a>&lt;T&gt; {
     <b>let</b> <a href="../haneul/coin.md#haneul_coin_DenyCap">DenyCap</a> { id } = cap;
@@ -964,7 +969,7 @@ See <code><a href="../haneul/coin.md#haneul_coin_create_regulated_currency_v2">c
     <a href="../haneul/deny_list.md#haneul_deny_list">deny_list</a>.migrate_v1_to_v2(<a href="../haneul/coin.md#haneul_coin_DENY_LIST_COIN_INDEX">DENY_LIST_COIN_INDEX</a>, ty, ctx);
     <a href="../haneul/coin.md#haneul_coin_DenyCapV2">DenyCapV2</a> {
         id: <a href="../haneul/object.md#haneul_object_new">object::new</a>(ctx),
-        allow_global_pause,
+        <a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>,
     }
 }
 </code></pre>
@@ -1205,7 +1210,7 @@ addresses will be unable to receive objects of this coin type.
     deny_cap: &<b>mut</b> <a href="../haneul/coin.md#haneul_coin_DenyCapV2">DenyCapV2</a>&lt;T&gt;,
     ctx: &<b>mut</b> TxContext,
 ) {
-    <b>assert</b>!(deny_cap.allow_global_pause, <a href="../haneul/coin.md#haneul_coin_EGlobalPauseNotAllowed">EGlobalPauseNotAllowed</a>);
+    <b>assert</b>!(deny_cap.<a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>, <a href="../haneul/coin.md#haneul_coin_EGlobalPauseNotAllowed">EGlobalPauseNotAllowed</a>);
     <b>let</b> ty = type_name::with_original_ids&lt;T&gt;().into_string().into_bytes();
     <a href="../haneul/deny_list.md#haneul_deny_list">deny_list</a>.v2_enable_global_pause(<a href="../haneul/coin.md#haneul_coin_DENY_LIST_COIN_INDEX">DENY_LIST_COIN_INDEX</a>, ty, ctx)
 }
@@ -1238,7 +1243,7 @@ type will still be paused until the start of the next epoch.
     deny_cap: &<b>mut</b> <a href="../haneul/coin.md#haneul_coin_DenyCapV2">DenyCapV2</a>&lt;T&gt;,
     ctx: &<b>mut</b> TxContext,
 ) {
-    <b>assert</b>!(deny_cap.allow_global_pause, <a href="../haneul/coin.md#haneul_coin_EGlobalPauseNotAllowed">EGlobalPauseNotAllowed</a>);
+    <b>assert</b>!(deny_cap.<a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>, <a href="../haneul/coin.md#haneul_coin_EGlobalPauseNotAllowed">EGlobalPauseNotAllowed</a>);
     <b>let</b> ty = type_name::with_original_ids&lt;T&gt;().into_string().into_bytes();
     <a href="../haneul/deny_list.md#haneul_deny_list">deny_list</a>.v2_disable_global_pause(<a href="../haneul/coin.md#haneul_coin_DENY_LIST_COIN_INDEX">DENY_LIST_COIN_INDEX</a>, ty, ctx)
 }
@@ -1562,6 +1567,137 @@ Update the url of the coin in <code><a href="../haneul/coin.md#haneul_coin_CoinM
 
 <pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin.md#haneul_coin_get_icon_url">get_icon_url</a>&lt;T&gt;(metadata: &<a href="../haneul/coin.md#haneul_coin_CoinMetadata">CoinMetadata</a>&lt;T&gt;): Option&lt;Url&gt; {
     metadata.icon_url
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_coin_destroy_metadata"></a>
+
+## Function `destroy_metadata`
+
+Destroy legacy <code><a href="../haneul/coin.md#haneul_coin_CoinMetadata">CoinMetadata</a></code> object
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/coin.md#haneul_coin_destroy_metadata">destroy_metadata</a>&lt;T&gt;(metadata: <a href="../haneul/coin.md#haneul_coin_CoinMetadata">haneul::coin::CoinMetadata</a>&lt;T&gt;)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/coin.md#haneul_coin_destroy_metadata">destroy_metadata</a>&lt;T&gt;(metadata: <a href="../haneul/coin.md#haneul_coin_CoinMetadata">CoinMetadata</a>&lt;T&gt;) {
+    <b>let</b> <a href="../haneul/coin.md#haneul_coin_CoinMetadata">CoinMetadata</a> { id, .. } = metadata;
+    id.delete()
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_coin_deny_cap_id"></a>
+
+## Function `deny_cap_id`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/coin.md#haneul_coin_deny_cap_id">deny_cap_id</a>&lt;T&gt;(metadata: &<a href="../haneul/coin.md#haneul_coin_RegulatedCoinMetadata">haneul::coin::RegulatedCoinMetadata</a>&lt;T&gt;): <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/coin.md#haneul_coin_deny_cap_id">deny_cap_id</a>&lt;T&gt;(metadata: &<a href="../haneul/coin.md#haneul_coin_RegulatedCoinMetadata">RegulatedCoinMetadata</a>&lt;T&gt;): ID {
+    metadata.deny_cap_object
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_coin_new_deny_cap_v2"></a>
+
+## Function `new_deny_cap_v2`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/coin.md#haneul_coin_new_deny_cap_v2">new_deny_cap_v2</a>&lt;T&gt;(<a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>: bool, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/coin.md#haneul_coin_DenyCapV2">haneul::coin::DenyCapV2</a>&lt;T&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/coin.md#haneul_coin_new_deny_cap_v2">new_deny_cap_v2</a>&lt;T&gt;(
+    <a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>: bool,
+    ctx: &<b>mut</b> TxContext,
+): <a href="../haneul/coin.md#haneul_coin_DenyCapV2">DenyCapV2</a>&lt;T&gt; {
+    <a href="../haneul/coin.md#haneul_coin_DenyCapV2">DenyCapV2</a> {
+        id: <a href="../haneul/object.md#haneul_object_new">object::new</a>(ctx),
+        <a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>,
+    }
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_coin_new_treasury_cap"></a>
+
+## Function `new_treasury_cap`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/coin.md#haneul_coin_new_treasury_cap">new_treasury_cap</a>&lt;T&gt;(ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/coin.md#haneul_coin_TreasuryCap">haneul::coin::TreasuryCap</a>&lt;T&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/coin.md#haneul_coin_new_treasury_cap">new_treasury_cap</a>&lt;T&gt;(ctx: &<b>mut</b> TxContext): <a href="../haneul/coin.md#haneul_coin_TreasuryCap">TreasuryCap</a>&lt;T&gt; {
+    <a href="../haneul/coin.md#haneul_coin_TreasuryCap">TreasuryCap</a> {
+        id: <a href="../haneul/object.md#haneul_object_new">object::new</a>(ctx),
+        <a href="../haneul/coin.md#haneul_coin_total_supply">total_supply</a>: <a href="../haneul/balance.md#haneul_balance_create_supply_internal">balance::create_supply_internal</a>(),
+    }
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_coin_allow_global_pause"></a>
+
+## Function `allow_global_pause`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>&lt;T&gt;(cap: &<a href="../haneul/coin.md#haneul_coin_DenyCapV2">haneul::coin::DenyCapV2</a>&lt;T&gt;): bool
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>&lt;T&gt;(cap: &<a href="../haneul/coin.md#haneul_coin_DenyCapV2">DenyCapV2</a>&lt;T&gt;): bool {
+    cap.<a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>
 }
 </code></pre>
 

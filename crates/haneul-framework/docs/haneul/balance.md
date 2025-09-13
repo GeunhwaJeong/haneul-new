@@ -23,6 +23,7 @@ custom coins with <code><a href="../haneul/balance.md#haneul_balance_Supply">Sup
 -  [Function `send_funds`](#haneul_balance_send_funds)
 -  [Function `redeem_funds`](#haneul_balance_redeem_funds)
 -  [Function `withdraw_funds_from_object`](#haneul_balance_withdraw_funds_from_object)
+-  [Function `create_supply_internal`](#haneul_balance_create_supply_internal)
 -  [Function `create_staking_rewards`](#haneul_balance_create_staking_rewards)
 -  [Function `destroy_storage_rebates`](#haneul_balance_destroy_storage_rebates)
 -  [Function `destroy_supply`](#haneul_balance_destroy_supply)
@@ -506,6 +507,30 @@ Create a <code>Withdrawal&lt;<a href="../haneul/balance.md#haneul_balance_Balanc
     <a href="../haneul/balance.md#haneul_balance_value">value</a>: u64,
 ): Withdrawal&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt; {
     <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_withdraw_from_object">haneul::funds_accumulator::withdraw_from_object</a>(obj, <a href="../haneul/balance.md#haneul_balance_value">value</a> <b>as</b> u256)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_balance_create_supply_internal"></a>
+
+## Function `create_supply_internal`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/balance.md#haneul_balance_create_supply_internal">create_supply_internal</a>&lt;T&gt;(): <a href="../haneul/balance.md#haneul_balance_Supply">haneul::balance::Supply</a>&lt;T&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/balance.md#haneul_balance_create_supply_internal">create_supply_internal</a>&lt;T&gt;(): <a href="../haneul/balance.md#haneul_balance_Supply">Supply</a>&lt;T&gt; {
+    <a href="../haneul/balance.md#haneul_balance_Supply">Supply</a> { <a href="../haneul/balance.md#haneul_balance_value">value</a>: 0 }
 }
 </code></pre>
 

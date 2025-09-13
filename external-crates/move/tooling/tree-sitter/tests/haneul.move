@@ -29,7 +29,7 @@ module haneul::haneul {
     /// Name of the coin
     struct HANEUL has drop {}
 
-    #[allow(unused_function)]
+    #[allow(unused_function, deprecated_usage)]
     /// Register the `HANEUL` Coin to acquire its `Supply`.
     /// This should be called only once during genesis creation.
     fun new(ctx: &mut TxContext): Balance<HANEUL> {

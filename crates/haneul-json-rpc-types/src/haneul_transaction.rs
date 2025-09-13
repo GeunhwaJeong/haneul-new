@@ -599,6 +599,9 @@ impl HaneulTransactionBlockKind {
                             EndOfEpochTransactionKind::AccumulatorRootCreate => {
                                 HaneulEndOfEpochTransactionKind::AccumulatorRootCreate
                             }
+                            EndOfEpochTransactionKind::CoinRegistryCreate => {
+                                HaneulEndOfEpochTransactionKind::CoinRegistryCreate
+                            }
                         })
                         .collect(),
                 })
@@ -1683,6 +1686,7 @@ pub enum HaneulEndOfEpochTransactionKind {
     BridgeCommitteeUpdate(SequenceNumber),
     StoreExecutionTimeObservations,
     AccumulatorRootCreate,
+    CoinRegistryCreate,
 }
 
 #[serde_as]
