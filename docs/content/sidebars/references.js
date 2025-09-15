@@ -157,6 +157,7 @@ const references = [
 			},
 		],
 	},
+	'references/awesome-haneul',
 	'references/haneul-glossary',
 	{
 		type: 'category',

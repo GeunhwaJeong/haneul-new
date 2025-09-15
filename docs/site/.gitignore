@@ -26,3 +26,7 @@ yarn-error.log*
 package-lock.json
 .vercel
 .env*.local
+
+# Generated awesome-haneul files
+static/awesome-haneul/
+src/static/awesome-haneul/
