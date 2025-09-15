@@ -220,9 +220,6 @@ impl TransactionBuilder {
     }
 
     /// Construct a transaction kind for the PayHaneul transaction type
-    ///
-    /// Use this function together with tx_data_for_dry_run or tx_data
-    /// for maximum reusability
     pub fn pay_haneul_tx_kind(
         &self,
         recipients: Vec<HaneulAddress>,
