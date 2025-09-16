@@ -1,0 +1,97 @@
+name: Generate Haneul CLI Help Snippets
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 8 * * *" # nightly 08:00 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: haneul-help
+  cancel-in-progress: false
+
+jobs:
+  build-help:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Determine latest Haneul release tag
+        id: release
+        run: |
+          TAG=$(curl -s https://api.github.com/repos/GeunhwaJeong/haneul/releases \
+            | jq -r 'map(select(.tag_name | startswith("testnet-")))[0].tag_name')
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Restore cached Haneul binary
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: .cache/haneul/${{ steps.release.outputs.tag }}/haneul
+          key: haneul-${{ runner.os }}-${{ steps.release.outputs.tag }}
+
+      - name: Download Haneul CLI if cache miss
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.release.outputs.tag }}"
+          mkdir -p ".cache/haneul/${TAG}"
+          URL="https://github.com/GeunhwaJeong/haneul/releases/download/${TAG}/haneul-linux-x86_64"
+          echo "Downloading $URL"
+          curl -L -o ".cache/haneul/${TAG}/haneul" "$URL"
+          chmod +x ".cache/haneul/${TAG}/haneul"
+
+      - name: Generate MDX snippets (sh fenced)
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.release.outputs.tag }}"
+          BIN=".cache/haneul/${TAG}/haneul"
+          OUT_DIR="docs/content/snippets/console-output"
+          mkdir -p "$OUT_DIR"
+
+          gen() { # gen <filename> <command...>
+            local file="$1"; shift
+            { echo '```sh'; "$BIN" "$@"; echo '```'; } > "$OUT_DIR/$file"
+            echo " - $OUT_DIR/$file"
+          }
+
+          echo "Generating help snippets from $BIN"
+
+          gen "haneul-help.mdx" --help
+          gen "haneul-client-help.mdx" client --help
+          gen "haneul-client-call-help.mdx" client call --help
+          gen "haneul-client-ptb-help.mdx" client ptb --help
+          gen "haneul-replay-help.mdx" replay --help
+          gen "haneul-keytool-sign-help.mdx" keytool sign --help
+          gen "haneul-keytool-help.mdx" keytool --help
+          gen "haneul-move-help.mdx" move --help
+          gen "haneul-move-build-help.mdx" move build --help
+          gen "haneul-validator-help.mdx" validator --help
+          gen "haneul-validator-report-validator-help.mdx" validator report-validator --help
+
+      - name: Diff guard
+        id: diff
+        run: |
+          if git diff --quiet docs/content/snippets/console-output/; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No changes detected."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Changes detected."
+          fi
+
+      - name: Commit & push changes
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/content/snippets/console-output/*.mdx
+          git commit -m "chore(ci): update Haneul CLI help snippets (${{ steps.release.outputs.tag }})"
+          git push
