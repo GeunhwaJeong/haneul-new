@@ -4,11 +4,16 @@
 use std::time::Duration;
 
 use prost_types::FieldMask;
+use std::path::PathBuf;
+use haneul_move_build::BuildConfig;
 use haneul_rpc::client::Client;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2beta2::{
     Bcs, ExecuteTransactionRequest, ExecutedTransaction, Transaction, UserSignature,
 };
+use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
+use haneul_types::transaction::{TransactionData, TransactionKind};
 
 mod ledger_service;
 mod live_data_service;
@@ -49,14 +54,67 @@ async fn execute_transaction(
         .unwrap();
 
     // Assert that the txn was successful
-    assert!(transaction
+    let status = transaction
         .effects
         .as_ref()
         .unwrap()
         .status
         .as_ref()
-        .unwrap()
-        .success());
+        .unwrap();
+    assert!(status.success());
 
     transaction
+}
+
+async fn publish_package(
+    test_cluster: &test_cluster::TestCluster,
+    address: HaneulAddress,
+    path: PathBuf,
+) -> (ObjectID, ExecutedTransaction) {
+    let compiled_package = BuildConfig::new_for_testing().build(&path).unwrap();
+    let compiled_modules_bytes = compiled_package.get_package_bytes(false);
+    let dependencies = compiled_package.get_dependency_storage_package_ids();
+
+    let gas_price = test_cluster.wallet.get_reference_gas_price().await.unwrap();
+    let gas_object = test_cluster
+        .wallet
+        .get_one_gas_object_owned_by_address(address)
+        .await
+        .unwrap()
+        .unwrap();
+
+    let mut builder = ProgrammableTransactionBuilder::new();
+    builder.publish_immutable(compiled_modules_bytes, dependencies);
+    let ptb = builder.finish();
+    let gas_data = haneul_types::transaction::GasData {
+        payment: vec![(gas_object.0, gas_object.1, gas_object.2)],
+        owner: address,
+        price: gas_price,
+        budget: 100_000_000,
+    };
+
+    let kind = TransactionKind::ProgrammableTransaction(ptb);
+    let tx_data = TransactionData::new_with_gas_data(kind, address, gas_data);
+    let txn = test_cluster.wallet.sign_transaction(&tx_data).await;
+
+    let mut client = Client::new(test_cluster.rpc_url().to_owned()).unwrap();
+    let transaction = execute_transaction(&mut client, &txn).await;
+
+    let package_id = transaction
+        .effects
+        .as_ref()
+        .unwrap()
+        .changed_objects
+        .iter()
+        .find_map(|o| {
+            use haneul_rpc::proto::haneul::rpc::v2beta2::changed_object::OutputObjectState;
+            if o.output_state == Some(OutputObjectState::PackageWrite as i32) {
+                o.object_id.as_ref().map(|id| id.parse().unwrap())
+            } else {
+                None
+            }
+        })
+        .unwrap();
+
+    (package_id, transaction)
 }

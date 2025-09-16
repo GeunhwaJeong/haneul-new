@@ -1,0 +1,9 @@
+[package]
+name = "burnonly_coin"
+edition = "2024.beta"
+
+[dependencies]
+Haneul = { local = "../../../../../../crates/haneul-framework/packages/haneul-framework" }
+
+[addresses]
+burnonly_coin = "0x0"

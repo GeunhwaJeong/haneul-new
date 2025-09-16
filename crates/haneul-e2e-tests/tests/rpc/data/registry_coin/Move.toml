@@ -1,0 +1,9 @@
+[package]
+name = "registry_coin"
+edition = "2024.beta"
+
+[dependencies]
+Haneul = { local = "../../../../../haneul-framework/packages/haneul-framework" }
+
+[addresses]
+registry_coin = "0x0"

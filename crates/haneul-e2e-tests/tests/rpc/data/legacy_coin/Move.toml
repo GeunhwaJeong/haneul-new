@@ -1,0 +1,9 @@
+[package]
+name = "legacy_coin"
+edition = "2024.beta"
+
+[dependencies]
+Haneul = { local = "../../../../../haneul-framework/packages/haneul-framework" }
+
+[addresses]
+legacy_coin = "0x0"
