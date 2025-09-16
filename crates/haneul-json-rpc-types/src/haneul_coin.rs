@@ -12,6 +12,7 @@ use haneul_types::base_types::{
     EpochId, ObjectDigest, ObjectID, ObjectRef, SequenceNumber, TransactionDigest,
 };
 use haneul_types::coin::CoinMetadata;
+use haneul_types::coin_registry;
 use haneul_types::error::HaneulError;
 use haneul_types::object::Object;
 use haneul_types::haneul_serde::BigInt;
@@ -104,5 +105,18 @@ impl TryFrom<Object> for HaneulCoinMetadata {
             description,
             icon_url,
         })
+    }
+}
+
+impl From<coin_registry::Currency> for HaneulCoinMetadata {
+    fn from(currency: coin_registry::Currency) -> Self {
+        Self {
+            id: Some(currency.id.id.bytes),
+            decimals: currency.decimals,
+            name: currency.name,
+            symbol: currency.symbol,
+            description: currency.description,
+            icon_url: Some(currency.icon_url),
+        }
     }
 }
