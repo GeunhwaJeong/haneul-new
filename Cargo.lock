@@ -15064,6 +15064,7 @@ dependencies = [
  "haneullabs-metrics",
  "haneullabs-network",
  "prometheus",
+ "haneul-data-ingestion-core",
  "haneul-kvstore",
  "haneul-protocol-config",
  "haneul-rpc",
@@ -15074,6 +15075,7 @@ dependencies = [
  "tokio",
  "tonic 0.13.1",
  "tonic-reflection",
+ "tracing",
 ]
 
 [[package]]

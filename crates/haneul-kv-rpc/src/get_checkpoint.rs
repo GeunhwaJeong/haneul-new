@@ -1,11 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_data_ingestion_core::{create_remote_store_client, CheckpointReader};
 use haneul_kvstore::{BigTableClient, KeyValueStoreReader};
 use haneul_rpc::field::{FieldMask, FieldMaskTree, FieldMaskUtil};
 use haneul_rpc::merge::Merge;
 use haneul_rpc::proto::haneul::rpc::v2beta2::get_checkpoint_request::CheckpointId;
-use haneul_rpc::proto::haneul::rpc::v2beta2::{Checkpoint, GetCheckpointRequest, GetCheckpointResponse};
+use haneul_rpc::proto::haneul::rpc::v2beta2::{
+    Checkpoint, ExecutedTransaction, GetCheckpointRequest, GetCheckpointResponse,
+};
 use haneul_rpc_api::{
     proto::google::rpc::bad_request::FieldViolation, CheckpointNotFoundError, ErrorReason, RpcError,
 };
@@ -16,6 +19,7 @@ pub const READ_MASK_DEFAULT: &str = "sequence_number,digest";
 pub async fn get_checkpoint(
     mut client: BigTableClient,
     request: GetCheckpointRequest,
+    checkpoint_bucket: Option<String>,
 ) -> Result<GetCheckpointResponse, RpcError> {
     let read_mask = {
         let read_mask = request
@@ -62,6 +66,8 @@ pub async fn get_checkpoint(
                 .ok_or(CheckpointNotFoundError::sequence_number(sequence_number))?
         }
     };
+    let sequence_number = checkpoint.summary.sequence_number;
+    let timestamp_ms = checkpoint.summary.timestamp_ms;
     let mut message = Checkpoint::default();
     let summary: haneul_sdk_types::CheckpointSummary = checkpoint.summary.try_into()?;
     let signatures: haneul_sdk_types::ValidatorAggregatedSignature = checkpoint.signatures.into();
@@ -74,6 +80,27 @@ pub async fn get_checkpoint(
             &read_mask,
         );
     }
-    // TODO: handle Checkpoint::TRANSACTIONS_FIELD submask
+    if let Some(submask) = read_mask.subtree(Checkpoint::TRANSACTIONS_FIELD.name) {
+        if let Some(url) = checkpoint_bucket {
+            let client = create_remote_store_client(url, vec![], 60)?;
+            let (full_checkpoint, _) =
+                CheckpointReader::fetch_from_object_store(&client, sequence_number).await?;
+            message.transactions = full_checkpoint
+                .transactions
+                .clone()
+                .into_iter()
+                .map(|t| {
+                    let mut transaction = ExecutedTransaction::merge_from(t, &submask);
+                    transaction.checkpoint = submask
+                        .contains(ExecutedTransaction::CHECKPOINT_FIELD)
+                        .then_some(sequence_number);
+                    transaction.timestamp = submask
+                        .contains(ExecutedTransaction::TIMESTAMP_FIELD)
+                        .then(|| haneul_rpc::proto::timestamp_ms_to_proto(timestamp_ms));
+                    transaction
+                })
+                .collect();
+        }
+    }
     Ok(GetCheckpointResponse::new(message))
 }
