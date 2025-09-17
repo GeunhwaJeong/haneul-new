@@ -20,6 +20,7 @@ Haneul object identifiers
 -  [Function `haneul_accumulator_root_object_id`](#haneul_object_haneul_accumulator_root_object_id)
 -  [Function `haneul_accumulator_root_address`](#haneul_object_haneul_accumulator_root_address)
 -  [Function `haneul_coin_registry_object_id`](#haneul_object_haneul_coin_registry_object_id)
+-  [Function `haneul_coin_registry_address`](#haneul_object_haneul_coin_registry_address)
 -  [Function `bridge`](#haneul_object_bridge)
 -  [Function `uid_as_inner`](#haneul_object_uid_as_inner)
 -  [Function `uid_to_inner`](#haneul_object_uid_to_inner)
@@ -520,6 +521,30 @@ This should only be called once from <code><a href="../haneul/coin_registry.md#h
     <a href="../haneul/object.md#haneul_object_UID">UID</a> {
         <a href="../haneul/object.md#haneul_object_id">id</a>: <a href="../haneul/object.md#haneul_object_ID">ID</a> { bytes: <a href="../haneul/object.md#haneul_object_HANEUL_COIN_REGISTRY_OBJECT_ID">HANEUL_COIN_REGISTRY_OBJECT_ID</a> },
     }
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_object_haneul_coin_registry_address"></a>
+
+## Function `haneul_coin_registry_address`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/object.md#haneul_object_haneul_coin_registry_address">haneul_coin_registry_address</a>(): <b>address</b>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/object.md#haneul_object_haneul_coin_registry_address">haneul_coin_registry_address</a>(): <b>address</b> {
+    <a href="../haneul/object.md#haneul_object_HANEUL_COIN_REGISTRY_OBJECT_ID">HANEUL_COIN_REGISTRY_OBJECT_ID</a>
 }
 </code></pre>
 

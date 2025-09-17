@@ -453,7 +453,7 @@ fun receive_promote() {
 
     // Get Receiving<Currency<COIN_REGISTRY_TESTS>>
     let currency = test_scenario::most_recent_receiving_ticket<Currency<COIN_REGISTRY_TESTS>>(
-        &coin_registry::coin_registry_id(),
+        &object::haneul_coin_registry_address().to_id(),
     );
 
     registry.finalize_registration(currency, test.ctx());

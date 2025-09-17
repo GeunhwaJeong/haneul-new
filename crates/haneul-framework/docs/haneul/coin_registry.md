@@ -56,7 +56,6 @@ supply information, regulatory status, and metadata capabilities.
 -  [Function `is_regulated`](#haneul_coin_registry_is_regulated)
 -  [Function `total_supply`](#haneul_coin_registry_total_supply)
 -  [Function `exists`](#haneul_coin_registry_exists)
--  [Function `coin_registry_id`](#haneul_coin_registry_coin_registry_id)
 -  [Function `create`](#haneul_coin_registry_create)
 -  [Macro function `is_ascii_printable`](#haneul_coin_registry_is_ascii_printable)
 
@@ -983,7 +982,7 @@ Finalize the coin initialization, returning <code><a href="../haneul/coin_regist
     extra_fields.destroy_empty();
     <b>let</b> id = <a href="../haneul/object.md#haneul_object_new">object::new</a>(ctx);
     currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_metadata_cap_id">metadata_cap_id</a> = MetadataCapState::Claimed(id.to_inner());
-    <b>if</b> (is_otw) <a href="../haneul/transfer.md#haneul_transfer_transfer">transfer::transfer</a>(currency, <a href="../haneul/coin_registry.md#haneul_coin_registry_coin_registry_id">coin_registry_id</a>().to_address())
+    <b>if</b> (is_otw) <a href="../haneul/transfer.md#haneul_transfer_transfer">transfer::transfer</a>(currency, <a href="../haneul/object.md#haneul_object_haneul_coin_registry_address">object::haneul_coin_registry_address</a>())
     <b>else</b> <a href="../haneul/transfer.md#haneul_transfer_share_object">transfer::share_object</a>(currency);
     <a href="../haneul/coin_registry.md#haneul_coin_registry_MetadataCap">MetadataCap</a>&lt;T&gt; { id }
 }
@@ -1828,31 +1827,6 @@ Check if coin data exists for the given type T in the registry.
 
 <pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_exists">exists</a>&lt;T&gt;(registry: &<a href="../haneul/coin_registry.md#haneul_coin_registry_CoinRegistry">CoinRegistry</a>): bool {
     <a href="../haneul/derived_object.md#haneul_derived_object_exists">derived_object::exists</a>(&registry.id, <a href="../haneul/coin_registry.md#haneul_coin_registry_CurrencyKey">CurrencyKey</a>&lt;T&gt;())
-}
-</code></pre>
-
-
-
-</details>
-
-<a name="haneul_coin_registry_coin_registry_id"></a>
-
-## Function `coin_registry_id`
-
-Return the ID of the system <code><a href="../haneul/coin_registry.md#haneul_coin_registry_CoinRegistry">CoinRegistry</a></code> object located at address 0xc.
-
-
-<pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_coin_registry_id">coin_registry_id</a>(): <a href="../haneul/object.md#haneul_object_ID">haneul::object::ID</a>
-</code></pre>
-
-
-
-<details>
-<summary>Implementation</summary>
-
-
-<pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_coin_registry_id">coin_registry_id</a>(): ID {
-    @0xc.to_id()
 }
 </code></pre>
 
