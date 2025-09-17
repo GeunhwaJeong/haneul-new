@@ -16,7 +16,6 @@ COPY haneul-execution haneul-execution
 COPY external-crates external-crates
 
 RUN cargo build --profile ${PROFILE} \
-    --bin stress \
     --bin haneul-faucet \
     --bin haneul-bridge \
     --bin bridge-indexer \
@@ -33,7 +32,6 @@ WORKDIR "$WORKDIR/haneul"
 # haneul-tool needs libpq at runtime and uses git when fetching move dependencies during build
 RUN apt-get update && apt-get install -y libpq5 libpq-dev ca-certificates git
 
-COPY --from=builder /haneul/target/release/stress /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-faucet /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-bridge /usr/local/bin
 COPY --from=builder /haneul/target/release/bridge-indexer /usr/local/bin
