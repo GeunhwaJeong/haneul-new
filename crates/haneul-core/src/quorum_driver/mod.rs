@@ -31,8 +31,9 @@ use crate::authority_aggregator::{
     ProcessTransactionResult,
 };
 use crate::authority_client::AuthorityAPI;
+use crate::validator_client_monitor::TxType;
 use haneullabs_common::sync::notify_read::{NotifyRead, Registration};
-use haneullabs_metrics::{spawn_monitored_task, GaugeGuard, TxType};
+use haneullabs_metrics::{spawn_monitored_task, GaugeGuard};
 use std::fmt::Write;
 use haneul_macros::fail_point;
 use haneul_types::error::{HaneulError, HaneulResult};
