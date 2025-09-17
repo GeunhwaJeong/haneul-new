@@ -17,8 +17,8 @@ use haneul_core::{
         QuorumDriverHandlerBuilder, QuorumDriverMetrics,
     },
     transaction_driver::{
-        choose_transaction_driver_percentage, SubmitTransactionOptions, SubmitTxRequest,
-        TransactionDriver, TransactionDriverMetrics,
+        choose_transaction_driver_percentage, SubmitTransactionOptions, TransactionDriver,
+        TransactionDriverMetrics,
     },
     validator_client_monitor::ValidatorClientMetrics,
 };
@@ -28,7 +28,6 @@ use haneul_json_rpc_types::{
 };
 use haneul_protocol_config::ProtocolConfig;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
-use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::quorum_driver_types::EffectsFinalityInfo;
 use haneul_types::quorum_driver_types::FinalizedEffects;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
@@ -51,6 +50,10 @@ use haneul_types::{digests::ChainIdentifier, gas::GasCostSummary};
 use haneul_types::{
     effects::{TransactionEffectsAPI, TransactionEvents},
     execution_status::ExecutionFailureStatus,
+};
+use haneul_types::{
+    messages_grpc::SubmitTxRequest,
+    programmable_transaction_builder::ProgrammableTransactionBuilder,
 };
 use tokio::time::sleep;
 use tracing::{debug, info, warn};

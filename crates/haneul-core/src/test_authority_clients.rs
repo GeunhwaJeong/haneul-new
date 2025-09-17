@@ -9,9 +9,7 @@ use std::{
 };
 
 use crate::authority::{test_authority_builder::TestAuthorityBuilder, ExecutionEnv};
-use crate::{
-    authority::AuthorityState, authority_client::AuthorityAPI, transaction_driver::SubmitTxResult,
-};
+use crate::{authority::AuthorityState, authority_client::AuthorityAPI};
 use async_trait::async_trait;
 use consensus_types::block::BlockRef;
 use haneullabs_metrics::spawn_monitored_task;
@@ -23,10 +21,7 @@ use haneul_types::{
     executable_transaction::VerifiedExecutableTransaction,
     messages_checkpoint::{CheckpointRequest, CheckpointResponse},
     messages_consensus::ConsensusPosition,
-    messages_grpc::{
-        RawSubmitTxRequest, RawSubmitTxResponse, RawWaitForEffectsRequest,
-        RawWaitForEffectsResponse,
-    },
+    messages_grpc::{ValidatorHealthRequest, ValidatorHealthResponse},
     transaction::{CertifiedTransaction, Transaction, VerifiedTransaction},
 };
 use haneul_types::{
@@ -41,7 +36,9 @@ use haneul_types::{
     messages_grpc::{
         HandleCertificateResponseV2, HandleSoftBundleCertificatesRequestV3,
         HandleSoftBundleCertificatesResponseV3, HandleTransactionResponse, ObjectInfoRequest,
-        ObjectInfoResponse, SystemStateRequest, TransactionInfoRequest, TransactionInfoResponse,
+        ObjectInfoResponse, SubmitTxRequest, SubmitTxResponse, SubmitTxResult, SystemStateRequest,
+        TransactionInfoRequest, TransactionInfoResponse, WaitForEffectsRequest,
+        WaitForEffectsResponse,
     },
     haneul_system_state::HaneulSystemState,
 };
@@ -74,25 +71,27 @@ pub struct LocalAuthorityClient {
 impl AuthorityAPI for LocalAuthorityClient {
     async fn submit_transaction(
         &self,
-        request: RawSubmitTxRequest,
+        request: SubmitTxRequest,
         _client_addr: Option<SocketAddr>,
-    ) -> Result<RawSubmitTxResponse, HaneulError> {
+    ) -> Result<SubmitTxResponse, HaneulError> {
         if self.fault_config.fail_before_submit_transaction {
             return Err(HaneulError::from("Mock error before submit_transaction"));
         }
         let state = self.state.clone();
         let epoch_store = self.state.load_epoch_store_one_call_per_task();
+
+        let raw_request = request.into_raw()?;
         // TODO(fastpath): handle multiple transactions.
-        if request.transactions.len() != 1 {
+        if raw_request.transactions.len() != 1 {
             return Err(HaneulError::UnsupportedFeatureError {
                 error: format!(
                     "Expected exactly 1 transaction in request, got {}",
-                    request.transactions.len()
+                    raw_request.transactions.len()
                 ),
             });
         }
 
-        let deserialized_transaction = bcs::from_bytes::<Transaction>(&request.transactions[0])
+        let deserialized_transaction = bcs::from_bytes::<Transaction>(&raw_request.transactions[0])
             .map_err(|e| HaneulError::TransactionDeserializationError {
                 error: e.to_string(),
             })?;
@@ -121,10 +120,17 @@ impl AuthorityAPI for LocalAuthorityClient {
         };
 
         let submit_result = SubmitTxResult::Submitted { consensus_position };
-        let raw_result = submit_result.try_into()?;
-        Ok(RawSubmitTxResponse {
-            results: vec![raw_result],
+        Ok(SubmitTxResponse {
+            results: vec![submit_result],
         })
+    }
+
+    async fn wait_for_effects(
+        &self,
+        _request: WaitForEffectsRequest,
+        _client_addr: Option<SocketAddr>,
+    ) -> Result<WaitForEffectsResponse, HaneulError> {
+        unimplemented!()
     }
 
     async fn handle_transaction(
@@ -199,14 +205,6 @@ impl AuthorityAPI for LocalAuthorityClient {
         unimplemented!()
     }
 
-    async fn wait_for_effects(
-        &self,
-        _request: RawWaitForEffectsRequest,
-        _client_addr: Option<SocketAddr>,
-    ) -> Result<RawWaitForEffectsResponse, HaneulError> {
-        unimplemented!()
-    }
-
     async fn handle_object_info_request(
         &self,
         request: ObjectInfoRequest,
@@ -251,20 +249,12 @@ impl AuthorityAPI for LocalAuthorityClient {
 
     async fn validator_health(
         &self,
-        _request: haneul_types::messages_grpc::RawValidatorHealthRequest,
-    ) -> Result<haneul_types::messages_grpc::RawValidatorHealthResponse, HaneulError> {
-        let typed_response = haneul_types::messages_grpc::ValidatorHealthResponse {
-            num_inflight_consensus_transactions: 0,
-            num_inflight_execution_transactions: 0,
+        _request: ValidatorHealthRequest,
+    ) -> Result<ValidatorHealthResponse, HaneulError> {
+        Ok(ValidatorHealthResponse {
             last_committed_leader_round: 1000,
             last_locally_built_checkpoint: 500,
-        };
-
-        typed_response.try_into().map_err(|e| {
-            haneul_types::error::HaneulError::GrpcMessageSerializeError {
-                type_info: "ValidatorHealthResponse".to_string(),
-                error: format!("Failed to convert to raw response: {}", e),
-            }
+            ..Default::default()
         })
     }
 }
@@ -391,10 +381,18 @@ impl AuthorityAPI for MockAuthorityApi {
     /// Submit a new transaction to a Haneul or Primary account.
     async fn submit_transaction(
         &self,
-        _request: RawSubmitTxRequest,
+        _request: SubmitTxRequest,
         _client_addr: Option<SocketAddr>,
-    ) -> Result<RawSubmitTxResponse, HaneulError> {
+    ) -> Result<SubmitTxResponse, HaneulError> {
         unimplemented!();
+    }
+
+    async fn wait_for_effects(
+        &self,
+        _request: WaitForEffectsRequest,
+        _client_addr: Option<SocketAddr>,
+    ) -> Result<WaitForEffectsResponse, HaneulError> {
+        unimplemented!()
     }
 
     /// Initiate a new transaction to a Haneul or Primary account.
@@ -428,14 +426,6 @@ impl AuthorityAPI for MockAuthorityApi {
         _request: HandleSoftBundleCertificatesRequestV3,
         _client_addr: Option<SocketAddr>,
     ) -> Result<HandleSoftBundleCertificatesResponseV3, HaneulError> {
-        unimplemented!()
-    }
-
-    async fn wait_for_effects(
-        &self,
-        _request: RawWaitForEffectsRequest,
-        _client_addr: Option<SocketAddr>,
-    ) -> Result<RawWaitForEffectsResponse, HaneulError> {
         unimplemented!()
     }
 
@@ -491,20 +481,12 @@ impl AuthorityAPI for MockAuthorityApi {
 
     async fn validator_health(
         &self,
-        _request: haneul_types::messages_grpc::RawValidatorHealthRequest,
-    ) -> Result<haneul_types::messages_grpc::RawValidatorHealthResponse, HaneulError> {
-        let typed_response = haneul_types::messages_grpc::ValidatorHealthResponse {
-            num_inflight_consensus_transactions: 0,
-            num_inflight_execution_transactions: 0,
+        _request: ValidatorHealthRequest,
+    ) -> Result<ValidatorHealthResponse, HaneulError> {
+        Ok(ValidatorHealthResponse {
             last_committed_leader_round: 1000,
             last_locally_built_checkpoint: 500,
-        };
-
-        typed_response.try_into().map_err(|e| {
-            haneul_types::error::HaneulError::GrpcMessageSerializeError {
-                type_info: "ValidatorHealthResponse".to_string(),
-                error: format!("Failed to convert to raw response: {}", e),
-            }
+            ..Default::default()
         })
     }
 }
@@ -522,9 +504,17 @@ pub struct HandleTransactionTestAuthorityClient {
 impl AuthorityAPI for HandleTransactionTestAuthorityClient {
     async fn submit_transaction(
         &self,
-        _request: RawSubmitTxRequest,
+        _request: SubmitTxRequest,
         _client_addr: Option<SocketAddr>,
-    ) -> Result<RawSubmitTxResponse, HaneulError> {
+    ) -> Result<SubmitTxResponse, HaneulError> {
+        unimplemented!()
+    }
+
+    async fn wait_for_effects(
+        &self,
+        _request: WaitForEffectsRequest,
+        _client_addr: Option<SocketAddr>,
+    ) -> Result<WaitForEffectsResponse, HaneulError> {
         unimplemented!()
     }
 
@@ -566,14 +556,6 @@ impl AuthorityAPI for HandleTransactionTestAuthorityClient {
         unimplemented!()
     }
 
-    async fn wait_for_effects(
-        &self,
-        _request: RawWaitForEffectsRequest,
-        _client_addr: Option<SocketAddr>,
-    ) -> Result<RawWaitForEffectsResponse, HaneulError> {
-        unimplemented!()
-    }
-
     async fn handle_object_info_request(
         &self,
         _request: ObjectInfoRequest,
@@ -611,8 +593,8 @@ impl AuthorityAPI for HandleTransactionTestAuthorityClient {
 
     async fn validator_health(
         &self,
-        _request: haneul_types::messages_grpc::RawValidatorHealthRequest,
-    ) -> Result<haneul_types::messages_grpc::RawValidatorHealthResponse, HaneulError> {
+        _request: ValidatorHealthRequest,
+    ) -> Result<ValidatorHealthResponse, HaneulError> {
         unimplemented!()
     }
 }

@@ -34,6 +34,7 @@ use haneul_storage::write_path_pending_tx_log::WritePathPendingTransactionLog;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::messages_grpc::SubmitTxRequest;
 use haneul_types::quorum_driver_types::{
     EffectsFinalityInfo, ExecuteTransactionRequestType, ExecuteTransactionRequestV3,
     ExecuteTransactionResponseV3, FinalizedEffects, IsTransactionExecutedLocally,
@@ -56,7 +57,7 @@ use crate::quorum_driver::reconfig_observer::{OnsiteReconfigObserver, ReconfigOb
 use crate::quorum_driver::{QuorumDriverHandler, QuorumDriverHandlerBuilder, QuorumDriverMetrics};
 use crate::transaction_driver::{
     choose_transaction_driver_percentage, QuorumTransactionResponse, SubmitTransactionOptions,
-    SubmitTxRequest, TransactionDriver, TransactionDriverError, TransactionDriverMetrics,
+    TransactionDriver, TransactionDriverError, TransactionDriverMetrics,
 };
 
 // How long to wait for local execution (including parents) before a timeout
