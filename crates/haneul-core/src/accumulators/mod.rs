@@ -6,11 +6,10 @@ use std::collections::HashMap;
 use haneullabs_common::fatal;
 use haneul_types::accumulator_event::AccumulatorEvent;
 use haneul_types::accumulator_root::{
-    ACCUMULATOR_ROOT_SETTLEMENT_PROLOGUE_FUNC, ACCUMULATOR_ROOT_SETTLE_U128_FUNC,
+    AccumulatorObjId, ACCUMULATOR_ROOT_SETTLEMENT_PROLOGUE_FUNC, ACCUMULATOR_ROOT_SETTLE_U128_FUNC,
     ACCUMULATOR_SETTLEMENT_MODULE,
 };
 use haneul_types::balance::{BALANCE_MODULE_NAME, BALANCE_STRUCT_NAME};
-use haneul_types::base_types::ObjectID;
 use haneul_types::effects::{
     AccumulatorAddress, AccumulatorOperation, AccumulatorValue, AccumulatorWriteV1,
     TransactionEffects, TransactionEffectsAPI,
@@ -155,8 +154,8 @@ struct Update {
 }
 
 pub(crate) struct AccumulatorSettlementTxBuilder {
-    updates: HashMap<ObjectID, Update>,
-    addresses: HashMap<ObjectID, AccumulatorAddress>,
+    updates: HashMap<AccumulatorObjId, Update>,
+    addresses: HashMap<AccumulatorObjId, AccumulatorAddress>,
 
     total_input_haneul: u64,
     total_output_haneul: u64,
