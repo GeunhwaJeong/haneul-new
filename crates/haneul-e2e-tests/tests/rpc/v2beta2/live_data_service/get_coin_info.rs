@@ -18,6 +18,7 @@ use haneul_rpc::proto::haneul::rpc::v2beta2::{
 };
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::coin_registry::Currency;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{ObjectArg, TransactionData};
 use haneul_types::{TypeTag, HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_FRAMEWORK_PACKAGE_ID};
@@ -221,21 +222,7 @@ async fn test_get_coin_info_registry_coin() {
         type_params: vec![],
     };
 
-    let currency_key_type = move_core_types::language_storage::StructTag {
-        address: move_core_types::account_address::AccountAddress::from_hex_literal("0x2").unwrap(),
-        module: move_core_types::identifier::Identifier::new("coin_registry").unwrap(),
-        name: move_core_types::identifier::Identifier::new("CurrencyKey").unwrap(),
-        type_params: vec![TypeTag::Struct(Box::new(coin_type_tag.clone()))],
-    };
-
-    let currency_key_bytes = bcs::to_bytes(&haneul_types::coin_registry::CurrencyKey::new()).unwrap();
-
-    let currency_id = haneul_types::derived_object::derive_object_id(
-        HANEUL_COIN_REGISTRY_OBJECT_ID,
-        &TypeTag::Struct(Box::new(currency_key_type)),
-        &currency_key_bytes,
-    )
-    .unwrap();
+    let currency_id = Currency::derive_object_id(coin_type_tag.into()).unwrap();
 
     // Get the Currency object to find its initial shared version
     let currency_obj = test_cluster
@@ -697,21 +684,7 @@ async fn test_burnonly_coin_info() {
         type_params: vec![],
     };
 
-    let currency_key_type = move_core_types::language_storage::StructTag {
-        address: move_core_types::account_address::AccountAddress::from_hex_literal("0x2").unwrap(),
-        module: move_core_types::identifier::Identifier::new("coin_registry").unwrap(),
-        name: move_core_types::identifier::Identifier::new("CurrencyKey").unwrap(),
-        type_params: vec![TypeTag::Struct(Box::new(coin_type_tag.clone()))],
-    };
-
-    let currency_key_bytes = bcs::to_bytes(&haneul_types::coin_registry::CurrencyKey::new()).unwrap();
-
-    let currency_id = haneul_types::derived_object::derive_object_id(
-        HANEUL_COIN_REGISTRY_OBJECT_ID,
-        &TypeTag::Struct(Box::new(currency_key_type)),
-        &currency_key_bytes,
-    )
-    .unwrap();
+    let currency_id = Currency::derive_object_id(coin_type_tag.into()).unwrap();
 
     // Get the Currency object to find its initial shared version
     let currency_obj = test_cluster

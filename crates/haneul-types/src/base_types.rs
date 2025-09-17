@@ -10,6 +10,7 @@ use crate::coin::CoinMetadata;
 use crate::coin::TreasuryCap;
 use crate::coin::COIN_MODULE_NAME;
 use crate::coin::COIN_STRUCT_NAME;
+use crate::coin_registry::Currency;
 pub use crate::committee::EpochId;
 use crate::crypto::{
     AuthorityPublicKeyBytes, DefaultHash, PublicKey, SignatureScheme, HaneulPublicKey, HaneulSignature,
@@ -440,6 +441,17 @@ impl MoveObjectType {
             | MoveObjectType_::HaneulBalanceAccumulatorField
             | MoveObjectType_::BalanceAccumulatorField(_) => false,
             MoveObjectType_::Other(s) => CoinMetadata::is_coin_metadata(s),
+        }
+    }
+
+    pub fn is_currency(&self) -> bool {
+        match &self.0 {
+            MoveObjectType_::GasCoin
+            | MoveObjectType_::StakedHaneul
+            | MoveObjectType_::Coin(_)
+            | MoveObjectType_::HaneulBalanceAccumulatorField
+            | MoveObjectType_::BalanceAccumulatorField(_) => false,
+            MoveObjectType_::Other(s) => Currency::is_currency(s),
         }
     }
 

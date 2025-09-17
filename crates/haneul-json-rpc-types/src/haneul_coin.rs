@@ -111,7 +111,7 @@ impl TryFrom<Object> for HaneulCoinMetadata {
 impl From<coin_registry::Currency> for HaneulCoinMetadata {
     fn from(currency: coin_registry::Currency) -> Self {
         Self {
-            id: Some(currency.id.id.bytes),
+            id: Some(currency.id),
             decimals: currency.decimals,
             name: currency.name,
             symbol: currency.symbol,
