@@ -9,7 +9,10 @@ use futures::future::try_join_all;
 use haneul_types::{base_types::HaneulAddress as NativeHaneulAddress, dynamic_field::DynamicFieldType};
 
 use crate::{
-    api::scalars::{owner_kind::OwnerKind, haneul_address::HaneulAddress, type_filter::TypeInput},
+    api::{
+        scalars::{owner_kind::OwnerKind, haneul_address::HaneulAddress, type_filter::TypeInput},
+        types::validator::Validator,
+    },
     error::RpcError,
     pagination::{Page, PaginationConfig},
     scope::Scope,
@@ -91,9 +94,10 @@ pub(crate) enum IAddressable {
     MoveObject(MoveObject),
     MovePackage(MovePackage),
     Object(Object),
+    Validator(Validator),
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub(crate) struct Address {
     pub(crate) scope: Scope,
     pub(crate) address: NativeHaneulAddress,

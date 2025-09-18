@@ -237,14 +237,17 @@ impl Epoch {
             return Ok(None);
         };
 
-        let validator_set = match system_state {
-            HaneulSystemState::V1(inner) => inner.validators.into(),
-            HaneulSystemState::V2(inner) => inner.validators.into(),
+        let validator_set_v1 = match system_state {
+            HaneulSystemState::V1(inner) => inner.validators,
+            HaneulSystemState::V2(inner) => inner.validators,
             #[cfg(msim)]
             HaneulSystemState::SimTestV1(_)
             | HaneulSystemState::SimTestShallowV2(_)
             | HaneulSystemState::SimTestDeepV2(_) => return Ok(None),
         };
+
+        let validator_set =
+            ValidatorSet::from_validator_set_v1(self.scope.clone(), validator_set_v1);
 
         Ok(Some(validator_set))
     }

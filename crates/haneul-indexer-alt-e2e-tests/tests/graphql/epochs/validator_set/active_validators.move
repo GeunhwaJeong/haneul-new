@@ -5,43 +5,55 @@
 
 //# run-graphql
 {
-  epoch(epochId: 0) { ...E }
-}
-
-fragment E on Epoch {
-  epochId
-  validatorSet {
-    activeValidators {
-      address
-      credentials { ...VC }
-      # todo (ewall) populate nextEpochCredentials
-      nextEpochCredentials { ...VC }
-      name
-      # todo (ewall) populate description
-      description
-      # todo (ewall) populate imageUrl
-      imageUrl
-      # todo (ewall) populate projectUrl
-      projectUrl
-      stakingPoolId
-      exchangeRatesSize
-      stakingPoolActivationEpoch
-      stakingPoolHaneulBalance
-      # todo (ewall) populate rewardsPool
-      rewardsPool
-      poolTokenBalance
-      # todo (ewall) populate pendingStake
-      pendingStake
-      # todo (ewall) populate pendingTotalHaneulWithdraw
-      pendingTotalHaneulWithdraw
-      # todo (ewall) populate pendingPoolTokenWithdraw
-      pendingPoolTokenWithdraw
-      votingPower
-      gasPrice
-      commissionRate
-      nextEpochStake
-      nextEpochGasPrice
-      nextEpochCommissionRate
+  epoch(epochId: 0) {
+    epochId
+    validatorSet {
+      activeValidators {
+        address
+        balance(coinType: "0x2::haneul::HANEUL") {
+          totalBalance
+        }
+        balances {
+          __typename
+        }
+        # todo (ewall) populate defaultHaneulnsName
+        defaultHaneulnsName
+        multiGetBalances(keys: ["0x2::haneul::HANEUL"]) {
+          totalBalance
+        }
+        objects {
+          __typename
+        }
+        credentials { ...VC }
+        # todo (ewall) populate nextEpochCredentials
+        nextEpochCredentials { ...VC }
+        name
+        # todo (ewall) populate description
+        description
+        # todo (ewall) populate imageUrl
+        imageUrl
+        # todo (ewall) populate projectUrl
+        projectUrl
+        stakingPoolId
+        exchangeRatesSize
+        stakingPoolActivationEpoch
+        stakingPoolHaneulBalance
+        # todo (ewall) populate rewardsPool
+        rewardsPool
+        poolTokenBalance
+        # todo (ewall) populate pendingStake
+        pendingStake
+        # todo (ewall) populate pendingTotalHaneulWithdraw
+        pendingTotalHaneulWithdraw
+        # todo (ewall) populate pendingPoolTokenWithdraw
+        pendingPoolTokenWithdraw
+        votingPower
+        gasPrice
+        commissionRate
+        nextEpochStake
+        nextEpochGasPrice
+        nextEpochCommissionRate
+      }
     }
   }
 }
