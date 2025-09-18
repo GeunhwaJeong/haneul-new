@@ -13,7 +13,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::committee::{Committee, EpochId};
-use haneul_types::messages_grpc::HandleCertificateRequestV3;
+use haneul_types::messages_grpc::{HandleCertificateRequestV3, TxType};
 use haneul_types::quorum_driver_types::{
     ExecuteTransactionRequestV3, QuorumDriverEffectsQueueResult, QuorumDriverError,
     QuorumDriverResponse, QuorumDriverResult,
@@ -31,7 +31,6 @@ use crate::authority_aggregator::{
     ProcessTransactionResult,
 };
 use crate::authority_client::AuthorityAPI;
-use crate::validator_client_monitor::TxType;
 use haneullabs_common::sync::notify_read::{NotifyRead, Registration};
 use haneullabs_metrics::{spawn_monitored_task, GaugeGuard};
 use std::fmt::Write;
