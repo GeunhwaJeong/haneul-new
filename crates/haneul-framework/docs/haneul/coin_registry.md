@@ -32,7 +32,6 @@ supply information, regulatory status, and metadata capabilities.
 -  [Function `burn`](#haneul_coin_registry_burn)
 -  [Function `burn_balance`](#haneul_coin_registry_burn_balance)
 -  [Function `set_name`](#haneul_coin_registry_set_name)
--  [Function `set_symbol`](#haneul_coin_registry_set_symbol)
 -  [Function `set_description`](#haneul_coin_registry_set_description)
 -  [Function `set_icon_url`](#haneul_coin_registry_set_icon_url)
 -  [Function `set_treasury_cap_id`](#haneul_coin_registry_set_treasury_cap_id)
@@ -1154,32 +1153,6 @@ Update the name of the <code><a href="../haneul/coin_registry.md#haneul_coin_reg
 
 <pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_set_name">set_name</a>&lt;T&gt;(currency: &<b>mut</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">Currency</a>&lt;T&gt;, _: &<a href="../haneul/coin_registry.md#haneul_coin_registry_MetadataCap">MetadataCap</a>&lt;T&gt;, <a href="../haneul/coin_registry.md#haneul_coin_registry_name">name</a>: String) {
     currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_name">name</a> = <a href="../haneul/coin_registry.md#haneul_coin_registry_name">name</a>;
-}
-</code></pre>
-
-
-
-</details>
-
-<a name="haneul_coin_registry_set_symbol"></a>
-
-## Function `set_symbol`
-
-Update the symbol of the <code><a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">Currency</a></code>.
-
-
-<pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_set_symbol">set_symbol</a>&lt;T&gt;(currency: &<b>mut</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">haneul::coin_registry::Currency</a>&lt;T&gt;, _: &<a href="../haneul/coin_registry.md#haneul_coin_registry_MetadataCap">haneul::coin_registry::MetadataCap</a>&lt;T&gt;, <a href="../haneul/coin_registry.md#haneul_coin_registry_symbol">symbol</a>: <a href="../std/string.md#std_string_String">std::string::String</a>)
-</code></pre>
-
-
-
-<details>
-<summary>Implementation</summary>
-
-
-<pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_set_symbol">set_symbol</a>&lt;T&gt;(currency: &<b>mut</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">Currency</a>&lt;T&gt;, _: &<a href="../haneul/coin_registry.md#haneul_coin_registry_MetadataCap">MetadataCap</a>&lt;T&gt;, <a href="../haneul/coin_registry.md#haneul_coin_registry_symbol">symbol</a>: String) {
-    <b>assert</b>!(<a href="../haneul/coin_registry.md#haneul_coin_registry_is_ascii_printable">is_ascii_printable</a>!(&<a href="../haneul/coin_registry.md#haneul_coin_registry_symbol">symbol</a>), <a href="../haneul/coin_registry.md#haneul_coin_registry_EInvalidSymbol">EInvalidSymbol</a>);
-    currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_symbol">symbol</a> = <a href="../haneul/coin_registry.md#haneul_coin_registry_symbol">symbol</a>;
 }
 </code></pre>
 
