@@ -12,7 +12,7 @@ tokio-util.workspace = true
 anyhow.workspace = true
 haneul-bridge.workspace = true
 haneul-bridge-schema.workspace = true
-haneul-indexer-alt-framework.workspace = true
+haneul-indexer-alt-framework = { workspace = true, features = ["postgres"] }
 haneul-indexer-alt-metrics.workspace = true
 async-trait.workspace = true
 tracing.workspace = true
