@@ -12,7 +12,7 @@ use std::collections::BTreeMap;
 use haneul_json_rpc_api::{TRANSACTION_EXECUTION_CLIENT_ERROR_CODE, TRANSIENT_ERROR_CODE};
 use haneul_name_service::NameServiceError;
 use haneul_types::committee::{QUORUM_THRESHOLD, TOTAL_VOTING_POWER};
-use haneul_types::error::{HaneulError, HaneulObjectResponseError, UserInputError};
+use haneul_types::error::{ErrorCategory, HaneulError, HaneulObjectResponseError, UserInputError};
 use haneul_types::quorum_driver_types::QuorumDriverError;
 use thiserror::Error;
 use tokio::task::JoinError;
@@ -272,15 +272,18 @@ impl From<Error> for ErrorObjectOwned {
                     | QuorumDriverError::SystemOverloadRetryAfter { .. } => {
                         ErrorObject::owned(TRANSIENT_ERROR_CODE, err.to_string(), None::<()>)
                     }
-                    QuorumDriverError::TransactionFailed { retriable, details } => {
-                        // TODO(fastpath): Replace with a proper error code
+                    QuorumDriverError::TransactionFailed { category, details } => {
+                        let code = match category {
+                            ErrorCategory::Internal => INTERNAL_ERROR_CODE,
+                            ErrorCategory::Aborted => TRANSIENT_ERROR_CODE,
+                            ErrorCategory::InvalidTransaction => TRANSACTION_EXECUTION_CLIENT_ERROR_CODE,
+                            ErrorCategory::LockConflict => TRANSACTION_EXECUTION_CLIENT_ERROR_CODE,
+                            ErrorCategory::ValidatorOverloaded => TRANSIENT_ERROR_CODE,
+                            ErrorCategory::Unavailable => INTERNAL_ERROR_CODE,
+                        };
                         ErrorObject::owned(
-                            if retriable {
-                                TRANSIENT_ERROR_CODE
-                            } else {
-                                TRANSACTION_EXECUTION_CLIENT_ERROR_CODE
-                            },
-                            format!("[MFP experimental]: {details}"),
+                            code,
+                            details,
                             None::<()>,
                         )
                     }
