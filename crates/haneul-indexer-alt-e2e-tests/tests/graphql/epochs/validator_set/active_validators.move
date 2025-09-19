@@ -8,51 +8,60 @@
   epoch(epochId: 0) {
     epochId
     validatorSet {
+      # todo (ewall) add more validators to test pagination
       activeValidators {
-        address
-        balance(coinType: "0x2::haneul::HANEUL") {
-          totalBalance
+        pageInfo {
+         hasPreviousPage
+         hasNextPage
+         startCursor
+         endCursor
         }
-        balances {
-          __typename
+        nodes {
+          address
+          balance(coinType: "0x2::haneul::HANEUL") {
+            totalBalance
+          }
+          balances {
+            __typename
+          }
+          # todo (ewall) populate defaultHaneulnsName
+          defaultHaneulnsName
+          multiGetBalances(keys: ["0x2::haneul::HANEUL"]) {
+            totalBalance
+          }
+          objects {
+            __typename
+          }
+          credentials { ...VC }
+          # todo (ewall) populate nextEpochCredentials
+          nextEpochCredentials { ...VC }
+          name
+          # todo (ewall) populate description
+          description
+          # todo (ewall) populate imageUrl
+          imageUrl
+          # todo (ewall) populate projectUrl
+          projectUrl
+          stakingPoolId
+          exchangeRatesSize
+          stakingPoolActivationEpoch
+          stakingPoolHaneulBalance
+          # todo (ewall) populate rewardsPool
+          rewardsPool
+          poolTokenBalance
+          # todo (ewall) populate pendingStake
+          pendingStake
+          # todo (ewall) populate pendingTotalHaneulWithdraw
+          pendingTotalHaneulWithdraw
+          # todo (ewall) populate pendingPoolTokenWithdraw
+          pendingPoolTokenWithdraw
+          votingPower
+          gasPrice
+          commissionRate
+          nextEpochStake
+          nextEpochGasPrice
+          nextEpochCommissionRate
         }
-        # todo (ewall) populate defaultHaneulnsName
-        defaultHaneulnsName
-        multiGetBalances(keys: ["0x2::haneul::HANEUL"]) {
-          totalBalance
-        }
-        objects {
-          __typename
-        }
-        credentials { ...VC }
-        # todo (ewall) populate nextEpochCredentials
-        nextEpochCredentials { ...VC }
-        name
-        # todo (ewall) populate description
-        description
-        # todo (ewall) populate imageUrl
-        imageUrl
-        # todo (ewall) populate projectUrl
-        projectUrl
-        stakingPoolId
-        exchangeRatesSize
-        stakingPoolActivationEpoch
-        stakingPoolHaneulBalance
-        # todo (ewall) populate rewardsPool
-        rewardsPool
-        poolTokenBalance
-        # todo (ewall) populate pendingStake
-        pendingStake
-        # todo (ewall) populate pendingTotalHaneulWithdraw
-        pendingTotalHaneulWithdraw
-        # todo (ewall) populate pendingPoolTokenWithdraw
-        pendingPoolTokenWithdraw
-        votingPower
-        gasPrice
-        commissionRate
-        nextEpochStake
-        nextEpochGasPrice
-        nextEpochCommissionRate
       }
     }
   }
