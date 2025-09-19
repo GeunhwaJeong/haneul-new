@@ -3,7 +3,8 @@
 /crates/haneul-keys/ @joyqvq @patrickkuo
 /crates/haneul-protocol-config @haneullabsmark
 
-*.md @ronny-haneullabs
+*.md @ronny-haneullabs @jessiemongeon1
+*.mdx @ronny-haneullabs @jessiemongeon1
 # Omit auto-generated changelogs and changesets from docs review:
 /.changeset/*.md
 CHANGELOG.md
