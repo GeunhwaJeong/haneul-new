@@ -25,11 +25,10 @@ jobs:
           client-payload: >
             {
               "haneul_commit": "${{ github.sha }}",
-              "caller_name": "haneul_repo",
+              "caller_name": "haneul_repo_${{ github.ref_name }}",
               "push_to_dockerhub": true,
               "build_arm64": false,
               "graphql_rpc": true,
               "indexer_alt": true,
               "stress": true
             }
-
