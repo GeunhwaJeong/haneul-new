@@ -1,0 +1,10 @@
+[package]
+name = "LegacyRegulated"
+version = "0.0.1"
+edition = "2024.beta"
+
+[dependencies]
+Haneul = { local = "../../../../haneul-framework/packages/haneul-framework" }
+
+[addresses]
+legacy_regulated = "0x0"
