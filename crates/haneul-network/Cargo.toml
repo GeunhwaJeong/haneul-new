@@ -18,6 +18,13 @@ tonic.workspace = true
 dashmap.workspace = true
 tower.workspace = true
 shared-crypto.workspace = true
+eyre.workspace = true
+http.workspace = true
+tokio-rustls.workspace = true
+tonic-health.workspace = true
+tower-http.workspace = true
+haneul-http.workspace = true
+haneul-tls.workspace = true
 
 haneul-macros.workspace = true
 haneul-storage.workspace = true

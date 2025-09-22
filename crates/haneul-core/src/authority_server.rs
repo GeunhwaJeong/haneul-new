@@ -7,7 +7,6 @@ use async_trait::async_trait;
 use fastcrypto::traits::KeyPair;
 use futures::{future, TryFutureExt};
 use haneullabs_metrics::spawn_monitored_task;
-use haneullabs_network::server::HANEUL_TLS_SERVER_NAME;
 use prometheus::{
     register_gauge_with_registry, register_histogram_vec_with_registry,
     register_histogram_with_registry, register_int_counter_vec_with_registry,
@@ -26,6 +25,7 @@ use std::{
 use haneul_network::{
     api::{Validator, ValidatorServer},
     tonic,
+    validator::server::HANEUL_TLS_SERVER_NAME,
 };
 use haneul_types::message_envelope::Message;
 use haneul_types::messages_consensus::ConsensusPosition;
@@ -107,7 +107,7 @@ mod wait_for_effects_tests;
 mod submit_transaction_tests;
 
 pub struct AuthorityServerHandle {
-    server_handle: haneullabs_network::server::Server,
+    server_handle: haneul_network::validator::server::Server,
 }
 
 impl AuthorityServerHandle {
@@ -178,16 +178,19 @@ impl AuthorityServer {
             self.state.config.network_key_pair().copy().private(),
             HANEUL_TLS_SERVER_NAME.to_string(),
         );
-        let server = haneullabs_network::config::Config::new()
-            .server_builder()
-            .add_service(ValidatorServer::new(ValidatorService::new_for_tests(
-                self.state,
-                self.consensus_adapter,
-                self.metrics,
-            )))
-            .bind(&address, Some(tls_config))
-            .await
-            .unwrap();
+        let config = haneullabs_network::config::Config::new();
+        let server = haneul_network::validator::server::ServerBuilder::from_config(
+            &config,
+            haneullabs_network::metrics::DefaultMetricsCallbackProvider::default(),
+        )
+        .add_service(ValidatorServer::new(ValidatorService::new_for_tests(
+            self.state,
+            self.consensus_adapter,
+            self.metrics,
+        )))
+        .bind(&address, Some(tls_config))
+        .await
+        .unwrap();
         let local_addr = server.local_addr().to_owned();
         info!("Listening to traffic on {local_addr}");
         let handle = AuthorityServerHandle {

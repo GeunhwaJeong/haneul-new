@@ -15,7 +15,6 @@ use fastcrypto_zkp::bn254::zk_login::JwkId;
 use fastcrypto_zkp::bn254::zk_login::OIDCProvider;
 use futures::future::BoxFuture;
 use haneullabs_common::debug_fatal;
-use haneullabs_network::server::HANEUL_TLS_SERVER_NAME;
 use prometheus::Registry;
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fmt;
@@ -39,6 +38,7 @@ use haneul_core::consensus_adapter::ConsensusClient;
 use haneul_core::consensus_manager::UpdatableConsensusClient;
 use haneul_core::epoch::randomness::RandomnessManager;
 use haneul_core::execution_cache::build_execution_cache;
+use haneul_network::validator::server::HANEUL_TLS_SERVER_NAME;
 
 use haneul_core::execution_scheduler::SchedulingSource;
 use haneul_core::global_state_hasher::GlobalStateHashMetrics;
@@ -71,7 +71,6 @@ use tracing::{error_span, info, Instrument};
 use fastcrypto_zkp::bn254::zk_login::JWK;
 pub use handle::HaneulNodeHandle;
 use haneullabs_metrics::{spawn_monitored_task, RegistryService};
-use haneullabs_network::server::ServerBuilder;
 use haneullabs_service::server_timing::server_timing_middleware;
 use haneul_config::node::{DBCheckpointConfig, RunWithRange};
 use haneul_config::node::{ForkCrashBehavior, ForkRecoveryConfig};
@@ -129,6 +128,7 @@ use haneul_network::api::ValidatorServer;
 use haneul_network::discovery;
 use haneul_network::discovery::TrustedPeerChangeEvent;
 use haneul_network::state_sync;
+use haneul_network::validator::server::ServerBuilder;
 use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use haneul_snapshot::uploader::StateSnapshotUploader;
 use haneul_storage::{
@@ -236,6 +236,8 @@ use haneul_core::{
     validator_tx_finalizer::ValidatorTxFinalizer,
 };
 use haneul_types::execution_config_utils::to_binary_config;
+
+const DEFAULT_GRPC_CONNECT_TIMEOUT: Duration = Duration::from_secs(60);
 
 pub struct HaneulNode {
     config: NodeConfig,
@@ -1561,6 +1563,9 @@ impl HaneulNode {
         );
 
         let mut server_conf = haneullabs_network::config::Config::new();
+        server_conf.connect_timeout = Some(DEFAULT_GRPC_CONNECT_TIMEOUT);
+        server_conf.http2_keepalive_interval = Some(DEFAULT_GRPC_CONNECT_TIMEOUT);
+        server_conf.http2_keepalive_timeout = Some(DEFAULT_GRPC_CONNECT_TIMEOUT);
         server_conf.global_concurrency_limit = config.grpc_concurrency_limit;
         server_conf.load_shed = config.grpc_load_shed;
         let mut server_builder =
