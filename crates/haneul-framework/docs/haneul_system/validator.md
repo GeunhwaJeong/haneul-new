@@ -101,9 +101,12 @@ title: Module `haneul_system::validator`
 <b>use</b> <a href="../std/u64.md#std_u64">std::u64</a>;
 <b>use</b> <a href="../std/vector.md#std_vector">std::vector</a>;
 <b>use</b> <a href="../haneul/accumulator.md#haneul_accumulator">haneul::accumulator</a>;
+<b>use</b> <a href="../haneul/accumulator_metadata.md#haneul_accumulator_metadata">haneul::accumulator_metadata</a>;
+<b>use</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement">haneul::accumulator_settlement</a>;
 <b>use</b> <a href="../haneul/address.md#haneul_address">haneul::address</a>;
 <b>use</b> <a href="../haneul/bag.md#haneul_bag">haneul::bag</a>;
 <b>use</b> <a href="../haneul/balance.md#haneul_balance">haneul::balance</a>;
+<b>use</b> <a href="../haneul/bcs.md#haneul_bcs">haneul::bcs</a>;
 <b>use</b> <a href="../haneul/coin.md#haneul_coin">haneul::coin</a>;
 <b>use</b> <a href="../haneul/config.md#haneul_config">haneul::config</a>;
 <b>use</b> <a href="../haneul/deny_list.md#haneul_deny_list">haneul::deny_list</a>;
@@ -111,6 +114,7 @@ title: Module `haneul_system::validator`
 <b>use</b> <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field">haneul::dynamic_object_field</a>;
 <b>use</b> <a href="../haneul/event.md#haneul_event">haneul::event</a>;
 <b>use</b> <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator">haneul::funds_accumulator</a>;
+<b>use</b> <a href="../haneul/hash.md#haneul_hash">haneul::hash</a>;
 <b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
 <b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;
 <b>use</b> <a href="../haneul/party.md#haneul_party">haneul::party</a>;

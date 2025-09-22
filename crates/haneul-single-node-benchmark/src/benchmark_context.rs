@@ -15,11 +15,11 @@ use std::ops::Deref;
 use std::sync::Arc;
 use haneul_config::node::RunWithRange;
 use haneul_core::authority::shared_object_version_manager::{AssignedTxAndVersions, AssignedVersions};
+use haneul_core::mock_checkpoint_builder::ValidatorKeypairProvider;
 use haneul_test_transaction_builder::PublishData;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::messages_grpc::HandleTransactionResponse;
-use haneul_types::mock_checkpoint_builder::ValidatorKeypairProvider;
 use haneul_types::transaction::{
     CertifiedTransaction, SignedTransaction, Transaction, VerifiedTransaction,
 };

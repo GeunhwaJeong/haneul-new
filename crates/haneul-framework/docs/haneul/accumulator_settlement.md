@@ -4,10 +4,16 @@ title: Module `haneul::accumulator_settlement`
 
 
 
+-  [Struct `EventStreamHead`](#haneul_accumulator_settlement_EventStreamHead)
 -  [Constants](#@Constants_0)
 -  [Function `settlement_prologue`](#haneul_accumulator_settlement_settlement_prologue)
 -  [Function `settle_u128`](#haneul_accumulator_settlement_settle_u128)
 -  [Function `record_settlement_haneul_conservation`](#haneul_accumulator_settlement_record_settlement_haneul_conservation)
+-  [Function `add_to_mmr`](#haneul_accumulator_settlement_add_to_mmr)
+-  [Function `u256_from_bytes`](#haneul_accumulator_settlement_u256_from_bytes)
+-  [Function `hash_two_to_one_u256`](#haneul_accumulator_settlement_hash_two_to_one_u256)
+-  [Function `new_stream_head`](#haneul_accumulator_settlement_new_stream_head)
+-  [Function `settle_events`](#haneul_accumulator_settlement_settle_events)
 
 
 <pre><code><b>use</b> <a href="../std/ascii.md#std_ascii">std::ascii</a>;
@@ -19,7 +25,9 @@ title: Module `haneul::accumulator_settlement`
 <b>use</b> <a href="../haneul/accumulator_metadata.md#haneul_accumulator_metadata">haneul::accumulator_metadata</a>;
 <b>use</b> <a href="../haneul/address.md#haneul_address">haneul::address</a>;
 <b>use</b> <a href="../haneul/bag.md#haneul_bag">haneul::bag</a>;
+<b>use</b> <a href="../haneul/bcs.md#haneul_bcs">haneul::bcs</a>;
 <b>use</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field">haneul::dynamic_field</a>;
+<b>use</b> <a href="../haneul/hash.md#haneul_hash">haneul::hash</a>;
 <b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
 <b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;
 <b>use</b> <a href="../haneul/party.md#haneul_party">haneul::party</a>;
@@ -29,6 +37,45 @@ title: Module `haneul::accumulator_settlement`
 </code></pre>
 
 
+
+<a name="haneul_accumulator_settlement_EventStreamHead"></a>
+
+## Struct `EventStreamHead`
+
+
+
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_EventStreamHead">EventStreamHead</a> <b>has</b> store
+</code></pre>
+
+
+
+<details>
+<summary>Fields</summary>
+
+
+<dl>
+<dt>
+<code>mmr: vector&lt;u256&gt;</code>
+</dt>
+<dd>
+ Merkle Mountain Range of all events in the stream.
+</dd>
+<dt>
+<code>checkpoint_seq: u64</code>
+</dt>
+<dd>
+ Checkpoint sequence number at which the event stream was written.
+</dd>
+<dt>
+<code>num_events: u64</code>
+</dt>
+<dd>
+ Number of events in the stream.
+</dd>
+</dl>
+
+
+</details>
 
 <a name="@Constants_0"></a>
 
@@ -157,6 +204,167 @@ Called by the settlement transaction to track conservation of HANEUL.
 
 
 <pre><code><b>native</b> <b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_record_settlement_haneul_conservation">record_settlement_haneul_conservation</a>(input_haneul: u64, output_haneul: u64);
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_accumulator_settlement_add_to_mmr"></a>
+
+## Function `add_to_mmr`
+
+
+
+<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_add_to_mmr">add_to_mmr</a>(new_val: u256, mmr: &<b>mut</b> vector&lt;u256&gt;)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_add_to_mmr">add_to_mmr</a>(new_val: u256, mmr: &<b>mut</b> vector&lt;u256&gt;) {
+    <b>let</b> <b>mut</b> i = 0;
+    <b>let</b> <b>mut</b> cur = new_val;
+    <b>while</b> (i &lt; vector::length(mmr)) {
+        <b>let</b> r = vector::borrow_mut(mmr, i);
+        <b>if</b> (*r == 0) {
+            *r = cur;
+            <b>return</b>
+        } <b>else</b> {
+            cur = <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_hash_two_to_one_u256">hash_two_to_one_u256</a>(*r, cur);
+            *r = 0;
+        };
+        i = i + 1;
+    };
+    // Vector length insufficient. Increase by 1.
+    vector::push_back(mmr, cur);
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_accumulator_settlement_u256_from_bytes"></a>
+
+## Function `u256_from_bytes`
+
+
+
+<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_u256_from_bytes">u256_from_bytes</a>(bytes: vector&lt;u8&gt;): u256
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_u256_from_bytes">u256_from_bytes</a>(bytes: vector&lt;u8&gt;): u256 {
+    <a href="../haneul/bcs.md#haneul_bcs_new">bcs::new</a>(bytes).peel_u256()
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_accumulator_settlement_hash_two_to_one_u256"></a>
+
+## Function `hash_two_to_one_u256`
+
+
+
+<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_hash_two_to_one_u256">hash_two_to_one_u256</a>(left: u256, right: u256): u256
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_hash_two_to_one_u256">hash_two_to_one_u256</a>(left: u256, right: u256): u256 {
+    <b>let</b> left_bytes = <a href="../haneul/bcs.md#haneul_bcs_to_bytes">bcs::to_bytes</a>(&left);
+    <b>let</b> right_bytes = <a href="../haneul/bcs.md#haneul_bcs_to_bytes">bcs::to_bytes</a>(&right);
+    <b>let</b> <b>mut</b> concatenated = left_bytes;
+    vector::append(&<b>mut</b> concatenated, right_bytes);
+    <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_u256_from_bytes">u256_from_bytes</a>(<a href="../haneul/hash.md#haneul_hash_blake2b256">hash::blake2b256</a>(&concatenated))
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_accumulator_settlement_new_stream_head"></a>
+
+## Function `new_stream_head`
+
+
+
+<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_new_stream_head">new_stream_head</a>(new_root: u256, event_count_delta: u64, checkpoint_seq: u64): <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_EventStreamHead">haneul::accumulator_settlement::EventStreamHead</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_new_stream_head">new_stream_head</a>(new_root: u256, event_count_delta: u64, checkpoint_seq: u64): <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_EventStreamHead">EventStreamHead</a> {
+    <b>let</b> <b>mut</b> initial_mmr = vector::empty();
+    <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_add_to_mmr">add_to_mmr</a>(new_root, &<b>mut</b> initial_mmr);
+    <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_EventStreamHead">EventStreamHead</a> {
+        mmr: initial_mmr,
+        checkpoint_seq: checkpoint_seq,
+        num_events: event_count_delta,
+    }
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_accumulator_settlement_settle_events"></a>
+
+## Function `settle_events`
+
+
+
+<pre><code><b>entry</b> <b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_settle_events">settle_events</a>(accumulator_root: &<b>mut</b> <a href="../haneul/accumulator.md#haneul_accumulator_AccumulatorRoot">haneul::accumulator::AccumulatorRoot</a>, stream_id: <b>address</b>, new_root: u256, event_count_delta: u64, checkpoint_seq: u64, ctx: &<a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>entry</b> <b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_settle_events">settle_events</a>(
+    accumulator_root: &<b>mut</b> AccumulatorRoot,
+    stream_id: <b>address</b>,
+    new_root: u256,
+    event_count_delta: u64,
+    checkpoint_seq: u64,
+    ctx: &TxContext,
+) {
+    <b>assert</b>!(ctx.sender() == @0x0, <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_ENotSystemAddress">ENotSystemAddress</a>);
+    <b>let</b> name = accumulator_key&lt;<a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_EventStreamHead">EventStreamHead</a>&gt;(stream_id);
+    <b>if</b> (accumulator_root.has_accumulator&lt;<a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_EventStreamHead">EventStreamHead</a>, <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_EventStreamHead">EventStreamHead</a>&gt;(<b>copy</b> name)) {
+        <b>let</b> head: &<b>mut</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_EventStreamHead">EventStreamHead</a> = accumulator_root.borrow_accumulator_mut(name);
+        <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_add_to_mmr">add_to_mmr</a>(new_root, &<b>mut</b> head.mmr);
+        head.num_events = head.num_events + event_count_delta;
+        head.checkpoint_seq = checkpoint_seq;
+    } <b>else</b> {
+        <b>let</b> head = <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_new_stream_head">new_stream_head</a>(new_root, event_count_delta, checkpoint_seq);
+        accumulator_root.add_accumulator(name, head);
+    };
+}
 </code></pre>
 
 

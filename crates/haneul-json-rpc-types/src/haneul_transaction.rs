@@ -21,16 +21,21 @@ use move_core_types::identifier::{IdentStr, Identifier};
 use move_core_types::language_storage::{ModuleId, StructTag, TypeTag};
 use haneullabs_metrics::monitored_scope;
 use haneul_json::{primitive_type, HaneulJsonValue};
+use haneul_types::accumulator_event::AccumulatorEvent;
 use haneul_types::authenticator_state::ActiveJwk;
 use haneul_types::base_types::{
     EpochId, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest,
 };
 use haneul_types::crypto::HaneulSignature;
+use haneul_types::digests::Digest;
 use haneul_types::digests::{
     AdditionalConsensusStateDigest, CheckpointDigest, ConsensusCommitDigest, ObjectDigest,
     TransactionEventsDigest,
 };
-use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI, TransactionEvents};
+use haneul_types::effects::{
+    AccumulatorOperation, AccumulatorValue, TransactionEffects, TransactionEffectsAPI,
+    TransactionEvents,
+};
 use haneul_types::error::{ExecutionError, HaneulError, HaneulResult};
 use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::gas::GasCostSummary;
@@ -738,6 +743,8 @@ pub trait HaneulTransactionBlockEffectsAPI {
     fn modified_at_versions(&self) -> Vec<(ObjectID, SequenceNumber)>;
     fn all_changed_objects(&self) -> Vec<(&OwnedObjectRef, WriteKind)>;
     fn all_deleted_objects(&self) -> Vec<(&HaneulObjectRef, DeleteKind)>;
+
+    fn accumulator_events(&self) -> Vec<HaneulAccumulatorEvent>;
 }
 
 #[serde_as]
@@ -751,6 +758,69 @@ pub struct HaneulTransactionBlockEffectsModifiedAtVersions {
     #[schemars(with = "AsSequenceNumber")]
     #[serde_as(as = "AsSequenceNumber")]
     sequence_number: SequenceNumber,
+}
+
+#[serde_as]
+#[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize, JsonSchema)]
+#[serde(rename = "AccumulatorEvent", rename_all = "camelCase")]
+pub struct HaneulAccumulatorEvent {
+    pub accumulator_obj: ObjectID,
+    pub address: HaneulAddress,
+    pub ty: HaneulTypeTag,
+    pub operation: HaneulAccumulatorOperation,
+    pub value: HaneulAccumulatorValue,
+}
+
+impl From<AccumulatorEvent> for HaneulAccumulatorEvent {
+    fn from(event: AccumulatorEvent) -> Self {
+        let AccumulatorEvent {
+            accumulator_obj,
+            write,
+        } = event;
+        Self {
+            accumulator_obj: accumulator_obj.inner().to_owned(),
+            address: write.address.address,
+            ty: write.address.ty.into(),
+            operation: write.operation.into(),
+            value: write.value.into(),
+        }
+    }
+}
+
+#[serde_as]
+#[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize, JsonSchema)]
+#[serde(rename = "AccumulatorOperation", rename_all = "camelCase")]
+pub enum HaneulAccumulatorOperation {
+    Merge,
+    Split,
+}
+
+impl From<AccumulatorOperation> for HaneulAccumulatorOperation {
+    fn from(operation: AccumulatorOperation) -> Self {
+        match operation {
+            AccumulatorOperation::Merge => Self::Merge,
+            AccumulatorOperation::Split => Self::Split,
+        }
+    }
+}
+
+#[serde_as]
+#[derive(Eq, PartialEq, Clone, Debug, Serialize, Deserialize, JsonSchema)]
+#[serde(rename = "AccumulatorValue", rename_all = "camelCase")]
+pub enum HaneulAccumulatorValue {
+    Integer(u64),
+    IntegerTuple(u64, u64),
+    EventDigest(u64 /* event index in the transaction */, Digest),
+}
+
+impl From<AccumulatorValue> for HaneulAccumulatorValue {
+    fn from(value: AccumulatorValue) -> Self {
+        match value {
+            AccumulatorValue::Integer(value) => Self::Integer(value),
+            AccumulatorValue::IntegerTuple(value1, value2) => Self::IntegerTuple(value1, value2),
+            AccumulatorValue::EventDigest(idx, value) => Self::EventDigest(idx, value),
+        }
+    }
 }
 
 /// The response from processing a transaction or a certified transaction
@@ -794,6 +864,8 @@ pub struct HaneulTransactionBlockEffectsV1 {
     /// Object refs of objects now wrapped in other objects.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub wrapped: Vec<HaneulObjectRef>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub accumulator_events: Vec<HaneulAccumulatorEvent>,
     /// The updated gas object reference. Have a dedicated field for convenient access.
     /// It's also included in mutated.
     pub gas_object: OwnedObjectRef,
@@ -905,6 +977,10 @@ impl HaneulTransactionBlockEffectsAPI for HaneulTransactionBlockEffectsV1 {
             .chain(self.wrapped.iter().map(|r| (r, DeleteKind::Wrap)))
             .collect()
     }
+
+    fn accumulator_events(&self) -> Vec<HaneulAccumulatorEvent> {
+        self.accumulator_events.clone()
+    }
 }
 
 impl HaneulTransactionBlockEffects {
@@ -932,6 +1008,7 @@ impl HaneulTransactionBlockEffects {
             events_digest: None,
             dependencies: vec![],
             abort_error: None,
+            accumulator_events: vec![],
         })
     }
 }
@@ -981,6 +1058,11 @@ impl TryFrom<TransactionEffects> for HaneulTransactionBlockEffects {
                 abort_error: effect
                     .move_abort()
                     .map(|(abort, code)| HaneulMoveAbort::new(abort, code)),
+                accumulator_events: effect
+                    .accumulator_events()
+                    .into_iter()
+                    .map(HaneulAccumulatorEvent::from)
+                    .collect(),
             },
         ))
     }

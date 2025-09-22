@@ -19,6 +19,7 @@ use haneul_core::consensus_adapter::{
 };
 use haneul_core::execution_scheduler::SchedulingSource;
 use haneul_core::global_state_hasher::GlobalStateHasher;
+use haneul_core::mock_checkpoint_builder::{MockCheckpointBuilder, ValidatorKeypairProvider};
 use haneul_core::mock_consensus::{ConsensusMode, MockConsensusClient};
 use haneul_test_transaction_builder::{PublishData, TestTransactionBuilder};
 use haneul_types::base_types::{AuthorityName, ObjectRef, HaneulAddress, TransactionDigest};
@@ -29,7 +30,6 @@ use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::execution_params::ExecutionOrEarlyError;
 use haneul_types::messages_checkpoint::{VerifiedCheckpoint, VerifiedCheckpointContents};
 use haneul_types::messages_grpc::HandleTransactionResponse;
-use haneul_types::mock_checkpoint_builder::{MockCheckpointBuilder, ValidatorKeypairProvider};
 use haneul_types::object::Object;
 use haneul_types::transaction::{
     CertifiedTransaction, Transaction, TransactionDataAPI, VerifiedCertificate,
