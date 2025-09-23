@@ -27,7 +27,10 @@ RUN git clone https://github.com/GeunhwaJeong/haneul.git ; \
         git checkout $GIT_REVISION ; \
         cd .. ; \
         mv haneul/* .
-
+        
+RUN mkdir -p /docker/stress
+RUN cp docker/stress/entrypoint.sh /docker/stress/entrypoint.sh
+RUN chmod +x /docker/stress/entrypoint.sh
 RUN echo ${GIT_REVISION:-$GIT_REVISION} > /var/run/haneul_commit
 
 CMD ["/docker/stress/entrypoint.sh"]
