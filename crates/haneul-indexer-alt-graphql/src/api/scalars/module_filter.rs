@@ -24,10 +24,10 @@ pub(crate) enum ModuleFilter {
 pub(crate) struct ModuleFilterError;
 
 impl ModuleFilter {
-    pub(crate) fn package(&self) -> Option<HaneulAddress> {
+    pub(crate) fn package(&self) -> HaneulAddress {
         match self {
-            ModuleFilter::Package(p) => Some(*p),
-            ModuleFilter::Module(p, _) => Some(*p),
+            ModuleFilter::Package(p) => *p,
+            ModuleFilter::Module(p, _) => *p,
         }
     }
 
