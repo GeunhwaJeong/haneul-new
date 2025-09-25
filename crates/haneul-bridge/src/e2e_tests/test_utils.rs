@@ -55,7 +55,7 @@ use haneul_types::bridge::BridgeSummary;
 use haneul_types::bridge::BridgeTrait;
 use haneul_types::bridge::{get_bridge, BRIDGE_MODULE_NAME};
 use haneul_types::bridge::{TOKEN_ID_BTC, TOKEN_ID_ETH, TOKEN_ID_USDC, TOKEN_ID_USDT};
-use haneul_types::committee::TOTAL_VOTING_POWER;
+use haneul_types::committee::{ProtocolVersion, TOTAL_VOTING_POWER};
 use haneul_types::crypto::get_key_pair;
 use haneul_types::crypto::ToFromBytes;
 use haneul_types::digests::TransactionDigest;
@@ -72,7 +72,6 @@ use tracing::info;
 use crate::config::{BridgeNodeConfig, EthConfig, HaneulConfig};
 use crate::node::run_bridge_node;
 use crate::haneul_client::HaneulBridgeClient;
-use crate::BRIDGE_ENABLE_PROTOCOL_VERSION;
 use anyhow::anyhow;
 use ethers::prelude::*;
 use move_core_types::ident_str;
@@ -883,7 +882,7 @@ pub struct TestClusterWrapperBuilder {
 impl TestClusterWrapperBuilder {
     pub fn new() -> Self {
         Self {
-            protocol_version: BRIDGE_ENABLE_PROTOCOL_VERSION,
+            protocol_version: ProtocolVersion::MAX.as_u64(),
             bridge_authority_keys: vec![],
             deploy_tokens: false,
         }
