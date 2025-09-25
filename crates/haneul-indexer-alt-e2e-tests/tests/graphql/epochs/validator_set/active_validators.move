@@ -24,7 +24,7 @@
           balances {
             __typename
           }
-          # todo (ewall) populate defaultHaneulnsName
+          # todo DVX-1697 populate defaultHaneulnsName
           defaultHaneulnsName
           multiGetBalances(keys: ["0x2::haneul::HANEUL"]) {
             totalBalance
@@ -33,14 +33,14 @@
             __typename
           }
           credentials { ...VC }
-          # todo (ewall) populate nextEpochCredentials
+          # todo DVX-1697 populate nextEpochCredentials
           nextEpochCredentials { ...VC }
           name
-          # todo (ewall) populate description
+          # todo DVX-1697 populate description
           description
-          # todo (ewall) populate imageUrl
+          # todo DVX-1697 populate imageUrl
           imageUrl
-          # todo (ewall) populate projectUrl
+          # todo DVX-1697 populate projectUrl
           projectUrl
           operationCap {
             address
@@ -48,14 +48,14 @@
           stakingPoolId
           stakingPoolActivationEpoch
           stakingPoolHaneulBalance
-          # todo (ewall) populate rewardsPool
+          # todo DVX-1697 populate rewardsPool
           rewardsPool
           poolTokenBalance
-          # todo (ewall) populate pendingStake
+          # todo DVX-1697 populate pendingStake
           pendingStake
-          # todo (ewall) populate pendingTotalHaneulWithdraw
+          # todo DVX-1697 populate pendingTotalHaneulWithdraw
           pendingTotalHaneulWithdraw
-          # todo (ewall) populate pendingPoolTokenWithdraw
+          # todo DVX-1697 populate pendingPoolTokenWithdraw
           pendingPoolTokenWithdraw
           votingPower
           gasPrice
@@ -63,7 +63,7 @@
           nextEpochStake
           nextEpochGasPrice
           nextEpochCommissionRate
-          # todo (ewall) populate atRisk
+          # todo DVX-1697 populate atRisk
           atRisk
         }
       }
