@@ -18,7 +18,7 @@ Haneul offers the following benefits and capabilities:
  * Ability to define rich and composable on-chain assets
  * Better user experience for web3 apps
 
-Haneul is the only blockchain today that can scale with the growth of web3 while achieving industry-leading performance, cost, programmability, and usability. As Haneul approaches Mainnet launch, it will demonstrate capacity beyond the transaction processing capabilities of established systems – traditional and blockchain alike. Haneul is the first internet-scale programmable blockchain platform, a foundational layer for web3.
+Haneul is the only blockchain today that can scale with the growth of web3 while achieving industry-leading performance, cost, programmability, and usability. Haneul demonstrates capacity beyond the transaction processing capabilities of established systems – traditional and blockchain alike. Haneul is the first internet-scale programmable blockchain platform, a foundational layer for web3.
 
 ## Haneul Architecture
 
