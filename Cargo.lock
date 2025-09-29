@@ -14888,6 +14888,7 @@ dependencies = [
  "move-core-types",
  "prometheus",
  "prost-types",
+ "serde_json",
  "haneul-indexer-alt-consistent-api",
  "haneul-indexer-alt-metrics",
  "haneul-indexer-alt-schema",
