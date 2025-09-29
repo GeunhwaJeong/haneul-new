@@ -132,6 +132,7 @@
       { "source": "/references/framework/bridge/:path*", "destination": "/references/framework/haneul_bridge/:path*"},
       { "source": "/references/framework/std/:path*", "destination": "/references/framework/haneul_std/:path*"},
       { "source": "/references/framework/haneul/:path*", "destination": "/references/framework/haneul_haneul/:path*"},
-      { "source": "/references/framework/haneul_system/:path*", "destination": "/references/framework/haneul_haneul_system/:path*"}
+      { "source": "/references/framework/haneul_system/:path*", "destination": "/references/framework/haneul_haneul_system/:path*"},
+      { "source": "/standards/deepbookv3", "destination": "/standards/deepbook"}
     ]
   }
