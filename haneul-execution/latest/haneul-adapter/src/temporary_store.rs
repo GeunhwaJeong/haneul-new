@@ -31,7 +31,7 @@ use haneul_types::{
     storage::{BackingPackageStore, ChildObjectResolver, ParentSync, Storage},
     transaction::InputObjects,
 };
-use haneul_types::{HANEUL_SYSTEM_STATE_OBJECT_ID, is_system_package};
+use haneul_types::{HANEUL_SYSTEM_STATE_OBJECT_ID, TypeTag, is_system_package};
 
 pub struct TemporaryStore<'backing> {
     // The backing store for retrieving Move packages onchain.
@@ -974,7 +974,7 @@ impl TemporaryStore<'_> {
         // total amount of HANEUL in output objects, including both coins and storage rebates
         let mut total_output_haneul = 0;
 
-        // settlement input/output haneul is used by the settlement transactions to accound for
+        // settlement input/output haneul is used by the settlement transactions to account for
         // Haneul that has been gathered from the accumulator writes of transactions which it is
         // settling.
         total_input_haneul += self.execution_results.settlement_input_haneul;
@@ -1101,9 +1101,12 @@ impl Storage for TemporaryStore<'_> {
         TemporaryStore::save_wrapped_object_containers(self, wrapped_object_containers)
     }
 
-    fn check_coin_deny_list(&self, written_objects: &BTreeMap<ObjectID, Object>) -> DenyListResult {
+    fn check_coin_deny_list(
+        &self,
+        receiving_funds_type_and_owners: BTreeMap<TypeTag, BTreeSet<HaneulAddress>>,
+    ) -> DenyListResult {
         let result = check_coin_deny_list_v2_during_execution(
-            written_objects,
+            receiving_funds_type_and_owners,
             self.cur_epoch,
             self.store.as_object_store(),
         );

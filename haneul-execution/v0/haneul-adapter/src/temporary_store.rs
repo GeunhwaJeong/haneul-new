@@ -28,6 +28,7 @@ use haneul_types::{
         BackingPackageStore, ChildObjectResolver, ObjectChange, ParentSync, Storage, WriteKind,
     },
     transaction::InputObjects,
+    TypeTag,
 };
 use haneul_types::{is_system_package, HANEUL_SYSTEM_STATE_OBJECT_ID};
 
@@ -1022,7 +1023,7 @@ impl Storage for TemporaryStore<'_> {
 
     fn check_coin_deny_list(
         &self,
-        _written_objects: &BTreeMap<ObjectID, Object>,
+        _receiving_funds_type_and_owners: BTreeMap<TypeTag, BTreeSet<HaneulAddress>>,
     ) -> DenyListResult {
         unreachable!("Coin denylist v2 is not supported in haneul-execution v0");
     }
