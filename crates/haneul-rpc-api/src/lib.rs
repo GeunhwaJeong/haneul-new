@@ -225,7 +225,7 @@ impl RpcService {
 
             if let Some(subscription_service_handle) = self.subscription_service_handle.clone() {
                 let subscription_service =
-haneul_rpc::proto::haneul::rpc::v2::subscription_service_server::SubscriptionServiceServer::new(subscription_service_handle.clone());
+haneul_rpc::proto::haneul::rpc::v2::subscription_service_server::SubscriptionServiceServer::new(self.clone());
                 health_reporter
                     .set_service_status(
                         service_name(&subscription_service),

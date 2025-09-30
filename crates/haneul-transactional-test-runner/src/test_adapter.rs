@@ -2804,4 +2804,11 @@ impl ReadStore for HaneulTestAdapter {
         self.executor
             .get_full_checkpoint_contents(sequence_number, digest)
     }
+
+    fn get_unchanged_loaded_runtime_objects(
+        &self,
+        digest: &TransactionDigest,
+    ) -> Option<Vec<haneul_types::storage::ObjectKey>> {
+        self.executor.get_unchanged_loaded_runtime_objects(digest)
+    }
 }

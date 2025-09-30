@@ -39,6 +39,7 @@ use haneul_core::consensus_manager::UpdatableConsensusClient;
 use haneul_core::epoch::randomness::RandomnessManager;
 use haneul_core::execution_cache::build_execution_cache;
 use haneul_network::validator::server::HANEUL_TLS_SERVER_NAME;
+use haneul_types::full_checkpoint_content::Checkpoint;
 
 use haneul_core::execution_scheduler::SchedulingSource;
 use haneul_core::global_state_hasher::GlobalStateHashMetrics;
@@ -55,7 +56,6 @@ use haneul_types::digests::{
     ChainIdentifier, CheckpointDigest, TransactionDigest, TransactionEffectsDigest,
 };
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
-use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::messages_consensus::AuthorityCapabilitiesV2;
 use haneul_types::messages_consensus::ConsensusTransactionKind;
 use haneul_types::haneul_system_state::HaneulSystemState;
@@ -284,7 +284,7 @@ pub struct HaneulNode {
     // update will automatically propagate to other uses.
     auth_agg: Arc<ArcSwap<AuthorityAggregator<NetworkAuthorityClient>>>,
 
-    subscription_service_checkpoint_sender: Option<tokio::sync::mpsc::Sender<CheckpointData>>,
+    subscription_service_checkpoint_sender: Option<tokio::sync::mpsc::Sender<Checkpoint>>,
 }
 
 impl fmt::Debug for HaneulNode {
@@ -2485,10 +2485,7 @@ async fn build_http_servers(
     config: &NodeConfig,
     prometheus_registry: &Registry,
     server_version: ServerVersion,
-) -> Result<(
-    HttpServers,
-    Option<tokio::sync::mpsc::Sender<CheckpointData>>,
-)> {
+) -> Result<(HttpServers, Option<tokio::sync::mpsc::Sender<Checkpoint>>)> {
     // Validators do not expose these APIs
     if config.consensus_config().is_some() {
         return Ok((HttpServers::default(), None));

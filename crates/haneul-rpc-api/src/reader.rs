@@ -9,6 +9,7 @@ use haneul_sdk_types::{CheckpointSequenceNumber, EpochId, SignedTransaction, Val
 use haneul_types::balance_change::BalanceChange;
 use haneul_types::base_types::{ObjectID, ObjectType};
 use haneul_types::storage::error::{Error as StorageError, Result};
+use haneul_types::storage::ObjectKey;
 use haneul_types::storage::RpcStateReader;
 use haneul_types::storage::{ObjectStore, TransactionInfo};
 use tap::Pipe;
@@ -167,6 +168,10 @@ impl StateReader {
             None
         };
 
+        let unchanged_loaded_runtime_objects = self
+            .inner()
+            .get_unchanged_loaded_runtime_objects(&(digest.into()));
+
         Ok(TransactionRead {
             digest: transaction.digest(),
             transaction,
@@ -177,6 +182,7 @@ impl StateReader {
             timestamp_ms,
             balance_changes,
             object_types,
+            unchanged_loaded_runtime_objects,
         })
     }
 
@@ -210,6 +216,7 @@ pub struct TransactionRead {
     pub timestamp_ms: Option<u64>,
     pub balance_changes: Option<Vec<BalanceChange>>,
     pub object_types: Option<HashMap<ObjectID, ObjectType>>,
+    pub unchanged_loaded_runtime_objects: Option<Vec<ObjectKey>>,
 }
 
 pub struct CheckpointTransactionsIter {

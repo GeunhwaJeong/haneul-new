@@ -31,6 +31,7 @@ use haneul_types::digests::{ChainIdentifier, ConsensusCommitDigest};
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::messages_consensus::ConsensusDeterminedVersionAssignments;
 use haneul_types::object::{Object, Owner};
+use haneul_types::storage::ObjectKey;
 use haneul_types::storage::{ObjectStore, ReadStore, RpcStateReader};
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use haneul_types::transaction::EndOfEpochTransactionKind;
@@ -538,7 +539,9 @@ impl<R, S: store::SimulatorStore> Simulacrum<R, S> {
     ) -> anyhow::Result<()> {
         if let Some(path) = &self.data_ingestion_path {
             let file_name = format!("{}.chk", checkpoint.sequence_number);
-            let checkpoint_data = self.get_checkpoint_data(checkpoint, checkpoint_contents)?;
+            let checkpoint_data: haneul_types::full_checkpoint_content::CheckpointData = self
+                .get_checkpoint_data(checkpoint, checkpoint_contents)?
+                .into();
             std::fs::create_dir_all(path)?;
             let blob = Blob::encode(&checkpoint_data, BlobEncoding::Bcs)?;
             std::fs::write(path.join(file_name), blob.to_bytes())?;
@@ -678,6 +681,13 @@ impl<T, V: store::SimulatorStore> ReadStore for Simulacrum<T, V> {
         _digest: &haneul_types::messages_checkpoint::CheckpointContentsDigest,
     ) -> Option<haneul_types::messages_checkpoint::FullCheckpointContents> {
         todo!()
+    }
+
+    fn get_unchanged_loaded_runtime_objects(
+        &self,
+        _digest: &haneul_types::digests::TransactionDigest,
+    ) -> Option<Vec<ObjectKey>> {
+        None
     }
 }
 
