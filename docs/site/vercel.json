@@ -133,6 +133,8 @@
       { "source": "/references/framework/std/:path*", "destination": "/references/framework/haneul_std/:path*"},
       { "source": "/references/framework/haneul/:path*", "destination": "/references/framework/haneul_haneul/:path*"},
       { "source": "/references/framework/haneul_system/:path*", "destination": "/references/framework/haneul_haneul_system/:path*"},
+      { "source": "/guides/developer/stablecoins", "destination": "/guides/developer/coin/regulated"},
+      { "source": "/standards/coin", "destination": "/standards/currency"},
       { "source": "/standards/deepbookv3", "destination": "/standards/deepbook"}
     ]
   }

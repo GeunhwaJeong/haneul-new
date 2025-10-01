@@ -349,6 +349,11 @@ a code:not(:is(.table-of-contents a code)) {
   @apply bg-haneul-blue-bright/10 text-haneul-hero-dark dark:bg-haneul-hero-dark dark:text-haneul-blue-bright/90;
 }
 
+
+td .theme-code-block {
+  @apply mb-0;
+}
+
 /* Make inline code blocks that contain only a single link display inline */
 .codeBlockStandalone_O0hG:has(.codeBlockLines_F6q7 > a:only-child) {
   display: inline-block !important;
