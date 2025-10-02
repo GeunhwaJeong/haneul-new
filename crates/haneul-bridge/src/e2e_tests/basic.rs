@@ -142,7 +142,7 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
     assert_eq!(parsed_msg.parsed_payload.token_type, TOKEN_ID_ETH);
     assert_eq!(parsed_msg.parsed_payload.amount, haneul_amount);
 
-    let message = eth_haneul_bridge::Message::from(haneul_to_eth_bridge_action);
+    let message: eth_haneul_bridge::Message = haneul_to_eth_bridge_action.try_into().unwrap();
     let signatures = get_signatures(bridge_test_cluster.bridge_client(), nonce, haneul_chain_id).await;
 
     let eth_haneul_bridge = EthHaneulBridge::new(
