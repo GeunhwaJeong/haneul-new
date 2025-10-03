@@ -336,7 +336,7 @@ Called by the settlement transaction to track conservation of HANEUL.
 
 
 
-<pre><code><b>entry</b> <b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_settle_events">settle_events</a>(accumulator_root: &<b>mut</b> <a href="../haneul/accumulator.md#haneul_accumulator_AccumulatorRoot">haneul::accumulator::AccumulatorRoot</a>, stream_id: <b>address</b>, new_root: u256, event_count_delta: u64, checkpoint_seq: u64, ctx: &<a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
+<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_settle_events">settle_events</a>(accumulator_root: &<b>mut</b> <a href="../haneul/accumulator.md#haneul_accumulator_AccumulatorRoot">haneul::accumulator::AccumulatorRoot</a>, stream_id: <b>address</b>, new_root: u256, event_count_delta: u64, checkpoint_seq: u64, ctx: &<a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -345,7 +345,7 @@ Called by the settlement transaction to track conservation of HANEUL.
 <summary>Implementation</summary>
 
 
-<pre><code><b>entry</b> <b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_settle_events">settle_events</a>(
+<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_settle_events">settle_events</a>(
     accumulator_root: &<b>mut</b> AccumulatorRoot,
     stream_id: <b>address</b>,
     new_root: u256,
