@@ -118,6 +118,12 @@ export default function Home() {
             >
               Haneul ecosystem directory
             </Link>
+            <Link
+              className={styles.cardLink}
+              to="/references/awesome-haneul"
+            >
+              Awesome Haneul
+            </Link>
             <Link className={styles.cardLink} to="https://blog.haneul.io/">
               Haneul blog
             </Link>
