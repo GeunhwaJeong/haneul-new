@@ -1962,7 +1962,7 @@ checksum = "230c5f1ca6a325a32553f8640d31ac9b49f2411e901e427570154868b46da4f7"
 
 [[package]]
 name = "bin-version"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "const-str",
  "git-version",
@@ -13180,7 +13180,7 @@ checksum = "734676eb262c623cec13c3155096e08d1f8f29adce39ba17948b18dad1e54142"
 
 [[package]]
 name = "haneul"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anemo",
  "anyhow",
@@ -13404,7 +13404,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-analytics-indexer"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "arrow",
@@ -13459,7 +13459,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-analytics-indexer-derive"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -13561,7 +13561,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-bridge"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -13613,7 +13613,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-bridge-cli"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -13719,7 +13719,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-cluster-test"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -13945,7 +13945,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-data-ingestion"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -14040,7 +14040,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-default-config"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "quote",
  "syn 1.0.107",
@@ -14048,7 +14048,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-display"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "insta",
@@ -14060,7 +14060,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-e2e-tests"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -14210,7 +14210,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-faucet"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -14239,14 +14239,14 @@ dependencies = [
 
 [[package]]
 name = "haneul-field-count"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "haneul-field-count-derive",
 ]
 
 [[package]]
 name = "haneul-field-count-derive"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "quote",
  "syn 1.0.107",
@@ -14274,7 +14274,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-framework-snapshot"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "bcs",
@@ -14354,7 +14354,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-graphql-rpc"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-graphql",
@@ -14477,7 +14477,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -14552,7 +14552,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -14589,7 +14589,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-consistent-api"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "prost",
  "prost-types",
@@ -14601,7 +14601,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-consistent-store"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -14692,7 +14692,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-framework"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -14735,7 +14735,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-framework-store-traits"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -14745,7 +14745,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-graphql"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-graphql",
@@ -14805,7 +14805,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-jsonrpc"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-graphql",
@@ -14861,7 +14861,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-metrics"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "axum 0.8.3",
@@ -14876,7 +14876,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-reader"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-graphql",
@@ -14939,7 +14939,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-schema"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "bcs",
@@ -15168,7 +15168,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-kv-rpc"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "axum 0.8.3",
@@ -15193,7 +15193,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-kvstore"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -15217,7 +15217,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-light-client"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -15262,7 +15262,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-metric-checker"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "backoff",
@@ -15300,7 +15300,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-move"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "better_any",
@@ -15343,7 +15343,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-move-build"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "fastcrypto",
@@ -15367,7 +15367,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-move-lsp"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "bin-version",
  "clap",
@@ -15460,7 +15460,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-name-service"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "bcs",
  "move-core-types",
@@ -15520,7 +15520,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-node"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anemo",
  "anemo-tower",
@@ -15577,7 +15577,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-open-rpc"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "bcs",
@@ -15613,7 +15613,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-oracle"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "bcs",
@@ -15643,7 +15643,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-package-alt"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "move-core-types",
  "move-package-alt",
@@ -15654,7 +15654,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-package-dump"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "bcs",
@@ -15671,7 +15671,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-package-management"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "move-core-types",
@@ -15711,7 +15711,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-pg-db"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -15914,7 +15914,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-rosetta"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -16027,7 +16027,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-rpc-benchmark"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "bb8",
@@ -16052,7 +16052,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-rpc-loadgen"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -16079,7 +16079,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-sdk"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -16140,7 +16140,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-security-watchdog"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "arrow-array",
@@ -16187,7 +16187,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-single-node-benchmark"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "async-trait",
  "bcs",
@@ -16250,7 +16250,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-source-validation"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "colored",
@@ -16282,7 +16282,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-sql-macro"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "quote",
  "syn 1.0.107",
@@ -16345,7 +16345,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-surfer"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "async-trait",
  "bcs",
@@ -16468,7 +16468,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-test-validator"
-version = "1.59.0"
+version = "1.58.0"
 
 [[package]]
 name = "haneul-tls"
@@ -16494,7 +16494,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-tool"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anemo",
  "anemo-cli",
@@ -16791,7 +16791,7 @@ dependencies = [
 
 [[package]]
 name = "haneulns-indexer"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -19407,7 +19407,7 @@ dependencies = [
 
 [[package]]
 name = "x"
-version = "1.59.0"
+version = "1.58.0"
 dependencies = [
  "anyhow",
  "camino",
