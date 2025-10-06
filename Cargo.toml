@@ -724,6 +724,7 @@ haneul-json-rpc-types = { path = "crates/haneul-json-rpc-types" }
 haneul-keys = { path = "crates/haneul-keys" }
 haneul-kvstore = { path = "crates/haneul-kvstore" }
 haneul-kv-rpc = { path = "crates/haneul-kv-rpc" }
+haneul-light-client = { path = "crates/haneul-light-client" }
 haneul-macros = { path = "crates/haneul-macros" }
 haneul-metric-checker = { path = "crates/haneul-metric-checker" }
 haneul-metrics-push-client = { path = "crates/haneul-metrics-push-client" }

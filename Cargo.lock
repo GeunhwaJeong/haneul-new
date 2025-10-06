@@ -14099,6 +14099,7 @@ dependencies = [
  "haneul-json-rpc-api",
  "haneul-json-rpc-types",
  "haneul-keys",
+ "haneul-light-client",
  "haneul-macros",
  "haneul-move-build",
  "haneul-network",
