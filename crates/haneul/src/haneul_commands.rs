@@ -15,6 +15,7 @@ use colored::Colorize;
 use fastcrypto::traits::KeyPair;
 use move_analyzer::analyzer;
 use move_command_line_common::files::MOVE_COMPILED_EXTENSION;
+use move_compiler::editions::Flavor;
 use move_package::BuildConfig;
 use haneullabs_common::tempdir;
 use rand::rngs::OsRng;
@@ -778,7 +779,10 @@ impl HaneulCommand {
             }
             HaneulCommand::FireDrill { fire_drill } => run_fire_drill(fire_drill).await,
             HaneulCommand::Analyzer => {
-                analyzer::run(implicit_deps(latest_system_packages()));
+                let haneul_implicit_deps = implicit_deps(latest_system_packages());
+                let flavor = Flavor::Haneul;
+                let haneul_pkg_hooks = Box::new(HaneulPackageHooks);
+                analyzer::run(haneul_implicit_deps, Some(flavor), Some(haneul_pkg_hooks));
                 Ok(())
             }
             HaneulCommand::AnalyzeTrace {

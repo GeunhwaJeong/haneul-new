@@ -3,7 +3,8 @@
 
 use clap::*;
 use move_analyzer::analyzer;
-use haneul_move_build::implicit_deps;
+use move_compiler::editions::Flavor;
+use haneul_move_build::{implicit_deps, HaneulPackageHooks};
 use haneul_package_management::system_package_versions::latest_system_packages;
 
 // Define the `GIT_REVISION` and `VERSION` consts
@@ -20,5 +21,8 @@ struct App {}
 
 fn main() {
     App::parse();
-    analyzer::run(implicit_deps(latest_system_packages()));
+    let haneul_implicit_deps = implicit_deps(latest_system_packages());
+    let flavor = Flavor::Haneul;
+    let haneul_pkg_hooks = Box::new(HaneulPackageHooks);
+    analyzer::run(haneul_implicit_deps, Some(flavor), Some(haneul_pkg_hooks));
 }
