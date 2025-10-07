@@ -6,7 +6,6 @@ use std::{
     sync::Arc,
 };
 
-#[cfg(debug_assertions)]
 use haneullabs_common::in_test_configuration;
 use parking_lot::Mutex;
 use haneul_types::{
