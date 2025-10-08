@@ -15903,6 +15903,7 @@ dependencies = [
  "haneul-execution",
  "haneul-framework",
  "haneul-json-rpc-types",
+ "haneul-move",
  "haneul-move-build",
  "haneul-package-management",
  "haneul-types",

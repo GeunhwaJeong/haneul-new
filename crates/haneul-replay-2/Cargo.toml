@@ -36,6 +36,7 @@ haneul-execution.workspace = true
 haneul-framework.workspace = true
 haneul-types.workspace = true
 haneul-config.workspace = true
+haneul-move.workspace = true
 haneul-move-build.workspace = true
 haneul-package-management.workspace = true
 telemetry-subscribers.workspace = true
