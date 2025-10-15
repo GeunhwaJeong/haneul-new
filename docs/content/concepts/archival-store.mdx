@@ -5,11 +5,11 @@ beta: testnet, mainnet
 keywords: [ grpc, g rpc, RPC, haneul full node grpc, full node rpc, what is grpc, grpc on haneul, graphql, graph ql, what is graphql, graphql rpc ]
 ---
 
-The Archival Store and Service provide a scalable, consistent foundation for accessing historical data on Haneul beyond what Full nodes or indexer databases typically retain. They power rich developer experiences through [gRPC](./grpc-overview.mdx) and [GraphQL](./graphql-indexer.mdx) APIs while keeping storage and operations manageable.
+The Archival Store and Service provide a scalable, consistent foundation for accessing historical data on Haneul beyond what Full nodes or indexer databases typically retain. They power rich developer experiences through [gRPC](./grpc-overview.mdx) and [GraphQL](/concepts/graphql-indexer.mdx) APIs while keeping storage and operations manageable.
 
 :::note
 
-GraphQL RPC will integrate with the Archival Service after the GraphQL RPC and General-purpose Indexer beta launch. Until then, the GraphQL RPC beta will only be available as a hosted service from the Haneul Foundation, and connects directly to the Archival Store (Bigtable) operated by the Haneul Foundation.
+GraphQL RPC is yet to integrate with the Archival Service. Until that happens, the GraphQL RPC beta will only be available as a hosted service from the Haneul Foundation, and connects directly to the Archival Store (Bigtable) operated by the Haneul Foundation.
 
 :::
 
@@ -96,7 +96,7 @@ The Archival Service implements the [gRPC API's](./grpc-overview.mdx) `LedgerSer
 
 ### GraphQL RPC
 
-- [GraphQL RPC](./graphql-indexer.mdx) will delegate historical lookups to the Archival Service using the planned integration after the upcoming beta release. It will enable cost-efficient setup of a General-purpose Indexer database with limited retention.
+- [GraphQL RPC](/concepts/graphql-indexer.mdx) will delegate historical lookups to the Archival Service using the planned integration. It will enable cost-efficient setup of a General-purpose Indexer database with limited retention.
 
 ## Related links
 
