@@ -45,6 +45,7 @@ pub mod deny_list_v2;
 pub mod derived_object;
 pub mod digests;
 pub mod display;
+pub mod display_registry;
 pub mod dynamic_field;
 pub mod effects;
 pub mod epoch_data;
@@ -138,6 +139,7 @@ built_in_ids! {
     HANEUL_RANDOMNESS_STATE_ADDRESS / HANEUL_RANDOMNESS_STATE_OBJECT_ID = 0x8;
     HANEUL_BRIDGE_ADDRESS / HANEUL_BRIDGE_OBJECT_ID = 0x9;
     HANEUL_COIN_REGISTRY_ADDRESS / HANEUL_COIN_REGISTRY_OBJECT_ID = 0xc;
+    HANEUL_DISPLAY_REGISTRY_ADDRESS / HANEUL_DISPLAY_REGISTRY_OBJECT_ID = 0xd;
     HANEUL_DENY_LIST_ADDRESS / HANEUL_DENY_LIST_OBJECT_ID = 0x403;
     HANEUL_ACCUMULATOR_ROOT_ADDRESS / HANEUL_ACCUMULATOR_ROOT_OBJECT_ID = 0xacc;
 }
