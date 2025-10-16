@@ -6,7 +6,6 @@ use move_bytecode_verifier_meter::Meter;
 use move_vm_config::verifier::MeterConfig;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::error::HaneulResult;
-use haneul_types::execution_config_utils::to_binary_config;
 
 pub trait Verifier {
     /// Create a new bytecode verifier meter.
@@ -30,7 +29,7 @@ pub trait Verifier {
         module_bytes: &[Vec<u8>],
         meter: &mut dyn Meter,
     ) -> HaneulResult<()> {
-        let binary_config = to_binary_config(protocol_config);
+        let binary_config = protocol_config.binary_config();
         let Ok(modules) = module_bytes
             .iter()
             .map(|b| CompiledModule::deserialize_with_config(b, &binary_config))

@@ -12,7 +12,6 @@ use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::execution::{
     DynamicallyLoadedObjectMetadata, ExecutionResults, ExecutionResultsV2, SharedInput,
 };
-use haneul_types::execution_config_utils::to_binary_config;
 use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::inner_temporary_store::InnerTemporaryStore;
 use haneul_types::layout_resolver::LayoutResolver;
@@ -122,7 +121,7 @@ impl<'backing> TemporaryStore<'backing> {
             loaded_runtime_objects: self.loaded_runtime_objects,
             runtime_packages_loaded_from_db: self.runtime_packages_loaded_from_db.into_inner(),
             lamport_version: self.lamport_timestamp,
-            binary_config: to_binary_config(&self.protocol_config),
+            binary_config: self.protocol_config.binary_config(),
         }
     }
 

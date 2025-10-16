@@ -15,7 +15,6 @@ use haneul_json_rpc_types::{HaneulTransactionBlockEffects, HaneulTransactionBloc
 use haneul_move_build::BuildConfig;
 use haneul_protocol_config::{Chain, ProtocolConfig};
 use haneul_types::base_types::{ConsensusObjectSequenceKey, ObjectID, ObjectRef, HaneulAddress};
-use haneul_types::execution_config_utils::to_binary_config;
 use haneul_types::object::{Object, Owner};
 use haneul_types::storage::WriteKind;
 use haneul_types::transaction::{CallArg, ObjectArg, TransactionData, TEST_ONLY_GAS_UNIT_FOR_PUBLISH};
@@ -279,7 +278,7 @@ impl SurferState {
         let move_package = package.into_inner().data.try_into_package().unwrap();
         let proto_version = self.cluster.highest_protocol_version();
         let config = ProtocolConfig::get_for_version(proto_version, Chain::Unknown);
-        let binary_config = to_binary_config(&config);
+        let binary_config = config.binary_config();
         let pool: &mut normalized::ArcPool = &mut *self.pool.write().await;
         let entry_functions: Vec<_> = move_package
             .normalize(pool, &binary_config, /* include code */ false)

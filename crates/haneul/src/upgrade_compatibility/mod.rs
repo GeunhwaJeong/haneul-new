@@ -46,8 +46,8 @@ use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulRawData};
 use haneul_move_build::CompiledPackage;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_sdk::apis::ReadApi;
+use haneul_types::base_types::ObjectID;
 use haneul_types::move_package::UpgradePolicy;
-use haneul_types::{base_types::ObjectID, execution_config_utils::to_binary_config};
 
 type Enum = normalized::Enum<normalized::RcIdentifier>;
 type Field = normalized::Field<normalized::RcIdentifier>;
@@ -708,7 +708,7 @@ pub(crate) async fn check_compatibility(
     let existing_modules = existing_package
         .module_map
         .iter()
-        .map(|m| CompiledModule::deserialize_with_config(m.1, &to_binary_config(&protocol_config)))
+        .map(|m| CompiledModule::deserialize_with_config(m.1, &protocol_config.binary_config()))
         .collect::<Result<Vec<_>, _>>()
         .context("Unable to get existing package")?;
 

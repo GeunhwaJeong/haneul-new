@@ -22,7 +22,6 @@ mod checked {
     use haneul_types::committee::EpochId;
     use haneul_types::effects::TransactionEffects;
     use haneul_types::error::{ExecutionError, ExecutionErrorKind};
-    use haneul_types::execution_config_utils::to_binary_config;
     use haneul_types::execution_params::ExecutionOrEarlyError;
     use haneul_types::execution_status::ExecutionStatus;
     use haneul_types::gas::GasCostSummary;
@@ -700,7 +699,7 @@ mod checked {
             }
         }
 
-        let binary_config = to_binary_config(protocol_config);
+        let binary_config = protocol_config.binary_config();
         for (version, modules, dependencies) in change_epoch.system_packages.into_iter() {
             let deserialized_modules: Vec<_> = modules
                 .iter()
