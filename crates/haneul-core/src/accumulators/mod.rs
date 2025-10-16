@@ -20,7 +20,9 @@ use haneul_types::effects::{
     TransactionEffects, TransactionEffectsAPI,
 };
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use haneul_types::transaction::{Argument, CallArg, ObjectArg, TransactionKind};
+use haneul_types::transaction::{
+    Argument, CallArg, ObjectArg, SharedObjectMutability, TransactionKind,
+};
 use haneul_types::{
     TypeTag, HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID,
 };
@@ -326,7 +328,7 @@ impl AccumulatorSettlementTxBuilder {
             .input(CallArg::Object(ObjectArg::SharedObject {
                 id: HANEUL_ACCUMULATOR_ROOT_OBJECT_ID,
                 initial_shared_version: accumulator_root_obj_initial_shared_version,
-                mutable: true,
+                mutability: SharedObjectMutability::Mutable,
             }))
             .unwrap();
 

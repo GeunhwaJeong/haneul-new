@@ -29,7 +29,7 @@ use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{random_object_ref, ObjectRef};
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::transaction::Command;
-use haneul_types::transaction::{CallArg, ObjectArg};
+use haneul_types::transaction::{CallArg, ObjectArg, SharedObjectMutability};
 use haneul_types::{base_types::ObjectID, object::Owner};
 use haneul_types::{base_types::HaneulAddress, crypto::get_key_pair, transaction::Transaction};
 use haneul_types::{transaction::TransactionData, utils::to_sender_signed_transaction};
@@ -294,7 +294,7 @@ impl AdversarialTestPayload {
                     CallArg::Object(ObjectArg::SharedObject {
                         id: self.df_parent_obj_ref.0,
                         initial_shared_version: self.df_parent_obj_ref.1,
-                        mutable: true,
+                        mutability: SharedObjectMutability::Mutable,
                     })
                     .into(),
                     self.get_pct_of(protocol_config.object_runtime_max_num_store_entries())

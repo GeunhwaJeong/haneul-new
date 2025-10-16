@@ -21,7 +21,7 @@ use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::coin_registry::Currency;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use haneul_types::transaction::{ObjectArg, TransactionData};
+use haneul_types::transaction::{ObjectArg, SharedObjectMutability, TransactionData};
 use haneul_types::{TypeTag, HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_FRAMEWORK_PACKAGE_ID};
 use test_cluster::TestClusterBuilder;
 
@@ -243,7 +243,7 @@ async fn test_get_coin_info_registry_coin() {
         .obj(ObjectArg::SharedObject {
             id: currency_id,
             initial_shared_version,
-            mutable: true,
+            mutability: SharedObjectMutability::Mutable,
         })
         .unwrap();
 
@@ -708,7 +708,7 @@ async fn test_burnonly_coin_info() {
         .obj(ObjectArg::SharedObject {
             id: currency_id,
             initial_shared_version,
-            mutable: true,
+            mutability: SharedObjectMutability::Mutable,
         })
         .unwrap();
 
@@ -874,7 +874,7 @@ async fn finalize_registration(
         .obj(ObjectArg::SharedObject {
             id: HANEUL_COIN_REGISTRY_OBJECT_ID,
             initial_shared_version: registry_initial_version,
-            mutable: true,
+            mutability: SharedObjectMutability::Mutable,
         })
         .unwrap();
 

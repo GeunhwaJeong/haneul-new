@@ -17,6 +17,7 @@ use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::storage::{
     transaction_non_shared_input_object_keys, transaction_receiving_object_keys, ObjectKey,
 };
+use haneul_types::transaction::SharedObjectMutability;
 use haneul_types::transaction::{SharedInputObject, TransactionDataAPI, TransactionKey};
 use haneul_types::HANEUL_ACCUMULATOR_ROOT_OBJECT_ID;
 use haneul_types::{base_types::SequenceNumber, error::HaneulResult, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
@@ -156,7 +157,7 @@ impl<T> Schedulable<T> {
                         .epoch_start_config()
                         .randomness_obj_initial_shared_version()
                         .expect("randomness obj initial shared version should be set"),
-                    mutable: true,
+                    mutability: SharedObjectMutability::Mutable,
                 }))
             }
             Schedulable::AccumulatorSettlement(_, _) => {
@@ -166,7 +167,7 @@ impl<T> Schedulable<T> {
                         .epoch_start_config()
                         .accumulator_root_obj_initial_shared_version()
                         .expect("accumulator root obj initial shared version should be set"),
-                    mutable: true,
+                    mutability: SharedObjectMutability::Mutable,
                 }))
             }
         }
@@ -405,7 +406,7 @@ impl SharedObjVerManager {
                 SharedInputObject {
                     id,
                     initial_shared_version,
-                    mutable,
+                    mutability,
                 },
                 assigned_version,
             ) in shared_input_objects.iter().map(|obj| {
@@ -418,7 +419,7 @@ impl SharedObjVerManager {
             }) {
                 assigned_versions.push(((*id, *initial_shared_version), assigned_version));
                 input_object_keys.push(ObjectKey(*id, assigned_version));
-                is_mutable_input.push(*mutable);
+                is_mutable_input.push(mutability.is_mutable());
             }
         }
 
@@ -504,7 +505,9 @@ mod tests {
 
     use haneul_types::object::Object;
     use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-    use haneul_types::transaction::{ObjectArg, SenderSignedData, VerifiedTransaction};
+    use haneul_types::transaction::{
+        ObjectArg, SenderSignedData, SharedObjectMutability, VerifiedTransaction,
+    };
 
     use haneul_types::gas_coin::GAS;
     use haneul_types::transaction::FundsWithdrawalArg;
@@ -947,7 +950,11 @@ mod tests {
                 .obj(ObjectArg::SharedObject {
                     id: *shared_object_id,
                     initial_shared_version: *shared_object_init_version,
-                    mutable: *shared_object_mutable,
+                    mutability: if *shared_object_mutable {
+                        SharedObjectMutability::Mutable
+                    } else {
+                        SharedObjectMutability::Immutable
+                    },
                 })
                 .unwrap();
         }
@@ -1034,7 +1041,7 @@ mod tests {
                     .obj(ObjectArg::SharedObject {
                         id,
                         initial_shared_version: init_version,
-                        mutable: true,
+                        mutability: SharedObjectMutability::Mutable,
                     })
                     .unwrap();
             }

@@ -17,8 +17,8 @@ mod checked {
     use haneul_types::metrics::BytecodeVerifierMetrics;
     use haneul_types::transaction::{
         CheckedInputObjects, InputObjectKind, InputObjects, ObjectReadResult, ObjectReadResultKind,
-        ReceivingObjectReadResult, ReceivingObjects, TransactionData, TransactionDataAPI,
-        TransactionKind,
+        ReceivingObjectReadResult, ReceivingObjects, SharedObjectMutability, TransactionData,
+        TransactionDataAPI, TransactionKind,
     };
     use haneul_types::{
         base_types::{SequenceNumber, HaneulAddress},
@@ -491,7 +491,7 @@ mod checked {
             InputObjectKind::SharedMoveObject {
                 id: HANEUL_CLOCK_OBJECT_ID,
                 initial_shared_version: HANEUL_CLOCK_OBJECT_SHARED_VERSION,
-                mutable: true,
+                mutability: SharedObjectMutability::Mutable,
             } => {
                 // Only system transactions can accept the Clock
                 // object as a mutable parameter.
@@ -517,7 +517,7 @@ mod checked {
             }
             InputObjectKind::SharedMoveObject {
                 id: HANEUL_RANDOMNESS_STATE_OBJECT_ID,
-                mutable: true,
+                mutability: SharedObjectMutability::Mutable,
                 ..
             } => {
                 // Only system transactions can accept the Random

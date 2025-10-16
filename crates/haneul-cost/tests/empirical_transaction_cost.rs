@@ -15,6 +15,7 @@ use haneul_types::coin::PAY_JOIN_FUNC_NAME;
 use haneul_types::coin::PAY_MODULE_NAME;
 use haneul_types::coin::PAY_SPLIT_VEC_FUNC_NAME;
 use haneul_types::gas_coin::GAS;
+use haneul_types::transaction::SharedObjectMutability;
 use haneul_types::transaction::TransactionData;
 use haneul_types::HANEUL_FRAMEWORK_PACKAGE_ID;
 use haneul_types::{
@@ -199,7 +200,7 @@ async fn create_txes(
                 CallArg::Object(ObjectArg::SharedObject {
                     id: counter_id,
                     initial_shared_version: counter_initial_shared_version,
-                    mutable: true,
+                    mutability: SharedObjectMutability::Mutable,
                 }),
                 CallArg::Pure(0u64.to_le_bytes().to_vec()),
             ],

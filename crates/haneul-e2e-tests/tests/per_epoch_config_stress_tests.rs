@@ -13,7 +13,7 @@ use haneul_macros::sim_test;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::{EpochId, ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use haneul_types::transaction::{CallArg, ObjectArg, TransactionData};
+use haneul_types::transaction::{CallArg, ObjectArg, SharedObjectMutability, TransactionData};
 use haneul_types::{HANEUL_DENY_LIST_OBJECT_ID, HANEUL_FRAMEWORK_PACKAGE_ID};
 use test_cluster::{TestCluster, TestClusterBuilder};
 
@@ -112,7 +112,7 @@ async fn create_deny_tx(test_env: Arc<TestEnv>, gas: ObjectRef) -> TransactionDa
                 CallArg::Object(ObjectArg::SharedObject {
                     id: HANEUL_DENY_LIST_OBJECT_ID,
                     initial_shared_version: test_env.deny_list_object_init_version,
-                    mutable: true,
+                    mutability: SharedObjectMutability::Mutable,
                 }),
                 CallArg::Object(ObjectArg::ImmOrOwnedObject(
                     test_env.get_latest_object_ref(&test_env.deny_cap_id).await,

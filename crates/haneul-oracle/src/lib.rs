@@ -26,7 +26,7 @@ use haneul_types::parse_haneul_type_tag;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::quorum_driver_types::NON_RECOVERABLE_ERROR_MSG;
 use haneul_types::transaction::{Argument, Transaction};
-use haneul_types::transaction::{Command, ObjectArg};
+use haneul_types::transaction::{Command, ObjectArg, SharedObjectMutability};
 use haneul_types::Identifier;
 use haneul_types::{
     base_types::HaneulAddress,
@@ -708,7 +708,11 @@ async fn get_object_arg(
         } => ObjectArg::SharedObject {
             id,
             initial_shared_version,
-            mutable: is_mutable_ref,
+            mutability: if is_mutable_ref {
+                SharedObjectMutability::Mutable
+            } else {
+                SharedObjectMutability::Immutable
+            },
         },
         Owner::AddressOwner(_) | Owner::ObjectOwner(_) | Owner::Immutable => {
             ObjectArg::ImmOrOwnedObject(obj_ref)

@@ -9,7 +9,7 @@ use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::object::{Owner, OBJECT_START_VERSION};
-use haneul_types::transaction::{CallArg, ObjectArg};
+use haneul_types::transaction::{CallArg, ObjectArg, SharedObjectMutability};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use test_cluster::{TestCluster, TestClusterBuilder};
 
@@ -226,7 +226,7 @@ impl TestEnvironment {
                 vec![CallArg::Object(ObjectArg::SharedObject {
                     id: counter,
                     initial_shared_version,
-                    mutable: true,
+                    mutability: SharedObjectMutability::Mutable,
                 })],
             )
             .await?;

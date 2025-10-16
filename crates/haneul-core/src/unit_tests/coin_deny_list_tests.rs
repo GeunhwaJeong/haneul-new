@@ -22,7 +22,7 @@ use haneul_types::error::{HaneulError, UserInputError};
 use haneul_types::object::Object;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{
-    CallArg, FundsWithdrawalArg, ObjectArg, Transaction, TransactionData,
+    CallArg, FundsWithdrawalArg, ObjectArg, SharedObjectMutability, Transaction, TransactionData,
     TEST_ONLY_GAS_UNIT_FOR_PUBLISH,
 };
 use haneul_types::type_input::TypeInput;
@@ -104,7 +104,7 @@ async fn test_regulated_coin_v2_types() {
             CallArg::Object(ObjectArg::SharedObject {
                 id: HANEUL_DENY_LIST_OBJECT_ID,
                 initial_shared_version: deny_list_object_init_version,
-                mutable: true,
+                mutability: SharedObjectMutability::Mutable,
             }),
             CallArg::Object(ObjectArg::ImmOrOwnedObject(
                 env.get_latest_object_ref(&metadata.deny_cap_id).await,
@@ -178,7 +178,7 @@ async fn test_regulated_coin_v2_types() {
             CallArg::Object(ObjectArg::SharedObject {
                 id: HANEUL_DENY_LIST_OBJECT_ID,
                 initial_shared_version: deny_list_object_init_version,
-                mutable: true,
+                mutability: SharedObjectMutability::Mutable,
             }),
             CallArg::Object(ObjectArg::ImmOrOwnedObject(
                 env.get_latest_object_ref(&metadata.deny_cap_id).await,
@@ -240,7 +240,7 @@ async fn test_regulated_coin_v2_funds_withdraw_deny() {
             CallArg::Object(ObjectArg::SharedObject {
                 id: HANEUL_DENY_LIST_OBJECT_ID,
                 initial_shared_version: deny_list_object_init_version,
-                mutable: true,
+                mutability: SharedObjectMutability::Mutable,
             }),
             CallArg::Object(ObjectArg::ImmOrOwnedObject(deny_cap_ref)),
             CallArg::Pure(bcs::to_bytes(&denied_address).unwrap()),

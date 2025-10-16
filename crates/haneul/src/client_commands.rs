@@ -84,8 +84,8 @@ use haneul_types::{
     signature::GenericSignature,
     haneul_serde,
     transaction::{
-        InputObjectKind, ObjectArg, SenderSignedData, Transaction, TransactionData,
-        TransactionDataAPI, TransactionKind,
+        InputObjectKind, ObjectArg, SenderSignedData, SharedObjectMutability, Transaction,
+        TransactionData, TransactionDataAPI, TransactionKind,
     },
     HANEUL_FRAMEWORK_PACKAGE_ID,
 };
@@ -1900,7 +1900,7 @@ impl HaneulClientCommands {
                         ObjectArg::SharedObject {
                             id,
                             initial_shared_version,
-                            mutable: true,
+                            mutability: SharedObjectMutability::Mutable,
                         }
                     }
                 })?;

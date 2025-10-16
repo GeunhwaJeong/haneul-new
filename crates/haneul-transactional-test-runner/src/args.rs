@@ -23,7 +23,7 @@ use haneul_types::base_types::{SequenceNumber, HaneulAddress};
 use haneul_types::move_package::UpgradePolicy;
 use haneul_types::object::{Object, Owner};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use haneul_types::transaction::{Argument, CallArg, ObjectArg};
+use haneul_types::transaction::{Argument, CallArg, ObjectArg, SharedObjectMutability};
 
 pub const HANEUL_ARGS_LONG: &str = "haneul-args";
 
@@ -555,7 +555,7 @@ impl HaneulValue {
             Ok(ObjectArg::SharedObject {
                 id,
                 initial_shared_version,
-                mutable: false,
+                mutability: SharedObjectMutability::Immutable,
             })
         } else {
             bail!("{fake_id} is not a shared object.")
@@ -579,7 +579,7 @@ impl HaneulValue {
             } => Ok(ObjectArg::SharedObject {
                 id,
                 initial_shared_version,
-                mutable: true,
+                mutability: SharedObjectMutability::Mutable,
             }),
             Owner::AddressOwner(_) | Owner::ObjectOwner(_) | Owner::Immutable => {
                 let obj_ref = obj.compute_object_reference();

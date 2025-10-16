@@ -24,7 +24,7 @@ use haneul_types::base_types::ConsensusObjectSequenceKey;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::{InputConsensusObject, TransactionEffectsAPI};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
-use haneul_types::transaction::{ObjectArg, Transaction};
+use haneul_types::transaction::{ObjectArg, SharedObjectMutability, Transaction};
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress},
     crypto::{get_key_pair, AccountKeyPair},
@@ -211,14 +211,14 @@ async fn update_objects(
         .obj(ObjectArg::SharedObject {
             id: shared_object_1.0,
             initial_shared_version: shared_object_1.1,
-            mutable: true,
+            mutability: SharedObjectMutability::Mutable,
         })
         .unwrap();
     let arg2 = txn_builder
         .obj(ObjectArg::SharedObject {
             id: shared_object_2.0,
             initial_shared_version: shared_object_2.1,
-            mutable: true,
+            mutability: SharedObjectMutability::Mutable,
         })
         .unwrap();
     let arg3 = txn_builder

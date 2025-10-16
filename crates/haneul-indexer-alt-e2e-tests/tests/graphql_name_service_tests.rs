@@ -16,7 +16,7 @@ use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
     effects::TransactionEffectsAPI,
     programmable_transaction_builder::ProgrammableTransactionBuilder,
-    transaction::{ObjectArg, Transaction, TransactionData},
+    transaction::{ObjectArg, SharedObjectMutability, Transaction, TransactionData},
 };
 use tokio_util::sync::CancellationToken;
 
@@ -369,7 +369,7 @@ impl HaneulNSCluster {
         let forward_registry = ObjectArg::SharedObject {
             id: registry_id,
             initial_shared_version: fx.lamport_version(),
-            mutable: true,
+            mutability: SharedObjectMutability::Mutable,
         };
 
         // (6) Initialize the reverse registry.
@@ -400,7 +400,7 @@ impl HaneulNSCluster {
         let reverse_registry = ObjectArg::SharedObject {
             id: reverse_registry_id,
             initial_shared_version: fx.lamport_version(),
-            mutable: true,
+            mutability: SharedObjectMutability::Mutable,
         };
 
         // (7) Configure the GraphQL RPC to read from the mock HaneulNS package.

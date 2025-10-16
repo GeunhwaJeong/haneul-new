@@ -2207,11 +2207,11 @@ impl From<InputObjectKind> for HaneulInputObjectKind {
             InputObjectKind::SharedMoveObject {
                 id,
                 initial_shared_version,
-                mutable,
+                mutability,
             } => Self::SharedMoveObject {
                 id,
                 initial_shared_version,
-                mutable,
+                mutable: mutability.is_mutable(),
             },
         }
     }
@@ -2345,14 +2345,15 @@ impl HaneulCallArg {
                     digest,
                 })
             }
+            // TODO(address-balances): Expose the full mutability enum
             CallArg::Object(ObjectArg::SharedObject {
                 id,
                 initial_shared_version,
-                mutable,
+                mutability,
             }) => HaneulCallArg::Object(HaneulObjectArg::SharedObject {
                 object_id: id,
                 initial_shared_version,
-                mutable,
+                mutable: mutability.is_mutable(),
             }),
             CallArg::Object(ObjectArg::Receiving((object_id, version, digest))) => {
                 HaneulCallArg::Object(HaneulObjectArg::Receiving {

@@ -17,7 +17,7 @@ use haneul_indexer_alt_reader::{
 use haneul_macros::sim_test;
 use haneul_pg_db::{temp::get_available_port, DbArgs};
 use haneul_test_transaction_builder::make_transfer_haneul_transaction;
-use haneul_types::gas_coin::GasCoin;
+use haneul_types::{gas_coin::GasCoin, transaction::SharedObjectMutability};
 
 use tokio::task::JoinHandle;
 use tokio_util::sync::CancellationToken;
@@ -453,7 +453,7 @@ async fn test_execute_transaction_unchanged_consensus_objects() {
         .obj(ObjectArg::SharedObject {
             id: haneul_types::HANEUL_CLOCK_OBJECT_ID,
             initial_shared_version: haneul_types::base_types::SequenceNumber::from_u64(1),
-            mutable: false,
+            mutability: SharedObjectMutability::Immutable,
         })
         .unwrap();
 

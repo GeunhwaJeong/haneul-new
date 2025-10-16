@@ -13,7 +13,9 @@ use haneul_sdk::rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_sdk::types::base_types::{ObjectID, HaneulAddress};
 use haneul_sdk::types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_sdk::types::quorum_driver_types::ExecuteTransactionRequestType;
-use haneul_sdk::types::transaction::{CallArg, ObjectArg, Transaction, TransactionData};
+use haneul_sdk::types::transaction::{
+    CallArg, ObjectArg, SharedObjectMutability, Transaction, TransactionData,
+};
 use haneul_sdk::types::Identifier;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::{ObjectRef, SequenceNumber};
@@ -59,7 +61,7 @@ async fn test_publish_primitive() {
             .input(CallArg::Object(ObjectArg::SharedObject {
                 id: simple_oracle_id,
                 initial_shared_version: version,
-                mutable: true,
+                mutability: SharedObjectMutability::Mutable,
             }))
             .unwrap();
 
@@ -67,7 +69,7 @@ async fn test_publish_primitive() {
             .input(CallArg::Object(ObjectArg::SharedObject {
                 id: ObjectID::from_str("0x6").unwrap(),
                 initial_shared_version: 1.into(),
-                mutable: false,
+                mutability: SharedObjectMutability::Immutable,
             }))
             .unwrap();
 
@@ -165,7 +167,7 @@ async fn test_publish_complex_value() {
             .input(CallArg::Object(ObjectArg::SharedObject {
                 id: simple_oracle_id,
                 initial_shared_version: version,
-                mutable: true,
+                mutability: SharedObjectMutability::Mutable,
             }))
             .unwrap();
 
@@ -173,7 +175,7 @@ async fn test_publish_complex_value() {
             .input(CallArg::Object(ObjectArg::SharedObject {
                 id: ObjectID::from_str("0x6").unwrap(),
                 initial_shared_version: 1.into(),
-                mutable: false,
+                mutability: SharedObjectMutability::Immutable,
             }))
             .unwrap();
 
@@ -263,7 +265,7 @@ async fn test_consume_oracle_data() {
             .input(CallArg::Object(ObjectArg::SharedObject {
                 id: simple_oracle_id,
                 initial_shared_version: version,
-                mutable: true,
+                mutability: SharedObjectMutability::Mutable,
             }))
             .unwrap();
 
@@ -271,7 +273,7 @@ async fn test_consume_oracle_data() {
             .input(CallArg::Object(ObjectArg::SharedObject {
                 id: ObjectID::from_str("0x6").unwrap(),
                 initial_shared_version: 1.into(),
-                mutable: false,
+                mutability: SharedObjectMutability::Immutable,
             }))
             .unwrap();
 
@@ -327,7 +329,7 @@ async fn test_consume_oracle_data() {
         .input(CallArg::Object(ObjectArg::SharedObject {
             id: simple_oracle_id,
             initial_shared_version: version,
-            mutable: false,
+            mutability: SharedObjectMutability::Immutable,
         }))
         .unwrap();
     let ticker = builder
@@ -378,7 +380,7 @@ async fn test_consume_oracle_data() {
                 .input(CallArg::Object(ObjectArg::SharedObject {
                     id,
                     initial_shared_version: version,
-                    mutable: false,
+                    mutability: SharedObjectMutability::Immutable,
                 }))
                 .unwrap()
         })

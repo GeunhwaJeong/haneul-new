@@ -60,7 +60,7 @@ use haneul_types::crypto::get_key_pair;
 use haneul_types::crypto::ToFromBytes;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::object::Object;
-use haneul_types::transaction::{ObjectArg, Transaction, TransactionData};
+use haneul_types::transaction::{ObjectArg, SharedObjectMutability, Transaction, TransactionData};
 use haneul_types::{BRIDGE_PACKAGE_ID, HANEUL_BRIDGE_OBJECT_ID};
 use tokio::join;
 use tokio::task::JoinHandle;
@@ -1175,7 +1175,7 @@ async fn get_mut_bridge_arg(test_cluster: &TestCluster) -> Option<ObjectArg> {
     .map(|seq| ObjectArg::SharedObject {
         id: HANEUL_BRIDGE_OBJECT_ID,
         initial_shared_version: seq,
-        mutable: true,
+        mutability: SharedObjectMutability::Mutable,
     })
 }
 

@@ -8,7 +8,9 @@ use std::collections::HashMap;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{FullObjectRef, ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use haneul_types::transaction::{CallArg, ObjectArg, Transaction, DEFAULT_VALIDATOR_GAS_PRICE};
+use haneul_types::transaction::{
+    CallArg, ObjectArg, SharedObjectMutability, Transaction, DEFAULT_VALIDATOR_GAS_PRICE,
+};
 
 pub struct MoveTxGenerator {
     move_package: ObjectID,
@@ -82,7 +84,7 @@ impl TxGenerator for MoveTxGenerator {
                         vec![CallArg::Object(ObjectArg::SharedObject {
                             id: shared_object.0,
                             initial_shared_version: shared_object.1,
-                            mutable: true,
+                            mutability: SharedObjectMutability::Mutable,
                         })],
                     )
                     .unwrap();

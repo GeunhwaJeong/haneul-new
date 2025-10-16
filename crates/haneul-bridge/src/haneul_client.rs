@@ -32,6 +32,7 @@ use haneul_types::transaction::CallArg;
 use haneul_types::transaction::Command;
 use haneul_types::transaction::ObjectArg;
 use haneul_types::transaction::ProgrammableTransaction;
+use haneul_types::transaction::SharedObjectMutability;
 use haneul_types::transaction::Transaction;
 use haneul_types::transaction::TransactionKind;
 use haneul_types::TypeTag;
@@ -481,7 +482,7 @@ impl HaneulClientInner for HaneulSdkClient {
         Ok(ObjectArg::SharedObject {
             id: HANEUL_BRIDGE_OBJECT_ID,
             initial_shared_version: SequenceNumber::from_u64(initial_shared_version),
-            mutable: true,
+            mutability: SharedObjectMutability::Mutable,
         })
     }
 

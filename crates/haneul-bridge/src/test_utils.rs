@@ -43,7 +43,7 @@ use haneul_types::bridge::MoveTypeCommitteeMember;
 use haneul_types::bridge::{BridgeChainId, BridgeCommitteeSummary, TOKEN_ID_USDC};
 use haneul_types::crypto::ToFromBytes;
 use haneul_types::object::Owner;
-use haneul_types::transaction::{CallArg, ObjectArg};
+use haneul_types::transaction::{CallArg, ObjectArg, SharedObjectMutability};
 use haneul_types::{base_types::HaneulAddress, crypto::get_key_pair, digests::TransactionDigest};
 use haneul_types::{BRIDGE_PACKAGE_ID, HANEUL_BRIDGE_OBJECT_ID};
 use tokio::task::JoinHandle;
@@ -51,7 +51,7 @@ use tokio::task::JoinHandle;
 pub const DUMMY_MUTALBE_BRIDGE_OBJECT_ARG: ObjectArg = ObjectArg::SharedObject {
     id: HANEUL_BRIDGE_OBJECT_ID,
     initial_shared_version: SequenceNumber::from_u64(1),
-    mutable: true,
+    mutability: SharedObjectMutability::Mutable,
 };
 
 pub fn get_test_authority_and_key(

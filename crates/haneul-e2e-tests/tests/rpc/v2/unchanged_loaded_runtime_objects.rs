@@ -17,6 +17,7 @@ use haneul_rpc::proto::haneul::rpc::v2::ListOwnedObjectsRequest;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::CallArg;
 use haneul_types::transaction::ObjectArg;
+use haneul_types::transaction::SharedObjectMutability;
 use haneul_types::transaction::TransactionData;
 use haneul_types::transaction::TransactionKind;
 use haneul_types::Identifier;
@@ -91,7 +92,7 @@ async fn test_unchanged_loaded_runtime_objects() {
             vec![CallArg::Object(ObjectArg::SharedObject {
                 id: "0x5".parse().unwrap(),
                 initial_shared_version: 1.into(),
-                mutable: false,
+                mutability: SharedObjectMutability::Immutable,
             })],
         )
         .unwrap();

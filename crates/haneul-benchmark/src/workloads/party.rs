@@ -22,7 +22,7 @@ use haneul_types::{base_types::FullObjectRef, object::Owner};
 use haneul_types::{base_types::HaneulAddress, crypto::get_key_pair, transaction::Transaction};
 use haneul_types::{
     base_types::{FullObjectID, ObjectID},
-    transaction::ObjectArg,
+    transaction::{ObjectArg, SharedObjectMutability},
 };
 use tracing::info;
 
@@ -111,7 +111,7 @@ impl PartyTestPayload {
                         ObjectArg::SharedObject {
                             id: *id,
                             initial_shared_version: *initial_shared_version,
-                            mutable: true,
+                            mutability: SharedObjectMutability::Mutable,
                         }
                     }
                 })

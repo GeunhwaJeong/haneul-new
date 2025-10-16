@@ -32,7 +32,8 @@ use haneul_types::object::{Object, Owner};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::transaction::{
-    Argument, CallArg, Command, InputObjectKind, ObjectArg, TransactionData, TransactionKind,
+    Argument, CallArg, Command, InputObjectKind, ObjectArg, SharedObjectMutability,
+    TransactionData, TransactionKind,
 };
 use haneul_types::{coin, fp_ensure, HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_PACKAGE_ID};
 
@@ -423,7 +424,11 @@ impl TransactionBuilder {
             } => ObjectArg::SharedObject {
                 id,
                 initial_shared_version,
-                mutable: is_mutable_ref,
+                mutability: if is_mutable_ref {
+                    SharedObjectMutability::Mutable
+                } else {
+                    SharedObjectMutability::Immutable
+                },
             },
             Owner::AddressOwner(_) | Owner::ObjectOwner(_) | Owner::Immutable => {
                 ObjectArg::ImmOrOwnedObject(obj_ref)
@@ -580,7 +585,7 @@ impl TransactionBuilder {
                 } => ObjectArg::SharedObject {
                     id: upgrade_capability.object_ref().0,
                     initial_shared_version,
-                    mutable: true,
+                    mutability: SharedObjectMutability::Mutable,
                 },
                 Owner::Immutable => {
                     bail!("Upgrade capability is stored immutably and cannot be used for upgrades")
