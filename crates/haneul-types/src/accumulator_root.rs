@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
+    accumulator_event::AccumulatorEvent,
     balance::Balance,
     base_types::{ObjectID, SequenceNumber, HaneulAddress},
     digests::{Digest, TransactionDigest},
@@ -224,6 +225,19 @@ impl AccumulatorValue {
             TransactionDigest::genesis_marker(),
         )
     }
+}
+
+/// Extract stream id from an accumulator event if it targets haneul::accumulator_settlement::EventStreamHead
+pub fn stream_id_from_accumulator_event(ev: &AccumulatorEvent) -> Option<HaneulAddress> {
+    if let TypeTag::Struct(tag) = &ev.write.address.ty {
+        if tag.address == HANEUL_FRAMEWORK_ADDRESS
+            && tag.module.as_ident_str() == ACCUMULATOR_SETTLEMENT_MODULE
+            && tag.name.as_ident_str() == ACCUMULATOR_SETTLEMENT_EVENT_STREAM_HEAD
+        {
+            return Some(ev.write.address.address);
+        }
+    }
+    None
 }
 
 impl TryFrom<&MoveObject> for AccumulatorValue {
