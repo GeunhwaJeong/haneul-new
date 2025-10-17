@@ -9,7 +9,7 @@ use haneul_indexer_alt_schema::transactions::StoredTransaction;
 use haneul_kvstore::{
     TransactionData as KVTransactionData, TransactionEventsData as KVTransactionEventsData,
 };
-use haneul_rpc::proto::haneul::rpc::v2beta2::ExecutedTransaction;
+use haneul_rpc::proto::haneul::rpc::v2::ExecutedTransaction;
 use haneul_types::{
     base_types::ObjectID,
     crypto::AuthorityQuorumSignInfo,

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use async_graphql::*;
-use haneul_rpc::proto::haneul::rpc::v2beta2 as proto;
+use haneul_rpc::proto::haneul::rpc::v2 as proto;
 use haneul_types::transaction::Argument as NativeArgument;
 
 /// An argument to a programmable transaction command.

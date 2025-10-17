@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use async_graphql::SimpleObject;
-use haneul_rpc::proto::haneul::rpc::v2beta2 as proto;
+use haneul_rpc::proto::haneul::rpc::v2 as proto;
 
 use crate::{
     api::types::{

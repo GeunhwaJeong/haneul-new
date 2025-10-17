@@ -5,7 +5,7 @@ use anyhow::{anyhow, Context as _};
 use async_graphql::{connection::Connection, Context, Object, Result};
 use futures::future::try_join_all;
 use haneul_indexer_alt_reader::fullnode_client::{Error::GrpcExecutionError, FullnodeClient};
-use haneul_rpc::proto::haneul::rpc::v2beta2 as proto;
+use haneul_rpc::proto::haneul::rpc::v2 as proto;
 use haneul_types::digests::ChainIdentifier;
 
 use crate::{

@@ -639,11 +639,11 @@ async fn party_object_read() {
 async fn party_object_grpc() {
     use haneul_rpc::field::FieldMask;
     use haneul_rpc::field::FieldMaskUtil;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::ledger_service_client::LedgerServiceClient;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::live_data_service_client::LiveDataServiceClient;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::owner::OwnerKind;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::GetObjectRequest;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::ListOwnedObjectsRequest;
+    use haneul_rpc::proto::haneul::rpc::v2::ledger_service_client::LedgerServiceClient;
+    use haneul_rpc::proto::haneul::rpc::v2::owner::OwnerKind;
+    use haneul_rpc::proto::haneul::rpc::v2::state_service_client::StateServiceClient;
+    use haneul_rpc::proto::haneul::rpc::v2::GetObjectRequest;
+    use haneul_rpc::proto::haneul::rpc::v2::ListOwnedObjectsRequest;
 
     if haneul_simulator::has_mainnet_protocol_config_override() {
         return;
@@ -665,7 +665,7 @@ async fn party_object_grpc() {
         .await
         .unwrap();
 
-    let mut live_data_service_client = LiveDataServiceClient::new(channel.clone());
+    let mut live_data_service_client = StateServiceClient::new(channel.clone());
     let mut ledger_service_client = LedgerServiceClient::new(channel);
 
     // run a list operation to make sure the party object shows up for the current owner
@@ -783,19 +783,20 @@ async fn party_object_grpc() {
 async fn party_coin_grpc() {
     use haneul_rpc::field::FieldMask;
     use haneul_rpc::field::FieldMaskUtil;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::ledger_service_client::LedgerServiceClient;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::live_data_service_client::LiveDataServiceClient;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::owner::OwnerKind;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::Argument;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::Command;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::GetObjectRequest;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::Input;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::ListOwnedObjectsRequest;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::MoveCall;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::ProgrammableTransaction;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::SimulateTransactionRequest;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::Transaction;
-    use haneul_rpc::proto::haneul::rpc::v2beta2::TransactionKind;
+    use haneul_rpc::proto::haneul::rpc::v2::ledger_service_client::LedgerServiceClient;
+    use haneul_rpc::proto::haneul::rpc::v2::owner::OwnerKind;
+    use haneul_rpc::proto::haneul::rpc::v2::state_service_client::StateServiceClient;
+    use haneul_rpc::proto::haneul::rpc::v2::transaction_execution_service_client::TransactionExecutionServiceClient;
+    use haneul_rpc::proto::haneul::rpc::v2::Argument;
+    use haneul_rpc::proto::haneul::rpc::v2::Command;
+    use haneul_rpc::proto::haneul::rpc::v2::GetObjectRequest;
+    use haneul_rpc::proto::haneul::rpc::v2::Input;
+    use haneul_rpc::proto::haneul::rpc::v2::ListOwnedObjectsRequest;
+    use haneul_rpc::proto::haneul::rpc::v2::MoveCall;
+    use haneul_rpc::proto::haneul::rpc::v2::ProgrammableTransaction;
+    use haneul_rpc::proto::haneul::rpc::v2::SimulateTransactionRequest;
+    use haneul_rpc::proto::haneul::rpc::v2::Transaction;
+    use haneul_rpc::proto::haneul::rpc::v2::TransactionKind;
     use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
     use haneul_types::transaction::{CallArg, ObjectArg, TransactionData};
     use haneul_types::Identifier;
@@ -811,7 +812,8 @@ async fn party_coin_grpc() {
         .await
         .unwrap();
 
-    let mut live_data_service_client = LiveDataServiceClient::new(channel.clone());
+    let mut live_data_service_client = StateServiceClient::new(channel.clone());
+    let mut execution_client = TransactionExecutionServiceClient::new(channel.clone());
     let mut ledger_service_client = LedgerServiceClient::new(channel);
 
     // Make a transaction to transfer 1 gas coin that is Address owned and 1 gas coin that is
@@ -947,7 +949,7 @@ async fn party_coin_grpc() {
     }));
     unresolved_transaction.sender = Some(recipient.to_string());
 
-    let resolved = live_data_service_client
+    let resolved = execution_client
         .simulate_transaction(
             SimulateTransactionRequest::new(unresolved_transaction).with_do_gas_selection(true),
         )
