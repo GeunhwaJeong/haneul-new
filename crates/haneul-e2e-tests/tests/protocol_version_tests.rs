@@ -97,8 +97,8 @@ mod sim_only_tests {
         HANEUL_SYSTEM_PACKAGE_ID,
     };
     use haneul_types::{
-        HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID,
-        HANEUL_SYSTEM_STATE_OBJECT_ID,
+        HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID,
+        HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
     };
     use test_cluster::TestCluster;
     use tokio::time::{sleep, Duration};
@@ -444,6 +444,7 @@ mod sim_only_tests {
                         HANEUL_AUTHENTICATOR_STATE_OBJECT_ID,
                         HANEUL_RANDOMNESS_STATE_OBJECT_ID,
                         HANEUL_BRIDGE_OBJECT_ID,
+                        HANEUL_ACCUMULATOR_ROOT_OBJECT_ID,
                     ]
                     .contains(&obj.0);
                     (!is_framework_obj).then_some(obj.0)
