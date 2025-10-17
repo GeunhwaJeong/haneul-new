@@ -10,7 +10,8 @@ use clap::{Args, Parser};
 use move_compiler::editions::Flavor;
 use move_core_types::parsing::{
     parser::Parser as MoveCLParser,
-    parser::{parse_u64, parse_u256},
+    parser::{Token, parse_u64, parse_u256},
+    types::{ParsedType, TypeToken},
     values::ValueToken,
     values::{ParsableValue, ParsedValue},
 };
@@ -19,11 +20,15 @@ use move_core_types::u256::U256;
 use move_symbol_pool::Symbol;
 use move_transactional_test_runner::tasks::{RunCommand, SyntaxChoice};
 use haneul_graphql_rpc::test_infra::cluster::SnapshotLagConfig;
+use haneul_types::balance::Balance;
 use haneul_types::base_types::{SequenceNumber, HaneulAddress};
 use haneul_types::move_package::UpgradePolicy;
 use haneul_types::object::{Object, Owner};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use haneul_types::transaction::{Argument, CallArg, ObjectArg, SharedObjectMutability};
+use haneul_types::transaction::{
+    Argument, CallArg, FundsWithdrawalArg, ObjectArg, SharedObjectMutability,
+};
+use haneul_types::type_input::TypeInput;
 
 pub const HANEUL_ARGS_LONG: &str = "haneul-args";
 
@@ -413,6 +418,7 @@ pub enum HaneulExtraValueArgs {
     Receiving(FakeID, Option<SequenceNumber>),
     ImmShared(FakeID, Option<SequenceNumber>),
     NonExclusiveWrite(FakeID, Option<SequenceNumber>),
+    Withdraw(u64, ParsedType),
 }
 
 #[derive(Clone)]
@@ -424,6 +430,7 @@ pub enum HaneulValue {
     Receiving(FakeID, Option<SequenceNumber>),
     ImmShared(FakeID, Option<SequenceNumber>),
     NonExclusiveWrite(FakeID, Option<SequenceNumber>),
+    Withdraw(u64, move_core_types::language_storage::TypeTag),
 }
 
 impl HaneulExtraValueArgs {
@@ -464,6 +471,73 @@ impl HaneulExtraValueArgs {
         let package = parser.advance(ValueToken::Ident)?;
         parser.advance(ValueToken::RParen)?;
         Ok(HaneulExtraValueArgs::Digest(package.to_owned()))
+    }
+
+    fn parse_withdraw_value<'a, I: Iterator<Item = (ValueToken, &'a str)>>(
+        parser: &mut MoveCLParser<'a, ValueToken, I>,
+    ) -> anyhow::Result<Self> {
+        let contents = parser.advance(ValueToken::Ident)?;
+        ensure!(contents == "withdraw");
+
+        // Format: withdraw(amount, type::path::Type)
+        parser.advance(ValueToken::LParen)?;
+
+        // Parse amount
+        let amount_str = parser.advance(ValueToken::Number)?;
+        let (amount, _) = parse_u64(amount_str)?;
+
+        parser.advance(ValueToken::Comma)?;
+
+        // Parse type as a path of identifiers separated by ::
+        // Collect all tokens until we hit RParen to build the type string
+        let mut type_parts = Vec::new();
+        loop {
+            let (tok, s) = match parser.peek() {
+                Some(v) => v,
+                None => bail!("Unexpected end of input while parsing withdraw type"),
+            };
+            match tok {
+                ValueToken::Whitespace => {
+                    parser.advance(ValueToken::Whitespace)?;
+                    // Skip whitespace
+                }
+                ValueToken::Ident => {
+                    parser.advance(ValueToken::Ident)?;
+                    type_parts.push(s.to_string());
+                }
+                ValueToken::ColonColon => {
+                    parser.advance(ValueToken::ColonColon)?;
+                    type_parts.push("::".to_string());
+                }
+                ValueToken::LAngle => {
+                    parser.advance(ValueToken::LAngle)?;
+                    type_parts.push("<".to_string());
+                }
+                ValueToken::RAngle => {
+                    parser.advance(ValueToken::RAngle)?;
+                    type_parts.push(">".to_string());
+                }
+                ValueToken::Comma => {
+                    parser.advance(ValueToken::Comma)?;
+                    type_parts.push(",".to_string());
+                }
+                ValueToken::RParen => {
+                    break;
+                }
+                _ => bail!("Unexpected token {:?} while parsing withdraw type", tok),
+            }
+        }
+
+        let type_str = type_parts.join("");
+
+        // Parse the type from the type string
+        let type_tokens: Vec<_> = TypeToken::tokenize(&type_str)?.into_iter().collect();
+        let mut type_parser = move_core_types::parsing::parser::Parser::new(type_tokens);
+        let parsed_type = type_parser.parse_type()?;
+
+        parser.advance(ValueToken::RParen)?;
+
+        Ok(HaneulExtraValueArgs::Withdraw(amount, parsed_type))
     }
 
     fn parse_receiving_or_object_value<'a, I: Iterator<Item = (ValueToken, &'a str)>>(
@@ -514,6 +588,9 @@ impl HaneulValue {
             HaneulValue::NonExclusiveWrite(_, _) => {
                 panic!("unexpected nested Haneul non-exclusive write object in args")
             }
+            HaneulValue::Withdraw(_, _) => {
+                panic!("unexpected nested Haneul withdraw reservation in args")
+            }
         }
     }
 
@@ -527,6 +604,9 @@ impl HaneulValue {
             HaneulValue::ImmShared(_, _) => panic!("unexpected nested Haneul shared object in args"),
             HaneulValue::NonExclusiveWrite(_, _) => {
                 panic!("unexpected nested Haneul non-exclusive write object in args")
+            }
+            HaneulValue::Withdraw(_, _) => {
+                panic!("unexpected nested Haneul withdraw reservation in args")
             }
         }
     }
@@ -658,6 +738,22 @@ impl HaneulValue {
                 };
                 CallArg::Pure(bcs::to_bytes(&staged.digest).unwrap())
             }
+            HaneulValue::Withdraw(amount, type_tag) => {
+                // Check if the type is Balance<T> and extract the inner type T
+                // For now, we only support Balance type for withdraw
+                let inner_type =
+                    Balance::maybe_get_balance_type_param(&type_tag).ok_or_else(|| {
+                        anyhow::anyhow!(
+                            "Withdraw only supports Balance<T> types, got: {}",
+                            type_tag
+                        )
+                    })?;
+                let inner_type_input = TypeInput::from(inner_type);
+                CallArg::FundsWithdrawal(FundsWithdrawalArg::balance_from_sender(
+                    amount,
+                    inner_type_input,
+                ))
+            }
         })
     }
 
@@ -694,6 +790,7 @@ impl ParsableValue for HaneulExtraValueArgs {
             (ValueToken::Ident, "nonexclusive") => {
                 Some(Self::parse_non_exlucsive_write_value(parser))
             }
+            (ValueToken::Ident, "withdraw") => Some(Self::parse_withdraw_value(parser)),
             _ => None,
         }
     }
@@ -722,7 +819,7 @@ impl ParsableValue for HaneulExtraValueArgs {
 
     fn into_concrete_value(
         self,
-        _mapping: &impl Fn(&str) -> Option<move_core_types::account_address::AccountAddress>,
+        mapping: &impl Fn(&str) -> Option<move_core_types::account_address::AccountAddress>,
     ) -> anyhow::Result<Self::ConcreteValue> {
         match self {
             HaneulExtraValueArgs::Object(id, version) => Ok(HaneulValue::Object(id, version)),
@@ -731,6 +828,10 @@ impl ParsableValue for HaneulExtraValueArgs {
             HaneulExtraValueArgs::ImmShared(id, version) => Ok(HaneulValue::ImmShared(id, version)),
             HaneulExtraValueArgs::NonExclusiveWrite(id, version) => {
                 Ok(HaneulValue::NonExclusiveWrite(id, version))
+            }
+            HaneulExtraValueArgs::Withdraw(amount, parsed_type) => {
+                let type_tag = parsed_type.into_type_tag(mapping)?;
+                Ok(HaneulValue::Withdraw(amount, type_tag))
             }
         }
     }

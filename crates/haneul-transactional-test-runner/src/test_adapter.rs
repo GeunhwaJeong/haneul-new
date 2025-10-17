@@ -1323,6 +1323,9 @@ impl MoveTestAdapter<'_> for HaneulTestAdapter {
                     HaneulValue::NonExclusiveWrite(_, _) => {
                         bail!("non-exclusive write object is not supported as an input")
                     }
+                    HaneulValue::Withdraw(_, _) => {
+                        bail!("withdraw reservation is not supported as an input for set-address")
+                    }
                 };
                 let value = NumericalAddress::new(value.into_bytes(), NumberFormat::Hex);
                 self.compiled_state
