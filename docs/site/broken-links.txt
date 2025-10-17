@@ -1,0 +1,70 @@
+[404] https://docs.haneul.io/references/haneul-api/haneul-graphql/reference/api/queries/verify-zklogin-signature
+[404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/api/queries/verify-zklogin-signature
+[404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/owner
+[404] https://docs.haneul.io/references/haneul-api/haneul-graphql/reference/api/mutations/execute-transaction-block
+[404] https://docs.haneul.io/references/haneul-api/haneul-graphql/reference/api/queries/dry-run-transaction-block
+[404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/api/mutations/execute-transaction-block
+[404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/api/queries/dry-run-transaction-block
+[404] https://docs.haneul.io/references/haneul-api/haneul-graphql/reference/queries/owner
+[404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/queries/owner
+[404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move
+[404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move
+[404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move
+[404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move
+[404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move-trace-debug
+[404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move-trace-debug
+[404] https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax
+[404] https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax
+[404] https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax
+[404] https://docs.wormhole.com/wormhole/faqs
+[404] https://move-book.com/programmability/dynamic-object-fields.html)
+[404] https://marketplace.visualstudio.com/items?itemName=MoveBit.move-msl-syx
+[404] https://marketplace.visualstudio.com/items?itemName=MoveBit.haneul-move-analyzer
+[404] https://marketplace.visualstudio.com/items?itemName=zktxio.haneul-extension
+[404] https://marketplace.visualstudio.com/items?itemName=weminal-labs.haneul-simulator-vscode
+[404] https://github.com/GeunhwaJeong/haneul/blob/main/sdk/typescript/src/bcs
+[404] https://github.com/FrankC01/pyhaneul/blob/main/pyhaneul/haneul/haneul_types/bcs.py
+[404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move
+[404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/api/queries/verify-zklogin-signature
+[404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move-trace-debug
+[404] https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax
+[404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move-trace-debug
+[404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/owner
+[404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/api/mutations/execute-transaction-block
+[404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/api/queries/dry-run-transaction-block
+[404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/queries/owner
+  [404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move
+  [404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move-trace-debug
+  [404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move
+  [404] https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax
+  [404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move
+  [404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move-trace-debug
+  [404] https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax
+  [404] https://docs.haneul.io/references/haneul-api/haneul-graphql/reference/api/queries/verify-zklogin-signature
+  [404] https://move-book.com/programmability/dynamic-object-fields.html)
+  [404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move
+  [404] https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax
+  [404] https://marketplace.visualstudio.com/items?itemName=MoveBit.move-msl-syx
+  [404] https://marketplace.visualstudio.com/items?itemName=MoveBit.haneul-move-analyzer
+  [404] https://marketplace.visualstudio.com/items?itemName=zktxio.haneul-extension
+  [404] https://marketplace.visualstudio.com/items?itemName=weminal-labs.haneul-simulator-vscode
+  [404] https://github.com/GeunhwaJeong/haneul/blob/main/sdk/typescript/src/bcs
+  [404] https://github.com/FrankC01/pyhaneul/blob/main/pyhaneul/haneul/haneul_types/bcs.py
+  [404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move
+  [404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/api/queries/verify-zklogin-signature
+  [404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/owner
+  [404] https://docs.haneul.io/references/haneul-api/haneul-graphql/reference/api/mutations/execute-transaction-block
+  [404] https://docs.haneul.io/references/haneul-api/haneul-graphql/reference/api/queries/dry-run-transaction-block
+  [404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move-trace-debug
+  [404] https://marketplace.visualstudio.com/items?itemName=damirka.move-syntax
+  [404] https://marketplace.visualstudio.com/items?itemName=haneullabs.move-trace-debug
+  [404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/api/mutations/execute-transaction-block
+  [404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/api/queries/dry-run-transaction-block
+  [404] https://docs.haneul.io/references/haneul-api/haneul-graphql/reference/queries/owner
+  [404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/queries/owner
+  [404] https://docs.wormhole.com/wormhole/faqs
+  [404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/api/queries/verify-zklogin-signature
+  [404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/owner
+  [404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/api/mutations/execute-transaction-block
+  [404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/api/queries/dry-run-transaction-block
+  [404] https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/queries/owner

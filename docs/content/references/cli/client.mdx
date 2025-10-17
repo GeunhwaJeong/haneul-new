@@ -394,7 +394,7 @@ Client commands to replay transactions have been deprecated in favor of the `han
 
 ## Publish a Move package
 
-One of the main uses of the `haneul client` command is to publish smart contracts on the Haneul network. This example switches the current environment to the Devnet network, then builds, tests, and publishes one of the existing Move examples available in the Haneul repository: [haneul/examples/move](https://github.com/GeunhwaJeong/haneul/tree/main/examples/move)
+One of the main uses of the `haneul client` command is to publish smart contracts on the Haneul network. This example switches the current environment to Devnet, then builds, tests, and publishes one of the existing Move examples available in the Haneul repository: [haneul/examples/move](https://github.com/GeunhwaJeong/haneul/tree/main/examples/move)
 
 This example also makes use of `haneul move` commands. To learn more about those commands, see [Haneul Move CLI](./move.mdx).
 
@@ -402,7 +402,7 @@ This example also makes use of `haneul move` commands. To learn more about those
     ```sh
     $ cd examples/move/first_package
     ```
-1. Switch to the Devnet network. This command uses an alias, so the `devnet` value might be different for you, depending on the alias name set in your configuration (use `haneul client envs` for a list of your defined networks and their aliases).
+1. Switch to Devnet network. This command uses an alias, so the `devnet` value might be different for you, depending on the alias name set in your configuration (use `haneul client envs` for a list of your defined networks and their aliases).
     ```sh
     $ haneul client switch --env devnet
     ```
