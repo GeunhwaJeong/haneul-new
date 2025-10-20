@@ -53,6 +53,8 @@ const guides = [
 			'guides/developer/haneul-101/sign-and-send-txn',
 			'guides/developer/haneul-101/sponsor-txn',
 			'guides/developer/haneul-101/avoid-equivocation',
+			'guides/developer/haneul-101/common-errors',
+
 			{
 				type: 'category',
 				label: 'Working with PTBs',
@@ -63,7 +65,7 @@ const guides = [
 				items: [
 					'guides/developer/haneul-101/building-ptb',
 					'guides/developer/haneul-101/coin-mgt',
-					'guides/developer/haneul-101/simulating-refs'
+					'guides/developer/haneul-101/simulating-refs',
 				],
 			},
 		],
