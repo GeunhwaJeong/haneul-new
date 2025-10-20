@@ -177,6 +177,7 @@ members = [
   "crates/haneul-rpc-api",
   "crates/haneul-rpc-benchmark",
   "crates/haneul-rpc-loadgen",
+  "crates/haneul-rpc-resolver",
   "crates/haneul-sdk",
   "crates/haneul-security-watchdog",
   "crates/haneul-simulator",
@@ -763,6 +764,7 @@ haneul-test-transaction-builder = { path = "crates/haneul-test-transaction-build
 haneul-test-validator = { path = "crates/haneul-test-validator" }
 haneul-tls = { path = "crates/haneul-tls" }
 haneul-rpc-api = { path = "crates/haneul-rpc-api" }
+haneul-rpc-resolver = { path = "crates/haneul-rpc-resolver" }
 haneul-tool = { path = "crates/haneul-tool" }
 haneul-transaction-builder = { path = "crates/haneul-transaction-builder" }
 haneul-transaction-checks = { path = "crates/haneul-transaction-checks" }
