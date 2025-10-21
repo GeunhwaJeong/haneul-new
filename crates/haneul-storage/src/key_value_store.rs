@@ -11,7 +11,7 @@ use std::time::Instant;
 use haneul_types::base_types::{ObjectID, SequenceNumber, VersionNumber};
 use haneul_types::digests::{CheckpointDigest, TransactionDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
-use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
+use haneul_types::error::{HaneulErrorKind, HaneulResult, UserInputError};
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointContents, CheckpointSequenceNumber,
 };
@@ -244,7 +244,7 @@ impl TransactionKeyValueStore {
             .into_iter()
             .next()
             .flatten()
-            .ok_or(HaneulError::TransactionNotFound { digest })
+            .ok_or(HaneulErrorKind::TransactionNotFound { digest }.into())
     }
 
     /// Convenience method for fetching single digest, and returning an error if it's not found.
@@ -258,7 +258,7 @@ impl TransactionKeyValueStore {
             .into_iter()
             .next()
             .flatten()
-            .ok_or(HaneulError::TransactionNotFound { digest })
+            .ok_or(HaneulErrorKind::TransactionNotFound { digest }.into())
     }
 
     /// Convenience method for fetching single checkpoint, and returning an error if it's not found.
@@ -272,9 +272,12 @@ impl TransactionKeyValueStore {
             .into_iter()
             .next()
             .flatten()
-            .ok_or(HaneulError::UserInputError {
-                error: UserInputError::VerifiedCheckpointNotFound(checkpoint),
-            })
+            .ok_or(
+                HaneulErrorKind::UserInputError {
+                    error: UserInputError::VerifiedCheckpointNotFound(checkpoint),
+                }
+                .into(),
+            )
     }
 
     /// Convenience method for fetching single checkpoint, and returning an error if it's not found.
@@ -288,9 +291,12 @@ impl TransactionKeyValueStore {
             .into_iter()
             .next()
             .flatten()
-            .ok_or(HaneulError::UserInputError {
-                error: UserInputError::VerifiedCheckpointNotFound(checkpoint),
-            })
+            .ok_or(
+                HaneulErrorKind::UserInputError {
+                    error: UserInputError::VerifiedCheckpointNotFound(checkpoint),
+                }
+                .into(),
+            )
     }
 
     /// Convenience method for fetching single checkpoint, and returning an error if it's not found.
@@ -304,9 +310,15 @@ impl TransactionKeyValueStore {
             .into_iter()
             .next()
             .flatten()
-            .ok_or(HaneulError::UserInputError {
-                error: UserInputError::VerifiedCheckpointDigestNotFound(format!("{:?}", digest)),
-            })
+            .ok_or(
+                HaneulErrorKind::UserInputError {
+                    error: UserInputError::VerifiedCheckpointDigestNotFound(format!(
+                        "{:?}",
+                        digest
+                    )),
+                }
+                .into(),
+            )
     }
 
     pub async fn deprecated_get_transaction_checkpoint(

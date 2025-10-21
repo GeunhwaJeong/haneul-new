@@ -14,7 +14,7 @@ use haneul_framework::BuiltInFramework;
 use haneul_move_build::{CompiledPackage, HaneulPackageHooks};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::{
-    error::{HaneulError, HaneulResult},
+    error::{HaneulErrorKind, HaneulResult},
     metrics::BytecodeVerifierMetrics,
 };
 use haneul_verifier::meter::HaneulVerifierMeter;
@@ -132,8 +132,8 @@ fn test_metered_move_bytecode_verifier() {
     let elapsed = timer_start.elapsed().as_micros() as f64 / (1000.0 * 1000.0);
 
     assert!(matches!(
-        r.unwrap_err(),
-        HaneulError::ModuleVerificationFailure { .. }
+        r.unwrap_err().into_inner(),
+        HaneulErrorKind::ModuleVerificationFailure { .. }
     ));
 
     // Some new modules might have passed

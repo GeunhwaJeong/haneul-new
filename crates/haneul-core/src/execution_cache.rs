@@ -25,7 +25,7 @@ use haneul_protocol_config::ProtocolVersion;
 use haneul_types::base_types::{FullObjectID, VerifiedExecutionData};
 use haneul_types::digests::{TransactionDigest, TransactionEffectsDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
-use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
+use haneul_types::error::{HaneulError, HaneulErrorKind, HaneulResult, UserInputError};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::object::Object;
@@ -229,7 +229,7 @@ pub trait ObjectCacheRead: Send + Sync {
                             version: Some(object_ref.1),
                         }
                     };
-                    return Err(HaneulError::UserInputError { error });
+                    return Err(HaneulErrorKind::UserInputError { error }.into());
                 }
                 Some(object) => {
                     result.push(object);
@@ -722,11 +722,12 @@ macro_rules! implement_storage_traits {
 
                 let parent = *parent;
                 if child_object.owner != Owner::ObjectOwner(parent.into()) {
-                    return Err(HaneulError::InvalidChildObjectAccess {
+                    return Err(HaneulErrorKind::InvalidChildObjectAccess {
                         object: *child,
                         given_parent: parent,
                         actual_owner: child_object.owner.clone(),
-                    });
+                    }
+                    .into());
                 }
                 Ok(Some(child_object))
             }

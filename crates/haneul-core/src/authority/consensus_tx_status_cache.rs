@@ -7,7 +7,7 @@ use consensus_types::block::Round;
 use haneullabs_common::sync::notify_read::NotifyRead;
 use parking_lot::{RwLock, RwLockWriteGuard};
 use haneul_types::{
-    error::{HaneulError, HaneulResult},
+    error::{HaneulErrorKind, HaneulResult},
     messages_consensus::ConsensusPosition,
 };
 use tokio::sync::watch;
@@ -263,10 +263,11 @@ impl ConsensusTxStatusCache {
             if position.block.round
                 > last_committed_leader_round + CONSENSUS_STATUS_RETENTION_ROUNDS
             {
-                return Err(HaneulError::ValidatorConsensusLagging {
+                return Err(HaneulErrorKind::ValidatorConsensusLagging {
                     round: position.block.round,
                     last_committed_round: last_committed_leader_round,
-                });
+                }
+                .into());
             }
         }
         Ok(())

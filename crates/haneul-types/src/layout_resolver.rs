@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::error::HaneulError;
+use crate::error::{HaneulError, HaneulErrorKind};
 use move_bytecode_utils::{layout::TypeLayoutBuilder, module_cache::GetModule};
 use move_core_types::{
     annotated_value as A,
@@ -21,7 +21,7 @@ pub fn get_layout_from_struct_tag(
 ) -> Result<A::MoveDatatypeLayout, HaneulError> {
     let type_ = TypeTag::Struct(Box::new(struct_tag));
     let layout = TypeLayoutBuilder::build_with_types(&type_, resolver).map_err(|e| {
-        HaneulError::ObjectSerializationError {
+        HaneulErrorKind::ObjectSerializationError {
             error: e.to_string(),
         }
     })?;
@@ -39,8 +39,9 @@ pub fn get_layout_from_struct_tag(
 pub fn into_struct_layout(layout: A::MoveDatatypeLayout) -> Result<A::MoveStructLayout, HaneulError> {
     match layout {
         A::MoveDatatypeLayout::Struct(s) => Ok(*s),
-        A::MoveDatatypeLayout::Enum(e) => Err(HaneulError::ObjectSerializationError {
+        A::MoveDatatypeLayout::Enum(e) => Err(HaneulErrorKind::ObjectSerializationError {
             error: format!("Expected struct layout but got an enum {e:?}"),
-        }),
+        }
+        .into()),
     }
 }

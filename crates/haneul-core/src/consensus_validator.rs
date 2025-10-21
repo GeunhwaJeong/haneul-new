@@ -9,7 +9,7 @@ use fastcrypto_tbls::dkg_v1;
 use haneullabs_metrics::monitored_scope;
 use prometheus::{register_int_counter_with_registry, IntCounter, Registry};
 use haneul_types::{
-    error::{HaneulError, HaneulResult},
+    error::{HaneulError, HaneulErrorKind, HaneulResult},
     messages_consensus::{ConsensusPosition, ConsensusTransaction, ConsensusTransactionKind},
     transaction::Transaction,
 };
@@ -71,10 +71,11 @@ impl HaneulTxValidator {
                         .protocol_config()
                         .consensus_checkpoint_signature_key_includes_digest()
                     {
-                        return Err(HaneulError::UnexpectedMessage(
+                        return Err(HaneulErrorKind::UnexpectedMessage(
                             "ConsensusTransactionKind::CheckpointSignatureV2 is unsupported"
                                 .to_string(),
-                        ));
+                        )
+                        .into());
                     }
                     ckpt_messages.push(signature.as_ref());
                     ckpt_batch.push(&signature.summary);
@@ -82,13 +83,13 @@ impl HaneulTxValidator {
                 ConsensusTransactionKind::RandomnessDkgMessage(_, bytes) => {
                     if bytes.len() > dkg_v1::DKG_MESSAGES_MAX_SIZE {
                         warn!("batch verification error: DKG Message too large");
-                        return Err(HaneulError::InvalidDkgMessageSize);
+                        return Err(HaneulErrorKind::InvalidDkgMessageSize.into());
                     }
                 }
                 ConsensusTransactionKind::RandomnessDkgConfirmation(_, bytes) => {
                     if bytes.len() > dkg_v1::DKG_MESSAGES_MAX_SIZE {
                         warn!("batch verification error: DKG Confirmation too large");
-                        return Err(HaneulError::InvalidDkgMessageSize);
+                        return Err(HaneulErrorKind::InvalidDkgMessageSize.into());
                     }
                 }
 
@@ -101,9 +102,10 @@ impl HaneulTxValidator {
 
                 ConsensusTransactionKind::UserTransaction(_tx) => {
                     if !epoch_store.protocol_config().mysticeti_fastpath() {
-                        return Err(HaneulError::UnexpectedMessage(
+                        return Err(HaneulErrorKind::UnexpectedMessage(
                             "ConsensusTransactionKind::UserTransaction is unsupported".to_string(),
-                        ));
+                        )
+                        .into());
                     }
                     // TODO(fastpath): move deterministic verifications of user transactions here,
                     // for example validity_check() and verify_transaction().
@@ -118,10 +120,11 @@ impl HaneulTxValidator {
                             .try_into()
                             .unwrap()
                     {
-                        return Err(HaneulError::UnexpectedMessage(format!(
+                        return Err(HaneulErrorKind::UnexpectedMessage(format!(
                             "ExecutionTimeObservation contains too many estimates: {}",
                             obs.estimates.len()
-                        )));
+                        ))
+                        .into());
                     }
                 }
             }
@@ -290,7 +293,7 @@ mod tests {
     use haneul_macros::sim_test;
     use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
     use haneul_types::crypto::deterministic_random_account_key;
-    use haneul_types::error::{HaneulError, UserInputError};
+    use haneul_types::error::{HaneulErrorKind, UserInputError};
     use haneul_types::messages_checkpoint::{
         CheckpointContents, CheckpointSignatureMessage, CheckpointSummary, SignedCheckpointSummary,
     };
@@ -484,7 +487,7 @@ mod tests {
 
         assert_eq!(
             reason,
-            HaneulError::UserInputError {
+            HaneulErrorKind::UserInputError {
                 error: UserInputError::TransactionDenied {
                     error: format!(
                         "Access to input object {:?} is temporarily disabled",

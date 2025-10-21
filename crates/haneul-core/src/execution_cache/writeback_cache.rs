@@ -71,7 +71,7 @@ use haneul_types::base_types::{
 use haneul_types::bridge::{get_bridge, Bridge};
 use haneul_types::digests::{ObjectDigest, TransactionDigest, TransactionEffectsDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
-use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
+use haneul_types::error::{HaneulError, HaneulErrorKind, HaneulResult, UserInputError};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::global_state_hash::GlobalStateHash;
 use haneul_types::message_envelope::Message;
@@ -1429,11 +1429,12 @@ impl ObjectCacheRead for WritebackCache {
                 self.packages.insert(*package_id, p.clone());
                 Ok(Some(p))
             } else {
-                Err(HaneulError::UserInputError {
+                Err(HaneulErrorKind::UserInputError {
                     error: UserInputError::MoveObjectAsPackage {
                         object_id: *package_id,
                     },
-                })
+                }
+                .into())
             }
         } else {
             Ok(None)

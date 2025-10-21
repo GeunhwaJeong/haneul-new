@@ -2106,7 +2106,10 @@ async fn test_conflicting_transactions() {
             (second.unwrap(), first.unwrap_err())
         };
 
-        assert!(matches!(err, HaneulError::ObjectLockConflict { .. }));
+        assert!(matches!(
+            err.as_inner(),
+            HaneulErrorKind::ObjectLockConflict { .. }
+        ));
 
         let object_info = authority_state
             .handle_object_info_request(ObjectInfoRequest::latest_object_info_request(
@@ -6161,7 +6164,7 @@ async fn test_publish_not_a_package_dependency() {
         .unwrap_err();
 
     assert_eq!(
-        HaneulError::UserInputError {
+        HaneulErrorKind::UserInputError {
             error: UserInputError::MoveObjectAsPackage {
                 object_id: HANEUL_SYSTEM_STATE_OBJECT_ID
             }

@@ -19,7 +19,7 @@ use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
+use haneul_types::error::{HaneulErrorKind, HaneulResult, UserInputError};
 use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::messages_grpc::HandleTransactionResponse;
 use haneul_types::transaction::{
@@ -160,8 +160,8 @@ async fn handle_move_call_transaction(
 
 fn assert_denied<T: std::fmt::Debug>(result: &HaneulResult<T>) {
     assert!(matches!(
-        result.as_ref().unwrap_err(),
-        HaneulError::UserInputError {
+        result.as_ref().unwrap_err().as_inner(),
+        HaneulErrorKind::UserInputError {
             error: UserInputError::TransactionDenied { .. }
         }
     ));

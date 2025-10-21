@@ -8,7 +8,7 @@ use haneul_config::{
 };
 use haneul_types::{
     base_types::ObjectRef,
-    error::{HaneulError, HaneulResult, UserInputError},
+    error::{HaneulError, HaneulErrorKind, HaneulResult, UserInputError},
     signature::GenericSignature,
     storage::BackingPackageStore,
     transaction::{Command, InputObjectKind, TransactionData, TransactionDataAPI},
@@ -17,11 +17,11 @@ use tracing::{error, warn};
 macro_rules! deny_if_true {
     ($cond:expr, $msg:expr) => {
         if ($cond) {
-            return Err(HaneulError::UserInputError {
+            return Err(HaneulError(Box::new(HaneulErrorKind::UserInputError {
                 error: UserInputError::TransactionDenied {
                     error: $msg.to_string(),
                 },
-            });
+            })));
         }
     };
 }
@@ -82,11 +82,12 @@ fn dynamic_transaction_checks(
                 "Dynamic transaction predicate rejected transaction: {:?}",
                 tx_data.digest()
             );
-            Err(HaneulError::UserInputError {
+            Err(HaneulErrorKind::UserInputError {
                 error: UserInputError::TransactionDenied {
                     error: "Dynamic transaction predicate failed".to_string(),
                 },
-            })
+            }
+            .into())
         }
         // Non-predicate failure, so be conservative and deny the transaction.
         Err(e) => {
@@ -96,11 +97,12 @@ fn dynamic_transaction_checks(
                 e,
                 tx_data.digest()
             );
-            Err(HaneulError::UserInputError {
+            Err(HaneulErrorKind::UserInputError {
                 error: UserInputError::TransactionDenied {
                     error: e.to_string(),
                 },
-            })
+            }
+            .into())
         }
     }
 }
@@ -141,7 +143,7 @@ fn check_disabled_features(
             deny_if_true!(
                 filter_config.zklogin_disabled_providers().contains(
                     &OIDCProvider::from_iss(z.get_iss())
-                        .map_err(|_| HaneulError::UnexpectedMessage(z.get_iss().to_string()))?
+                        .map_err(|_| HaneulErrorKind::UnexpectedMessage(z.get_iss().to_string()))?
                         .to_string()
                 ),
                 "zkLogin OAuth provider is temporarily disabled"
@@ -234,7 +236,7 @@ fn check_package_dependencies(
             }
             Command::MoveCall(call) => {
                 let package = package_store.get_package_object(&call.package)?.ok_or(
-                    HaneulError::UserInputError {
+                    HaneulErrorKind::UserInputError {
                         error: UserInputError::ObjectNotFound {
                             object_id: call.package,
                             version: None,

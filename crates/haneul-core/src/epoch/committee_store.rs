@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use haneul_types::base_types::ObjectID;
 use haneul_types::committee::{Committee, EpochId};
-use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::error::{HaneulErrorKind, HaneulResult};
 use typed_store::rocks::{default_db_options, DBMap, DBOptions, MetricConf};
 use typed_store::rocksdb::Options;
 
@@ -115,7 +115,7 @@ impl CommitteeStore {
         Ok(match epoch {
             Some(epoch) => self
                 .get_committee(&epoch)?
-                .ok_or(HaneulError::MissingCommitteeAtEpoch(epoch))
+                .ok_or(HaneulErrorKind::MissingCommitteeAtEpoch(epoch))
                 .map(|c| Committee::clone(&*c))?,
             None => self.get_latest_committee()?,
         })

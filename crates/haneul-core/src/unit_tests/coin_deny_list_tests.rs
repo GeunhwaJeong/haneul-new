@@ -18,7 +18,7 @@ use haneul_types::deny_list_v2::{
     check_address_denied_by_config, check_global_pause, get_per_type_coin_deny_list_v2, DenyCapV2,
 };
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
-use haneul_types::error::{HaneulError, UserInputError};
+use haneul_types::error::{HaneulErrorKind, UserInputError};
 use haneul_types::object::Object;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{
@@ -286,8 +286,8 @@ async fn test_regulated_coin_v2_funds_withdraw_deny() {
         .await
         .expect_err("signing should fail for denied address");
 
-    match err {
-        HaneulError::UserInputError {
+    match err.into_inner() {
+        HaneulErrorKind::UserInputError {
             error: UserInputError::AddressDeniedForCoin { address, coin_type },
         } => {
             assert_eq!(address, denied_address);

@@ -22,7 +22,7 @@ use haneul_macros::sim_test;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::crypto::Signature;
 use haneul_types::error::UserInputError;
-use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::error::{HaneulErrorKind, HaneulResult};
 use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::Transaction;
 use haneul_types::{
@@ -242,8 +242,8 @@ async fn test_passkey_feature_deny() {
     let tx = make_good_passkey_tx(response);
     let err = execute_tx(tx, &test_cluster).await.unwrap_err();
     assert!(matches!(
-        err,
-        HaneulError::UserInputError {
+        err.as_inner(),
+        HaneulErrorKind::UserInputError {
             error: UserInputError::Unsupported(..)
         }
     ));
@@ -283,7 +283,7 @@ async fn test_passkey_fails_mismatched_challenge() {
     let err = res.unwrap_err();
     assert_eq!(
         err,
-        HaneulError::InvalidSignature {
+        HaneulErrorKind::InvalidSignature {
             error: "Invalid challenge".to_string()
         }
     );
@@ -303,7 +303,7 @@ async fn test_passkey_fails_mismatched_challenge() {
     let err = res.unwrap_err();
     assert_eq!(
         err,
-        HaneulError::InvalidSignature {
+        HaneulErrorKind::InvalidSignature {
             error: "Invalid challenge".to_string()
         }
     );
@@ -335,7 +335,7 @@ async fn test_passkey_fails_to_verify_sig() {
     let err = res.unwrap_err();
     assert_eq!(
         err,
-        HaneulError::InvalidSignature {
+        HaneulErrorKind::InvalidSignature {
             error: "Fails to verify".to_string()
         }
     );
@@ -360,7 +360,7 @@ async fn test_passkey_fails_to_verify_sig() {
     let err = res.unwrap_err();
     assert_eq!(
         err,
-        HaneulError::InvalidSignature {
+        HaneulErrorKind::InvalidSignature {
             error: "Fails to verify".to_string()
         }
     );
@@ -387,5 +387,8 @@ async fn test_passkey_fails_wrong_author() {
     let tx = Transaction::from_generic_sig_data(response.intent_msg.value, vec![sig]);
     let res = execute_tx(tx, &test_cluster).await;
     let err = res.unwrap_err();
-    assert!(matches!(err, HaneulError::SignerSignatureAbsent { .. }));
+    assert!(matches!(
+        err.as_inner(),
+        HaneulErrorKind::SignerSignatureAbsent { .. }
+    ));
 }

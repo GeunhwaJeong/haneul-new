@@ -7,7 +7,7 @@ use std::collections::{BTreeSet, HashMap};
 use std::path::Path;
 use haneul_storage::blob::{Blob, BlobEncoding};
 use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::error::{HaneulErrorKind, HaneulResult};
 use haneul_types::full_checkpoint_content::{
     Checkpoint, CheckpointData, ExecutedTransaction, ObjectSet,
 };
@@ -21,19 +21,21 @@ pub(crate) fn store_checkpoint_locally(
     let file_name = format!("{}.chk", checkpoint_data.checkpoint_summary.sequence_number);
 
     std::fs::create_dir_all(path).map_err(|err| {
-        HaneulError::FileIOError(format!(
+        HaneulErrorKind::FileIOError(format!(
             "failed to save full checkpoint content locally {:?}",
             err
         ))
     })?;
 
     Blob::encode(&checkpoint_data, BlobEncoding::Bcs)
-        .map_err(|_| HaneulError::TransactionSerializationError {
+        .map_err(|_| HaneulErrorKind::TransactionSerializationError {
             error: "failed to serialize full checkpoint content".to_string(),
         }) // Map the first error
         .and_then(|blob| {
             std::fs::write(path.join(file_name), blob.to_bytes()).map_err(|_| {
-                HaneulError::FileIOError("failed to save full checkpoint content locally".to_string())
+                HaneulErrorKind::FileIOError(
+                    "failed to save full checkpoint content locally".to_string(),
+                )
             })
         })?;
 
@@ -58,7 +60,7 @@ pub(crate) fn load_checkpoint(
         .zip(event_tx_digests)
         .map(|(maybe_event, tx_digest)| {
             maybe_event
-                .ok_or(HaneulError::TransactionEventsNotFound { digest: tx_digest })
+                .ok_or(HaneulErrorKind::TransactionEventsNotFound { digest: tx_digest }.into())
                 .map(|event| (tx_digest, event))
         })
         .collect::<HaneulResult<HashMap<_, _>>>()?;

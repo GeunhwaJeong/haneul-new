@@ -11,7 +11,7 @@ use haneul_types::base_types::AuthorityName;
 use haneul_types::base_types::ConciseableName;
 use haneul_types::committee::{Committee, CommitteeTrait, StakeUnit};
 use haneul_types::crypto::{AuthorityQuorumSignInfo, AuthoritySignInfo, AuthoritySignInfoTrait};
-use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::error::{HaneulError, HaneulErrorKind, HaneulResult};
 use haneul_types::message_envelope::{Envelope, Message};
 use tracing::warn;
 use typed_store::TypedStoreError;
@@ -64,10 +64,11 @@ impl<S: Clone + Eq, const STRENGTH: bool> StakeAggregator<S, STRENGTH> {
         match self.data.entry(authority) {
             Entry::Occupied(oc) => {
                 return InsertResult::Failed {
-                    error: HaneulError::StakeAggregatorRepeatedSigner {
+                    error: HaneulErrorKind::StakeAggregatorRepeatedSigner {
                         signer: authority,
                         conflicting_sig: oc.get() != &s,
-                    },
+                    }
+                    .into(),
                 };
             }
             Entry::Vacant(va) => {
@@ -87,7 +88,7 @@ impl<S: Clone + Eq, const STRENGTH: bool> StakeAggregator<S, STRENGTH> {
             }
         } else {
             InsertResult::Failed {
-                error: HaneulError::InvalidAuthenticator,
+                error: HaneulErrorKind::InvalidAuthenticator.into(),
             }
         }
     }
@@ -128,10 +129,11 @@ impl<const STRENGTH: bool> StakeAggregator<AuthoritySignInfo, STRENGTH> {
         let (data, sig) = envelope.into_data_and_sig();
         if self.committee.epoch != sig.epoch {
             return InsertResult::Failed {
-                error: HaneulError::WrongEpoch {
+                error: HaneulErrorKind::WrongEpoch {
                     expected_epoch: self.committee.epoch,
                     actual_epoch: sig.epoch,
-                },
+                }
+                .into(),
             };
         }
         match self.insert_generic(sig.authority, sig) {
@@ -702,25 +704,24 @@ mod stake_aggregator_tests {
         assert!(matches!(
             result,
             InsertResult::Failed {
-                error: HaneulError::StakeAggregatorRepeatedSigner { .. }
-            }
+                error
+            } if matches!(error.as_inner(),  HaneulErrorKind::StakeAggregatorRepeatedSigner { .. } )
         ));
 
         // Insert same authority with different value - should also fail (conflicting signature)
         let result = agg.insert_generic(authorities[0], 2);
-        if let InsertResult::Failed {
-            error:
-                HaneulError::StakeAggregatorRepeatedSigner {
-                    signer,
-                    conflicting_sig,
-                },
-        } = result
-        {
-            assert_eq!(signer, authorities[0]);
-            assert!(conflicting_sig);
-        } else {
+        let InsertResult::Failed { error } = result else {
             panic!("Expected StakeAggregatorRepeatedSigner error");
-        }
+        };
+        let HaneulErrorKind::StakeAggregatorRepeatedSigner {
+            signer,
+            conflicting_sig,
+        } = error.into_inner()
+        else {
+            panic!("Expected StakeAggregatorRepeatedSigner error");
+        };
+        assert_eq!(signer, authorities[0]);
+        assert!(conflicting_sig);
     }
 
     #[test]

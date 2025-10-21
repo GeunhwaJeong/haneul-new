@@ -85,6 +85,8 @@ impl TransactionRejectReasonCache {
 
 #[cfg(test)]
 mod test {
+    use haneul_types::error::HaneulErrorKind;
+
     use super::*;
 
     #[tokio::test]
@@ -98,14 +100,14 @@ mod test {
 
         // Set the reject reason for the position once
         {
-            let reason = HaneulError::ValidatorHaltedAtEpochEnd;
+            let reason = HaneulErrorKind::ValidatorHaltedAtEpochEnd.into();
             cache.set_rejection_vote_reason(position, &reason);
             assert_eq!(cache.get_rejection_vote_reason(position), Some(reason));
         }
 
         // Set the reject reason for the position again will overwrite the previous reason
         {
-            let reason = HaneulError::InvalidTransactionDigest;
+            let reason = HaneulErrorKind::InvalidTransactionDigest.into();
             cache.set_rejection_vote_reason(position, &reason);
             assert_eq!(cache.get_rejection_vote_reason(position), Some(reason));
         }
@@ -142,7 +144,7 @@ mod test {
             for transaction_index in 0..5 {
                 cache.set_rejection_vote_reason(
                     position(round, transaction_index),
-                    &HaneulError::InvalidTransactionDigest,
+                    &HaneulErrorKind::InvalidTransactionDigest.into(),
                 );
             }
         }
@@ -159,7 +161,7 @@ mod test {
                 } else {
                     assert_eq!(
                         cache.get_rejection_vote_reason(position),
-                        Some(HaneulError::InvalidTransactionDigest)
+                        Some(HaneulErrorKind::InvalidTransactionDigest.into())
                     );
                 }
             }
@@ -177,7 +179,7 @@ mod test {
                 } else {
                     assert_eq!(
                         cache.get_rejection_vote_reason(position),
-                        Some(HaneulError::InvalidTransactionDigest)
+                        Some(HaneulErrorKind::InvalidTransactionDigest.into())
                     );
                 }
             }

@@ -11,7 +11,7 @@ use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};
 use haneul_config::node::AuthorityOverloadConfig;
 use haneul_types::digests::TransactionDigest;
-use haneul_types::error::HaneulError;
+use haneul_types::error::HaneulErrorKind;
 use haneul_types::error::HaneulResult;
 use haneul_types::fp_bail;
 use tokio::time::sleep;
@@ -249,9 +249,10 @@ pub fn overload_monitor_accept_tx(
     if should_reject_tx(load_shedding_percentage, tx_digest, temporal_seed) {
         // TODO: using `SEED_UPDATE_DURATION_SECS` is a safe suggestion that the time based seed
         // is definitely different by then. However, a shorter suggestion may be available.
-        fp_bail!(HaneulError::ValidatorOverloadedRetryAfter {
+        fp_bail!(HaneulErrorKind::ValidatorOverloadedRetryAfter {
             retry_after_secs: SEED_UPDATE_DURATION_SECS
-        });
+        }
+        .into());
     }
     Ok(())
 }

@@ -5,7 +5,7 @@ use crate::base_types::ObjectID;
 use crate::base_types::SequenceNumber;
 use crate::collection_types::LinkedTableNode;
 use crate::dynamic_field::{get_dynamic_field_from_store, Field};
-use crate::error::HaneulResult;
+use crate::error::{HaneulError, HaneulErrorKind, HaneulResult};
 use crate::object::Owner;
 use crate::storage::ObjectStore;
 use crate::haneul_serde::BigInt;
@@ -15,7 +15,6 @@ use crate::HANEUL_BRIDGE_OBJECT_ID;
 use crate::{
     base_types::HaneulAddress,
     collection_types::{Bag, LinkedTable, VecMap},
-    error::HaneulError,
     id::UID,
 };
 use enum_dispatch::enum_dispatch;
@@ -199,12 +198,14 @@ pub fn get_bridge_wrapper(object_store: &dyn ObjectStore) -> Result<BridgeWrappe
     let wrapper = object_store
         .get_object(&HANEUL_BRIDGE_OBJECT_ID)
         // Don't panic here on None because object_store is a generic store.
-        .ok_or_else(|| HaneulError::HaneulBridgeReadError("BridgeWrapper object not found".to_owned()))?;
+        .ok_or_else(|| {
+            HaneulErrorKind::HaneulBridgeReadError("BridgeWrapper object not found".to_owned())
+        })?;
     let move_object = wrapper.data.try_as_move().ok_or_else(|| {
-        HaneulError::HaneulBridgeReadError("BridgeWrapper object must be a Move object".to_owned())
+        HaneulErrorKind::HaneulBridgeReadError("BridgeWrapper object must be a Move object".to_owned())
     })?;
     let result = bcs::from_bytes::<BridgeWrapper>(move_object.contents())
-        .map_err(|err| HaneulError::HaneulBridgeReadError(err.to_string()))?;
+        .map_err(|err| HaneulErrorKind::HaneulBridgeReadError(err.to_string()))?;
     Ok(result)
 }
 
@@ -216,17 +217,18 @@ pub fn get_bridge(object_store: &dyn ObjectStore) -> Result<Bridge, HaneulError>
         1 => {
             let result: BridgeInnerV1 = get_dynamic_field_from_store(object_store, id, &version)
                 .map_err(|err| {
-                    HaneulError::HaneulBridgeReadError(format!(
+                    HaneulErrorKind::HaneulBridgeReadError(format!(
                         "Failed to load bridge inner object with ID {:?} and version {:?}: {:?}",
                         id, version, err
                     ))
                 })?;
             Ok(Bridge::V1(result))
         }
-        _ => Err(HaneulError::HaneulBridgeReadError(format!(
+        _ => Err(HaneulErrorKind::HaneulBridgeReadError(format!(
             "Unsupported HaneulBridge version: {}",
             version
-        ))),
+        ))
+        .into()),
     }
 }
 
@@ -285,12 +287,12 @@ impl BridgeTrait for BridgeInnerV1 {
             .into_iter()
             .map(|e| {
                 let source = BridgeChainId::try_from(e.key.source).map_err(|_e| {
-                    HaneulError::GenericBridgeError {
+                    HaneulErrorKind::GenericBridgeError {
                         error: format!("Unrecognized chain id: {}", e.key.source),
                     }
                 })?;
                 let destination = BridgeChainId::try_from(e.key.destination).map_err(|_e| {
-                    HaneulError::GenericBridgeError {
+                    HaneulErrorKind::GenericBridgeError {
                         error: format!("Unrecognized chain id: {}", e.key.destination),
                     }
                 })?;
@@ -318,12 +320,12 @@ impl BridgeTrait for BridgeInnerV1 {
             .into_iter()
             .map(|e| {
                 let source = BridgeChainId::try_from(e.key.source).map_err(|_e| {
-                    HaneulError::GenericBridgeError {
+                    HaneulErrorKind::GenericBridgeError {
                         error: format!("Unrecognized chain id: {}", e.key.source),
                     }
                 })?;
                 let destination = BridgeChainId::try_from(e.key.destination).map_err(|_e| {
-                    HaneulError::GenericBridgeError {
+                    HaneulErrorKind::GenericBridgeError {
                         error: format!("Unrecognized chain id: {}", e.key.destination),
                     }
                 })?;
@@ -497,10 +499,10 @@ pub struct MoveTypeBridgeRecord {
 }
 
 pub fn is_bridge_committee_initiated(object_store: &dyn ObjectStore) -> HaneulResult<bool> {
-    match get_bridge(object_store) {
+    match get_bridge(object_store).map_err(|e| *e.0) {
         Ok(bridge) => Ok(!bridge.committee().members.contents.is_empty()),
-        Err(HaneulError::HaneulBridgeReadError(..)) => Ok(false),
-        Err(other) => Err(other),
+        Err(HaneulErrorKind::HaneulBridgeReadError(..)) => Ok(false),
+        Err(other) => Err(other.into()),
     }
 }
 

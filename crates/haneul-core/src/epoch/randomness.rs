@@ -23,7 +23,7 @@ use haneul_network::randomness;
 use haneul_types::base_types::AuthorityName;
 use haneul_types::committee::{Committee, EpochId, StakeUnit};
 use haneul_types::crypto::{AuthorityKeyPair, RandomnessRound};
-use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::error::{HaneulErrorKind, HaneulResult};
 use haneul_types::messages_consensus::{
     ConsensusTransaction, Round, TimestampMs, VersionedDkgConfirmation, VersionedDkgMessage,
 };
@@ -725,7 +725,7 @@ impl RandomnessManager {
     fn epoch_store(&self) -> HaneulResult<Arc<AuthorityPerEpochStore>> {
         self.epoch_store
             .upgrade()
-            .ok_or(HaneulError::EpochEnded(self.epoch))
+            .ok_or(HaneulErrorKind::EpochEnded(self.epoch).into())
     }
 
     fn randomness_dkg_info_from_committee(
@@ -781,7 +781,7 @@ impl RandomnessReporter {
         let epoch_store = self
             .epoch_store
             .upgrade()
-            .ok_or(HaneulError::EpochEnded(self.epoch))?;
+            .ok_or(HaneulErrorKind::EpochEnded(self.epoch))?;
         let mut highest_completed_round = self.highest_completed_round.lock();
         if Some(round) > *highest_completed_round {
             *highest_completed_round = Some(round);

@@ -299,7 +299,7 @@ mod tests {
     use haneul_types::committee::{CommitteeTrait, StakeUnit};
     use haneul_types::crypto::{get_account_key_pair, AccountKeyPair};
     use haneul_types::effects::{TransactionEffectsAPI, TransactionEvents};
-    use haneul_types::error::HaneulError;
+    use haneul_types::error::{HaneulError, HaneulErrorKind};
     use haneul_types::executable_transaction::VerifiedExecutableTransaction;
     use haneul_types::messages_checkpoint::{
         CheckpointRequest, CheckpointRequestV2, CheckpointResponse, CheckpointResponseV2,
@@ -350,7 +350,7 @@ mod tests {
             _client_addr: Option<SocketAddr>,
         ) -> Result<HandleTransactionResponse, HaneulError> {
             if self.inject_fault.load(Relaxed) {
-                return Err(HaneulError::TimeoutError);
+                return Err(HaneulErrorKind::TimeoutError.into());
             }
             let epoch_store = self.authority.epoch_store_for_testing();
             self.authority

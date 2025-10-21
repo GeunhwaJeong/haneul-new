@@ -14,7 +14,7 @@ use haneul_types::{
     committee::StakeUnit,
     digests::{TransactionDigest, TransactionEffectsDigest},
     effects::TransactionEffectsAPI as _,
-    error::HaneulError,
+    error::{HaneulError, HaneulErrorKind},
     messages_consensus::ConsensusPosition,
     messages_grpc::{
         ExecutedData, PingType, RawWaitForEffectsRequest, SubmitTxResult, TxType,
@@ -329,7 +329,7 @@ impl EffectsCertifier {
                             ping_type,
                             result: Err(()),
                         });
-                        (name, Err(HaneulError::TimeoutError))
+                        (name, Err(HaneulErrorKind::TimeoutError.into()))
                     }
                 }
             };
@@ -608,7 +608,7 @@ impl EffectsCertifier {
                         ping_type,
                         result: Err(()),
                     });
-                    if !matches!(e, HaneulError::RpcError(_, _)) {
+                    if !matches!(e.as_inner(), HaneulErrorKind::RpcError(_, _)) {
                         return Err(e);
                     }
                     tracing::trace!(
@@ -620,7 +620,7 @@ impl EffectsCertifier {
             };
             sleep(delay).await;
         }
-        Err(HaneulError::TimeoutError)
+        Err(HaneulErrorKind::TimeoutError.into())
     }
 
     /// Creates the final full response.

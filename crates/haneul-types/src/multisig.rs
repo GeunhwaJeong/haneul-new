@@ -4,6 +4,7 @@
 use crate::{
     crypto::{CompressedSignature, DefaultHash, SignatureScheme},
     digests::ZKLoginInputsDigest,
+    error::HaneulErrorKind,
     passkey_authenticator::PasskeyAuthenticator,
     signature::{AuthenticatorTrait, GenericSignature, VerifyParams},
     signature_verification::VerifiedDigestCache,
@@ -104,26 +105,29 @@ impl AuthenticatorTrait for MultiSig {
     {
         self.multisig_pk
             .validate()
-            .map_err(|_| HaneulError::InvalidSignature {
+            .map_err(|_| HaneulErrorKind::InvalidSignature {
                 error: "Invalid multisig pubkey".to_string(),
             })?;
 
         if HaneulAddress::from(&self.multisig_pk) != multisig_address {
-            return Err(HaneulError::InvalidSignature {
+            return Err(HaneulErrorKind::InvalidSignature {
                 error: "Invalid address derived from pks".to_string(),
-            });
+            }
+            .into());
         }
 
         if !self.get_zklogin_sigs()?.is_empty() && !verify_params.accept_zklogin_in_multisig {
-            return Err(HaneulError::InvalidSignature {
+            return Err(HaneulErrorKind::InvalidSignature {
                 error: "zkLogin sig not supported inside multisig".to_string(),
-            });
+            }
+            .into());
         }
 
         if self.has_passkey_sigs() && !verify_params.accept_passkey_in_multisig {
-            return Err(HaneulError::InvalidSignature {
+            return Err(HaneulErrorKind::InvalidSignature {
                 error: "Passkey sig not supported inside multisig".to_string(),
-            });
+            }
+            .into());
         }
 
         let mut weight_sum: u16 = 0;
@@ -138,7 +142,7 @@ impl AuthenticatorTrait for MultiSig {
                 self.multisig_pk
                     .pk_map
                     .get(i as usize)
-                    .ok_or(HaneulError::InvalidSignature {
+                    .ok_or(HaneulErrorKind::InvalidSignature {
                         error: "Invalid public keys index".to_string(),
                     })?;
             let res = match sig {
@@ -146,23 +150,23 @@ impl AuthenticatorTrait for MultiSig {
                     if verify_params.additional_multisig_checks
                         && !matches!(subsig_pubkey.scheme(), SignatureScheme::ED25519)
                     {
-                        return Err(HaneulError::InvalidSignature {
+                        return Err(HaneulErrorKind::InvalidSignature {
                             error: format!(
                                 "Invalid sig for pk={} address={:?} error=signature/pubkey type mismatch",
                                 subsig_pubkey.encode_base64(),
                                 HaneulAddress::from(subsig_pubkey)
                             ),
-                        });
+                        }.into());
                     }
                     let pk =
                         Ed25519PublicKey::from_bytes(subsig_pubkey.as_ref()).map_err(|_| {
-                            HaneulError::InvalidSignature {
+                            HaneulErrorKind::InvalidSignature {
                                 error: "Invalid ed25519 pk bytes".to_string(),
                             }
                         })?;
                     pk.verify(
                         &digest,
-                        &s.try_into().map_err(|_| HaneulError::InvalidSignature {
+                        &s.try_into().map_err(|_| HaneulErrorKind::InvalidSignature {
                             error: "Invalid ed25519 signature bytes".to_string(),
                         })?,
                     )
@@ -171,23 +175,23 @@ impl AuthenticatorTrait for MultiSig {
                     if verify_params.additional_multisig_checks
                         && !matches!(subsig_pubkey.scheme(), SignatureScheme::Secp256k1)
                     {
-                        return Err(HaneulError::InvalidSignature {
+                        return Err(HaneulErrorKind::InvalidSignature {
                             error: format!(
                                 "Invalid sig for pk={} address={:?} error=signature/pubkey type mismatch",
                                 subsig_pubkey.encode_base64(),
                                 HaneulAddress::from(subsig_pubkey)
                             ),
-                        });
+                        }.into());
                     }
                     let pk =
                         Secp256k1PublicKey::from_bytes(subsig_pubkey.as_ref()).map_err(|_| {
-                            HaneulError::InvalidSignature {
+                            HaneulErrorKind::InvalidSignature {
                                 error: "Invalid k1 pk bytes".to_string(),
                             }
                         })?;
                     pk.verify(
                         &digest,
-                        &s.try_into().map_err(|_| HaneulError::InvalidSignature {
+                        &s.try_into().map_err(|_| HaneulErrorKind::InvalidSignature {
                             error: "Invalid k1 signature bytes".to_string(),
                         })?,
                     )
@@ -196,23 +200,23 @@ impl AuthenticatorTrait for MultiSig {
                     if verify_params.additional_multisig_checks
                         && !matches!(subsig_pubkey.scheme(), SignatureScheme::Secp256r1)
                     {
-                        return Err(HaneulError::InvalidSignature {
+                        return Err(HaneulErrorKind::InvalidSignature {
                             error: format!(
                                 "Invalid sig for pk={} address={:?} error=signature/pubkey type mismatch",
                                 subsig_pubkey.encode_base64(),
                                 HaneulAddress::from(subsig_pubkey)
                             ),
-                        });
+                        }.into());
                     }
                     let pk =
                         Secp256r1PublicKey::from_bytes(subsig_pubkey.as_ref()).map_err(|_| {
-                            HaneulError::InvalidSignature {
+                            HaneulErrorKind::InvalidSignature {
                                 error: "Invalid r1 pk bytes".to_string(),
                             }
                         })?;
                     pk.verify(
                         &digest,
-                        &s.try_into().map_err(|_| HaneulError::InvalidSignature {
+                        &s.try_into().map_err(|_| HaneulErrorKind::InvalidSignature {
                             error: "Invalid r1 signature bytes".to_string(),
                         })?,
                     )
@@ -224,16 +228,16 @@ impl AuthenticatorTrait for MultiSig {
                             SignatureScheme::ZkLoginAuthenticator
                         )
                     {
-                        return Err(HaneulError::InvalidSignature {
+                        return Err(HaneulErrorKind::InvalidSignature {
                             error: format!(
                                 "Invalid sig for pk={} address={:?} error=signature/pubkey type mismatch",
                                 subsig_pubkey.encode_base64(),
                                 HaneulAddress::from(subsig_pubkey)
                             ),
-                        });
+                        }.into());
                     }
                     let authenticator = ZkLoginAuthenticator::from_bytes(&z.0).map_err(|_| {
-                        HaneulError::InvalidSignature {
+                        HaneulErrorKind::InvalidSignature {
                             error: "Invalid zklogin authenticator bytes".to_string(),
                         }
                     })?;
@@ -249,7 +253,7 @@ impl AuthenticatorTrait for MultiSig {
                 CompressedSignature::Passkey(bytes) => {
                     let authenticator =
                         PasskeyAuthenticator::from_bytes(&bytes.0).map_err(|_| {
-                            HaneulError::InvalidSignature {
+                            HaneulErrorKind::InvalidSignature {
                                 error: "Invalid passkey authenticator bytes".to_string(),
                             }
                         })?;
@@ -266,25 +270,29 @@ impl AuthenticatorTrait for MultiSig {
             if res.is_ok() {
                 weight_sum += *weight as u16;
             } else {
-                return res.map_err(|e| HaneulError::InvalidSignature {
-                    error: format!(
-                        "Invalid sig for pk={} address={:?} error={:?}",
-                        subsig_pubkey.encode_base64(),
-                        HaneulAddress::from(subsig_pubkey),
-                        e.to_string()
-                    ),
+                return res.map_err(|e| {
+                    HaneulErrorKind::InvalidSignature {
+                        error: format!(
+                            "Invalid sig for pk={} address={:?} error={:?}",
+                            subsig_pubkey.encode_base64(),
+                            HaneulAddress::from(subsig_pubkey),
+                            e.to_string()
+                        ),
+                    }
+                    .into()
                 });
             }
         }
         if weight_sum >= self.multisig_pk.threshold {
             Ok(())
         } else {
-            Err(HaneulError::InvalidSignature {
+            Err(HaneulErrorKind::InvalidSignature {
                 error: format!(
                     "Insufficient weight={:?} threshold={:?}",
                     weight_sum, self.multisig_pk.threshold
                 ),
-            })
+            }
+            .into())
         }
     }
 }
@@ -293,9 +301,10 @@ impl AuthenticatorTrait for MultiSig {
 /// e.g. 22 = 0b10110, then the result is [1, 2, 4].
 pub fn as_indices(bitmap: u16) -> Result<Vec<u8>, HaneulError> {
     if bitmap > MAX_BITMAP_VALUE {
-        return Err(HaneulError::InvalidSignature {
+        return Err(HaneulErrorKind::InvalidSignature {
             error: "Invalid bitmap".to_string(),
-        });
+        }
+        .into());
     }
     let mut res = Vec::new();
     for i in 0..10 {
@@ -330,14 +339,15 @@ impl MultiSig {
     ) -> Result<Self, HaneulError> {
         multisig_pk
             .validate()
-            .map_err(|_| HaneulError::InvalidSignature {
+            .map_err(|_| HaneulErrorKind::InvalidSignature {
                 error: "Invalid multisig public key".to_string(),
             })?;
 
         if full_sigs.len() > multisig_pk.pk_map.len() || full_sigs.is_empty() {
-            return Err(HaneulError::InvalidSignature {
+            return Err(HaneulErrorKind::InvalidSignature {
                 error: "Invalid number of signatures".to_string(),
-            });
+            }
+            .into());
         }
         let mut bitmap = 0;
         let mut sigs = Vec::with_capacity(full_sigs.len());
@@ -345,13 +355,14 @@ impl MultiSig {
             let pk = s.to_public_key()?;
             let index = multisig_pk
                 .get_index(&pk)
-                .ok_or(HaneulError::IncorrectSigner {
+                .ok_or(HaneulErrorKind::IncorrectSigner {
                     error: format!("pk does not exist: {:?}", pk),
                 })?;
             if bitmap & (1 << index) != 0 {
-                return Err(HaneulError::InvalidSignature {
+                return Err(HaneulErrorKind::InvalidSignature {
                     error: "Duplicate public key".to_string(),
-                });
+                }
+                .into());
             }
             bitmap |= 1 << index;
             sigs.push(s.to_compressed()?);
@@ -400,8 +411,11 @@ impl MultiSig {
         authenticator_as_bytes
             .iter()
             .map(|z| {
-                ZkLoginAuthenticator::from_bytes(&z.0).map_err(|_| HaneulError::InvalidSignature {
-                    error: "Invalid zklogin authenticator bytes".to_string(),
+                ZkLoginAuthenticator::from_bytes(&z.0).map_err(|_| {
+                    HaneulErrorKind::InvalidSignature {
+                        error: "Invalid zklogin authenticator bytes".to_string(),
+                    }
+                    .into()
                 })
             })
             .collect()
@@ -435,10 +449,10 @@ impl FromStr for MultiSig {
     type Err = HaneulError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let bytes = Base64::decode(s).map_err(|_| HaneulError::InvalidSignature {
+        let bytes = Base64::decode(s).map_err(|_| HaneulErrorKind::InvalidSignature {
             error: "Invalid base64 string".to_string(),
         })?;
-        let sig = MultiSig::from_bytes(&bytes).map_err(|_| HaneulError::InvalidSignature {
+        let sig = MultiSig::from_bytes(&bytes).map_err(|_| HaneulErrorKind::InvalidSignature {
             error: "Invalid multisig bytes".to_string(),
         })?;
         Ok(sig)
@@ -498,9 +512,10 @@ impl MultiSigPublicKey {
                 .enumerate()
                 .any(|(i, pk)| pks.iter().skip(i + 1).any(|other_pk| *pk == *other_pk))
         {
-            return Err(HaneulError::InvalidSignature {
+            return Err(HaneulErrorKind::InvalidSignature {
                 error: "Invalid multisig public key construction".to_string(),
-            });
+            }
+            .into());
         }
 
         Ok(MultiSigPublicKey {

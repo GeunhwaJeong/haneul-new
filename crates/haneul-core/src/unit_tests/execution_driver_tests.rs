@@ -22,7 +22,7 @@ use crate::unit_test_utils::{
 };
 use haneul_protocol_config::{Chain, PerObjectCongestionControlMode, ProtocolConfig, ProtocolVersion};
 
-use haneul_types::error::HaneulError;
+use haneul_types::error::{HaneulError, HaneulErrorKind};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 
 use std::collections::BTreeSet;
@@ -834,8 +834,8 @@ async fn test_authority_txn_signing_pushback() {
         .handle_transaction_for_benchmarking(tx.clone())
         .await;
     assert!(matches!(
-        HaneulError::from(response.err().unwrap()),
-        HaneulError::ValidatorOverloadedRetryAfter { .. }
+        HaneulError::from(response.err().unwrap()).into_inner(),
+        HaneulErrorKind::ValidatorOverloadedRetryAfter { .. }
     ));
 
     // Check that the input object should be locked by the above transaction.
@@ -848,14 +848,15 @@ async fn test_authority_txn_signing_pushback() {
 
     // Send the same txn again. Although objects are locked, since authority is in load shedding mode,
     // it should still pushback the transaction.
+    let error: HaneulError = validator_service
+        .handle_transaction_for_benchmarking(tx.clone())
+        .await
+        .err()
+        .unwrap()
+        .into();
     assert!(matches!(
-        validator_service
-            .handle_transaction_for_benchmarking(tx.clone())
-            .await
-            .err()
-            .unwrap()
-            .into(),
-        HaneulError::ValidatorOverloadedRetryAfter { .. }
+        error.into_inner(),
+        HaneulErrorKind::ValidatorOverloadedRetryAfter { .. }
     ));
 
     // Send another transaction, that send the same object to a different recipient.
@@ -869,14 +870,15 @@ async fn test_authority_txn_signing_pushback() {
         recipient2,
         rgp,
     );
+    let error: HaneulError = validator_service
+        .handle_transaction_for_benchmarking(tx2)
+        .await
+        .err()
+        .unwrap()
+        .into();
     assert!(matches!(
-        validator_service
-            .handle_transaction_for_benchmarking(tx2)
-            .await
-            .err()
-            .unwrap()
-            .into(),
-        HaneulError::ObjectLockConflict { .. }
+        error.into_inner(),
+        HaneulErrorKind::ObjectLockConflict { .. }
     ));
 
     // Clear the authority overload status.
@@ -979,14 +981,15 @@ async fn test_authority_txn_execution_pushback() {
     .unwrap();
 
     // Ask the validator to execute the certificate, it should fail with ValidatorOverloadedRetryAfter error.
+    let error: HaneulError = validator_service
+        .execute_certificate_for_testing(cert.clone())
+        .await
+        .err()
+        .unwrap()
+        .into();
     assert!(matches!(
-        validator_service
-            .execute_certificate_for_testing(cert.clone())
-            .await
-            .err()
-            .unwrap()
-            .into(),
-        HaneulError::ValidatorOverloadedRetryAfter { .. }
+        error.into_inner(),
+        HaneulErrorKind::ValidatorOverloadedRetryAfter { .. }
     ));
 
     // Clear the validator overload status and retry the certificate. It should succeed.

@@ -12,7 +12,7 @@ use std::fmt::Debug;
 use std::sync::Arc;
 use haneul_json_rpc_types::Filter;
 use haneul_types::base_types::ObjectID;
-use haneul_types::error::HaneulError;
+use haneul_types::error::{HaneulError, HaneulErrorKind};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tracing::{debug, warn};
@@ -147,9 +147,10 @@ where
                 .with_label_values(&[self.metrics_label])
                 .inc();
 
-            HaneulError::FailedToDispatchSubscription {
+            HaneulErrorKind::FailedToDispatchSubscription {
                 error: e.to_string(),
             }
+            .into()
         })
     }
 }

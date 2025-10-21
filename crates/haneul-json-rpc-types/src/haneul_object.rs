@@ -27,7 +27,8 @@ use haneul_types::base_types::{
     TransactionDigest,
 };
 use haneul_types::error::{
-    ExecutionError, HaneulError, HaneulObjectResponseError, HaneulResult, UserInputError, UserInputResult,
+    ExecutionError, HaneulErrorKind, HaneulObjectResponseError, HaneulResult, UserInputError,
+    UserInputResult,
 };
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
@@ -783,7 +784,7 @@ impl HaneulData for HaneulParsedData {
             // this function is only from JSON RPC - it is OK to deserialize with max Move binary
             // version
             let module = move_binary_format::CompiledModule::deserialize_with_defaults(bytecode)
-                .map_err(|error| HaneulError::ModuleDeserializationFailure {
+                .map_err(|error| HaneulErrorKind::ModuleDeserializationFailure {
                     error: error.to_string(),
                 })?;
             let d = move_disassembler::disassembler::Disassembler::from_module_with_max_size(
@@ -791,14 +792,14 @@ impl HaneulData for HaneulParsedData {
                 move_ir_types::location::Spanned::unsafe_no_loc(()).loc,
                 *haneul_types::move_package::MAX_DISASSEMBLED_MODULE_SIZE,
             )
-            .map_err(|e| HaneulError::ObjectSerializationError {
+            .map_err(|e| HaneulErrorKind::ObjectSerializationError {
                 error: e.to_string(),
             })?;
-            let bytecode_str = d
-                .disassemble()
-                .map_err(|e| HaneulError::ObjectSerializationError {
-                    error: e.to_string(),
-                })?;
+            let bytecode_str =
+                d.disassemble()
+                    .map_err(|e| HaneulErrorKind::ObjectSerializationError {
+                        error: e.to_string(),
+                    })?;
             disassembled.insert(module.name().to_string(), Value::String(bytecode_str));
         }
 
@@ -952,9 +953,10 @@ pub fn type_and_fields_from_move_event_data(
             HaneulMoveStruct::WithTypes { type_, .. } => {
                 Ok((type_.clone(), move_struct.clone().to_json_value()))
             }
-            _ => Err(HaneulError::ObjectDeserializationError {
+            _ => Err(HaneulErrorKind::ObjectDeserializationError {
                 error: "Found non-type HaneulMoveStruct in MoveValue event".to_string(),
-            }),
+            }
+            .into()),
         },
         HaneulMoveValue::Variant(v) => Ok((v.type_.clone(), v.clone().to_json_value())),
         HaneulMoveValue::Vector(_)
@@ -963,9 +965,10 @@ pub fn type_and_fields_from_move_event_data(
         | HaneulMoveValue::Address(_)
         | HaneulMoveValue::String(_)
         | HaneulMoveValue::UID { .. }
-        | HaneulMoveValue::Option(_) => Err(HaneulError::ObjectDeserializationError {
+        | HaneulMoveValue::Option(_) => Err(HaneulErrorKind::ObjectDeserializationError {
             error: "Invalid MoveValue event type -- this should not be possible".to_string(),
-        }),
+        }
+        .into()),
     }
 }
 

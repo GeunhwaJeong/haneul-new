@@ -35,7 +35,7 @@ use haneullabs_common::sync::notify_read::{NotifyRead, Registration};
 use haneullabs_metrics::{spawn_monitored_task, GaugeGuard};
 use std::fmt::Write;
 use haneul_macros::fail_point;
-use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::error::{HaneulErrorKind, HaneulResult};
 use haneul_types::transaction::{CertifiedTransaction, Transaction};
 
 use self::reconfig_observer::ReconfigObserver;
@@ -132,8 +132,11 @@ impl<A: Clone> QuorumDriver<A> {
                         .observe(task.retry_times as f64);
                 }
             })
-            .map_err(|e| HaneulError::QuorumDriverCommunicationError {
-                error: e.to_string(),
+            .map_err(|e| {
+                HaneulErrorKind::QuorumDriverCommunicationError {
+                    error: e.to_string(),
+                }
+                .into()
             })
     }
 

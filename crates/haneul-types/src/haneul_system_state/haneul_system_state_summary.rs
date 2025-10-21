@@ -8,7 +8,7 @@ use crate::base_types::{AuthorityName, ObjectID, HaneulAddress};
 use crate::committee::{CommitteeWithNetworkMetadata, NetworkMetadata};
 use crate::crypto::NetworkPublicKey;
 use crate::dynamic_field::get_dynamic_field_from_store;
-use crate::error::HaneulError;
+use crate::error::{HaneulError, HaneulErrorKind};
 use crate::id::ID;
 use crate::multiaddr::Multiaddr;
 use crate::storage::ObjectStore;
@@ -469,7 +469,7 @@ where
         &ID::new(pool_id),
     )
     .map_err(|err| {
-        HaneulError::HaneulSystemStateReadError(format!(
+        HaneulErrorKind::HaneulSystemStateReadError(format!(
             "Failed to load candidate address from pool mappings: {:?}",
             err
         ))

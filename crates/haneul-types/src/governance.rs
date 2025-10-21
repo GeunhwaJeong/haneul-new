@@ -8,7 +8,7 @@ use move_core_types::language_storage::StructTag;
 use crate::balance::Balance;
 use crate::base_types::ObjectID;
 use crate::committee::EpochId;
-use crate::error::HaneulError;
+use crate::error::{HaneulError, HaneulErrorKind};
 use crate::gas_coin::GEUNHWA_PER_HANEUL;
 use crate::id::{ID, UID};
 use crate::object::{Data, Object};
@@ -160,16 +160,20 @@ impl TryFrom<&Object> for StakedHaneul {
         match &object.data {
             Data::Move(o) => {
                 if o.type_().is_staked_haneul() {
-                    return bcs::from_bytes(o.contents()).map_err(|err| HaneulError::TypeError {
-                        error: format!("Unable to deserialize StakedHaneul object: {:?}", err),
+                    return bcs::from_bytes(o.contents()).map_err(|err| {
+                        HaneulErrorKind::TypeError {
+                            error: format!("Unable to deserialize StakedHaneul object: {:?}", err),
+                        }
+                        .into()
                     });
                 }
             }
             Data::Package(_) => {}
         }
 
-        Err(HaneulError::TypeError {
+        Err(HaneulErrorKind::TypeError {
             error: format!("Object type is not a StakedHaneul: {:?}", object),
-        })
+        }
+        .into())
     }
 }

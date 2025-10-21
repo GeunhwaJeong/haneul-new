@@ -40,7 +40,7 @@ use haneul_simulator::anemo::PeerId;
 use haneul_types::base_types::AuthorityName;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::committee::Committee;
-use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::error::{HaneulErrorKind, HaneulResult};
 use haneul_types::fp_ensure;
 use haneul_types::messages_consensus::ConsensusPosition;
 use haneul_types::messages_consensus::ConsensusTransactionKind;
@@ -662,7 +662,7 @@ impl ConsensusAdapter {
                             transaction.kind,
                             ConsensusTransactionKind::UserTransaction(_)
                         ),
-                        HaneulError::InvalidTxKindInSoftBundle
+                        HaneulErrorKind::InvalidTxKindInSoftBundle.into()
                     );
                 } else if is_cert_batch {
                     fp_ensure!(
@@ -670,11 +670,11 @@ impl ConsensusAdapter {
                             transaction.kind,
                             ConsensusTransactionKind::CertifiedTransaction(_)
                         ),
-                        HaneulError::InvalidTxKindInSoftBundle
+                        HaneulErrorKind::InvalidTxKindInSoftBundle.into()
                     );
                 } else {
                     // Other transaction kinds cannot be batched
-                    return Err(HaneulError::InvalidTxKindInSoftBundle);
+                    return Err(HaneulErrorKind::InvalidTxKindInSoftBundle.into());
                 }
             }
         }
@@ -1245,7 +1245,7 @@ impl ConsensusOverloadChecker for ConsensusAdapter {
     fn check_consensus_overload(&self) -> HaneulResult {
         fp_ensure!(
             self.check_limits(),
-            HaneulError::TooManyTransactionsPendingConsensus
+            HaneulErrorKind::TooManyTransactionsPendingConsensus.into()
         );
         Ok(())
     }
@@ -1443,7 +1443,7 @@ impl SubmitToConsensus for Arc<ConsensusAdapter> {
         let permit = match self.submit_semaphore.clone().try_acquire_owned() {
             Ok(permit) => permit,
             Err(_) => {
-                return Err(HaneulError::TooManyTransactionsPendingConsensus);
+                return Err(HaneulErrorKind::TooManyTransactionsPendingConsensus.into());
             }
         };
 

@@ -21,7 +21,7 @@ mod checked {
         native_functions::NativeFunctionTable,
     };
     use haneul_move_natives::object_runtime;
-    use haneul_types::metrics::BytecodeVerifierMetrics;
+    use haneul_types::{error::HaneulErrorKind, metrics::BytecodeVerifierMetrics};
     use haneul_verifier::check_for_verifier_timeout;
     use tracing::instrument;
 
@@ -66,7 +66,7 @@ mod checked {
                     .deprecate_global_storage_ops_during_deserialization(),
             },
         )
-        .map_err(|_| HaneulError::ExecutionInvariantViolation)
+        .map_err(|_| HaneulErrorKind::ExecutionInvariantViolation.into())
     }
 
     pub fn new_native_extensions<'r>(
@@ -163,9 +163,10 @@ mod checked {
                             BytecodeVerifierMetrics::TIMEOUT_TAG,
                         ])
                         .inc();
-                    return Err(HaneulError::ModuleVerificationFailure {
+                    return Err(HaneulErrorKind::ModuleVerificationFailure {
                         error: format!("Verification timedout: {}", e),
-                    });
+                    }
+                    .into());
                 };
             } else if let Err(err) = haneul_verify_module_metered_check_timeout_only(
                 protocol_config,

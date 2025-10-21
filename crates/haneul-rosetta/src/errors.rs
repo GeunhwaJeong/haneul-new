@@ -14,7 +14,7 @@ use serde_json::{json, Value};
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
-use haneul_types::error::HaneulError;
+use haneul_types::error::{HaneulError, HaneulErrorKind};
 
 use crate::types::{BlockHash, OperationType, PublicKey, HaneulEnv};
 use strum::EnumProperty;
@@ -83,6 +83,12 @@ pub enum Error {
     #[error("Retries exhausted while getting balance. try again.")]
     #[strum(props(retriable = "true"))]
     RetryExhausted(String),
+}
+
+impl From<HaneulErrorKind> for Error {
+    fn from(e: HaneulErrorKind) -> Self {
+        Error::HaneulError(HaneulError::from(e))
+    }
 }
 
 impl Serialize for ErrorType {

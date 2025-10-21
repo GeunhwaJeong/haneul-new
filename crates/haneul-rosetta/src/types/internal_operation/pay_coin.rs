@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::{ObjectRef, HaneulAddress};
-use haneul_types::error::{HaneulError, UserInputError};
+use haneul_types::error::{HaneulErrorKind, UserInputError};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{Argument, Command, ObjectArg, ProgrammableTransaction};
 
@@ -68,7 +68,7 @@ impl TryConstructTransaction for PayCoin {
             .select_coins(sender, None, budget as u128, vec![])
             .await?;
         if gas_coins.len() > MAX_GAS_COINS {
-            return Err(HaneulError::UserInputError {
+            return Err(HaneulErrorKind::UserInputError {
                 error: UserInputError::SizeLimitExceeded {
                     limit: "maximum number of gas payment objects".to_string(),
                     value: MAX_GAS_COINS.to_string(),

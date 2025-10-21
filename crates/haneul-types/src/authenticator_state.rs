@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::base_types::SequenceNumber;
 use crate::dynamic_field::get_dynamic_field_from_store;
-use crate::error::{HaneulError, HaneulResult};
+use crate::error::{HaneulErrorKind, HaneulResult};
 use crate::object::Owner;
 use crate::storage::ObjectStore;
 use crate::{id::UID, HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS};
@@ -113,12 +113,12 @@ pub fn get_authenticator_state(
         return Ok(None);
     };
     let move_object = outer.data.try_as_move().ok_or_else(|| {
-        HaneulError::HaneulSystemStateReadError(
+        HaneulErrorKind::HaneulSystemStateReadError(
             "AuthenticatorState object must be a Move object".to_owned(),
         )
     })?;
     let outer = bcs::from_bytes::<AuthenticatorState>(move_object.contents())
-        .map_err(|err| HaneulError::HaneulSystemStateReadError(err.to_string()))?;
+        .map_err(|err| HaneulErrorKind::HaneulSystemStateReadError(err.to_string()))?;
 
     // No other versions exist yet.
     assert_eq!(outer.version, AUTHENTICATOR_STATE_VERSION);
@@ -126,7 +126,7 @@ pub fn get_authenticator_state(
     let id = outer.id.id.bytes;
     let inner: AuthenticatorStateInner =
         get_dynamic_field_from_store(&object_store, id, &outer.version).map_err(|err| {
-            HaneulError::DynamicFieldReadError(format!(
+            HaneulErrorKind::DynamicFieldReadError(format!(
                 "Failed to load haneul system state inner object with ID {:?} and version {:?}: {:?}",
                 id, outer.version, err
             ))

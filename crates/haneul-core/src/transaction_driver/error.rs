@@ -9,7 +9,7 @@ use haneul_types::{
     base_types::{AuthorityName, ConciseableName},
     committee::{EpochId, StakeUnit},
     digests::TransactionEffectsDigest,
-    error::{ErrorCategory, HaneulError},
+    error::{ErrorCategory, HaneulError, HaneulErrorKind},
 };
 use thiserror::Error;
 
@@ -306,8 +306,8 @@ impl std::fmt::Display for AggregatedRequestErrors {
 // Match special handling of UserInputError in haneul-json-rpc/src/error.rs NonRecoverableTransactionError
 fn format_transaction_request_error(error: &TransactionRequestError) -> String {
     match error {
-        TransactionRequestError::RejectedAtValidator(haneul_error) => match haneul_error {
-            HaneulError::UserInputError { error: user_error } => user_error.to_string(),
+        TransactionRequestError::RejectedAtValidator(haneul_error) => match haneul_error.as_inner() {
+            HaneulErrorKind::UserInputError { error: user_error } => user_error.to_string(),
             _ => haneul_error.to_string(),
         },
         _ => error.to_string(),

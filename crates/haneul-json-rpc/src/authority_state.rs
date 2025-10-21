@@ -26,7 +26,7 @@ use haneul_types::committee::{Committee, EpochId};
 use haneul_types::digests::{ChainIdentifier, TransactionDigest};
 use haneul_types::dynamic_field::DynamicFieldInfo;
 use haneul_types::effects::TransactionEffects;
-use haneul_types::error::{HaneulError, UserInputError};
+use haneul_types::error::{HaneulError, HaneulErrorKind, UserInputError};
 use haneul_types::event::EventID;
 use haneul_types::governance::StakedHaneul;
 use haneul_types::messages_checkpoint::{
@@ -452,11 +452,13 @@ impl StateRead for AuthorityState {
         Ok(tokio::task::spawn_blocking(move || {
             indexes
                 .as_ref()
-                .ok_or(HaneulError::IndexStoreNotAvailable)?
+                .ok_or(HaneulErrorKind::IndexStoreNotAvailable)?
                 .get_balance(owner, coin_type)
         })
         .await
-        .map_err(|e: JoinError| HaneulError::ExecutionError(e.to_string()))??)
+        .map_err(|e: JoinError| {
+            HaneulError(Box::new(HaneulErrorKind::ExecutionError(e.to_string())))
+        })??)
     }
 
     async fn get_all_balance(
@@ -467,11 +469,13 @@ impl StateRead for AuthorityState {
         Ok(tokio::task::spawn_blocking(move || {
             indexes
                 .as_ref()
-                .ok_or(HaneulError::IndexStoreNotAvailable)?
+                .ok_or(HaneulErrorKind::IndexStoreNotAvailable)?
                 .get_all_balance(owner)
         })
         .await
-        .map_err(|e: JoinError| HaneulError::ExecutionError(e.to_string()))??)
+        .map_err(|e: JoinError| {
+            HaneulError(Box::new(HaneulErrorKind::ExecutionError(e.to_string())))
+        })??)
     }
 
     fn get_verified_checkpoint_by_sequence_number(
@@ -608,12 +612,24 @@ pub enum StateReadInternalError {
     Anyhow(#[from] anyhow::Error),
 }
 
+impl From<HaneulErrorKind> for StateReadInternalError {
+    fn from(e: HaneulErrorKind) -> Self {
+        StateReadInternalError::HaneulError(HaneulError::from(e))
+    }
+}
+
 #[derive(Debug, Error)]
 pub enum StateReadClientError {
     #[error(transparent)]
     HaneulError(#[from] HaneulError),
     #[error(transparent)]
     UserInputError(#[from] UserInputError),
+}
+
+impl From<HaneulErrorKind> for StateReadClientError {
+    fn from(e: HaneulErrorKind) -> Self {
+        StateReadClientError::HaneulError(HaneulError::from(e))
+    }
 }
 
 /// `StateReadError` is the error type for callers to work with.
@@ -631,16 +647,22 @@ pub enum StateReadError {
     Client(#[from] StateReadClientError),
 }
 
-impl From<HaneulError> for StateReadError {
-    fn from(e: HaneulError) -> Self {
+impl From<HaneulErrorKind> for StateReadError {
+    fn from(e: HaneulErrorKind) -> Self {
         match e {
-            HaneulError::IndexStoreNotAvailable
-            | HaneulError::TransactionNotFound { .. }
-            | HaneulError::UnsupportedFeatureError { .. }
-            | HaneulError::UserInputError { .. }
-            | HaneulError::WrongMessageVersion { .. } => StateReadError::Client(e.into()),
+            HaneulErrorKind::IndexStoreNotAvailable
+            | HaneulErrorKind::TransactionNotFound { .. }
+            | HaneulErrorKind::UnsupportedFeatureError { .. }
+            | HaneulErrorKind::UserInputError { .. }
+            | HaneulErrorKind::WrongMessageVersion { .. } => StateReadError::Client(e.into()),
             _ => StateReadError::Internal(e.into()),
         }
+    }
+}
+
+impl From<HaneulError> for StateReadError {
+    fn from(e: HaneulError) -> Self {
+        e.into_inner().into()
     }
 }
 

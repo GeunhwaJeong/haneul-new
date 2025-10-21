@@ -11,7 +11,7 @@ use haneul_config::node::AuthorityOverloadConfig;
 use haneul_types::{
     base_types::FullObjectID,
     digests::TransactionDigest,
-    error::{HaneulError, HaneulResult},
+    error::{HaneulErrorKind, HaneulResult},
     fp_bail, fp_ensure,
     message_envelope::Message,
     transaction::{SenderSignedData, TransactionDataAPI},
@@ -86,10 +86,11 @@ impl OverloadTracker {
         // Too many transactions are pending execution.
         fp_ensure!(
             inflight_queue_len < overload_config.max_transaction_manager_queue_length,
-            HaneulError::TooManyTransactionsPendingExecution {
+            HaneulErrorKind::TooManyTransactionsPendingExecution {
                 queue_len: inflight_queue_len,
                 threshold: overload_config.max_transaction_manager_queue_length,
             }
+            .into()
         );
 
         let mutable_shared_objects = Self::get_mutable_shared_objects(tx_data);
@@ -101,11 +102,12 @@ impl OverloadTracker {
                     "Overload detected on object {:?} with {} pending transactions",
                     object_id, queue_len
                 );
-                fp_bail!(HaneulError::TooManyTransactionsPendingOnObject {
+                fp_bail!(HaneulErrorKind::TooManyTransactionsPendingOnObject {
                     object_id: object_id.id(),
                     queue_len,
                     threshold: overload_config.max_transaction_manager_per_object_queue_length,
-                });
+                }
+                .into());
             }
             if let Some(age) = txn_age {
                 // Check that we don't have a txn that has been waiting for a long time in the queue.
@@ -115,11 +117,12 @@ impl OverloadTracker {
                         object_id,
                         age.as_millis()
                     );
-                    fp_bail!(HaneulError::TooOldTransactionPendingOnObject {
+                    fp_bail!(HaneulErrorKind::TooOldTransactionPendingOnObject {
                         object_id: object_id.id(),
                         txn_age_sec: age.as_secs(),
                         threshold: overload_config.max_txn_age_in_queue.as_secs(),
-                    });
+                    }
+                    .into());
                 }
             }
         }

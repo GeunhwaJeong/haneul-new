@@ -22,7 +22,6 @@ use haneul_core::authority_client::AuthorityAPI;
 use haneul_macros::sim_test;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_test_transaction_builder::TestTransactionBuilder;
-use haneul_types::crypto::{SignatureScheme, ToFromBytes};
 use haneul_types::error::UserInputError;
 use haneul_types::multisig_legacy::MultiSigLegacy;
 use haneul_types::passkey_authenticator::{to_signing_message, PasskeyAuthenticator};
@@ -32,13 +31,17 @@ use haneul_types::{
         get_key_pair, CompressedSignature, PublicKey, Signature, HaneulKeyPair,
         ZkLoginAuthenticatorAsBytes, ZkLoginPublicIdentifier,
     },
-    error::{HaneulError, HaneulResult},
+    error::HaneulResult,
     multisig::{MultiSig, MultiSigPublicKey},
     multisig_legacy::MultiSigPublicKeyLegacy,
     signature::GenericSignature,
     transaction::Transaction,
     utils::{keys, load_test_vectors, make_upgraded_multisig_tx},
     zk_login_authenticator::ZkLoginAuthenticator,
+};
+use haneul_types::{
+    crypto::{SignatureScheme, ToFromBytes},
+    error::HaneulErrorKind,
 };
 use test_cluster::{TestCluster, TestClusterBuilder};
 use url::Url;
@@ -298,8 +301,8 @@ async fn test_upgraded_multisig_feature_deny() {
     let err = do_upgraded_multisig_test().await.unwrap_err();
 
     assert!(matches!(
-        err,
-        HaneulError::UserInputError {
+        err.as_inner(),
+        HaneulErrorKind::UserInputError {
             error: UserInputError::Unsupported(..)
         }
     ));
@@ -316,7 +319,10 @@ async fn test_upgraded_multisig_feature_allow() {
 
     // we didn't make a real transaction with a valid object, but we verify that we pass the
     // feature gate.
-    assert!(matches!(res.unwrap_err(), HaneulError::UserInputError { .. }));
+    assert!(matches!(
+        res.unwrap_err().as_inner(),
+        HaneulErrorKind::UserInputError { .. }
+    ));
 }
 
 #[sim_test]

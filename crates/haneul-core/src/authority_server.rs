@@ -47,7 +47,7 @@ use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::traffic_control::{ClientIdSource, Weight};
 use haneul_types::{
     digests::{TransactionDigest, TransactionEffectsDigest},
-    error::UserInputError,
+    error::{HaneulErrorKind, UserInputError},
 };
 use haneul_types::{
     effects::TransactionEffects,
@@ -527,8 +527,8 @@ impl ValidatorService {
                 .with_label_values(&[error.as_ref()])
                 .inc();
             // TODO: consider change the behavior for other types of overload errors.
-            match error {
-                HaneulError::ValidatorOverloadedRetryAfter { .. } => {
+            match error.as_inner() {
+                HaneulErrorKind::ValidatorOverloadedRetryAfter { .. } => {
                     validator_pushback_error = Some(error)
                 }
                 _ => return Err(error.into()),
@@ -553,7 +553,7 @@ impl ValidatorService {
             .instrument(span)
             .await
             .tap_err(|e| {
-                if let HaneulError::ValidatorHaltedAtEpochEnd = e {
+                if let HaneulErrorKind::ValidatorHaltedAtEpochEnd = e.as_inner() {
                     metrics.num_rejected_tx_in_epoch_boundary.inc();
                 }
             })?;
@@ -593,7 +593,7 @@ impl ValidatorService {
 
         let epoch_store = state.load_epoch_store_one_call_per_task();
         if !epoch_store.protocol_config().mysticeti_fastpath() {
-            return Err(HaneulError::UnsupportedFeatureError {
+            return Err(HaneulErrorKind::UnsupportedFeatureError {
                 error: "Mysticeti fastpath".to_string(),
             }
             .into());
@@ -601,7 +601,7 @@ impl ValidatorService {
 
         let request = request.into_inner();
         let submit_type = SubmitTxType::try_from(request.submit_type).map_err(|e| {
-            HaneulError::GrpcMessageDeserializeError {
+            HaneulErrorKind::GrpcMessageDeserializeError {
                 type_info: "RawSubmitTxRequest.submit_type".to_string(),
                 error: e.to_string(),
             }
@@ -611,7 +611,7 @@ impl ValidatorService {
         if is_ping_request {
             fp_ensure!(
                 request.transactions.is_empty(),
-                HaneulError::InvalidRequest(format!(
+                HaneulErrorKind::InvalidRequest(format!(
                     "Ping request cannot contain {} transactions",
                     request.transactions.len()
                 ))
@@ -621,7 +621,7 @@ impl ValidatorService {
             // Ensure default and soft bundle requests contain at least one transaction.
             fp_ensure!(
                 !request.transactions.is_empty(),
-                HaneulError::InvalidRequest(
+                HaneulErrorKind::InvalidRequest(
                     "At least one transaction needs to be submitted".to_string(),
                 )
                 .into()
@@ -646,7 +646,7 @@ impl ValidatorService {
         };
         fp_ensure!(
             request.transactions.len() <= max_num_transactions as usize,
-            HaneulError::InvalidRequest(format!(
+            HaneulErrorKind::InvalidRequest(format!(
                 "Too many transactions in request: {} vs {}",
                 request.transactions.len(),
                 max_num_transactions
@@ -685,7 +685,7 @@ impl ValidatorService {
                 Ok(txn) => txn,
                 Err(e) => {
                     // Ok to fail the request when any transaction is invalid.
-                    return Err(HaneulError::TransactionDeserializationError {
+                    return Err(HaneulErrorKind::TransactionDeserializationError {
                         error: format!("Failed to deserialize transaction at index {}: {}", idx, e),
                     }
                     .into());
@@ -821,7 +821,7 @@ impl ValidatorService {
         };
         fp_ensure!(
             total_size_bytes <= max_transaction_bytes as usize,
-            HaneulError::UserInputError {
+            HaneulErrorKind::UserInputError {
                 error: UserInputError::TotalTransactionSizeTooLargeInBatch {
                     size: total_size_bytes,
                     limit: max_transaction_bytes,
@@ -918,7 +918,7 @@ impl ValidatorService {
     ) -> Result<RawSubmitTxResponse, HaneulError> {
         let mut raw_results = Vec::new();
         for (i, result) in results.into_iter().enumerate() {
-            let result = result.ok_or_else(|| HaneulError::GenericAuthorityError {
+            let result = result.ok_or_else(|| HaneulErrorKind::GenericAuthorityError {
                 error: format!("Missing transaction result at {}", i),
             })?;
             let raw_result = result.try_into()?;
@@ -948,7 +948,7 @@ impl ValidatorService {
         // Fullnode does not serve handle_certificate call.
         fp_ensure!(
             !self.state.is_fullnode(epoch_store),
-            HaneulError::FullNodeCantHandleCertificate.into()
+            HaneulErrorKind::FullNodeCantHandleCertificate.into()
         );
 
         let is_consensus_tx = certificates.iter().any(|cert| cert.is_consensus_tx());
@@ -1104,7 +1104,7 @@ impl ValidatorService {
             let reconfiguration_lock = epoch_store.get_reconfig_state_read_lock_guard();
             if !reconfiguration_lock.should_accept_user_certs() {
                 self.metrics.num_rejected_cert_in_epoch_boundary.inc();
-                return Err(HaneulError::ValidatorHaltedAtEpochEnd.into());
+                return Err(HaneulErrorKind::ValidatorHaltedAtEpochEnd.into());
             }
 
             // Submit to consensus and wait for position, we do not check if tx
@@ -1122,7 +1122,9 @@ impl ValidatorService {
         }
 
         Ok(rx_consensus_positions.await.map_err(|e| {
-            HaneulError::FailedToSubmitToConsensus(format!("Failed to get consensus position: {e}"))
+            HaneulErrorKind::FailedToSubmitToConsensus(format!(
+                "Failed to get consensus position: {e}"
+            ))
         })?)
     }
 
@@ -1142,7 +1144,7 @@ impl ValidatorService {
             let reconfiguration_lock = epoch_store.get_reconfig_state_read_lock_guard();
             if !reconfiguration_lock.should_accept_user_certs() {
                 self.metrics.num_rejected_cert_in_epoch_boundary.inc();
-                return Err(HaneulError::ValidatorHaltedAtEpochEnd.into());
+                return Err(HaneulErrorKind::ValidatorHaltedAtEpochEnd.into());
             }
 
             // 3) All transactions are sent to consensus (at least by some authorities)
@@ -1417,7 +1419,7 @@ impl ValidatorService {
             Duration::from_secs(20),
             epoch_store
                 .within_alive_epoch(self.wait_for_effects_response(request, &epoch_store))
-                .map_err(|_| HaneulError::EpochEnded(epoch_store.epoch())),
+                .map_err(|_| HaneulErrorKind::EpochEnded(epoch_store.epoch())),
         )
         .await
         .map_err(|_| tonic::Status::internal("Timeout waiting for effects"))???
@@ -1437,13 +1439,14 @@ impl ValidatorService {
                 self.ping_response(request, epoch_store),
             )
             .await
-            .map_err(|_| HaneulError::TimeoutError)?;
+            .map_err(|_| HaneulErrorKind::TimeoutError)?;
         }
 
         let Some(tx_digest) = request.transaction_digest else {
-            return Err(HaneulError::InvalidRequest(
+            return Err(HaneulErrorKind::InvalidRequest(
                 "Transaction digest is required for wait for effects requests".to_string(),
-            ));
+            )
+            .into());
         };
         let tx_digests = [tx_digest];
 
@@ -1503,22 +1506,25 @@ impl ValidatorService {
         epoch_store: &Arc<AuthorityPerEpochStore>,
     ) -> HaneulResult<WaitForEffectsResponse> {
         let Some(consensus_tx_status_cache) = epoch_store.consensus_tx_status_cache.as_ref() else {
-            return Err(HaneulError::UnsupportedFeatureError {
+            return Err(HaneulErrorKind::UnsupportedFeatureError {
                 error: "Mysticeti fastpath".to_string(),
-            });
+            }
+            .into());
         };
 
         let Some(consensus_position) = request.consensus_position else {
-            return Err(HaneulError::InvalidRequest(
+            return Err(HaneulErrorKind::InvalidRequest(
                 "Consensus position is required for Ping requests".to_string(),
-            ));
+            )
+            .into());
         };
 
         // We assume that the caller has already checked for the existence of the `ping` field, but handling it gracefully here.
         let Some(ping) = request.ping_type else {
-            return Err(HaneulError::InvalidRequest(
+            return Err(HaneulErrorKind::InvalidRequest(
                 "Ping type is required for ping requests".to_string(),
-            ));
+            )
+            .into());
         };
 
         let _metrics_guard = self
@@ -1584,9 +1590,10 @@ impl ValidatorService {
         epoch_store: &Arc<AuthorityPerEpochStore>,
     ) -> HaneulResult<WaitForEffectsResponse> {
         let Some(consensus_tx_status_cache) = epoch_store.consensus_tx_status_cache.as_ref() else {
-            return Err(HaneulError::UnsupportedFeatureError {
+            return Err(HaneulErrorKind::UnsupportedFeatureError {
                 error: "Mysticeti fastpath".to_string(),
-            });
+            }
+            .into());
         };
 
         let local_epoch = epoch_store.epoch();
@@ -1602,10 +1609,11 @@ impl ValidatorService {
             }
             Ordering::Greater => {
                 // Ask TransactionDriver to retry this RPC until the validator's epoch catches up.
-                return Err(HaneulError::WrongEpoch {
+                return Err(HaneulErrorKind::WrongEpoch {
                     expected_epoch: local_epoch,
                     actual_epoch: consensus_position.epoch,
-                });
+                }
+                .into());
             }
             Ordering::Equal => {
                 // The validator's epoch is the same as the epoch of the transaction.
@@ -1708,7 +1716,7 @@ impl ValidatorService {
         // without having to upgrade the entire network.
         fp_ensure!(
             protocol_config.soft_bundle() && node_config.enable_soft_bundle,
-            HaneulError::UnsupportedFeatureError {
+            HaneulErrorKind::UnsupportedFeatureError {
                 error: "Soft Bundle".to_string()
             }
             .into()
@@ -1722,7 +1730,7 @@ impl ValidatorService {
         // - Total size of all certs must not exceed the max allowed.
         fp_ensure!(
             certificates.len() as u64 <= protocol_config.max_soft_bundle_size(),
-            HaneulError::UserInputError {
+            HaneulErrorKind::UserInputError {
                 error: UserInputError::TooManyTransactionsInBatch {
                     size: certificates.len(),
                     limit: protocol_config.max_soft_bundle_size()
@@ -1738,7 +1746,7 @@ impl ValidatorService {
             protocol_config.consensus_max_transactions_in_block_bytes() / 2;
         fp_ensure!(
             total_size_bytes <= soft_bundle_max_size_bytes,
-            HaneulError::UserInputError {
+            HaneulErrorKind::UserInputError {
                 error: UserInputError::TotalTransactionSizeTooLargeInBatch {
                     size: total_size_bytes as usize,
                     limit: soft_bundle_max_size_bytes,
@@ -1752,14 +1760,14 @@ impl ValidatorService {
             let tx_digest = *certificate.digest();
             fp_ensure!(
                 certificate.is_consensus_tx(),
-                HaneulError::UserInputError {
+                HaneulErrorKind::UserInputError {
                     error: UserInputError::NoSharedObjectError { digest: tx_digest }
                 }
                 .into()
             );
             fp_ensure!(
                 !self.state.is_tx_already_executed(&tx_digest),
-                HaneulError::UserInputError {
+                HaneulErrorKind::UserInputError {
                     error: UserInputError::AlreadyExecutedInSoftBundleError { digest: tx_digest }
                 }
                 .into()
@@ -1767,7 +1775,7 @@ impl ValidatorService {
             if let Some(gas) = gas_price {
                 fp_ensure!(
                     gas == certificate.gas_price(),
-                    HaneulError::UserInputError {
+                    HaneulErrorKind::UserInputError {
                         error: UserInputError::GasPriceMismatchError {
                             digest: tx_digest,
                             expected: gas,
@@ -1787,7 +1795,7 @@ impl ValidatorService {
         // already being processed by another actor, and we could not know it.
         fp_ensure!(
             !epoch_store.is_any_tx_certs_consensus_message_processed(certificates.iter())?,
-            HaneulError::UserInputError {
+            HaneulErrorKind::UserInputError {
                 error: UserInputError::CertificateAlreadyProcessed
             }
             .into()
@@ -1808,8 +1816,8 @@ impl ValidatorService {
         };
         let request = request.into_inner();
 
-        let certificates =
-            NonEmpty::from_vec(request.certificates).ok_or(HaneulError::NoCertificateProvidedError)?;
+        let certificates = NonEmpty::from_vec(request.certificates)
+            .ok_or(HaneulErrorKind::NoCertificateProvidedError)?;
         let mut total_size_bytes = 0;
         for certificate in &certificates {
             // We need to check this first because we haven't verified the cert signature.
@@ -2072,7 +2080,9 @@ impl ValidatorService {
         if let Some(traffic_controller) = &self.traffic_controller {
             if !traffic_controller.check(&client, &None).await {
                 // Entity in blocklist
-                Err(tonic::Status::from_error(HaneulError::TooManyRequests.into()))
+                Err(tonic::Status::from_error(
+                    HaneulErrorKind::TooManyRequests.into(),
+                ))
             } else {
                 Ok(())
             }
@@ -2126,16 +2136,16 @@ fn make_tonic_request_for_testing<T>(message: T) -> tonic::Request<T> {
 
 // TODO: refine error matching here
 fn normalize(err: HaneulError) -> Weight {
-    match err {
-        HaneulError::UserInputError {
+    match err.as_inner() {
+        HaneulErrorKind::UserInputError {
             error: UserInputError::IncorrectUserSignature { .. },
         } => Weight::one(),
-        HaneulError::InvalidSignature { .. }
-        | HaneulError::SignerSignatureAbsent { .. }
-        | HaneulError::SignerSignatureNumberMismatch { .. }
-        | HaneulError::IncorrectSigner { .. }
-        | HaneulError::UnknownSigner { .. }
-        | HaneulError::WrongEpoch { .. } => Weight::one(),
+        HaneulErrorKind::InvalidSignature { .. }
+        | HaneulErrorKind::SignerSignatureAbsent { .. }
+        | HaneulErrorKind::SignerSignatureNumberMismatch { .. }
+        | HaneulErrorKind::IncorrectSigner { .. }
+        | HaneulErrorKind::UnknownSigner { .. }
+        | HaneulErrorKind::WrongEpoch { .. } => Weight::one(),
         _ => Weight::zero(),
     }
 }

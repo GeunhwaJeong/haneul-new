@@ -540,7 +540,7 @@ mod tests {
     use haneul_types::coin::TreasuryCap;
     use haneul_types::digests::{ObjectDigest, TransactionDigest};
     use haneul_types::effects::{TransactionEffects, TransactionEvents};
-    use haneul_types::error::{HaneulError, HaneulResult};
+    use haneul_types::error::{HaneulError, HaneulErrorKind, HaneulResult};
     use haneul_types::gas_coin::GAS;
     use haneul_types::id::UID;
     use haneul_types::messages_checkpoint::{CheckpointDigest, CheckpointSequenceNumber};
@@ -1002,7 +1002,7 @@ mod tests {
                 .expect_get_owned_coins()
                 .returning(move |_, _, _, _| {
                     Err(StateReadError::Client(
-                        HaneulError::IndexStoreNotAvailable.into(),
+                        HaneulErrorKind::IndexStoreNotAvailable.into(),
                     ))
                 });
             let coin_read_api = CoinReadApi::new_for_tests(Arc::new(mock_state), None);
@@ -1028,7 +1028,7 @@ mod tests {
             mock_state
                 .expect_get_owned_coins()
                 .returning(move |_, _, _, _| {
-                    Err(HaneulError::Storage("mock rocksdb error".to_string()).into())
+                    Err(HaneulErrorKind::Storage("mock rocksdb error".to_string()).into())
                 });
             let coin_read_api = CoinReadApi::new_for_tests(Arc::new(mock_state), None);
             let response = coin_read_api
@@ -1283,7 +1283,7 @@ mod tests {
             let mut mock_state = MockStateRead::new();
             mock_state.expect_get_balance().returning(move |_, _| {
                 Err(StateReadError::Client(
-                    HaneulError::IndexStoreNotAvailable.into(),
+                    HaneulErrorKind::IndexStoreNotAvailable.into(),
                 ))
             });
             let coin_read_api = CoinReadApi::new_for_tests(Arc::new(mock_state), None);
@@ -1308,7 +1308,7 @@ mod tests {
             let coin_type = get_test_coin_type(get_test_package_id());
             let mut mock_state = MockStateRead::new();
             mock_state.expect_get_balance().returning(move |_, _| {
-                Err(HaneulError::ExecutionError("mock db error".to_string()).into())
+                Err(HaneulErrorKind::ExecutionError("mock db error".to_string()).into())
             });
             let coin_read_api = CoinReadApi::new_for_tests(Arc::new(mock_state), None);
             let response = coin_read_api
@@ -1328,6 +1328,8 @@ mod tests {
     }
 
     mod get_all_balances_tests {
+        use haneul_types::error::HaneulErrorKind;
+
         use super::super::*;
         use super::*;
 
@@ -1398,7 +1400,7 @@ mod tests {
             let mut mock_state = MockStateRead::new();
             mock_state.expect_get_all_balance().returning(move |_| {
                 Err(StateReadError::Client(
-                    HaneulError::IndexStoreNotAvailable.into(),
+                    HaneulError(Box::new(HaneulErrorKind::IndexStoreNotAvailable)).into(),
                 ))
             });
             let coin_read_api = CoinReadApi::new_for_tests(Arc::new(mock_state), None);

@@ -48,7 +48,7 @@ use haneul_types::crypto::{
 use haneul_types::digests::{ChainIdentifier, TransactionEffectsDigest};
 use haneul_types::dynamic_field::get_dynamic_field_from_store;
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
-use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::error::{HaneulError, HaneulErrorKind, HaneulResult};
 use haneul_types::executable_transaction::{
     TrustedExecutableTransaction, VerifiedExecutableTransaction,
 };
@@ -1210,7 +1210,7 @@ impl AuthorityPerEpochStore {
     pub fn tables(&self) -> HaneulResult<Arc<AuthorityEpochTables>> {
         match self.tables.load_full() {
             Some(tables) => Ok(tables),
-            None => Err(HaneulError::EpochEnded(self.epoch())),
+            None => Err(HaneulErrorKind::EpochEnded(self.epoch()).into()),
         }
     }
 
@@ -2049,7 +2049,7 @@ impl AuthorityPerEpochStore {
             Ok(tables) => tables,
             // After Epoch ends, it is no longer necessary to remove pending transactions
             // because the table will not be used anymore and be deleted eventually.
-            Err(HaneulError::EpochEnded(_)) => return Ok(()),
+            Err(e) if matches!(e.as_inner(), HaneulErrorKind::EpochEnded(_)) => return Ok(()),
             Err(e) => return Err(e),
         };
         let mut batch = tables.signed_effects_digests.batch();

@@ -10,7 +10,7 @@ use move_core_types::annotated_value as A;
 use move_core_types::language_storage::{StructTag, TypeTag};
 use move_vm_runtime::{move_vm::MoveVM, session::Session};
 use haneul_types::base_types::ObjectID;
-use haneul_types::error::HaneulResult;
+use haneul_types::error::{HaneulErrorKind, HaneulResult};
 use haneul_types::execution::TypeLayoutStore;
 use haneul_types::storage::{BackingPackageStore, PackageObject};
 use haneul_types::{error::HaneulError, layout_resolver::LayoutResolver};
@@ -43,15 +43,17 @@ impl LayoutResolver for TypeLayoutResolver<'_, '_> {
     ) -> Result<A::MoveDatatypeLayout, HaneulError> {
         let type_tag: TypeTag = TypeTag::from(struct_tag.clone());
         let Ok(ty) = load_type(&mut self.session, &type_tag) else {
-            return Err(HaneulError::FailObjectLayout {
+            return Err(HaneulErrorKind::FailObjectLayout {
                 st: format!("{}", struct_tag),
-            });
+            }
+            .into());
         };
         let layout = self.session.type_to_fully_annotated_layout(&ty);
         let Ok(A::MoveTypeLayout::Struct(layout)) = layout else {
-            return Err(HaneulError::FailObjectLayout {
+            return Err(HaneulErrorKind::FailObjectLayout {
                 st: format!("{}", struct_tag),
-            });
+            }
+            .into());
         };
         Ok(A::MoveDatatypeLayout::Struct(layout))
     }

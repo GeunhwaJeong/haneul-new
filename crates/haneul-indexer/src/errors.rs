@@ -174,6 +174,12 @@ impl From<diesel_async::pooled_connection::bb8::RunError> for IndexerError {
     }
 }
 
+impl From<haneul_types::error::HaneulErrorKind> for IndexerError {
+    fn from(e: haneul_types::error::HaneulErrorKind) -> Self {
+        IndexerError::HaneulError(HaneulError::from(e))
+    }
+}
+
 pub(crate) fn client_error_to_error_object(
     e: jsonrpsee::core::ClientError,
 ) -> jsonrpsee::types::ErrorObjectOwned {

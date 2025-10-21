@@ -7,6 +7,7 @@ use haneul_protocol_config::ProtocolConfig;
 use haneul_types::{
     base_types::{ObjectID, ObjectRef, HaneulAddress},
     crypto::{get_key_pair, AccountKeyPair},
+    error::HaneulErrorKind,
     move_package::UpgradePolicy,
     object::{Object, Owner},
     programmable_transaction_builder::ProgrammableTransactionBuilder,
@@ -22,7 +23,7 @@ use std::{
     sync::Arc,
 };
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
-use haneul_types::error::{HaneulError, UserInputError};
+use haneul_types::error::UserInputError;
 use haneul_types::execution_status::{
     CommandArgumentError, ExecutionFailureStatus, ExecutionStatus, PackageUpgradeError,
 };
@@ -1568,7 +1569,7 @@ async fn test_upgrade_more_than_max_packages_error() {
         .unwrap_err();
     assert_eq!(
         err,
-        HaneulError::UserInputError {
+        HaneulErrorKind::UserInputError {
             error: UserInputError::MaxPublishCountExceeded {
                 max_publish_commands: max_pub_cmd,
                 publish_count: max_pub_cmd + 2,

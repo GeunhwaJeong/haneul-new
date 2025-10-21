@@ -33,7 +33,7 @@ use haneul_protocol_config::Chain;
 use haneul_storage::write_path_pending_tx_log::WritePathPendingTransactionLog;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::error::{HaneulError, HaneulErrorKind, HaneulResult};
 use haneul_types::messages_grpc::{SubmitTxRequest, TxType};
 use haneul_types::quorum_driver_types::{
     EffectsFinalityInfo, ExecuteTransactionRequestType, ExecuteTransactionRequestV3,
@@ -784,7 +784,7 @@ where
                     LOCAL_EXECUTION_TIMEOUT
                 );
                 metrics.local_execution_timeout.inc();
-                Err(HaneulError::TimeoutError)
+                Err(HaneulErrorKind::TimeoutError.into())
             }
             Ok(_) => {
                 metrics.local_execution_success.inc();

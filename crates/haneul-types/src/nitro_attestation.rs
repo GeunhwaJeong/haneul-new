@@ -9,7 +9,7 @@ use x509_parser::public_key::PublicKey;
 use x509_parser::time::ASN1Time;
 use x509_parser::x509::SubjectPublicKeyInfo;
 
-use crate::error::{HaneulError, HaneulResult};
+use crate::error::{HaneulError, HaneulErrorKind, HaneulResult};
 
 use ciborium::value::{Integer, Value};
 use once_cell::sync::Lazy;
@@ -89,7 +89,7 @@ impl fmt::Display for NitroAttestationVerifyError {
 
 impl From<NitroAttestationVerifyError> for HaneulError {
     fn from(err: NitroAttestationVerifyError) -> Self {
-        HaneulError::NitroAttestationFailedToVerify(err.to_string())
+        HaneulErrorKind::NitroAttestationFailedToVerify(err.to_string()).into()
     }
 }
 
@@ -363,7 +363,7 @@ impl CoseSign1 {
         // 17 for extra metadata bytes
         let mut bytes = Vec::with_capacity(self.protected.len() + self.payload.len() + 17);
         ciborium::ser::into_writer(&value, &mut bytes).map_err(|_| {
-            HaneulError::NitroAttestationFailedToVerify("cannot parse message".to_string())
+            HaneulErrorKind::NitroAttestationFailedToVerify("cannot parse message".to_string())
         })?;
         Ok(bytes)
     }

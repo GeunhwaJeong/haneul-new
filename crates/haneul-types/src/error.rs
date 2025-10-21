@@ -333,10 +333,15 @@ pub enum HaneulObjectResponseError {
 }
 
 /// Custom error type for Haneul.
+#[derive(Eq, PartialEq, Clone, Serialize, Deserialize, Error, Hash)]
+#[error(transparent)]
+pub struct HaneulError(#[from] pub Box<HaneulErrorKind>);
+
+/// Custom error type for Haneul.
 #[derive(
     Eq, PartialEq, Clone, Debug, Serialize, Deserialize, Error, Hash, AsRefStr, IntoStaticStr,
 )]
-pub enum HaneulError {
+pub enum HaneulErrorKind {
     #[error("Error checking transaction input objects: {error}")]
     UserInputError { error: UserInputError },
 
@@ -734,52 +739,73 @@ pub enum VMMemoryLimitExceededSubStatusCode {
 pub type HaneulResult<T = ()> = Result<T, HaneulError>;
 pub type UserInputResult<T = ()> = Result<T, UserInputError>;
 
+impl From<HaneulErrorKind> for HaneulError {
+    fn from(error: HaneulErrorKind) -> Self {
+        HaneulError(Box::new(error))
+    }
+}
+
+impl std::ops::Deref for HaneulError {
+    type Target = HaneulErrorKind;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 impl From<haneul_protocol_config::Error> for HaneulError {
     fn from(error: haneul_protocol_config::Error) -> Self {
-        HaneulError::WrongMessageVersion { error: error.0 }
+        HaneulErrorKind::WrongMessageVersion { error: error.0 }.into()
     }
 }
 
 impl From<ExecutionError> for HaneulError {
     fn from(error: ExecutionError) -> Self {
-        HaneulError::ExecutionError(error.to_string())
+        HaneulErrorKind::ExecutionError(error.to_string()).into()
     }
 }
 
 impl From<Status> for HaneulError {
     fn from(status: Status) -> Self {
         if status.message() == "Too many requests" {
-            return Self::TooManyRequests;
+            return HaneulErrorKind::TooManyRequests.into();
         }
 
         let result = bcs::from_bytes::<HaneulError>(status.details());
         if let Ok(haneul_error) = result {
             haneul_error
         } else {
-            Self::RpcError(
+            HaneulErrorKind::RpcError(
                 status.message().to_owned(),
                 status.code().description().to_owned(),
             )
+            .into()
         }
     }
 }
 
 impl From<TypedStoreError> for HaneulError {
     fn from(e: TypedStoreError) -> Self {
-        Self::Storage(e.to_string())
+        HaneulErrorKind::Storage(e.to_string()).into()
     }
 }
 
 impl From<crate::storage::error::Error> for HaneulError {
     fn from(e: crate::storage::error::Error) -> Self {
-        Self::Storage(e.to_string())
+        HaneulErrorKind::Storage(e.to_string()).into()
+    }
+}
+
+impl From<HaneulErrorKind> for Status {
+    fn from(error: HaneulErrorKind) -> Self {
+        let bytes = bcs::to_bytes(&error).unwrap();
+        Status::with_details(tonic::Code::Internal, error.to_string(), bytes.into())
     }
 }
 
 impl From<HaneulError> for Status {
     fn from(error: HaneulError) -> Self {
-        let bytes = bcs::to_bytes(&error).unwrap();
-        Status::with_details(tonic::Code::Internal, error.to_string(), bytes.into())
+        Status::from(error.into_inner())
     }
 }
 
@@ -791,15 +817,27 @@ impl From<ExecutionErrorKind> for HaneulError {
 
 impl From<&str> for HaneulError {
     fn from(error: &str) -> Self {
-        HaneulError::GenericAuthorityError {
+        HaneulErrorKind::GenericAuthorityError {
             error: error.to_string(),
         }
+        .into()
     }
 }
 
 impl From<String> for HaneulError {
     fn from(error: String) -> Self {
-        HaneulError::GenericAuthorityError { error }
+        HaneulErrorKind::GenericAuthorityError { error }.into()
+    }
+}
+
+impl TryFrom<HaneulErrorKind> for UserInputError {
+    type Error = anyhow::Error;
+
+    fn try_from(err: HaneulErrorKind) -> Result<Self, Self::Error> {
+        match err {
+            HaneulErrorKind::UserInputError { error } => Ok(error),
+            other => anyhow::bail!("error {:?} is not UserInputError", other),
+        }
     }
 }
 
@@ -807,30 +845,49 @@ impl TryFrom<HaneulError> for UserInputError {
     type Error = anyhow::Error;
 
     fn try_from(err: HaneulError) -> Result<Self, Self::Error> {
-        match err {
-            HaneulError::UserInputError { error } => Ok(error),
-            other => anyhow::bail!("error {:?} is not UserInputError", other),
-        }
+        err.into_inner().try_into()
     }
 }
 
 impl From<UserInputError> for HaneulError {
     fn from(error: UserInputError) -> Self {
-        HaneulError::UserInputError { error }
+        HaneulErrorKind::UserInputError { error }.into()
     }
 }
 
 impl From<HaneulObjectResponseError> for HaneulError {
     fn from(error: HaneulObjectResponseError) -> Self {
-        HaneulError::HaneulObjectResponseError { error }
+        HaneulErrorKind::HaneulObjectResponseError { error }.into()
+    }
+}
+
+impl PartialEq<HaneulErrorKind> for HaneulError {
+    fn eq(&self, other: &HaneulErrorKind) -> bool {
+        &*self.0 == other
+    }
+}
+
+impl PartialEq<HaneulError> for HaneulErrorKind {
+    fn eq(&self, other: &HaneulError) -> bool {
+        self == &*other.0
     }
 }
 
 impl HaneulError {
+    pub fn as_inner(&self) -> &HaneulErrorKind {
+        &self.0
+    }
+
+    pub fn into_inner(self) -> HaneulErrorKind {
+        *self.0
+    }
+}
+
+impl HaneulErrorKind {
     pub fn individual_error_indicates_epoch_change(&self) -> bool {
         matches!(
             self,
-            HaneulError::ValidatorHaltedAtEpochEnd | HaneulError::MissingCommitteeAtEpoch(_)
+            HaneulErrorKind::ValidatorHaltedAtEpochEnd | HaneulErrorKind::MissingCommitteeAtEpoch(_)
         )
     }
 
@@ -841,15 +898,15 @@ impl HaneulError {
     pub fn is_retryable(&self) -> (bool, bool) {
         let retryable = match self {
             // Network error
-            HaneulError::RpcError { .. } => true,
+            HaneulErrorKind::RpcError { .. } => true,
 
             // Reconfig error
-            HaneulError::ValidatorHaltedAtEpochEnd => true,
-            HaneulError::MissingCommitteeAtEpoch(..) => true,
-            HaneulError::WrongEpoch { .. } => true,
-            HaneulError::EpochEnded(..) => true,
+            HaneulErrorKind::ValidatorHaltedAtEpochEnd => true,
+            HaneulErrorKind::MissingCommitteeAtEpoch(..) => true,
+            HaneulErrorKind::WrongEpoch { .. } => true,
+            HaneulErrorKind::EpochEnded(..) => true,
 
-            HaneulError::UserInputError { error } => {
+            HaneulErrorKind::UserInputError { error } => {
                 match error {
                     // Only ObjectNotFound and DependentPackageNotFound is potentially retryable
                     UserInputError::ObjectNotFound { .. } => true,
@@ -858,27 +915,27 @@ impl HaneulError {
                 }
             }
 
-            HaneulError::PotentiallyTemporarilyInvalidSignature { .. } => true,
+            HaneulErrorKind::PotentiallyTemporarilyInvalidSignature { .. } => true,
 
             // Overload errors
-            HaneulError::TooManyTransactionsPendingExecution { .. } => true,
-            HaneulError::TooManyTransactionsPendingOnObject { .. } => true,
-            HaneulError::TooOldTransactionPendingOnObject { .. } => true,
-            HaneulError::TooManyTransactionsPendingConsensus => true,
-            HaneulError::ValidatorOverloadedRetryAfter { .. } => true,
+            HaneulErrorKind::TooManyTransactionsPendingExecution { .. } => true,
+            HaneulErrorKind::TooManyTransactionsPendingOnObject { .. } => true,
+            HaneulErrorKind::TooOldTransactionPendingOnObject { .. } => true,
+            HaneulErrorKind::TooManyTransactionsPendingConsensus => true,
+            HaneulErrorKind::ValidatorOverloadedRetryAfter { .. } => true,
 
             // Non retryable error
-            HaneulError::ExecutionError(..) => false,
-            HaneulError::ByzantineAuthoritySuspicion { .. } => false,
-            HaneulError::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction { .. } => false,
-            HaneulError::TxAlreadyFinalizedWithDifferentUserSigs => false,
-            HaneulError::FailedToVerifyTxCertWithExecutedEffects { .. } => false,
-            HaneulError::ObjectLockConflict { .. } => false,
+            HaneulErrorKind::ExecutionError(..) => false,
+            HaneulErrorKind::ByzantineAuthoritySuspicion { .. } => false,
+            HaneulErrorKind::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction { .. } => false,
+            HaneulErrorKind::TxAlreadyFinalizedWithDifferentUserSigs => false,
+            HaneulErrorKind::FailedToVerifyTxCertWithExecutedEffects { .. } => false,
+            HaneulErrorKind::ObjectLockConflict { .. } => false,
 
             // NB: This is not an internal overload, but instead an imposed rate
             // limit / blocking of a client. It must be non-retryable otherwise
             // we will make the threat worse through automatic retries.
-            HaneulError::TooManyRequests => false,
+            HaneulErrorKind::TooManyRequests => false,
 
             // For all un-categorized errors, return here with categorized = false.
             _ => return (false, false),
@@ -889,7 +946,7 @@ impl HaneulError {
 
     pub fn is_object_or_package_not_found(&self) -> bool {
         match self {
-            HaneulError::UserInputError { error } => {
+            HaneulErrorKind::UserInputError { error } => {
                 matches!(
                     error,
                     UserInputError::ObjectNotFound { .. }
@@ -903,20 +960,20 @@ impl HaneulError {
     pub fn is_overload(&self) -> bool {
         matches!(
             self,
-            HaneulError::TooManyTransactionsPendingExecution { .. }
-                | HaneulError::TooManyTransactionsPendingOnObject { .. }
-                | HaneulError::TooOldTransactionPendingOnObject { .. }
-                | HaneulError::TooManyTransactionsPendingConsensus
+            HaneulErrorKind::TooManyTransactionsPendingExecution { .. }
+                | HaneulErrorKind::TooManyTransactionsPendingOnObject { .. }
+                | HaneulErrorKind::TooOldTransactionPendingOnObject { .. }
+                | HaneulErrorKind::TooManyTransactionsPendingConsensus
         )
     }
 
     pub fn is_retryable_overload(&self) -> bool {
-        matches!(self, HaneulError::ValidatorOverloadedRetryAfter { .. })
+        matches!(self, HaneulErrorKind::ValidatorOverloadedRetryAfter { .. })
     }
 
     pub fn retry_after_secs(&self) -> u64 {
         match self {
-            HaneulError::ValidatorOverloadedRetryAfter { retry_after_secs } => *retry_after_secs,
+            HaneulErrorKind::ValidatorOverloadedRetryAfter { retry_after_secs } => *retry_after_secs,
             _ => 0,
         }
     }
@@ -924,7 +981,7 @@ impl HaneulError {
     /// Categorizes HaneulError into ErrorCategory.
     pub fn categorize(&self) -> ErrorCategory {
         match self {
-            HaneulError::UserInputError { error } => {
+            HaneulErrorKind::UserInputError { error } => {
                 match error {
                     // ObjectNotFound and DependentPackageNotFound are potentially valid because the missing
                     // input can be created by other transactions.
@@ -935,30 +992,32 @@ impl HaneulError {
                 }
             }
 
-            HaneulError::InvalidSignature { .. }
-            | HaneulError::SignerSignatureAbsent { .. }
-            | HaneulError::SignerSignatureNumberMismatch { .. }
-            | HaneulError::IncorrectSigner { .. }
-            | HaneulError::UnknownSigner { .. }
-            | HaneulError::TransactionExpired => ErrorCategory::InvalidTransaction,
+            HaneulErrorKind::InvalidSignature { .. }
+            | HaneulErrorKind::SignerSignatureAbsent { .. }
+            | HaneulErrorKind::SignerSignatureNumberMismatch { .. }
+            | HaneulErrorKind::IncorrectSigner { .. }
+            | HaneulErrorKind::UnknownSigner { .. }
+            | HaneulErrorKind::TransactionExpired => ErrorCategory::InvalidTransaction,
 
-            HaneulError::ObjectLockConflict { .. } => ErrorCategory::LockConflict,
+            HaneulErrorKind::ObjectLockConflict { .. } => ErrorCategory::LockConflict,
 
-            HaneulError::Unknown { .. }
-            | HaneulError::GrpcMessageSerializeError { .. }
-            | HaneulError::GrpcMessageDeserializeError { .. }
-            | HaneulError::ByzantineAuthoritySuspicion { .. }
-            | HaneulError::InvalidTxKindInSoftBundle { .. }
-            | HaneulError::UnsupportedFeatureError { .. }
-            | HaneulError::InvalidRequest { .. } => ErrorCategory::Internal,
+            HaneulErrorKind::Unknown { .. }
+            | HaneulErrorKind::GrpcMessageSerializeError { .. }
+            | HaneulErrorKind::GrpcMessageDeserializeError { .. }
+            | HaneulErrorKind::ByzantineAuthoritySuspicion { .. }
+            | HaneulErrorKind::InvalidTxKindInSoftBundle { .. }
+            | HaneulErrorKind::UnsupportedFeatureError { .. }
+            | HaneulErrorKind::InvalidRequest { .. } => ErrorCategory::Internal,
 
-            HaneulError::TooManyTransactionsPendingExecution { .. }
-            | HaneulError::TooManyTransactionsPendingOnObject { .. }
-            | HaneulError::TooOldTransactionPendingOnObject { .. }
-            | HaneulError::TooManyTransactionsPendingConsensus
-            | HaneulError::ValidatorOverloadedRetryAfter { .. } => ErrorCategory::ValidatorOverloaded,
+            HaneulErrorKind::TooManyTransactionsPendingExecution { .. }
+            | HaneulErrorKind::TooManyTransactionsPendingOnObject { .. }
+            | HaneulErrorKind::TooOldTransactionPendingOnObject { .. }
+            | HaneulErrorKind::TooManyTransactionsPendingConsensus
+            | HaneulErrorKind::ValidatorOverloadedRetryAfter { .. } => {
+                ErrorCategory::ValidatorOverloaded
+            }
 
-            HaneulError::TimeoutError { .. } => ErrorCategory::Unavailable,
+            HaneulErrorKind::TimeoutError { .. } => ErrorCategory::Unavailable,
 
             // Other variants are assumed to be retriable with new transaction submissions.
             _ => ErrorCategory::Aborted,
@@ -975,6 +1034,12 @@ impl Ord for HaneulError {
 impl PartialOrd for HaneulError {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
+    }
+}
+
+impl std::fmt::Debug for HaneulError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.as_inner().fmt(f)
     }
 }
 

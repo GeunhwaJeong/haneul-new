@@ -196,7 +196,7 @@ pub async fn exchange_rates(
         .await?
     {
         let pool_id: haneul_types::id::ID = bcs::from_bytes(&df.bcs_name).map_err(|e| {
-            haneul_types::error::HaneulError::ObjectDeserializationError {
+            haneul_types::error::HaneulErrorKind::ObjectDeserializationError {
                 error: e.to_string(),
             }
         })?;
@@ -225,9 +225,11 @@ pub async fn exchange_rates(
         {
             let dynamic_field = df
                 .to_dynamic_field::<EpochId, PoolTokenExchangeRate>()
-                .ok_or_else(|| haneul_types::error::HaneulError::ObjectDeserializationError {
-                    error: "dynamic field malformed".to_owned(),
-                })?;
+                .ok_or_else(
+                    || haneul_types::error::HaneulErrorKind::ObjectDeserializationError {
+                        error: "dynamic field malformed".to_owned(),
+                    },
+                )?;
 
             rates.push((dynamic_field.name, dynamic_field.value));
         }

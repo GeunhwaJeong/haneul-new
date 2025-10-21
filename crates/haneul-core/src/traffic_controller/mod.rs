@@ -14,7 +14,7 @@ use std::fs;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::ops::Add;
 use std::sync::Arc;
-use haneul_types::error::HaneulError;
+use haneul_types::error::{HaneulError, HaneulErrorKind};
 
 use self::metrics::TrafficControllerMetrics;
 use crate::traffic_controller::nodefw_client::{BlockAddress, BlockAddresses, NodeFWClient};
@@ -282,9 +282,10 @@ impl TrafficController {
                 }
                 Ok(())
             }
-            _ => Err(HaneulError::InvalidAdminRequest(
+            _ => Err(HaneulErrorKind::InvalidAdminRequest(
                 "Unsupported prior policy type during traffic control reconfiguration".to_string(),
-            )),
+            )
+            .into()),
         }
     }
 

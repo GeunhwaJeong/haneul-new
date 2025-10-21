@@ -6,7 +6,7 @@ use parking_lot::RwLock;
 use std::num::NonZeroUsize;
 use std::sync::Arc;
 use haneul_types::base_types::ObjectID;
-use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
+use haneul_types::error::{HaneulErrorKind, HaneulResult, UserInputError};
 use haneul_types::storage::{ObjectStore, PackageObject};
 
 pub struct PackageObjectCache {
@@ -50,11 +50,12 @@ impl PackageObjectCache {
                 self.cache.write().push(*package_id, p.clone());
                 Ok(Some(p))
             } else {
-                Err(HaneulError::UserInputError {
+                Err(HaneulErrorKind::UserInputError {
                     error: UserInputError::MoveObjectAsPackage {
                         object_id: *package_id,
                     },
-                })
+                }
+                .into())
             }
         } else {
             Ok(None)

@@ -30,7 +30,7 @@ use haneul_types::object::Object;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{base_types::*, committee::*, fp_ensure};
 use haneul_types::{
-    error::{HaneulError, HaneulResult},
+    error::{HaneulError, HaneulErrorKind, HaneulResult},
     transaction::*,
 };
 use tap::TapFallible;
@@ -190,7 +190,7 @@ impl<C: Clone> SafeClient<C> {
     fn get_committee(&self, epoch_id: &EpochId) -> HaneulResult<Arc<Committee>> {
         self.committee_store
             .get_committee(epoch_id)?
-            .ok_or(HaneulError::MissingCommitteeAtEpoch(*epoch_id))
+            .ok_or(HaneulErrorKind::MissingCommitteeAtEpoch(*epoch_id).into())
     }
 
     fn check_signed_effects_plain(
@@ -202,30 +202,33 @@ impl<C: Clone> SafeClient<C> {
         // Check it has the right signer
         fp_ensure!(
             signed_effects.auth_sig().authority == self.address,
-            HaneulError::ByzantineAuthoritySuspicion {
+            HaneulErrorKind::ByzantineAuthoritySuspicion {
                 authority: self.address,
                 reason: format!(
                     "Unexpected validator address in the signed effects signature: {:?}",
                     signed_effects.auth_sig().authority
                 ),
             }
+            .into()
         );
         // Checks it concerns the right tx
         fp_ensure!(
             signed_effects.data().transaction_digest() == digest,
-            HaneulError::ByzantineAuthoritySuspicion {
+            HaneulErrorKind::ByzantineAuthoritySuspicion {
                 authority: self.address,
                 reason: "Unexpected tx digest in the signed effects".to_string()
             }
+            .into()
         );
         // check that the effects digest is correct.
         if let Some(effects_digest) = expected_effects_digest {
             fp_ensure!(
                 signed_effects.digest() == effects_digest,
-                HaneulError::ByzantineAuthoritySuspicion {
+                HaneulErrorKind::ByzantineAuthoritySuspicion {
                     authority: self.address,
                     reason: "Effects digest does not match with expected digest".to_string()
                 }
+                .into()
             );
         }
         self.get_committee(&signed_effects.epoch())?;
@@ -240,10 +243,11 @@ impl<C: Clone> SafeClient<C> {
     ) -> HaneulResult<PlainTransactionInfoResponse> {
         fp_ensure!(
             digest == transaction.digest(),
-            HaneulError::ByzantineAuthoritySuspicion {
+            HaneulErrorKind::ByzantineAuthoritySuspicion {
                 authority: self.address,
                 reason: "Signed transaction digest does not match with expected digest".to_string()
             }
+            .into()
         );
         match status {
             TransactionStatus::Signed(signed) => {
@@ -262,7 +266,7 @@ impl<C: Clone> SafeClient<C> {
                             cert,
                         );
                         ct.verify_committee_sigs_only(&committee).map_err(|e| {
-                            HaneulError::FailedToVerifyTxCertWithExecutedEffects {
+                            HaneulErrorKind::FailedToVerifyTxCertWithExecutedEffects {
                                 validator_name: self.address,
                                 error: e.to_string(),
                             }
@@ -296,10 +300,11 @@ impl<C: Clone> SafeClient<C> {
 
         fp_ensure!(
             request.object_id == object.id(),
-            HaneulError::ByzantineAuthoritySuspicion {
+            HaneulErrorKind::ByzantineAuthoritySuspicion {
                 authority: self.address,
                 reason: "Object id mismatch in the response".to_string()
             }
+            .into()
         );
 
         Ok(VerifiedObjectInfoResponse { object })
@@ -420,11 +425,12 @@ where
             (None, None) | (None, Some(_)) => Ok(()),
             (Some(events), None) => {
                 if !events.data.is_empty() {
-                    Err(HaneulError::ByzantineAuthoritySuspicion {
+                    Err(HaneulErrorKind::ByzantineAuthoritySuspicion {
                         authority: self.address,
                         reason: "Returned events but no event digest present in effects"
                             .to_string(),
-                    })
+                    }
+                    .into())
                 } else {
                     Ok(())
                 }
@@ -432,10 +438,11 @@ where
             (Some(events), Some(events_digest)) => {
                 fp_ensure!(
                     &events.digest() == events_digest,
-                    HaneulError::ByzantineAuthoritySuspicion {
+                    HaneulErrorKind::ByzantineAuthoritySuspicion {
                         authority: self.address,
                         reason: "Returned events don't match events digest in effects".to_string(),
                     }
+                    .into()
                 );
                 Ok(())
             }
@@ -455,10 +462,11 @@ where
                     .get(&object_ref.0)
                     .is_none_or(|expect| &object_ref != expect)
                 {
-                    return Err(HaneulError::ByzantineAuthoritySuspicion {
+                    return Err(HaneulErrorKind::ByzantineAuthoritySuspicion {
                         authority: self.address,
                         reason: "Returned object that wasn't present in effects".to_string(),
-                    });
+                    }
+                    .into());
                 }
             }
         }

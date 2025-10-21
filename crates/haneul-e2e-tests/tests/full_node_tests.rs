@@ -32,7 +32,7 @@ use haneul_types::base_types::{FullObjectRef, ObjectID, HaneulAddress, Transacti
 use haneul_types::base_types::{ObjectRef, SequenceNumber};
 use haneul_types::crypto::{get_key_pair, HaneulKeyPair};
 use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::error::{HaneulError, UserInputError};
+use haneul_types::error::{HaneulErrorKind, UserInputError};
 use haneul_types::message_envelope::Message;
 use haneul_types::messages_grpc::TransactionInfoRequest;
 use haneul_types::object::{Object, ObjectRead, Owner, PastObjectRead};
@@ -1255,7 +1255,7 @@ async fn test_access_old_object_pruned() {
                         )
                         .await
                         .unwrap_err(),
-                    HaneulError::UserInputError {
+                    HaneulErrorKind::UserInputError {
                         error: UserInputError::ObjectVersionUnavailableForConsumption {
                             provided_obj_ref: gas_object,
                             current_version: new_gas_version,

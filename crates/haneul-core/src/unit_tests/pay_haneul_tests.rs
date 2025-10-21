@@ -10,7 +10,7 @@ use std::sync::Arc;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::crypto::AccountKeyPair;
 use haneul_types::effects::{SignedTransactionEffects, TransactionEffectsAPI};
-use haneul_types::error::UserInputError;
+use haneul_types::error::{HaneulErrorKind, UserInputError};
 use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::Object;
@@ -190,13 +190,13 @@ async fn test_pay_haneul_success_one_input_coin() -> anyhow::Result<()> {
     let addr3 = effects.created()[2].1.get_owner_address()?;
     let coin_val1 = *recipient_amount_map
         .get(&addr1)
-        .ok_or(HaneulError::InvalidAddress)?;
+        .ok_or(HaneulErrorKind::InvalidAddress)?;
     let coin_val2 = *recipient_amount_map
         .get(&addr2)
-        .ok_or(HaneulError::InvalidAddress)?;
+        .ok_or(HaneulErrorKind::InvalidAddress)?;
     let coin_val3 = *recipient_amount_map
         .get(&addr3)
-        .ok_or(HaneulError::InvalidAddress)?;
+        .ok_or(HaneulErrorKind::InvalidAddress)?;
     assert_eq!(GasCoin::try_from(&created_obj1)?.value(), coin_val1);
     assert_eq!(GasCoin::try_from(&created_obj2)?.value(), coin_val2);
     assert_eq!(GasCoin::try_from(&created_obj3)?.value(), coin_val3);
@@ -262,10 +262,10 @@ async fn test_pay_haneul_success_multiple_input_coins() -> anyhow::Result<()> {
     let addr2 = effects.created()[1].1.get_owner_address()?;
     let coin_val1 = *recipient_amount_map
         .get(&addr1)
-        .ok_or(HaneulError::InvalidAddress)?;
+        .ok_or(HaneulErrorKind::InvalidAddress)?;
     let coin_val2 = *recipient_amount_map
         .get(&addr2)
-        .ok_or(HaneulError::InvalidAddress)?;
+        .ok_or(HaneulErrorKind::InvalidAddress)?;
     assert_eq!(GasCoin::try_from(&created_obj1)?.value(), coin_val1);
     assert_eq!(GasCoin::try_from(&created_obj2)?.value(), coin_val2);
     // make sure the first input coin still belongs to the sender,

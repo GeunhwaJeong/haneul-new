@@ -419,18 +419,19 @@ async fn test_map_reducer() {
         0usize,
         |_name, _client| {
             Box::pin(async move {
-                let res: Result<usize, HaneulError> = Err(HaneulError::TooManyIncorrectAuthorities {
+                let res: Result<usize, HaneulError> = Err(HaneulErrorKind::TooManyIncorrectAuthorities {
                     errors: vec![],
                     action: "".to_string(),
-                });
+                }
+                .into());
                 res
             })
         },
         |mut accumulated_state, _authority_name, _authority_weight, result| {
             Box::pin(async move {
                 assert!(matches!(
-                    result,
-                    Err(HaneulError::TooManyIncorrectAuthorities { .. })
+                    result.map_err(|e| e.into_inner()),
+                    Err(HaneulErrorKind::TooManyIncorrectAuthorities { .. })
                 ));
                 accumulated_state += 1;
                 ReduceOutput::Continue(accumulated_state)
@@ -738,7 +739,7 @@ async fn test_handle_certificate_response() {
     agg.committee = Arc::new(committee_1.clone());
 
     assert_resp_err(&agg, tx.clone().into(), |e| matches!(e, AggregatorProcessTransactionError::RetryableTransaction { .. }),
-        |e| matches!(e, HaneulError::WrongEpoch { expected_epoch, actual_epoch } if *expected_epoch == 1 && *actual_epoch == 0)
+        |e| matches!(e, HaneulErrorKind::WrongEpoch { expected_epoch, actual_epoch } if *expected_epoch == 1 && *actual_epoch == 0)
     ).await;
 
     set_cert_response_with_certified_tx(&mut clients, &authority_keys, &cert_epoch_0, 0);
@@ -763,7 +764,7 @@ async fn test_handle_certificate_response() {
         err,
         AggregatorProcessCertificateError::RetryableExecuteCertificate {
             retryable_errors, ..
-        } if retryable_errors.iter().any(|(error, _, _)| matches!(error, HaneulError::WrongEpoch {
+        } if retryable_errors.iter().any(|(error, _, _)| matches!(error.as_inner(), HaneulErrorKind::WrongEpoch {
             expected_epoch: 1, actual_epoch: 0
         }))
     );
@@ -792,17 +793,19 @@ async fn test_handle_transaction_response() {
         &sender_kp,
         666, // this is a dummy value which does not matter
     ));
-    let package_not_found_error = HaneulError::UserInputError {
+    let package_not_found_error: HaneulError = HaneulErrorKind::UserInputError {
         error: UserInputError::DependentPackageNotFound {
             package_id: gas_object.0,
         },
-    };
-    let object_not_found_error = HaneulError::UserInputError {
+    }
+    .into();
+    let object_not_found_error: HaneulError = HaneulErrorKind::UserInputError {
         error: UserInputError::ObjectNotFound {
             object_id: gas_object.0,
             version: Some(gas_object.1),
         },
-    };
+    }
+    .into();
 
     println!("Case 0 - Non-retryable Transaction (Unknown Error)");
     // Validators give invalid response because of the initial value set for their responses.
@@ -817,7 +820,7 @@ async fn test_handle_transaction_response() {
                 AggregatorProcessTransactionError::FatalTransaction { .. }
             )
         },
-        |e| matches!(e, HaneulError::Unknown(..)),
+        |e| matches!(e, HaneulErrorKind::Unknown(..)),
     )
     .await;
 
@@ -845,7 +848,7 @@ async fn test_handle_transaction_response() {
     agg.committee = Arc::new(committee_1);
 
     assert_resp_err(&agg, tx.clone().into(), |e| matches!(e, AggregatorProcessTransactionError::RetryableTransaction { .. }),
-        |e| matches!(e, HaneulError::WrongEpoch { expected_epoch, actual_epoch } if *expected_epoch == 1 && *actual_epoch == 0)
+        |e| matches!(e, HaneulErrorKind::WrongEpoch { expected_epoch, actual_epoch } if *expected_epoch == 1 && *actual_epoch == 0)
     ).await;
 
     println!("Case 3 - Successful Cert Transaction");
@@ -890,7 +893,7 @@ async fn test_handle_transaction_response() {
                 AggregatorProcessTransactionError::RetryableTransaction { .. }
             )
         },
-        |e| matches!(e, HaneulError::MissingCommitteeAtEpoch(e) if *e == 1),
+        |e| matches!(e, HaneulErrorKind::MissingCommitteeAtEpoch(e) if *e == 1),
     )
     .await;
 
@@ -923,7 +926,7 @@ async fn test_handle_transaction_response() {
 
     // Err because either cert or signed effects is in epoch 0
     assert_resp_err(&agg, tx.clone().into(), |e| matches!(e, AggregatorProcessTransactionError::RetryableTransaction { .. }),
-        |e| matches!(e, HaneulError::WrongEpoch { expected_epoch, actual_epoch } if *expected_epoch == 1 && *actual_epoch == 0)
+        |e| matches!(e, HaneulErrorKind::WrongEpoch { expected_epoch, actual_epoch } if *expected_epoch == 1 && *actual_epoch == 0)
     ).await;
 
     set_tx_info_response_with_cert_and_effects(
@@ -971,8 +974,8 @@ async fn test_handle_transaction_response() {
         |e| {
             matches!(
                 e,
-                HaneulError::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction { .. }
-                    | HaneulError::RpcError(..)
+                HaneulErrorKind::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction { .. }
+                    | HaneulErrorKind::RpcError(..)
             )
         },
     )
@@ -1046,8 +1049,8 @@ async fn test_handle_transaction_response() {
         |e| {
             matches!(
                 e,
-                HaneulError::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction { .. }
-                    | HaneulError::RpcError(..)
+                HaneulErrorKind::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction { .. }
+                    | HaneulErrorKind::RpcError(..)
             )
         },
     )
@@ -1132,9 +1135,9 @@ async fn test_handle_transaction_response() {
         |e| {
             matches!(
                 e,
-                HaneulError::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction { .. }
-                    | HaneulError::RpcError(..)
-                    | HaneulError::ByzantineAuthoritySuspicion { .. }
+                HaneulErrorKind::QuorumFailedToGetEffectsQuorumWhenProcessingTransaction { .. }
+                    | HaneulErrorKind::RpcError(..)
+                    | HaneulErrorKind::ByzantineAuthoritySuspicion { .. }
             )
         },
     )
@@ -1161,7 +1164,7 @@ async fn test_handle_transaction_response() {
                 AggregatorProcessTransactionError::RetryableTransaction { .. }
             )
         },
-        |e| matches!(e, HaneulError::MissingCommitteeAtEpoch(e) if *e == 1),
+        |e| matches!(e, HaneulErrorKind::MissingCommitteeAtEpoch(e) if *e == 1),
     )
     .await;
 
@@ -1175,7 +1178,7 @@ async fn test_handle_transaction_response() {
     assert_resp_err(
         &agg,
         tx.clone().into(), |e| matches!(e, AggregatorProcessTransactionError::RetryableTransaction { .. }),
-        |e| matches!(e, HaneulError::WrongEpoch { expected_epoch, actual_epoch } if *expected_epoch == 0 && *actual_epoch == 1)
+        |e| matches!(e, HaneulErrorKind::WrongEpoch { expected_epoch, actual_epoch } if *expected_epoch == 0 && *actual_epoch == 1)
     )
     .await;
 
@@ -1205,7 +1208,12 @@ async fn test_handle_transaction_response() {
                 AggregatorProcessTransactionError::RetryableTransaction { .. }
             )
         },
-        |e| matches!(e, HaneulError::UserInputError { .. } | HaneulError::RpcError(..)),
+        |e| {
+            matches!(
+                e,
+                HaneulErrorKind::UserInputError { .. } | HaneulErrorKind::RpcError(..)
+            )
+        },
     )
     .await;
 
@@ -1228,7 +1236,12 @@ async fn test_handle_transaction_response() {
                 AggregatorProcessTransactionError::RetryableTransaction { .. }
             )
         },
-        |e| matches!(e, HaneulError::UserInputError { .. } | HaneulError::RpcError(..)),
+        |e| {
+            matches!(
+                e,
+                HaneulErrorKind::UserInputError { .. } | HaneulErrorKind::RpcError(..)
+            )
+        },
     )
     .await;
 
@@ -1252,7 +1265,12 @@ async fn test_handle_transaction_response() {
                 AggregatorProcessTransactionError::RetryableTransaction { .. }
             )
         },
-        |e| matches!(e, HaneulError::UserInputError { .. } | HaneulError::RpcError(..)),
+        |e| {
+            matches!(
+                e,
+                HaneulErrorKind::UserInputError { .. } | HaneulErrorKind::RpcError(..)
+            )
+        },
     )
     .await;
 
@@ -1265,7 +1283,7 @@ async fn test_handle_transaction_response() {
         clients
             .get_mut(name)
             .unwrap()
-            .set_tx_info_response_error(HaneulError::EpochEnded(0));
+            .set_tx_info_response_error(HaneulErrorKind::EpochEnded(0).into());
     }
     let agg = get_genesis_agg(authorities.clone(), clients.clone());
     assert_resp_err(
@@ -1277,7 +1295,7 @@ async fn test_handle_transaction_response() {
                 AggregatorProcessTransactionError::RetryableTransaction { .. }
             )
         },
-        |e| matches!(e, HaneulError::EpochEnded(0)),
+        |e| matches!(e, HaneulErrorKind::EpochEnded(0)),
     )
     .await;
 
@@ -1290,7 +1308,7 @@ async fn test_handle_transaction_response() {
         clients
             .get_mut(name)
             .unwrap()
-            .set_tx_info_response_error(HaneulError::EpochEnded(0));
+            .set_tx_info_response_error(HaneulErrorKind::EpochEnded(0).into());
     }
 
     let agg = get_genesis_agg(authorities.clone(), clients.clone());
@@ -1319,7 +1337,12 @@ async fn test_handle_transaction_response() {
                 AggregatorProcessTransactionError::RetryableTransaction { .. }
             )
         },
-        |e| matches!(e, HaneulError::UserInputError { .. } | HaneulError::RpcError(..)),
+        |e| {
+            matches!(
+                e,
+                HaneulErrorKind::UserInputError { .. } | HaneulErrorKind::RpcError(..)
+            )
+        },
     )
     .await;
 
@@ -1342,7 +1365,12 @@ async fn test_handle_transaction_response() {
                 AggregatorProcessTransactionError::RetryableTransaction { .. }
             )
         },
-        |e| matches!(e, HaneulError::UserInputError { .. } | HaneulError::RpcError(..)),
+        |e| {
+            matches!(
+                e,
+                HaneulErrorKind::UserInputError { .. } | HaneulErrorKind::RpcError(..)
+            )
+        },
     )
     .await;
 
@@ -1370,7 +1398,12 @@ async fn test_handle_transaction_response() {
                 AggregatorProcessTransactionError::RetryableTransaction { .. }
             )
         },
-        |e| matches!(e, HaneulError::UserInputError { .. } | HaneulError::RpcError(..)),
+        |e| {
+            matches!(
+                e,
+                HaneulErrorKind::UserInputError { .. } | HaneulErrorKind::RpcError(..)
+            )
+        },
     )
     .await;
 }
@@ -1397,21 +1430,24 @@ async fn test_handle_conflicting_transaction_response() {
         &sender_kp,
         666, // this is a dummy value which does not matter
     ));
-    let conflicting_error = HaneulError::ObjectLockConflict {
+    let conflicting_error: HaneulError = HaneulErrorKind::ObjectLockConflict {
         obj_ref: conflicting_object,
         pending_transaction: *conflicting_tx2.digest(),
-    };
-    let retryable_error = HaneulError::RpcError("RPC".into(), "Error".into());
-    let non_retryable_error = HaneulError::ByzantineAuthoritySuspicion {
+    }
+    .into();
+    let retryable_error: HaneulError = HaneulErrorKind::RpcError("RPC".into(), "Error".into()).into();
+    let non_retryable_error: HaneulError = HaneulErrorKind::ByzantineAuthoritySuspicion {
         authority: authority_keys[0].0,
         reason: "Faulty".into(),
-    };
-    let object_not_found_error = HaneulError::UserInputError {
+    }
+    .into();
+    let object_not_found_error: HaneulError = HaneulErrorKind::UserInputError {
         error: UserInputError::ObjectNotFound {
             object_id: conflicting_object.0,
             version: Some(conflicting_object.1),
         },
-    };
+    }
+    .into();
 
     println!("Case 0 - Retryable Transaction, >= f+1 good stake so ignore conflicting transaction");
     // >= f+1 good stake returned by other validators.
@@ -1439,7 +1475,7 @@ async fn test_handle_conflicting_transaction_response() {
         |e| {
             matches!(
                 e,
-                HaneulError::ObjectLockConflict { .. } | HaneulError::RpcError(..)
+                HaneulErrorKind::ObjectLockConflict { .. } | HaneulErrorKind::RpcError(..)
             )
         },
     )
@@ -1469,7 +1505,7 @@ async fn test_handle_conflicting_transaction_response() {
         |e| {
             matches!(
                 e,
-                HaneulError::ObjectLockConflict { .. } | HaneulError::RpcError(..)
+                HaneulErrorKind::ObjectLockConflict { .. } | HaneulErrorKind::RpcError(..)
             )
         },
     )
@@ -1501,7 +1537,7 @@ async fn test_handle_conflicting_transaction_response() {
         |e| {
             matches!(
                 e,
-                HaneulError::ObjectLockConflict { .. } | HaneulError::RpcError(..)
+                HaneulErrorKind::ObjectLockConflict { .. } | HaneulErrorKind::RpcError(..)
             )
         },
     )
@@ -1530,7 +1566,7 @@ async fn test_handle_conflicting_transaction_response() {
                 } if conflicting_tx_digests.contains_key(conflicting_tx2.digest())
             )
         },
-        |e| matches!(e, HaneulError::ObjectLockConflict { .. }),
+        |e| matches!(e, HaneulErrorKind::ObjectLockConflict { .. }),
     )
     .await;
 
@@ -1551,10 +1587,11 @@ async fn test_handle_conflicting_transaction_response() {
         &sender_kp,
         666, // this is a dummy value which does not matter
     );
-    let conflicting_error_2 = HaneulError::ObjectLockConflict {
+    let conflicting_error_2: HaneulError = HaneulErrorKind::ObjectLockConflict {
         obj_ref: conflicting_object,
         pending_transaction: *conflicting_tx3.digest(),
-    };
+    }
+    .into();
     clients
         .get_mut(&authority_keys[2].0)
         .unwrap()
@@ -1581,7 +1618,8 @@ async fn test_handle_conflicting_transaction_response() {
         |e| {
             matches!(
                 e,
-                HaneulError::ObjectLockConflict { .. } | HaneulError::ByzantineAuthoritySuspicion { .. }
+                HaneulErrorKind::ObjectLockConflict { .. }
+                    | HaneulErrorKind::ByzantineAuthoritySuspicion { .. }
             )
         },
     )
@@ -1604,10 +1642,11 @@ async fn test_handle_conflicting_transaction_response() {
         &sender_kp,
         666, // this is a dummy value which does not matter
     );
-    let conflicting_error_2 = HaneulError::ObjectLockConflict {
+    let conflicting_error_2: HaneulError = HaneulErrorKind::ObjectLockConflict {
         obj_ref: conflicting_object,
         pending_transaction: *conflicting_tx3.digest(),
-    };
+    }
+    .into();
     clients
         .get_mut(&authority_keys[2].0)
         .unwrap()
@@ -1635,7 +1674,7 @@ async fn test_handle_conflicting_transaction_response() {
         |e| {
             matches!(
                 e,
-                HaneulError::ObjectLockConflict { .. } | HaneulError::UserInputError { .. }
+                HaneulErrorKind::ObjectLockConflict { .. } | HaneulErrorKind::UserInputError { .. }
             )
         },
     )
@@ -1678,9 +1717,9 @@ async fn test_handle_conflicting_transaction_response() {
         |e| {
             matches!(
                 e,
-                HaneulError::ObjectLockConflict { .. }
-                    | HaneulError::UserInputError { .. }
-                    | HaneulError::ByzantineAuthoritySuspicion { .. }
+                HaneulErrorKind::ObjectLockConflict { .. }
+                    | HaneulErrorKind::UserInputError { .. }
+                    | HaneulErrorKind::ByzantineAuthoritySuspicion { .. }
             )
         },
     )
@@ -1773,7 +1812,7 @@ async fn test_handle_conflicting_transaction_response() {
         |e| {
             matches!(
                 e,
-                HaneulError::MissingCommitteeAtEpoch(..) | HaneulError::ObjectLockConflict { .. }
+                HaneulErrorKind::MissingCommitteeAtEpoch(..) | HaneulErrorKind::ObjectLockConflict { .. }
             )
         },
     )
@@ -1798,7 +1837,7 @@ async fn test_handle_conflicting_transaction_response() {
         |e| {
             matches!(
                 e,
-                HaneulError::WrongEpoch { .. } | HaneulError::ObjectLockConflict { .. }
+                HaneulErrorKind::WrongEpoch { .. } | HaneulErrorKind::ObjectLockConflict { .. }
             )
         },
     )
@@ -1827,11 +1866,11 @@ async fn test_handle_overload_response() {
         666, // this is a dummy value which does not matter
     );
 
-    let overload_error = HaneulError::TooManyTransactionsPendingExecution {
+    let overload_error = HaneulErrorKind::TooManyTransactionsPendingExecution {
         queue_len: 100,
         threshold: 100,
     };
-    let rpc_error = HaneulError::RpcError("RPC".into(), "Error".into());
+    let rpc_error: HaneulError = HaneulErrorKind::RpcError("RPC".into(), "Error".into()).into();
 
     // Have 2f + 1 validators return the overload error and we should get the `SystemOverload` error.
     set_retryable_tx_info_response_error(&mut clients, &authority_keys);
@@ -1853,7 +1892,8 @@ async fn test_handle_overload_response() {
         |e| {
             matches!(
                 e,
-                HaneulError::TooManyTransactionsPendingExecution { .. } | HaneulError::RpcError(..)
+                HaneulErrorKind::TooManyTransactionsPendingExecution { .. }
+                    | HaneulErrorKind::RpcError(..)
             )
         },
     )
@@ -1880,14 +1920,15 @@ async fn test_handle_overload_response() {
         |e| {
             matches!(
                 e,
-                HaneulError::TooManyTransactionsPendingExecution { .. } | HaneulError::RpcError(..)
+                HaneulErrorKind::TooManyTransactionsPendingExecution { .. }
+                    | HaneulErrorKind::RpcError(..)
             )
         },
     )
     .await;
 }
 
-// Tests that authority aggregator can aggregate HaneulError::ValidatorOverloadedRetryAfter into
+// Tests that authority aggregator can aggregate HaneulErrorKind::ValidatorOverloadedRetryAfter into
 // AggregatorProcessTransactionError::SystemOverloadRetryAfter.
 #[tokio::test]
 async fn test_handle_overload_retry_response() {
@@ -1904,15 +1945,16 @@ async fn test_handle_overload_retry_response() {
         666, // this is a dummy value which does not matter
     );
 
-    let rpc_error = HaneulError::RpcError("RPC".into(), "Error".into());
+    let rpc_error: HaneulError = HaneulErrorKind::RpcError("RPC".into(), "Error".into()).into();
 
     // Have all validators return the overload error and we should get the `SystemOverload` error.
     // Uses different retry_after_secs for each validator.
     for (index, (name, _)) in authority_keys.iter().enumerate() {
         clients.get_mut(name).unwrap().set_tx_info_response_error(
-            HaneulError::ValidatorOverloadedRetryAfter {
+            HaneulErrorKind::ValidatorOverloadedRetryAfter {
                 retry_after_secs: index as u64,
-            },
+            }
+            .into(),
         );
     }
     let agg = get_genesis_agg(authorities.clone(), clients.clone());
@@ -1933,7 +1975,7 @@ async fn test_handle_overload_retry_response() {
         |e| {
             matches!(
                 e,
-                HaneulError::ValidatorOverloadedRetryAfter { .. } | HaneulError::RpcError(..)
+                HaneulErrorKind::ValidatorOverloadedRetryAfter { .. } | HaneulErrorKind::RpcError(..)
             )
         },
     )
@@ -1962,7 +2004,7 @@ async fn test_handle_overload_retry_response() {
         |e| {
             matches!(
                 e,
-                HaneulError::ValidatorOverloadedRetryAfter { .. } | HaneulError::RpcError(..)
+                HaneulErrorKind::ValidatorOverloadedRetryAfter { .. } | HaneulErrorKind::RpcError(..)
             )
         },
     )
@@ -1987,7 +2029,7 @@ async fn test_handle_overload_retry_response() {
         |e| {
             matches!(
                 e,
-                HaneulError::ValidatorOverloadedRetryAfter { .. } | HaneulError::RpcError(..)
+                HaneulErrorKind::ValidatorOverloadedRetryAfter { .. } | HaneulErrorKind::RpcError(..)
             )
         },
     )
@@ -2013,7 +2055,7 @@ async fn test_early_exit_with_too_many_conflicts() {
     set_tx_info_response_with_error(
         &mut clients,
         authority_keys.iter().take(1),
-        HaneulError::ObjectLockConflict {
+        HaneulErrorKind::ObjectLockConflict {
             obj_ref: random_object_ref(),
             pending_transaction: TransactionDigest::random(),
         },
@@ -2021,7 +2063,7 @@ async fn test_early_exit_with_too_many_conflicts() {
     set_tx_info_response_with_error(
         &mut clients,
         authority_keys.iter().skip(1).take(1),
-        HaneulError::ObjectLockConflict {
+        HaneulErrorKind::ObjectLockConflict {
             obj_ref: random_object_ref(),
             pending_transaction: TransactionDigest::random(),
         },
@@ -2029,7 +2071,7 @@ async fn test_early_exit_with_too_many_conflicts() {
     set_tx_info_response_with_error(
         &mut clients,
         authority_keys.iter().skip(2).take(1),
-        HaneulError::ObjectLockConflict {
+        HaneulErrorKind::ObjectLockConflict {
             obj_ref: random_object_ref(),
             pending_transaction: TransactionDigest::random(),
         },
@@ -2037,7 +2079,7 @@ async fn test_early_exit_with_too_many_conflicts() {
     set_tx_info_response_with_error(
         &mut clients,
         authority_keys.iter().skip(3).take(1),
-        HaneulError::TooManyTransactionsPendingExecution {
+        HaneulErrorKind::TooManyTransactionsPendingExecution {
             queue_len: 100,
             threshold: 100,
         },
@@ -2355,7 +2397,7 @@ async fn assert_resp_err<E, F>(
     haneul_err_checker: F,
 ) where
     E: Fn(&AggregatorProcessTransactionError) -> bool,
-    F: Fn(&HaneulError) -> bool,
+    F: Fn(&HaneulErrorKind) -> bool,
 {
     match agg.process_transaction(tx, Some(make_socket_addr())).await {
         Err(received_agg_err) if agg_err_checker(&received_agg_err) => match received_agg_err {
@@ -2365,23 +2407,23 @@ async fn assert_resp_err<E, F>(
                 conflicting_tx_digests,
             } => {
                 assert!(!conflicting_tx_digests.is_empty());
-                assert!(errors.iter().map(|e| &e.0).all(haneul_err_checker));
+                assert!(errors.iter().map(|e| e.0.as_inner()).all(haneul_err_checker));
             }
 
             AggregatorProcessTransactionError::RetryableTransaction { errors } => {
-                assert!(errors.iter().map(|e| &e.0).all(haneul_err_checker));
+                assert!(errors.iter().map(|e| e.0.as_inner()).all(haneul_err_checker));
             }
 
             AggregatorProcessTransactionError::FatalTransaction { errors } => {
-                assert!(errors.iter().map(|e| &e.0).all(haneul_err_checker));
+                assert!(errors.iter().map(|e| e.0.as_inner()).all(haneul_err_checker));
             }
 
             AggregatorProcessTransactionError::SystemOverload { errors, .. } => {
-                assert!(errors.iter().map(|e| &e.0).all(haneul_err_checker));
+                assert!(errors.iter().map(|e| e.0.as_inner()).all(haneul_err_checker));
             }
 
             AggregatorProcessTransactionError::SystemOverloadRetryAfter { errors, .. } => {
-                assert!(errors.iter().map(|e| &e.0).all(haneul_err_checker));
+                assert!(errors.iter().map(|e| e.0.as_inner()).all(haneul_err_checker));
             }
         },
         Err(received_agg_err) => {
@@ -2452,15 +2494,16 @@ fn set_retryable_tx_info_response_error(
     clients: &mut BTreeMap<AuthorityName, HandleTransactionTestAuthorityClient>,
     authority_keys: &[(AuthorityName, AuthorityKeyPair)],
 ) {
-    let error = HaneulError::RpcError("RPC".into(), "Error".into());
+    let error = HaneulErrorKind::RpcError("RPC".into(), "Error".into());
     set_tx_info_response_with_error(clients, authority_keys.iter(), error);
 }
 
 fn set_tx_info_response_with_error<'a>(
     clients: &mut BTreeMap<AuthorityName, HandleTransactionTestAuthorityClient>,
     authority_keys: impl Iterator<Item = &'a (AuthorityName, AuthorityKeyPair)>,
-    error: HaneulError,
+    error: impl Into<HaneulError>,
 ) {
+    let error = error.into();
     for (name, _) in authority_keys {
         clients
             .get_mut(name)

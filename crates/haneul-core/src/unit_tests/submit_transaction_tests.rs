@@ -11,7 +11,7 @@ use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{random_object_ref, ObjectRef, HaneulAddress};
 use haneul_types::crypto::{get_account_key_pair, AccountKeyPair};
 use haneul_types::effects::TransactionEffectsAPI as _;
-use haneul_types::error::{HaneulError, UserInputError};
+use haneul_types::error::{HaneulError, HaneulErrorKind, UserInputError};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::message_envelope::Message as _;
 use haneul_types::messages_grpc::{
@@ -149,9 +149,10 @@ async fn test_submit_ping_request() {
             .submit_transaction(request)
             .await;
         assert!(response.is_err());
+        let error: HaneulError = response.unwrap_err().into();
         assert!(matches!(
-            response.unwrap_err().into(),
-            HaneulError::InvalidRequest { .. }
+            error.into_inner(),
+            HaneulErrorKind::InvalidRequest { .. }
         ));
     }
 
@@ -361,14 +362,11 @@ async fn test_submit_transaction_gas_object_validation() {
     // with the Rejected variant.
     let response = test_context.client.submit_transaction(request, None).await;
     let result: SubmitTxResult = response.unwrap().results.first().unwrap().clone();
-    assert!(matches!(
-        result,
-        SubmitTxResult::Rejected {
-            error: HaneulError::UserInputError {
-                error: UserInputError::ObjectNotFound { .. }
-            }
-        }
-    ));
+    assert!(
+        matches!(result, SubmitTxResult::Rejected { error } if matches!(error.as_inner(), HaneulErrorKind::UserInputError {
+                        error: UserInputError::ObjectNotFound { .. }
+        }))
+    );
 }
 
 #[tokio::test]

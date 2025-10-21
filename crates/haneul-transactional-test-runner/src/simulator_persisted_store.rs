@@ -12,6 +12,7 @@ use haneul_config::genesis;
 use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
 use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_swarm_config::network_config_builder::{ConfigBuilder, KeyPairWrapper};
+use haneul_types::error::HaneulErrorKind;
 use haneul_types::storage::{ReadStore, RpcStateReader};
 use haneul_types::{
     base_types::{ObjectID, SequenceNumber, HaneulAddress, VersionNumber},
@@ -433,18 +434,20 @@ impl ChildObjectResolver for PersistedStore {
 
         let parent = *parent;
         if child_object.owner != Owner::ObjectOwner(parent.into()) {
-            return Err(HaneulError::InvalidChildObjectAccess {
+            return Err(HaneulErrorKind::InvalidChildObjectAccess {
                 object: *child,
                 given_parent: parent,
                 actual_owner: child_object.owner.clone(),
-            });
+            }
+            .into());
         }
 
         if child_object.version() > child_version_upper_bound {
-            return Err(HaneulError::UnsupportedFeatureError {
+            return Err(HaneulErrorKind::UnsupportedFeatureError {
                 error: "TODO InMemoryStorage::read_child_object does not yet support bounded reads"
                     .to_owned(),
-            });
+            }
+            .into());
         }
 
         Ok(Some(child_object))
@@ -557,7 +560,7 @@ impl ReadStore for PersistedStoreInnerReadOnlyWrapper {
             .next()
             .transpose()?
             .map(|(_, checkpoint)| checkpoint.into())
-            .ok_or(HaneulError::UserInputError {
+            .ok_or(HaneulErrorKind::UserInputError {
                 error: UserInputError::LatestCheckpointSequenceNumberNotFound,
             })
             .map_err(haneul_types::storage::error::Error::custom)

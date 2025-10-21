@@ -8,7 +8,7 @@ use crate::committee::CommitteeWithNetworkMetadata;
 use crate::dynamic_field::{
     get_dynamic_field_from_store, get_dynamic_field_object_from_store, Field,
 };
-use crate::error::HaneulError;
+use crate::error::{HaneulError, HaneulErrorKind};
 use crate::gas::GasCostSummary;
 use crate::object::{MoveObject, Object};
 use crate::storage::ObjectStore;
@@ -230,15 +230,17 @@ pub fn get_haneul_system_state_wrapper(
         .get_object(&HANEUL_SYSTEM_STATE_OBJECT_ID)
         // Don't panic here on None because object_store is a generic store.
         .ok_or_else(|| {
-            HaneulError::HaneulSystemStateReadError("HaneulSystemStateWrapper object not found".to_owned())
+            HaneulErrorKind::HaneulSystemStateReadError(
+                "HaneulSystemStateWrapper object not found".to_owned(),
+            )
         })?;
     let move_object = wrapper.data.try_as_move().ok_or_else(|| {
-        HaneulError::HaneulSystemStateReadError(
+        HaneulErrorKind::HaneulSystemStateReadError(
             "HaneulSystemStateWrapper object must be a Move object".to_owned(),
         )
     })?;
     let result = bcs::from_bytes::<HaneulSystemStateWrapper>(move_object.contents())
-        .map_err(|err| HaneulError::HaneulSystemStateReadError(err.to_string()))?;
+        .map_err(|err| HaneulErrorKind::HaneulSystemStateReadError(err.to_string()))?;
     Ok(result)
 }
 
@@ -250,7 +252,7 @@ pub fn get_haneul_system_state(object_store: &dyn ObjectStore) -> Result<HaneulS
             let result: HaneulSystemStateInnerV1 =
                 get_dynamic_field_from_store(object_store, id, &wrapper.version).map_err(
                     |err| {
-                        HaneulError::DynamicFieldReadError(format!(
+                        HaneulErrorKind::DynamicFieldReadError(format!(
                             "Failed to load haneul system state inner object with ID {:?} and version {:?}: {:?}",
                             id, wrapper.version, err
                         ))
@@ -262,7 +264,7 @@ pub fn get_haneul_system_state(object_store: &dyn ObjectStore) -> Result<HaneulS
             let result: HaneulSystemStateInnerV2 =
                 get_dynamic_field_from_store(object_store, id, &wrapper.version).map_err(
                     |err| {
-                        HaneulError::DynamicFieldReadError(format!(
+                        HaneulErrorKind::DynamicFieldReadError(format!(
                             "Failed to load haneul system state inner object with ID {:?} and version {:?}: {:?}",
                             id, wrapper.version, err
                         ))
@@ -275,7 +277,7 @@ pub fn get_haneul_system_state(object_store: &dyn ObjectStore) -> Result<HaneulS
             let result: SimTestHaneulSystemStateInnerV1 =
                 get_dynamic_field_from_store(object_store, id, &wrapper.version).map_err(
                     |err| {
-                        HaneulError::DynamicFieldReadError(format!(
+                        HaneulErrorKind::DynamicFieldReadError(format!(
                             "Failed to load haneul system state inner object with ID {:?} and version {:?}: {:?}",
                             id, wrapper.version, err
                         ))
@@ -288,7 +290,7 @@ pub fn get_haneul_system_state(object_store: &dyn ObjectStore) -> Result<HaneulS
             let result: SimTestHaneulSystemStateInnerShallowV2 =
                 get_dynamic_field_from_store(object_store, id, &wrapper.version).map_err(
                     |err| {
-                        HaneulError::DynamicFieldReadError(format!(
+                        HaneulErrorKind::DynamicFieldReadError(format!(
                             "Failed to load haneul system state inner object with ID {:?} and version {:?}: {:?}",
                             id, wrapper.version, err
                         ))
@@ -301,7 +303,7 @@ pub fn get_haneul_system_state(object_store: &dyn ObjectStore) -> Result<HaneulS
             let result: SimTestHaneulSystemStateInnerDeepV2 =
                 get_dynamic_field_from_store(object_store, id, &wrapper.version).map_err(
                     |err| {
-                        HaneulError::DynamicFieldReadError(format!(
+                        HaneulErrorKind::DynamicFieldReadError(format!(
                             "Failed to load haneul system state inner object with ID {:?} and version {:?}: {:?}",
                             id, wrapper.version, err
                         ))
@@ -309,10 +311,11 @@ pub fn get_haneul_system_state(object_store: &dyn ObjectStore) -> Result<HaneulS
                 )?;
             Ok(HaneulSystemState::SimTestDeepV2(result))
         }
-        _ => Err(HaneulError::HaneulSystemStateReadError(format!(
+        _ => Err(HaneulErrorKind::HaneulSystemStateReadError(format!(
             "Unsupported HaneulSystemState version: {}",
             wrapper.version
-        ))),
+        ))
+        .into()),
     }
 }
 
@@ -330,7 +333,7 @@ where
 {
     let field: ValidatorWrapper = get_dynamic_field_from_store(object_store, table_id, key)
         .map_err(|err| {
-            HaneulError::HaneulSystemStateReadError(format!(
+            HaneulErrorKind::HaneulSystemStateReadError(format!(
                 "Failed to load validator wrapper from table: {:?}",
                 err
             ))
@@ -342,7 +345,7 @@ where
             let validator: ValidatorV1 =
                 get_dynamic_field_from_store(object_store, versioned.id.id.bytes, &version)
                     .map_err(|err| {
-                        HaneulError::HaneulSystemStateReadError(format!(
+                        HaneulErrorKind::HaneulSystemStateReadError(format!(
                             "Failed to load inner validator from the wrapper: {:?}",
                             err
                         ))
@@ -354,7 +357,7 @@ where
             let validator: SimTestValidatorV1 =
                 get_dynamic_field_from_store(object_store, versioned.id.id.bytes, &version)
                     .map_err(|err| {
-                        HaneulError::HaneulSystemStateReadError(format!(
+                        HaneulErrorKind::HaneulSystemStateReadError(format!(
                             "Failed to load inner validator from the wrapper: {:?}",
                             err
                         ))
@@ -366,17 +369,18 @@ where
             let validator: SimTestValidatorDeepV2 =
                 get_dynamic_field_from_store(object_store, versioned.id.id.bytes, &version)
                     .map_err(|err| {
-                        HaneulError::HaneulSystemStateReadError(format!(
+                        HaneulErrorKind::HaneulSystemStateReadError(format!(
                             "Failed to load inner validator from the wrapper: {:?}",
                             err
                         ))
                     })?;
             Ok(validator.into_haneul_validator_summary())
         }
-        _ => Err(HaneulError::HaneulSystemStateReadError(format!(
+        _ => Err(HaneulErrorKind::HaneulSystemStateReadError(format!(
             "Unsupported Validator version: {}",
             version
-        ))),
+        ))
+        .into()),
     }
 }
 
@@ -393,7 +397,7 @@ where
     for i in 0..table_size {
         let validator: ValidatorType = get_dynamic_field_from_store(&object_store, table_id, &i)
             .map_err(|err| {
-                HaneulError::HaneulSystemStateReadError(format!(
+                HaneulErrorKind::HaneulSystemStateReadError(format!(
                     "Failed to load validator from table: {:?}",
                     err
                 ))

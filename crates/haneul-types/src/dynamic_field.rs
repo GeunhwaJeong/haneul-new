@@ -3,7 +3,7 @@
 
 use crate::base_types::{MoveObjectType, ObjectDigest, HaneulAddress};
 use crate::crypto::DefaultHash;
-use crate::error::{HaneulError, HaneulResult};
+use crate::error::{HaneulError, HaneulErrorKind, HaneulResult};
 use crate::id::UID;
 use crate::object::{MoveObject, Object};
 use crate::storage::{ChildObjectResolver, ObjectStore};
@@ -149,22 +149,24 @@ impl DynamicFieldInfo {
             (DynamicFieldType::DynamicObject, Some(TypeTag::Struct(s))) => Ok(s
                 .type_params
                 .first()
-                .ok_or_else(|| HaneulError::ObjectDeserializationError {
+                .ok_or_else(|| HaneulErrorKind::ObjectDeserializationError {
                     error: format!("Error extracting dynamic object name from object: {tag}"),
                 })?
                 .clone()),
-            _ => Err(HaneulError::ObjectDeserializationError {
+            _ => Err(HaneulErrorKind::ObjectDeserializationError {
                 error: format!("Error extracting dynamic object name from object: {tag}"),
-            }),
+            }
+            .into()),
         }
     }
 
     pub fn try_extract_field_value(tag: &StructTag) -> HaneulResult<TypeTag> {
         match tag.type_params.last() {
             Some(value_type) => Ok(value_type.clone()),
-            None => Err(HaneulError::ObjectDeserializationError {
+            None => Err(HaneulErrorKind::ObjectDeserializationError {
                 error: format!("Error extracting dynamic object value from object: {tag}"),
-            }),
+            }
+            .into()),
         }
     }
 
@@ -172,13 +174,13 @@ impl DynamicFieldInfo {
         move_struct: &MoveStruct,
     ) -> HaneulResult<(MoveValue, DynamicFieldType, ObjectID)> {
         let name = extract_field_from_move_struct(move_struct, "name").ok_or_else(|| {
-            HaneulError::ObjectDeserializationError {
+            HaneulErrorKind::ObjectDeserializationError {
                 error: "Cannot extract [name] field from haneul::dynamic_field::Field".to_string(),
             }
         })?;
 
         let value = extract_field_from_move_struct(move_struct, "value").ok_or_else(|| {
-            HaneulError::ObjectDeserializationError {
+            HaneulErrorKind::ObjectDeserializationError {
                 error: "Cannot extract [value] field from haneul::dynamic_field::Field".to_string(),
             }
         })?;
@@ -190,23 +192,24 @@ impl DynamicFieldInfo {
                 }
                 _ => None,
             }
-            .ok_or_else(|| HaneulError::ObjectDeserializationError {
+            .ok_or_else(|| HaneulErrorKind::ObjectDeserializationError {
                 error: "Cannot extract [name] field from haneul::dynamic_object_field::Wrapper."
                     .to_string(),
             })?;
             // ID extracted from the wrapper object
-            let object_id =
-                extract_id_value(value).ok_or_else(|| HaneulError::ObjectDeserializationError {
+            let object_id = extract_id_value(value).ok_or_else(|| {
+                HaneulErrorKind::ObjectDeserializationError {
                     error: format!(
                         "Cannot extract dynamic object's object id from \
                         haneul::dynamic_field::Field, {value:?}"
                     ),
-                })?;
+                }
+            })?;
             (name.clone(), DynamicFieldType::DynamicObject, object_id)
         } else {
             // ID of the Field object
             let object_id = extract_object_id(move_struct).ok_or_else(|| {
-                HaneulError::ObjectDeserializationError {
+                HaneulErrorKind::ObjectDeserializationError {
                     error: format!(
                         "Cannot extract dynamic object's object id from \
                         haneul::dynamic_field::Field, {move_struct:?}",
@@ -307,8 +310,11 @@ where
         value,
     };
 
-    bcs::to_bytes(&field).map_err(|err| HaneulError::ObjectSerializationError {
-        error: err.to_string(),
+    bcs::to_bytes(&field).map_err(|err| {
+        HaneulErrorKind::ObjectSerializationError {
+            error: err.to_string(),
+        }
+        .into()
     })
 }
 
@@ -377,7 +383,7 @@ where
     /// Get the computed ID of the dynamic field.
     pub fn object_id(&self) -> Result<ObjectID, HaneulError> {
         derive_dynamic_field_id(self.0, &self.2, &bcs::to_bytes(&self.1).unwrap())
-            .map_err(|e| HaneulError::DynamicFieldReadError(e.to_string()))
+            .map_err(|e| HaneulErrorKind::DynamicFieldReadError(e.to_string()).into())
     }
 
     /// Convert the key into a UnboundedDynamicFieldID, which can be used to load the latest
@@ -450,7 +456,7 @@ where
         let move_object_type = MoveObjectType::from(*struct_tag);
 
         let field_bytes =
-            bcs::to_bytes(&field).map_err(|e| HaneulError::ObjectSerializationError {
+            bcs::to_bytes(&field).map_err(|e| HaneulErrorKind::ObjectSerializationError {
                 error: e.to_string(),
             })?;
         Ok(unsafe {
@@ -507,10 +513,13 @@ where
         let parent = self.0;
         let id = self.1;
         self.load_object(object_store).ok_or_else(|| {
-            HaneulError::DynamicFieldReadError(format!(
-                "Dynamic field with key={:?} and ID={:?} not found on parent {:?}",
-                key, id, parent
-            ))
+            {
+                HaneulErrorKind::DynamicFieldReadError(format!(
+                    "Dynamic field with key={:?} and ID={:?} not found on parent {:?}",
+                    key, id, parent
+                ))
+            }
+            .into()
         })
     }
 
@@ -609,12 +618,12 @@ where
     {
         let object = self.0;
         let move_object = object.data.try_as_move().ok_or_else(|| {
-            HaneulError::DynamicFieldReadError(format!(
+            HaneulErrorKind::DynamicFieldReadError(format!(
                 "Dynamic field {:?} is not a Move object",
                 object.id()
             ))
         })?;
         bcs::from_bytes::<Field<K, V>>(move_object.contents())
-            .map_err(|err| HaneulError::DynamicFieldReadError(err.to_string()))
+            .map_err(|err| HaneulErrorKind::DynamicFieldReadError(err.to_string()).into())
     }
 }

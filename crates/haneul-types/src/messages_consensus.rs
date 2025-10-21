@@ -5,7 +5,7 @@ use crate::base_types::{AuthorityName, ConsensusObjectSequenceKey, ObjectRef, Tr
 use crate::base_types::{ConciseableName, ObjectID, SequenceNumber};
 use crate::committee::EpochId;
 use crate::digests::{AdditionalConsensusStateDigest, ConsensusCommitDigest};
-use crate::error::HaneulError;
+use crate::error::{HaneulError, HaneulErrorKind};
 use crate::execution::ExecutionTimeObservationKey;
 use crate::messages_checkpoint::{
     CheckpointDigest, CheckpointSequenceNumber, CheckpointSignatureMessage,
@@ -55,9 +55,12 @@ pub struct ConsensusPosition {
 impl ConsensusPosition {
     pub fn into_raw(self) -> Result<Bytes, HaneulError> {
         bcs::to_bytes(&self)
-            .map_err(|e| HaneulError::GrpcMessageSerializeError {
-                type_info: "ConsensusPosition".to_string(),
-                error: e.to_string(),
+            .map_err(|e| {
+                HaneulErrorKind::GrpcMessageSerializeError {
+                    type_info: "ConsensusPosition".to_string(),
+                    error: e.to_string(),
+                }
+                .into()
             })
             .map(Bytes::from)
     }
@@ -77,9 +80,12 @@ impl TryFrom<&[u8]> for ConsensusPosition {
     type Error = HaneulError;
 
     fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
-        bcs::from_bytes(bytes).map_err(|e| HaneulError::GrpcMessageDeserializeError {
-            type_info: "ConsensusPosition".to_string(),
-            error: e.to_string(),
+        bcs::from_bytes(bytes).map_err(|e| {
+            HaneulErrorKind::GrpcMessageDeserializeError {
+                type_info: "ConsensusPosition".to_string(),
+                error: e.to_string(),
+            }
+            .into()
         })
     }
 }

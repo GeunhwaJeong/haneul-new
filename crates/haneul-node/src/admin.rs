@@ -20,7 +20,7 @@ use haneul_types::{
     base_types::AuthorityName,
     crypto::{RandomnessPartialSignature, RandomnessRound, RandomnessSignature},
     digests::TransactionDigest,
-    error::HaneulError,
+    error::HaneulErrorKind,
     traffic_control::TrafficControlReconfigParams,
 };
 use telemetry_subscribers::TracingHandle;
@@ -335,7 +335,7 @@ async fn force_close_epoch(
     let epoch_store = state.node.state().load_epoch_store_one_call_per_task();
     let actual_epoch = epoch_store.epoch();
     if actual_epoch != expected_epoch {
-        let err = HaneulError::WrongEpoch {
+        let err = HaneulErrorKind::WrongEpoch {
             expected_epoch,
             actual_epoch,
         };

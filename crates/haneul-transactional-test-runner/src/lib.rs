@@ -37,7 +37,7 @@ use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::effects::TransactionEvents;
 use haneul_types::error::ExecutionError;
-use haneul_types::error::HaneulError;
+use haneul_types::error::HaneulErrorKind;
 use haneul_types::error::HaneulResult;
 use haneul_types::event::Event;
 use haneul_types::executable_transaction::{ExecutableTransaction, VerifiedExecutableTransaction};
@@ -291,7 +291,7 @@ impl TransactionalAdapter for ValidatorWithFullnode {
             .fullnode
             .get_system_state()
             .map_err(|e| {
-                HaneulError::HaneulSystemStateReadError(format!(
+                HaneulErrorKind::HaneulSystemStateReadError(format!(
                     "Failed to get system state from fullnode: {}",
                     e
                 ))

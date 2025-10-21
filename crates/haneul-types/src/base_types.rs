@@ -24,6 +24,7 @@ use crate::effects::TransactionEffectsAPI;
 use crate::epoch_data::EpochData;
 use crate::error::ExecutionErrorKind;
 use crate::error::HaneulError;
+use crate::error::HaneulErrorKind;
 use crate::error::{ExecutionError, HaneulResult};
 use crate::gas_coin::GasCoin;
 use crate::gas_coin::GAS;
@@ -506,10 +507,11 @@ impl MoveObjectType {
     pub fn try_extract_field_name(&self, type_: &DynamicFieldType) -> HaneulResult<TypeTag> {
         match &self.0 {
             MoveObjectType_::GasCoin | MoveObjectType_::StakedHaneul | MoveObjectType_::Coin(_) => {
-                Err(HaneulError::ObjectDeserializationError {
+                Err(HaneulErrorKind::ObjectDeserializationError {
                     error: "Error extracting dynamic object name from specialized object type"
                         .to_string(),
-                })
+                }
+                .into())
             }
             MoveObjectType_::HaneulBalanceAccumulatorField
             | MoveObjectType_::BalanceAccumulatorField(_) => {
@@ -523,10 +525,11 @@ impl MoveObjectType {
     pub fn try_extract_field_value(&self) -> HaneulResult<TypeTag> {
         match &self.0 {
             MoveObjectType_::GasCoin | MoveObjectType_::StakedHaneul | MoveObjectType_::Coin(_) => {
-                Err(HaneulError::ObjectDeserializationError {
+                Err(HaneulErrorKind::ObjectDeserializationError {
                     error: "Error extracting dynamic object value from specialized object type"
                         .to_string(),
-                })
+                }
+                .into())
             }
             MoveObjectType_::HaneulBalanceAccumulatorField
             | MoveObjectType_::BalanceAccumulatorField(_) => {
@@ -848,7 +851,7 @@ impl HaneulAddress {
     /// Parse a HaneulAddress from a byte array or buffer.
     pub fn from_bytes<T: AsRef<[u8]>>(bytes: T) -> Result<Self, HaneulError> {
         <[u8; HANEUL_ADDRESS_LENGTH]>::try_from(bytes.as_ref())
-            .map_err(|_| HaneulError::InvalidAddress)
+            .map_err(|_| HaneulErrorKind::InvalidAddress.into())
             .map(HaneulAddress)
     }
 
@@ -974,7 +977,7 @@ impl TryFrom<&GenericSignature> for HaneulAddress {
                 let scheme = sig.scheme();
                 let pub_key_bytes = sig.public_key_bytes();
                 let pub_key = PublicKey::try_from_bytes(scheme, pub_key_bytes).map_err(|_| {
-                    HaneulError::InvalidSignature {
+                    HaneulErrorKind::InvalidSignature {
                         error: "Cannot parse pubkey".to_string(),
                     }
                 })?;
@@ -983,7 +986,7 @@ impl TryFrom<&GenericSignature> for HaneulAddress {
             GenericSignature::MultiSig(ms) => Ok(ms.get_pk().into()),
             GenericSignature::MultiSigLegacy(ms) => {
                 Ok(crate::multisig::MultiSig::try_from(ms.clone())
-                    .map_err(|_| HaneulError::InvalidSignature {
+                    .map_err(|_| HaneulErrorKind::InvalidSignature {
                         error: "Invalid legacy multisig".to_string(),
                     })?
                     .get_pk()

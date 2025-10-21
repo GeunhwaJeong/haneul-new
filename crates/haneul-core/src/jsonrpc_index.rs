@@ -32,7 +32,7 @@ use haneul_types::base_types::{ObjectInfo, ObjectRef};
 use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::dynamic_field::{self, DynamicFieldInfo};
 use haneul_types::effects::TransactionEvents;
-use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
+use haneul_types::error::{HaneulError, HaneulErrorKind, HaneulResult, UserInputError};
 use haneul_types::inner_temporary_store::TxCoins;
 use haneul_types::object::{Object, Owner};
 use haneul_types::parse_haneul_struct_tag;
@@ -899,7 +899,7 @@ impl IndexStore {
         let cursor = if let Some(cursor) = cursor {
             Some(
                 self.get_transaction_seq(&cursor)?
-                    .ok_or(HaneulError::TransactionNotFound { digest: cursor })?,
+                    .ok_or(HaneulErrorKind::TransactionNotFound { digest: cursor })?,
             )
         } else {
             None
@@ -926,9 +926,10 @@ impl IndexStore {
             }
             // NOTE: filter via checkpoint sequence number is implemented in
             // `get_transactions` of authority.rs.
-            Some(_) => Err(HaneulError::UserInputError {
+            Some(_) => Err(HaneulErrorKind::UserInputError {
                 error: UserInputError::Unsupported(format!("{:?}", filter)),
-            }),
+            }
+            .into()),
             None => {
                 if reverse {
                     let iter = self
@@ -1080,20 +1081,22 @@ impl IndexStore {
     ) -> HaneulResult<Vec<TransactionDigest>> {
         // If we are passed a function with no module return a UserInputError
         if function.is_some() && module.is_none() {
-            return Err(HaneulError::UserInputError {
+            return Err(HaneulErrorKind::UserInputError {
                 error: UserInputError::MoveFunctionInputError(
                     "Cannot supply function without supplying module".to_string(),
                 ),
-            });
+            }
+            .into());
         }
 
         // We cannot have a cursor without filling out the other keys.
         if cursor.is_some() && (module.is_none() || function.is_none()) {
-            return Err(HaneulError::UserInputError {
+            return Err(HaneulErrorKind::UserInputError {
                 error: UserInputError::MoveFunctionInputError(
                     "Cannot supply cursor without supplying module and function".to_string(),
                 ),
-            });
+            }
+            .into());
         }
 
         let cursor_val = cursor.unwrap_or(if reverse {
@@ -1229,7 +1232,7 @@ impl IndexStore {
     ) -> HaneulResult<Vec<(TransactionEventsDigest, TransactionDigest, usize, u64)>> {
         let seq = self
             .get_transaction_seq(digest)?
-            .ok_or(HaneulError::TransactionNotFound { digest: *digest })?;
+            .ok_or(HaneulErrorKind::TransactionNotFound { digest: *digest })?;
         Ok(if descending {
             self.tables
                 .event_order
@@ -1468,7 +1471,7 @@ impl IndexStore {
         let dynamic_field_id =
             dynamic_field::derive_dynamic_field_id(object, &name_type, name_bcs_bytes).map_err(
                 |e| {
-                    HaneulError::Unknown(format!(
+                    HaneulErrorKind::Unknown(format!(
                         "Unable to generate dynamic field id. Got error: {e:?}"
                     ))
                 },
@@ -1495,7 +1498,7 @@ impl IndexStore {
             name_bcs_bytes,
         )
         .map_err(|e| {
-            HaneulError::Unknown(format!(
+            HaneulErrorKind::Unknown(format!(
                 "Unable to generate dynamic field id. Got error: {e:?}"
             ))
         })?;
@@ -1653,7 +1656,7 @@ impl IndexStore {
         if force_disable_cache {
             Self::get_balance_from_db(metrics_cloned, coin_index_cloned, owner, cloned_coin_type)
                 .map_err(|e| {
-                HaneulError::ExecutionError(format!("Failed to read balance frm DB: {:?}", e))
+                HaneulErrorKind::ExecutionError(format!("Failed to read balance frm DB: {:?}", e))
             })?;
         }
 
@@ -1686,7 +1689,8 @@ impl IndexStore {
                     cloned_coin_type,
                 )
                 .map_err(|e| {
-                    HaneulError::ExecutionError(format!("Failed to read balance frm DB: {:?}", e))
+                    HaneulErrorKind::ExecutionError(format!("Failed to read balance frm DB: {:?}", e))
+                        .into()
                 })
             })
     }
@@ -1707,7 +1711,10 @@ impl IndexStore {
         if force_disable_cache {
             Self::get_all_balances_from_db(metrics_cloned, coin_index_cloned, owner).map_err(
                 |e| {
-                    HaneulError::ExecutionError(format!("Failed to read all balance from DB: {:?}", e))
+                    HaneulErrorKind::ExecutionError(format!(
+                        "Failed to read all balance from DB: {:?}",
+                        e
+                    ))
                 },
             )?;
         }
@@ -1717,7 +1724,8 @@ impl IndexStore {
         let coin_index_cloned = self.tables.coin_index_2.clone();
         self.caches.all_balances.get_with(owner, move || {
             Self::get_all_balances_from_db(metrics_cloned, coin_index_cloned, owner).map_err(|e| {
-                HaneulError::ExecutionError(format!("Failed to read all balance from DB: {:?}", e))
+                HaneulErrorKind::ExecutionError(format!("Failed to read all balance from DB: {:?}", e))
+                    .into()
             })
         })
     }
@@ -1764,7 +1772,7 @@ impl IndexStore {
             }
             let coin_type =
                 TypeTag::Struct(Box::new(parse_haneul_struct_tag(&coin_type).map_err(|e| {
-                    HaneulError::ExecutionError(format!(
+                    HaneulErrorKind::ExecutionError(format!(
                         "Failed to parse event sender address: {:?}",
                         e
                     ))

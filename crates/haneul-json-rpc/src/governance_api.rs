@@ -22,7 +22,7 @@ use haneul_open_rpc::Module;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::committee::EpochId;
 use haneul_types::dynamic_field::get_dynamic_field_from_store;
-use haneul_types::error::{HaneulError, UserInputError};
+use haneul_types::error::{HaneulError, HaneulErrorKind, UserInputError};
 use haneul_types::governance::StakedHaneul;
 use haneul_types::id::ID;
 use haneul_types::object::ObjectRead;
@@ -389,10 +389,11 @@ async fn exchange_rates(
         None,
         system_state_summary.inactive_pools_size as usize,
     )? {
-        let pool_id: ID =
-            bcs::from_bytes(&df.1.bcs_name).map_err(|e| HaneulError::ObjectDeserializationError {
+        let pool_id: ID = bcs::from_bytes(&df.1.bcs_name).map_err(|e| {
+            HaneulErrorKind::ObjectDeserializationError {
                 error: e.to_string(),
-            })?;
+            }
+        })?;
         let validator = get_validator_from_table(
             state.get_object_store().as_ref(),
             system_state_summary.inactive_pools_id,
@@ -415,7 +416,7 @@ async fn exchange_rates(
             .into_iter()
             .map(|df| {
                 let epoch: EpochId = bcs::from_bytes(&df.1.bcs_name).map_err(|e| {
-                    HaneulError::ObjectDeserializationError {
+                    HaneulErrorKind::ObjectDeserializationError {
                         error: e.to_string(),
                     }
                 })?;

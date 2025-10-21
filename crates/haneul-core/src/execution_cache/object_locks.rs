@@ -7,7 +7,7 @@ use dashmap::DashMap;
 use haneullabs_common::*;
 use haneul_types::base_types::{ObjectID, ObjectRef};
 use haneul_types::digests::TransactionDigest;
-use haneul_types::error::{HaneulError, HaneulResult, UserInputError};
+use haneul_types::error::{HaneulErrorKind, HaneulResult, UserInputError};
 use haneul_types::object::Object;
 use haneul_types::storage::ObjectStore;
 use haneul_types::transaction::VerifiedSignedTransaction;
@@ -100,10 +100,11 @@ impl ObjectLocks {
                 "lock conflict detected for {:?}: {:?} != {:?}",
                 obj_ref, prev_lock, new_lock
             );
-            Err(HaneulError::ObjectLockConflict {
+            Err(HaneulErrorKind::ObjectLockConflict {
                 obj_ref: *obj_ref,
                 pending_transaction: prev_lock,
-            })
+            }
+            .into())
         } else {
             Ok(())
         }
@@ -122,22 +123,24 @@ impl ObjectLocks {
                 obj_ref,
                 live_object.version()
             );
-            return Err(HaneulError::UserInputError {
+            return Err(HaneulErrorKind::UserInputError {
                 error: UserInputError::ObjectVersionUnavailableForConsumption {
                     provided_obj_ref: *obj_ref,
                     current_version: live_object.version(),
                 },
-            });
+            }
+            .into());
         }
 
         let live_digest = live_object.digest();
         if obj_ref.2 != live_digest {
-            return Err(HaneulError::UserInputError {
+            return Err(HaneulErrorKind::UserInputError {
                 error: UserInputError::InvalidObjectDigest {
                     object_id: obj_ref.0,
                     expected_digest: live_digest,
                 },
-            });
+            }
+            .into());
         }
 
         Ok(())
@@ -179,12 +182,13 @@ impl ObjectLocks {
             if let Some(object) = object {
                 result.push(object);
             } else {
-                return Err(HaneulError::UserInputError {
+                return Err(HaneulErrorKind::UserInputError {
                     error: UserInputError::ObjectNotFound {
                         object_id: object_ids[i],
                         version: None,
                     },
-                });
+                }
+                .into());
             }
         }
         Ok(result)

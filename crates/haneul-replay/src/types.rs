@@ -14,7 +14,7 @@ use haneul_protocol_config::{Chain, ProtocolVersion};
 use haneul_sdk::error::Error as HaneulRpcError;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, VersionNumber};
 use haneul_types::digests::{ObjectDigest, TransactionDigest};
-use haneul_types::error::{HaneulError, HaneulObjectResponseError, HaneulResult, UserInputError};
+use haneul_types::error::{HaneulError, HaneulErrorKind, HaneulObjectResponseError, HaneulResult, UserInputError};
 use haneul_types::object::Object;
 use haneul_types::transaction::{InputObjectKind, SenderSignedData, TransactionKind};
 use thiserror::Error;
@@ -225,7 +225,13 @@ impl From<HaneulObjectResponseError> for ReplayEngineError {
 
 impl From<ReplayEngineError> for HaneulError {
     fn from(err: ReplayEngineError) -> Self {
-        HaneulError::Unknown(format!("{:#?}", err))
+        HaneulError::from(HaneulErrorKind::from(err))
+    }
+}
+
+impl From<ReplayEngineError> for HaneulErrorKind {
+    fn from(err: ReplayEngineError) -> Self {
+        HaneulErrorKind::Unknown(format!("{:#?}", err))
     }
 }
 
@@ -234,6 +240,13 @@ impl From<HaneulError> for ReplayEngineError {
         ReplayEngineError::HaneulError { err }
     }
 }
+
+impl From<HaneulErrorKind> for ReplayEngineError {
+    fn from(err: HaneulErrorKind) -> Self {
+        HaneulError::from(err).into()
+    }
+}
+
 impl From<HaneulRpcError> for ReplayEngineError {
     fn from(err: HaneulRpcError) -> Self {
         match err {

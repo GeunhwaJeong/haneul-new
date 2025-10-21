@@ -23,7 +23,7 @@ use haneul_types::{
     committee::Committee,
     crypto::{AuthoritySignInfoTrait, VerificationObligation},
     digests::CertificateDigest,
-    error::{HaneulError, HaneulResult},
+    error::{HaneulErrorKind, HaneulResult},
     message_envelope::Message,
     messages_checkpoint::SignedCheckpointSummary,
     signature::VerifyParams,
@@ -254,10 +254,11 @@ impl SignatureVerifier {
         // this is the only innocent error we are likely to encounter - filter it before we poison
         // a whole batch.
         if cert.auth_sig().epoch != self.committee.epoch() {
-            return Err(HaneulError::WrongEpoch {
+            return Err(HaneulErrorKind::WrongEpoch {
                 expected_epoch: self.committee.epoch(),
                 actual_epoch: cert.auth_sig().epoch,
-            });
+            }
+            .into());
         }
 
         self.verify_cert_inner(cert).await

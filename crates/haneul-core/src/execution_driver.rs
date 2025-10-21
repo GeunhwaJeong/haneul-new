@@ -7,7 +7,7 @@ use haneullabs_common::{fatal, random::get_rng};
 use haneullabs_metrics::{monitored_scope, spawn_monitored_task};
 use rand::Rng;
 use haneul_macros::fail_point_async;
-use haneul_types::error::HaneulError;
+use haneul_types::error::HaneulErrorKind;
 use tokio::sync::{mpsc::UnboundedReceiver, oneshot, Semaphore};
 use tracing::{error_span, info, trace, warn, Instrument};
 
@@ -121,8 +121,8 @@ pub async fn execution_process(
                 &certificate,
                 execution_env,
                 &epoch_store_clone,
-            ).await {
-                Err(HaneulError::ValidatorHaltedAtEpochEnd) => {
+            ).await.map_err(|e| e.into_inner()) {
+                Err(HaneulErrorKind::ValidatorHaltedAtEpochEnd) => {
                     warn!("Could not execute transaction {digest:?} because validator is halted at epoch end. certificate={certificate:?}");
                     return;
                 }

@@ -21,7 +21,7 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::effects::TransactionEvents;
-use haneul_types::error::HaneulError;
+use haneul_types::error::HaneulErrorKind;
 use haneul_types::governance::{
     VALIDATOR_LOW_POWER_PHASE_1, VALIDATOR_MIN_POWER_PHASE_1, VALIDATOR_VERY_LOW_POWER_PHASE_1,
 };
@@ -77,7 +77,7 @@ async fn test_transaction_expiration() {
     assert!(result
         .unwrap_err()
         .to_string()
-        .contains(&HaneulError::TransactionExpired.to_string()));
+        .contains(&HaneulErrorKind::TransactionExpired.to_string()));
 
     // Non expired transaction signed without issue
     *data.expiration_mut_for_testing() = TransactionExpiration::Epoch(10);

@@ -6,6 +6,7 @@ use move_bytecode_utils::module_cache::GetModule;
 use move_core_types::{language_storage::ModuleId, resolver::ModuleResolver};
 use std::collections::{BTreeMap, HashMap};
 use haneul_config::genesis;
+use haneul_types::error::HaneulErrorKind;
 use haneul_types::storage::{get_module, load_package_object_from_object_store, PackageObject};
 use haneul_types::{
     base_types::{AuthorityName, ObjectID, SequenceNumber, HaneulAddress},
@@ -239,18 +240,20 @@ impl ChildObjectResolver for InMemoryStore {
 
         let parent = *parent;
         if child_object.owner != Owner::ObjectOwner(parent.into()) {
-            return Err(HaneulError::InvalidChildObjectAccess {
+            return Err(HaneulErrorKind::InvalidChildObjectAccess {
                 object: *child,
                 given_parent: parent,
                 actual_owner: child_object.owner.clone(),
-            });
+            }
+            .into());
         }
 
         if child_object.version() > child_version_upper_bound {
-            return Err(HaneulError::UnsupportedFeatureError {
+            return Err(HaneulErrorKind::UnsupportedFeatureError {
                 error: "TODO InMemoryStorage::read_child_object does not yet support bounded reads"
                     .to_owned(),
-            });
+            }
+            .into());
         }
 
         Ok(Some(child_object))

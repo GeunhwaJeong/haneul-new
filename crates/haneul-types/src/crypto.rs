@@ -3,7 +3,7 @@
 use crate::base_types::{AuthorityName, ConciseableName, HaneulAddress};
 use crate::committee::CommitteeTrait;
 use crate::committee::{Committee, EpochId, StakeUnit};
-use crate::error::{HaneulError, HaneulResult};
+use crate::error::{HaneulError, HaneulErrorKind, HaneulResult};
 use crate::signature::GenericSignature;
 use crate::haneul_serde::{Readable, HaneulBitmap};
 use anyhow::{anyhow, Error};
@@ -112,7 +112,7 @@ pub fn verify_proof_of_possession(
 ) -> Result<(), HaneulError> {
     protocol_pubkey
         .validate()
-        .map_err(|_| HaneulError::InvalidSignature {
+        .map_err(|_| HaneulErrorKind::InvalidSignature {
             error: "Fail to validate pubkey".to_string(),
         })?;
     let mut msg = protocol_pubkey.as_bytes().to_vec();
@@ -574,20 +574,21 @@ impl HaneulAuthoritySignature for AuthoritySignature {
         epoch.write(&mut message);
 
         let public_key = AuthorityPublicKey::try_from(author).map_err(|_| {
-            HaneulError::KeyConversionError(
+            HaneulErrorKind::KeyConversionError(
                 "Failed to serialize public key bytes to valid public key".to_string(),
             )
         })?;
-        public_key
-            .verify(&message[..], self)
-            .map_err(|e| HaneulError::InvalidSignature {
+        public_key.verify(&message[..], self).map_err(|e| {
+            HaneulErrorKind::InvalidSignature {
                 error: format!(
                     "Fail to verify auth sig {} epoch: {} author: {}",
                     e,
                     epoch,
                     author.concise()
                 ),
-            })
+            }
+            .into()
+        })
     }
 }
 
@@ -650,18 +651,19 @@ where
     let priv_length = <KP as KeypairTraits>::PrivKey::LENGTH;
     let pub_key_length = <KP as KeypairTraits>::PubKey::LENGTH;
     if bytes.len() != priv_length + pub_key_length {
-        return Err(HaneulError::KeyConversionError(format!(
+        return Err(HaneulErrorKind::KeyConversionError(format!(
             "Invalid input byte length, expected {}: {}",
             priv_length,
             bytes.len()
-        )));
+        ))
+        .into());
     }
     let sk = <KP as KeypairTraits>::PrivKey::from_bytes(
         bytes
             .get(..priv_length)
-            .ok_or(HaneulError::InvalidPrivateKey)?,
+            .ok_or(HaneulErrorKind::InvalidPrivateKey)?,
     )
-    .map_err(|_| HaneulError::InvalidPrivateKey)?;
+    .map_err(|_| HaneulErrorKind::InvalidPrivateKey)?;
     let kp: KP = sk.into();
     Ok((kp.public().into(), kp))
 }
@@ -926,11 +928,11 @@ pub trait HaneulSignatureInner: Sized + ToFromBytes + PartialEq + Eq + Hash {
     /// Returns the deserialized signature and deserialized pubkey.
     fn get_verification_inputs(&self) -> HaneulResult<(Self::Sig, Self::PubKey)> {
         let pk = Self::PubKey::from_bytes(self.public_key_bytes())
-            .map_err(|_| HaneulError::KeyConversionError("Invalid public key".to_string()))?;
+            .map_err(|_| HaneulErrorKind::KeyConversionError("Invalid public key".to_string()))?;
 
         // deserialize the signature
         let signature = Self::Sig::from_bytes(self.signature_bytes()).map_err(|_| {
-            HaneulError::InvalidSignature {
+            HaneulErrorKind::InvalidSignature {
                 error: "Fail to get pubkey and sig".to_string(),
             }
         })?;
@@ -1007,20 +1009,23 @@ impl<S: HaneulSignatureInner + Sized> HaneulSignature for S {
             _ => {
                 let address = HaneulAddress::from(pk);
                 if author != address {
-                    return Err(HaneulError::IncorrectSigner {
+                    return Err(HaneulErrorKind::IncorrectSigner {
                         error: format!(
                             "Incorrect signer, expected {:?}, got {:?}",
                             author, address
                         ),
-                    });
+                    }
+                    .into());
                 }
             }
         }
 
-        pk.verify(&digest, sig)
-            .map_err(|e| HaneulError::InvalidSignature {
+        pk.verify(&digest, sig).map_err(|e| {
+            HaneulErrorKind::InvalidSignature {
                 error: format!("Fail to verify user sig {}", e),
-            })
+            }
+            .into()
+        })
     }
 }
 
@@ -1096,32 +1101,34 @@ impl AuthoritySignInfoTrait for AuthoritySignInfo {
     ) -> HaneulResult<()> {
         fp_ensure!(
             self.epoch == committee.epoch(),
-            HaneulError::WrongEpoch {
+            HaneulErrorKind::WrongEpoch {
                 expected_epoch: committee.epoch(),
                 actual_epoch: self.epoch,
             }
+            .into()
         );
         let weight = committee.weight(&self.authority);
         fp_ensure!(
             weight > 0,
-            HaneulError::UnknownSigner {
+            HaneulErrorKind::UnknownSigner {
                 signer: Some(self.authority.concise().to_string()),
                 index: None,
                 committee: Box::new(committee.clone())
             }
+            .into()
         );
 
         obligation
             .public_keys
             .get_mut(message_index)
-            .ok_or(HaneulError::InvalidAddress)?
+            .ok_or(HaneulErrorKind::InvalidAddress)?
             .push(committee.public_key(&self.authority)?);
         obligation
             .signatures
             .get_mut(message_index)
-            .ok_or(HaneulError::InvalidAddress)?
+            .ok_or(HaneulErrorKind::InvalidAddress)?
             .add_signature(self.signature.clone())
-            .map_err(|_| HaneulError::InvalidSignature {
+            .map_err(|_| HaneulErrorKind::InvalidSignature {
                 error: "Fail to aggregator auth sig".to_string(),
             })?;
         Ok(())
@@ -1266,10 +1273,11 @@ impl<const STRONG_THRESHOLD: bool> AuthoritySignInfoTrait
         // Check epoch
         fp_ensure!(
             self.epoch == committee.epoch(),
-            HaneulError::WrongEpoch {
+            HaneulErrorKind::WrongEpoch {
                 expected_epoch: committee.epoch(),
                 actual_epoch: self.epoch,
             }
+            .into()
         );
 
         let mut weight = 0;
@@ -1278,16 +1286,16 @@ impl<const STRONG_THRESHOLD: bool> AuthoritySignInfoTrait
         obligation
             .signatures
             .get_mut(message_index)
-            .ok_or(HaneulError::InvalidAuthenticator)?
+            .ok_or(HaneulErrorKind::InvalidAuthenticator)?
             .add_aggregate(self.signature.clone())
-            .map_err(|_| HaneulError::InvalidSignature {
+            .map_err(|_| HaneulErrorKind::InvalidSignature {
                 error: "Signature Aggregation failed".to_string(),
             })?;
 
         let selected_public_keys = obligation
             .public_keys
             .get_mut(message_index)
-            .ok_or(HaneulError::InvalidAuthenticator)?;
+            .ok_or(HaneulErrorKind::InvalidAuthenticator)?;
 
         let mut seen = std::collections::BTreeSet::new();
         for authority_index in self.signers_map.iter() {
@@ -1298,7 +1306,7 @@ impl<const STRONG_THRESHOLD: bool> AuthoritySignInfoTrait
             // Update weight when seeing the authority for the first time.
             let authority = committee
                 .authority_by_index(authority_index)
-                .ok_or_else(|| HaneulError::UnknownSigner {
+                .ok_or_else(|| HaneulErrorKind::UnknownSigner {
                     signer: None,
                     index: Some(authority_index),
                     committee: Box::new(committee.clone()),
@@ -1306,11 +1314,12 @@ impl<const STRONG_THRESHOLD: bool> AuthoritySignInfoTrait
             let voting_rights = committee.weight(authority);
             fp_ensure!(
                 voting_rights > 0,
-                HaneulError::UnknownSigner {
+                HaneulErrorKind::UnknownSigner {
                     signer: Some(authority.concise().to_string()),
                     index: Some(authority_index),
                     committee: Box::new(committee.clone()),
                 }
+                .into()
             );
             weight += voting_rights;
 
@@ -1319,7 +1328,7 @@ impl<const STRONG_THRESHOLD: bool> AuthoritySignInfoTrait
 
         fp_ensure!(
             weight >= Self::quorum_threshold(committee),
-            HaneulError::CertificateRequiresQuorum
+            HaneulErrorKind::CertificateRequiresQuorum.into()
         );
 
         Ok(())
@@ -1333,9 +1342,10 @@ impl<const STRONG_THRESHOLD: bool> AuthorityQuorumSignInfo<STRONG_THRESHOLD> {
     ) -> HaneulResult<Self> {
         fp_ensure!(
             auth_sign_infos.iter().all(|a| a.epoch == committee.epoch),
-            HaneulError::InvalidSignature {
+            HaneulErrorKind::InvalidSignature {
                 error: "All signatures must be from the same epoch as the committee".to_string()
             }
+            .into()
         );
         let total_stake: StakeUnit = auth_sign_infos
             .iter()
@@ -1343,9 +1353,10 @@ impl<const STRONG_THRESHOLD: bool> AuthorityQuorumSignInfo<STRONG_THRESHOLD> {
             .sum();
         fp_ensure!(
             total_stake >= Self::quorum_threshold(committee),
-            HaneulError::InvalidSignature {
+            HaneulErrorKind::InvalidSignature {
                 error: "Signatures don't have enough stake to form a quorum".to_string()
             }
+            .into()
         );
 
         let signatures: BTreeMap<_, _> = auth_sign_infos
@@ -1354,22 +1365,20 @@ impl<const STRONG_THRESHOLD: bool> AuthorityQuorumSignInfo<STRONG_THRESHOLD> {
             .collect();
         let mut map = RoaringBitmap::new();
         for pk in signatures.keys() {
-            map.insert(
-                committee
-                    .authority_index(pk)
-                    .ok_or_else(|| HaneulError::UnknownSigner {
-                        signer: Some(pk.concise().to_string()),
-                        index: None,
-                        committee: Box::new(committee.clone()),
-                    })?,
-            );
+            map.insert(committee.authority_index(pk).ok_or_else(|| {
+                HaneulErrorKind::UnknownSigner {
+                    signer: Some(pk.concise().to_string()),
+                    index: None,
+                    committee: Box::new(committee.clone()),
+                }
+            })?);
         }
         let sigs: Vec<AuthoritySignature> = signatures.into_values().collect();
 
         Ok(AuthorityQuorumSignInfo {
             epoch: committee.epoch,
             signature: AggregateAuthoritySignature::aggregate(&sigs).map_err(|e| {
-                HaneulError::InvalidSignature {
+                HaneulErrorKind::InvalidSignature {
                     error: e.to_string(),
                 }
             })?,
@@ -1384,7 +1393,7 @@ impl<const STRONG_THRESHOLD: bool> AuthorityQuorumSignInfo<STRONG_THRESHOLD> {
         self.signers_map.iter().map(|i| {
             committee
                 .authority_by_index(i)
-                .ok_or(HaneulError::InvalidAuthenticator)
+                .ok_or(HaneulErrorKind::InvalidAuthenticator.into())
         })
     }
 
@@ -1553,13 +1562,13 @@ impl<'a> VerificationObligation<'a> {
     ) -> HaneulResult<()> {
         self.public_keys
             .get_mut(idx)
-            .ok_or(HaneulError::InvalidAuthenticator)?
+            .ok_or(HaneulErrorKind::InvalidAuthenticator)?
             .push(public_key);
         self.signatures
             .get_mut(idx)
-            .ok_or(HaneulError::InvalidAuthenticator)?
+            .ok_or(HaneulErrorKind::InvalidAuthenticator)?
             .add_signature(signature.clone())
-            .map_err(|_| HaneulError::InvalidSignature {
+            .map_err(|_| HaneulErrorKind::InvalidSignature {
                 error: "Failed to add signature to obligation".to_string(),
             })?;
         Ok(())
@@ -1608,7 +1617,7 @@ impl<'a> VerificationObligation<'a> {
                 );
             }
 
-            HaneulError::InvalidSignature {
+            HaneulErrorKind::InvalidSignature {
                 error: format!("Failed to batch verify aggregated auth sig: {}", e),
             }
         })?;
@@ -1686,7 +1695,7 @@ impl SignatureScheme {
     pub fn from_flag(flag: &str) -> Result<SignatureScheme, HaneulError> {
         let byte_int = flag
             .parse::<u8>()
-            .map_err(|_| HaneulError::KeyConversionError("Invalid key scheme".to_string()))?;
+            .map_err(|_| HaneulErrorKind::KeyConversionError("Invalid key scheme".to_string()))?;
         Self::from_flag_byte(&byte_int)
     }
 
@@ -1699,9 +1708,7 @@ impl SignatureScheme {
             0x04 => Ok(SignatureScheme::BLS12381),
             0x05 => Ok(SignatureScheme::ZkLoginAuthenticator),
             0x06 => Ok(SignatureScheme::PasskeyAuthenticator),
-            _ => Err(HaneulError::KeyConversionError(
-                "Invalid key scheme".to_string(),
-            )),
+            _ => Err(HaneulErrorKind::KeyConversionError("Invalid key scheme".to_string()).into()),
         }
     }
 }

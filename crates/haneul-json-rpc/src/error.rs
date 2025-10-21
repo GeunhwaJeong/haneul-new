@@ -12,7 +12,9 @@ use std::collections::BTreeMap;
 use haneul_json_rpc_api::{TRANSACTION_EXECUTION_CLIENT_ERROR_CODE, TRANSIENT_ERROR_CODE};
 use haneul_name_service::NameServiceError;
 use haneul_types::committee::{QUORUM_THRESHOLD, TOTAL_VOTING_POWER};
-use haneul_types::error::{ErrorCategory, HaneulError, HaneulObjectResponseError, UserInputError};
+use haneul_types::error::{
+    ErrorCategory, HaneulError, HaneulErrorKind, HaneulObjectResponseError, UserInputError,
+};
 use haneul_types::quorum_driver_types::QuorumDriverError;
 use thiserror::Error;
 use tokio::task::JoinError;
@@ -76,17 +78,23 @@ pub enum Error {
     NameServiceError(#[from] NameServiceError),
 }
 
-impl From<HaneulError> for Error {
-    fn from(e: HaneulError) -> Self {
+impl From<HaneulErrorKind> for Error {
+    fn from(e: HaneulErrorKind) -> Self {
         match e {
-            HaneulError::UserInputError { error } => Self::UserInputError(error),
-            HaneulError::HaneulObjectResponseError { error } => Self::HaneulObjectResponseError(error),
-            HaneulError::UnsupportedFeatureError { error } => Self::UnsupportedFeature(error),
-            HaneulError::IndexStoreNotAvailable => Self::UnsupportedFeature(
+            HaneulErrorKind::UserInputError { error } => Self::UserInputError(error),
+            HaneulErrorKind::HaneulObjectResponseError { error } => Self::HaneulObjectResponseError(error),
+            HaneulErrorKind::UnsupportedFeatureError { error } => Self::UnsupportedFeature(error),
+            HaneulErrorKind::IndexStoreNotAvailable => Self::UnsupportedFeature(
                 "Required indexes are not available on this node".to_string(),
             ),
-            other => Self::HaneulError(other),
+            other => Self::HaneulError(HaneulError(Box::new(other))),
         }
+    }
+}
+
+impl From<HaneulError> for Error {
+    fn from(e: HaneulError) -> Self {
+        e.into_inner().into()
     }
 }
 
@@ -129,10 +137,10 @@ impl From<Error> for ErrorObjectOwned {
                 _ => failed(err),
             },
             Error::HaneulRpcInputError(err) => invalid_params(err),
-            Error::HaneulError(haneul_error) => match haneul_error {
-                HaneulError::TransactionNotFound { .. }
-                | HaneulError::TransactionsNotFound { .. }
-                | HaneulError::TransactionEventsNotFound { .. } => invalid_params(haneul_error),
+            Error::HaneulError(haneul_error) => match haneul_error.as_inner() {
+                HaneulErrorKind::TransactionNotFound { .. }
+                | HaneulErrorKind::TransactionsNotFound { .. }
+                | HaneulErrorKind::TransactionEventsNotFound { .. } => invalid_params(haneul_error),
                 _ => failed(haneul_error),
             },
             Error::StateReadError(err) => match err {
@@ -219,7 +227,7 @@ impl From<Error> for ErrorObjectOwned {
                             // sort by total stake, descending, so users see the most prominent one first
                             .sorted_by(|(_, a, _), (_, b, _)| b.cmp(a))
                             .filter_map(|(err, _, _)| {
-                                match &err {
+                                match err.as_inner() {
                                     // Special handling of UserInputError:
                                     // ObjectNotFound and DependentPackageNotFound are considered
                                     // retryable errors but they have different treatment
@@ -230,7 +238,7 @@ impl From<Error> for ErrorObjectOwned {
                                     // So, we take an easier route and consider them non-retryable
                                     // at all. Combining this with the sorting above, clients will
                                     // see the dominant error first.
-                                    HaneulError::UserInputError { error } => Some(error.to_string()),
+                                    HaneulErrorKind::UserInputError { error } => Some(error.to_string()),
                                     _ => {
                                         if err.is_retryable().0 {
                                             None
@@ -377,14 +385,18 @@ mod tests {
     }
 
     mod match_quorum_driver_error_tests {
+        use haneul_types::error::HaneulErrorKind;
+
         use super::*;
 
         #[test]
         fn test_invalid_user_signature() {
-            let quorum_driver_error =
-                QuorumDriverError::InvalidUserSignature(HaneulError::InvalidSignature {
+            let quorum_driver_error = QuorumDriverError::InvalidUserSignature(
+                HaneulErrorKind::InvalidSignature {
                     error: "Test inner invalid signature".to_string(),
-                });
+                }
+                .into(),
+            );
 
             let error_object: ErrorObjectOwned =
                 Error::QuorumDriverError(quorum_driver_error).into();
@@ -534,22 +546,24 @@ mod tests {
             let quorum_driver_error = QuorumDriverError::NonRecoverableTransactionError {
                 errors: vec![
                     (
-                        HaneulError::UserInputError {
+                        HaneulErrorKind::UserInputError {
                             error: UserInputError::GasBalanceTooLow {
                                 gas_balance: 10,
                                 needed_gas_amount: 100,
                             },
-                        },
+                        }
+                        .into(),
                         0,
                         vec![],
                     ),
                     (
-                        HaneulError::UserInputError {
+                        HaneulErrorKind::UserInputError {
                             error: UserInputError::ObjectVersionUnavailableForConsumption {
                                 provided_obj_ref: test_object_ref(0),
                                 current_version: 10.into(),
                             },
-                        },
+                        }
+                        .into(),
                         0,
                         vec![],
                     ),
@@ -570,17 +584,18 @@ mod tests {
             let quorum_driver_error = QuorumDriverError::NonRecoverableTransactionError {
                 errors: vec![
                     (
-                        HaneulError::UserInputError {
+                        HaneulErrorKind::UserInputError {
                             error: UserInputError::ObjectNotFound {
                                 object_id: test_object_ref(0).0,
                                 version: None,
                             },
-                        },
+                        }
+                        .into(),
                         0,
                         vec![],
                     ),
                     (
-                        HaneulError::RpcError("Hello".to_string(), "Testing".to_string()),
+                        HaneulErrorKind::RpcError("Hello".to_string(), "Testing".to_string()).into(),
                         0,
                         vec![],
                     ),
@@ -599,7 +614,7 @@ mod tests {
         #[test]
         fn test_quorum_driver_internal_error() {
             let quorum_driver_error = QuorumDriverError::QuorumDriverInternalError(
-                HaneulError::UnexpectedMessage("test".to_string()),
+                HaneulErrorKind::UnexpectedMessage("test".to_string()).into(),
             );
 
             let error_object: ErrorObjectOwned =
@@ -614,7 +629,11 @@ mod tests {
         fn test_system_overload() {
             let quorum_driver_error = QuorumDriverError::SystemOverload {
                 overloaded_stake: 10,
-                errors: vec![(HaneulError::UnexpectedMessage("test".to_string()), 0, vec![])],
+                errors: vec![(
+                    HaneulErrorKind::UnexpectedMessage("test".to_string()).into(),
+                    0,
+                    vec![],
+                )],
             };
 
             let error_object: ErrorObjectOwned =
