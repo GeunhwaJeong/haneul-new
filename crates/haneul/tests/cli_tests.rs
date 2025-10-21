@@ -17,7 +17,7 @@ use move_package::{lock_file::schema::ManagedPackage, BuildConfig as MoveBuildCo
 use serde_json::json;
 use haneul::client_commands::{GasDataArgs, PaymentArgs, TxProcessingArgs};
 use haneul::client_ptb::ptb::PTB;
-use haneul::haneul_commands::IndexerArgs;
+use haneul::haneul_commands::RpcArgs;
 use haneul_keys::key_identity::KeyIdentity;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_sdk::HaneulClient;
@@ -344,7 +344,7 @@ async fn test_genesis() -> Result<(), anyhow::Error> {
         epoch_duration_ms: None,
         no_full_node: false,
         committee_size: None,
-        indexer_feature_args: IndexerArgs::for_testing(),
+        rpc_args: RpcArgs::for_testing(),
     }
     .execute()
     .await;
