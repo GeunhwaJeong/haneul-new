@@ -16,11 +16,8 @@ lru.workspace = true
 move-core-types.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-haneul-json-rpc-api.workspace = true
-haneul-json-rpc-types.workspace = true
 haneul-package-resolver.workspace = true
 haneul-rpc-api.workspace = true
-haneul-sdk.workspace = true
 haneul-types.workspace = true
 thiserror.workspace = true
 
