@@ -576,9 +576,9 @@ fn default_aliases(context: &mut Context) -> AliasMapBuilder {
         );
     }
     // if haneul is defined and the current package is in Haneul mode, add implicit haneul aliases
-    if haneul_address.is_some() && context.env().package_config(current_package).flavor == Flavor::Haneul
+    if let Some(haneul_address) = haneul_address
+        && context.env().package_config(current_package).flavor == Flavor::Haneul
     {
-        let haneul_address = haneul_address.unwrap();
         modules.extend(
             IMPLICIT_HANEUL_MODULES
                 .iter()
@@ -732,10 +732,10 @@ pub fn program(
     // Merge the library modules into the source modules, checking for duplicates
 
     for (mident, module) in lib_module_map {
-        if let Err((mident, old_loc)) = source_module_map.add(mident, module) {
-            if !context.env().sources_shadow_deps() {
-                duplicate_module_error(context, &source_module_map, mident, old_loc)
-            }
+        if let Err((mident, old_loc)) = source_module_map.add(mident, module)
+            && !context.env().sources_shadow_deps()
+        {
+            duplicate_module_error(context, &source_module_map, mident, old_loc)
         }
     }
     let module_map = source_module_map;
@@ -2685,10 +2685,10 @@ fn sequence(context: &mut Context, loc: Loc, seq: P::Sequence) -> E::Sequence {
             return None;
         }
         let seq_item = items.pop_front().unwrap();
-        if let E::SequenceItem_::Seq(exp) = &seq_item.value {
-            if exp.value == E::Exp_::UnresolvedError {
-                return Some(exp.clone());
-            }
+        if let E::SequenceItem_::Seq(exp) = &seq_item.value
+            && exp.value == E::Exp_::UnresolvedError
+        {
+            return Some(exp.clone());
         }
         items.push_front(seq_item);
         None

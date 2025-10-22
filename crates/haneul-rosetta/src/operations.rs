@@ -576,9 +576,7 @@ impl Operations {
                 commands,
             } = &pt;
             return commands.iter().any(|command| match command {
-                HaneulCommand::TransferObjects(objs, _) => {
-                    objs.iter().any(|&obj| obj == HaneulArgument::GasCoin)
-                }
+                HaneulCommand::TransferObjects(objs, _) => objs.contains(&HaneulArgument::GasCoin),
                 _ => false,
             });
         }

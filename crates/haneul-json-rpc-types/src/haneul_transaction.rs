@@ -1401,7 +1401,7 @@ impl Display for HaneulExecutionStatus {
 
 impl HaneulExecutionStatus {
     pub fn is_ok(&self) -> bool {
-        matches!(self, HaneulExecutionStatus::Success { .. })
+        matches!(self, HaneulExecutionStatus::Success)
     }
     pub fn is_err(&self) -> bool {
         matches!(self, HaneulExecutionStatus::Failure { .. })

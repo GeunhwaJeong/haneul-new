@@ -1005,7 +1005,7 @@ impl HaneulErrorKind {
             | HaneulErrorKind::GrpcMessageSerializeError { .. }
             | HaneulErrorKind::GrpcMessageDeserializeError { .. }
             | HaneulErrorKind::ByzantineAuthoritySuspicion { .. }
-            | HaneulErrorKind::InvalidTxKindInSoftBundle { .. }
+            | HaneulErrorKind::InvalidTxKindInSoftBundle
             | HaneulErrorKind::UnsupportedFeatureError { .. }
             | HaneulErrorKind::InvalidRequest { .. } => ErrorCategory::Internal,
 
@@ -1017,7 +1017,7 @@ impl HaneulErrorKind {
                 ErrorCategory::ValidatorOverloaded
             }
 
-            HaneulErrorKind::TimeoutError { .. } => ErrorCategory::Unavailable,
+            HaneulErrorKind::TimeoutError => ErrorCategory::Unavailable,
 
             // Other variants are assumed to be retriable with new transaction submissions.
             _ => ErrorCategory::Aborted,

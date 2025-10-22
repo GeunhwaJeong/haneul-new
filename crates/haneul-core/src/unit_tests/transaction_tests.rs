@@ -1945,7 +1945,7 @@ async fn test_handle_soft_bundle_certificates_errors() {
         assert!(response.is_err());
         assert_matches!(
             response.unwrap_err().into_inner(),
-            HaneulErrorKind::NoCertificateProvidedError { .. }
+            HaneulErrorKind::NoCertificateProvidedError
         );
     }
 
@@ -2208,7 +2208,7 @@ async fn test_handle_soft_bundle_certificates_errors() {
         assert_matches!(
             response.unwrap_err().into_inner(),
             HaneulErrorKind::UserInputError {
-                error: UserInputError::CertificateAlreadyProcessed { .. },
+                error: UserInputError::CertificateAlreadyProcessed,
             }
         );
     }

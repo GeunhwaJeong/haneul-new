@@ -1065,6 +1065,7 @@ impl HaneulRawMovePackage {
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema, Clone, PartialEq, Eq)]
 #[serde(tag = "status", content = "details", rename = "ObjectRead")]
+#[allow(clippy::large_enum_variant)]
 pub enum HaneulPastObjectResponse {
     /// The object exists and is found with this version
     VersionFound(HaneulObjectData),
