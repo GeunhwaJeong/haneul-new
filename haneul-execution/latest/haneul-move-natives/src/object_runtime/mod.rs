@@ -29,8 +29,12 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     sync::Arc,
 };
-use haneul_protocol_config::{check_limit_by_meter, LimitThresholdCrossed, ProtocolConfig};
+use haneul_protocol_config::{LimitThresholdCrossed, ProtocolConfig, check_limit_by_meter};
 use haneul_types::{
+    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_BRIDGE_OBJECT_ID,
+    HANEUL_CLOCK_OBJECT_ID, HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_DENY_LIST_OBJECT_ID,
+    HANEUL_DISPLAY_REGISTRY_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
+    TypeTag,
     base_types::{MoveObjectType, ObjectID, SequenceNumber, HaneulAddress},
     committee::EpochId,
     error::{ExecutionError, ExecutionErrorKind, VMMemoryLimitExceededSubStatusCode},
@@ -39,10 +43,6 @@ use haneul_types::{
     metrics::LimitsMetrics,
     object::{MoveObject, Owner},
     storage::ChildObjectResolver,
-    TypeTag, HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_AUTHENTICATOR_STATE_OBJECT_ID,
-    HANEUL_BRIDGE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_COIN_REGISTRY_OBJECT_ID,
-    HANEUL_DENY_LIST_OBJECT_ID, HANEUL_DISPLAY_REGISTRY_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID,
-    HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
 use tracing::error;
 
@@ -543,11 +543,12 @@ impl<'a> ObjectRuntime<'a> {
     pub fn loaded_runtime_objects(&self) -> BTreeMap<ObjectID, DynamicallyLoadedObjectMetadata> {
         // The loaded child objects, and the received objects, should be disjoint. If they are not,
         // this is an error since it could lead to incorrect transaction dependency computations.
-        debug_assert!(self
-            .child_object_store
-            .cached_objects()
-            .keys()
-            .all(|id| !self.state.received.contains_key(id)));
+        debug_assert!(
+            self.child_object_store
+                .cached_objects()
+                .keys()
+                .all(|id| !self.state.received.contains_key(id))
+        );
         self.child_object_store
             .cached_objects()
             .iter()
@@ -684,7 +685,7 @@ impl ObjectRuntimeState {
                 None => {
                     return Err(ExecutionError::invariant_violation(format!(
                         "Failed to find received UID {received_object} in loaded child objects."
-                    )))
+                    )));
                 }
             }
         }
@@ -858,9 +859,11 @@ impl ObjectRuntimeState {
                             && !self.received.contains_key(&child))
                 );
                 // In any case, if it was not changed, it should not be marked as modified
-                debug_assert!(loaded_child_objects
-                    .get(&child)
-                    .is_none_or(|loaded_child| !loaded_child.is_modified));
+                debug_assert!(
+                    loaded_child_objects
+                        .get(&child)
+                        .is_none_or(|loaded_child| !loaded_child.is_modified)
+                );
             }
         }
     }

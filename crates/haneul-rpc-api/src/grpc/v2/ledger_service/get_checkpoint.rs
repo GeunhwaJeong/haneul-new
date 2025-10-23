@@ -1,16 +1,15 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::error::CheckpointNotFoundError;
 use crate::ErrorReason;
 use crate::RpcError;
 use crate::RpcService;
+use crate::error::CheckpointNotFoundError;
 use prost_types::FieldMask;
 use haneul_rpc::field::FieldMaskTree;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::merge::Merge;
 use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
-use haneul_rpc::proto::haneul::rpc::v2::get_checkpoint_request::CheckpointId;
 use haneul_rpc::proto::haneul::rpc::v2::Checkpoint;
 use haneul_rpc::proto::haneul::rpc::v2::Event;
 use haneul_rpc::proto::haneul::rpc::v2::ExecutedTransaction;
@@ -18,6 +17,7 @@ use haneul_rpc::proto::haneul::rpc::v2::GetCheckpointRequest;
 use haneul_rpc::proto::haneul::rpc::v2::GetCheckpointResponse;
 use haneul_rpc::proto::haneul::rpc::v2::ObjectSet;
 use haneul_rpc::proto::haneul::rpc::v2::TransactionEvents;
+use haneul_rpc::proto::haneul::rpc::v2::get_checkpoint_request::CheckpointId;
 use haneul_sdk_types::Digest;
 
 pub const READ_MASK_DEFAULT: &str = "sequence_number,digest";
@@ -137,26 +137,19 @@ pub fn get_checkpoint(
 
                         if let Some(events_mask) =
                             submask.subtree(ExecutedTransaction::EVENTS_FIELD.name)
-                        {
-                            if let Some(event_mask) =
+                            && let Some(event_mask) =
                                 events_mask.subtree(TransactionEvents::EVENTS_FIELD.name)
-                            {
-                                if event_mask.contains(Event::JSON_FIELD.name) {
-                                    if let Some(events) = transaction.events.as_mut() {
-                                        if let Some(sdk_events) = &t.events {
-                                            for (message, event) in
-                                                events.events.iter_mut().zip(&sdk_events.data)
-                                            {
-                                                message.json = crate::grpc::v2::render_json(
-                                                    service,
-                                                    &event.type_,
-                                                    &event.contents,
-                                                )
-                                                .map(Box::new);
-                                            }
-                                        }
-                                    }
-                                }
+                            && event_mask.contains(Event::JSON_FIELD.name)
+                            && let Some(events) = transaction.events.as_mut()
+                            && let Some(sdk_events) = &t.events
+                        {
+                            for (message, event) in events.events.iter_mut().zip(&sdk_events.data) {
+                                message.json = crate::grpc::v2::render_json(
+                                    service,
+                                    &event.type_,
+                                    &event.contents,
+                                )
+                                .map(Box::new);
                             }
                         }
 

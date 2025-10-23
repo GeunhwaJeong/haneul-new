@@ -9,7 +9,7 @@ use haneul_rpc::proto::haneul::rpc::v2::{GetBalanceRequest, ListBalancesRequest}
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{Argument, CallArg, Command, ObjectArg, TransactionData};
-use haneul_types::{base_types::HaneulAddress, Identifier};
+use haneul_types::{Identifier, base_types::HaneulAddress};
 use test_cluster::TestClusterBuilder;
 const HANEUL_COIN_TYPE: &str =
     "0x0000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL";

@@ -17,9 +17,10 @@ use haneul_json_rpc_types::{
     HaneulObjectDataOptions, HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI,
     HaneulTransactionBlockResponseOptions,
 };
+use haneul_sdk::HaneulClient;
 use haneul_sdk::apis::ReadApi;
 use haneul_sdk::rpc_types::HaneulObjectResponse;
-use haneul_sdk::HaneulClient;
+use haneul_types::Identifier;
 use haneul_types::error::UserInputError;
 use haneul_types::object::{Object, Owner};
 use haneul_types::parse_haneul_type_tag;
@@ -27,7 +28,6 @@ use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuild
 use haneul_types::quorum_driver_types::NON_RECOVERABLE_ERROR_MSG;
 use haneul_types::transaction::{Argument, Transaction};
 use haneul_types::transaction::{Command, ObjectArg, SharedObjectMutability};
-use haneul_types::Identifier;
 use haneul_types::{
     base_types::HaneulAddress,
     transaction::{CallArg, TransactionData},
@@ -35,7 +35,7 @@ use haneul_types::{
 use tap::tap::TapFallible;
 
 use haneul_sdk::wallet_context::WalletContext;
-use haneul_types::base_types::{random_object_ref, ObjectID, ObjectRef};
+use haneul_types::base_types::{ObjectID, ObjectRef, random_object_ref};
 use tracing::{debug, error, info, warn};
 pub mod config;
 mod metrics;
@@ -358,18 +358,20 @@ impl OnChainDataUploader {
         loop {
             read_interval.tick().await;
             let data_points = self.collect().await;
-            if !data_points.is_empty() {
-                if let Err(err) = self.upload(data_points).await {
-                    error!("Upload failure: {err}. About to resting for {UPLOAD_FAILURE_RECOVER_SEC} sec.");
-                    tokio::time::sleep(Duration::from_secs(UPLOAD_FAILURE_RECOVER_SEC)).await;
-                    self.gas_obj_ref = get_gas_obj_ref(
-                        self.client.read_api(),
-                        self.gas_obj_ref.0,
-                        self.signer_address,
-                    )
-                    .await;
-                    error!("Updated gas object reference: {:?}", self.gas_obj_ref);
-                }
+            if !data_points.is_empty()
+                && let Err(err) = self.upload(data_points).await
+            {
+                error!(
+                    "Upload failure: {err}. About to resting for {UPLOAD_FAILURE_RECOVER_SEC} sec."
+                );
+                tokio::time::sleep(Duration::from_secs(UPLOAD_FAILURE_RECOVER_SEC)).await;
+                self.gas_obj_ref = get_gas_obj_ref(
+                    self.client.read_api(),
+                    self.gas_obj_ref.0,
+                    self.signer_address,
+                )
+                .await;
+                error!("Updated gas object reference: {:?}", self.gas_obj_ref);
             }
         }
     }

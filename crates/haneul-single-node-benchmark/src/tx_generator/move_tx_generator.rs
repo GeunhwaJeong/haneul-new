@@ -9,7 +9,7 @@ use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{FullObjectRef, ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{
-    CallArg, ObjectArg, SharedObjectMutability, Transaction, DEFAULT_VALIDATOR_GAS_PRICE,
+    CallArg, DEFAULT_VALIDATOR_GAS_PRICE, ObjectArg, SharedObjectMutability, Transaction,
 };
 
 pub struct MoveTxGenerator {

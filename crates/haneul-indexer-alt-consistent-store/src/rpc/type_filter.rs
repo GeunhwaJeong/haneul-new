@@ -3,7 +3,7 @@
 
 use std::str::FromStr;
 
-use bincode::{enc::Encoder, error::EncodeError, serde::BorrowCompat, Encode};
+use bincode::{Encode, enc::Encoder, error::EncodeError, serde::BorrowCompat};
 use move_core_types::language_storage::StructTag;
 use haneul_indexer_alt_framework::types::{
     base_types::HaneulAddress, parse_haneul_address, parse_haneul_module_id, parse_haneul_struct_tag,

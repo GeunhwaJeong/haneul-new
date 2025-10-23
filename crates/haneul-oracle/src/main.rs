@@ -6,7 +6,7 @@ use haneullabs_metrics::start_prometheus_server;
 use std::path::PathBuf;
 use std::time::Duration;
 use haneul_config::Config;
-use haneul_oracle::{config::OracleNodeConfig, OracleNode};
+use haneul_oracle::{OracleNode, config::OracleNodeConfig};
 use haneul_sdk::wallet_context::WalletContext;
 
 #[derive(Parser)]

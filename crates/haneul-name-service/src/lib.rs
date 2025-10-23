@@ -9,12 +9,12 @@ use move_core_types::ident_str;
 use move_core_types::identifier::IdentStr;
 use move_core_types::language_storage::StructTag;
 use serde::{Deserialize, Serialize};
+use haneul_types::TypeTag;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::collection_types::VecMap;
 use haneul_types::dynamic_field::Field;
 use haneul_types::id::{ID, UID};
 use haneul_types::object::{MoveObject, Object};
-use haneul_types::TypeTag;
 
 const NAME_SERVICE_DOMAIN_MODULE: &IdentStr = ident_str!("domain");
 const NAME_SERVICE_DOMAIN_STRUCT: &IdentStr = ident_str!("Domain");

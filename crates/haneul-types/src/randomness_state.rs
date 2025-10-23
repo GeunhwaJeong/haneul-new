@@ -1,15 +1,15 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_binary_format::{file_format::SignatureToken, CompiledModule};
+use move_binary_format::{CompiledModule, file_format::SignatureToken};
 use move_bytecode_utils::resolve_struct;
 use move_core_types::{account_address::AccountAddress, ident_str, identifier::IdentStr};
 
 use crate::base_types::SequenceNumber;
 
 use crate::{
-    error::HaneulResult, object::Owner, storage::ObjectStore, HANEUL_FRAMEWORK_ADDRESS,
-    HANEUL_RANDOMNESS_STATE_OBJECT_ID,
+    HANEUL_FRAMEWORK_ADDRESS, HANEUL_RANDOMNESS_STATE_OBJECT_ID, error::HaneulResult, object::Owner,
+    storage::ObjectStore,
 };
 
 pub const RANDOMNESS_MODULE_NAME: &IdentStr = ident_str!("random");

@@ -3,7 +3,7 @@
 
 use std::sync::Arc;
 
-use crate::{error::Error, HaneulClient};
+use crate::{HaneulClient, error::Error};
 use fastcrypto::encoding::{Base64, Encoding};
 use fastcrypto::traits::ToFromBytes;
 use shared_crypto::intent::{Intent, IntentMessage, PersonalMessage};

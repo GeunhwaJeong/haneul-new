@@ -5,8 +5,8 @@ use anyhow::Result;
 use clap::Parser;
 use tracing::info;
 
-use haneul_indexer_alt_restorer::restore;
 use haneul_indexer_alt_restorer::Args;
+use haneul_indexer_alt_restorer::restore;
 
 #[tokio::main]
 async fn main() -> Result<()> {

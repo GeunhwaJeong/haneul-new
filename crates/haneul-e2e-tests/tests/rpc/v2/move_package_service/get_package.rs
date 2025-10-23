@@ -3,7 +3,7 @@
 
 use haneul_macros::sim_test;
 use haneul_rpc::proto::haneul::rpc::v2::{
-    move_package_service_client::MovePackageServiceClient, GetPackageRequest,
+    GetPackageRequest, move_package_service_client::MovePackageServiceClient,
 };
 use test_cluster::TestClusterBuilder;
 

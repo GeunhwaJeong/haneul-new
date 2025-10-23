@@ -6,8 +6,8 @@ use tonic::metadata::MetadataMap;
 
 use prost_types::FieldMask;
 use haneul_rpc::field::FieldMaskUtil;
-use haneul_rpc::proto::haneul::rpc::v2 as proto;
 use haneul_rpc::proto::TryFromProtoError;
+use haneul_rpc::proto::haneul::rpc::v2 as proto;
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::full_checkpoint_content::CheckpointData;

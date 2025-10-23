@@ -7,12 +7,12 @@ use fastcrypto::traits::KeyPair;
 use futures::future::join_all;
 use itertools::Itertools as _;
 use prometheus::Registry;
-use rand::{thread_rng, Rng};
+use rand::{Rng, thread_rng};
 use std::sync::Arc;
 use haneul_macros::sim_test;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::committee::Committee;
-use haneul_types::crypto::{get_key_pair, AccountKeyPair, AuthorityKeyPair};
+use haneul_types::crypto::{AccountKeyPair, AuthorityKeyPair, get_key_pair};
 use haneul_types::gas::GasCostSummary;
 use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointSummary, SignedCheckpointSummary,

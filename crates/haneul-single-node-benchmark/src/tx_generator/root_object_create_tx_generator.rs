@@ -5,7 +5,7 @@ use crate::mock_account::Account;
 use crate::tx_generator::TxGenerator;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::ObjectID;
-use haneul_types::transaction::{CallArg, Transaction, DEFAULT_VALIDATOR_GAS_PRICE};
+use haneul_types::transaction::{CallArg, DEFAULT_VALIDATOR_GAS_PRICE, Transaction};
 
 pub struct RootObjectCreateTxGenerator {
     move_package: ObjectID,

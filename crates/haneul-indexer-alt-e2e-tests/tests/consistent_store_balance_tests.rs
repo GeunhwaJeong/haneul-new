@@ -4,10 +4,10 @@
 use std::path::PathBuf;
 
 use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::{
-    consistent_service_client::ConsistentServiceClient, BatchGetBalancesRequest, GetBalanceRequest,
-    ListBalancesRequest,
+    BatchGetBalancesRequest, GetBalanceRequest, ListBalancesRequest,
+    consistent_service_client::ConsistentServiceClient,
 };
-use haneul_indexer_alt_e2e_tests::{find, FullCluster};
+use haneul_indexer_alt_e2e_tests::{FullCluster, find};
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::{
     base_types::{ObjectRef, HaneulAddress},

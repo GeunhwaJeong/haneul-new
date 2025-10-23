@@ -22,7 +22,7 @@ use haneul_types::messages_checkpoint::{
 };
 use haneul_types::object::Object;
 use haneul_types::object::Owner;
-use haneul_types::haneul_system_state::{get_haneul_system_state, HaneulSystemStateTrait};
+use haneul_types::haneul_system_state::{HaneulSystemStateTrait, get_haneul_system_state};
 use haneul_types::transaction::TransactionDataAPI;
 
 use crate::errors::IndexerError;
@@ -37,11 +37,11 @@ use crate::types::{
     IndexedPackage, IndexedTransaction, IndexerResult, TransactionKind, TxIndex,
 };
 
-use super::tx_processor::EpochEndIndexingObjectStore;
-use super::tx_processor::TxChangesProcessor;
 use super::CheckpointDataToCommit;
 use super::EpochToCommit;
 use super::TransactionObjectChangesToCommit;
+use super::tx_processor::EpochEndIndexingObjectStore;
+use super::tx_processor::TxChangesProcessor;
 
 const CHECKPOINT_QUEUE_SIZE: usize = 100;
 
@@ -382,7 +382,9 @@ impl CheckpointHandler {
             if tx_digest != *sender_signed_data.digest() {
                 return Err(IndexerError::FullNodeReadingError(format!(
                     "Transactions has different ordering from CheckpointContents, for checkpoint {}, Mismatch found at {} v.s. {}",
-                    checkpoint_seq, tx_digest, sender_signed_data.digest()
+                    checkpoint_seq,
+                    tx_digest,
+                    sender_signed_data.digest()
                 )));
             }
 

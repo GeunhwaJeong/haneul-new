@@ -9,13 +9,13 @@ use std::fs::File;
 use std::io::Write;
 //temporarily remove api ref content for indexer methods
 //use haneul_json_rpc::api::ExtendedApiOpenRpc;
+use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc::coin_api::CoinReadApi;
 use haneul_json_rpc::governance_api::GovernanceReadApi;
 use haneul_json_rpc::read_api::ReadApi;
 use haneul_json_rpc::haneul_rpc_doc;
 use haneul_json_rpc::transaction_builder_api::TransactionBuilderApi;
 use haneul_json_rpc::transaction_execution_api::TransactionExecutionApi;
-use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_api::IndexerApiOpenRpc;
 use haneul_json_rpc_api::MoveUtilsOpenRpc;
 

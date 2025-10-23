@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use axum::{routing::any, Router};
+use axum::{Router, routing::any};
 use clap::Parser;
 use haneullabs_metrics::start_prometheus_server;
 use reqwest::Client;
-use haneul_edge_proxy::config::{load, ProxyConfig};
-use haneul_edge_proxy::handlers::{proxy_handler, AppState};
+use haneul_edge_proxy::config::{ProxyConfig, load};
+use haneul_edge_proxy::handlers::{AppState, proxy_handler};
 use haneul_edge_proxy::metrics::AppMetrics;
 use tracing::info;
 

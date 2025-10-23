@@ -7,9 +7,8 @@ use move_core_types::u256::U256;
 use haneullabs_common::fatal;
 use haneul_types::accumulator_event::AccumulatorEvent;
 use haneul_types::accumulator_root::{
-    build_event_merkle_root, AccumulatorObjId, EventCommitment,
-    ACCUMULATOR_ROOT_SETTLEMENT_PROLOGUE_FUNC, ACCUMULATOR_ROOT_SETTLE_U128_FUNC,
-    ACCUMULATOR_SETTLEMENT_MODULE,
+    ACCUMULATOR_ROOT_SETTLE_U128_FUNC, ACCUMULATOR_ROOT_SETTLEMENT_PROLOGUE_FUNC,
+    ACCUMULATOR_SETTLEMENT_MODULE, AccumulatorObjId, EventCommitment, build_event_merkle_root,
 };
 use haneul_types::balance::{BALANCE_MODULE_NAME, BALANCE_STRUCT_NAME};
 use haneul_types::base_types::SequenceNumber;
@@ -24,7 +23,7 @@ use haneul_types::transaction::{
     Argument, CallArg, ObjectArg, SharedObjectMutability, TransactionKind,
 };
 use haneul_types::{
-    TypeTag, HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID,
+    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID, TypeTag,
 };
 
 use crate::execution_cache::TransactionCacheRead;

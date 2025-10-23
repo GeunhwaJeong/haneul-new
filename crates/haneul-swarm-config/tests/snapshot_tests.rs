@@ -18,18 +18,18 @@
 
 use fastcrypto::traits::KeyPair;
 use insta::assert_yaml_snapshot;
-use rand::rngs::StdRng;
 use rand::SeedableRng;
+use rand::rngs::StdRng;
 use std::num::NonZeroUsize;
 use haneul_config::genesis::{GenesisCeremonyParameters, TokenDistributionScheduleBuilder};
 use haneul_config::node::{DEFAULT_COMMISSION_RATE, DEFAULT_VALIDATOR_GAS_PRICE};
-use haneul_genesis_builder::validator_info::ValidatorInfo;
 use haneul_genesis_builder::Builder;
+use haneul_genesis_builder::validator_info::ValidatorInfo;
 use haneul_swarm_config::genesis_config::GenesisConfig;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{
-    generate_proof_of_possession, get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair,
-    NetworkKeyPair, HaneulKeyPair,
+    AccountKeyPair, AuthorityKeyPair, NetworkKeyPair, HaneulKeyPair, generate_proof_of_possession,
+    get_key_pair_from_rng,
 };
 use haneul_types::multiaddr::Multiaddr;
 
@@ -96,9 +96,11 @@ fn populated_genesis_snapshot_matches() {
         .add_validator_signature(&key)
         .build();
     assert_yaml_snapshot!(genesis.haneul_system_wrapper_object());
-    assert_yaml_snapshot!(genesis
-        .haneul_system_object()
-        .into_genesis_version_for_tooling());
+    assert_yaml_snapshot!(
+        genesis
+            .haneul_system_object()
+            .into_genesis_version_for_tooling()
+    );
     assert_yaml_snapshot!(genesis.clock());
     // Serialized `genesis` is not static and cannot be snapshot tested.
 }

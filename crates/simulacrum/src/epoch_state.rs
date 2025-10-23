@@ -17,8 +17,8 @@ use haneul_types::{
     inner_temporary_store::InnerTemporaryStore,
     metrics::{BytecodeVerifierMetrics, LimitsMetrics},
     haneul_system_state::{
-        epoch_start_haneul_system_state::{EpochStartSystemState, EpochStartSystemStateTrait},
         HaneulSystemState, HaneulSystemStateTrait,
+        epoch_start_haneul_system_state::{EpochStartSystemState, EpochStartSystemStateTrait},
     },
     transaction::{TransactionDataAPI, VerifiedTransaction},
 };

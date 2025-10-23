@@ -9,7 +9,7 @@ use haneul_rpc_api::ServerVersion;
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::message_envelope::Message;
 use tokio::sync::RwLock;
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
 use tracing::error;
 
 mod v2;

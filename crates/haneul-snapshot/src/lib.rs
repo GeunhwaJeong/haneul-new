@@ -19,9 +19,9 @@ use num_enum::TryFromPrimitive;
 use object_store::path::Path;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+use std::sync::Arc;
 use std::sync::atomic::AtomicU64;
 use std::sync::atomic::Ordering;
-use std::sync::Arc;
 use std::time::Duration;
 use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
 use haneul_core::authority::authority_store_tables::LiveObject;
@@ -32,13 +32,13 @@ use haneul_core::epoch::committee_store::CommitteeStore;
 use haneul_core::global_state_hasher::WrappedObject;
 use haneul_protocol_config::Chain;
 use haneul_storage::object_store::util::path_to_filesystem;
-use haneul_storage::{compute_sha3_checksum, FileCompression, SHA3_BYTES};
+use haneul_storage::{FileCompression, SHA3_BYTES, compute_sha3_checksum};
 use haneul_types::base_types::ObjectID;
 use haneul_types::global_state_hash::GlobalStateHash;
 use haneul_types::messages_checkpoint::ECMHLiveObjectSetDigest;
+use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::get_haneul_system_state;
-use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use tokio::time::Instant;
 
 /// The following describes the format of an object file (*.obj) used for persisting live haneul objects.

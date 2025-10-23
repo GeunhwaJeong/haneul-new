@@ -11,7 +11,7 @@ use haneul_indexer::db::{
 };
 use haneul_indexer::indexer::Indexer;
 use haneul_indexer::metrics::{
-    spawn_connection_pool_metric_collector, start_prometheus_server, IndexerMetrics,
+    IndexerMetrics, spawn_connection_pool_metric_collector, start_prometheus_server,
 };
 use haneul_indexer::store::PgIndexerStore;
 use tokio_util::sync::CancellationToken;
@@ -25,7 +25,9 @@ async fn main() -> anyhow::Result<()> {
     let _guard = telemetry_subscribers::TelemetryConfig::new()
         .with_env()
         .init();
-    warn!("WARNING: Haneul indexer is still experimental and we expect occasional breaking changes that require backfills.");
+    warn!(
+        "WARNING: Haneul indexer is still experimental and we expect occasional breaking changes that require backfills."
+    );
 
     let (_registry_service, registry) = start_prometheus_server(opts.metrics_address)?;
     haneullabs_metrics::init_metrics(&registry);

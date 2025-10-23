@@ -6,8 +6,8 @@ use anyhow::Result;
 use bytes::Bytes;
 use object_store::DynObjectStore;
 use prometheus::{
-    register_int_counter_with_registry, register_int_gauge_with_registry, IntCounter, IntGauge,
-    Registry,
+    IntCounter, IntGauge, Registry, register_int_counter_with_registry,
+    register_int_gauge_with_registry,
 };
 use std::num::NonZeroUsize;
 use std::path::PathBuf;
@@ -17,11 +17,11 @@ use haneul_config::object_storage_config::{ObjectStoreConfig, ObjectStoreType};
 use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
 use haneul_core::checkpoints::CheckpointStore;
 use haneul_core::db_checkpoint_handler::{STATE_SNAPSHOT_COMPLETED_MARKER, SUCCESS_MARKER};
+use haneul_storage::FileCompression;
 use haneul_storage::object_store::util::{
     find_all_dirs_with_epoch_prefix, find_missing_epochs_dirs, path_to_filesystem, put,
     run_manifest_update_loop,
 };
-use haneul_storage::FileCompression;
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::messages_checkpoint::CheckpointCommitment::ECMHLiveObjectSetDigest;
 use tracing::{debug, error, info};

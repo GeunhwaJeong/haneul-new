@@ -19,11 +19,11 @@ use crate::{
         HaneulToEthBridgeAction,
     },
 };
-use ethers::abi::{long_signature, ParamType};
+use ethers::abi::{ParamType, long_signature};
 use ethers::types::Address as EthAddress;
 use ethers::types::{
-    Block, BlockNumber, Filter, FilterBlockOption, Log, TransactionReceipt, TxHash, ValueOrArray,
-    U64,
+    Block, BlockNumber, Filter, FilterBlockOption, Log, TransactionReceipt, TxHash, U64,
+    ValueOrArray,
 };
 use fastcrypto::encoding::{Encoding, Hex};
 use fastcrypto::traits::KeyPair;
@@ -44,8 +44,8 @@ use haneul_types::bridge::{BridgeChainId, BridgeCommitteeSummary, TOKEN_ID_USDC}
 use haneul_types::crypto::ToFromBytes;
 use haneul_types::object::Owner;
 use haneul_types::transaction::{CallArg, ObjectArg, SharedObjectMutability};
-use haneul_types::{base_types::HaneulAddress, crypto::get_key_pair, digests::TransactionDigest};
 use haneul_types::{BRIDGE_PACKAGE_ID, HANEUL_BRIDGE_OBJECT_ID};
+use haneul_types::{base_types::HaneulAddress, crypto::get_key_pair, digests::TransactionDigest};
 use tokio::task::JoinHandle;
 
 pub const DUMMY_MUTALBE_BRIDGE_OBJECT_ARG: ObjectArg = ObjectArg::SharedObject {

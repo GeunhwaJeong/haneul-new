@@ -10,7 +10,7 @@ use diesel::{AsExpression, FromSqlRow, Identifiable, Insertable, Queryable, Sele
 use std::str::FromStr;
 use strum_macros::{AsRefStr, EnumString};
 use haneul_field_count::FieldCount;
-use haneul_indexer_builder::{Task, LIVE_TASK_TARGET_CHECKPOINT};
+use haneul_indexer_builder::{LIVE_TASK_TARGET_CHECKPOINT, Task};
 
 use crate::schema::{
     governance_actions, progress_store, haneul_error_transactions, haneul_progress_store, token_transfer,

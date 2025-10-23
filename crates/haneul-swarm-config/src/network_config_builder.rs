@@ -6,22 +6,22 @@ use std::time::Duration;
 use std::{num::NonZeroUsize, path::Path, sync::Arc};
 
 use rand::rngs::OsRng;
+use haneul_config::ExecutionCacheConfig;
 use haneul_config::genesis::{TokenAllocation, TokenDistributionScheduleBuilder};
 use haneul_config::node::AuthorityOverloadConfig;
 #[cfg(msim)]
 use haneul_config::node::ExecutionTimeObserverConfig;
-use haneul_config::ExecutionCacheConfig;
 use haneul_protocol_config::Chain;
 use haneul_types::base_types::{AuthorityName, HaneulAddress};
 use haneul_types::committee::{Committee, ProtocolVersion};
 use haneul_types::crypto::{
-    get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair, KeypairTraits, PublicKey,
+    AccountKeyPair, AuthorityKeyPair, KeypairTraits, PublicKey, get_key_pair_from_rng,
 };
 use haneul_types::object::Object;
 use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 use haneul_types::traffic_control::{PolicyConfig, RemoteFirewallConfig};
 
-use crate::genesis_config::{AccountConfig, ValidatorGenesisConfigBuilder, DEFAULT_GAS_AMOUNT};
+use crate::genesis_config::{AccountConfig, DEFAULT_GAS_AMOUNT, ValidatorGenesisConfigBuilder};
 use crate::genesis_config::{GenesisConfig, ValidatorGenesisConfig};
 use crate::network_config::NetworkConfig;
 use crate::node_config_builder::ValidatorConfigBuilder;
@@ -542,10 +542,10 @@ impl<R: rand::RngCore + rand::CryptoRng> ConfigBuilder<R> {
                     builder =
                         builder.with_global_state_hash_v2_enabled(global_state_hash_v2_enabled);
                 }
-                if let Some(num_unpruned_validators) = self.num_unpruned_validators {
-                    if idx < num_unpruned_validators {
-                        builder = builder.with_unpruned_checkpoints();
-                    }
+                if let Some(num_unpruned_validators) = self.num_unpruned_validators
+                    && idx < num_unpruned_validators
+                {
+                    builder = builder.with_unpruned_checkpoints();
                 }
                 builder.build(validator, genesis.clone())
             })

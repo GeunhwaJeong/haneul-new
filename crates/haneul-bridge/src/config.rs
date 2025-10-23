@@ -5,11 +5,11 @@ use crate::abi::EthBridgeConfig;
 use crate::crypto::BridgeAuthorityKeyPair;
 use crate::error::BridgeError;
 use crate::eth_client::EthClient;
-use crate::metered_eth_provider::new_metered_eth_provider;
 use crate::metered_eth_provider::MeteredEthHttpProvier;
+use crate::metered_eth_provider::new_metered_eth_provider;
 use crate::metrics::BridgeMetrics;
 use crate::haneul_client::HaneulClient;
-use crate::types::{is_route_valid, BridgeAction};
+use crate::types::{BridgeAction, is_route_valid};
 use crate::utils::get_eth_contract_addresses;
 use anyhow::anyhow;
 use ethers::providers::Middleware;
@@ -31,7 +31,7 @@ use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::bridge::BridgeChainId;
 use haneul_types::crypto::KeypairTraits;
-use haneul_types::crypto::{get_key_pair_from_rng, NetworkKeyPair, HaneulKeyPair};
+use haneul_types::crypto::{NetworkKeyPair, HaneulKeyPair, get_key_pair_from_rng};
 use haneul_types::digests::{get_mainnet_chain_identifier, get_testnet_chain_identifier};
 use haneul_types::event::EventID;
 use haneul_types::object::Owner;
@@ -394,7 +394,12 @@ impl BridgeNodeConfig {
             .get_gas_data_panic_if_not_gas(gas_object_id)
             .await;
         if owner != Owner::AddressOwner(client_haneul_address) {
-            return Err(anyhow!("Gas object {:?} is not owned by bridge client key's associated haneul address {:?}, but {:?}", gas_object_id, client_haneul_address, owner));
+            return Err(anyhow!(
+                "Gas object {:?} is not owned by bridge client key's associated haneul address {:?}, but {:?}",
+                gas_object_id,
+                client_haneul_address,
+                owner
+            ));
         }
         let balance = gas_coin.value();
         info!("Gas object balance: {}", balance);

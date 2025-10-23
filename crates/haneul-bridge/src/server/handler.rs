@@ -19,7 +19,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 use haneul_types::digests::TransactionDigest;
 use tap::TapFallible;
-use tokio::sync::{oneshot, Mutex};
+use tokio::sync::{Mutex, oneshot};
 use tracing::info;
 
 use super::governance_verifier::GovernanceVerifier;
@@ -352,7 +352,7 @@ mod tests {
     use super::*;
     use crate::{
         eth_mock_provider::EthMockProvider,
-        events::{init_all_struct_tags, MoveTokenDepositedEvent, HaneulToEthTokenBridgeV1},
+        events::{MoveTokenDepositedEvent, HaneulToEthTokenBridgeV1, init_all_struct_tags},
         haneul_mock_client::HaneulMockClient,
         test_utils::{
             get_test_log_and_action, get_test_haneul_to_eth_bridge_action, mock_last_finalized_block,
@@ -378,10 +378,12 @@ mod tests {
         // Test `get_cache_entry` creates a new entry if not exist
         let haneul_tx_digest = TransactionDigest::random();
         let haneul_event_idx = 42;
-        assert!(haneul_signer_with_cache
-            .get_testing_only((haneul_tx_digest, haneul_event_idx))
-            .await
-            .is_none());
+        assert!(
+            haneul_signer_with_cache
+                .get_testing_only((haneul_tx_digest, haneul_event_idx))
+                .await
+                .is_none()
+        );
         let entry = haneul_signer_with_cache
             .get_cache_entry((haneul_tx_digest, haneul_event_idx))
             .await;
@@ -517,10 +519,12 @@ mod tests {
         // Test `get_cache_entry` creates a new entry if not exist
         let eth_tx_hash = TxHash::random();
         let eth_event_idx = 42;
-        assert!(eth_signer_with_cache
-            .get_testing_only((eth_tx_hash, eth_event_idx))
-            .await
-            .is_none());
+        assert!(
+            eth_signer_with_cache
+                .get_testing_only((eth_tx_hash, eth_event_idx))
+                .await
+                .is_none()
+        );
         let entry = eth_signer_with_cache
             .get_cache_entry((eth_tx_hash, eth_event_idx))
             .await;

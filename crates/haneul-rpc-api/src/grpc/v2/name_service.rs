@@ -12,11 +12,11 @@ use crate::Result;
 use crate::RpcError;
 use crate::RpcService;
 use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
-use haneul_rpc::proto::haneul::rpc::v2::name_service_server::NameService;
 use haneul_rpc::proto::haneul::rpc::v2::LookupNameRequest;
 use haneul_rpc::proto::haneul::rpc::v2::LookupNameResponse;
 use haneul_rpc::proto::haneul::rpc::v2::ReverseLookupNameRequest;
 use haneul_rpc::proto::haneul::rpc::v2::ReverseLookupNameResponse;
+use haneul_rpc::proto::haneul::rpc::v2::name_service_server::NameService;
 
 #[tonic::async_trait]
 impl NameService for RpcService {

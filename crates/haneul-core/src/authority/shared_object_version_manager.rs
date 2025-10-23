@@ -1,13 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::authority::authority_per_epoch_store::CancelConsensusCertificateReason;
 use crate::authority::AuthorityPerEpochStore;
+use crate::authority::authority_per_epoch_store::CancelConsensusCertificateReason;
 use crate::execution_cache::ObjectCacheRead;
 use either::Either;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 use std::collections::HashSet;
+use haneul_types::HANEUL_ACCUMULATOR_ROOT_OBJECT_ID;
 use haneul_types::base_types::ConsensusObjectSequenceKey;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::committee::EpochId;
@@ -15,12 +16,11 @@ use haneul_types::crypto::RandomnessRound;
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::storage::{
-    transaction_non_shared_input_object_keys, transaction_receiving_object_keys, ObjectKey,
+    ObjectKey, transaction_non_shared_input_object_keys, transaction_receiving_object_keys,
 };
 use haneul_types::transaction::SharedObjectMutability;
 use haneul_types::transaction::{SharedInputObject, TransactionDataAPI, TransactionKey};
-use haneul_types::HANEUL_ACCUMULATOR_ROOT_OBJECT_ID;
-use haneul_types::{base_types::SequenceNumber, error::HaneulResult, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
+use haneul_types::{HANEUL_RANDOMNESS_STATE_OBJECT_ID, base_types::SequenceNumber, error::HaneulResult};
 use tracing::trace;
 
 use super::epoch_start_configuration::EpochStartConfigTrait;
@@ -485,18 +485,18 @@ fn get_or_init_versions<'a>(
 mod tests {
     use super::*;
 
+    use crate::authority::AuthorityState;
     use crate::authority::epoch_start_configuration::EpochStartConfigTrait;
     use crate::authority::shared_object_version_manager::{
         ConsensusSharedObjVerAssignment, SharedObjVerManager,
     };
     use crate::authority::test_authority_builder::TestAuthorityBuilder;
-    use crate::authority::AuthorityState;
     use std::collections::{BTreeMap, HashMap};
     use std::sync::Arc;
     use haneul_protocol_config::ProtocolConfig;
     use haneul_test_transaction_builder::TestTransactionBuilder;
     use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
-    use haneul_types::crypto::{get_account_key_pair, RandomnessRound};
+    use haneul_types::crypto::{RandomnessRound, get_account_key_pair};
     use haneul_types::digests::ObjectDigest;
     use haneul_types::effects::TestEffectsBuilder;
     use haneul_types::executable_transaction::{

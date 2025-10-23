@@ -5,12 +5,12 @@ use std::convert::Infallible;
 use std::task::{Context, Poll};
 use std::time::Duration;
 
-use eyre::{eyre, Result};
+use eyre::{Result, eyre};
 use haneullabs_network::{
     config::Config,
     metrics::{
-        DefaultMetricsCallbackProvider, MetricsCallbackProvider, MetricsHandler,
-        GRPC_ENDPOINT_PATH_HEADER,
+        DefaultMetricsCallbackProvider, GRPC_ENDPOINT_PATH_HEADER, MetricsCallbackProvider,
+        MetricsHandler,
     },
     multiaddr::{Multiaddr, Protocol},
 };
@@ -251,15 +251,15 @@ impl<M: MetricsCallbackProvider, S> Drop for RequestLifetime<M, S> {
 mod test {
     use fastcrypto::ed25519::Ed25519KeyPair;
     use fastcrypto::traits::KeyPair;
+    use haneullabs_network::Multiaddr;
     use haneullabs_network::config::Config;
     use haneullabs_network::metrics::MetricsCallbackProvider;
-    use haneullabs_network::Multiaddr;
     use std::ops::Deref;
     use std::sync::{Arc, Mutex};
     use std::time::Duration;
     use tonic::Code;
-    use tonic_health::pb::health_client::HealthClient;
     use tonic_health::pb::HealthCheckRequest;
+    use tonic_health::pb::health_client::HealthClient;
 
     #[tokio::test]
     async fn test_metrics_layer_successful() {

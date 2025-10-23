@@ -8,8 +8,8 @@ use move_core_types::identifier::Identifier;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
-use serde_with::serde_as;
 use serde_with::DisplayFromStr;
+use serde_with::serde_as;
 
 use haneul_types::base_types::AuthorityName;
 use haneul_types::base_types::{EpochId, ObjectID};

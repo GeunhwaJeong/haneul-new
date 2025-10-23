@@ -18,7 +18,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::Arc;
 use haneul_bridge::abi::EthBridgeCommittee;
-use haneul_bridge::abi::{eth_haneul_bridge, EthHaneulBridge};
+use haneul_bridge::abi::{EthHaneulBridge, eth_haneul_bridge};
 use haneul_bridge::crypto::BridgeAuthorityPublicKeyBytes;
 use haneul_bridge::error::BridgeResult;
 use haneul_bridge::haneul_client::HaneulBridgeClient;
@@ -28,18 +28,18 @@ use haneul_bridge::types::{
     BlocklistType, EmergencyAction, EmergencyActionType, EvmContractUpgradeAction,
     LimitUpdateAction,
 };
-use haneul_bridge::utils::{get_eth_signer_client, EthSigner};
+use haneul_bridge::utils::{EthSigner, get_eth_signer_client};
 use haneul_config::Config;
 use haneul_json_rpc_types::HaneulObjectDataOptions;
 use haneul_keys::keypair_file::read_key;
 use haneul_sdk::HaneulClientBuilder;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::{ObjectID, ObjectRef};
-use haneul_types::bridge::{BridgeChainId, BRIDGE_MODULE_NAME};
+use haneul_types::bridge::{BRIDGE_MODULE_NAME, BridgeChainId};
 use haneul_types::crypto::{Signature, HaneulKeyPair};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{ObjectArg, Transaction, TransactionData};
-use haneul_types::{TypeTag, BRIDGE_PACKAGE_ID};
+use haneul_types::{BRIDGE_PACKAGE_ID, TypeTag};
 use tracing::info;
 
 pub const SEPOLIA_BRIDGE_PROXY_ADDR: &str = "0xAE68F87938439afEEDd6552B0E83D2CbC2473623";
@@ -570,7 +570,8 @@ impl BridgeClientCommands {
                 let pending_tx = eth_tx.send().await.unwrap();
                 let tx_receipt = pending_tx.await.unwrap().unwrap();
                 info!(
-                    "Deposited {ether_amount} Ethers to {:?} (target chain {target_chain}). Receipt: {:?}", haneul_recipient_address, tx_receipt,
+                    "Deposited {ether_amount} Ethers to {:?} (target chain {target_chain}). Receipt: {:?}",
+                    haneul_recipient_address, tx_receipt,
                 );
                 Ok(())
             }

@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use move_binary_format::{
+    CompiledModule,
     file_format::{
         Bytecode, FunctionDefinition, FunctionHandle, FunctionInstantiation, ModuleHandle,
         SignatureToken,
     },
-    CompiledModule,
 };
 use move_bytecode_utils::format_signature_token;
 use move_core_types::{account_address::AccountAddress, ident_str, identifier::IdentStr};
 use move_vm_config::verifier::VerifierConfig;
-use haneul_types::{error::ExecutionError, HANEUL_FRAMEWORK_ADDRESS};
+use haneul_types::{HANEUL_FRAMEWORK_ADDRESS, error::ExecutionError};
 
-use crate::{verification_failure, TEST_SCENARIO_MODULE_NAME};
+use crate::{TEST_SCENARIO_MODULE_NAME, verification_failure};
 
 pub const TRANSFER_MODULE: &IdentStr = ident_str!("transfer");
 pub const EVENT_MODULE: &IdentStr = ident_str!("event");

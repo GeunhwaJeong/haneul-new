@@ -6,7 +6,7 @@ use clap::Parser;
 use move_cli::base;
 use move_package::BuildConfig as MoveBuildConfig;
 use std::{fs, path::Path};
-use haneul_move_build::{implicit_deps, BuildConfig};
+use haneul_move_build::{BuildConfig, implicit_deps};
 use haneul_package_management::system_package_versions::latest_system_packages;
 
 const LAYOUTS_DIR: &str = "layouts";

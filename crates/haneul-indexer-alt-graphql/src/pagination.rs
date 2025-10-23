@@ -4,9 +4,9 @@
 use std::collections::BTreeMap;
 
 use async_graphql::{
+    OutputType,
     connection::{Connection, CursorType, Edge},
     registry::MetaField,
-    OutputType,
 };
 use haneul_pg_db::query::Query;
 use haneul_sql_macro::query;

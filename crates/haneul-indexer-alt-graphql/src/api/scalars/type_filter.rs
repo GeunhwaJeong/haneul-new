@@ -5,7 +5,7 @@ use async_graphql::*;
 use move_core_types::language_storage::StructTag;
 use std::{fmt, str::FromStr};
 use haneul_types::{
-    parse_haneul_address, parse_haneul_module_id, parse_haneul_struct_tag, parse_haneul_type_tag, TypeTag,
+    TypeTag, parse_haneul_address, parse_haneul_module_id, parse_haneul_struct_tag, parse_haneul_type_tag,
 };
 
 use crate::api::scalars::{impl_string_input, haneul_address::HaneulAddress};

@@ -9,13 +9,13 @@ use move_core_types::{
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS,
     base_types::{ObjectID, SequenceNumber},
     collection_types::VecMap,
     derived_object,
     error::HaneulResult,
     object::Owner,
     storage::ObjectStore,
-    HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS,
 };
 
 pub const COIN_REGISTRY_MODULE_NAME: &IdentStr = ident_str!("coin_registry");

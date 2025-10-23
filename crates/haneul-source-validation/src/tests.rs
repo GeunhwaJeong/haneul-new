@@ -13,8 +13,8 @@ use haneul_types::base_types::ObjectID;
 use haneul_types::move_package::UpgradePolicy;
 use haneul_types::transaction::TEST_ONLY_GAS_UNIT_FOR_PUBLISH;
 use haneul_types::{
-    base_types::{ObjectRef, HaneulAddress, TransactionDigest},
     HANEUL_SYSTEM_STATE_OBJECT_ID,
+    base_types::{ObjectRef, HaneulAddress, TransactionDigest},
 };
 use test_cluster::TestClusterBuilder;
 
@@ -366,7 +366,9 @@ async fn dependency_is_an_object() -> anyhow::Result<()> {
     };
 
     let client = context.get_client().await?;
-    let expected = expect!["Dependency ID contains a Haneul object, not a Move package: 0x0000000000000000000000000000000000000000000000000000000000000005"];
+    let expected = expect![
+        "Dependency ID contains a Haneul object, not a Move package: 0x0000000000000000000000000000000000000000000000000000000000000005"
+    ];
     expected.assert_eq(
         &BytecodeSourceVerifier::new(client.read_api())
             .verify(&a_pkg, ValidationMode::deps())

@@ -8,9 +8,9 @@ use haneul_sdk_types::{Address, Object, Version};
 use haneul_sdk_types::{CheckpointSequenceNumber, EpochId, SignedTransaction, ValidatorCommittee};
 use haneul_types::balance_change::BalanceChange;
 use haneul_types::base_types::{ObjectID, ObjectType};
-use haneul_types::storage::error::{Error as StorageError, Result};
 use haneul_types::storage::ObjectKey;
 use haneul_types::storage::RpcStateReader;
+use haneul_types::storage::error::{Error as StorageError, Result};
 use haneul_types::storage::{ObjectStore, TransactionInfo};
 use tap::Pipe;
 

@@ -4,7 +4,7 @@
 use clap::*;
 use move_analyzer::analyzer;
 use move_compiler::editions::Flavor;
-use haneul_move_build::{implicit_deps, HaneulPackageHooks};
+use haneul_move_build::{HaneulPackageHooks, implicit_deps};
 use haneul_package_management::system_package_versions::latest_system_packages;
 
 #[cfg(target_os = "linux")]

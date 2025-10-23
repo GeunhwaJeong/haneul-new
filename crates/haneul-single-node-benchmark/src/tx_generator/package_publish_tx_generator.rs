@@ -13,7 +13,7 @@ use std::path::PathBuf;
 use haneul_move_build::{BuildConfig, CompiledPackage};
 use haneul_test_transaction_builder::{PublishData, TestTransactionBuilder};
 use haneul_types::base_types::ObjectID;
-use haneul_types::transaction::{Transaction, DEFAULT_VALIDATOR_GAS_PRICE};
+use haneul_types::transaction::{DEFAULT_VALIDATOR_GAS_PRICE, Transaction};
 use tracing::info;
 
 pub struct PackagePublishTxGenerator {

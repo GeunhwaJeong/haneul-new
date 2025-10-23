@@ -3,7 +3,7 @@ name = "haneul-metrics-push-client"
 authors = ["Haneul Labs <build@haneul-labs.com>"]
 license = "Apache-2.0"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 publish = false
 
 [dependencies]
@@ -19,4 +19,3 @@ fastcrypto.workspace = true
 haneullabs-metrics.workspace = true
 haneul-tls.workspace = true
 haneul-types.workspace = true
-

@@ -23,8 +23,8 @@ use haneul_types::error::{HaneulErrorKind, HaneulResult, UserInputError};
 use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::messages_grpc::HandleTransactionResponse;
 use haneul_types::transaction::{
-    CallArg, CertifiedTransaction, Transaction, TransactionData, VerifiedCertificate,
-    VerifiedTransaction, TEST_ONLY_GAS_UNIT_FOR_TRANSFER,
+    CallArg, CertifiedTransaction, TEST_ONLY_GAS_UNIT_FOR_TRANSFER, Transaction, TransactionData,
+    VerifiedCertificate, VerifiedTransaction,
 };
 use haneul_types::utils::get_zklogin_user_address;
 use haneul_types::utils::{

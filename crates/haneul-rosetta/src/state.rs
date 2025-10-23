@@ -5,8 +5,8 @@ use async_trait::async_trait;
 use futures::future::try_join_all;
 use std::sync::Arc;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
-use haneul_sdk::rpc_types::Checkpoint;
 use haneul_sdk::HaneulClient;
+use haneul_sdk::rpc_types::Checkpoint;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 
 use crate::operations::Operations;

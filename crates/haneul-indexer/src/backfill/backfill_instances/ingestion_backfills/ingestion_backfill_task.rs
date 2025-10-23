@@ -7,7 +7,7 @@ use crate::database::ConnectionPool;
 use dashmap::DashMap;
 use std::ops::RangeInclusive;
 use std::sync::Arc;
-use haneul_data_ingestion_core::{setup_single_workflow, ReaderOptions, Worker};
+use haneul_data_ingestion_core::{ReaderOptions, Worker, setup_single_workflow};
 use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use tokio::sync::Notify;

@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use haneul_cluster_test::{config::ClusterTestOpt, ClusterTest};
+use haneul_cluster_test::{ClusterTest, config::ClusterTestOpt};
 
 #[tokio::test]
 async fn cluster_test() {

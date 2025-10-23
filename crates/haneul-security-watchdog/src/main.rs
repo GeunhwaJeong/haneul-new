@@ -6,8 +6,8 @@ use prometheus::Registry;
 use anyhow::Result;
 use clap::*;
 use std::env;
-use haneul_security_watchdog::scheduler::SchedulerService;
 use haneul_security_watchdog::SecurityWatchdogConfig;
+use haneul_security_watchdog::scheduler::SchedulerService;
 
 #[tokio::main]
 async fn main() -> Result<()> {

@@ -12,7 +12,7 @@ use haneul_indexer_alt_consistent_store::{
     restore::start_restorer,
     start_service,
 };
-use haneul_indexer_alt_metrics::{uptime, MetricsService};
+use haneul_indexer_alt_metrics::{MetricsService, uptime};
 use tokio::{fs, signal, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
 use tracing::info;

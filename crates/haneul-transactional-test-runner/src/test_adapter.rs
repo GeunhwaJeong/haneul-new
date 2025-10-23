@@ -5,9 +5,9 @@
 
 use crate::offchain_state::OffchainStateReader;
 use crate::simulator_persisted_store::PersistedStore;
+use crate::{TransactionalAdapter, ValidatorWithFullnode, cursor};
 use crate::{args::*, programmable_transaction_test_parser::parser::ParsedCommand};
-use crate::{cursor, TransactionalAdapter, ValidatorWithFullnode};
-use anyhow::{anyhow, bail, Context};
+use anyhow::{Context, anyhow, bail};
 use async_trait::async_trait;
 use bimap::btree::BiBTreeMap;
 use criterion::Criterion;
@@ -19,9 +19,9 @@ use move_bytecode_utils::module_cache::GetModule;
 use move_command_line_common::error_bitset::ErrorBitset;
 use move_command_line_common::files::verify_and_create_named_address_mapping;
 use move_compiler::{
+    Flags, PreCompiledProgramInfo,
     editions::{Edition, Flavor},
     shared::{NumberFormat, NumericalAddress, PackageConfig, PackagePaths},
-    Flags, PreCompiledProgramInfo,
 };
 use move_core_types::ident_str;
 use move_core_types::parsing::address::ParsedAddress;
@@ -34,12 +34,12 @@ use move_symbol_pool::Symbol;
 use move_transactional_test_runner::framework::MaybeNamedCompiledModule;
 use move_transactional_test_runner::tasks::TaskCommand;
 use move_transactional_test_runner::{
-    framework::{compile_any, store_modules, CompiledState, MoveTestAdapter},
+    framework::{CompiledState, MoveTestAdapter, compile_any, store_modules},
     tasks::{InitCommand, RunCommand, SyntaxChoice, TaskInput},
 };
 use move_vm_runtime::session::SerializedReturnValues;
 use once_cell::sync::Lazy;
-use rand::{rngs::StdRng, Rng, SeedableRng};
+use rand::{Rng, SeedableRng, rngs::StdRng};
 use serde::Deserialize;
 use serde_json::Value;
 use std::borrow::Cow;
@@ -52,9 +52,9 @@ use std::{
     path::Path,
     sync::Arc,
 };
+use haneul_core::authority::AuthorityState;
 use haneul_core::authority::shared_object_version_manager::AssignedVersions;
 use haneul_core::authority::test_authority_builder::TestAuthorityBuilder;
-use haneul_core::authority::AuthorityState;
 use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_graphql_rpc::test_infra::cluster::{RetentionConfig, SnapshotLagConfig};
 use haneul_json_rpc_api::QUERY_MAX_RESULT_LIMIT;
@@ -68,10 +68,11 @@ use haneul_storage::{
 };
 use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_swarm_config::network_config_builder::KeyPairWrapper;
+use haneul_types::HANEUL_SYSTEM_ADDRESS;
 use haneul_types::base_types::{SequenceNumber, VersionNumber};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::{
-    get_authority_key_pair, AuthorityKeyPair, AuthorityPublicKeyBytes, RandomnessRound,
+    AuthorityKeyPair, AuthorityPublicKeyBytes, RandomnessRound, get_authority_key_pair,
 };
 use haneul_types::digests::{ConsensusCommitDigest, TransactionDigest};
 use haneul_types::effects::{
@@ -88,29 +89,28 @@ use haneul_types::storage::{ObjectStore, RpcStateReader};
 use haneul_types::transaction::Command;
 use haneul_types::transaction::ProgrammableTransaction;
 use haneul_types::utils::to_sender_signed_transaction_with_multi_signers;
-use haneul_types::HANEUL_SYSTEM_ADDRESS;
+use haneul_types::{BRIDGE_ADDRESS, MOVE_STDLIB_PACKAGE_ID};
+use haneul_types::{DEEPBOOK_ADDRESS, HANEUL_DENY_LIST_OBJECT_ID};
+use haneul_types::{DEEPBOOK_PACKAGE_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
 use haneul_types::{
-    base_types::{ObjectID, ObjectRef, HaneulAddress, HANEUL_ADDRESS_LENGTH},
-    crypto::{get_key_pair_from_rng, AccountKeyPair},
+    MOVE_STDLIB_ADDRESS, HANEUL_CLOCK_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID,
+    base_types::{ObjectID, ObjectRef, HANEUL_ADDRESS_LENGTH, HaneulAddress},
+    crypto::{AccountKeyPair, get_key_pair_from_rng},
     event::Event,
     object::{self, Object},
     transaction::{Transaction, TransactionData, VerifiedTransaction},
-    MOVE_STDLIB_ADDRESS, HANEUL_CLOCK_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
+use haneul_types::{
+    HANEUL_FRAMEWORK_PACKAGE_ID, programmable_transaction_builder::ProgrammableTransactionBuilder,
+};
+use haneul_types::{HANEUL_SYSTEM_PACKAGE_ID, utils::to_sender_signed_transaction};
 use haneul_types::{execution_status::ExecutionStatus, transaction::TransactionKind};
 use haneul_types::{gas::GasCostSummary, object::GAS_VALUE_FOR_TESTING};
 use haneul_types::{
     move_package::MovePackage,
     transaction::{Argument, CallArg, TransactionDataAPI, TransactionExpiration},
 };
-use haneul_types::{
-    programmable_transaction_builder::ProgrammableTransactionBuilder, HANEUL_FRAMEWORK_PACKAGE_ID,
-};
-use haneul_types::{utils::to_sender_signed_transaction, HANEUL_SYSTEM_PACKAGE_ID};
-use haneul_types::{BRIDGE_ADDRESS, MOVE_STDLIB_PACKAGE_ID};
-use haneul_types::{DEEPBOOK_ADDRESS, HANEUL_DENY_LIST_OBJECT_ID};
-use haneul_types::{DEEPBOOK_PACKAGE_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
-use tempfile::{tempdir, NamedTempFile};
+use tempfile::{NamedTempFile, tempdir};
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub enum FakeID {
@@ -666,9 +666,7 @@ impl MoveTestAdapter<'_> for HaneulTestAdapter {
                     Ok(obj) => obj,
                 }
             }};
-            ($fake_id:ident) => {{
-                get_obj!($fake_id, None)
-            }};
+            ($fake_id:ident) => {{ get_obj!($fake_id, None) }};
         }
         match command {
             HaneulSubcommand::RunGraphql(RunGraphqlCommand {
@@ -848,7 +846,7 @@ impl MoveTestAdapter<'_> for HaneulTestAdapter {
                 jwk_iss,
                 authenticator_obj_initial_shared_version,
             }) => {
-                use fastcrypto_zkp::bn254::zk_login::{JwkId, JWK};
+                use fastcrypto_zkp::bn254::zk_login::{JWK, JwkId};
                 use haneul_types::authenticator_state::ActiveJwk;
 
                 let current_epoch = self.get_latest_epoch_id()?;
@@ -2150,11 +2148,7 @@ impl HaneulTestAdapter {
         out.push('\n');
         write!(out, "gas summary: {}", gas_summary).unwrap();
 
-        if out.is_empty() {
-            None
-        } else {
-            Some(out)
-        }
+        if out.is_empty() { None } else { Some(out) }
     }
 
     fn list_events(&self, events: &[Event], summarize: bool) -> String {
@@ -2522,7 +2516,7 @@ async fn init_val_fullnode_executor(
     let mut mk_account = || {
         let (address, key_pair) = get_key_pair_from_rng(&mut rng);
         let obj = Object::with_id_owner_gas_for_testing(
-            ObjectID::new(rng.gen()),
+            ObjectID::new(rng.r#gen()),
             address,
             GAS_FOR_TESTING,
         );

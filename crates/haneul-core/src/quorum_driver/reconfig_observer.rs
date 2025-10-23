@@ -11,9 +11,9 @@ use crate::{
 };
 use async_trait::async_trait;
 use std::sync::Arc;
-use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
+use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use tokio::sync::broadcast::error::RecvError;
 use tracing::{info, warn};
 

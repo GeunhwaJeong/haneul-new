@@ -22,10 +22,10 @@ use haneul_indexer::types::EventIndex;
 use haneul_indexer::types::IndexedDeletedObject;
 use haneul_indexer::types::IndexedObject;
 use haneul_indexer::types::TxIndex;
+use haneul_types::HANEUL_FRAMEWORK_PACKAGE_ID;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::gas_coin::GasCoin;
-use haneul_types::HANEUL_FRAMEWORK_PACKAGE_ID;
 use tempfile::tempdir;
 
 #[tokio::test]

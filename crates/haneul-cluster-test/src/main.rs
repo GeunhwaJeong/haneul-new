@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use clap::*;
-use haneul_cluster_test::{config::ClusterTestOpt, ClusterTest};
+use haneul_cluster_test::{ClusterTest, config::ClusterTestOpt};
 
 #[tokio::main]
 async fn main() {

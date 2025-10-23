@@ -8,7 +8,7 @@ use std::time::Duration;
 use haneul_config::validator_client_monitor_config::ValidatorClientMonitorConfig;
 use haneul_types::base_types::{AuthorityName, ConciseableName};
 use haneul_types::committee::Committee;
-use haneul_types::crypto::{get_key_pair, AuthorityKeyPair, KeypairTraits};
+use haneul_types::crypto::{AuthorityKeyPair, KeypairTraits, get_key_pair};
 
 mod client_stats_tests {
 

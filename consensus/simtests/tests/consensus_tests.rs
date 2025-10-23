@@ -17,13 +17,13 @@ mod consensus_tests {
     use haneullabs_metrics::RegistryService;
     use haneullabs_network::Multiaddr;
     use prometheus::Registry;
-    use rand::{rngs::StdRng, Rng, SeedableRng as _};
+    use rand::{Rng, SeedableRng as _, rngs::StdRng};
     use haneul_config::local_ip_utils;
     use haneul_macros::sim_test;
     use haneul_protocol_config::ProtocolConfig;
     use haneul_simulator::{
-        configs::{bimodal_latency_ms, env_config, uniform_latency_ms},
         SimConfig,
+        configs::{bimodal_latency_ms, env_config, uniform_latency_ms},
     };
     use tempfile::TempDir;
     use tokio::task::JoinSet;

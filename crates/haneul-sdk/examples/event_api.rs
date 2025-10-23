@@ -3,8 +3,8 @@
 
 mod utils;
 use futures::stream::StreamExt;
-use haneul_sdk::rpc_types::EventFilter;
 use haneul_sdk::HaneulClientBuilder;
+use haneul_sdk::rpc_types::EventFilter;
 use utils::{setup_for_write, split_coin_digest};
 
 // This example showcases how to use the Event API.

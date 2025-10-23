@@ -3,8 +3,8 @@
 
 use haneullabs_metrics::histogram::Histogram as HaneullabsHistogram;
 use prometheus::{
-    register_histogram_with_registry, register_int_counter_with_registry,
-    register_int_gauge_with_registry, Histogram, IntCounter, IntGauge, Registry,
+    Histogram, IntCounter, IntGauge, Registry, register_histogram_with_registry,
+    register_int_counter_with_registry, register_int_gauge_with_registry,
 };
 use std::sync::Arc;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;

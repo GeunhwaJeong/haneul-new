@@ -14,9 +14,10 @@ use haneul_node::HaneulNodeHandle;
 use haneul_protocol_config::ProtocolVersion;
 use haneul_protocol_config::{Chain, ProtocolConfig};
 use haneul_swarm_config::genesis_config::{
-    AccountConfig, ValidatorGenesisConfig, ValidatorGenesisConfigBuilder, DEFAULT_GAS_AMOUNT,
+    AccountConfig, DEFAULT_GAS_AMOUNT, ValidatorGenesisConfig, ValidatorGenesisConfigBuilder,
 };
-use haneul_test_transaction_builder::{make_transfer_haneul_transaction, TestTransactionBuilder};
+use haneul_test_transaction_builder::{TestTransactionBuilder, make_transfer_haneul_transaction};
+use haneul_types::HANEUL_SYSTEM_PACKAGE_ID;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::effects::TransactionEffectsAPI;
@@ -27,13 +28,12 @@ use haneul_types::governance::{
 };
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::{
-    get_validator_from_table, haneul_system_state_summary::get_validator_by_pool_id,
-    HaneulSystemStateTrait,
+    HaneulSystemStateTrait, get_validator_from_table,
+    haneul_system_state_summary::get_validator_by_pool_id,
 };
 use haneul_types::transaction::{
     Command, TransactionDataAPI, TransactionExpiration, VerifiedTransaction,
 };
-use haneul_types::HANEUL_SYSTEM_PACKAGE_ID;
 use test_cluster::{TestCluster, TestClusterBuilder};
 use tokio::time::sleep;
 
@@ -74,10 +74,12 @@ async fn test_transaction_expiration() {
         .wallet
         .execute_transaction_may_fail(expired_transaction)
         .await;
-    assert!(result
-        .unwrap_err()
-        .to_string()
-        .contains(&HaneulErrorKind::TransactionExpired.to_string()));
+    assert!(
+        result
+            .unwrap_err()
+            .to_string()
+            .contains(&HaneulErrorKind::TransactionExpired.to_string())
+    );
 
     // Non expired transaction signed without issue
     *data.expiration_mut_for_testing() = TransactionExpiration::Epoch(10);
@@ -563,9 +565,10 @@ async fn test_inactive_validator_pool_read() {
 
     // Check that this node is no longer a validator.
     validator.with(|node| {
-        assert!(node
-            .state()
-            .is_fullnode(&node.state().epoch_store_for_testing()));
+        assert!(
+            node.state()
+                .is_fullnode(&node.state().epoch_store_for_testing())
+        );
     });
 
     // Check that the validator that just left now shows up in the inactive_validators,
@@ -644,9 +647,10 @@ async fn test_reconfig_with_committee_change_basic() {
     test_cluster.wait_for_epoch_all_nodes(1).await;
 
     new_validator_handle.with(|node| {
-        assert!(node
-            .state()
-            .is_validator(&node.state().epoch_store_for_testing()));
+        assert!(
+            node.state()
+                .is_validator(&node.state().epoch_store_for_testing())
+        );
     });
 
     execute_remove_validator_tx(&test_cluster, &new_validator_handle).await;
@@ -1371,12 +1375,14 @@ async fn execute_add_validator_transactions(
     )
     .await;
 
-    assert!(try_request_add_validator(test_cluster, new_validator)
-        .await
-        .unwrap()
-        .0
-        .status()
-        .is_ok());
+    assert!(
+        try_request_add_validator(test_cluster, new_validator)
+            .await
+            .unwrap()
+            .0
+            .status()
+            .is_ok()
+    );
 
     // Check that we can get the pending validator from 0x5.
     test_cluster.fullnode_handle.haneul_node.with(|node| {

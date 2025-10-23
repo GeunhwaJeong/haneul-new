@@ -35,13 +35,13 @@ use haneul_config::node::AuthorityOverloadConfig;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::committee::Committee;
-use haneul_types::crypto::{get_key_pair, AccountKeyPair};
+use haneul_types::crypto::{AccountKeyPair, get_key_pair};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::error::HaneulResult;
 use haneul_types::object::{Object, Owner};
 use haneul_types::transaction::CertifiedTransaction;
 use haneul_types::transaction::{
-    Transaction, VerifiedCertificate, TEST_ONLY_GAS_UNIT_FOR_HEAVY_COMPUTATION_STORAGE,
+    TEST_ONLY_GAS_UNIT_FOR_HEAVY_COMPUTATION_STORAGE, Transaction, VerifiedCertificate,
 };
 use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::time::{sleep, timeout};
@@ -994,8 +994,10 @@ async fn test_authority_txn_execution_pushback() {
 
     // Clear the validator overload status and retry the certificate. It should succeed.
     authority_state.overload_info.clear_overload();
-    assert!(validator_service
-        .execute_certificate_for_testing(cert)
-        .await
-        .is_ok());
+    assert!(
+        validator_service
+            .execute_certificate_for_testing(cert)
+            .await
+            .is_ok()
+    );
 }

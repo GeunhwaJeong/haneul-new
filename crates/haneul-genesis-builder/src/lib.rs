@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use camino::Utf8Path;
 use fastcrypto::hash::HashFunction;
 use fastcrypto::traits::KeyPair;
@@ -20,7 +20,7 @@ use haneul_execution::{self, Executor};
 use haneul_framework::{BuiltInFramework, SystemPackage};
 use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use haneul_types::base_types::{ExecutionDigests, ObjectID, SequenceNumber, TransactionDigest};
-use haneul_types::bridge::{BridgeChainId, BRIDGE_CREATE_FUNCTION_NAME, BRIDGE_MODULE_NAME};
+use haneul_types::bridge::{BRIDGE_CREATE_FUNCTION_NAME, BRIDGE_MODULE_NAME, BridgeChainId};
 use haneul_types::committee::Committee;
 use haneul_types::crypto::{
     AuthorityKeyPair, AuthorityPublicKeyBytes, AuthoritySignInfo, AuthoritySignInfoTrait,
@@ -46,7 +46,7 @@ use haneul_types::messages_checkpoint::{
 use haneul_types::metrics::LimitsMetrics;
 use haneul_types::object::{Object, Owner};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use haneul_types::haneul_system_state::{get_haneul_system_state, HaneulSystemState, HaneulSystemStateTrait};
+use haneul_types::haneul_system_state::{HaneulSystemState, HaneulSystemStateTrait, get_haneul_system_state};
 use haneul_types::transaction::{
     CallArg, CheckedInputObjects, Command, InputObjectKind, ObjectReadResult, Transaction,
 };
@@ -350,9 +350,11 @@ impl Builder {
             let metadata = onchain_validator.verified_metadata();
 
             // Validators should not have duplicate addresses so the result of insertion should be None.
-            assert!(address_to_pool_id
-                .insert(metadata.haneul_address, onchain_validator.staking_pool.id)
-                .is_none());
+            assert!(
+                address_to_pool_id
+                    .insert(metadata.haneul_address, onchain_validator.staking_pool.id)
+                    .is_none()
+            );
             assert_eq!(validator.info.haneul_address(), metadata.haneul_address);
             assert_eq!(validator.info.protocol_key(), metadata.haneul_pubkey_bytes());
             assert_eq!(validator.info.network_key, metadata.network_pubkey);
@@ -719,7 +721,9 @@ fn build_unsigned_genesis_data(
     objects: &[Object],
 ) -> UnsignedGenesis {
     if !parameters.allow_insertion_of_extra_objects && !objects.is_empty() {
-        panic!("insertion of extra objects at genesis time is prohibited due to 'allow_insertion_of_extra_objects' parameter");
+        panic!(
+            "insertion of extra objects at genesis time is prohibited due to 'allow_insertion_of_extra_objects' parameter"
+        );
     }
 
     let genesis_chain_parameters = parameters.to_genesis_chain_parameters();
@@ -1242,8 +1246,8 @@ pub fn generate_genesis_system_object(
 
 #[cfg(test)]
 mod test {
-    use crate::validator_info::ValidatorInfo;
     use crate::Builder;
+    use crate::validator_info::ValidatorInfo;
     use fastcrypto::traits::KeyPair;
     use haneul_config::genesis::*;
     use haneul_config::local_ip_utils;
@@ -1251,8 +1255,8 @@ mod test {
     use haneul_config::node::DEFAULT_VALIDATOR_GAS_PRICE;
     use haneul_types::base_types::HaneulAddress;
     use haneul_types::crypto::{
-        generate_proof_of_possession, get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair,
-        NetworkKeyPair,
+        AccountKeyPair, AuthorityKeyPair, NetworkKeyPair, generate_proof_of_possession,
+        get_key_pair_from_rng,
     };
 
     #[test]

@@ -23,12 +23,12 @@ use haneul_macros::sim_test;
 use haneul_move_build::BuildConfig;
 use haneul_simulator::fastcrypto::encoding::{Base64, Encoding};
 use haneul_swarm_config::genesis_config::{DEFAULT_GAS_AMOUNT, DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT};
-use haneul_test_transaction_builder::make_transfer_haneul_transaction;
 use haneul_test_transaction_builder::TestTransactionBuilder;
+use haneul_test_transaction_builder::make_transfer_haneul_transaction;
 use haneul_types::balance::Supply;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
-use haneul_types::coin::{TreasuryCap, COIN_MODULE_NAME};
+use haneul_types::coin::{COIN_MODULE_NAME, TreasuryCap};
 use haneul_types::crypto::Signature;
 use haneul_types::digests::ObjectDigest;
 use haneul_types::gas_coin::GAS;
@@ -36,7 +36,7 @@ use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::signature::GenericSignature;
 use haneul_types::utils::load_test_vectors;
 use haneul_types::zk_login_authenticator::ZkLoginAuthenticator;
-use haneul_types::{parse_haneul_struct_tag, HANEUL_FRAMEWORK_ADDRESS};
+use haneul_types::{HANEUL_FRAMEWORK_ADDRESS, parse_haneul_struct_tag};
 use test_cluster::TestClusterBuilder;
 use tokio::time::sleep;
 
@@ -83,13 +83,15 @@ async fn test_get_package_with_display_should_not_fail() -> Result<(), anyhow::E
         .await;
     assert!(response.is_ok());
     let response: HaneulObjectResponse = response?;
-    assert!(response
-        .into_object()
-        .unwrap()
-        .display
-        .unwrap()
-        .data
-        .is_none());
+    assert!(
+        response
+            .into_object()
+            .unwrap()
+            .display
+            .unwrap()
+            .data
+            .is_none()
+    );
     Ok(())
 }
 

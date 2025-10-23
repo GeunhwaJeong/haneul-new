@@ -7,7 +7,7 @@ use std::sync::Arc;
 use diesel::prelude::*;
 use move_core_types::identifier::Identifier;
 
-use haneul_json_rpc_types::{type_and_fields_from_move_event_data, BcsEvent, HaneulEvent};
+use haneul_json_rpc_types::{BcsEvent, HaneulEvent, type_and_fields_from_move_event_data};
 use haneul_package_resolver::{PackageStore, Resolver};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::digests::TransactionDigest;
@@ -73,7 +73,7 @@ impl StoredEvent {
             })?
         };
         let sender = match sender {
-            Some(ref s) => HaneulAddress::from_bytes(s).map_err(|_e| {
+            Some(s) => HaneulAddress::from_bytes(s).map_err(|_e| {
                 IndexerError::PersistentStorageDataCorruptionError(format!(
                     "Failed to parse event sender address: {:?}",
                     sender
@@ -82,7 +82,7 @@ impl StoredEvent {
             None => {
                 return Err(IndexerError::PersistentStorageDataCorruptionError(
                     "Event senders element should not be null".to_string(),
-                ))
+                ));
             }
         };
 

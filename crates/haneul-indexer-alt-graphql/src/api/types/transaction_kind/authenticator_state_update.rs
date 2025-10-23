@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use async_graphql::{connection::Connection, Context, Object};
+use async_graphql::{Context, Object, connection::Connection};
 use haneul_types::{
     authenticator_state::ActiveJwk as NativeActiveJwk,
     transaction::AuthenticatorStateUpdate as NativeAuthenticatorStateUpdate,

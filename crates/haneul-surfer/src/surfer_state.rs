@@ -17,7 +17,7 @@ use haneul_protocol_config::{Chain, ProtocolConfig};
 use haneul_types::base_types::{ConsensusObjectSequenceKey, ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::object::{Object, Owner};
 use haneul_types::storage::WriteKind;
-use haneul_types::transaction::{CallArg, ObjectArg, TransactionData, TEST_ONLY_GAS_UNIT_FOR_PUBLISH};
+use haneul_types::transaction::{CallArg, ObjectArg, TEST_ONLY_GAS_UNIT_FOR_PUBLISH, TransactionData};
 use haneul_types::{Identifier, HANEUL_FRAMEWORK_ADDRESS};
 use test_cluster::TestCluster;
 use tokio::sync::RwLock;
@@ -302,10 +302,10 @@ impl SurferState {
                             return None;
                         }
                         let mut parameters = (*func.parameters).clone();
-                        if let Some(last_param) = parameters.last().as_ref() {
-                            if is_type_tx_context(last_param) {
-                                parameters.pop();
-                            }
+                        if let Some(last_param) = parameters.last().as_ref()
+                            && is_type_tx_context(last_param)
+                        {
+                            parameters.pop();
                         }
                         Some(EntryFunction {
                             package: package_id,

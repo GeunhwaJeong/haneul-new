@@ -10,7 +10,7 @@ use serde_with::serde_as;
 use haneul_package_resolver::{PackageStore, Resolver};
 use tabled::{
     builder::Builder as TableBuilder,
-    settings::{style::HorizontalLine, Panel as TablePanel, Style as TableStyle},
+    settings::{Panel as TablePanel, Style as TableStyle, style::HorizontalLine},
 };
 
 use fastcrypto::encoding::Base64;
@@ -20,7 +20,8 @@ use move_core_types::annotated_value::MoveTypeLayout;
 use move_core_types::identifier::{IdentStr, Identifier};
 use move_core_types::language_storage::{ModuleId, StructTag, TypeTag};
 use haneullabs_metrics::monitored_scope;
-use haneul_json::{primitive_type, HaneulJsonValue};
+use haneul_json::{HaneulJsonValue, primitive_type};
+use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use haneul_types::accumulator_event::AccumulatorEvent;
 use haneul_types::authenticator_state::ActiveJwk;
 use haneul_types::base_types::{
@@ -39,7 +40,7 @@ use haneul_types::effects::{
 use haneul_types::error::{ExecutionError, HaneulError, HaneulResult};
 use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::gas::GasCostSummary;
-use haneul_types::layout_resolver::{get_layout_from_struct_tag, LayoutResolver};
+use haneul_types::layout_resolver::{LayoutResolver, get_layout_from_struct_tag};
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::messages_consensus::ConsensusDeterminedVersionAssignments;
 use haneul_types::object::Owner;
@@ -57,7 +58,6 @@ use haneul_types::transaction::{
     SenderSignedData, TransactionData, TransactionDataAPI, TransactionKind, WithdrawFrom,
     WithdrawalTypeArg,
 };
-use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 
 use crate::balance_changes::BalanceChange;
 use crate::object_changes::ObjectChange;
@@ -463,7 +463,11 @@ impl Display for HaneulTransactionBlockKind {
                 writeln!(
                     writer,
                     "Epoch: {}, Round: {}, SubDagIndex: {:?}, Timestamp: {}, ConsensusCommitDigest: {}",
-                    p.epoch, p.round, p.sub_dag_index, p.commit_timestamp_ms, p.consensus_commit_digest
+                    p.epoch,
+                    p.round,
+                    p.sub_dag_index,
+                    p.commit_timestamp_ms,
+                    p.consensus_commit_digest
                 )?;
             }
             Self::ConsensusCommitPrologueV4(p) => {
@@ -471,7 +475,12 @@ impl Display for HaneulTransactionBlockKind {
                 writeln!(
                     writer,
                     "Epoch: {}, Round: {}, SubDagIndex: {:?}, Timestamp: {}, ConsensusCommitDigest: {} AdditionalStateDigest: {}",
-                    p.epoch, p.round, p.sub_dag_index, p.commit_timestamp_ms, p.consensus_commit_digest, p.additional_state_digest
+                    p.epoch,
+                    p.round,
+                    p.sub_dag_index,
+                    p.commit_timestamp_ms,
+                    p.consensus_commit_digest,
+                    p.additional_state_digest
                 )?;
             }
             Self::ProgrammableTransaction(p) => {
@@ -1928,19 +1937,19 @@ impl HaneulProgrammableTransactionBlock {
                         return result_types;
                     };
                     for (arg, type_) in c.arguments.iter().zip(types) {
-                        if let (&Argument::Input(i), Some(type_)) = (arg, type_) {
-                            if let Some(x) = result_types.get_mut(i as usize) {
-                                x.replace(type_);
-                            }
+                        if let (&Argument::Input(i), Some(type_)) = (arg, type_)
+                            && let Some(x) = result_types.get_mut(i as usize)
+                        {
+                            x.replace(type_);
                         }
                     }
                 }
                 Command::SplitCoins(_, amounts) => {
                     for arg in amounts {
-                        if let &Argument::Input(i) = arg {
-                            if let Some(x) = result_types.get_mut(i as usize) {
-                                x.replace(MoveTypeLayout::U64);
-                            }
+                        if let &Argument::Input(i) = arg
+                            && let Some(x) = result_types.get_mut(i as usize)
+                        {
+                            x.replace(MoveTypeLayout::U64);
                         }
                     }
                 }

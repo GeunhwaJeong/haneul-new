@@ -1,13 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use diesel::associations::HasTable;
 use diesel::QueryDsl;
+use diesel::associations::HasTable;
 use diesel_async::RunQueryDsl;
 use prometheus::Registry;
 use std::time::Duration;
 use haneul_bridge::e2e_tests::test_utils::{
-    initiate_bridge_eth_to_haneul, BridgeTestCluster, BridgeTestClusterBuilder,
+    BridgeTestCluster, BridgeTestClusterBuilder, initiate_bridge_eth_to_haneul,
 };
 use haneul_bridge_indexer::config::IndexerConfig;
 use haneul_bridge_indexer::create_haneul_indexer;
@@ -15,7 +15,7 @@ use haneul_bridge_indexer::metrics::BridgeIndexerMetrics;
 use haneul_bridge_indexer::postgres_manager::get_connection_pool;
 use haneul_bridge_indexer::storage::PgBridgePersistent;
 use haneul_bridge_schema::models::{GovernanceAction, TokenTransfer, TokenTransferStatus};
-use haneul_bridge_schema::{schema, MIGRATIONS};
+use haneul_bridge_schema::{MIGRATIONS, schema};
 use haneul_data_ingestion_core::DataIngestionMetrics;
 use haneul_indexer::database::Connection;
 use haneul_indexer_builder::indexer_builder::IndexerProgressStore;

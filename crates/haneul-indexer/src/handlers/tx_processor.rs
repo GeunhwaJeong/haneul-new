@@ -4,9 +4,9 @@
 use std::collections::HashMap;
 
 use async_trait::async_trait;
+use haneul_json_rpc::ObjectProvider;
 use haneul_json_rpc::get_balance_changes_from_effect;
 use haneul_json_rpc::get_object_changes;
-use haneul_json_rpc::ObjectProvider;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::digests::TransactionDigest;
@@ -177,7 +177,10 @@ impl ObjectProvider for TxChangesProcessor {
             }
         }
 
-        panic!("Object {} is not found in TxChangesProcessor as an ObjectProvider (fn find_object_lt_or_eq_version)", id);
+        panic!(
+            "Object {} is not found in TxChangesProcessor as an ObjectProvider (fn find_object_lt_or_eq_version)",
+            id
+        );
     }
 }
 

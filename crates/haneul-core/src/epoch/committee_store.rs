@@ -8,7 +8,7 @@ use std::sync::Arc;
 use haneul_types::base_types::ObjectID;
 use haneul_types::committee::{Committee, EpochId};
 use haneul_types::error::{HaneulErrorKind, HaneulResult};
-use typed_store::rocks::{default_db_options, DBMap, DBOptions, MetricConf};
+use typed_store::rocks::{DBMap, DBOptions, MetricConf, default_db_options};
 use typed_store::rocksdb::Options;
 
 use typed_store::DBMapUtils;

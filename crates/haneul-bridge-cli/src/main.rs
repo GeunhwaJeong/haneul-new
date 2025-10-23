@@ -9,8 +9,8 @@ use shared_crypto::intent::Intent;
 use shared_crypto::intent::IntentMessage;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
-use std::str::from_utf8;
 use std::str::FromStr;
+use std::str::from_utf8;
 use std::sync::Arc;
 use std::time::Duration;
 use haneul_bridge::client::bridge_authority_aggregator::BridgeAuthorityAggregator;
@@ -20,14 +20,14 @@ use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge::haneul_client::HaneulClient;
 use haneul_bridge::haneul_transaction_builder::build_haneul_transaction;
 use haneul_bridge::types::BridgeActionType;
+use haneul_bridge::utils::{EthBridgeContracts, get_eth_contracts};
 use haneul_bridge::utils::{
     examine_key, generate_bridge_authority_key_and_write_to_file,
     generate_bridge_client_key_and_write_to_file, generate_bridge_node_config_and_write_to_file,
 };
-use haneul_bridge::utils::{get_eth_contracts, EthBridgeContracts};
 use haneul_bridge_cli::{
-    make_action, select_contract_address, Args, BridgeCliConfig, BridgeCommand,
-    LoadedBridgeCliConfig, Network, SEPOLIA_BRIDGE_PROXY_ADDR,
+    Args, BridgeCliConfig, BridgeCommand, LoadedBridgeCliConfig, Network,
+    SEPOLIA_BRIDGE_PROXY_ADDR, make_action, select_contract_address,
 };
 use haneul_config::Config;
 use haneul_sdk::HaneulClient as HaneulSdkClient;

@@ -9,8 +9,8 @@ use move_core_types::language_storage::StructTag;
 use haneullabs_metrics::monitored_scope;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
-use serde_with::{serde_as, DisplayFromStr};
+use serde_json::{Value, json};
+use serde_with::{DisplayFromStr, serde_as};
 use std::fmt;
 use std::fmt::Display;
 use haneul_types::base_types::{ObjectID, HaneulAddress, TransactionDigest};
@@ -21,7 +21,7 @@ use haneul_types::haneul_serde::BigInt;
 use json_to_table::json_to_table;
 use tabled::settings::Style as TableStyle;
 
-use crate::{type_and_fields_from_move_event_data, Page};
+use crate::{Page, type_and_fields_from_move_event_data};
 use haneul_types::haneul_serde::HaneulStructTag;
 
 use std::str::FromStr;
@@ -216,9 +216,16 @@ impl Display for HaneulEvent {
         let mut table = json_to_table(parsed_json);
         let style = TableStyle::modern();
         table.collapse().with(style);
-        write!(f,
+        write!(
+            f,
             " ┌──\n │ EventID: {}:{}\n │ PackageID: {}\n │ Transaction Module: {}\n │ Sender: {}\n │ EventType: {}\n",
-            self.id.tx_digest, self.id.event_seq, self.package_id, self.transaction_module, self.sender, self.type_)?;
+            self.id.tx_digest,
+            self.id.event_seq,
+            self.package_id,
+            self.transaction_module,
+            self.sender,
+            self.type_
+        )?;
         if let Some(ts) = self.timestamp_ms {
             writeln!(f, " │ Timestamp: {}\n └──", ts)?;
         }

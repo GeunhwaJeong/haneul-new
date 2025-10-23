@@ -11,6 +11,7 @@ use std::sync::atomic::AtomicU64;
 use std::sync::{Arc, Mutex};
 use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_json_rpc_types::{EventFilter, EventPage, HaneulEvent};
+use haneul_types::Identifier;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::bridge::{
@@ -22,7 +23,6 @@ use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::Owner;
 use haneul_types::transaction::ObjectArg;
 use haneul_types::transaction::Transaction;
-use haneul_types::Identifier;
 
 use crate::haneul_client::HaneulClientInner;
 use crate::types::{BridgeAction, BridgeActionStatus, IsBridgePaused};

@@ -3,12 +3,12 @@
 
 use super::epoch_start_haneul_system_state::EpochStartValidatorInfoV1;
 use super::haneul_system_state_summary::{HaneulSystemStateSummary, HaneulValidatorSummary};
-use super::{get_validators_from_table_vec, AdvanceEpochParams, HaneulSystemStateTrait};
+use super::{AdvanceEpochParams, HaneulSystemStateTrait, get_validators_from_table_vec};
 use crate::balance::Balance;
 use crate::base_types::{ObjectID, HaneulAddress};
 use crate::collection_types::{Bag, Table, TableVec, VecMap, VecSet};
 use crate::committee::{CommitteeWithNetworkMetadata, NetworkMetadata};
-use crate::crypto::{verify_proof_of_possession, AuthorityPublicKey, AuthoritySignature};
+use crate::crypto::{AuthorityPublicKey, AuthoritySignature, verify_proof_of_possession};
 use crate::crypto::{AuthorityPublicKeyBytes, NetworkPublicKey};
 use crate::error::HaneulError;
 use crate::gas::GasCostSummary;

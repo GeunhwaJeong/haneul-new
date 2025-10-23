@@ -14,7 +14,7 @@ use std::num::NonZeroUsize;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use anyhow::{anyhow, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, ensure};
 use fastcrypto::traits::Signer;
 use rand::rngs::OsRng;
 use haneul_config::verifier_signing_config::VerifierSigningConfig;
@@ -26,7 +26,7 @@ use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_swarm_config::network_config_builder::ConfigBuilder;
 use haneul_types::base_types::{AuthorityName, ObjectID, ObjectRef, SequenceNumber, VersionNumber};
-use haneul_types::crypto::{get_account_key_pair, AccountKeyPair, AuthoritySignature};
+use haneul_types::crypto::{AccountKeyPair, AuthoritySignature, get_account_key_pair};
 use haneul_types::digests::{ChainIdentifier, ConsensusCommitDigest};
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::messages_consensus::ConsensusDeterminedVersionAssignments;
@@ -48,9 +48,9 @@ use haneul_types::{
 };
 
 use self::epoch_state::EpochState;
+pub use self::store::SimulatorStore;
 pub use self::store::in_mem_store::InMemoryStore;
 use self::store::in_mem_store::KeyStore;
-pub use self::store::SimulatorStore;
 use haneul_core::mock_checkpoint_builder::{MockCheckpointBuilder, ValidatorKeypairProvider};
 use haneul_types::messages_checkpoint::{CheckpointContents, CheckpointSequenceNumber};
 use haneul_types::{
@@ -774,7 +774,7 @@ impl Simulacrum {
 mod tests {
     use std::time::Duration;
 
-    use rand::{rngs::StdRng, SeedableRng};
+    use rand::{SeedableRng, rngs::StdRng};
     use haneul_types::{
         base_types::HaneulAddress, effects::TransactionEffectsAPI, gas_coin::GasCoin,
         transaction::TransactionDataAPI,

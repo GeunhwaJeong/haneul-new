@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    base_types::SequenceNumber, error::HaneulResult, object::Owner, storage::ObjectStore,
-    HANEUL_DISPLAY_REGISTRY_OBJECT_ID,
+    HANEUL_DISPLAY_REGISTRY_OBJECT_ID, base_types::SequenceNumber, error::HaneulResult, object::Owner,
+    storage::ObjectStore,
 };
 
 pub fn get_display_registry_obj_initial_shared_version(

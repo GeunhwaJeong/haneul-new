@@ -5,7 +5,7 @@ use std::env;
 use std::fs;
 use std::path::PathBuf;
 use haneul_framework::{BuiltInFramework, SystemPackage};
-use haneul_framework_snapshot::{update_bytecode_snapshot_manifest, SnapshotPackage};
+use haneul_framework_snapshot::{SnapshotPackage, update_bytecode_snapshot_manifest};
 use haneul_protocol_config::ProtocolVersion;
 
 // Define the `GIT_FULL_SHA_REVISION` const

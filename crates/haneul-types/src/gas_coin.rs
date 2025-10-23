@@ -12,12 +12,12 @@ use std::convert::{TryFrom, TryInto};
 use std::fmt::{Display, Formatter};
 
 use crate::{
+    HANEUL_FRAMEWORK_ADDRESS,
     balance::Balance,
     base_types::{ObjectID, SequenceNumber},
     coin::Coin,
     error::{ExecutionError, ExecutionErrorKind},
     object::{Data, MoveObject, Object},
-    HANEUL_FRAMEWORK_ADDRESS,
 };
 
 /// The number of Geunhwa per Haneul token

@@ -6,12 +6,12 @@ use fastcrypto::encoding::{Base64, Encoding};
 use fastcrypto::hash::HashFunction;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{fs, path::Path};
-use haneul_types::authenticator_state::{get_authenticator_state, AuthenticatorStateInner};
+use haneul_types::authenticator_state::{AuthenticatorStateInner, get_authenticator_state};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::clock::Clock;
 use haneul_types::committee::CommitteeWithNetworkMetadata;
 use haneul_types::crypto::DefaultHash;
-use haneul_types::deny_list_v1::{get_coin_deny_list, PerTypeDenyList};
+use haneul_types::deny_list_v1::{PerTypeDenyList, get_coin_deny_list};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::gas_coin::TOTAL_SUPPLY_GEUNHWA;
 use haneul_types::messages_checkpoint::{
@@ -19,16 +19,16 @@ use haneul_types::messages_checkpoint::{
 };
 use haneul_types::storage::ObjectStore;
 use haneul_types::haneul_system_state::{
-    get_haneul_system_state, get_haneul_system_state_wrapper, HaneulSystemState, HaneulSystemStateTrait,
-    HaneulSystemStateWrapper, HaneulValidatorGenesis,
+    HaneulSystemState, HaneulSystemStateTrait, HaneulSystemStateWrapper, HaneulValidatorGenesis,
+    get_haneul_system_state, get_haneul_system_state_wrapper,
 };
 use haneul_types::transaction::Transaction;
+use haneul_types::{HANEUL_BRIDGE_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
 use haneul_types::{
     committee::{Committee, EpochId, ProtocolVersion},
     error::HaneulResult,
     object::Object,
 };
-use haneul_types::{HANEUL_BRIDGE_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
 use tracing::trace;
 
 #[derive(Clone, Debug)]
@@ -493,7 +493,9 @@ impl TokenDistributionSchedule {
         }
 
         if total_geunhwa != TOTAL_SUPPLY_GEUNHWA {
-            panic!("TokenDistributionSchedule adds up to {total_geunhwa} and not expected {TOTAL_SUPPLY_GEUNHWA}");
+            panic!(
+                "TokenDistributionSchedule adds up to {total_geunhwa} and not expected {TOTAL_SUPPLY_GEUNHWA}"
+            );
         }
     }
 

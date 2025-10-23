@@ -6,14 +6,14 @@ use camino::Utf8PathBuf;
 use clap::Parser;
 use fastcrypto::encoding::{Encoding, Hex};
 use std::path::PathBuf;
-use haneul_config::{genesis::UnsignedGenesis, HANEUL_GENESIS_FILENAME};
+use haneul_config::{HANEUL_GENESIS_FILENAME, genesis::UnsignedGenesis};
 use haneul_genesis_builder::Builder;
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::{
     base_types::HaneulAddress,
     committee::ProtocolVersion,
     crypto::{
-        generate_proof_of_possession, AuthorityKeyPair, KeypairTraits, NetworkKeyPair, HaneulKeyPair,
+        AuthorityKeyPair, KeypairTraits, NetworkKeyPair, HaneulKeyPair, generate_proof_of_possession,
     },
     message_envelope::Message,
 };
@@ -252,8 +252,10 @@ fn check_protocol_version(builder: &Builder, protocol_version: ProtocolVersion) 
     // (e.g. using a `haneul` binary built at the wrong commit).
     if builder.protocol_version() != protocol_version {
         return Err(anyhow::anyhow!(
-                        "Serialized protocol version does not match local --protocol-version argument. ({:?} vs {:?})",
-                        builder.protocol_version(), protocol_version));
+            "Serialized protocol version does not match local --protocol-version argument. ({:?} vs {:?})",
+            builder.protocol_version(),
+            protocol_version
+        ));
     }
     Ok(())
 }
@@ -266,7 +268,7 @@ mod test {
     use haneul_genesis_builder::validator_info::ValidatorInfo;
     use haneul_keys::keypair_file::{write_authority_keypair_to_file, write_keypair_to_file};
     use haneul_macros::nondeterministic;
-    use haneul_types::crypto::{get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair, HaneulKeyPair};
+    use haneul_types::crypto::{AccountKeyPair, AuthorityKeyPair, HaneulKeyPair, get_key_pair_from_rng};
 
     #[test]
     #[cfg_attr(msim, ignore)]

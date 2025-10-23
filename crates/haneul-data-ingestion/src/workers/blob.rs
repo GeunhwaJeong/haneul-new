@@ -4,10 +4,10 @@
 use anyhow::Result;
 use async_trait::async_trait;
 use bytes::Bytes;
-use object_store::path::Path;
 use object_store::ObjectStore;
+use object_store::path::Path;
 use serde::{Deserialize, Serialize};
-use haneul_data_ingestion_core::{create_remote_store_client, Worker};
+use haneul_data_ingestion_core::{Worker, create_remote_store_client};
 use haneul_storage::blob::{Blob, BlobEncoding};
 use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;

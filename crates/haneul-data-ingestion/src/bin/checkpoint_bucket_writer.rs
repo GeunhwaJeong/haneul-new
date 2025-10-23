@@ -10,8 +10,8 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use haneul_data_ingestion::{BlobTaskConfig, BlobWorker};
 use haneul_data_ingestion_core::{
-    create_remote_store_client, end_of_epoch_data, DataIngestionMetrics, FileProgressStore,
-    IndexerExecutor, ProgressStore, ReaderOptions, WorkerPool,
+    DataIngestionMetrics, FileProgressStore, IndexerExecutor, ProgressStore, ReaderOptions,
+    WorkerPool, create_remote_store_client, end_of_epoch_data,
 };
 use tokio::sync::oneshot;
 

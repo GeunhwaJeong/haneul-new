@@ -10,13 +10,13 @@ use haneul_json_rpc_types::{
     HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponseOptions,
 };
 use haneul_keys::keystore::AccountKeystore;
-use haneul_rosetta::{operations::Operations, CoinMetadataCache};
+use haneul_rosetta::{CoinMetadataCache, operations::Operations};
 use haneul_types::{quorum_driver_types::ExecuteTransactionRequestType, transaction::Transaction};
 use test_cluster::TestClusterBuilder;
 
 use crate::{
     rosetta_client::start_rosetta_test_server,
-    split_coin::{make_change, DEFAULT_GAS_BUDGET},
+    split_coin::{DEFAULT_GAS_BUDGET, make_change},
 };
 
 #[tokio::test]

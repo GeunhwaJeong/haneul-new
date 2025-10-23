@@ -4,13 +4,13 @@
 use std::time::Duration;
 
 use crate::Indexer;
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use diesel::{OptionalExtension, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
 use haneul_indexer_alt_framework::postgres::Db;
 use haneul_indexer_alt_framework::types::{
     full_checkpoint_content::CheckpointData,
-    haneul_system_state::{get_haneul_system_state, HaneulSystemStateTrait},
+    haneul_system_state::{HaneulSystemStateTrait, get_haneul_system_state},
     transaction::{TransactionDataAPI, TransactionKind},
 };
 use haneul_indexer_alt_schema::{

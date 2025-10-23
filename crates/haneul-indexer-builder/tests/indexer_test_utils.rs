@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use anyhow::{anyhow, Error};
+use anyhow::{Error, anyhow};
 use async_trait::async_trait;
 use prometheus::{IntCounterVec, IntGaugeVec};
 use tokio::sync::Mutex;
@@ -17,7 +17,7 @@ use haneul_indexer_builder::indexer_builder::{
     DataMapper, DataSender, Datasource, IndexerProgressStore, Persistent,
 };
 use haneul_indexer_builder::metrics::IndexerMetricProvider;
-use haneul_indexer_builder::{Task, Tasks, LIVE_TASK_TARGET_CHECKPOINT};
+use haneul_indexer_builder::{LIVE_TASK_TARGET_CHECKPOINT, Task, Tasks};
 
 pub struct TestDatasource<T> {
     pub data: Vec<T>,

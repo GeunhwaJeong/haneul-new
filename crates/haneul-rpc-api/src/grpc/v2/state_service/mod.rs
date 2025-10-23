@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::RpcService;
-use haneul_rpc::proto::haneul::rpc::v2::state_service_server::StateService;
 use haneul_rpc::proto::haneul::rpc::v2::GetBalanceRequest;
 use haneul_rpc::proto::haneul::rpc::v2::GetBalanceResponse;
 use haneul_rpc::proto::haneul::rpc::v2::GetCoinInfoRequest;
@@ -13,6 +12,7 @@ use haneul_rpc::proto::haneul::rpc::v2::ListDynamicFieldsRequest;
 use haneul_rpc::proto::haneul::rpc::v2::ListDynamicFieldsResponse;
 use haneul_rpc::proto::haneul::rpc::v2::ListOwnedObjectsRequest;
 use haneul_rpc::proto::haneul::rpc::v2::ListOwnedObjectsResponse;
+use haneul_rpc::proto::haneul::rpc::v2::state_service_server::StateService;
 
 mod get_balance;
 mod get_coin_info;

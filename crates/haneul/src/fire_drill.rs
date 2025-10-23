@@ -18,17 +18,17 @@ use fastcrypto::traits::{KeyPair, ToFromBytes};
 use move_core_types::ident_str;
 use std::path::{Path, PathBuf};
 use haneul_config::node::{AuthorityKeyPairWithPath, KeyPairWithPath};
-use haneul_config::{local_ip_utils, Config, NodeConfig, PersistedConfig};
+use haneul_config::{Config, NodeConfig, PersistedConfig, local_ip_utils};
 use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockResponseOptions};
 use haneul_keys::keypair_file::read_keypair_from_file;
-use haneul_sdk::{rpc_types::HaneulTransactionBlockEffectsAPI, HaneulClient, HaneulClientBuilder};
+use haneul_sdk::{HaneulClient, HaneulClientBuilder, rpc_types::HaneulTransactionBlockEffectsAPI};
 use haneul_types::base_types::{ObjectRef, HaneulAddress};
-use haneul_types::crypto::{generate_proof_of_possession, get_key_pair, HaneulKeyPair};
+use haneul_types::crypto::{HaneulKeyPair, generate_proof_of_possession, get_key_pair};
 use haneul_types::multiaddr::{Multiaddr, Protocol};
 use haneul_types::transaction::{
-    CallArg, Transaction, TransactionData, TEST_ONLY_GAS_UNIT_FOR_GENERIC,
+    CallArg, TEST_ONLY_GAS_UNIT_FOR_GENERIC, Transaction, TransactionData,
 };
-use haneul_types::{committee::EpochId, crypto::get_authority_key_pair, HANEUL_SYSTEM_PACKAGE_ID};
+use haneul_types::{HANEUL_SYSTEM_PACKAGE_ID, committee::EpochId, crypto::get_authority_key_pair};
 use tracing::info;
 
 #[derive(Parser)]
@@ -75,7 +75,9 @@ async fn run_metadata_rotation(metadata_rotation: MetadataRotation) -> anyhow::R
     let haneul_client = HaneulClientBuilder::default().build(fullnode_rpc_url).await?;
     let haneul_address = HaneulAddress::from(&account_key.public());
     let starting_epoch = current_epoch(&haneul_client).await?;
-    info!("Running Metadata Rotation fire drill for validator address {haneul_address} in epoch {starting_epoch}.");
+    info!(
+        "Running Metadata Rotation fire drill for validator address {haneul_address} in epoch {starting_epoch}."
+    );
 
     // Prepare new metadata for next epoch
     let new_config_path =

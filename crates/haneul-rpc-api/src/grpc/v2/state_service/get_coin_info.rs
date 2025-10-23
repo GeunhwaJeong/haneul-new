@@ -4,10 +4,10 @@
 use crate::Result;
 use crate::RpcError;
 use crate::RpcService;
-use haneul_rpc::proto::haneul::rpc::v2::coin_treasury::SupplyState as RpcSupplyState;
 use haneul_rpc::proto::haneul::rpc::v2::CoinTreasury;
 use haneul_rpc::proto::haneul::rpc::v2::GetCoinInfoRequest;
 use haneul_rpc::proto::haneul::rpc::v2::GetCoinInfoResponse;
+use haneul_rpc::proto::haneul::rpc::v2::coin_treasury::SupplyState as RpcSupplyState;
 use haneul_sdk_types::{Address, StructTag};
 use haneul_types::base_types::{ObjectID as HaneulObjectID, HaneulAddress};
 use haneul_types::coin::RegulatedCoinMetadata;

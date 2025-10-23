@@ -4,7 +4,7 @@
 use haneul_default_config::DefaultConfig;
 use haneul_indexer_alt_framework::{self as framework, pipeline::CommitterConfig};
 
-use crate::{rpc::pagination::PaginationConfig, DbConfig};
+use crate::{DbConfig, rpc::pagination::PaginationConfig};
 
 #[DefaultConfig]
 #[derive(Default)]

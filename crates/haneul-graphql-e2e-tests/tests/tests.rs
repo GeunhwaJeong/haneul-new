@@ -7,13 +7,13 @@ use anyhow::bail;
 use async_trait::async_trait;
 use serde_json::Value;
 use std::{path::Path, sync::Arc, time::Duration};
-use haneul_graphql_rpc::test_infra::cluster::{serve_executor, ExecutorCluster};
+use haneul_graphql_rpc::test_infra::cluster::{ExecutorCluster, serve_executor};
 use haneul_transactional_test_runner::{
     args::HaneulInitArgs,
     create_adapter,
     offchain_state::{OffchainStateReader, TestResponse},
     run_tasks_with_adapter,
-    test_adapter::{HaneulTestAdapter, PRE_COMPILED},
+    test_adapter::{PRE_COMPILED, HaneulTestAdapter},
 };
 
 pub struct OffchainReaderForAdapter {

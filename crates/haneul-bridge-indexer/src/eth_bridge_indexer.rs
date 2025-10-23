@@ -9,7 +9,7 @@ use anyhow::Error;
 use async_trait::async_trait;
 use ethers::prelude::Transaction;
 use ethers::providers::{Http, Middleware, Provider, StreamExt, Ws};
-use ethers::types::{Address as EthAddress, Block, Filter, Log, H256};
+use ethers::types::{Address as EthAddress, Block, Filter, H256, Log};
 use prometheus::IntGauge;
 use haneul_bridge::error::BridgeError;
 use haneul_bridge::eth_client::EthClient;

@@ -10,9 +10,9 @@ use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::messages_checkpoint::CheckpointSummary;
 use haneul_types::transaction::TransactionDataAPI;
 
+use crate::FileType;
 use crate::handlers::AnalyticsHandler;
 use crate::tables::CheckpointEntry;
-use crate::FileType;
 
 pub struct CheckpointHandler {}
 

@@ -5,7 +5,7 @@ use clap::Parser;
 use move_cli::base::test::UnitTestResult;
 use move_package::BuildConfig;
 use std::path::Path;
-use haneul_move_build::{implicit_deps, set_haneul_flavor, HaneulPackageHooks};
+use haneul_move_build::{HaneulPackageHooks, implicit_deps, set_haneul_flavor};
 use haneul_package_management::system_package_versions::latest_system_packages;
 
 pub mod build;

@@ -18,6 +18,9 @@ use haneul_json_rpc_types::{
     HaneulTransactionBlockResponseOptions,
 };
 use haneul_sdk::{HaneulClient as HaneulSdkClient, HaneulClientBuilder};
+use haneul_types::BRIDGE_PACKAGE_ID;
+use haneul_types::HANEUL_BRIDGE_OBJECT_ID;
+use haneul_types::TypeTag;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::bridge::BridgeSummary;
@@ -35,14 +38,11 @@ use haneul_types::transaction::ProgrammableTransaction;
 use haneul_types::transaction::SharedObjectMutability;
 use haneul_types::transaction::Transaction;
 use haneul_types::transaction::TransactionKind;
-use haneul_types::TypeTag;
-use haneul_types::BRIDGE_PACKAGE_ID;
-use haneul_types::HANEUL_BRIDGE_OBJECT_ID;
 use haneul_types::{
+    Identifier,
     base_types::{ObjectID, HaneulAddress},
     digests::TransactionDigest,
     event::EventID,
-    Identifier,
 };
 use tokio::sync::OnceCell;
 use tracing::{error, warn};
@@ -138,11 +138,13 @@ where
         let events = self.inner.query_events(filter.clone(), cursor).await?;
 
         // Safeguard check that all events are emitted from requested package and module
-        assert!(events
-            .data
-            .iter()
-            .all(|event| event.type_.address.as_ref() == package.as_ref()
-                && event.type_.module == module));
+        assert!(
+            events
+                .data
+                .iter()
+                .all(|event| event.type_.address.as_ref() == package.as_ref()
+                    && event.type_.module == module)
+        );
         Ok(events)
     }
 
@@ -664,7 +666,7 @@ mod tests {
     use haneul_types::crypto::get_key_pair;
 
     use super::*;
-    use crate::events::{init_all_struct_tags, HaneulToEthTokenBridgeV1};
+    use crate::events::{HaneulToEthTokenBridgeV1, init_all_struct_tags};
 
     #[tokio::test]
     async fn get_bridge_action_by_tx_digest_and_event_idx_maybe() {

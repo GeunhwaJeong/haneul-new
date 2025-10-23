@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::RpcService;
-use haneul_rpc::proto::haneul::rpc::v2::ledger_service_server::LedgerService;
 use haneul_rpc::proto::haneul::rpc::v2::BatchGetObjectsRequest;
 use haneul_rpc::proto::haneul::rpc::v2::BatchGetObjectsResponse;
 use haneul_rpc::proto::haneul::rpc::v2::BatchGetTransactionsRequest;
@@ -17,6 +16,7 @@ use haneul_rpc::proto::haneul::rpc::v2::GetServiceInfoRequest;
 use haneul_rpc::proto::haneul::rpc::v2::GetServiceInfoResponse;
 use haneul_rpc::proto::haneul::rpc::v2::GetTransactionRequest;
 use haneul_rpc::proto::haneul::rpc::v2::GetTransactionResponse;
+use haneul_rpc::proto::haneul::rpc::v2::ledger_service_server::LedgerService;
 
 pub(crate) mod get_checkpoint;
 mod get_epoch;

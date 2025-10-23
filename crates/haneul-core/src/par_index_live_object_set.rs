@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::authority::authority_store_tables::LiveObject;
 use crate::authority::AuthorityStore;
+use crate::authority::authority_store_tables::LiveObject;
 use std::time::Instant;
 use haneul_types::base_types::ObjectID;
 use haneul_types::object::Object;

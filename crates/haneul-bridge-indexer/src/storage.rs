@@ -1,25 +1,25 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use anyhow::{anyhow, Error};
+use anyhow::{Error, anyhow};
 use async_trait::async_trait;
 use diesel::dsl::now;
 use diesel::upsert::excluded;
 use diesel::{ExpressionMethods, QueryDsl, TextExpressionMethods};
 use diesel::{OptionalExtension, SelectableHelper};
-use diesel_async::scoped_futures::ScopedFutureExt;
 use diesel_async::AsyncConnection;
 use diesel_async::RunQueryDsl;
+use diesel_async::scoped_futures::ScopedFutureExt;
 
-use crate::postgres_manager::PgPool;
 use crate::ProcessedTxnData;
+use crate::postgres_manager::PgPool;
 use haneul_bridge_schema::models::ProgressStore;
 use haneul_bridge_schema::schema;
 use haneul_bridge_schema::schema::progress_store::{columns, dsl};
 use haneul_bridge_schema::schema::{haneul_error_transactions, token_transfer, token_transfer_data};
 use haneul_indexer_builder::indexer_builder::{IndexerProgressStore, Persistent};
 use haneul_indexer_builder::{
-    progress::ProgressSavingPolicy, Task, Tasks, LIVE_TASK_TARGET_CHECKPOINT,
+    LIVE_TASK_TARGET_CHECKPOINT, Task, Tasks, progress::ProgressSavingPolicy,
 };
 
 /// Persistent layer impl

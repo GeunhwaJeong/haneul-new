@@ -3,7 +3,7 @@
 
 use crate::state_sync::metrics::Metrics;
 use anemo::async_trait;
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use haneul_data_ingestion_core::Worker;
 use haneul_storage::verify_checkpoint;
 use haneul_types::full_checkpoint_content::CheckpointData;

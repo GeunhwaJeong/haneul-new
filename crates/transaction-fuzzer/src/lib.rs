@@ -14,14 +14,14 @@ use proptest::test_runner::TestRunner;
 use std::fmt::Debug;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
-use haneul_types::crypto::get_key_pair;
 use haneul_types::crypto::AccountKeyPair;
+use haneul_types::crypto::get_key_pair;
 use haneul_types::digests::TransactionDigest;
-use haneul_types::object::{MoveObject, Object, Owner, OBJECT_START_VERSION};
+use haneul_types::object::{MoveObject, OBJECT_START_VERSION, Object, Owner};
 use haneul_types::{gas_coin::TOTAL_SUPPLY_GEUNHWA, transaction::GasData};
 
 use proptest::prelude::*;
-use rand::{rngs::StdRng, SeedableRng};
+use rand::{SeedableRng, rngs::StdRng};
 
 fn new_gas_coin_with_balance_and_owner(balance: u64, owner: Owner) -> Object {
     Object::new_move(

@@ -4,11 +4,11 @@
 use haneul_macros::sim_test;
 use haneul_rpc::field::FieldMask;
 use haneul_rpc::field::FieldMaskUtil;
-use haneul_rpc::proto::haneul::rpc::v2::ledger_service_client::LedgerServiceClient;
 use haneul_rpc::proto::haneul::rpc::v2::BatchGetObjectsRequest;
 use haneul_rpc::proto::haneul::rpc::v2::BatchGetObjectsResponse;
 use haneul_rpc::proto::haneul::rpc::v2::GetObjectRequest;
 use haneul_rpc::proto::haneul::rpc::v2::Object;
+use haneul_rpc::proto::haneul::rpc::v2::ledger_service_client::LedgerServiceClient;
 use haneul_sdk_types::Address;
 use test_cluster::TestClusterBuilder;
 

@@ -10,7 +10,7 @@ use diesel::{
 };
 use move_core_types::account_address::AccountAddress;
 use haneul_indexer_alt_schema::schema::kv_packages;
-use haneul_package_resolver::{error::Error, Package, PackageStore, PackageStoreWithLruCache, Result};
+use haneul_package_resolver::{Package, PackageStore, PackageStoreWithLruCache, Result, error::Error};
 use haneul_types::object::Object;
 
 use crate::pg_reader::PgReader;

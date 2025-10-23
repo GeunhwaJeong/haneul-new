@@ -21,6 +21,8 @@ use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use haneul_json_rpc_types::HaneulEvent;
+use haneul_types::BRIDGE_PACKAGE_ID;
+use haneul_types::TypeTag;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::bridge::BridgeChainId;
 use haneul_types::bridge::MoveTypeBridgeMessageKey;
@@ -30,8 +32,6 @@ use haneul_types::collection_types::VecMap;
 use haneul_types::crypto::ToFromBytes;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::parse_haneul_type_tag;
-use haneul_types::TypeTag;
-use haneul_types::BRIDGE_PACKAGE_ID;
 
 // `TokendDepositedEvent` emitted in bridge.move
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -445,6 +445,7 @@ pub mod tests {
     use ethers::types::Address as EthAddress;
     use haneul_json_rpc_types::BcsEvent;
     use haneul_json_rpc_types::HaneulEvent;
+    use haneul_types::Identifier;
     use haneul_types::base_types::ObjectID;
     use haneul_types::base_types::HaneulAddress;
     use haneul_types::bridge::BridgeChainId;
@@ -452,7 +453,6 @@ pub mod tests {
     use haneul_types::crypto::get_key_pair;
     use haneul_types::digests::TransactionDigest;
     use haneul_types::event::EventID;
-    use haneul_types::Identifier;
 
     /// Returns a test HaneulEvent and corresponding BridgeAction
     pub fn get_test_haneul_event_and_action(identifier: Identifier) -> (HaneulEvent, BridgeAction) {

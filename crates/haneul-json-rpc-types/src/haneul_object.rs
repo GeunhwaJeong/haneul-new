@@ -18,8 +18,8 @@ use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
-use serde_with::serde_as;
 use serde_with::DisplayFromStr;
+use serde_with::serde_as;
 
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{
@@ -124,7 +124,9 @@ impl HaneulObjectResponse {
                     digest: _,
                 }),
             ) => Ok(*object_id),
-            _ => Err(anyhow!("Could not get object_id, something went wrong with HaneulObjectResponse construction.")),
+            _ => Err(anyhow!(
+                "Could not get object_id, something went wrong with HaneulObjectResponse construction."
+            )),
         }
     }
 
@@ -352,12 +354,11 @@ impl TryFrom<&HaneulMoveStruct> for GasCoin {
     fn try_from(move_struct: &HaneulMoveStruct) -> Result<Self, Self::Error> {
         match move_struct {
             HaneulMoveStruct::WithFields(fields) | HaneulMoveStruct::WithTypes { type_: _, fields } => {
-                if let Some(HaneulMoveValue::String(balance)) = fields.get("balance") {
-                    if let Ok(balance) = balance.parse::<u64>() {
-                        if let Some(HaneulMoveValue::UID { id }) = fields.get("id") {
-                            return Ok(GasCoin::new(*id, balance));
-                        }
-                    }
+                if let Some(HaneulMoveValue::String(balance)) = fields.get("balance")
+                    && let Ok(balance) = balance.parse::<u64>()
+                    && let Some(HaneulMoveValue::UID { id }) = fields.get("id")
+                {
+                    return Ok(GasCoin::new(*id, balance));
                 }
             }
             _ => {}
@@ -700,7 +701,7 @@ pub trait HaneulData: Sized {
     type ObjectType;
     type PackageType;
     fn try_from_object(object: MoveObject, layout: MoveStructLayout)
-        -> Result<Self, anyhow::Error>;
+    -> Result<Self, anyhow::Error>;
     fn try_from_package(package: MovePackage) -> Result<Self, anyhow::Error>;
     fn try_as_move(&self) -> Option<&Self::ObjectType>;
     fn try_into_move(self) -> Option<Self::ObjectType>;
@@ -884,7 +885,7 @@ impl HaneulParsedData {
 
 pub trait HaneulMoveObject: Sized {
     fn try_from_layout(object: MoveObject, layout: MoveStructLayout)
-        -> Result<Self, anyhow::Error>;
+    -> Result<Self, anyhow::Error>;
 
     fn try_from(o: MoveObject, resolver: &impl GetModule) -> Result<Self, anyhow::Error> {
         let layout = o.get_layout(resolver)?;

@@ -7,7 +7,7 @@ use consensus_core::{TransactionVerifier, ValidationError};
 use consensus_types::block::{BlockRef, TransactionIndex};
 use fastcrypto_tbls::dkg_v1;
 use haneullabs_metrics::monitored_scope;
-use prometheus::{register_int_counter_with_registry, IntCounter, Registry};
+use prometheus::{IntCounter, Registry, register_int_counter_with_registry};
 use haneul_types::{
     error::{HaneulError, HaneulErrorKind, HaneulResult},
     messages_consensus::{ConsensusPosition, ConsensusTransaction, ConsensusTransactionKind},
@@ -17,7 +17,7 @@ use tap::TapFallible;
 use tracing::{info, instrument, warn};
 
 use crate::{
-    authority::{authority_per_epoch_store::AuthorityPerEpochStore, AuthorityState},
+    authority::{AuthorityState, authority_per_epoch_store::AuthorityPerEpochStore},
     checkpoints::CheckpointServiceNotify,
     consensus_adapter::ConsensusOverloadChecker,
 };
@@ -310,8 +310,8 @@ mod tests {
         authority::test_authority_builder::TestAuthorityBuilder,
         checkpoints::CheckpointServiceNoop,
         consensus_adapter::{
-            consensus_tests::{test_certificates, test_gas_objects, test_user_transaction},
             NoopConsensusOverloadChecker,
+            consensus_tests::{test_certificates, test_gas_objects, test_user_transaction},
         },
         consensus_validator::{HaneulTxValidator, HaneulTxValidatorMetrics},
     };

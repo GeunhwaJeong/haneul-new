@@ -3,10 +3,10 @@
 
 use crate::authority_state::StateRead;
 use crate::error::{Error, HaneulRpcInputError};
-use crate::{with_tracing, HaneulRpcModule};
+use crate::{HaneulRpcModule, with_tracing};
 use async_trait::async_trait;
-use jsonrpsee::core::RpcResult;
 use jsonrpsee::RpcModule;
+use jsonrpsee::core::RpcResult;
 #[cfg(test)]
 use mockall::automock;
 use move_binary_format::{binary_config::BinaryConfig, normalized};

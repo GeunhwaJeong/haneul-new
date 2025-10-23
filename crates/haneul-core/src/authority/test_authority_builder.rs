@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use super::ExecutionEnv;
 use super::backpressure::BackpressureManager;
 use super::epoch_start_configuration::EpochFlag;
-use super::ExecutionEnv;
 use crate::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use crate::authority::authority_store_pruner::{ObjectsCompactionFilter, PrunerWatermarks};
 use crate::authority::authority_store_tables::{
@@ -27,6 +27,7 @@ use fastcrypto::traits::KeyPair;
 use prometheus::Registry;
 use std::path::PathBuf;
 use std::sync::Arc;
+use haneul_config::ExecutionCacheConfig;
 use haneul_config::certificate_deny_config::CertificateDenyConfig;
 use haneul_config::genesis::Genesis;
 use haneul_config::node::AuthorityOverloadConfig;
@@ -34,7 +35,6 @@ use haneul_config::node::{
     AuthorityStorePruningConfig, DBCheckpointConfig, ExpensiveSafetyCheckConfig,
 };
 use haneul_config::transaction_deny_config::TransactionDenyConfig;
-use haneul_config::ExecutionCacheConfig;
 use haneul_macros::nondeterministic;
 use haneul_network::randomness;
 use haneul_protocol_config::{Chain, ProtocolConfig};
@@ -108,10 +108,11 @@ impl<'a> TestAuthorityBuilder<'a> {
     pub fn with_reference_gas_price(mut self, reference_gas_price: u64) -> Self {
         // If genesis is already set then setting rgp is meaningless since it will be overwritten.
         assert!(self.genesis.is_none());
-        assert!(self
-            .reference_gas_price
-            .replace(reference_gas_price)
-            .is_none());
+        assert!(
+            self.reference_gas_price
+                .replace(reference_gas_price)
+                .is_none()
+        );
         self
     }
 

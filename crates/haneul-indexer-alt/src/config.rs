@@ -5,9 +5,9 @@ use haneul_default_config::DefaultConfig;
 use haneul_indexer_alt_framework::{
     ingestion::IngestionConfig,
     pipeline::{
+        CommitterConfig,
         concurrent::{ConcurrentConfig, PrunerConfig},
         sequential::SequentialConfig,
-        CommitterConfig,
     },
 };
 

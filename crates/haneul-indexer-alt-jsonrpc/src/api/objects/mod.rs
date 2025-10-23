@@ -13,7 +13,7 @@ use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
 
 use crate::{
     context::Context,
-    error::{invalid_params, InternalContext},
+    error::{InternalContext, invalid_params},
 };
 
 use super::rpc_module::RpcModule;

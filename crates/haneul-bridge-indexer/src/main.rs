@@ -13,7 +13,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::Arc;
 use haneul_bridge::eth_client::EthClient;
-use haneul_bridge::metered_eth_provider::{new_metered_eth_provider, MeteredEthHttpProvier};
+use haneul_bridge::metered_eth_provider::{MeteredEthHttpProvier, new_metered_eth_provider};
 use haneul_bridge::haneul_bridge_watchdog::Observable;
 use haneul_bridge::haneul_client::HaneulBridgeClient;
 use haneul_bridge::utils::get_eth_contract_addresses;
@@ -27,11 +27,11 @@ use haneullabs_metrics::start_prometheus_server;
 
 use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge::haneul_bridge_watchdog::{
+    BridgeWatchDog,
     eth_bridge_status::EthBridgeStatus,
     eth_vault_balance::{EthereumVaultBalance, VaultAsset},
     metrics::WatchdogMetrics,
     haneul_bridge_status::HaneulBridgeStatus,
-    BridgeWatchDog,
 };
 use haneul_bridge_indexer::config::IndexerConfig;
 use haneul_bridge_indexer::metrics::BridgeIndexerMetrics;

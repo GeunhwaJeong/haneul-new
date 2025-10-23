@@ -11,13 +11,13 @@ use haneul_rpc::field::FieldMaskTree;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::merge::Merge;
 use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
-use haneul_rpc::proto::haneul::rpc::v2::dynamic_field::DynamicFieldKind;
 use haneul_rpc::proto::haneul::rpc::v2::Bcs;
 use haneul_rpc::proto::haneul::rpc::v2::DynamicField;
 use haneul_rpc::proto::haneul::rpc::v2::ErrorReason;
 use haneul_rpc::proto::haneul::rpc::v2::ListDynamicFieldsRequest;
 use haneul_rpc::proto::haneul::rpc::v2::ListDynamicFieldsResponse;
 use haneul_rpc::proto::haneul::rpc::v2::Object;
+use haneul_rpc::proto::haneul::rpc::v2::dynamic_field::DynamicFieldKind;
 use haneul_sdk_types::Address;
 use haneul_types::base_types::ObjectID;
 
@@ -60,13 +60,13 @@ pub fn list_dynamic_fields(
         .map(|token| decode_page_token(&token))
         .transpose()?;
 
-    if let Some(token) = &page_token {
-        if token.parent != parent {
-            return Err(FieldViolation::new("page_token")
-                .with_description("invalid page_token")
-                .with_reason(ErrorReason::FieldInvalid)
-                .into());
-        }
+    if let Some(token) = &page_token
+        && token.parent != parent
+    {
+        return Err(FieldViolation::new("page_token")
+            .with_description("invalid page_token")
+            .with_reason(ErrorReason::FieldInvalid)
+            .into());
     }
 
     let read_mask = {
@@ -156,11 +156,11 @@ fn get_dynamic_field(
         message.field_id = Some(field_id.to_canonical_string(true));
     }
 
-    if should_load_field(read_mask) {
-        if let Err(e) = load_dynamic_field(service, field_id, read_mask, &mut message) {
-            tracing::warn!("error loading dynamic object: {e}");
-            return None;
-        }
+    if should_load_field(read_mask)
+        && let Err(e) = load_dynamic_field(service, field_id, read_mask, &mut message)
+    {
+        tracing::warn!("error loading dynamic object: {e}");
+        return None;
     }
 
     Some(message)
@@ -185,8 +185,8 @@ fn load_dynamic_field(
     read_mask: &FieldMaskTree,
     message: &mut DynamicField,
 ) -> Result<(), anyhow::Error> {
-    use haneul_types::dynamic_field::visitor as DFV;
     use haneul_types::dynamic_field::DynamicFieldType;
+    use haneul_types::dynamic_field::visitor as DFV;
 
     let Some(field_object) = service.reader.inner().get_object(field_id) else {
         return Ok(());
@@ -218,7 +218,7 @@ fn load_dynamic_field(
             return Err(anyhow::anyhow!(
                 "unable to load layout for type `{:?}`",
                 move_object.type_()
-            ))
+            ));
         }
         Err(e) => {
             return Err(anyhow::anyhow!(

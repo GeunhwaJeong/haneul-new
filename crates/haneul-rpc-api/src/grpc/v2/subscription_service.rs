@@ -6,10 +6,10 @@ use std::pin::Pin;
 use crate::RpcService;
 use haneul_rpc::field::FieldMaskTree;
 use haneul_rpc::merge::Merge;
-use haneul_rpc::proto::haneul::rpc::v2::subscription_service_server::SubscriptionService;
 use haneul_rpc::proto::haneul::rpc::v2::Checkpoint;
 use haneul_rpc::proto::haneul::rpc::v2::SubscribeCheckpointsRequest;
 use haneul_rpc::proto::haneul::rpc::v2::SubscribeCheckpointsResponse;
+use haneul_rpc::proto::haneul::rpc::v2::subscription_service_server::SubscriptionService;
 
 #[tonic::async_trait]
 impl SubscriptionService for RpcService {

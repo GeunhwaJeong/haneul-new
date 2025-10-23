@@ -6,7 +6,7 @@ use self::haneul_system_state_summary::{HaneulSystemStateSummary, HaneulValidato
 use crate::base_types::ObjectID;
 use crate::committee::CommitteeWithNetworkMetadata;
 use crate::dynamic_field::{
-    get_dynamic_field_from_store, get_dynamic_field_object_from_store, Field,
+    Field, get_dynamic_field_from_store, get_dynamic_field_object_from_store,
 };
 use crate::error::{HaneulError, HaneulErrorKind};
 use crate::gas::GasCostSummary;
@@ -15,7 +15,7 @@ use crate::storage::ObjectStore;
 use crate::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use crate::haneul_system_state::haneul_system_state_inner_v2::HaneulSystemStateInnerV2;
 use crate::versioned::Versioned;
-use crate::{id::UID, MoveTypeTagTrait, HANEUL_SYSTEM_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID};
+use crate::{MoveTypeTagTrait, HANEUL_SYSTEM_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID, id::UID};
 use anyhow::Result;
 use enum_dispatch::enum_dispatch;
 use move_core_types::{ident_str, identifier::IdentStr, language_storage::StructTag};

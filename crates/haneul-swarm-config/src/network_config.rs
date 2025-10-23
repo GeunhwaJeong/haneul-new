@@ -3,7 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use haneul_config::{genesis, Config, NodeConfig};
+use haneul_config::{Config, NodeConfig, genesis};
 use haneul_types::committee::CommitteeWithNetworkMetadata;
 use haneul_types::crypto::AccountKeyPair;
 use haneul_types::multiaddr::Multiaddr;

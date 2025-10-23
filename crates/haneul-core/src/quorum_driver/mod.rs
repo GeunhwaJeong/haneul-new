@@ -20,7 +20,7 @@ use haneul_types::quorum_driver_types::{
 };
 use tap::TapFallible;
 use tokio::sync::Semaphore;
-use tokio::time::{sleep_until, Instant};
+use tokio::time::{Instant, sleep_until};
 
 use tokio::sync::mpsc::{self, Receiver, Sender};
 use tokio::task::JoinHandle;
@@ -32,7 +32,7 @@ use crate::authority_aggregator::{
 };
 use crate::authority_client::AuthorityAPI;
 use haneullabs_common::sync::notify_read::{NotifyRead, Registration};
-use haneullabs_metrics::{spawn_monitored_task, GaugeGuard};
+use haneullabs_metrics::{GaugeGuard, spawn_monitored_task};
 use std::fmt::Write;
 use haneul_macros::fail_point;
 use haneul_types::error::{HaneulErrorKind, HaneulResult};

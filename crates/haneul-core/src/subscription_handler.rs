@@ -4,8 +4,8 @@
 use std::sync::Arc;
 
 use prometheus::{
-    register_int_counter_vec_with_registry, register_int_gauge_vec_with_registry, IntCounterVec,
-    IntGaugeVec, Registry,
+    IntCounterVec, IntGaugeVec, Registry, register_int_counter_vec_with_registry,
+    register_int_gauge_vec_with_registry,
 };
 use tokio_stream::Stream;
 use tracing::{error, instrument, trace};
@@ -112,14 +112,14 @@ impl SubscriptionHandler {
         Ok(())
     }
 
-    pub fn subscribe_events(&self, filter: EventFilter) -> impl Stream<Item = HaneulEvent> {
+    pub fn subscribe_events(&self, filter: EventFilter) -> impl Stream<Item = HaneulEvent> + use<> {
         self.event_streamer.subscribe(filter)
     }
 
     pub fn subscribe_transactions(
         &self,
         filter: TransactionFilter,
-    ) -> impl Stream<Item = HaneulTransactionBlockEffects> {
+    ) -> impl Stream<Item = HaneulTransactionBlockEffects> + use<> {
         self.transaction_streamer.subscribe(filter)
     }
 }

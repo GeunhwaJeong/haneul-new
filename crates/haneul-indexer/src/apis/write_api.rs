@@ -3,9 +3,9 @@
 
 use async_trait::async_trait;
 use fastcrypto::encoding::Base64;
+use jsonrpsee::RpcModule;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee::http_client::HttpClient;
-use jsonrpsee::RpcModule;
 
 use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc_api::{WriteApiClient, WriteApiServer};

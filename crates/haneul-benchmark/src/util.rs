@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::workloads::Gas;
 use crate::ValidatorProxy;
+use crate::workloads::Gas;
 use anyhow::Result;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -11,7 +11,7 @@ use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::crypto::{AccountKeyPair, KeypairTraits};
 use haneul_types::object::Owner;
-use haneul_types::transaction::{Transaction, TransactionData, TEST_ONLY_GAS_UNIT_FOR_TRANSFER};
+use haneul_types::transaction::{TEST_ONLY_GAS_UNIT_FOR_TRANSFER, Transaction, TransactionData};
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{base_types::HaneulAddress, crypto::HaneulKeyPair};
 

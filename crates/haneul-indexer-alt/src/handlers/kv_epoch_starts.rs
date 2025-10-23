@@ -4,15 +4,15 @@
 use std::ops::Range;
 use std::sync::Arc;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use haneul_indexer_alt_framework::{
-    pipeline::{concurrent::Handler, Processor},
+    pipeline::{Processor, concurrent::Handler},
     postgres::{Connection, Db},
     types::{
         full_checkpoint_content::CheckpointData,
-        haneul_system_state::{get_haneul_system_state, HaneulSystemStateTrait},
+        haneul_system_state::{HaneulSystemStateTrait, get_haneul_system_state},
         transaction::{TransactionDataAPI, TransactionKind},
     },
 };

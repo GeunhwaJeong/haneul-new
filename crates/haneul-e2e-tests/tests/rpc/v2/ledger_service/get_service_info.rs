@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_macros::sim_test;
-use haneul_rpc::proto::haneul::rpc::v2::ledger_service_client::LedgerServiceClient;
 use haneul_rpc::proto::haneul::rpc::v2::GetServiceInfoRequest;
 use haneul_rpc::proto::haneul::rpc::v2::GetServiceInfoResponse;
+use haneul_rpc::proto::haneul::rpc::v2::ledger_service_client::LedgerServiceClient;
 use test_cluster::TestClusterBuilder;
 
 #[sim_test]

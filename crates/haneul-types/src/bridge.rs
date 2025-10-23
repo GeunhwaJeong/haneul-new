@@ -1,17 +1,17 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::HANEUL_BRIDGE_OBJECT_ID;
 use crate::base_types::ObjectID;
 use crate::base_types::SequenceNumber;
 use crate::collection_types::LinkedTableNode;
-use crate::dynamic_field::{get_dynamic_field_from_store, Field};
+use crate::dynamic_field::{Field, get_dynamic_field_from_store};
 use crate::error::{HaneulError, HaneulErrorKind, HaneulResult};
 use crate::object::Owner;
 use crate::storage::ObjectStore;
 use crate::haneul_serde::BigInt;
 use crate::haneul_serde::Readable;
 use crate::versioned::Versioned;
-use crate::HANEUL_BRIDGE_OBJECT_ID;
 use crate::{
     base_types::HaneulAddress,
     collection_types::{Bag, LinkedTable, VecMap},

@@ -5,16 +5,16 @@ use std::net::{IpAddr, SocketAddr};
 
 use anyhow::Result;
 use fastcrypto::traits::KeyPair;
-use rand::{rngs::StdRng, SeedableRng};
+use rand::{SeedableRng, rngs::StdRng};
 use serde::{Deserialize, Serialize};
 use haneul_config::genesis::{GenesisCeremonyParameters, TokenAllocation};
 use haneul_config::node::{DEFAULT_COMMISSION_RATE, DEFAULT_VALIDATOR_GAS_PRICE};
-use haneul_config::{local_ip_utils, Config};
+use haneul_config::{Config, local_ip_utils};
 use haneul_genesis_builder::validator_info::{GenesisValidatorInfo, ValidatorInfo};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{
-    generate_proof_of_possession, get_key_pair_from_rng, AccountKeyPair, AuthorityKeyPair,
-    AuthorityPublicKeyBytes, NetworkKeyPair, NetworkPublicKey, PublicKey, HaneulKeyPair,
+    AccountKeyPair, AuthorityKeyPair, AuthorityPublicKeyBytes, NetworkKeyPair, NetworkPublicKey,
+    PublicKey, HaneulKeyPair, generate_proof_of_possession, get_key_pair_from_rng,
 };
 use haneul_types::multiaddr::Multiaddr;
 use tracing::info;

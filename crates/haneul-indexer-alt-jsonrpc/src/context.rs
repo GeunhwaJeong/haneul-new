@@ -9,8 +9,8 @@ use haneul_indexer_alt_reader::{
     bigtable_reader::{BigtableArgs, BigtableReader},
     kv_loader::KvLoader,
     package_resolver::{DbPackageStore, PackageCache},
-    pg_reader::db::DbArgs,
     pg_reader::PgReader,
+    pg_reader::db::DbArgs,
 };
 use haneul_package_resolver::Resolver;
 use tokio_util::sync::CancellationToken;

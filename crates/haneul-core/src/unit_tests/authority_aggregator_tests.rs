@@ -4,8 +4,8 @@
 use crate::test_utils::make_transfer_object_transaction;
 use crate::test_utils::make_transfer_haneul_transaction;
 use move_core_types::{account_address::AccountAddress, ident_str};
-use rand::rngs::StdRng;
 use rand::SeedableRng;
+use rand::rngs::StdRng;
 use shared_crypto::intent::{Intent, IntentScope};
 use std::collections::BTreeMap;
 use std::collections::HashSet;
@@ -16,7 +16,7 @@ use haneul_authority_aggregation::quorum_map_then_reduce_with_timeout;
 use haneul_macros::sim_test;
 use haneul_move_build::BuildConfig;
 use haneul_types::crypto::get_key_pair_from_rng;
-use haneul_types::crypto::{get_key_pair, AccountKeyPair, AuthorityKeyPair};
+use haneul_types::crypto::{AccountKeyPair, AuthorityKeyPair, get_key_pair};
 use haneul_types::crypto::{AuthoritySignature, Signer};
 use haneul_types::crypto::{KeypairTraits, Signature};
 use haneul_types::messages_grpc::TransactionInfoRequest;
@@ -942,7 +942,9 @@ async fn test_handle_transaction_response() {
         .await
         .unwrap();
 
-    println!("Case 6 - Retryable Transaction (most staked effects stake + retryable stake >= 2f+1 with QuorumFailedToGetEffectsQuorumWhenProcessingTransaction Error)");
+    println!(
+        "Case 6 - Retryable Transaction (most staked effects stake + retryable stake >= 2f+1 with QuorumFailedToGetEffectsQuorumWhenProcessingTransaction Error)"
+    );
     // Val 0, 1 & 2 returns retryable error
     set_retryable_tx_info_response_error(&mut clients, &authority_keys);
     // Validators 3 returns tx-cert with epoch 1
@@ -1625,7 +1627,9 @@ async fn test_handle_conflicting_transaction_response() {
     )
     .await;
 
-    println!("Case 4.1 - Non-retryable Tx (Mixed Response - 1 conflict, 1 signed, 1 non-retryable, 1 retryable)");
+    println!(
+        "Case 4.1 - Non-retryable Tx (Mixed Response - 1 conflict, 1 signed, 1 non-retryable, 1 retryable)"
+    );
     // Validator 1 returns a signed tx1
     set_tx_info_response_with_signed_tx(&mut clients, &authority_keys, &tx1, 0);
     // Validator 2 returns a conflicting tx2

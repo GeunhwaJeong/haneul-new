@@ -7,9 +7,9 @@ use anemo_tower::callback::CallbackLayer;
 use anemo_tower::trace::DefaultMakeSpan;
 use anemo_tower::trace::DefaultOnFailure;
 use anemo_tower::trace::TraceLayer;
-use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
+use anyhow::anyhow;
 use arc_swap::ArcSwap;
 use fastcrypto_zkp::bn254::zk_login::JwkId;
 use fastcrypto_zkp::bn254::zk_login::OIDCProvider;
@@ -25,6 +25,8 @@ use std::str::FromStr;
 use std::sync::atomic::Ordering;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
+use haneul_core::authority::ExecutionEnv;
+use haneul_core::authority::RandomnessRoundReceiver;
 use haneul_core::authority::authority_store_tables::{
     AuthorityPerpetualTablesOptions, AuthorityPrunerTables,
 };
@@ -32,8 +34,6 @@ use haneul_core::authority::backpressure::BackpressureManager;
 use haneul_core::authority::epoch_start_configuration::EpochFlag;
 use haneul_core::authority::execution_time_estimator::ExecutionTimeObserver;
 use haneul_core::authority::shared_object_version_manager::Schedulable;
-use haneul_core::authority::ExecutionEnv;
-use haneul_core::authority::RandomnessRoundReceiver;
 use haneul_core::consensus_adapter::ConsensusClient;
 use haneul_core::consensus_manager::UpdatableConsensusClient;
 use haneul_core::epoch::randomness::RandomnessManager;
@@ -47,9 +47,9 @@ use haneul_core::storage::RestReadStore;
 use haneul_json_rpc::bridge_api::BridgeReadApi;
 use haneul_json_rpc_api::JsonRpcMetrics;
 use haneul_network::randomness;
-use haneul_rpc_api::subscription::SubscriptionService;
 use haneul_rpc_api::RpcMetrics;
 use haneul_rpc_api::ServerVersion;
+use haneul_rpc_api::subscription::SubscriptionService;
 use haneul_types::base_types::ConciseableName;
 use haneul_types::crypto::RandomnessRound;
 use haneul_types::digests::{
@@ -62,15 +62,15 @@ use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::transaction::VerifiedCertificate;
 use tap::tap::TapFallible;
 use tokio::sync::oneshot;
-use tokio::sync::{broadcast, mpsc, watch, Mutex};
+use tokio::sync::{Mutex, broadcast, mpsc, watch};
 use tokio::task::JoinHandle;
 use tower::ServiceBuilder;
+use tracing::{Instrument, error_span, info};
 use tracing::{debug, error, warn};
-use tracing::{error_span, info, Instrument};
 
 use fastcrypto_zkp::bn254::zk_login::JWK;
 pub use handle::HaneulNodeHandle;
-use haneullabs_metrics::{spawn_monitored_task, RegistryService};
+use haneullabs_metrics::{RegistryService, spawn_monitored_task};
 use haneullabs_service::server_timing::server_timing_middleware;
 use haneul_config::node::{DBCheckpointConfig, RunWithRange};
 use haneul_config::node::{ForkCrashBehavior, ForkRecoveryConfig};
@@ -114,6 +114,7 @@ use haneul_core::{
     authority::{AuthorityState, AuthorityStore},
     authority_client::NetworkAuthorityClient,
 };
+use haneul_json_rpc::JsonRpcServerBuilder;
 use haneul_json_rpc::coin_api::CoinReadApi;
 use haneul_json_rpc::governance_api::GovernanceReadApi;
 use haneul_json_rpc::indexer_api::IndexerApi;
@@ -121,7 +122,6 @@ use haneul_json_rpc::move_utils::MoveUtils;
 use haneul_json_rpc::read_api::ReadApi;
 use haneul_json_rpc::transaction_builder_api::TransactionBuilderApi;
 use haneul_json_rpc::transaction_execution_api::TransactionExecutionApi;
-use haneul_json_rpc::JsonRpcServerBuilder;
 use haneul_macros::fail_point;
 use haneul_macros::{fail_point_async, replay_log};
 use haneul_network::api::ValidatorServer;
@@ -141,14 +141,14 @@ use haneul_types::committee::Committee;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::messages_consensus::{
-    check_total_jwk_size, AuthorityCapabilitiesV1, ConsensusTransaction,
+    AuthorityCapabilitiesV1, ConsensusTransaction, check_total_jwk_size,
 };
+use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
-use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
-use typed_store::rocks::default_db_options;
 use typed_store::DBMetrics;
+use typed_store::rocks::default_db_options;
 
 use crate::metrics::{GrpcMetrics, HaneulNodeMetrics};
 
@@ -801,14 +801,13 @@ impl HaneulNode {
         if config
             .expensive_safety_check_config
             .enable_secondary_index_checks()
+            && let Some(indexes) = state.indexes.clone()
         {
-            if let Some(indexes) = state.indexes.clone() {
-                haneul_core::verify_indexes::verify_indexes(
-                    state.get_global_state_hash_store().as_ref(),
-                    indexes,
-                )
-                .expect("secondary indexes are inconsistent");
-            }
+            haneul_core::verify_indexes::verify_indexes(
+                state.get_global_state_hash_store().as_ref(),
+                indexes,
+            )
+            .expect("secondary indexes are inconsistent");
         }
 
         let (end_of_epoch_channel, end_of_epoch_receiver) =
@@ -1877,13 +1876,13 @@ impl HaneulNode {
             #[cfg(not(msim))]
             debug_assert!(!latest_system_state.safe_mode());
 
-            if let Err(err) = self.end_of_epoch_channel.send(latest_system_state.clone()) {
-                if self.state.is_fullnode(&cur_epoch_store) {
-                    warn!(
-                        "Failed to send end of epoch notification to subscriber: {:?}",
-                        err
-                    );
-                }
+            if let Err(err) = self.end_of_epoch_channel.send(latest_system_state.clone())
+                && self.state.is_fullnode(&cur_epoch_store)
+            {
+                warn!(
+                    "Failed to send end of epoch notification to subscriber: {:?}",
+                    err
+                );
             }
 
             cur_epoch_store.record_is_safe_mode_metric(latest_system_state.safe_mode());
@@ -2236,16 +2235,15 @@ impl HaneulNode {
 
         if let Some((checkpoint_seq, checkpoint_digest)) =
             checkpoint_store.get_checkpoint_fork_detected()?
+            && recovery.checkpoint_overrides.contains_key(&checkpoint_seq)
         {
-            if recovery.checkpoint_overrides.contains_key(&checkpoint_seq) {
-                info!(
-                    "Fork recovery enabled: clearing checkpoint fork at seq {} with digest {:?}",
-                    checkpoint_seq, checkpoint_digest
-                );
-                checkpoint_store
-                    .clear_checkpoint_fork_detected()
-                    .expect("Failed to clear checkpoint fork detected marker");
-            }
+            info!(
+                "Fork recovery enabled: clearing checkpoint fork at seq {} with digest {:?}",
+                checkpoint_seq, checkpoint_digest
+            );
+            checkpoint_store
+                .clear_checkpoint_fork_detected()
+                .expect("Failed to clear checkpoint fork detected marker");
         }
         Ok(())
     }
@@ -2258,19 +2256,18 @@ impl HaneulNode {
             return Ok(());
         }
 
-        if let Some((tx_digest, _, _)) = checkpoint_store.get_transaction_fork_detected()? {
-            if recovery
+        if let Some((tx_digest, _, _)) = checkpoint_store.get_transaction_fork_detected()?
+            && recovery
                 .transaction_overrides
                 .contains_key(&tx_digest.to_string())
-            {
-                info!(
-                    "Fork recovery enabled: clearing transaction fork for tx {:?}",
-                    tx_digest
-                );
-                checkpoint_store
-                    .clear_transaction_fork_detected()
-                    .expect("Failed to clear transaction fork detected marker");
-            }
+        {
+            info!(
+                "Fork recovery enabled: clearing transaction fork for tx {:?}",
+                tx_digest
+            );
+            checkpoint_store
+                .clear_transaction_fork_detected()
+                .expect("Failed to clear transaction fork detected marker");
         }
         Ok(())
     }
@@ -2367,7 +2364,9 @@ impl HaneulNode {
                 );
                 Err(anyhow::anyhow!(
                     "Transaction fork detected! tx_digest: {:?}, expected_effects: {:?}, actual_effects: {:?}",
-                    tx_digest, expected_effects_digest, actual_effects_digest
+                    tx_digest,
+                    expected_effects_digest,
+                    actual_effects_digest
                 ))
             }
         }
@@ -2724,10 +2723,11 @@ mod tests {
         )
         .await;
         assert!(r.is_err());
-        assert!(r
-            .unwrap_err()
-            .to_string()
-            .contains("Checkpoint fork detected"));
+        assert!(
+            r.unwrap_err()
+                .to_string()
+                .contains("Checkpoint fork detected")
+        );
 
         let mut checkpoint_overrides = BTreeMap::new();
         checkpoint_overrides.insert(seq_num, digest.to_string());
@@ -2744,10 +2744,12 @@ mod tests {
         )
         .await;
         assert!(r.is_ok());
-        assert!(checkpoint_store
-            .get_checkpoint_fork_detected()
-            .unwrap()
-            .is_none());
+        assert!(
+            checkpoint_store
+                .get_checkpoint_fork_detected()
+                .unwrap()
+                .is_none()
+        );
 
         // ---------- Transaction fork path ----------
         let tx_digest = TransactionDigest::random();
@@ -2770,10 +2772,11 @@ mod tests {
         )
         .await;
         assert!(r.is_err());
-        assert!(r
-            .unwrap_err()
-            .to_string()
-            .contains("Transaction fork detected"));
+        assert!(
+            r.unwrap_err()
+                .to_string()
+                .contains("Transaction fork detected")
+        );
 
         let mut transaction_overrides = BTreeMap::new();
         transaction_overrides.insert(tx_digest.to_string(), actual_effects.to_string());
@@ -2790,9 +2793,11 @@ mod tests {
         )
         .await;
         assert!(r.is_ok());
-        assert!(checkpoint_store
-            .get_transaction_fork_detected()
-            .unwrap()
-            .is_none());
+        assert!(
+            checkpoint_store
+                .get_transaction_fork_detected()
+                .unwrap()
+                .is_none()
+        );
     }
 }

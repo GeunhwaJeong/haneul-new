@@ -14,7 +14,7 @@ use haneul_types::base_types::{ObjectDigest, SequenceNumber};
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::{MoveObject, Owner};
-use haneul_types::{parse_haneul_struct_tag, MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS};
+use haneul_types::{MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, parse_haneul_struct_tag};
 
 use crate::{ObjectChange, HaneulMoveStruct, HaneulMoveValue};
 

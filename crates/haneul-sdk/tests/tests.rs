@@ -12,13 +12,13 @@ use haneul_sdk::{
     verify_personal_message_signature::verify_personal_message_signature,
     wallet_context::WalletContext,
 };
-use haneul_types::base_types::{random_object_ref, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, random_object_ref};
 use haneul_types::crypto::{Ed25519HaneulSignature, HaneulKeyPair, HaneulSignature};
 use haneul_types::crypto::{SignatureScheme, HaneulSignatureInner};
 use haneul_types::multisig::{MultiSig, MultiSigPublicKey};
 use haneul_types::transaction::{ProgrammableTransaction, TransactionData, TransactionKind};
 use haneul_types::{
-    crypto::{get_key_pair, Signature},
+    crypto::{Signature, get_key_pair},
     signature::GenericSignature,
     utils::sign_zklogin_personal_msg,
 };

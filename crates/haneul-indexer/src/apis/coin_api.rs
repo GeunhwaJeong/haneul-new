@@ -3,12 +3,12 @@
 
 use crate::indexer_reader::IndexerReader;
 use async_trait::async_trait;
-use jsonrpsee::core::RpcResult;
 use jsonrpsee::RpcModule;
+use jsonrpsee::core::RpcResult;
+use haneul_json_rpc::HaneulRpcModule;
 use haneul_json_rpc::coin_api::{parse_to_struct_tag, parse_to_type_tag};
 use haneul_json_rpc::error::HaneulRpcInputError;
-use haneul_json_rpc::HaneulRpcModule;
-use haneul_json_rpc_api::{cap_page_limit, CoinReadApiServer};
+use haneul_json_rpc_api::{CoinReadApiServer, cap_page_limit};
 use haneul_json_rpc_types::{Balance, CoinPage, Page, HaneulCoinMetadata};
 use haneul_open_rpc::Module;
 use haneul_types::balance::Supply;

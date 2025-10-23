@@ -15,7 +15,7 @@ use once_cell::sync::Lazy;
 use tokio::sync::Mutex;
 use tracing::info;
 
-use haneul_sdk::{HaneulClient, HANEUL_COIN_TYPE};
+use haneul_sdk::{HANEUL_COIN_TYPE, HaneulClient};
 
 use crate::errors::Error;
 use crate::errors::Error::MissingMetadata;

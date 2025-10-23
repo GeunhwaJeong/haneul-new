@@ -3,10 +3,11 @@
 
 use haneul_kvstore::{BigTableClient, KeyValueStoreReader};
 use haneul_rpc::proto::haneul::rpc::v2::{
-    ledger_service_server::LedgerService, BatchGetObjectsRequest, BatchGetObjectsResponse,
-    BatchGetTransactionsRequest, BatchGetTransactionsResponse, GetCheckpointRequest,
-    GetCheckpointResponse, GetEpochRequest, GetEpochResponse, GetObjectRequest, GetObjectResponse,
-    GetServiceInfoRequest, GetServiceInfoResponse, GetTransactionRequest, GetTransactionResponse,
+    BatchGetObjectsRequest, BatchGetObjectsResponse, BatchGetTransactionsRequest,
+    BatchGetTransactionsResponse, GetCheckpointRequest, GetCheckpointResponse, GetEpochRequest,
+    GetEpochResponse, GetObjectRequest, GetObjectResponse, GetServiceInfoRequest,
+    GetServiceInfoResponse, GetTransactionRequest, GetTransactionResponse,
+    ledger_service_server::LedgerService,
 };
 use haneul_rpc_api::proto::timestamp_ms_to_proto;
 use haneul_rpc_api::{CheckpointNotFoundError, RpcError, ServerVersion};

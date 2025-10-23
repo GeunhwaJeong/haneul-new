@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::validator_commands::{
-    get_validator_summary, HaneulValidatorCommand, HaneulValidatorCommandResponse,
+    HaneulValidatorCommand, HaneulValidatorCommandResponse, get_validator_summary,
 };
 use anyhow::Ok;
 use fastcrypto::encoding::{Base64, Encoding};

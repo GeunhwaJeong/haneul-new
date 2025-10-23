@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
+    MoveTypeTagTrait, MoveTypeTagTraitGeneric, HANEUL_ACCUMULATOR_ROOT_OBJECT_ID,
+    HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID,
     base_types::{SequenceNumber, HaneulAddress},
     collection_types::Bag,
     dynamic_field::DynamicFieldKey,
     error::HaneulResult,
     storage::ChildObjectResolver,
-    MoveTypeTagTrait, MoveTypeTagTraitGeneric, HANEUL_ACCUMULATOR_ROOT_OBJECT_ID,
-    HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID,
 };
 use move_core_types::{
     ident_str,

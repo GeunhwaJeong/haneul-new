@@ -5,8 +5,8 @@ use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::sim_test;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_rpc::proto::haneul::rpc::v2::Event;
-use haneul_rpc_api::grpc::alpha::event_service_proto::event_service_client::EventServiceClient;
 use haneul_rpc_api::grpc::alpha::event_service_proto::ListAuthenticatedEventsRequest;
+use haneul_rpc_api::grpc::alpha::event_service_proto::event_service_client::EventServiceClient;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::TransactionData;
@@ -229,9 +229,11 @@ async fn authenticated_events_disabled_test() {
 
     let error = result.unwrap_err();
     assert_eq!(error.code(), tonic::Code::Unimplemented);
-    assert!(error
-        .message()
-        .contains("Authenticated events indexing is disabled"));
+    assert!(
+        error
+            .message()
+            .contains("Authenticated events indexing is disabled")
+    );
 }
 
 #[sim_test]

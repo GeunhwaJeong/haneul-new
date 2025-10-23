@@ -4,17 +4,17 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use jsonrpsee::core::RpcResult;
 use jsonrpsee::RpcModule;
+use jsonrpsee::core::RpcResult;
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_api::{BridgeReadApiOpenRpc, BridgeReadApiServer, JsonRpcMetrics};
 use haneul_open_rpc::Module;
-use haneul_types::bridge::{get_bridge_obj_initial_shared_version, BridgeSummary, BridgeTrait};
+use haneul_types::bridge::{BridgeSummary, BridgeTrait, get_bridge_obj_initial_shared_version};
 use tracing::instrument;
 
 use crate::authority_state::StateRead;
 use crate::error::Error;
-use crate::{with_tracing, HaneulRpcModule};
+use crate::{HaneulRpcModule, with_tracing};
 
 #[derive(Clone)]
 pub struct BridgeReadApi {

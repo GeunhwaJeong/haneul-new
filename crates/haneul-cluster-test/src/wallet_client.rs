@@ -11,7 +11,7 @@ use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{KeypairTraits, Signature};
 use haneul_types::transaction::TransactionData;
-use tracing::{info, info_span, Instrument};
+use tracing::{Instrument, info, info_span};
 
 pub struct WalletClient {
     wallet_context: WalletContext,

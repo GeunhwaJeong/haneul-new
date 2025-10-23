@@ -5,6 +5,7 @@ use move_core_types::ident_str;
 use move_core_types::identifier::IdentStr;
 use move_core_types::language_storage::StructTag;
 
+use crate::HANEUL_SYSTEM_ADDRESS;
 use crate::balance::Balance;
 use crate::base_types::ObjectID;
 use crate::committee::EpochId;
@@ -12,7 +13,6 @@ use crate::error::{HaneulError, HaneulErrorKind};
 use crate::gas_coin::GEUNHWA_PER_HANEUL;
 use crate::id::{ID, UID};
 use crate::object::{Data, Object};
-use crate::HANEUL_SYSTEM_ADDRESS;
 use serde::Deserialize;
 use serde::Serialize;
 

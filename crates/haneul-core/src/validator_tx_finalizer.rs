@@ -8,14 +8,14 @@ use crate::execution_cache::TransactionCacheRead;
 use arc_swap::ArcSwap;
 use haneullabs_metrics::LATENCY_SEC_BUCKETS;
 use prometheus::{
-    register_histogram_with_registry, register_int_counter_with_registry, Histogram, IntCounter,
-    Registry,
+    Histogram, IntCounter, Registry, register_histogram_with_registry,
+    register_int_counter_with_registry,
 };
 use std::cmp::min;
 use std::ops::Add;
+use std::sync::Arc;
 #[cfg(any(msim, test))]
 use std::sync::atomic::{AtomicU64, Ordering::Relaxed};
-use std::sync::Arc;
 use std::time::Duration;
 use haneul_types::base_types::{AuthorityName, TransactionDigest};
 use haneul_types::transaction::VerifiedSignedTransaction;
@@ -289,15 +289,15 @@ mod tests {
     use std::iter;
     use std::net::SocketAddr;
     use std::num::NonZeroUsize;
+    use std::sync::Arc;
     use std::sync::atomic::AtomicBool;
     use std::sync::atomic::Ordering::Relaxed;
-    use std::sync::Arc;
     use haneul_macros::sim_test;
     use haneul_swarm_config::network_config_builder::ConfigBuilder;
     use haneul_test_transaction_builder::TestTransactionBuilder;
     use haneul_types::base_types::{AuthorityName, ObjectID, HaneulAddress, TransactionDigest};
     use haneul_types::committee::{CommitteeTrait, StakeUnit};
-    use haneul_types::crypto::{get_account_key_pair, AccountKeyPair};
+    use haneul_types::crypto::{AccountKeyPair, get_account_key_pair};
     use haneul_types::effects::{TransactionEffectsAPI, TransactionEvents};
     use haneul_types::error::{HaneulError, HaneulErrorKind};
     use haneul_types::executable_transaction::VerifiedExecutableTransaction;

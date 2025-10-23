@@ -7,7 +7,7 @@ use haneul_core::{
     authority_aggregator::{AuthAggMetrics, AuthorityAggregator},
     authority_client::NetworkAuthorityClient,
     epoch::committee_store::CommitteeStore,
-    quorum_driver::{reconfig_observer::ReconfigObserver, AuthorityAggregatorUpdatable},
+    quorum_driver::{AuthorityAggregatorUpdatable, reconfig_observer::ReconfigObserver},
     safe_client::SafeClientMetricsBase,
 };
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};

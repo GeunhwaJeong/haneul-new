@@ -32,8 +32,8 @@ use haneul_types::messages_checkpoint::{VerifiedCheckpoint, VerifiedCheckpointCo
 use haneul_types::messages_grpc::HandleTransactionResponse;
 use haneul_types::object::Object;
 use haneul_types::transaction::{
-    CertifiedTransaction, Transaction, TransactionDataAPI, VerifiedCertificate,
-    VerifiedTransaction, DEFAULT_VALIDATOR_GAS_PRICE,
+    CertifiedTransaction, DEFAULT_VALIDATOR_GAS_PRICE, Transaction, TransactionDataAPI,
+    VerifiedCertificate, VerifiedTransaction,
 };
 
 #[derive(Clone)]

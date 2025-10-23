@@ -21,8 +21,8 @@ use haneul_indexer_alt_schema::objects::StoredObjInfo;
 use haneul_indexer_alt_schema::schema::obj_info;
 use haneul_pg_db::Db;
 use haneul_snapshot::{
-    reader::{download_bytes, LiveObjectIter, StateSnapshotReaderV1},
     FileMetadata,
+    reader::{LiveObjectIter, StateSnapshotReaderV1, download_bytes},
 };
 use haneul_storage::object_store::ObjectStoreGetExt;
 

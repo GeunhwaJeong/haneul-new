@@ -13,8 +13,8 @@ use anyhow::anyhow;
 use clap::Parser;
 use fastcrypto::encoding::{Encoding, Hex};
 use fastcrypto::traits::EncodeDecodeBase64;
-use serde_json::{json, Value};
-use haneul_config::{haneul_config_dir, Config, NodeConfig, HANEUL_FULLNODE_CONFIG, HANEUL_KEYSTORE_FILENAME};
+use serde_json::{Value, json};
+use haneul_config::{Config, NodeConfig, HANEUL_FULLNODE_CONFIG, HANEUL_KEYSTORE_FILENAME, haneul_config_dir};
 use haneul_node::HaneulNode;
 use haneul_rosetta::types::{CurveType, PrefundedAccount, HaneulEnv};
 use haneul_rosetta::{RosettaOfflineServer, RosettaOnlineServer, HANEUL};
@@ -189,7 +189,9 @@ async fn wait_for_haneul_client(rpc_address: String) -> HaneulClient {
         match HaneulClientBuilder::default().build(&rpc_address).await {
             Ok(client) => return client,
             Err(e) => {
-                warn!("Error connecting to Haneul RPC server [{rpc_address}]: {e}, retrying in 5 seconds.");
+                warn!(
+                    "Error connecting to Haneul RPC server [{rpc_address}]: {e}, retrying in 5 seconds."
+                );
                 tokio::time::sleep(Duration::from_millis(5000)).await;
             }
         }

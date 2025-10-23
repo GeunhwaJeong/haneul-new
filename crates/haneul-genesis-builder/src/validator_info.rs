@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{
-    verify_proof_of_possession, AuthorityPublicKey, AuthorityPublicKeyBytes, AuthoritySignature,
-    NetworkPublicKey,
+    AuthorityPublicKey, AuthorityPublicKeyBytes, AuthoritySignature, NetworkPublicKey,
+    verify_proof_of_possession,
 };
 use haneul_types::multiaddr::Multiaddr;
 

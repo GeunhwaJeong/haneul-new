@@ -6,7 +6,7 @@ use std::{str::FromStr, time::Duration};
 use anyhow::bail;
 use futures::{future, stream::StreamExt};
 use haneul_config::{
-    haneul_config_dir, Config, PersistedConfig, HANEUL_CLIENT_CONFIG, HANEUL_KEYSTORE_FILENAME,
+    Config, PersistedConfig, HANEUL_CLIENT_CONFIG, HANEUL_KEYSTORE_FILENAME, haneul_config_dir,
 };
 use haneul_json_rpc_types::{Coin, HaneulObjectDataOptions};
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, GenerateOptions};
@@ -27,7 +27,7 @@ use haneul_sdk::types::{
     transaction::{Argument, Command, Transaction, TransactionData},
 };
 
-use haneul_sdk::{rpc_types::HaneulTransactionBlockResponseOptions, HaneulClient, HaneulClientBuilder};
+use haneul_sdk::{HaneulClient, HaneulClientBuilder, rpc_types::HaneulTransactionBlockResponseOptions};
 
 #[derive(serde::Deserialize)]
 struct FaucetResponse {
