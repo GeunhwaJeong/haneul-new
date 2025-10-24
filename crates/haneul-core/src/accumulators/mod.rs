@@ -5,6 +5,7 @@ use std::collections::{BTreeMap, HashMap};
 
 use move_core_types::u256::U256;
 use haneullabs_common::fatal;
+use haneul_protocol_config::ProtocolConfig;
 use haneul_types::accumulator_event::AccumulatorEvent;
 use haneul_types::accumulator_root::{
     ACCUMULATOR_ROOT_SETTLE_U128_FUNC, ACCUMULATOR_ROOT_SETTLEMENT_PROLOGUE_FUNC,
@@ -195,14 +196,18 @@ impl MergedValueIntermediate {
 struct Update {
     merge: MergedValueIntermediate,
     split: MergedValueIntermediate,
+    // Track input and output HANEUL for each update. Necessary so that when we construct
+    // a settlement transaction from a collection of Updates, they can accurately
+    // track the net HANEUL flows.
+    input_haneul: u64,
+    output_haneul: u64,
 }
 
 pub(crate) struct AccumulatorSettlementTxBuilder {
-    updates: HashMap<AccumulatorObjId, Update>,
+    // updates is iterated over, must be a BTreeMap
+    updates: BTreeMap<AccumulatorObjId, Update>,
+    // addresses is only used for lookups.
     addresses: HashMap<AccumulatorObjId, AccumulatorAddress>,
-
-    total_input_haneul: u64,
-    total_output_haneul: u64,
 }
 
 impl AccumulatorSettlementTxBuilder {
@@ -213,12 +218,9 @@ impl AccumulatorSettlementTxBuilder {
     ) -> Self {
         let checkpoint_seq = 0u64; /* TODO: replace with actual checkpoint sequence number */
 
-        let mut updates = HashMap::<_, _>::new();
+        let mut updates = BTreeMap::<_, _>::new();
 
         let mut addresses = HashMap::<_, _>::new();
-
-        let mut total_input_haneul = 0;
-        let mut total_output_haneul = 0;
 
         for (tx_index, effect) in ckpt_effects.iter().enumerate() {
             let tx = effect.transaction_digest();
@@ -232,11 +234,9 @@ impl AccumulatorSettlementTxBuilder {
             };
 
             for event in events {
-                let (input_haneul, output_haneul) = event.total_haneul_in_event();
                 // The input to the settlement is the sum of the outputs of accumulator events (i.e. deposits).
-                total_input_haneul += output_haneul;
                 // and the output of the settlement is the sum of the inputs (i.e. withdraws).
-                total_output_haneul += input_haneul;
+                let (event_input_haneul, event_output_haneul) = event.total_haneul_in_event();
 
                 let AccumulatorEvent {
                     accumulator_obj,
@@ -257,8 +257,14 @@ impl AccumulatorSettlementTxBuilder {
                     Update {
                         merge: zero.clone(),
                         split: zero,
+                        input_haneul: 0,
+                        output_haneul: 0,
                     }
                 });
+
+                // The output of the event is the input of the settlement, and vice versa.
+                entry.input_haneul += event_output_haneul;
+                entry.output_haneul += event_input_haneul;
 
                 match operation {
                     AccumulatorOperation::Merge => {
@@ -279,12 +285,7 @@ impl AccumulatorSettlementTxBuilder {
             }
         }
 
-        Self {
-            updates,
-            addresses,
-            total_input_haneul,
-            total_output_haneul,
-        }
+        Self { updates, addresses }
     }
 
     pub fn num_updates(&self) -> usize {
@@ -317,12 +318,64 @@ impl AccumulatorSettlementTxBuilder {
     //   have been applied.
     pub fn build_tx(
         self,
+        protocol_config: &ProtocolConfig,
         epoch: u64,
         accumulator_root_obj_initial_shared_version: SequenceNumber,
         checkpoint_height: u64,
-    ) -> Vec<TransactionKind> {
-        let mut builder = ProgrammableTransactionBuilder::new();
+    ) -> (
+        Vec<TransactionKind>, /* settlements */
+        TransactionKind,      /* barrier */
+    ) {
+        let Self { updates, addresses } = self;
 
+        let mut pending_updates = Vec::new();
+        let mut settlements = Vec::new();
+
+        let build_one_settlement_txn = |idx: u64, updates: &mut Vec<(AccumulatorObjId, Update)>| {
+            let (total_input_haneul, total_output_haneul) =
+                updates
+                    .iter()
+                    .fold((0, 0), |(acc_input, acc_output), (_, update)| {
+                        (acc_input + update.input_haneul, acc_output + update.output_haneul)
+                    });
+
+            Self::build_one_settlement_txn(
+                &addresses,
+                epoch,
+                idx,
+                checkpoint_height,
+                accumulator_root_obj_initial_shared_version,
+                updates.drain(..),
+                total_input_haneul,
+                total_output_haneul,
+            )
+        };
+
+        for (obj, update) in updates.into_iter() {
+            pending_updates.push((obj, update));
+
+            if pending_updates.len()
+                == protocol_config
+                    .max_updates_per_settlement_txn_as_option()
+                    .unwrap_or(u32::MAX) as usize
+            {
+                settlements.push(build_one_settlement_txn(
+                    settlements.len() as u64,
+                    // pending_updates will be drained and can be re-used
+                    &mut pending_updates,
+                ));
+            }
+        }
+
+        if !pending_updates.is_empty() {
+            settlements.push(build_one_settlement_txn(
+                settlements.len() as u64,
+                &mut pending_updates,
+            ));
+        }
+
+        // Now construct the barrier transaction
+        let mut builder = ProgrammableTransactionBuilder::new();
         let root = builder
             .input(CallArg::Object(ObjectArg::SharedObject {
                 id: HANEUL_ACCUMULATOR_ROOT_OBJECT_ID,
@@ -331,13 +384,35 @@ impl AccumulatorSettlementTxBuilder {
             }))
             .unwrap();
 
+        Self::add_prologue(
+            &mut builder,
+            root,
+            epoch,
+            checkpoint_height,
+            settlements.len() as u64,
+            0u64,
+            0u64,
+        );
+
+        let barrier = TransactionKind::ProgrammableSystemTransaction(builder.finish());
+
+        (settlements, barrier)
+    }
+
+    fn add_prologue(
+        builder: &mut ProgrammableTransactionBuilder,
+        root: Argument,
+        epoch: u64,
+        checkpoint_height: u64,
+        idx: u64,
+        total_input_haneul: u64,
+        total_output_haneul: u64,
+    ) {
         let epoch_arg = builder.pure(epoch).unwrap();
         let checkpoint_height_arg = builder.pure(checkpoint_height).unwrap();
-        let idx_arg = builder.pure(0u64).unwrap();
-        let total_input_haneul_arg = builder.pure(self.total_input_haneul).unwrap();
-        let total_output_haneul_arg = builder.pure(self.total_output_haneul).unwrap();
-        tracing::debug!("total_input_haneul: {}", self.total_input_haneul);
-        tracing::debug!("total_output_haneul: {}", self.total_output_haneul);
+        let idx_arg = builder.pure(idx).unwrap();
+        let total_input_haneul_arg = builder.pure(total_input_haneul).unwrap();
+        let total_output_haneul_arg = builder.pure(total_output_haneul).unwrap();
 
         builder.programmable_move_call(
             HANEUL_FRAMEWORK_PACKAGE_ID,
@@ -345,6 +420,7 @@ impl AccumulatorSettlementTxBuilder {
             ACCUMULATOR_ROOT_SETTLEMENT_PROLOGUE_FUNC.into(),
             vec![],
             vec![
+                root,
                 epoch_arg,
                 checkpoint_height_arg,
                 idx_arg,
@@ -352,17 +428,46 @@ impl AccumulatorSettlementTxBuilder {
                 total_output_haneul_arg,
             ],
         );
+    }
 
-        for (accumulator_obj, update) in self.updates {
-            let Update { merge, split } = update;
-            let address = self.addresses.get(&accumulator_obj).unwrap();
+    fn build_one_settlement_txn(
+        addresses: &HashMap<AccumulatorObjId, AccumulatorAddress>,
+        epoch: u64,
+        idx: u64,
+        checkpoint_height: u64,
+        accumulator_root_obj_initial_shared_version: SequenceNumber,
+        updates: impl Iterator<Item = (AccumulatorObjId, Update)>,
+        total_input_haneul: u64,
+        total_output_haneul: u64,
+    ) -> TransactionKind {
+        let mut builder = ProgrammableTransactionBuilder::new();
+
+        let root = builder
+            .input(CallArg::Object(ObjectArg::SharedObject {
+                id: HANEUL_ACCUMULATOR_ROOT_OBJECT_ID,
+                initial_shared_version: accumulator_root_obj_initial_shared_version,
+                mutability: SharedObjectMutability::NonExclusiveWrite,
+            }))
+            .unwrap();
+
+        Self::add_prologue(
+            &mut builder,
+            root,
+            epoch,
+            checkpoint_height,
+            idx,
+            total_input_haneul,
+            total_output_haneul,
+        );
+
+        for (accumulator_obj, update) in updates {
+            let Update { merge, split, .. } = update;
+            let address = addresses.get(&accumulator_obj).unwrap();
             let merged_value = MergedValue::from(merge);
             let split_value = MergedValue::from(split);
             MergedValue::add_move_call(merged_value, split_value, root, address, &mut builder);
         }
 
-        vec![TransactionKind::ProgrammableSystemTransaction(
-            builder.finish(),
-        )]
+        TransactionKind::ProgrammableSystemTransaction(builder.finish())
     }
 }

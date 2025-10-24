@@ -28,6 +28,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_protocol_config::ProtocolConfig;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
+use haneul_types::quorum_driver_types::EffectsFinalityInfo;
 use haneul_types::quorum_driver_types::FinalizedEffects;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 use haneul_types::transaction::Argument;
@@ -45,7 +46,9 @@ use haneul_types::{
     base_types::{AuthorityName, HaneulAddress},
     haneul_system_state::HaneulSystemStateTrait,
 };
-use haneul_types::{digests::ChainIdentifier, gas::GasCostSummary};
+use haneul_types::{
+    digests::ChainIdentifier, gas::GasCostSummary, transaction::SharedObjectMutability,
+};
 use haneul_types::{
     effects::{TransactionEffectsAPI, TransactionEvents},
     execution_status::ExecutionFailureStatus,
@@ -54,7 +57,6 @@ use haneul_types::{
     messages_grpc::SubmitTxRequest,
     programmable_transaction_builder::ProgrammableTransactionBuilder,
 };
-use haneul_types::{quorum_driver_types::EffectsFinalityInfo, transaction::SharedObjectMutability};
 use tokio::time::sleep;
 use tracing::{debug, info, warn};
 
@@ -703,7 +705,7 @@ impl ValidatorProxy for FullNodeProxy {
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub enum BenchMoveCallArg {
     Pure(Vec<u8>),
-    Shared((ObjectID, SequenceNumber, bool)),
+    Shared((ObjectID, SequenceNumber, SharedObjectMutability)),
     ImmOrOwnedObject(ObjectRef),
     ImmOrOwnedObjectVec(Vec<ObjectRef>),
     SharedObjectVec(Vec<(ObjectID, SequenceNumber, bool)>),
@@ -774,9 +776,7 @@ impl From<CallArg> for BenchMoveCallArg {
                     id,
                     initial_shared_version,
                     mutability,
-                } => {
-                    BenchMoveCallArg::Shared((id, initial_shared_version, mutability.is_mutable()))
-                }
+                } => BenchMoveCallArg::Shared((id, initial_shared_version, mutability)),
                 ObjectArg::Receiving(_) => {
                     unimplemented!("Receiving is not supported for benchmarks")
                 }
@@ -799,15 +799,11 @@ pub fn convert_move_call_args(
             BenchMoveCallArg::Pure(bytes) => {
                 pt_builder.input(CallArg::Pure(bytes.clone())).unwrap()
             }
-            BenchMoveCallArg::Shared((id, initial_shared_version, mutable)) => pt_builder
+            BenchMoveCallArg::Shared((id, initial_shared_version, mutability)) => pt_builder
                 .input(CallArg::Object(ObjectArg::SharedObject {
                     id: *id,
                     initial_shared_version: *initial_shared_version,
-                    mutability: if *mutable {
-                        SharedObjectMutability::Mutable
-                    } else {
-                        SharedObjectMutability::Immutable
-                    },
+                    mutability: *mutability,
                 }))
                 .unwrap(),
             BenchMoveCallArg::ImmOrOwnedObject(obj_ref) => {

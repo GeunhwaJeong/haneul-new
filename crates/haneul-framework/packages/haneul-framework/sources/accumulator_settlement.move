@@ -19,6 +19,7 @@ use fun haneul::accumulator_metadata::create_accumulator_metadata as Accumulator
 /// digest.
 #[allow(unused_function)]
 fun settlement_prologue(
+    _accumulator_root: &mut AccumulatorRoot,
     _epoch: u64,
     _checkpoint_height: u64,
     _idx: u64,

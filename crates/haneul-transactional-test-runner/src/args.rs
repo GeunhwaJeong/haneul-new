@@ -93,6 +93,9 @@ pub struct HaneulInitArgs {
     /// Enable references in PTBs
     #[clap(long = "allow-references-in-ptbs")]
     pub allow_references_in_ptbs: bool,
+    /// Enable non-exclusive write objects for testing
+    #[clap(long = "enable-non-exclusive-write-objects")]
+    pub enable_non_exclusive_writes: bool,
 }
 
 #[derive(Debug, clap::Parser)]
@@ -407,6 +410,7 @@ pub enum HaneulExtraValueArgs {
     Digest(String),
     Receiving(FakeID, Option<SequenceNumber>),
     ImmShared(FakeID, Option<SequenceNumber>),
+    NonExclusiveWrite(FakeID, Option<SequenceNumber>),
 }
 
 #[derive(Clone)]
@@ -417,6 +421,7 @@ pub enum HaneulValue {
     Digest(String),
     Receiving(FakeID, Option<SequenceNumber>),
     ImmShared(FakeID, Option<SequenceNumber>),
+    NonExclusiveWrite(FakeID, Option<SequenceNumber>),
 }
 
 impl HaneulExtraValueArgs {
@@ -439,6 +444,13 @@ impl HaneulExtraValueArgs {
     ) -> anyhow::Result<Self> {
         let (fake_id, version) = Self::parse_receiving_or_object_value(parser, "immshared")?;
         Ok(HaneulExtraValueArgs::ImmShared(fake_id, version))
+    }
+
+    fn parse_non_exlucsive_write_value<'a, I: Iterator<Item = (ValueToken, &'a str)>>(
+        parser: &mut MoveCLParser<'a, ValueToken, I>,
+    ) -> anyhow::Result<Self> {
+        let (fake_id, version) = Self::parse_receiving_or_object_value(parser, "nonexclusive")?;
+        Ok(HaneulExtraValueArgs::NonExclusiveWrite(fake_id, version))
     }
 
     fn parse_digest_value<'a, I: Iterator<Item = (ValueToken, &'a str)>>(
@@ -497,6 +509,9 @@ impl HaneulValue {
             HaneulValue::Digest(_) => panic!("unexpected nested Haneul package digest in args"),
             HaneulValue::Receiving(_, _) => panic!("unexpected nested Haneul receiving object in args"),
             HaneulValue::ImmShared(_, _) => panic!("unexpected nested Haneul shared object in args"),
+            HaneulValue::NonExclusiveWrite(_, _) => {
+                panic!("unexpected nested Haneul non-exclusive write object in args")
+            }
         }
     }
 
@@ -508,6 +523,9 @@ impl HaneulValue {
             HaneulValue::Digest(_) => panic!("unexpected nested Haneul package digest in args"),
             HaneulValue::Receiving(_, _) => panic!("unexpected nested Haneul receiving object in args"),
             HaneulValue::ImmShared(_, _) => panic!("unexpected nested Haneul shared object in args"),
+            HaneulValue::NonExclusiveWrite(_, _) => {
+                panic!("unexpected nested Haneul non-exclusive write object in args")
+            }
         }
     }
 
@@ -546,6 +564,33 @@ impl HaneulValue {
         version: Option<SequenceNumber>,
         test_adapter: &HaneulTestAdapter,
     ) -> anyhow::Result<ObjectArg> {
+        Self::shared_arg_impl(
+            fake_id,
+            version,
+            test_adapter,
+            SharedObjectMutability::Immutable,
+        )
+    }
+
+    fn non_exclusive_write_arg(
+        fake_id: FakeID,
+        version: Option<SequenceNumber>,
+        test_adapter: &HaneulTestAdapter,
+    ) -> anyhow::Result<ObjectArg> {
+        Self::shared_arg_impl(
+            fake_id,
+            version,
+            test_adapter,
+            SharedObjectMutability::NonExclusiveWrite,
+        )
+    }
+
+    fn shared_arg_impl(
+        fake_id: FakeID,
+        version: Option<SequenceNumber>,
+        test_adapter: &HaneulTestAdapter,
+        mutability: SharedObjectMutability,
+    ) -> anyhow::Result<ObjectArg> {
         let obj = Self::resolve_object(fake_id, version, test_adapter)?;
         let id = obj.id();
         if let Owner::Shared {
@@ -555,7 +600,7 @@ impl HaneulValue {
             Ok(ObjectArg::SharedObject {
                 id,
                 initial_shared_version,
-                mutability: SharedObjectMutability::Immutable,
+                mutability,
             })
         } else {
             bail!("{fake_id} is not a shared object.")
@@ -600,6 +645,9 @@ impl HaneulValue {
             HaneulValue::ImmShared(fake_id, version) => {
                 CallArg::Object(Self::read_shared_arg(fake_id, version, test_adapter)?)
             }
+            HaneulValue::NonExclusiveWrite(fake_id, version) => CallArg::Object(
+                Self::non_exclusive_write_arg(fake_id, version, test_adapter)?,
+            ),
             HaneulValue::ObjVec(_) => bail!("obj vec is not supported as an input"),
             HaneulValue::Digest(pkg) => {
                 let pkg = Symbol::from(pkg);
@@ -641,6 +689,9 @@ impl ParsableValue for HaneulExtraValueArgs {
             (ValueToken::Ident, "digest") => Some(Self::parse_digest_value(parser)),
             (ValueToken::Ident, "receiving") => Some(Self::parse_receiving_value(parser)),
             (ValueToken::Ident, "immshared") => Some(Self::parse_read_shared_value(parser)),
+            (ValueToken::Ident, "nonexclusive") => {
+                Some(Self::parse_non_exlucsive_write_value(parser))
+            }
             _ => None,
         }
     }
@@ -676,6 +727,9 @@ impl ParsableValue for HaneulExtraValueArgs {
             HaneulExtraValueArgs::Digest(pkg) => Ok(HaneulValue::Digest(pkg)),
             HaneulExtraValueArgs::Receiving(id, version) => Ok(HaneulValue::Receiving(id, version)),
             HaneulExtraValueArgs::ImmShared(id, version) => Ok(HaneulValue::ImmShared(id, version)),
+            HaneulExtraValueArgs::NonExclusiveWrite(id, version) => {
+                Ok(HaneulValue::NonExclusiveWrite(id, version))
+            }
         }
     }
 }
