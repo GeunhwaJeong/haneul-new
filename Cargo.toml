@@ -665,9 +665,9 @@ anemo-cli = { git = "https://github.com/GeunhwaJeong/anemo.git", rev = "9c52c3c7
 anemo-tower = { git = "https://github.com/GeunhwaJeong/anemo.git", rev = "9c52c3c7946532163a79129db15180cdb984bab4" }
 
 # core-types from the new sdk for use in gRPC
-haneul-sdk-types = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "5479149c424a17df7dddc3d03e6727baa59637fd", features = [ "hash", "serde" ] }
-haneul-crypto = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "5479149c424a17df7dddc3d03e6727baa59637fd", features = [ "ed25519", "secp256r1", "secp256k1", "passkey", "zklogin" ] }
-haneul-rpc = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "5479149c424a17df7dddc3d03e6727baa59637fd" }
+haneul-sdk-types = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "fb62af78b30f5dc64eeaec0094ab95b5ce5b7ce2", features = [ "hash", "serde" ] }
+haneul-crypto = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "fb62af78b30f5dc64eeaec0094ab95b5ce5b7ce2", features = [ "ed25519", "secp256r1", "secp256k1", "passkey", "zklogin" ] }
+haneul-rpc = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "fb62af78b30f5dc64eeaec0094ab95b5ce5b7ce2" }
 
 ### Workspace Members ###
 anemo-benchmark = { path = "crates/anemo-benchmark" }

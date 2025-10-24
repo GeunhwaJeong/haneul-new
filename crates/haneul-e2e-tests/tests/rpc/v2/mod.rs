@@ -7,7 +7,7 @@ use std::time::Duration;
 
 use prost_types::FieldMask;
 use haneul_move_build::BuildConfig;
-use haneul_rpc::client::v2::Client;
+use haneul_rpc::Client;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::{
     Bcs, ExecuteTransactionRequest, ExecutedTransaction, Transaction, UserSignature,

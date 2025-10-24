@@ -477,7 +477,7 @@ async fn resolve_transaction_insufficient_gas_with_payment_objects() {
     let signed_tx = test_cluster.wallet.sign_transaction(&tx_data).await;
 
     // Execute transaction and wait for checkpoint so indexes are updated
-    let mut client = haneul_rpc::client::v2::Client::new(test_cluster.rpc_url()).unwrap();
+    let mut client = haneul_rpc::Client::new(test_cluster.rpc_url()).unwrap();
 
     let mut transaction = haneul_rpc::proto::haneul::rpc::v2::Transaction::default();
     transaction.bcs = Some(Bcs::serialize(signed_tx.transaction_data()).unwrap());

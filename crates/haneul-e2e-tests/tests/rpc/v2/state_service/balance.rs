@@ -3,7 +3,7 @@
 
 use std::path::PathBuf;
 use haneul_macros::sim_test;
-use haneul_rpc::client::v2::Client;
+use haneul_rpc::Client;
 use haneul_rpc::proto::haneul::rpc::v2::{ExecutedTransaction, GasCostSummary};
 use haneul_rpc::proto::haneul::rpc::v2::{GetBalanceRequest, ListBalancesRequest};
 use haneul_test_transaction_builder::TestTransactionBuilder;

@@ -5,7 +5,7 @@ use std::path::PathBuf;
 
 use haneul_macros::sim_test;
 use haneul_move_build::BuildConfig;
-use haneul_rpc::client::v2::Client;
+use haneul_rpc::Client;
 use haneul_rpc::field::FieldMask;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::GetCheckpointRequest;
@@ -34,7 +34,7 @@ async fn test_unchanged_loaded_runtime_objects() {
     let _transaction_digest = transfer_coin(&test_cluster.wallet).await;
     let transaction_digest = stake_with_validator(&test_cluster).await;
 
-    let mut client = haneul_rpc::client::v2::Client::new(test_cluster.rpc_url()).unwrap();
+    let mut client = Client::new(test_cluster.rpc_url()).unwrap();
     let t = client
         .ledger_client()
         .get_transaction(

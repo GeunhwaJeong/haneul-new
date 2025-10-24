@@ -5,7 +5,7 @@ use prost_types::FieldMask;
 use std::path::PathBuf;
 use haneul_macros::sim_test;
 use haneul_move_build::BuildConfig;
-use haneul_rpc::client::v2::Client;
+use haneul_rpc::Client;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::changed_object::{IdOperation, OutputObjectState};
 use haneul_rpc::proto::haneul::rpc::v2::{
