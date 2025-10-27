@@ -16171,7 +16171,6 @@ dependencies = [
  "haneul-json-rpc-types",
  "haneul-keys",
  "haneul-move-build",
- "haneul-node",
  "haneul-sdk",
  "haneul-swarm-config",
  "haneul-types",
@@ -16181,7 +16180,6 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "tracing",
- "typed-store",
 ]
 
 [[package]]

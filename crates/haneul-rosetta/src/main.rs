@@ -14,8 +14,7 @@ use clap::Parser;
 use fastcrypto::encoding::{Encoding, Hex};
 use fastcrypto::traits::EncodeDecodeBase64;
 use serde_json::{Value, json};
-use haneul_config::{Config, NodeConfig, HANEUL_FULLNODE_CONFIG, HANEUL_KEYSTORE_FILENAME, haneul_config_dir};
-use haneul_node::HaneulNode;
+use haneul_config::{HANEUL_KEYSTORE_FILENAME, haneul_config_dir};
 use haneul_rosetta::types::{CurveType, PrefundedAccount, HaneulEnv};
 use haneul_rosetta::{RosettaOfflineServer, RosettaOnlineServer, HANEUL};
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
@@ -44,16 +43,6 @@ pub enum RosettaServerCommand {
         addr: SocketAddr,
         #[clap(long)]
         full_node_url: String,
-        #[clap(long, default_value = "/data")]
-        data_path: PathBuf,
-    },
-    StartOnlineServer {
-        #[clap(long, default_value = "localnet")]
-        env: HaneulEnv,
-        #[clap(long, default_value = "0.0.0.0:9002")]
-        addr: SocketAddr,
-        #[clap(long)]
-        node_config: Option<PathBuf>,
         #[clap(long, default_value = "/data")]
         data_path: PathBuf,
     },
@@ -141,39 +130,6 @@ impl RosettaServerCommand {
                     "Starting Rosetta Online Server with remote Haneul full node [{full_node_url}]."
                 );
                 let haneul_client = wait_for_haneul_client(full_node_url).await;
-                let rosetta_path = data_path.join("rosetta_db");
-                info!("Rosetta db path : {rosetta_path:?}");
-                let rosetta = RosettaOnlineServer::new(env, haneul_client);
-                rosetta.serve(addr).await;
-            }
-
-            RosettaServerCommand::StartOnlineServer {
-                env,
-                addr,
-                node_config,
-                data_path,
-            } => {
-                info!("Starting Rosetta Online Server with embedded Haneul full node.");
-                info!("Data directory path: {data_path:?}");
-
-                let node_config = node_config.unwrap_or_else(|| {
-                    let path = haneul_config_dir().unwrap().join(HANEUL_FULLNODE_CONFIG);
-                    info!("Using default node config from {path:?}");
-                    path
-                });
-
-                let mut config = NodeConfig::load(&node_config)?;
-                config.db_path = data_path.join("haneul_db");
-                info!("Overriding Haneul db path to : {:?}", config.db_path);
-
-                let registry_service =
-                    haneullabs_metrics::start_prometheus_server(config.metrics_address);
-                // Staring a full node for the rosetta server.
-                let rpc_address = format!("http://127.0.0.1:{}", config.json_rpc_address.port());
-                let _node = HaneulNode::start(config, registry_service).await?;
-
-                let haneul_client = wait_for_haneul_client(rpc_address).await;
-
                 let rosetta_path = data_path.join("rosetta_db");
                 info!("Rosetta db path : {rosetta_path:?}");
                 let rosetta = RosettaOnlineServer::new(env, haneul_client);

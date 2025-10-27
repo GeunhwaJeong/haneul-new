@@ -21,7 +21,6 @@ use strum::EnumProperty;
 use strum_macros::Display;
 use strum_macros::EnumDiscriminants;
 use thiserror::Error;
-use typed_store::TypedStoreError;
 
 /// Haneul-Rosetta specific error types.
 /// This contains all the errors returns by the haneul-rosetta server.
@@ -75,8 +74,6 @@ pub enum Error {
     HaneulRpcError(#[from] haneul_sdk::error::Error),
     #[error(transparent)]
     EncodingError(#[from] eyre::Report),
-    #[error(transparent)]
-    DBError(#[from] TypedStoreError),
     #[error(transparent)]
     JsonExtractorRejection(#[from] JsonRejection),
 
