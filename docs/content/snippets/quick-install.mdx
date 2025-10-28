@@ -8,7 +8,9 @@ import TabItem from '@theme/TabItem';
 First, install `haneulup`:
 
 ```sh
-$ curl -sSfL https://raw.githubusercontent.com/Haneullabslabs/haneulup/main/install.sh | sh
+$ curl -sSfL \
+  https://raw.githubusercontent.com/Haneullabslabs/haneulup/main/install.sh \
+  | sh
 ```
 
 Then, install Haneul:
@@ -19,6 +21,19 @@ $ haneulup install haneul@testnet
 
 For alternative installation methods, refer to the [`haneulup` repository](https://github.com/GeunhwaJeong/haneulup).
 
+:::danger
+
+Installing Haneul with `haneulup` does not configure the client. To use `haneul` commands, you must [configure the Haneul client](/guides/developer/getting-started/configure-haneul-client.mdx).
+
+To confirm that Haneul installed correctly:
+
+1. Open a terminal or console
+2. Type `haneul --version` and press Enter
+
+If you receive a "command not found" error, verify the Haneul binaries directory is in your `PATH` environment variable.
+
+:::
+
 </TabItem>
 
 <TabItem label="Homebrew" value="brew">
@@ -28,6 +43,14 @@ You must have [Homebrew](https://brew.sh/) installed before running the followin
 ```sh
 $ brew install haneul
 ```
+
+To confirm that Haneul installed correctly:
+
+1. Open a terminal or console
+2. Type `haneul --version` and press Enter
+
+If you receive a "command not found" error, verify the Haneul binaries directory is in your `PATH` environment variable.
+
 
 </TabItem>
 
@@ -40,6 +63,13 @@ $ choco install haneul
 ```
 
 Find more [versions of Haneul for Windows](https://community.chocolatey.org/packages/haneul) on the Chocolatey community website.
+
+To confirm that Haneul installed correctly:
+
+1. Open a terminal or console
+2. Type `haneul --version` and press Enter
+
+If you receive a "command not found" error, verify the Haneul binaries directory is in your `PATH` environment variable.
 
 </TabItem>
 

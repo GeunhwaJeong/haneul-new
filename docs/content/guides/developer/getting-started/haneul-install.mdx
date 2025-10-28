@@ -27,28 +27,23 @@ To create objects, submit transactions, and start building an application on Han
 
 ## Quick install 
 
-The most effective way to install the Haneul CLI is to use [`haneulup`](https://github.com/GeunhwaJeong/haneulup), as it allows you to easily install and switch between different versions of not only the Haneul CLI but also other Haneul stack components like [`walrus`](https://docs.wal.app/usage/setup.html) and [`mvr`](https://github.com/GeunhwaJeong/mvr). 
+The Haneul CLI is used to interact with the Haneul network, deploy packages, and manage assets. To install the Haneul CLI, you can use [`haneulup`](https://github.com/GeunhwaJeong/haneulup).
+
+[`haneulup`](https://github.com/GeunhwaJeong/haneulup) is the most effective installation method, as it allows you to easily install and switch between different versions of not only the Haneul CLI but also other Haneul stack components like [`walrus`](https://docs.wal.app/usage/setup.html) and [`mvr`](https://github.com/GeunhwaJeong/mvr). 
 
 Alternative quick install instructions for [Homebrew](https://brew.sh/) or [Chocolately](https://chocolatey.org/) do not support installing other Haneul stack components. Other components will need to be installed through their individual binaries if you'd like to use them in the future. 
 
-<ImportContent source="quick-install.mdx" mode="snippet" />
+:::caution 
 
-:::info
-
-The quick install is suitable for most use cases. For those wanting more control over the installation process, you can [install from source](/guides/developer/getting-started/install-source.mdx) or [install binaries](/guides/developer/getting-started/install-binaries.mdx). 
+Installations using Homebrew or Chocolatey might take several minutes if you do not have any of the [Haneul prerequisites](/guides/developer/getting-started/install-source) installed. Using `haneulup` is often much faster and highly recommended.
 
 :::
 
+<ImportContent source="quick-install.mdx" mode="snippet" />
+
+The quick install is suitable for most use cases. For those wanting more control over the installation process, you can [install from source](/guides/developer/getting-started/install-source.mdx) or [install binaries](/guides/developer/getting-started/install-binaries.mdx). 
+
 If Haneul is already installed from a previous development environment, be sure to upgrade to the [latest version](/guides/developer/getting-started/install-binaries.mdx).
-
-### Confirm the installation {#confirm-the-installation}
-
-To confirm that Haneul installed correctly:
-
-1. Open a terminal or console
-2. Type `haneul --version` and press Enter
-
-If you receive a "command not found" error, verify the Haneul binaries directory is in your `PATH` environment variable.
 
 :::info Looking for a project to clone?
 
