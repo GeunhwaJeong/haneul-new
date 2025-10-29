@@ -3,6 +3,7 @@
 
 const concepts = [
 	'concepts',
+	'concepts/haneul-for-ethereum',
 	'concepts/components',
 	{
 		type: 'category',
