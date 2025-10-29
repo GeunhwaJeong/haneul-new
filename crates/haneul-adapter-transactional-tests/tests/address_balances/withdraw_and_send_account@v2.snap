@@ -20,7 +20,7 @@ task 2, lines 14-16:
 Checkpoint created: 1
 
 task 3, lines 17-19:
-//# programmable --sender B --inputs withdraw(500,haneul::balance::Balance<haneul::haneul::HANEUL>) @A
+//# programmable --sender B --inputs withdraw<haneul::balance::Balance<haneul::haneul::HANEUL>>(500) @A
 //> 0: haneul::balance::redeem_funds<haneul::haneul::HANEUL>(Input(0));
 //> 1: haneul::balance::send_funds<haneul::haneul::HANEUL>(Result(0), Input(1));
 mutated: object(0,1)
@@ -32,7 +32,7 @@ task 4, lines 21-23:
 Checkpoint created: 2
 
 task 5, lines 24-26:
-//# programmable --sender B --inputs withdraw(500,haneul::balance::Balance<haneul::haneul::HANEUL>) @B
+//# programmable --sender B --inputs withdraw<haneul::balance::Balance<haneul::haneul::HANEUL>>(500) @B
 //> 0: haneul::balance::redeem_funds<haneul::haneul::HANEUL>(Input(0));
 //> 1: haneul::balance::send_funds<haneul::haneul::HANEUL>(Result(0), Input(1));
 mutated: object(0,1)
