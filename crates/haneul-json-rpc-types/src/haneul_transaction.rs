@@ -2388,6 +2388,7 @@ impl HaneulCallArg {
                 },
                 withdraw_from: match arg.withdraw_from {
                     WithdrawFrom::Sender => HaneulWithdrawFrom::Sender,
+                    WithdrawFrom::Sponsor => HaneulWithdrawFrom::Sponsor,
                 },
             }),
         })
@@ -2486,6 +2487,7 @@ pub enum HaneulWithdrawalTypeArg {
 #[serde(rename_all = "camelCase")]
 pub enum HaneulWithdrawFrom {
     Sender,
+    Sponsor,
 }
 
 #[derive(Eq, PartialEq, Debug, Clone, Serialize, Deserialize, JsonSchema)]

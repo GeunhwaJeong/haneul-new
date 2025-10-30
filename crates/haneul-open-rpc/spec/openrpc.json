@@ -10582,7 +10582,8 @@
       "HaneulWithdrawFrom": {
         "type": "string",
         "enum": [
-          "sender"
+          "sender",
+          "sponsor"
         ]
       },
       "HaneulWithdrawalTypeArg": {
