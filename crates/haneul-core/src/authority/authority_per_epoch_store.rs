@@ -19,9 +19,9 @@ use futures::FutureExt;
 use futures::future::{Either, join_all, select};
 use itertools::{Itertools, izip};
 use move_bytecode_utils::module_cache::SyncModuleCache;
-use haneullabs_common::assert_reachable;
 use haneullabs_common::sync::notify_once::NotifyOnce;
 use haneullabs_common::sync::notify_read::NotifyRead;
+use haneullabs_common::{assert_reachable, assert_sometimes};
 use haneullabs_common::{debug_fatal, fatal};
 use haneullabs_metrics::monitored_scope;
 use nonempty::NonEmpty;
@@ -4705,11 +4705,11 @@ impl AuthorityPerEpochStore {
                     ) {
                         ConsensusCertificateResult::Deferred(deferral_key)
                     } else {
-                        antithesis_sdk::assert_sometimes!(
+                        assert_sometimes!(
                             transaction.transaction_data().uses_randomness(),
                             "cancelled randomness-using transaction (old handler)"
                         );
-                        antithesis_sdk::assert_sometimes!(
+                        assert_sometimes!(
                             !transaction.transaction_data().uses_randomness(),
                             "cancelled non-randomness-using transaction (old handler)"
                         );
