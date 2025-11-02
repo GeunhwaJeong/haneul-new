@@ -662,6 +662,16 @@ fun store_execution_time_estimates(wrapper: &mut HaneulSystemState, estimates_by
     wrapper.load_system_state_mut().store_execution_time_estimates(estimates_bytes)
 }
 
+#[allow(unused_function)]
+/// Saves the given execution time estimate chunks to the HaneulSystemState object, for system use
+/// at the start of the next epoch.
+fun store_execution_time_estimates_v2(
+    wrapper: &mut HaneulSystemState,
+    estimate_chunks: vector<vector<u8>>,
+) {
+    wrapper.load_system_state_mut().store_execution_time_estimates_v2(estimate_chunks)
+}
+
 #[test_only]
 public fun validator_voting_powers_for_testing(wrapper: &mut HaneulSystemState): VecMap<address, u64> {
     wrapper.validator_voting_powers()

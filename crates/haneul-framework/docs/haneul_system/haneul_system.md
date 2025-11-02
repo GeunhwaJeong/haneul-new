@@ -92,6 +92,7 @@ the HaneulSystemStateInner version, or vice versa.
 -  [Function `load_inner_maybe_upgrade`](#haneul_system_haneul_system_load_inner_maybe_upgrade)
 -  [Function `validator_voting_powers`](#haneul_system_haneul_system_validator_voting_powers)
 -  [Function `store_execution_time_estimates`](#haneul_system_haneul_system_store_execution_time_estimates)
+-  [Function `store_execution_time_estimates_v2`](#haneul_system_haneul_system_store_execution_time_estimates_v2)
 
 
 <pre><code><b>use</b> <a href="../std/address.md#std_address">std::address</a>;
@@ -1736,6 +1737,35 @@ at the start of the next epoch.
 
 <pre><code><b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_store_execution_time_estimates">store_execution_time_estimates</a>(wrapper: &<b>mut</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">HaneulSystemState</a>, estimates_bytes: vector&lt;u8&gt;) {
     wrapper.<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_system_state_mut">load_system_state_mut</a>().<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_store_execution_time_estimates">store_execution_time_estimates</a>(estimates_bytes)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_system_haneul_system_store_execution_time_estimates_v2"></a>
+
+## Function `store_execution_time_estimates_v2`
+
+Saves the given execution time estimate chunks to the HaneulSystemState object, for system use
+at the start of the next epoch.
+
+
+<pre><code><b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_store_execution_time_estimates_v2">store_execution_time_estimates_v2</a>(wrapper: &<b>mut</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">haneul_system::haneul_system::HaneulSystemState</a>, estimate_chunks: vector&lt;vector&lt;u8&gt;&gt;)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_store_execution_time_estimates_v2">store_execution_time_estimates_v2</a>(
+    wrapper: &<b>mut</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">HaneulSystemState</a>,
+    estimate_chunks: vector&lt;vector&lt;u8&gt;&gt;,
+) {
+    wrapper.<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_system_state_mut">load_system_state_mut</a>().<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_store_execution_time_estimates_v2">store_execution_time_estimates_v2</a>(estimate_chunks)
 }
 </code></pre>
 
