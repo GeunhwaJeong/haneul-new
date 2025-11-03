@@ -60,6 +60,8 @@ fn main() {
         }
     }
 
+    proto_files.sort();
+
     let file_descriptors = protox::compile(proto_files, [haneul_proto_dir, haneul_rpc_proto_dir])
         .expect("failed to compile proto files");
 
