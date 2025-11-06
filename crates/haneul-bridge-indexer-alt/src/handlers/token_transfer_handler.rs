@@ -15,12 +15,12 @@ use haneul_bridge::events::{
 use haneul_bridge_schema::models::{BridgeDataSource, TokenTransfer, TokenTransferStatus};
 use haneul_bridge_schema::schema::token_transfer;
 use haneul_indexer_alt_framework::pipeline::Processor;
-use haneul_indexer_alt_framework::pipeline::concurrent::Handler;
-use haneul_indexer_alt_framework::postgres::Db;
-use haneul_indexer_alt_framework::store::Store;
+use haneul_indexer_alt_framework::postgres::Connection;
+use haneul_indexer_alt_framework::postgres::handler::Handler;
 use haneul_indexer_alt_framework::types::BRIDGE_ADDRESS;
 use haneul_indexer_alt_framework::types::effects::TransactionEffectsAPI;
-use haneul_indexer_alt_framework::types::full_checkpoint_content::CheckpointData;
+use haneul_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
+use haneul_indexer_alt_framework::types::transaction::TransactionDataAPI;
 use tracing::info;
 
 pub struct TokenTransferHandler {
@@ -58,10 +58,10 @@ impl Processor for TokenTransferHandler {
 
     async fn process(
         &self,
-        checkpoint: &Arc<CheckpointData>,
+        checkpoint: &Arc<Checkpoint>,
     ) -> Result<Vec<Self::Value>, anyhow::Error> {
-        let timestamp_ms = checkpoint.checkpoint_summary.timestamp_ms as i64;
-        let block_height = checkpoint.checkpoint_summary.sequence_number as i64;
+        let timestamp_ms = checkpoint.summary.timestamp_ms as i64;
+        let block_height = checkpoint.summary.sequence_number as i64;
 
         let mut results = vec![];
 
@@ -142,7 +142,7 @@ impl Processor for TokenTransferHandler {
                     data_source: BridgeDataSource::HANEUL,
                     is_finalized: true,
                     txn_hash: tx.transaction.digest().inner().to_vec(),
-                    txn_sender: tx.transaction.sender_address().to_vec(),
+                    txn_sender: tx.transaction.sender().to_vec(),
                     gas_usage: tx.effects.gas_cost_summary().net_gas_usage(),
                 });
             }
@@ -153,10 +153,9 @@ impl Processor for TokenTransferHandler {
 
 #[async_trait]
 impl Handler for TokenTransferHandler {
-    type Store = Db;
     async fn commit<'a>(
         values: &[Self::Value],
-        conn: &mut <Self::Store as Store>::Connection<'a>,
+        conn: &mut Connection<'a>,
     ) -> anyhow::Result<usize> {
         Ok(diesel::insert_into(token_transfer::table)
             .values(values)

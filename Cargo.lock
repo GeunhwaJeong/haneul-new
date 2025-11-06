@@ -13923,6 +13923,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-checkpoint-blob-indexer"
+version = "1.61.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bytes",
+ "clap",
+ "humantime",
+ "object_store",
+ "prometheus",
+ "prost 0.14.1",
+ "serde",
+ "serde_json",
+ "haneul-config",
+ "haneul-indexer-alt-framework",
+ "haneul-indexer-alt-framework-store-traits",
+ "haneul-indexer-alt-metrics",
+ "haneul-indexer-alt-object-store",
+ "haneul-rpc",
+ "haneul-types",
+ "tokio",
+ "tokio-util 0.7.13",
+ "tracing",
+ "tracing-subscriber",
+ "url",
+ "zstd 0.12.3+zstd.1.5.2",
+]
+
+[[package]]
 name = "haneul-cluster-test"
 version = "1.61.0"
 dependencies = [
@@ -14925,6 +14954,7 @@ dependencies = [
  "futures",
  "pin-project-lite",
  "prometheus",
+ "prost-types 0.14.1",
  "rand 0.8.5",
  "reqwest 0.12.9",
  "scoped-futures",
@@ -14933,7 +14963,8 @@ dependencies = [
  "haneul-indexer-alt-framework-store-traits",
  "haneul-indexer-alt-metrics",
  "haneul-pg-db",
- "haneul-rpc-api",
+ "haneul-rpc",
+ "haneul-sdk-types",
  "haneul-storage",
  "haneul-synthetic-ingestion",
  "haneul-types",
@@ -15088,6 +15119,21 @@ dependencies = [
  "haneul-pg-db",
  "tokio",
  "tokio-util 0.7.13",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-indexer-alt-object-store"
+version = "1.61.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bytes",
+ "object_store",
+ "serde",
+ "serde_json",
+ "haneul-indexer-alt-framework-store-traits",
+ "tokio",
  "tracing",
 ]
 
