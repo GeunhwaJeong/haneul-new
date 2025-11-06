@@ -165,7 +165,7 @@ Generic Move and native functions for group operations.
 
 
 
-<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/group_ops.md#haneul_group_ops_from_bytes">from_bytes</a>&lt;G&gt;(type_: u8, <a href="../haneul/group_ops.md#haneul_group_ops_bytes">bytes</a>: &vector&lt;u8&gt;, is_trusted: bool): <a href="../haneul/group_ops.md#haneul_group_ops_Element">haneul::group_ops::Element</a>&lt;G&gt;
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/group_ops.md#haneul_group_ops_from_bytes">from_bytes</a>&lt;G&gt;(type_: u8, <a href="../haneul/group_ops.md#haneul_group_ops_bytes">bytes</a>: vector&lt;u8&gt;, is_trusted: bool): <a href="../haneul/group_ops.md#haneul_group_ops_Element">haneul::group_ops::Element</a>&lt;G&gt;
 </code></pre>
 
 
@@ -174,9 +174,9 @@ Generic Move and native functions for group operations.
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/group_ops.md#haneul_group_ops_from_bytes">from_bytes</a>&lt;G&gt;(type_: u8, <a href="../haneul/group_ops.md#haneul_group_ops_bytes">bytes</a>: &vector&lt;u8&gt;, is_trusted: bool): <a href="../haneul/group_ops.md#haneul_group_ops_Element">Element</a>&lt;G&gt; {
-    <b>assert</b>!(is_trusted || <a href="../haneul/group_ops.md#haneul_group_ops_internal_validate">internal_validate</a>(type_, <a href="../haneul/group_ops.md#haneul_group_ops_bytes">bytes</a>), <a href="../haneul/group_ops.md#haneul_group_ops_EInvalidInput">EInvalidInput</a>);
-    <a href="../haneul/group_ops.md#haneul_group_ops_Element">Element</a>&lt;G&gt; { <a href="../haneul/group_ops.md#haneul_group_ops_bytes">bytes</a>: *<a href="../haneul/group_ops.md#haneul_group_ops_bytes">bytes</a> }
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/group_ops.md#haneul_group_ops_from_bytes">from_bytes</a>&lt;G&gt;(type_: u8, <a href="../haneul/group_ops.md#haneul_group_ops_bytes">bytes</a>: vector&lt;u8&gt;, is_trusted: bool): <a href="../haneul/group_ops.md#haneul_group_ops_Element">Element</a>&lt;G&gt; {
+    <b>assert</b>!(is_trusted || <a href="../haneul/group_ops.md#haneul_group_ops_internal_validate">internal_validate</a>(type_, &<a href="../haneul/group_ops.md#haneul_group_ops_bytes">bytes</a>), <a href="../haneul/group_ops.md#haneul_group_ops_EInvalidInput">EInvalidInput</a>);
+    <a href="../haneul/group_ops.md#haneul_group_ops_Element">Element</a>&lt;G&gt; { <a href="../haneul/group_ops.md#haneul_group_ops_bytes">bytes</a> }
 }
 </code></pre>
 
