@@ -21,6 +21,7 @@ mod checked {
         move_vm::MoveVM, native_extensions::NativeContextExtensions,
         native_functions::NativeFunctionTable,
     };
+    use haneullabs_common::debug_fatal;
     use haneul_move_natives::{object_runtime, transaction_context::TransactionContext};
     use haneul_types::error::HaneulErrorKind;
     use haneul_types::metrics::BytecodeVerifierMetrics;
@@ -197,6 +198,19 @@ mod checked {
         if let Err(e) = verify_module_with_config_metered(verifier_config, module, meter) {
             // Check that the status indicates metering timeout.
             if check_for_verifier_timeout(&e.major_status()) {
+                if e.major_status()
+                    == move_core_types::vm_status::StatusCode::REFERENCE_SAFETY_INCONSISTENT
+                {
+                    let mut bytes = vec![];
+                    let _ = module.serialize_with_version(
+                        move_binary_format::file_format_common::VERSION_MAX,
+                        &mut bytes,
+                    );
+                    debug_fatal!(
+                        "Reference safety inconsistency detected in module: {:?}",
+                        bytes
+                    );
+                }
                 return Err(HaneulErrorKind::ModuleVerificationFailure {
                     error: format!("Verification timed out: {}", e),
                 }
