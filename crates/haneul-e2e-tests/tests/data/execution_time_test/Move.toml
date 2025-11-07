@@ -1,0 +1,10 @@
+[package]
+name = "execution_time_test"
+version = "0.0.1"
+edition = "2024.beta"
+
+[dependencies]
+Haneul = { local = "../../../../haneul-framework/packages/haneul-framework" }
+
+[addresses]
+execution_time_test = "0x0"
