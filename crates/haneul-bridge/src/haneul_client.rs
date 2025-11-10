@@ -54,6 +54,7 @@ use crate::metrics::BridgeMetrics;
 use crate::retry_with_max_elapsed_time;
 use crate::types::BridgeActionStatus;
 use crate::types::ParsedTokenTransferMessage;
+use crate::types::HaneulEvents;
 use crate::types::{BridgeAction, BridgeAuthority, BridgeCommittee};
 
 pub struct HaneulClient<P> {
@@ -158,6 +159,7 @@ where
     ) -> BridgeResult<BridgeAction> {
         let events = self.inner.get_events_by_tx_digest(*tx_digest).await?;
         let event = events
+            .events
             .get(event_idx as usize)
             .ok_or(BridgeError::NoBridgeEventsInTxPosition)?;
         if event.type_.address.as_ref() != BRIDGE_PACKAGE_ID.as_ref() {
@@ -397,7 +399,7 @@ pub trait HaneulClientInner: Send + Sync {
     async fn get_events_by_tx_digest(
         &self,
         tx_digest: TransactionDigest,
-    ) -> Result<Vec<HaneulEvent>, Self::Error>;
+    ) -> Result<HaneulEvents, Self::Error>;
 
     async fn get_chain_identifier(&self) -> Result<String, Self::Error>;
 
@@ -458,8 +460,23 @@ impl HaneulClientInner for HaneulSdkClient {
     async fn get_events_by_tx_digest(
         &self,
         tx_digest: TransactionDigest,
-    ) -> Result<Vec<HaneulEvent>, Self::Error> {
-        self.event_api().get_events(tx_digest).await
+    ) -> Result<HaneulEvents, Self::Error> {
+        let resp = self
+            .read_api()
+            .get_transaction_with_options(
+                tx_digest,
+                HaneulTransactionBlockResponseOptions::new().with_events(),
+            )
+            .await?;
+        Ok(HaneulEvents {
+            transaction_digest: resp.digest,
+            checkpoint: resp.checkpoint,
+            timestamp_ms: resp.timestamp_ms,
+            events: resp
+                .events
+                .ok_or_else(|| haneul_sdk::error::Error::DataError("missing events".into()))?
+                .data,
+        })
     }
 
     async fn get_chain_identifier(&self) -> Result<String, Self::Error> {

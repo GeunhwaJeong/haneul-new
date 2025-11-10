@@ -25,7 +25,7 @@ use haneul_types::transaction::ObjectArg;
 use haneul_types::transaction::Transaction;
 
 use crate::haneul_client::HaneulClientInner;
-use crate::types::{BridgeAction, BridgeActionStatus, IsBridgePaused};
+use crate::types::{BridgeAction, BridgeActionStatus, IsBridgePaused, HaneulEvents};
 
 /// Mock client used in test environments.
 #[allow(clippy::type_complexity)]
@@ -184,14 +184,19 @@ impl HaneulClientInner for HaneulMockClient {
     async fn get_events_by_tx_digest(
         &self,
         tx_digest: TransactionDigest,
-    ) -> Result<Vec<HaneulEvent>, Self::Error> {
+    ) -> Result<HaneulEvents, Self::Error> {
         let events = self.events_by_tx_digest.lock().unwrap();
 
         match events
             .get(&tx_digest)
             .unwrap_or_else(|| panic!("No preset events found for tx_digest: {:?}", tx_digest))
         {
-            Ok(events) => Ok(events.clone()),
+            Ok(events) => Ok(HaneulEvents {
+                transaction_digest: tx_digest,
+                checkpoint: None,
+                timestamp_ms: None,
+                events: events.clone(),
+            }),
             // haneul_sdk::error::Error is not Clone
             Err(_) => Err(haneul_sdk::error::Error::DataError("".to_string())),
         }
