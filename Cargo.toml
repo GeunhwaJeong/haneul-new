@@ -114,7 +114,6 @@ members = [
   "crates/haneul-default-config",
   "crates/haneul-display",
   "crates/haneul-e2e-tests",
-  "crates/haneul-edge-proxy",
   "crates/haneul-enum-compat-util",
   "crates/haneul-faucet",
   "crates/haneul-field-count",
