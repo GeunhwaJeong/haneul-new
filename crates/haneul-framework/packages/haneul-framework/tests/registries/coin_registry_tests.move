@@ -5,11 +5,10 @@
 module haneul::coin_registry_tests;
 
 use std::string::String;
-use std::unit_test::assert_eq;
+use std::unit_test::{assert_eq, destroy};
 use haneul::coin::{Self, DenyCapV2, TreasuryCap, CoinMetadata};
 use haneul::coin_registry::{Self, Currency, CurrencyInitializer, CoinRegistry};
 use haneul::test_scenario;
-use haneul::test_utils::destroy;
 use haneul::url;
 
 /// OTW-like.

@@ -40,6 +40,7 @@ module bridge::bridge_env {
     use bridge::usdt::{Self, USDT};
     use std::ascii::String;
     use std::type_name;
+    use std::unit_test::destroy;
     use haneul::address;
     use haneul::clock::Clock;
     use haneul::coin::{Self, Coin, CoinMetadata, TreasuryCap};
@@ -47,7 +48,6 @@ module bridge::bridge_env {
     use haneul::event;
     use haneul::package::UpgradeCap;
     use haneul::test_scenario::{Self, Scenario};
-    use haneul::test_utils::destroy;
     use haneul_system::governance_test_utils::{
         advance_epoch_with_reward_amounts,
         create_haneul_system_state_for_testing,

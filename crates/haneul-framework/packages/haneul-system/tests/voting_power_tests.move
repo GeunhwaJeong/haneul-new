@@ -4,8 +4,7 @@
 #[test_only]
 module haneul_system::voting_power_tests;
 
-use std::unit_test::assert_eq;
-use haneul::test_utils;
+use std::unit_test::{assert_eq, destroy};
 use haneul_system::validator::{Self, Validator};
 use haneul_system::validator_builder;
 use haneul_system::validator_set;
@@ -25,7 +24,7 @@ fun check(stakes: vector<u64>, voting_power: vector<u64>, ctx: &mut TxContext) {
     );
 
     assert_eq!(voting_powers, voting_power);
-    test_utils::destroy(validators);
+    destroy(validators);
 }
 
 #[test]

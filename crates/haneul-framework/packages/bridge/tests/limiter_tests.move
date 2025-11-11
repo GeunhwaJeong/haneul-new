@@ -17,10 +17,9 @@ use bridge::limiter::{
     usd_value_multiplier
 };
 use bridge::treasury::{Self, BTC, ETH, USDC, USDT};
-use std::unit_test::assert_eq;
+use std::unit_test::{assert_eq, destroy};
 use haneul::clock;
 use haneul::test_scenario;
-use haneul::test_utils::destroy;
 
 #[test]
 fun test_24_hours_windows() {

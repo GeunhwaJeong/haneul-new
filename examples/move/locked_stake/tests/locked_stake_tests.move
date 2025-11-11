@@ -7,11 +7,10 @@ module locked_stake::locked_stake_tests;
 
 use locked_stake::epoch_time_lock;
 use locked_stake::locked_stake as ls;
-use std::unit_test::assert_eq;
+use std::unit_test::{assert_eq, destroy};
 use haneul::balance;
 use haneul::coin;
 use haneul::test_scenario;
-use haneul::test_utils::destroy;
 use haneul::vec_map;
 use haneul_system::governance_test_utils::{advance_epoch, set_up_haneul_system_state};
 use haneul_system::haneul_system::{Self, HaneulSystemState};

@@ -4,10 +4,9 @@
 #[test_only]
 module haneul_system::staking_pool_tests;
 
-use std::unit_test::assert_eq;
+use std::unit_test::{assert_eq, destroy};
 use haneul::balance;
 use haneul::test_scenario::{Self, Scenario};
-use haneul::test_utils::destroy;
 use haneul_system::staking_pool::{Self, StakingPool};
 
 #[test]

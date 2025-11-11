@@ -4,8 +4,8 @@
 #[test_only]
 module haneul::poseidon_tests;
 
-use haneul::poseidon::poseidon_bn254;
 use std::u64::min;
+use haneul::poseidon::poseidon_bn254;
 
 #[test]
 fun test_poseidon_bn254_hash() {

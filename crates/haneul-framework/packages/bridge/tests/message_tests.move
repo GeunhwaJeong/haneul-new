@@ -36,14 +36,13 @@ use bridge::message::{
 };
 use bridge::treasury::{Self, BTC, ETH, USDC};
 use std::ascii;
-use std::unit_test::assert_eq;
+use std::unit_test::{assert_eq, destroy};
 use haneul::address;
 use haneul::balance;
 use haneul::bcs;
 use haneul::coin::{Self, Coin};
 use haneul::hex;
 use haneul::test_scenario;
-use haneul::test_utils::destroy;
 
 const INVALID_CHAIN: u8 = 42;
 

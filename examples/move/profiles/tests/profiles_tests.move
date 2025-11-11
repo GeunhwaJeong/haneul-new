@@ -5,9 +5,9 @@
 module profiles::profiles_tests;
 
 use profiles::profiles;
+use std::unit_test::destroy;
 use haneul::derived_object;
 use haneul::test_scenario;
-use haneul::test_utils::destroy;
 
 const ALICE: address = @0xA11CE;
 const BOB: address = @0xB0B;

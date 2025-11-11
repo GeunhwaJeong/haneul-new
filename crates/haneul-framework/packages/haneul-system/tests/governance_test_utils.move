@@ -5,12 +5,11 @@
 #[deprecated(note = b"Use haneul_system::test_runner instead")]
 module haneul_system::governance_test_utils;
 
-use std::unit_test::assert_eq;
+use std::unit_test::{assert_eq, destroy};
 use haneul::balance::{Self, Balance};
 use haneul::coin::{Self, Coin};
 use haneul::haneul::HANEUL;
 use haneul::test_scenario::{Self, Scenario};
-use haneul::test_utils;
 use haneul_system::stake_subsidy;
 use haneul_system::staking_pool::{StakedHaneul, StakingPool};
 use haneul_system::haneul_system::{Self, HaneulSystemState};
@@ -145,7 +144,7 @@ public fun advance_epoch_with_reward_amounts(
         0,
         scenario,
     );
-    test_utils::destroy(storage_rebate)
+    destroy(storage_rebate)
 }
 
 public fun advance_epoch_with_reward_amounts_and_slashing_rates(
@@ -172,7 +171,7 @@ public fun advance_epoch_with_reward_amounts_and_slashing_rates(
         0,
         ctx,
     );
-    test_utils::destroy(storage_rebate);
+    destroy(storage_rebate);
     test_scenario::return_shared(system_state);
     scenario.next_epoch(@0x0);
 }
