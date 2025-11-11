@@ -13805,6 +13805,7 @@ dependencies = [
  "haneul-keys",
  "haneul-metrics-push-client",
  "haneul-sdk",
+ "haneul-sdk-types",
  "haneul-test-transaction-builder",
  "haneul-types",
  "tap",

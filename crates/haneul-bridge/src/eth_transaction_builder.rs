@@ -36,6 +36,9 @@ pub async fn build_eth_transaction(
         BridgeAction::HaneulToEthBridgeAction(_) => {
             unreachable!()
         }
+        BridgeAction::HaneulToEthTokenTransfer(_) => {
+            unreachable!()
+        }
         BridgeAction::EthToHaneulBridgeAction(_) => {
             unreachable!()
         }

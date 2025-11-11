@@ -12,6 +12,7 @@ use crate::types::EthToHaneulBridgeAction;
 use crate::types::EvmContractUpgradeAction;
 use crate::types::LimitUpdateAction;
 use crate::types::HaneulToEthBridgeAction;
+use crate::types::HaneulToEthTokenTransfer;
 use anyhow::Result;
 use enum_dispatch::enum_dispatch;
 use ethers::types::Address as EthAddress;
@@ -81,6 +82,48 @@ impl BridgeMessageEncoding for HaneulToEthBridgeAction {
 
         // Add token amount
         bytes.extend_from_slice(&e.amount_haneul_adjusted.to_be_bytes());
+
+        Ok(bytes)
+    }
+}
+
+impl BridgeMessageEncoding for HaneulToEthTokenTransfer {
+    fn as_bytes(&self) -> Result<Vec<u8>> {
+        let mut bytes = Vec::new();
+        // Add message type
+        bytes.push(BridgeActionType::TokenTransfer as u8);
+        // Add message version
+        bytes.push(TOKEN_TRANSFER_MESSAGE_VERSION);
+        // Add nonce
+        bytes.extend_from_slice(&self.nonce.to_be_bytes());
+        // Add source chain id
+        bytes.push(self.haneul_chain_id as u8);
+
+        // Add payload bytes
+        bytes.extend_from_slice(&self.as_payload_bytes()?);
+
+        Ok(bytes)
+    }
+
+    fn as_payload_bytes(&self) -> Result<Vec<u8>> {
+        let mut bytes = Vec::new();
+
+        // Add source address length
+        bytes.push(HANEUL_ADDRESS_LENGTH as u8);
+        // Add source address
+        bytes.extend_from_slice(&self.haneul_address.to_vec());
+        // Add dest chain id
+        bytes.push(self.eth_chain_id as u8);
+        // Add dest address length
+        bytes.push(EthAddress::len_bytes() as u8);
+        // Add dest address
+        bytes.extend_from_slice(self.eth_address.as_bytes());
+
+        // Add token id
+        bytes.push(self.token_id);
+
+        // Add token amount
+        bytes.extend_from_slice(&self.amount_adjusted.to_be_bytes());
 
         Ok(bytes)
     }

@@ -29,7 +29,7 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::bridge::{
     APPROVAL_THRESHOLD_ADD_TOKENS_ON_EVM, APPROVAL_THRESHOLD_ADD_TOKENS_ON_HANEUL,
     BRIDGE_COMMITTEE_MAXIMAL_VOTING_POWER, BRIDGE_COMMITTEE_MINIMAL_VOTING_POWER, BridgeChainId,
-    MoveTypeTokenTransferPayload,
+    MoveTypeBridgeMessage, MoveTypeBridgeRecord, MoveTypeTokenTransferPayload,
 };
 use haneul_types::bridge::{
     APPROVAL_THRESHOLD_ASSET_PRICE_UPDATE, APPROVAL_THRESHOLD_COMMITTEE_BLOCKLIST,
@@ -217,8 +217,8 @@ pub enum BridgeActionType {
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct BridgeActionKey {
-    pub action_type: BridgeActionType,
     pub chain_id: BridgeChainId,
+    pub action_type: BridgeActionType,
     pub seq_num: u64,
 }
 
@@ -248,6 +248,18 @@ pub struct HaneulToEthBridgeAction {
     // The index of the event in the transaction
     pub haneul_tx_event_index: u16,
     pub haneul_bridge_event: EmittedHaneulToEthTokenBridgeV1,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub struct HaneulToEthTokenTransfer {
+    pub nonce: u64,
+    pub haneul_chain_id: BridgeChainId,
+    pub eth_chain_id: BridgeChainId,
+    pub haneul_address: HaneulAddress,
+    pub eth_address: EthAddress,
+    pub token_id: u8,
+    // The amount of tokens deposited with decimal points on Haneul side
+    pub amount_adjusted: u64,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -377,6 +389,8 @@ pub enum BridgeAction {
     EvmContractUpgradeAction(EvmContractUpgradeAction),
     AddTokensOnHaneulAction(AddTokensOnHaneulAction),
     AddTokensOnEvmAction(AddTokensOnEvmAction),
+    /// Haneul to Eth bridge action
+    HaneulToEthTokenTransfer(HaneulToEthTokenTransfer),
 }
 
 impl BridgeAction {
@@ -401,6 +415,7 @@ impl BridgeAction {
     pub fn chain_id(&self) -> BridgeChainId {
         match self {
             BridgeAction::HaneulToEthBridgeAction(a) => a.haneul_bridge_event.haneul_chain_id,
+            BridgeAction::HaneulToEthTokenTransfer(a) => a.haneul_chain_id,
             BridgeAction::EthToHaneulBridgeAction(a) => a.eth_bridge_event.eth_chain_id,
             BridgeAction::BlocklistCommitteeAction(a) => a.chain_id,
             BridgeAction::EmergencyAction(a) => a.chain_id,
@@ -429,6 +444,7 @@ impl BridgeAction {
     pub fn action_type(&self) -> BridgeActionType {
         match self {
             BridgeAction::HaneulToEthBridgeAction(_) => BridgeActionType::TokenTransfer,
+            BridgeAction::HaneulToEthTokenTransfer(_) => BridgeActionType::TokenTransfer,
             BridgeAction::EthToHaneulBridgeAction(_) => BridgeActionType::TokenTransfer,
             BridgeAction::BlocklistCommitteeAction(_) => BridgeActionType::UpdateCommitteeBlocklist,
             BridgeAction::EmergencyAction(_) => BridgeActionType::EmergencyButton,
@@ -444,6 +460,7 @@ impl BridgeAction {
     pub fn seq_number(&self) -> u64 {
         match self {
             BridgeAction::HaneulToEthBridgeAction(a) => a.haneul_bridge_event.nonce,
+            BridgeAction::HaneulToEthTokenTransfer(a) => a.nonce,
             BridgeAction::EthToHaneulBridgeAction(a) => a.eth_bridge_event.nonce,
             BridgeAction::BlocklistCommitteeAction(a) => a.nonce,
             BridgeAction::EmergencyAction(a) => a.nonce,
@@ -458,6 +475,7 @@ impl BridgeAction {
     pub fn approval_threshold(&self) -> u64 {
         match self {
             BridgeAction::HaneulToEthBridgeAction(_) => APPROVAL_THRESHOLD_TOKEN_TRANSFER,
+            BridgeAction::HaneulToEthTokenTransfer(_) => APPROVAL_THRESHOLD_TOKEN_TRANSFER,
             BridgeAction::EthToHaneulBridgeAction(_) => APPROVAL_THRESHOLD_TOKEN_TRANSFER,
             BridgeAction::BlocklistCommitteeAction(_) => APPROVAL_THRESHOLD_COMMITTEE_BLOCKLIST,
             BridgeAction::EmergencyAction(a) => match a.action_type {
@@ -470,6 +488,65 @@ impl BridgeAction {
             BridgeAction::AddTokensOnHaneulAction(_) => APPROVAL_THRESHOLD_ADD_TOKENS_ON_HANEUL,
             BridgeAction::AddTokensOnEvmAction(_) => APPROVAL_THRESHOLD_ADD_TOKENS_ON_EVM,
         }
+    }
+
+    // Update the action to the new TokenTransfer variant that requests signing via the new route
+    pub fn update_to_token_transfer(self) -> Self {
+        match self {
+            BridgeAction::HaneulToEthBridgeAction(a) => {
+                BridgeAction::HaneulToEthTokenTransfer(HaneulToEthTokenTransfer {
+                    nonce: a.haneul_bridge_event.nonce,
+                    haneul_chain_id: a.haneul_bridge_event.haneul_chain_id,
+                    eth_chain_id: a.haneul_bridge_event.eth_chain_id,
+                    haneul_address: a.haneul_bridge_event.haneul_address,
+                    eth_address: a.haneul_bridge_event.eth_address,
+                    token_id: a.haneul_bridge_event.token_id,
+                    amount_adjusted: a.haneul_bridge_event.amount_haneul_adjusted,
+                })
+            }
+            BridgeAction::EthToHaneulBridgeAction(_) => self,
+            BridgeAction::BlocklistCommitteeAction(_) => self,
+            BridgeAction::EmergencyAction(_) => self,
+            BridgeAction::LimitUpdateAction(_) => self,
+            BridgeAction::AssetPriceUpdateAction(_) => self,
+            BridgeAction::EvmContractUpgradeAction(_) => self,
+            BridgeAction::AddTokensOnHaneulAction(_) => self,
+            BridgeAction::AddTokensOnEvmAction(_) => self,
+            BridgeAction::HaneulToEthTokenTransfer(_) => self,
+        }
+    }
+
+    pub fn try_from_bridge_record(record: &MoveTypeBridgeRecord) -> BridgeResult<Self> {
+        use std::str::FromStr;
+
+        let MoveTypeBridgeMessage {
+            message_type: _,
+            message_version: _, // Switch on version when we introduce v2
+            seq_num,
+            source_chain,
+            payload,
+        } = &record.message;
+
+        #[derive(Debug, Deserialize)]
+        struct HaneulToEthOnChainBcsPayload {
+            haneul_address: Vec<u8>,
+            target_chain: u8,
+            eth_address: Vec<u8>,
+            token_type: u8,
+            amount: [u8; 8], // u64 as Big Endian bytes
+        }
+
+        let payload: HaneulToEthOnChainBcsPayload = bcs::from_bytes(payload)?;
+
+        Ok(BridgeAction::HaneulToEthTokenTransfer(HaneulToEthTokenTransfer {
+            nonce: *seq_num,
+            haneul_chain_id: BridgeChainId::try_from(*source_chain)?,
+            eth_chain_id: BridgeChainId::try_from(payload.target_chain)?,
+            haneul_address: HaneulAddress::from_bytes(payload.haneul_address)?,
+            eth_address: EthAddress::from_str(&Hex::encode(&payload.eth_address))?,
+            token_id: payload.token_type,
+            amount_adjusted: u64::from_be_bytes(payload.amount),
+        }))
     }
 }
 

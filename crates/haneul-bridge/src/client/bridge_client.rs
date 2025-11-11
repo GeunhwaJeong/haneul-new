@@ -56,6 +56,12 @@ impl BridgeClient {
                 "sign/bridge_tx/haneul/eth/{}/{}",
                 e.haneul_tx_digest, e.haneul_tx_event_index
             ),
+            BridgeAction::HaneulToEthTokenTransfer(_action) => format!(
+                "/sign/bridge_action/haneul/eth/{source_chain}/{message_type}/{bridge_seq_num}",
+                source_chain = event.chain_id() as u8,
+                message_type = event.action_type() as u8,
+                bridge_seq_num = event.seq_number(),
+            ),
             BridgeAction::EthToHaneulBridgeAction(e) => format!(
                 "sign/bridge_tx/eth/haneul/{}/{}",
                 Hex::encode(e.eth_tx_hash.0),

@@ -51,6 +51,7 @@ haneul-test-transaction-builder.workspace = true
 haneul-metrics-push-client.workspace = true
 hex-literal = { version = "0.3.4", optional = true }
 test-cluster = { workspace = true, optional = true }
+haneul-sdk-types.workspace = true
 
 [dev-dependencies]
 haneul-config.workspace = true

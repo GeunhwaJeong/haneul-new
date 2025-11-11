@@ -37,6 +37,15 @@ pub trait BridgeRequestHandlerTrait {
         event_idx: u16,
     ) -> Result<Json<SignedBridgeAction>, BridgeError>;
 
+    /// Handles a request to sign a BridgeAction that bridges assets
+    /// from Haneul to Ethereum.
+    async fn handle_haneul_token_transfer(
+        &self,
+        source_chain: u8,
+        message_type: u8,
+        bridge_seq_num: u64,
+    ) -> Result<Json<SignedBridgeAction>, BridgeError>;
+
     /// Handles a request to sign a governance action.
     async fn handle_governance_action(
         &self,
@@ -92,6 +101,25 @@ where
             .await
             .tap_ok(|action| info!("Haneul action found: {:?}", action))
     }
+
+    async fn verify_haneul_message(
+        &self,
+        source_chain_id: u8,
+        _message_type: u8,
+        seq_number: u64,
+    ) -> BridgeResult<BridgeAction> {
+        let record = self
+            .haneul_client
+            .get_bridge_record(source_chain_id, seq_number)
+            .await?;
+        if record.verified_signatures.is_some() {
+            return Err(BridgeError::Generic(
+                "message {seq_number} already complete".into(),
+            ));
+        }
+        BridgeAction::try_from_bridge_record(&record)
+            .tap_ok(|action| info!("Haneul action found: {:?}", action))
+    }
 }
 
 #[async_trait]
@@ -119,6 +147,18 @@ where
             .map_err(|_e| BridgeError::InvalidTxHash)?;
 
         let bridge_action = self.verify_haneul((tx_digest, event_idx)).await?;
+        Ok(Json(self.sign(bridge_action)))
+    }
+
+    async fn handle_haneul_token_transfer(
+        &self,
+        source_chain: u8,
+        message_type: u8,
+        bridge_seq_num: u64,
+    ) -> Result<Json<SignedBridgeAction>, BridgeError> {
+        let bridge_action = self
+            .verify_haneul_message(source_chain, message_type, bridge_seq_num)
+            .await?;
         Ok(Json(self.sign(bridge_action)))
     }
 

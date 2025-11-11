@@ -15,7 +15,7 @@ use haneul_types::Identifier;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::bridge::{
-    BridgeCommitteeSummary, BridgeSummary, MoveTypeParsedTokenTransferMessage,
+    BridgeCommitteeSummary, BridgeSummary, MoveTypeBridgeRecord, MoveTypeParsedTokenTransferMessage,
 };
 use haneul_types::digests::TransactionDigest;
 use haneul_types::event::EventID;
@@ -270,6 +270,14 @@ impl HaneulClientInner for HaneulMockClient {
         _seq_number: u64,
     ) -> Result<Option<MoveTypeParsedTokenTransferMessage>, BridgeError> {
         unimplemented!()
+    }
+
+    async fn get_bridge_record(
+        &self,
+        _source_chain_id: u8,
+        _seq_number: u64,
+    ) -> Result<MoveTypeBridgeRecord, BridgeError> {
+        todo!()
     }
 
     async fn execute_transaction_block_with_effects(
