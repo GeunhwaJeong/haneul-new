@@ -34,7 +34,7 @@ simulacrum.workspace = true
 haneul-indexer-alt.workspace = true
 haneul-indexer-alt-consistent-api.workspace = true
 haneul-indexer-alt-consistent-store.workspace = true
-haneul-indexer-alt-framework = { workspace = true, features = ["postgres"] }
+haneul-indexer-alt-framework = { workspace = true, features = ["postgres", "cluster"] }
 haneul-indexer-alt-graphql.workspace = true
 haneul-indexer-alt-jsonrpc.workspace = true
 haneul-indexer-alt-reader.workspace = true
@@ -59,8 +59,10 @@ jsonrpsee.workspace = true
 telemetry-subscribers.workspace = true
 tonic.workspace = true
 
+haneul-field-count.workspace = true
 haneul-json-rpc-types.workspace = true
 haneul-macros.workspace = true
+haneul-sdk.workspace = true
 haneul-swarm-config.workspace = true
 haneul-test-transaction-builder.workspace = true
 haneul-transactional-test-runner.workspace = true
