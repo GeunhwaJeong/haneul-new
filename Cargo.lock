@@ -14951,6 +14951,7 @@ dependencies = [
  "haneul-indexer-alt-metrics",
  "haneul-pg-db",
  "haneul-rpc",
+ "haneul-rpc-api",
  "haneul-sdk-types",
  "haneul-storage",
  "haneul-synthetic-ingestion",

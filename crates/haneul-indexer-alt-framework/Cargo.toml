@@ -38,6 +38,7 @@ haneul-indexer-alt-framework-store-traits.workspace = true
 haneul-indexer-alt-metrics.workspace = true
 haneul-rpc.workspace = true
 haneul-sdk-types.workspace = true
+haneul-rpc-api.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
 prost-types.workspace = true
