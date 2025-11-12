@@ -25,11 +25,11 @@ use haneul_rosetta::types::{
     TransactionIdentifierResponse,
 };
 use haneul_rosetta::{RosettaOfflineServer, RosettaOnlineServer};
-use haneul_sdk::HaneulClient;
+use haneul_rpc::client::Client as GrpcClient;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::HaneulSignature;
 
-pub async fn start_rosetta_test_server(client: HaneulClient) -> (RosettaClient, Vec<JoinHandle<()>>) {
+pub async fn start_rosetta_test_server(client: GrpcClient) -> (RosettaClient, Vec<JoinHandle<()>>) {
     let online_server = RosettaOnlineServer::new(HaneulEnv::LocalNet, client);
     let offline_server = RosettaOfflineServer::new(HaneulEnv::LocalNet);
     let local_ip = local_ip_utils::localhost_for_testing();
@@ -138,7 +138,7 @@ impl RosettaClient {
         }
     }
 
-    /// rosetta construction e2e flow, see https://www.rosetta-api.org/docs/flow.html#construction-api
+    /// mesh construction e2e flow, see https://docs.cdp.coinbase.com/mesh/product-overview/flow-of-operations
     pub async fn rosetta_flow(
         &self,
         operations: &Operations,
@@ -150,7 +150,6 @@ impl RosettaClient {
             network: HaneulEnv::LocalNet,
         };
         let mut resps = FlowResponses::default();
-        // Preprocess
         let preprocess = self
             .call(
                 RosettaEndpoint::Preprocess,
@@ -165,8 +164,6 @@ impl RosettaClient {
         let Ok(preprocess) = &resps.preprocess.as_ref().unwrap() else {
             return resps;
         };
-        println!("Preprocess : {preprocess:?}");
-        // Metadata
         let metadata = self
             .call(
                 RosettaEndpoint::Metadata,
@@ -182,8 +179,6 @@ impl RosettaClient {
             return resps;
         };
 
-        println!("Metadata : {metadata:?}");
-        // Payload
         let payloads = self
             .call(
                 RosettaEndpoint::Payloads,
@@ -199,8 +194,6 @@ impl RosettaClient {
         let Ok(payloads) = resps.payloads.as_ref().unwrap() else {
             return resps;
         };
-        println!("Payload : {payloads:?}");
-        // Combine
         let signing_payload = payloads.payloads.first().unwrap();
         let bytes = Hex::decode(&signing_payload.hex_bytes).unwrap();
         let signer = signing_payload.account_identifier.address;
@@ -225,8 +218,6 @@ impl RosettaClient {
         let Ok(combine) = resps.combine.as_ref().unwrap() else {
             return resps;
         };
-        println!("Combine : {combine:?}");
-        // Submit
         let submit = self
             .call(
                 RosettaEndpoint::Submit,

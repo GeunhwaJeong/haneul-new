@@ -7,7 +7,6 @@ use std::fs::File;
 use std::io::BufReader;
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
-use std::time::Duration;
 
 use anyhow::anyhow;
 use clap::Parser;
@@ -17,11 +16,10 @@ use serde_json::{Value, json};
 use haneul_config::{HANEUL_KEYSTORE_FILENAME, haneul_config_dir};
 use haneul_rosetta::types::{CurveType, PrefundedAccount, HaneulEnv};
 use haneul_rosetta::{RosettaOfflineServer, RosettaOnlineServer, HANEUL};
-use haneul_sdk::{HaneulClient, HaneulClientBuilder};
+use haneul_rpc::client::Client as GrpcClient;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{KeypairTraits, HaneulKeyPair, ToFromBytes};
 use tracing::info;
-use tracing::log::warn;
 
 #[derive(Parser)]
 #[clap(name = "haneul-rosetta", rename_all = "kebab-case", author, version)]
@@ -129,28 +127,15 @@ impl RosettaServerCommand {
                 info!(
                     "Starting Rosetta Online Server with remote Haneul full node [{full_node_url}]."
                 );
-                let haneul_client = wait_for_haneul_client(full_node_url).await;
                 let rosetta_path = data_path.join("rosetta_db");
                 info!("Rosetta db path : {rosetta_path:?}");
-                let rosetta = RosettaOnlineServer::new(env, haneul_client);
+                let client = GrpcClient::new(&full_node_url)
+                    .map_err(|e| anyhow::anyhow!("Failed to create gRPC client: {}", e))?;
+                let rosetta = RosettaOnlineServer::new(env, client);
                 rosetta.serve(addr).await;
             }
         };
         Ok(())
-    }
-}
-
-async fn wait_for_haneul_client(rpc_address: String) -> HaneulClient {
-    loop {
-        match HaneulClientBuilder::default().build(&rpc_address).await {
-            Ok(client) => return client,
-            Err(e) => {
-                warn!(
-                    "Error connecting to Haneul RPC server [{rpc_address}]: {e}, retrying in 5 seconds."
-                );
-                tokio::time::sleep(Duration::from_millis(5000)).await;
-            }
-        }
     }
 }
 

@@ -1,12 +1,14 @@
-# Rosetta API for Haneul
+# Mesh API for Haneul
 
-[Rosetta](https://www.rosetta-api.org/docs/welcome.html) is an open-source specification and set of tools for blockchain
-integration. Rosetta’s goal is to make blockchain integration simpler, faster, and more reliable than using a native
+> **Note:** Mesh is the new name for the Rosetta API. The Rosetta API was rebranded to Mesh API by Coinbase.
+
+[Mesh](https://docs.cdp.coinbase.com/mesh/product-overview/welcome) (formerly known as Rosetta) is an open-source specification and set of tools for blockchain
+integration. Mesh's goal is to make blockchain integration simpler, faster, and more reliable than using a native
 integration.
 
 ## Overview
 
-Haneul-Rosetta is an implementation of the Rosetta API for the Haneul network, the Haneul-Rosetta server uses the Haneul fullnode to
+Haneul-Rosetta is an implementation of the Mesh API (f.k.a. Rosetta API) for the Haneul network, the Haneul-Rosetta server uses the Haneul Full Node to
 read and write transactions to the Haneul network.
 
 ## Local network quick start

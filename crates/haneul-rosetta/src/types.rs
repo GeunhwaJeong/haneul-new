@@ -14,7 +14,10 @@ use serde_json::Value;
 use strum_macros::EnumIter;
 use strum_macros::EnumString;
 
-use haneul_sdk::rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockKind};
+use haneul_rpc::proto::haneul::rpc::v2::ExecutionStatus;
+use haneul_rpc::proto::haneul::rpc::v2::TransactionKind;
+use haneul_rpc::proto::haneul::rpc::v2::transaction_kind::Kind;
+use haneul_sdk_types::Address;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest};
 use haneul_types::crypto::PublicKey as HaneulPublicKey;
 use haneul_types::crypto::SignatureScheme;
@@ -26,10 +29,6 @@ use crate::operations::Operations;
 pub use internal_operation::InternalOperation;
 
 pub mod internal_operation;
-
-#[cfg(test)]
-#[path = "unit_tests/types_tests.rs"]
-mod types_tests;
 
 pub type BlockHeight = u64;
 
@@ -191,8 +190,8 @@ pub struct AmountMetadata {
 
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
 pub struct SubBalance {
-    pub stake_id: ObjectID,
-    pub validator: HaneulAddress,
+    pub stake_id: Address,
+    pub validator: Address,
     #[serde(with = "str_format")]
     pub value: i128,
 }
@@ -258,24 +257,6 @@ impl IntoResponse for AccountCoinsResponse {
 pub struct Coin {
     pub coin_identifier: CoinIdentifier,
     pub amount: Amount,
-}
-
-impl From<haneul_sdk::rpc_types::Coin> for Coin {
-    fn from(coin: haneul_sdk::rpc_types::Coin) -> Self {
-        Self {
-            coin_identifier: CoinIdentifier {
-                identifier: CoinID {
-                    id: coin.coin_object_id,
-                    version: coin.version,
-                },
-            },
-            amount: Amount {
-                value: coin.balance as i128,
-                currency: HANEUL.clone(),
-                metadata: None,
-            },
-        }
-    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
@@ -467,34 +448,23 @@ pub enum OperationType {
     RandomnessStateUpdate,
     EndOfEpochTransaction,
     ProgrammableSystemTransaction,
+    Unknown,
 }
 
-impl From<&HaneulTransactionBlockKind> for OperationType {
-    fn from(tx: &HaneulTransactionBlockKind) -> Self {
-        match tx {
-            HaneulTransactionBlockKind::ChangeEpoch(_) => OperationType::EpochChange,
-            HaneulTransactionBlockKind::Genesis(_) => OperationType::Genesis,
-            HaneulTransactionBlockKind::ConsensusCommitPrologue(_)
-            | HaneulTransactionBlockKind::ConsensusCommitPrologueV2(_)
-            | HaneulTransactionBlockKind::ConsensusCommitPrologueV3(_)
-            | HaneulTransactionBlockKind::ConsensusCommitPrologueV4(_) => {
-                OperationType::ConsensusCommitPrologue
-            }
-            HaneulTransactionBlockKind::ProgrammableTransaction(_) => {
-                OperationType::ProgrammableTransaction
-            }
-            HaneulTransactionBlockKind::AuthenticatorStateUpdate(_) => {
-                OperationType::AuthenticatorStateUpdate
-            }
-            HaneulTransactionBlockKind::RandomnessStateUpdate(_) => {
-                OperationType::RandomnessStateUpdate
-            }
-            HaneulTransactionBlockKind::EndOfEpochTransaction(_) => {
-                OperationType::EndOfEpochTransaction
-            }
-            HaneulTransactionBlockKind::ProgrammableSystemTransaction(_) => {
-                OperationType::ProgrammableSystemTransaction
-            }
+impl From<&TransactionKind> for OperationType {
+    fn from(tx: &TransactionKind) -> Self {
+        match tx.kind.and_then(|k| Kind::try_from(k).ok()) {
+            Some(Kind::ProgrammableTransaction) => OperationType::ProgrammableTransaction,
+            Some(Kind::ChangeEpoch) => OperationType::EpochChange,
+            Some(Kind::Genesis) => OperationType::Genesis,
+            Some(Kind::ConsensusCommitPrologueV1)
+            | Some(Kind::ConsensusCommitPrologueV2)
+            | Some(Kind::ConsensusCommitPrologueV3)
+            | Some(Kind::ConsensusCommitPrologueV4) => OperationType::ConsensusCommitPrologue,
+            Some(Kind::AuthenticatorStateUpdate) => OperationType::AuthenticatorStateUpdate,
+            Some(Kind::RandomnessStateUpdate) => OperationType::RandomnessStateUpdate,
+            Some(Kind::EndOfEpoch) => OperationType::EndOfEpochTransaction,
+            Some(Kind::Unknown) | Some(_) | None => OperationType::Unknown,
         }
     }
 }
@@ -666,9 +636,12 @@ pub struct ConstructionMetadata {
     pub sender: HaneulAddress,
     /// `Coin<HANEUL>` objects to be used as gas
     pub gas_coins: Vec<ObjectRef>,
-    /// `Coin<HANEUL>` objects to be merged to GasCoin
-    pub extra_gas_coins: Vec<ObjectRef>,
+    /// For PayHaneul/Stake: extra gas coins to merge into gas
+    /// For PayCoin: payment coins of the specified type
+    /// For WithdrawStake: stake objects to withdraw
     pub objects: Vec<ObjectRef>,
+    /// Party-owned (ConsensusAddress) version of objects
+    pub party_objects: Vec<(ObjectID, SequenceNumber)>,
     /// Always refers to HANEUL balance used
     #[serde(with = "str_format")]
     pub total_coin_value: i128,
@@ -793,11 +766,12 @@ pub enum OperationStatus {
     Failure,
 }
 
-impl From<HaneulExecutionStatus> for OperationStatus {
-    fn from(es: HaneulExecutionStatus) -> Self {
-        match es {
-            HaneulExecutionStatus::Success => OperationStatus::Success,
-            HaneulExecutionStatus::Failure { .. } => OperationStatus::Failure,
+impl From<&ExecutionStatus> for OperationStatus {
+    fn from(es: &ExecutionStatus) -> Self {
+        if es.success() {
+            OperationStatus::Success
+        } else {
+            OperationStatus::Failure
         }
     }
 }
@@ -916,4 +890,130 @@ pub struct PrefundedAccount {
     pub account_identifier: AccountIdentifier,
     pub curve_type: CurveType,
     pub currency: Currency,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quick_js::Context;
+    use serde_json::json;
+
+    #[tokio::test]
+    async fn test_currency_defaults() {
+        let expected = Currency {
+            symbol: "HANEUL".to_string(),
+            decimals: 9,
+            metadata: CurrencyMetadata {
+                coin_type:
+                    "0x0000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL"
+                        .to_string(),
+            },
+        };
+
+        let currency: Currency = serde_json::from_value(json!(
+            {
+                "symbol": "HANEUL",
+                "decimals": 9,
+            }
+        ))
+        .unwrap();
+        assert_eq!(expected, currency);
+
+        let amount: Amount = serde_json::from_value(json!(
+            {
+                "value": "1000000000",
+            }
+        ))
+        .unwrap();
+        assert_eq!(expected, amount.currency);
+
+        let account_balance_request: AccountBalanceRequest = serde_json::from_value(json!(
+            {
+                "network_identifier": {
+                    "blockchain": "haneul",
+                    "network": "mainnet"
+                },
+                "account_identifier": {
+                    "address": "0xadc3a0bb21840f732435f8b649e99df6b29cd27854dfa4b020e3bee07ea09b96"
+                }
+            }
+        ))
+        .unwrap();
+        assert_eq!(
+            expected,
+            account_balance_request.currencies.0.clone().pop().unwrap()
+        );
+
+        let account_balance_request: AccountBalanceRequest = serde_json::from_value(json!(
+            {
+                "network_identifier": {
+                    "blockchain": "haneul",
+                    "network": "mainnet"
+                },
+                "account_identifier": {
+                    "address": "0xadc3a0bb21840f732435f8b649e99df6b29cd27854dfa4b020e3bee07ea09b96"
+                },
+                "currencies": []
+            }
+        ))
+        .unwrap();
+        assert_eq!(
+            expected,
+            account_balance_request.currencies.0.clone().pop().unwrap()
+        );
+    }
+
+    #[tokio::test]
+    async fn test_metadata_total_coin_value_js_conversion_for_large_balance() {
+        #[derive(Serialize, Deserialize, Debug)]
+        pub struct TestConstructionMetadata {
+            pub sender: HaneulAddress,
+            pub coins: Vec<ObjectRef>,
+            pub objects: Vec<ObjectRef>,
+            pub total_coin_value: u64,
+            pub gas_price: u64,
+            pub budget: u64,
+            pub currency: Option<Currency>,
+        }
+
+        let test_metadata = TestConstructionMetadata {
+            sender: Default::default(),
+            coins: vec![],
+            objects: vec![],
+            total_coin_value: 65_000_004_233_578_496,
+            gas_price: 0,
+            budget: 0,
+            currency: None,
+        };
+        let test_metadata_json = serde_json::to_string(&test_metadata).unwrap();
+
+        let prod_metadata = ConstructionMetadata {
+            sender: Default::default(),
+            gas_coins: vec![],
+            objects: vec![],
+            party_objects: vec![],
+            total_coin_value: 65_000_004_233_578_496,
+            gas_price: 0,
+            budget: 0,
+            currency: None,
+        };
+        let prod_metadata_json = serde_json::to_string(&prod_metadata).unwrap();
+
+        let context = Context::new().unwrap();
+
+        let test_total_coin_value = format!(
+            "JSON.parse({:?}).total_coin_value.toString()",
+            test_metadata_json
+        );
+        let js_test_total_coin_value = context.eval_as::<String>(&test_total_coin_value).unwrap();
+
+        let prod_total_coin_value = format!(
+            "JSON.parse({:?}).total_coin_value.toString()",
+            prod_metadata_json
+        );
+        let js_prod_total_coin_value = context.eval_as::<String>(&prod_total_coin_value).unwrap();
+
+        assert_eq!("65000004233578500", js_test_total_coin_value);
+        assert_eq!("65000004233578496", js_prod_total_coin_value);
+    }
 }
