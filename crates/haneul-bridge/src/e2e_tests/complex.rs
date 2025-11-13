@@ -61,7 +61,7 @@ async fn test_haneul_bridge_paused() {
     // verify Eth was transferred to Haneul address
     let eth_coin_type = haneul_token_type_tags.get(&TOKEN_ID_ETH).unwrap();
     let eth_coin = bridge_client
-        .haneul_client()
+        .jsonrpc_client()
         .coin_read_api()
         .get_coins(haneul_address, Some(eth_coin_type.to_string()), None, None)
         .await

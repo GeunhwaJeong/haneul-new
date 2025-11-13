@@ -104,7 +104,7 @@ pub async fn run_bridge_node(
     // Before reconfiguration happens we only set it once when the node starts
     let haneul_system = server_config
         .haneul_client
-        .haneul_client()
+        .jsonrpc_client()
         .governance_api()
         .get_latest_haneul_system_state()
         .await?;
@@ -244,7 +244,7 @@ async fn start_watchdog(
         && !watchdog_config.total_supplies.is_empty()
     {
         let total_supplies = TotalSupplies::new(
-            Arc::new(haneul_client.haneul_client().clone()),
+            Arc::new(haneul_client.jsonrpc_client().clone()),
             watchdog_config.total_supplies,
             watchdog_metrics.total_supplies.clone(),
         );

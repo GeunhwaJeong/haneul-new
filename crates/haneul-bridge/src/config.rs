@@ -8,7 +8,7 @@ use crate::eth_client::EthClient;
 use crate::metered_eth_provider::MeteredEthHttpProvier;
 use crate::metered_eth_provider::new_metered_eth_provider;
 use crate::metrics::BridgeMetrics;
-use crate::haneul_client::HaneulClient;
+use crate::haneul_client::HaneulBridgeClient;
 use crate::types::{BridgeAction, is_route_valid};
 use crate::utils::get_eth_contract_addresses;
 use anyhow::anyhow;
@@ -25,8 +25,8 @@ use std::sync::Arc;
 use haneul_config::Config;
 use haneul_json_rpc_types::Coin;
 use haneul_keys::keypair_file::read_key;
+use haneul_sdk::HaneulClientBuilder;
 use haneul_sdk::apis::CoinReadApi;
-use haneul_sdk::{HaneulClient as HaneulSdkClient, HaneulClientBuilder};
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::bridge::BridgeChainId;
@@ -171,7 +171,7 @@ impl BridgeNodeConfig {
         // we do this check here instead of `prepare_for_haneul` below because
         // that is only called when `run_client` is true.
         let haneul_client =
-            Arc::new(HaneulClient::<HaneulSdkClient>::new(&self.haneul.haneul_rpc_url, metrics.clone()).await?);
+            Arc::new(HaneulBridgeClient::new(&self.haneul.haneul_rpc_url, metrics.clone()).await?);
         let bridge_committee = haneul_client
             .get_bridge_committee()
             .await
@@ -337,7 +337,7 @@ impl BridgeNodeConfig {
 
     async fn prepare_for_haneul(
         &self,
-        haneul_client: Arc<HaneulClient<HaneulSdkClient>>,
+        haneul_client: Arc<HaneulBridgeClient>,
         metrics: Arc<BridgeMetrics>,
     ) -> anyhow::Result<(HaneulKeyPair, HaneulAddress, ObjectRef)> {
         let bridge_client_key = match &self.haneul.bridge_client_key_path {
@@ -415,7 +415,7 @@ pub struct BridgeServerConfig {
     pub server_listen_port: u16,
     pub eth_bridge_proxy_address: EthAddress,
     pub metrics_port: u16,
-    pub haneul_client: Arc<HaneulClient<HaneulSdkClient>>,
+    pub haneul_client: Arc<HaneulBridgeClient>,
     pub eth_client: Arc<EthClient<MeteredEthHttpProvier>>,
     /// A list of approved governance actions. Action in this list will be signed when requested by client.
     pub approved_governance_actions: Vec<BridgeAction>,
@@ -426,7 +426,7 @@ pub struct BridgeClientConfig {
     pub key: HaneulKeyPair,
     pub gas_object_ref: ObjectRef,
     pub metrics_port: u16,
-    pub haneul_client: Arc<HaneulClient<HaneulSdkClient>>,
+    pub haneul_client: Arc<HaneulBridgeClient>,
     pub eth_client: Arc<EthClient<MeteredEthHttpProvier>>,
     pub db_path: PathBuf,
     pub eth_contracts: Vec<EthAddress>,

@@ -17,7 +17,7 @@ use haneul_bridge::client::bridge_authority_aggregator::BridgeAuthorityAggregato
 use haneul_bridge::crypto::{BridgeAuthorityPublicKey, BridgeAuthorityPublicKeyBytes};
 use haneul_bridge::eth_transaction_builder::build_eth_transaction;
 use haneul_bridge::metrics::BridgeMetrics;
-use haneul_bridge::haneul_client::HaneulClient;
+use haneul_bridge::haneul_client::HaneulBridgeClient;
 use haneul_bridge::haneul_transaction_builder::build_haneul_transaction;
 use haneul_bridge::types::BridgeActionType;
 use haneul_bridge::utils::{EthBridgeContracts, get_eth_contracts};
@@ -30,7 +30,6 @@ use haneul_bridge_cli::{
     SEPOLIA_BRIDGE_PROXY_ADDR, make_action, select_contract_address,
 };
 use haneul_config::Config;
-use haneul_sdk::HaneulClient as HaneulSdkClient;
 use haneul_sdk::HaneulClientBuilder;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::bridge::BridgeChainId;
@@ -84,7 +83,7 @@ async fn main() -> anyhow::Result<()> {
             let config = LoadedBridgeCliConfig::load(config).await?;
             let metrics = Arc::new(BridgeMetrics::new_for_testing());
             let haneul_bridge_client =
-                HaneulClient::<HaneulSdkClient>::new(&config.haneul_rpc_url, metrics.clone()).await?;
+                HaneulBridgeClient::new(&config.haneul_rpc_url, metrics.clone()).await?;
 
             let (haneul_key, haneul_address, gas_object_ref) = config
                 .get_haneul_account_info()
@@ -282,7 +281,7 @@ async fn main() -> anyhow::Result<()> {
 
         BridgeCommand::ViewBridgeRegistration { haneul_rpc_url } => {
             let metrics = Arc::new(BridgeMetrics::new_for_testing());
-            let haneul_bridge_client = HaneulClient::<HaneulSdkClient>::new(&haneul_rpc_url, metrics).await?;
+            let haneul_bridge_client = HaneulBridgeClient::new(&haneul_rpc_url, metrics).await?;
             let bridge_summary = haneul_bridge_client
                 .get_bridge_summary()
                 .await
@@ -368,7 +367,7 @@ async fn main() -> anyhow::Result<()> {
             ping,
         } => {
             let metrics = Arc::new(BridgeMetrics::new_for_testing());
-            let haneul_bridge_client = HaneulClient::<HaneulSdkClient>::new(&haneul_rpc_url, metrics).await?;
+            let haneul_bridge_client = HaneulBridgeClient::new(&haneul_rpc_url, metrics).await?;
             let bridge_summary = haneul_bridge_client
                 .get_bridge_summary()
                 .await
@@ -516,8 +515,7 @@ async fn main() -> anyhow::Result<()> {
             let config = BridgeCliConfig::load(config_path).expect("Couldn't load BridgeCliConfig");
             let config = LoadedBridgeCliConfig::load(config).await?;
             let metrics = Arc::new(BridgeMetrics::new_for_testing());
-            let haneul_bridge_client =
-                HaneulClient::<HaneulSdkClient>::new(&config.haneul_rpc_url, metrics).await?;
+            let haneul_bridge_client = HaneulBridgeClient::new(&config.haneul_rpc_url, metrics).await?;
             cmd.handle(&config, haneul_bridge_client).await?;
             return Ok(());
         }

@@ -611,7 +611,7 @@ async fn deposit_on_haneul(
     haneul_bridge_client: HaneulBridgeClient,
 ) -> anyhow::Result<()> {
     let target_chain = target_chain as u8;
-    let haneul_client = haneul_bridge_client.haneul_client();
+    let haneul_client = haneul_bridge_client.jsonrpc_client();
     let bridge_object_arg = haneul_bridge_client
         .get_mutable_bridge_object_arg_must_succeed()
         .await;
