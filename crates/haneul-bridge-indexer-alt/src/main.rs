@@ -10,7 +10,7 @@ use haneul_bridge_indexer_alt::handlers::token_transfer_data_handler::TokenTrans
 use haneul_bridge_indexer_alt::handlers::token_transfer_handler::TokenTransferHandler;
 use haneul_bridge_indexer_alt::metrics::BridgeIndexerMetrics;
 use haneul_bridge_schema::MIGRATIONS;
-use haneul_indexer_alt_framework::ingestion::ClientArgs;
+use haneul_indexer_alt_framework::ingestion::{ClientArgs, ingestion_client::IngestionClientArgs};
 use haneul_indexer_alt_framework::postgres::DbArgs;
 use haneul_indexer_alt_framework::{Indexer, IndexerArgs};
 use haneul_indexer_alt_metrics::{MetricsArgs, MetricsService};
@@ -68,7 +68,10 @@ async fn main() -> Result<(), anyhow::Error> {
         db_args,
         indexer_args,
         ClientArgs {
-            remote_store_url: Some(remote_store_url),
+            ingestion: IngestionClientArgs {
+                remote_store_url: Some(remote_store_url),
+                ..Default::default()
+            },
             ..Default::default()
         },
         Default::default(),
