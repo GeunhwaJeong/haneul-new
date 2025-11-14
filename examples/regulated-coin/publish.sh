@@ -11,7 +11,7 @@ for i in jq curl haneul; do
   fi
 done
 
-# Put the dependant package, as the depending will be published too via --with-unpublished-dependencies
+# Put the dependent package, as the depending will be published too via --with-unpublished-dependencies
 MOVE_PACKAGE_PATH=./move
 
 haneul client switch --env testnet
