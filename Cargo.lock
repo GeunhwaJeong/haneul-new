@@ -13433,6 +13433,7 @@ dependencies = [
  "move-vm-profiler",
  "msim",
  "haneullabs-common",
+ "normalize-line-endings",
  "num-bigint 0.4.4",
  "prometheus",
  "rand 0.8.5",
