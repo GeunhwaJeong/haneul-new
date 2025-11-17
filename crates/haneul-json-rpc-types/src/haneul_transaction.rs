@@ -20,6 +20,7 @@ use move_core_types::annotated_value::MoveTypeLayout;
 use move_core_types::identifier::{IdentStr, Identifier};
 use move_core_types::language_storage::{ModuleId, StructTag, TypeTag};
 use haneullabs_metrics::monitored_scope;
+use nonempty::NonEmpty;
 use haneul_json::{HaneulJsonValue, primitive_type};
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use haneul_types::accumulator_event::AccumulatorEvent;
@@ -822,7 +823,8 @@ impl From<AccumulatorOperation> for HaneulAccumulatorOperation {
 pub enum HaneulAccumulatorValue {
     Integer(u64),
     IntegerTuple(u64, u64),
-    EventDigest(u64 /* event index in the transaction */, Digest),
+    #[schemars(with = "Vec<(u64, Digest)>")]
+    EventDigest(NonEmpty<(u64 /* event index in the transaction */, Digest)>),
 }
 
 impl From<AccumulatorValue> for HaneulAccumulatorValue {
@@ -830,7 +832,7 @@ impl From<AccumulatorValue> for HaneulAccumulatorValue {
         match value {
             AccumulatorValue::Integer(value) => Self::Integer(value),
             AccumulatorValue::IntegerTuple(value1, value2) => Self::IntegerTuple(value1, value2),
-            AccumulatorValue::EventDigest(idx, value) => Self::EventDigest(idx, value),
+            AccumulatorValue::EventDigest(digests) => Self::EventDigest(digests),
         }
     }
 }
