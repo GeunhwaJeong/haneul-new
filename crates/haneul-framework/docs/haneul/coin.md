@@ -62,6 +62,8 @@ tokens and coins. <code><a href="../haneul/coin.md#haneul_coin_Coin">Coin</a></c
 -  [Function `new_deny_cap_v2`](#haneul_coin_new_deny_cap_v2)
 -  [Function `new_treasury_cap`](#haneul_coin_new_treasury_cap)
 -  [Function `allow_global_pause`](#haneul_coin_allow_global_pause)
+-  [Function `new_coin_metadata`](#haneul_coin_new_coin_metadata)
+-  [Function `update_coin_metadata`](#haneul_coin_update_coin_metadata)
 -  [Function `supply`](#haneul_coin_supply)
 -  [Function `create_regulated_currency`](#haneul_coin_create_regulated_currency)
 -  [Function `deny_list_add`](#haneul_coin_deny_list_add)
@@ -1757,6 +1759,79 @@ Destroy legacy <code><a href="../haneul/coin.md#haneul_coin_CoinMetadata">CoinMe
 
 <pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>&lt;T&gt;(cap: &<a href="../haneul/coin.md#haneul_coin_DenyCapV2">DenyCapV2</a>&lt;T&gt;): bool {
     cap.<a href="../haneul/coin.md#haneul_coin_allow_global_pause">allow_global_pause</a>
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_coin_new_coin_metadata"></a>
+
+## Function `new_coin_metadata`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/coin.md#haneul_coin_new_coin_metadata">new_coin_metadata</a>&lt;T&gt;(decimals: u8, name: <a href="../std/string.md#std_string_String">std::string::String</a>, symbol: <a href="../std/ascii.md#std_ascii_String">std::ascii::String</a>, description: <a href="../std/string.md#std_string_String">std::string::String</a>, icon_url: <a href="../std/ascii.md#std_ascii_String">std::ascii::String</a>, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/coin.md#haneul_coin_CoinMetadata">haneul::coin::CoinMetadata</a>&lt;T&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/coin.md#haneul_coin_new_coin_metadata">new_coin_metadata</a>&lt;T&gt;(
+    decimals: u8,
+    name: string::String,
+    symbol: ascii::String,
+    description: string::String,
+    icon_url: ascii::String,
+    ctx: &<b>mut</b> TxContext,
+): <a href="../haneul/coin.md#haneul_coin_CoinMetadata">CoinMetadata</a>&lt;T&gt; {
+    <a href="../haneul/coin.md#haneul_coin_CoinMetadata">CoinMetadata</a> {
+        id: <a href="../haneul/object.md#haneul_object_new">object::new</a>(ctx),
+        decimals,
+        name,
+        symbol,
+        description,
+        icon_url: option::some(<a href="../haneul/url.md#haneul_url_new_unsafe">url::new_unsafe</a>(icon_url)),
+    }
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_coin_update_coin_metadata"></a>
+
+## Function `update_coin_metadata`
+
+Internal function to refresh the <code><a href="../haneul/coin.md#haneul_coin_CoinMetadata">CoinMetadata</a></code> with new values in
+<code>CoinRegistry</code> borrowing.
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/coin.md#haneul_coin_update_coin_metadata">update_coin_metadata</a>&lt;T&gt;(metadata: &<b>mut</b> <a href="../haneul/coin.md#haneul_coin_CoinMetadata">haneul::coin::CoinMetadata</a>&lt;T&gt;, name: <a href="../std/string.md#std_string_String">std::string::String</a>, symbol: <a href="../std/ascii.md#std_ascii_String">std::ascii::String</a>, description: <a href="../std/string.md#std_string_String">std::string::String</a>, icon_url: <a href="../std/ascii.md#std_ascii_String">std::ascii::String</a>)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/coin.md#haneul_coin_update_coin_metadata">update_coin_metadata</a>&lt;T&gt;(
+    metadata: &<b>mut</b> <a href="../haneul/coin.md#haneul_coin_CoinMetadata">CoinMetadata</a>&lt;T&gt;,
+    name: string::String,
+    symbol: ascii::String,
+    description: string::String,
+    icon_url: ascii::String,
+) {
+    metadata.name = name;
+    metadata.symbol = symbol;
+    metadata.description = description;
+    metadata.icon_url = option::some(<a href="../haneul/url.md#haneul_url_new_unsafe">url::new_unsafe</a>(icon_url));
 }
 </code></pre>
 
