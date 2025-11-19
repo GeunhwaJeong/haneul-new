@@ -13,7 +13,6 @@ use jsonrpsee::RpcModule;
 use jsonrpsee::core::RpcResult;
 use tracing::{info, instrument};
 
-use haneullabs_metrics::spawn_monitored_task;
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_api::{GovernanceReadApiOpenRpc, GovernanceReadApiServer, JsonRpcMetrics};
 use haneul_json_rpc_types::{DelegatedStake, Stake, StakeStatus};
@@ -49,8 +48,7 @@ impl GovernanceReadApi {
 
     async fn get_staked_haneul(&self, owner: HaneulAddress) -> Result<Vec<StakedHaneul>, Error> {
         let state = self.state.clone();
-        let result =
-            spawn_monitored_task!(async move { state.get_staked_haneul(owner).await }).await??;
+        let result = state.get_staked_haneul(owner).await?;
 
         self.metrics
             .get_stake_haneul_result_size
@@ -66,13 +64,10 @@ impl GovernanceReadApi {
         staked_haneul_ids: Vec<ObjectID>,
     ) -> Result<Vec<DelegatedStake>, Error> {
         let state = self.state.clone();
-        let stakes_read = spawn_monitored_task!(async move {
-            staked_haneul_ids
-                .iter()
-                .map(|id| state.get_object_read(id))
-                .collect::<Result<Vec<_>, _>>()
-        })
-        .await??;
+        let stakes_read: Vec<_> = staked_haneul_ids
+            .iter()
+            .map(|id| state.get_object_read(id))
+            .collect::<Result<Vec<_>, _>>()?;
 
         if stakes_read.is_empty() {
             return Ok(vec![]);
@@ -119,11 +114,8 @@ impl GovernanceReadApi {
 
         let _timer = self.metrics.get_delegated_haneul_latency.start_timer();
 
-        let self_clone = self.clone();
-        spawn_monitored_task!(
-            self_clone.get_delegated_stakes(stakes.into_iter().map(|s| (s, true)).collect())
-        )
-        .await?
+        self.get_delegated_stakes(stakes.into_iter().map(|s| (s, true)).collect())
+            .await
     }
 
     async fn get_delegated_stakes(
