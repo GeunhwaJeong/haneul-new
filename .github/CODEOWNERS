@@ -1,6 +1,6 @@
 /crates/haneul-types/src/crypto.rs @joyqvq @kchalkias @benr-ml
 /crates/haneul-types/src/base_types.rs @joyqvq
-/crates/haneul-keys/ @joyqvq @patrickkuo
+/crates/haneul-keys/ @joyqvq
 /crates/haneul-protocol-config @haneullabsmark
 
 *.md @ronny-haneullabs @jessiemongeon1
@@ -11,6 +11,9 @@ CHANGELOG.md
 
 # When native functions change, so we can evaluate cost impact
 /crates/haneul-framework/src/natives/ @dariorussi
+
+# System packages tracking
+/crates/haneul-framework/ @HaneulLabs/devx-move
 
 # GraphQL RPC working group
 /crates/haneul-default-config @HaneulLabs/devx-indexers-and-rpcs
