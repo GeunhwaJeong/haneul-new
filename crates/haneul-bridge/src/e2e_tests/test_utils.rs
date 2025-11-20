@@ -12,10 +12,10 @@ use crate::metrics::BridgeMetrics;
 use crate::server::BridgeNodePublicMetadata;
 use crate::haneul_transaction_builder::build_add_tokens_on_haneul_transaction;
 use crate::haneul_transaction_builder::build_committee_register_transaction;
-use crate::types::BridgeCommitteeValiditySignInfo;
 use crate::types::CertifiedBridgeAction;
 use crate::types::VerifiedCertifiedBridgeAction;
-use crate::types::{BridgeAction, BridgeActionStatus, HaneulToEthBridgeAction};
+use crate::types::{BridgeAction, BridgeActionStatus};
+use crate::types::{BridgeCommitteeValiditySignInfo, HaneulToEthTokenTransfer};
 use crate::utils::EthSigner;
 use crate::utils::get_eth_signer_client;
 use crate::utils::publish_and_register_coins_return_add_coins_on_haneul_action;
@@ -1293,7 +1293,7 @@ pub async fn initiate_bridge_haneul_to_eth(
     token: ObjectRef,
     nonce: u64,
     haneul_amount: u64,
-) -> Result<HaneulToEthBridgeAction, anyhow::Error> {
+) -> Result<HaneulToEthTokenTransfer, anyhow::Error> {
     let bridge_object_arg = bridge_test_cluster
         .bridge_client()
         .get_mutable_bridge_object_arg_must_succeed()
@@ -1329,14 +1329,14 @@ pub async fn initiate_bridge_haneul_to_eth(
     };
 
     let haneul_events = resp.events.unwrap().data;
-    let bridge_event = haneul_events
+    let bridge_action = haneul_events
         .iter()
         .filter_map(|e| {
             let haneul_bridge_event = HaneulBridgeEvent::try_from_haneul_event(e).unwrap()?;
-            haneul_bridge_event.try_into_bridge_action(e.id.tx_digest, e.id.event_seq as u16)
+            haneul_bridge_event.try_into_bridge_action()
         })
         .find_map(|e| {
-            if let BridgeAction::HaneulToEthBridgeAction(a) = e {
+            if let BridgeAction::HaneulToEthTokenTransfer(a) = e {
                 Some(a)
             } else {
                 None
@@ -1344,22 +1344,19 @@ pub async fn initiate_bridge_haneul_to_eth(
         })
         .unwrap();
     info!("Deposited Eth to move package");
-    assert_eq!(bridge_event.haneul_bridge_event.nonce, nonce);
+    assert_eq!(bridge_action.nonce, nonce);
     assert_eq!(
-        bridge_event.haneul_bridge_event.haneul_chain_id,
+        bridge_action.haneul_chain_id,
         bridge_test_cluster.haneul_chain_id()
     );
     assert_eq!(
-        bridge_event.haneul_bridge_event.eth_chain_id,
+        bridge_action.eth_chain_id,
         bridge_test_cluster.eth_chain_id()
     );
-    assert_eq!(bridge_event.haneul_bridge_event.haneul_address, haneul_address);
-    assert_eq!(bridge_event.haneul_bridge_event.eth_address, eth_address);
-    assert_eq!(bridge_event.haneul_bridge_event.token_id, TOKEN_ID_ETH);
-    assert_eq!(
-        bridge_event.haneul_bridge_event.amount_haneul_adjusted,
-        haneul_amount
-    );
+    assert_eq!(bridge_action.haneul_address, haneul_address);
+    assert_eq!(bridge_action.eth_address, eth_address);
+    assert_eq!(bridge_action.token_id, TOKEN_ID_ETH);
+    assert_eq!(bridge_action.amount_adjusted, haneul_amount);
 
     // Wait for the bridge action to be approved
     wait_for_transfer_action_status(
@@ -1372,7 +1369,7 @@ pub async fn initiate_bridge_haneul_to_eth(
     .unwrap();
     info!("Haneul to Eth bridge transfer approved.");
 
-    Ok(bridge_event)
+    Ok(bridge_action)
 }
 
 async fn wait_for_transfer_action_status(

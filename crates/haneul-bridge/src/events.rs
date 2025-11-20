@@ -12,7 +12,7 @@ use crate::crypto::BridgeAuthorityPublicKey;
 use crate::error::BridgeError;
 use crate::error::BridgeResult;
 use crate::types::BridgeAction;
-use crate::types::HaneulToEthBridgeAction;
+use crate::types::HaneulToEthTokenTransfer;
 use ethers::types::Address as EthAddress;
 use fastcrypto::encoding::Encoding;
 use fastcrypto::encoding::Hex;
@@ -30,7 +30,6 @@ use haneul_types::bridge::MoveTypeCommitteeMember;
 use haneul_types::bridge::MoveTypeCommitteeMemberRegistration;
 use haneul_types::collection_types::VecMap;
 use haneul_types::crypto::ToFromBytes;
-use haneul_types::digests::TransactionDigest;
 use haneul_types::parse_haneul_type_tag;
 
 // `TokendDepositedEvent` emitted in bridge.move
@@ -402,17 +401,27 @@ macro_rules! declare_events {
 }
 
 impl HaneulBridgeEvent {
-    pub fn try_into_bridge_action(
-        self,
-        haneul_tx_digest: TransactionDigest,
-        haneul_tx_event_index: u16,
-    ) -> Option<BridgeAction> {
+    pub fn try_into_bridge_action(self) -> Option<BridgeAction> {
         match self {
             HaneulBridgeEvent::HaneulToEthTokenBridgeV1(event) => {
-                Some(BridgeAction::HaneulToEthBridgeAction(HaneulToEthBridgeAction {
-                    haneul_tx_digest,
-                    haneul_tx_event_index,
-                    haneul_bridge_event: event.clone(),
+                let EmittedHaneulToEthTokenBridgeV1 {
+                    nonce,
+                    haneul_chain_id,
+                    eth_chain_id,
+                    haneul_address,
+                    eth_address,
+                    token_id,
+                    amount_haneul_adjusted,
+                } = event;
+
+                Some(BridgeAction::HaneulToEthTokenTransfer(HaneulToEthTokenTransfer {
+                    nonce,
+                    haneul_chain_id,
+                    eth_chain_id,
+                    haneul_address,
+                    eth_address,
+                    token_id,
+                    amount_adjusted: amount_haneul_adjusted,
                 }))
             }
             HaneulBridgeEvent::TokenTransferApproved(_event) => None,

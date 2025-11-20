@@ -14,7 +14,7 @@ use crate::types::ParsedTokenTransferMessage;
 use crate::types::{
     AddTokensOnEvmAction, AssetPriceUpdateAction, BlocklistCommitteeAction, BridgeAction,
     BridgeActionType, EmergencyAction, EthLog, EthToHaneulBridgeAction, EvmContractUpgradeAction,
-    LimitUpdateAction, HaneulToEthBridgeAction,
+    LimitUpdateAction, HaneulToEthBridgeAction, HaneulToEthTokenTransfer,
 };
 use ethers::types::Log;
 use ethers::{
@@ -215,6 +215,23 @@ impl TryFrom<HaneulToEthBridgeAction> for eth_haneul_bridge::Message {
             version: TOKEN_TRANSFER_MESSAGE_VERSION,
             nonce: action.haneul_bridge_event.nonce,
             chain_id: action.haneul_bridge_event.haneul_chain_id as u8,
+            payload: action
+                .as_payload_bytes()
+                .map_err(|e| BridgeError::Generic(format!("Failed to encode payload: {}", e)))?
+                .into(),
+        })
+    }
+}
+
+impl TryFrom<HaneulToEthTokenTransfer> for eth_haneul_bridge::Message {
+    type Error = BridgeError;
+
+    fn try_from(action: HaneulToEthTokenTransfer) -> BridgeResult<Self> {
+        Ok(eth_haneul_bridge::Message {
+            message_type: BridgeActionType::TokenTransfer as u8,
+            version: TOKEN_TRANSFER_MESSAGE_VERSION,
+            nonce: action.nonce,
+            chain_id: action.haneul_chain_id as u8,
             payload: action
                 .as_payload_bytes()
                 .map_err(|e| BridgeError::Generic(format!("Failed to encode payload: {}", e)))?
