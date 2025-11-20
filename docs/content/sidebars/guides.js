@@ -49,11 +49,9 @@ const guides = [
 			'guides/developer/haneul-101/using-events',
 			'guides/developer/haneul-101/local-network',
 			'guides/developer/haneul-101/connect',
-			'guides/developer/haneul-101/data-serving',
 			'guides/developer/haneul-101/access-time',
 			'guides/developer/haneul-101/sign-and-send-txn',
 			'guides/developer/haneul-101/sponsor-txn',
-			'guides/developer/haneul-101/avoid-equivocation',
 			'guides/developer/haneul-101/common-errors',
 
 			{

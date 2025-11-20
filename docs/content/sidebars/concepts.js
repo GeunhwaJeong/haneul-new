@@ -6,35 +6,18 @@ const concepts = [
 	'concepts/haneul-for-ethereum',
 	{
 		type: 'category',
-		label: 'Haneul Architecture',
+		label: 'Architecture',
 		link: {
 			type: 'doc',
-			id: 'concepts/components',
+			id: 'concepts/architecture',
 		},
 		items: [
 			'concepts/haneul-architecture/networks',
-			'concepts/haneul-architecture/consensus',
 			'concepts/haneul-architecture/haneul-storage',
-			'concepts/haneul-architecture/haneul-security',
+			'concepts/haneul-architecture/consensus',
 			'concepts/haneul-architecture/epochs',
-			'concepts/haneul-architecture/indexer-functions',
+			'concepts/haneul-architecture/haneul-security',
 			'concepts/haneul-architecture/protocol-upgrades',
-			'concepts/haneul-architecture/data-management-things',
-		],
-	},
-	{
-		type: 'category',
-		label: 'Tokenomics',
-		link: {
-			type: 'doc',
-			id: 'concepts/tokenomics',
-		},
-		items: [
-			'concepts/tokenomics/staking-unstaking',
-			'concepts/tokenomics/haneul-bridging',
-			'concepts/tokenomics/gas-in-haneul',
-			'concepts/tokenomics/vesting-strategies',
-			'concepts/haneul-architecture/staking-rewards',
 		],
 	},
 	{
@@ -45,7 +28,7 @@ const concepts = [
 			id: 'concepts/transactions',
 		},
 		items: [
-			'concepts/haneul-architecture/transaction-lifecycle',
+			'concepts/transactions/transaction-lifecycle',
 			'concepts/transactions/prog-txn-blocks',
 			'concepts/transactions/sponsored-transactions',
 			'concepts/transactions/gas-smashing',
@@ -64,6 +47,20 @@ const concepts = [
 					'concepts/cryptography/transaction-auth/intent-signing',
 				],
 			},
+		],
+	},
+	{
+		type: 'category',
+		label: 'Tokenomics',
+		link: {
+			type: 'doc',
+			id: 'concepts/tokenomics',
+		},
+		items: [
+			'concepts/tokenomics/staking-unstaking',
+			'concepts/tokenomics/haneul-bridging',
+			'concepts/tokenomics/gas-in-haneul',
+			'concepts/tokenomics/vesting-strategies',
 		],
 	},
 	{
@@ -142,22 +139,26 @@ const concepts = [
 	{
 		type: 'category',
 		label: 'Data Access',
+		link: {
+			type: 'doc',
+			id: 'concepts/data-access/data-serving',
+		},
 		items: [
-			'concepts/grpc-overview',
+			'concepts/data-access/grpc-overview',
 			{
 				type: 'category',
 				label: 'GraphQL and Indexer Framework',
 				link: {
 					type: 'doc',
-					id: 'concepts/graphql-indexer',
+					id: 'concepts/data-access/graphql-indexer',
 				},
 				items: [
-					'concepts/graphql-rpc',
-					'concepts/custom-indexing-framework',
-					'concepts/custom-indexer/pipeline-architecture',
+					'concepts/data-access/graphql-rpc',
+					'concepts/data-access/custom-indexing-framework',
+					'concepts/data-access/pipeline-architecture',
 				],
 			},
-			'concepts/archival-store',
+			'concepts/data-access/archival-store',
 		],
 	},
 	{
