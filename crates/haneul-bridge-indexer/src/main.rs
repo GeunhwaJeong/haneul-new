@@ -13,7 +13,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::Arc;
 use haneul_bridge::eth_client::EthClient;
-use haneul_bridge::metered_eth_provider::{MeteredEthHttpProvier, new_metered_eth_provider};
+use haneul_bridge::metered_eth_provider::{MeteredEthHttpProvider, new_metered_eth_provider};
 use haneul_bridge::haneul_bridge_watchdog::Observable;
 use haneul_bridge::haneul_client::HaneulBridgeClient;
 use haneul_bridge::utils::get_eth_contract_addresses;
@@ -84,8 +84,8 @@ async fn main() -> Result<()> {
     let db_url = config.db_url.clone();
     let pool = get_connection_pool(db_url.clone()).await;
 
-    let eth_client: Arc<EthClient<MeteredEthHttpProvier>> = Arc::new(
-        EthClient::<MeteredEthHttpProvier>::new(
+    let eth_client: Arc<EthClient<MeteredEthHttpProvider>> = Arc::new(
+        EthClient::<MeteredEthHttpProvider>::new(
             &config.eth_rpc_url,
             HashSet::from_iter(vec![]), // dummy
             bridge_metrics.clone(),

@@ -14,7 +14,7 @@ use ethers::types::Address as EthAddress;
 use std::str::FromStr;
 use std::sync::Arc;
 use haneul_bridge::eth_client::EthClient;
-use haneul_bridge::metered_eth_provider::MeteredEthHttpProvier;
+use haneul_bridge::metered_eth_provider::MeteredEthHttpProvider;
 use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge::utils::get_eth_contract_addresses;
 use haneul_bridge_schema::models::{
@@ -204,7 +204,7 @@ pub async fn create_eth_sync_indexer(
     metrics: BridgeIndexerMetrics,
     bridge_metrics: Arc<BridgeMetrics>,
     config: &IndexerConfig,
-    eth_client: Arc<EthClient<MeteredEthHttpProvier>>,
+    eth_client: Arc<EthClient<MeteredEthHttpProvider>>,
 ) -> Result<Indexer<PgBridgePersistent, EthFinalizedSyncDatasource, EthDataMapper>, anyhow::Error> {
     let bridge_addresses = get_eth_bridge_contract_addresses(config).await?;
     // Start the eth sync data source
@@ -232,7 +232,7 @@ pub async fn create_eth_subscription_indexer(
     pool: PgPool,
     metrics: BridgeIndexerMetrics,
     config: &IndexerConfig,
-    eth_client: Arc<EthClient<MeteredEthHttpProvier>>,
+    eth_client: Arc<EthClient<MeteredEthHttpProvider>>,
 ) -> Result<Indexer<PgBridgePersistent, EthSubscriptionDatasource, EthDataMapper>, anyhow::Error> {
     // Start the eth subscription indexer
     let bridge_addresses = get_eth_bridge_contract_addresses(config).await?;

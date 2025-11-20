@@ -4,7 +4,7 @@
 //! The EthBridgeStatus observable monitors whether the Eth Bridge is paused.
 
 use crate::abi::EthHaneulBridge;
-use crate::metered_eth_provider::MeteredEthHttpProvier;
+use crate::metered_eth_provider::MeteredEthHttpProvider;
 use crate::haneul_bridge_watchdog::Observable;
 use async_trait::async_trait;
 use ethers::providers::Provider;
@@ -15,13 +15,13 @@ use tokio::time::Duration;
 use tracing::{error, info};
 
 pub struct EthBridgeStatus {
-    bridge_contract: EthHaneulBridge<Provider<MeteredEthHttpProvier>>,
+    bridge_contract: EthHaneulBridge<Provider<MeteredEthHttpProvider>>,
     metric: IntGauge,
 }
 
 impl EthBridgeStatus {
     pub fn new(
-        provider: Arc<Provider<MeteredEthHttpProvier>>,
+        provider: Arc<Provider<MeteredEthHttpProvider>>,
         bridge_address: EthAddress,
         metric: IntGauge,
     ) -> Self {
