@@ -14,6 +14,7 @@ use haneul_types::HANEUL_RANDOMNESS_STATE_OBJECT_ID;
 use haneul_types::base_types::{FullObjectRef, ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
 use haneul_types::crypto::{AccountKeyPair, Signature, Signer, get_key_pair};
 use haneul_types::digests::TransactionDigest;
+use haneul_types::gas_coin::GAS;
 use haneul_types::multisig::{BitmapUnit, MultiSig, MultiSigPublicKey};
 use haneul_types::multisig_legacy::{MultiSigLegacy, MultiSigPublicKeyLegacy};
 use haneul_types::object::Owner;
@@ -294,6 +295,31 @@ impl TestTransactionBuilder {
         self
     }
 
+    pub fn transfer_haneul_to_address_balance(mut self, amount: u64, recipient: HaneulAddress) -> Self {
+        self.test_data =
+            TestTransactionData::TransferFundsToAddressBalance(TransferFundsToAddressBalanceData {
+                amount,
+                type_arg: GAS::type_tag(),
+                recipient,
+            });
+        self
+    }
+
+    pub fn transfer_funds_to_address_balance(
+        mut self,
+        amount: u64,
+        type_arg: TypeTag,
+        recipient: HaneulAddress,
+    ) -> Self {
+        self.test_data =
+            TestTransactionData::TransferFundsToAddressBalance(TransferFundsToAddressBalanceData {
+                amount,
+                type_arg,
+                recipient,
+            });
+        self
+    }
+
     pub fn split_coin(mut self, coin: ObjectRef, amounts: Vec<u64>) -> Self {
         self.test_data = TestTransactionData::SplitCoin(SplitCoinData { coin, amounts });
         self
@@ -368,6 +394,19 @@ impl TestTransactionBuilder {
                     .unwrap_or(self.gas_price * TEST_ONLY_GAS_UNIT_FOR_TRANSFER),
                 self.gas_price,
             ),
+            TestTransactionData::TransferFundsToAddressBalance(data) => {
+                TransactionData::new_transfer_funds_to_address_balance(
+                    data.recipient,
+                    self.sender,
+                    data.amount,
+                    data.type_arg,
+                    self.gas_object,
+                    self.gas_budget
+                        .unwrap_or(self.gas_price * TEST_ONLY_GAS_UNIT_FOR_TRANSFER),
+                    self.gas_price,
+                )
+                .unwrap()
+            }
             TestTransactionData::SplitCoin(data) => TransactionData::new_split_coin(
                 self.sender,
                 data.coin,
@@ -474,6 +513,7 @@ enum TestTransactionData {
     Move(MoveData),
     Transfer(TransferData),
     TransferHaneul(TransferHaneulData),
+    TransferFundsToAddressBalance(TransferFundsToAddressBalanceData),
     SplitCoin(SplitCoinData),
     Publish(PublishData),
     Programmable(ProgrammableTransaction),
@@ -504,6 +544,12 @@ struct TransferData {
 
 struct TransferHaneulData {
     amount: Option<u64>,
+    recipient: HaneulAddress,
+}
+
+struct TransferFundsToAddressBalanceData {
+    amount: u64,
+    type_arg: TypeTag,
     recipient: HaneulAddress,
 }
 
