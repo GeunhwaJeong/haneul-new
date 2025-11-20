@@ -27,7 +27,7 @@ use std::time::Duration;
 use haneul_config::object_storage_config::ObjectStoreConfig;
 use haneul_core::authority::AuthorityStore;
 use haneul_core::authority::authority_store_tables::{AuthorityPerpetualTables, LiveObject};
-use haneul_indexer_alt_framework::task::TrySpawnStreamExt;
+use haneul_futures::stream::TrySpawnStreamExt;
 use haneul_storage::blob::{Blob, BlobEncoding};
 use haneul_storage::object_store::http::HttpDownloaderBuilder;
 use haneul_storage::object_store::util::{copy_files, path_to_filesystem};

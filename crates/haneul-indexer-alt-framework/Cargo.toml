@@ -34,6 +34,7 @@ tracing-subscriber = { workspace = true, optional = true }
 url.workspace = true
 
 haneul-field-count.workspace = true
+haneul-futures.workspace = true
 haneul-indexer-alt-framework-store-traits.workspace = true
 haneul-indexer-alt-metrics.workspace = true
 haneul-rpc.workspace = true

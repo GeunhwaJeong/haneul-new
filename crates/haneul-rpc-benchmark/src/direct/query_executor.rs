@@ -11,7 +11,7 @@ use bb8::Pool;
 use bb8_postgres::PostgresConnectionManager;
 use rand::SeedableRng;
 use rand::seq::SliceRandom;
-use haneul_indexer_alt_framework::task::TrySpawnStreamExt;
+use haneul_futures::stream::TrySpawnStreamExt;
 use tokio_postgres::{NoTls, types::ToSql};
 use tracing::info;
 use url::Url;

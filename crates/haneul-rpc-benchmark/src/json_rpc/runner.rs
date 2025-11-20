@@ -16,7 +16,7 @@ use std::{
     sync::{Arc, Mutex},
     time::Instant,
 };
-use haneul_indexer_alt_framework::task::TrySpawnStreamExt;
+use haneul_futures::stream::TrySpawnStreamExt;
 use tokio::time::timeout;
 use tracing::{debug, info, warn};
 

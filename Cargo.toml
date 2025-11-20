@@ -123,6 +123,7 @@ members = [
   "crates/haneul-framework",
   "crates/haneul-framework-snapshot",
   "crates/haneul-framework-tests",
+  "crates/haneul-futures",
   "crates/haneul-genesis-builder",
   "crates/haneul-graphql-e2e-tests",
   "crates/haneul-graphql-rpc",
@@ -707,6 +708,7 @@ haneul-enum-compat-util = { path = "crates/haneul-enum-compat-util" }
 haneul-faucet = { path = "crates/haneul-faucet" }
 haneul-field-count = { path = "crates/haneul-field-count" }
 haneul-field-count-derive = { path = "crates/haneul-field-count-derive" }
+haneul-futures = { path = "crates/haneul-futures" }
 haneul-framework = { path = "crates/haneul-framework" }
 haneul-framework-snapshot = { path = "crates/haneul-framework-snapshot" }
 haneul-framework-tests = { path = "crates/haneul-framework-tests" }

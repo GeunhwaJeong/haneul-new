@@ -4,7 +4,7 @@
 use std::sync::Arc;
 
 use anyhow::Context as _;
-use haneul_indexer_alt_framework::task::TrySpawnStreamExt as _;
+use haneul_futures::stream::TrySpawnStreamExt as _;
 use tokio::{sync::mpsc, task::JoinHandle};
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_util::sync::CancellationToken;

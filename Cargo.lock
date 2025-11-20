@@ -14636,6 +14636,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-futures"
+version = "1.63.0"
+dependencies = [
+ "futures",
+ "tokio",
+]
+
+[[package]]
 name = "haneul-genesis-builder"
 version = "0.0.0"
 dependencies = [
@@ -14956,6 +14964,7 @@ dependencies = [
  "serde",
  "serde_json",
  "haneul-default-config",
+ "haneul-futures",
  "haneul-indexer-alt-consistent-api",
  "haneul-indexer-alt-framework",
  "haneul-indexer-alt-metrics",
@@ -15053,6 +15062,7 @@ dependencies = [
  "scoped-futures",
  "serde",
  "haneul-field-count",
+ "haneul-futures",
  "haneul-indexer-alt-framework-store-traits",
  "haneul-indexer-alt-metrics",
  "haneul-pg-db",
@@ -15284,7 +15294,7 @@ dependencies = [
  "haneul-core",
  "haneul-data-ingestion-core",
  "haneul-field-count",
- "haneul-indexer-alt-framework",
+ "haneul-futures",
  "haneul-indexer-alt-schema",
  "haneul-pg-db",
  "haneul-snapshot",
@@ -16441,7 +16451,7 @@ dependencies = [
  "reqwest 0.12.9",
  "serde",
  "serde_json",
- "haneul-indexer-alt-framework",
+ "haneul-futures",
  "telemetry-subscribers",
  "tokio",
  "tokio-postgres",
@@ -16658,7 +16668,7 @@ dependencies = [
  "serde_json",
  "haneul-config",
  "haneul-core",
- "haneul-indexer-alt-framework",
+ "haneul-futures",
  "haneul-protocol-config",
  "haneul-storage",
  "haneul-types",

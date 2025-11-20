@@ -25,7 +25,7 @@ prometheus.workspace = true
 haneul-types.workspace = true
 haneul-config.workspace = true
 haneul-core.workspace = true
-haneul-indexer-alt-framework.workspace = true
+haneul-futures.workspace = true
 haneul-storage.workspace = true
 haneul-protocol-config.workspace = true
 fastcrypto = { workspace = true, features = ["copy_key"] }

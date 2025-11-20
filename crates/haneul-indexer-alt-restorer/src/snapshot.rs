@@ -16,7 +16,7 @@ use tracing::{debug, info};
 use haneul_config::object_storage_config::{ObjectStoreConfig, ObjectStoreType};
 use haneul_core::authority::authority_store_tables::LiveObject;
 use haneul_field_count::FieldCount;
-use haneul_indexer_alt_framework::task::TrySpawnStreamExt;
+use haneul_futures::stream::TrySpawnStreamExt;
 use haneul_indexer_alt_schema::objects::StoredObjInfo;
 use haneul_indexer_alt_schema::schema::obj_info;
 use haneul_pg_db::Db;
