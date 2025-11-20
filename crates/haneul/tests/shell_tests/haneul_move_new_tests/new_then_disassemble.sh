@@ -12,8 +12,8 @@ public fun foo(_ctx: &mut TxContext) {}
 EOF
 cd example
 
-echo "=== Build ===" | tee /dev/stderr
+echo "=== Build ===" >&2
 haneul move build
 
-echo "=== Disassemble ===" | tee /dev/stderr
+echo "=== Disassemble ===" >&2
 haneul move disassemble build/example/bytecode_modules/example.mv
