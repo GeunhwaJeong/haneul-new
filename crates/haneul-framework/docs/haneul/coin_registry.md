@@ -11,7 +11,9 @@ supply information, regulatory status, and metadata capabilities.
 -  [Struct `CoinRegistry`](#haneul_coin_registry_CoinRegistry)
 -  [Struct `ExtraField`](#haneul_coin_registry_ExtraField)
 -  [Struct `CurrencyKey`](#haneul_coin_registry_CurrencyKey)
+-  [Struct `LegacyMetadataKey`](#haneul_coin_registry_LegacyMetadataKey)
 -  [Struct `MetadataCap`](#haneul_coin_registry_MetadataCap)
+-  [Struct `Borrow`](#haneul_coin_registry_Borrow)
 -  [Struct `Currency`](#haneul_coin_registry_Currency)
 -  [Struct `CurrencyInitializer`](#haneul_coin_registry_CurrencyInitializer)
 -  [Enum `SupplyState`](#haneul_coin_registry_SupplyState)
@@ -27,6 +29,7 @@ supply information, regulatory status, and metadata capabilities.
 -  [Function `make_supply_fixed`](#haneul_coin_registry_make_supply_fixed)
 -  [Function `make_supply_burn_only`](#haneul_coin_registry_make_supply_burn_only)
 -  [Function `finalize`](#haneul_coin_registry_finalize)
+-  [Function `finalize_and_delete_metadata_cap`](#haneul_coin_registry_finalize_and_delete_metadata_cap)
 -  [Function `finalize_registration`](#haneul_coin_registry_finalize_registration)
 -  [Function `delete_metadata_cap`](#haneul_coin_registry_delete_metadata_cap)
 -  [Function `burn`](#haneul_coin_registry_burn)
@@ -40,6 +43,8 @@ supply information, regulatory status, and metadata capabilities.
 -  [Function `delete_migrated_legacy_metadata`](#haneul_coin_registry_delete_migrated_legacy_metadata)
 -  [Function `migrate_regulated_state_by_metadata`](#haneul_coin_registry_migrate_regulated_state_by_metadata)
 -  [Function `migrate_regulated_state_by_cap`](#haneul_coin_registry_migrate_regulated_state_by_cap)
+-  [Function `borrow_legacy_metadata`](#haneul_coin_registry_borrow_legacy_metadata)
+-  [Function `return_borrowed_legacy_metadata`](#haneul_coin_registry_return_borrowed_legacy_metadata)
 -  [Function `decimals`](#haneul_coin_registry_decimals)
 -  [Function `name`](#haneul_coin_registry_name)
 -  [Function `symbol`](#haneul_coin_registry_symbol)
@@ -55,6 +60,8 @@ supply information, regulatory status, and metadata capabilities.
 -  [Function `is_regulated`](#haneul_coin_registry_is_regulated)
 -  [Function `total_supply`](#haneul_coin_registry_total_supply)
 -  [Function `exists`](#haneul_coin_registry_exists)
+-  [Function `is_migrated_from_legacy`](#haneul_coin_registry_is_migrated_from_legacy)
+-  [Function `to_legacy_metadata`](#haneul_coin_registry_to_legacy_metadata)
 -  [Function `create`](#haneul_coin_registry_create)
 -  [Macro function `finalize_impl`](#haneul_coin_registry_finalize_impl)
 -  [Macro function `migrate_legacy_metadata_impl`](#haneul_coin_registry_migrate_legacy_metadata_impl)
@@ -183,6 +190,28 @@ Key used to derive addresses when creating <code><a href="../haneul/coin_registr
 
 </details>
 
+<a name="haneul_coin_registry_LegacyMetadataKey"></a>
+
+## Struct `LegacyMetadataKey`
+
+Key used to store the legacy <code>CoinMetadata</code> for a <code><a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">Currency</a></code>.
+
+
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_LegacyMetadataKey">LegacyMetadataKey</a> <b>has</b> <b>copy</b>, drop, store
+</code></pre>
+
+
+
+<details>
+<summary>Fields</summary>
+
+
+<dl>
+</dl>
+
+
+</details>
+
 <a name="haneul_coin_registry_MetadataCap"></a>
 
 ## Struct `MetadataCap`
@@ -207,6 +236,28 @@ be deleted to prevent changes to the <code><a href="../haneul/coin_registry.md#h
 </dt>
 <dd>
 </dd>
+</dl>
+
+
+</details>
+
+<a name="haneul_coin_registry_Borrow"></a>
+
+## Struct `Borrow`
+
+Potato callback for the legacy <code>CoinMetadata</code> borrowing.
+
+
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_Borrow">Borrow</a>&lt;<b>phantom</b> T&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Fields</summary>
+
+
+<dl>
 </dl>
 
 
@@ -535,7 +586,7 @@ Metadata cap already claimed
 
 
 <pre><code>#[error]
-<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_EMetadataCapAlreadyClaimed">EMetadataCapAlreadyClaimed</a>: vector&lt;u8&gt; = b"Metadata cap already claimed.";
+<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_EMetadataCapAlreadyClaimed">EMetadataCapAlreadyClaimed</a>: vector&lt;u8&gt; = b"Metadata cap already claimed";
 </code></pre>
 
 
@@ -581,7 +632,7 @@ claimed or deleted.
 
 
 <pre><code>#[error]
-<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_ECannotUpdateManagedMetadata">ECannotUpdateManagedMetadata</a>: vector&lt;u8&gt; = b"Cannot update metadata whose `<a href="../haneul/coin_registry.md#haneul_coin_registry_MetadataCap">MetadataCap</a>` <b>has</b> already been claimed.";
+<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_ECannotUpdateManagedMetadata">ECannotUpdateManagedMetadata</a>: vector&lt;u8&gt; = b"Cannot update metadata whose `<a href="../haneul/coin_registry.md#haneul_coin_registry_MetadataCap">MetadataCap</a>` <b>has</b> already been claimed";
 </code></pre>
 
 
@@ -592,7 +643,7 @@ Attempt to set the symbol to a non-ASCII printable character
 
 
 <pre><code>#[error]
-<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_EInvalidSymbol">EInvalidSymbol</a>: vector&lt;u8&gt; = b"Symbol <b>has</b> to be ASCII printable.";
+<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_EInvalidSymbol">EInvalidSymbol</a>: vector&lt;u8&gt; = b"Symbol <b>has</b> to be ASCII printable";
 </code></pre>
 
 
@@ -602,7 +653,7 @@ Attempt to set the symbol to a non-ASCII printable character
 
 
 <pre><code>#[error]
-<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_EDenyCapAlreadyCreated">EDenyCapAlreadyCreated</a>: vector&lt;u8&gt; = b"Cannot claim the deny cap twice.";
+<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_EDenyCapAlreadyCreated">EDenyCapAlreadyCreated</a>: vector&lt;u8&gt; = b"Cannot claim the deny cap twice";
 </code></pre>
 
 
@@ -613,7 +664,7 @@ Attempt to migrate legacy metadata for a <code><a href="../haneul/coin_registry.
 
 
 <pre><code>#[error]
-<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_ECurrencyAlreadyRegistered">ECurrencyAlreadyRegistered</a>: vector&lt;u8&gt; = b"<a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">Currency</a> already registered.";
+<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_ECurrencyAlreadyRegistered">ECurrencyAlreadyRegistered</a>: vector&lt;u8&gt; = b"<a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">Currency</a> already registered";
 </code></pre>
 
 
@@ -623,7 +674,7 @@ Attempt to migrate legacy metadata for a <code><a href="../haneul/coin_registry.
 
 
 <pre><code>#[error]
-<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_EEmptySupply">EEmptySupply</a>: vector&lt;u8&gt; = b"Supply cannot be empty.";
+<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_EEmptySupply">EEmptySupply</a>: vector&lt;u8&gt; = b"Supply cannot be empty";
 </code></pre>
 
 
@@ -633,7 +684,7 @@ Attempt to migrate legacy metadata for a <code><a href="../haneul/coin_registry.
 
 
 <pre><code>#[error]
-<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_ESupplyNotBurnOnly">ESupplyNotBurnOnly</a>: vector&lt;u8&gt; = b"Cannot <a href="../haneul/coin_registry.md#haneul_coin_registry_burn">burn</a> on a non <a href="../haneul/coin_registry.md#haneul_coin_registry_burn">burn</a>-only supply.";
+<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_ESupplyNotBurnOnly">ESupplyNotBurnOnly</a>: vector&lt;u8&gt; = b"Cannot <a href="../haneul/coin_registry.md#haneul_coin_registry_burn">burn</a> on a non <a href="../haneul/coin_registry.md#haneul_coin_registry_burn">burn</a>-only supply";
 </code></pre>
 
 
@@ -643,7 +694,7 @@ Attempt to migrate legacy metadata for a <code><a href="../haneul/coin_registry.
 
 
 <pre><code>#[error]
-<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_EInvariantViolation">EInvariantViolation</a>: vector&lt;u8&gt; = b"Code <b>invariant</b> violation.";
+<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_EInvariantViolation">EInvariantViolation</a>: vector&lt;u8&gt; = b"Code <b>invariant</b> violation";
 </code></pre>
 
 
@@ -653,7 +704,7 @@ Attempt to migrate legacy metadata for a <code><a href="../haneul/coin_registry.
 
 
 <pre><code>#[error]
-<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_EDeletionNotSupported">EDeletionNotSupported</a>: vector&lt;u8&gt; = b"Deleting legacy metadata is not supported.";
+<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_EDeletionNotSupported">EDeletionNotSupported</a>: vector&lt;u8&gt; = b"Deleting legacy metadata is not supported";
 </code></pre>
 
 
@@ -664,6 +715,26 @@ Attempt to migrate legacy metadata for a <code><a href="../haneul/coin_registry.
 
 <pre><code>#[error]
 <b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_ENotOneTimeWitness">ENotOneTimeWitness</a>: vector&lt;u8&gt; = b"Type is expected to be OTW";
+</code></pre>
+
+
+
+<a name="haneul_coin_registry_EBorrowLegacyMetadata"></a>
+
+
+
+<pre><code>#[error]
+<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_EBorrowLegacyMetadata">EBorrowLegacyMetadata</a>: vector&lt;u8&gt; = b"Cannot <a href="../haneul/borrow.md#haneul_borrow">borrow</a> legacy metadata <b>for</b> migrated currency";
+</code></pre>
+
+
+
+<a name="haneul_coin_registry_EDuplicateBorrow"></a>
+
+
+
+<pre><code>#[error]
+<b>const</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_EDuplicateBorrow">EDuplicateBorrow</a>: vector&lt;u8&gt; = b"Attempt to <b>return</b> duplicate borrowed CoinMetadata";
 </code></pre>
 
 
@@ -1009,6 +1080,39 @@ Finalize the coin initialization, returning <code><a href="../haneul/coin_regist
     <b>if</b> (is_otw) <a href="../haneul/transfer.md#haneul_transfer_transfer">transfer::transfer</a>(currency, <a href="../haneul/object.md#haneul_object_haneul_coin_registry_address">object::haneul_coin_registry_address</a>())
     <b>else</b> <a href="../haneul/transfer.md#haneul_transfer_share_object">transfer::share_object</a>(currency);
     metadata_cap
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_coin_registry_finalize_and_delete_metadata_cap"></a>
+
+## Function `finalize_and_delete_metadata_cap`
+
+Does the same as <code><a href="../haneul/coin_registry.md#haneul_coin_registry_finalize">finalize</a></code>, but also deletes the <code><a href="../haneul/coin_registry.md#haneul_coin_registry_MetadataCap">MetadataCap</a></code> after finalization.
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_finalize_and_delete_metadata_cap">finalize_and_delete_metadata_cap</a>&lt;T&gt;(builder: <a href="../haneul/coin_registry.md#haneul_coin_registry_CurrencyInitializer">haneul::coin_registry::CurrencyInitializer</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_finalize_and_delete_metadata_cap">finalize_and_delete_metadata_cap</a>&lt;T&gt;(
+    builder: <a href="../haneul/coin_registry.md#haneul_coin_registry_CurrencyInitializer">CurrencyInitializer</a>&lt;T&gt;,
+    ctx: &<b>mut</b> TxContext,
+) {
+    <b>let</b> is_otw = builder.is_otw;
+    <b>let</b> (<b>mut</b> currency, metadata_cap) = <a href="../haneul/coin_registry.md#haneul_coin_registry_finalize_impl">finalize_impl</a>!(builder, ctx);
+    currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_delete_metadata_cap">delete_metadata_cap</a>(metadata_cap);
+    // Either share directly (`<a href="../haneul/coin_registry.md#haneul_coin_registry_new_currency">new_currency</a>` scenario), or <a href="../haneul/transfer.md#haneul_transfer">transfer</a> <b>as</b> TTO to `<a href="../haneul/coin_registry.md#haneul_coin_registry_CoinRegistry">CoinRegistry</a>`.
+    <b>if</b> (is_otw) <a href="../haneul/transfer.md#haneul_transfer_transfer">transfer::transfer</a>(currency, <a href="../haneul/object.md#haneul_object_haneul_coin_registry_address">object::haneul_coin_registry_address</a>())
+    <b>else</b> <a href="../haneul/transfer.md#haneul_transfer_share_object">transfer::share_object</a>(currency);
 }
 </code></pre>
 
@@ -1416,6 +1520,91 @@ Mark regulated state by showing the <code>DenyCapV2</code> object for the <code>
 
 </details>
 
+<a name="haneul_coin_registry_borrow_legacy_metadata"></a>
+
+## Function `borrow_legacy_metadata`
+
+Borrow the legacy <code>CoinMetadata</code> from a new <code><a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">Currency</a></code>. To preserve the <code>ID</code>
+of the legacy <code>CoinMetadata</code>, we create it on request and then store it as a
+dynamic field for future borrows.
+
+<code><a href="../haneul/coin_registry.md#haneul_coin_registry_Borrow">Borrow</a>&lt;T&gt;</code> ensures that the <code>CoinMetadata</code> is returned in the same transaction.
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_borrow_legacy_metadata">borrow_legacy_metadata</a>&lt;T&gt;(currency: &<b>mut</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">haneul::coin_registry::Currency</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): (<a href="../haneul/coin.md#haneul_coin_CoinMetadata">haneul::coin::CoinMetadata</a>&lt;T&gt;, <a href="../haneul/coin_registry.md#haneul_coin_registry_Borrow">haneul::coin_registry::Borrow</a>&lt;T&gt;)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_borrow_legacy_metadata">borrow_legacy_metadata</a>&lt;T&gt;(
+    currency: &<b>mut</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">Currency</a>&lt;T&gt;,
+    ctx: &<b>mut</b> TxContext,
+): (CoinMetadata&lt;T&gt;, <a href="../haneul/coin_registry.md#haneul_coin_registry_Borrow">Borrow</a>&lt;T&gt;) {
+    <b>assert</b>!(!currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_is_migrated_from_legacy">is_migrated_from_legacy</a>(), <a href="../haneul/coin_registry.md#haneul_coin_registry_EBorrowLegacyMetadata">EBorrowLegacyMetadata</a>);
+    <b>if</b> (!df::exists_(&currency.id, <a href="../haneul/coin_registry.md#haneul_coin_registry_LegacyMetadataKey">LegacyMetadataKey</a>())) {
+        <b>let</b> legacy = currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_to_legacy_metadata">to_legacy_metadata</a>(ctx);
+        df::add(&<b>mut</b> currency.id, <a href="../haneul/coin_registry.md#haneul_coin_registry_LegacyMetadataKey">LegacyMetadataKey</a>(), legacy);
+    };
+    <b>let</b> <b>mut</b> legacy: CoinMetadata&lt;T&gt; = df::remove(&<b>mut</b> currency.id, <a href="../haneul/coin_registry.md#haneul_coin_registry_LegacyMetadataKey">LegacyMetadataKey</a>());
+    legacy.update_coin_metadata(
+        currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_name">name</a>,
+        currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_symbol">symbol</a>.to_ascii(),
+        currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_description">description</a>,
+        currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_icon_url">icon_url</a>.to_ascii(),
+    );
+    (legacy, <a href="../haneul/coin_registry.md#haneul_coin_registry_Borrow">Borrow</a> {})
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_coin_registry_return_borrowed_legacy_metadata"></a>
+
+## Function `return_borrowed_legacy_metadata`
+
+Return the borrowed <code>CoinMetadata</code> and the <code><a href="../haneul/coin_registry.md#haneul_coin_registry_Borrow">Borrow</a></code> potato to the <code><a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">Currency</a></code>.
+
+Note to self: Borrow requirement prevents deletion through this method.
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_return_borrowed_legacy_metadata">return_borrowed_legacy_metadata</a>&lt;T&gt;(currency: &<b>mut</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">haneul::coin_registry::Currency</a>&lt;T&gt;, legacy: <a href="../haneul/coin.md#haneul_coin_CoinMetadata">haneul::coin::CoinMetadata</a>&lt;T&gt;, <a href="../haneul/borrow.md#haneul_borrow">borrow</a>: <a href="../haneul/coin_registry.md#haneul_coin_registry_Borrow">haneul::coin_registry::Borrow</a>&lt;T&gt;, _ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_return_borrowed_legacy_metadata">return_borrowed_legacy_metadata</a>&lt;T&gt;(
+    currency: &<b>mut</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">Currency</a>&lt;T&gt;,
+    <b>mut</b> legacy: CoinMetadata&lt;T&gt;,
+    <a href="../haneul/borrow.md#haneul_borrow">borrow</a>: <a href="../haneul/coin_registry.md#haneul_coin_registry_Borrow">Borrow</a>&lt;T&gt;,
+    _ctx: &<b>mut</b> TxContext,
+) {
+    <b>assert</b>!(!df::exists_(&currency.id, <a href="../haneul/coin_registry.md#haneul_coin_registry_LegacyMetadataKey">LegacyMetadataKey</a>()), <a href="../haneul/coin_registry.md#haneul_coin_registry_EDuplicateBorrow">EDuplicateBorrow</a>);
+    <b>let</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_Borrow">Borrow</a> {} = <a href="../haneul/borrow.md#haneul_borrow">borrow</a>;
+    // Always store up to date value.
+    legacy.update_coin_metadata(
+        currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_name">name</a>,
+        currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_symbol">symbol</a>.to_ascii(),
+        currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_description">description</a>,
+        currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_icon_url">icon_url</a>.to_ascii(),
+    );
+    df::add(&<b>mut</b> currency.id, <a href="../haneul/coin_registry.md#haneul_coin_registry_LegacyMetadataKey">LegacyMetadataKey</a>(), legacy);
+}
+</code></pre>
+
+
+
+</details>
+
 <a name="haneul_coin_registry_decimals"></a>
 
 ## Function `decimals`
@@ -1803,6 +1992,63 @@ Check if coin data exists for the given type T in the registry.
 
 <pre><code><b>public</b> <b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_exists">exists</a>&lt;T&gt;(registry: &<a href="../haneul/coin_registry.md#haneul_coin_registry_CoinRegistry">CoinRegistry</a>): bool {
     <a href="../haneul/derived_object.md#haneul_derived_object_exists">derived_object::exists</a>(&registry.id, <a href="../haneul/coin_registry.md#haneul_coin_registry_CurrencyKey">CurrencyKey</a>&lt;T&gt;())
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_coin_registry_is_migrated_from_legacy"></a>
+
+## Function `is_migrated_from_legacy`
+
+Whether the currency is migrated from legacy.
+
+
+<pre><code><b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_is_migrated_from_legacy">is_migrated_from_legacy</a>&lt;T&gt;(currency: &<a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">haneul::coin_registry::Currency</a>&lt;T&gt;): bool
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_is_migrated_from_legacy">is_migrated_from_legacy</a>&lt;T&gt;(currency: &<a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">Currency</a>&lt;T&gt;): bool {
+    !currency.extra_fields.contains(&<a href="../haneul/coin_registry.md#haneul_coin_registry_NEW_CURRENCY_MARKER">NEW_CURRENCY_MARKER</a>.to_string())
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_coin_registry_to_legacy_metadata"></a>
+
+## Function `to_legacy_metadata`
+
+Create a new legacy <code>CoinMetadata</code> from a <code><a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">Currency</a></code>.
+
+
+<pre><code><b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_to_legacy_metadata">to_legacy_metadata</a>&lt;T&gt;(currency: &<a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">haneul::coin_registry::Currency</a>&lt;T&gt;, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/coin.md#haneul_coin_CoinMetadata">haneul::coin::CoinMetadata</a>&lt;T&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>fun</b> <a href="../haneul/coin_registry.md#haneul_coin_registry_to_legacy_metadata">to_legacy_metadata</a>&lt;T&gt;(currency: &<a href="../haneul/coin_registry.md#haneul_coin_registry_Currency">Currency</a>&lt;T&gt;, ctx: &<b>mut</b> TxContext): CoinMetadata&lt;T&gt; {
+    <a href="../haneul/coin.md#haneul_coin_new_coin_metadata">coin::new_coin_metadata</a>(
+        currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_decimals">decimals</a>,
+        currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_name">name</a>,
+        currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_symbol">symbol</a>.to_ascii(),
+        currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_description">description</a>,
+        currency.<a href="../haneul/coin_registry.md#haneul_coin_registry_icon_url">icon_url</a>.to_ascii(),
+        ctx,
+    )
 }
 </code></pre>
 
