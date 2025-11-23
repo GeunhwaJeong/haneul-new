@@ -1,0 +1,9 @@
+[package]
+name = "emit_test_event"
+edition = "2024.beta"
+
+[dependencies]
+Haneul = { local = "../../../../haneul-framework/packages/haneul-framework" }
+
+[addresses]
+emit_test_event = "0x0"
