@@ -68,7 +68,6 @@ use haneul_storage::{
 };
 use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_swarm_config::network_config_builder::KeyPairWrapper;
-use haneul_types::HANEUL_SYSTEM_ADDRESS;
 use haneul_types::base_types::{SequenceNumber, VersionNumber};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::{
@@ -101,7 +100,8 @@ use haneul_types::{
     transaction::{Transaction, TransactionData, VerifiedTransaction},
 };
 use haneul_types::{
-    HANEUL_FRAMEWORK_PACKAGE_ID, programmable_transaction_builder::ProgrammableTransactionBuilder,
+    HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_ADDRESS,
+    programmable_transaction_builder::ProgrammableTransactionBuilder,
 };
 use haneul_types::{HANEUL_SYSTEM_PACKAGE_ID, utils::to_sender_signed_transaction};
 use haneul_types::{execution_status::ExecutionStatus, transaction::TransactionKind};
@@ -129,6 +129,7 @@ const WELL_KNOWN_OBJECTS: &[ObjectID] = &[
     HANEUL_CLOCK_OBJECT_ID,
     HANEUL_DENY_LIST_OBJECT_ID,
     HANEUL_RANDOMNESS_STATE_OBJECT_ID,
+    HANEUL_COIN_REGISTRY_OBJECT_ID,
 ];
 // TODO use the file name as a seed
 const RNG_SEED: [u8; 32] = [
