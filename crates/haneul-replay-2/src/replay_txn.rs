@@ -13,16 +13,15 @@
 use crate::{
     artifacts::{Artifact, ArtifactManager, MoveCallInfo, ReplayCacheSummary},
     execution::{ReplayExecutor, execute_transaction_to_effects},
-    replay_interface::{
-        EpochStore, ObjectKey, ObjectStore, ReadDataStore, TransactionStore, VersionQuery,
-    },
-    summary_metrics::tx_metrics_reset,
     tracing::save_trace_output,
 };
 use anyhow::{Context, Error, Result, anyhow, bail};
 use move_trace_format::format::MoveTraceBuilder;
 use std::collections::{BTreeMap, BTreeSet, btree_map::Entry};
 use std::time::Instant;
+use haneul_data_store::{
+    EpochStore, ObjectKey, ObjectStore, ReadDataStore, TransactionStore, VersionQuery,
+};
 use haneul_types::{TypeTag, base_types::SequenceNumber};
 use haneul_types::{
     base_types::{ObjectID, HaneulAddress},
@@ -116,7 +115,6 @@ pub(crate) async fn replay_transaction<S: ReadDataStore>(
 ) -> Result<u128> {
     let _span = info_span!("replay_tx", tx_digest = %tx_digest).entered();
     // load a `ReplayTransaction`
-    tx_metrics_reset();
     let replay_txn = match ReplayTransaction::load(
         tx_digest,
         data_store,

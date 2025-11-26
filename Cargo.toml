@@ -110,6 +110,7 @@ members = [
   "crates/haneul-cost",
   "crates/haneul-data-ingestion",
   "crates/haneul-data-ingestion-core",
+  "crates/haneul-data-store",
   "crates/haneul-deepbook-indexer",
   "crates/haneul-default-config",
   "crates/haneul-display",
@@ -693,6 +694,7 @@ haneul-core = { path = "crates/haneul-core" }
 haneul-cost = { path = "crates/haneul-cost" }
 haneul-data-ingestion = { path = "crates/haneul-data-ingestion" }
 haneul-data-ingestion-core = { path = "crates/haneul-data-ingestion-core" }
+haneul-data-store = { path = "crates/haneul-data-store" }
 haneul-default-config = { path = "crates/haneul-default-config" }
 haneul-display = { path = "crates/haneul-display" }
 haneul-e2e-tests = { path = "crates/haneul-e2e-tests" }

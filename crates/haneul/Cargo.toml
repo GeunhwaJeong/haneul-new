@@ -52,6 +52,7 @@ url.workspace = true
 
 haneul-config.workspace = true
 haneul-bridge.workspace = true
+haneul-data-store.workspace = true
 haneul-execution.workspace = true
 haneul-faucet.workspace = true
 haneul-swarm-config.workspace = true
