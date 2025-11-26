@@ -60,7 +60,6 @@ const concepts = [
 			'concepts/tokenomics/staking-unstaking',
 			'concepts/tokenomics/haneul-bridging',
 			'concepts/tokenomics/gas-in-haneul',
-			'concepts/tokenomics/vesting-strategies',
 		],
 	},
 	{
