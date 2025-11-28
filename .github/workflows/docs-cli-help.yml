@@ -42,10 +42,52 @@ jobs:
           set -euo pipefail
           TAG="${{ steps.release.outputs.tag }}"
           mkdir -p ".cache/haneul/${TAG}"
-          URL="https://github.com/GeunhwaJeong/haneul/releases/download/${TAG}/haneul-linux-x86_64"
-          echo "Downloading $URL"
-          curl -L -o ".cache/haneul/${TAG}/haneul" "$URL"
-          chmod +x ".cache/haneul/${TAG}/haneul"
+          
+          # Try different possible asset names
+          ASSETS=(
+            "haneul-mainnet-v${TAG#testnet-v}-ubuntu-x86_64.tgz"
+            "haneul-testnet-v${TAG#testnet-v}-ubuntu-x86_64.tgz"
+            "haneul-${TAG}-ubuntu-x86_64.tgz"
+            "haneul-linux-x86_64"
+          )
+          
+          DOWNLOADED=false
+          for ASSET in "${ASSETS[@]}"; do
+            URL="https://github.com/GeunhwaJeong/haneul/releases/download/${TAG}/${ASSET}"
+            echo "Trying: $URL"
+            
+            if curl -fsSL -o "/tmp/haneul-download" "$URL" 2>/dev/null; then
+              echo "Successfully downloaded: $ASSET"
+              
+              # Check if it's a tarball
+              if [[ "$ASSET" == *.tgz ]]; then
+                tar -xzf /tmp/haneul-download -C ".cache/haneul/${TAG}/"
+                # Find the haneul binary in extracted files
+                find ".cache/haneul/${TAG}/" -name "haneul" -type f -executable -exec mv {} ".cache/haneul/${TAG}/haneul" \;
+              else
+                mv /tmp/haneul-download ".cache/haneul/${TAG}/haneul"
+              fi
+              
+              chmod +x ".cache/haneul/${TAG}/haneul"
+              DOWNLOADED=true
+              break
+            fi
+          done
+          
+          if [ "$DOWNLOADED" = false ]; then
+            echo "Failed to download haneul binary from any known location"
+            echo "Available assets for ${TAG}:"
+            curl -s "https://api.github.com/repos/GeunhwaJeong/haneul/releases/tags/${TAG}" | jq -r '.assets[].name'
+            exit 1
+          fi
+          
+          # Verify it's actually a binary
+          if ! file ".cache/haneul/${TAG}/haneul" | grep -q "executable"; then
+            echo "Downloaded file is not an executable:"
+            file ".cache/haneul/${TAG}/haneul"
+            head -n 5 ".cache/haneul/${TAG}/haneul"
+            exit 1
+          fi
 
       - name: Generate MDX snippets (sh fenced)
         run: |
