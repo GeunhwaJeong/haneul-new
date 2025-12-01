@@ -286,7 +286,7 @@ may abort with errors described above.
 ## Function `pcrs`
 
 Returns a list of mapping PCREntry containg the index and the PCR bytes.
-Currently AWS supports PCR0, PCR1, PCR2, PCR3, PCR4, PCR8.
+AWS supports PCR0-31. All-zero PCR values are excluded.
 
 
 <pre><code><b>public</b> <b>fun</b> <a href="../haneul/nitro_attestation.md#haneul_nitro_attestation_pcrs">pcrs</a>(attestation: &<a href="../haneul/nitro_attestation.md#haneul_nitro_attestation_NitroAttestationDocument">haneul::nitro_attestation::NitroAttestationDocument</a>): &vector&lt;<a href="../haneul/nitro_attestation.md#haneul_nitro_attestation_PCREntry">haneul::nitro_attestation::PCREntry</a>&gt;
