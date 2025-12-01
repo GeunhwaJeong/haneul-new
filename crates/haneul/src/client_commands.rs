@@ -1586,23 +1586,8 @@ impl HaneulClientCommands {
                     url
                 } else {
                     let active_env = context.get_active_env();
-
                     if let Ok(env) = active_env {
-                        let network = match env.rpc.as_str() {
-                            HANEUL_DEVNET_URL => "https://faucet.devnet.haneul.io/v2/gas",
-                            HANEUL_TESTNET_URL => {
-                                bail!(
-                                    "For testnet tokens, please use the Web UI: https://faucet.haneul.io/?address={address}"
-                                );
-                            }
-                            HANEUL_LOCAL_NETWORK_URL | HANEUL_LOCAL_NETWORK_URL_0 => {
-                                "http://127.0.0.1:9123/v2/gas"
-                            }
-                            _ => bail!(
-                                "Cannot recognize the active network. Please provide the gas faucet full URL."
-                            ),
-                        };
-                        network.to_string()
+                        find_faucet_url(address, &env.rpc)?
                     } else {
                         bail!("No URL for faucet was provided and there is no active network.")
                     }
@@ -3553,4 +3538,38 @@ pub(crate) async fn pkg_tree_shake(
     });
 
     Ok(())
+}
+
+/// Extract the host from a URL string
+fn url_to_host(url: &str) -> anyhow::Result<String> {
+    url::Url::parse(url)?
+        .host_str()
+        .map(|s| s.to_string())
+        .ok_or_else(|| anyhow!("Cannot extract host from url: {}", url))
+}
+
+/// Find the faucet URL based on the RPC URL. It maps the public networks to their faucet URLs, for
+/// devnet and localnet. For testnet, it instructs the user to use the web UI.
+fn find_faucet_url(address: HaneulAddress, rpc: &str) -> anyhow::Result<String> {
+    let host = url_to_host(rpc)?;
+    let devnet_host = url_to_host(HANEUL_DEVNET_URL)?;
+    let testnet_host = url_to_host(HANEUL_TESTNET_URL)?;
+    let localhost = url_to_host(HANEUL_LOCAL_NETWORK_URL)?;
+    let localhost_0 = url_to_host(HANEUL_LOCAL_NETWORK_URL_0)?;
+
+    if host == devnet_host {
+        return Ok("https://faucet.devnet.haneul.io/v2/gas".to_string());
+    }
+
+    if host == testnet_host {
+        bail!(
+            "For testnet tokens, please use the Web UI: https://faucet.haneul.io/?address={address}"
+        );
+    }
+
+    if host == localhost || host == localhost_0 {
+        Ok("http://127.0.0.1:9123/v2/gas".to_string())
+    } else {
+        bail!("Cannot recognize the active network. Please provide the gas faucet full URL.")
+    }
 }
