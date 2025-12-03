@@ -12,7 +12,6 @@ use std::{
 use haneul_core::authority::AuthorityState;
 use haneul_macros::*;
 use haneul_swarm_config::genesis_config::{AccountConfig, DEFAULT_GAS_AMOUNT};
-use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::{
     HANEUL_SYSTEM_PACKAGE_ID,
     base_types::{ObjectDigest, ObjectID, ObjectRef, HaneulAddress},
@@ -24,7 +23,10 @@ use haneul_types::{
         HaneulSystemStateTrait,
         haneul_system_state_summary::{HaneulSystemStateSummary, HaneulValidatorSummary},
     },
-    transaction::{Argument, Command, ObjectArg, ProgrammableTransaction},
+    transaction::{
+        Argument, Command, ObjectArg, ProgrammableTransaction,
+        TEST_ONLY_GAS_UNIT_FOR_HEAVY_COMPUTATION_STORAGE, TransactionData,
+    },
 };
 use haneul_types::{
     base_types::SequenceNumber,
@@ -142,14 +144,17 @@ impl StressTestRunner {
             .await
             .unwrap()
             .unwrap();
+        let transaction_data = TransactionData::new_programmable(
+            sender,
+            vec![gas_object],
+            pt,
+            rgp * TEST_ONLY_GAS_UNIT_FOR_HEAVY_COMPUTATION_STORAGE,
+            rgp,
+        );
         let transaction = self
             .test_cluster
             .wallet
-            .sign_transaction(
-                &TestTransactionBuilder::new(sender, gas_object, rgp)
-                    .programmable(pt)
-                    .build(),
-            )
+            .sign_transaction(&transaction_data)
             .await;
         let (effects, _) = self
             .test_cluster
