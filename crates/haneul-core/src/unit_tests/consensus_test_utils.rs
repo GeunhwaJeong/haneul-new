@@ -3,6 +3,23 @@
 
 //! Common test utilities for consensus handler testing
 
+use std::collections::HashSet;
+use std::sync::Arc;
+
+use arc_swap::ArcSwap;
+use consensus_core::BlockStatus;
+use consensus_types::block::BlockRef;
+use parking_lot::Mutex;
+use prometheus::Registry;
+use haneul_types::digests::{Digest, TransactionDigest};
+use haneul_types::error::HaneulResult;
+use haneul_types::executable_transaction::VerifiedExecutableTransaction;
+use haneul_types::messages_consensus::{
+    AuthorityIndex, ConsensusPosition, ConsensusTransaction, ConsensusTransactionKind,
+};
+use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
+use haneul_types::transaction::{VerifiedCertificate, VerifiedTransaction};
+
 use crate::authority::authority_per_epoch_store::{
     AuthorityPerEpochStore, ExecutionIndicesWithStats,
 };
@@ -21,22 +38,6 @@ use crate::consensus_throughput_calculator::ConsensusThroughputCalculator;
 use crate::consensus_types::consensus_output_api::{ConsensusCommitAPI, ParsedTransaction};
 use crate::execution_scheduler::SchedulingSource;
 use crate::mock_consensus::with_block_status;
-use arc_swap::ArcSwap;
-use consensus_core::BlockStatus;
-use consensus_types::block::BlockRef;
-use parking_lot::Mutex;
-use prometheus::Registry;
-use std::collections::HashSet;
-use std::sync::Arc;
-use haneul_protocol_config::ProtocolConfig;
-use haneul_types::digests::{ConsensusCommitDigest, TransactionDigest};
-use haneul_types::error::HaneulResult;
-use haneul_types::executable_transaction::VerifiedExecutableTransaction;
-use haneul_types::messages_consensus::{
-    AuthorityIndex, ConsensusPosition, ConsensusTransaction, ConsensusTransactionKind,
-};
-use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
-use haneul_types::transaction::{VerifiedCertificate, VerifiedTransaction};
 
 pub(crate) type CapturedTransactions =
     Arc<Mutex<Vec<(Vec<Schedulable>, AssignedTxAndVersions, SchedulingSource)>>>;
@@ -84,6 +85,10 @@ impl std::fmt::Display for TestConsensusCommit {
 }
 
 impl ConsensusCommitAPI for TestConsensusCommit {
+    fn commit_ref(&self) -> consensus_core::CommitRef {
+        consensus_core::CommitRef::default()
+    }
+
     fn reputation_score_sorted_desc(&self) -> Option<Vec<(AuthorityIndex, u64)>> {
         None
     }
@@ -124,8 +129,12 @@ impl ConsensusCommitAPI for TestConsensusCommit {
         vec![(block_ref, parsed_txs)]
     }
 
-    fn consensus_digest(&self, _protocol_config: &ProtocolConfig) -> ConsensusCommitDigest {
-        ConsensusCommitDigest::default()
+    fn rejected_transactions_digest(&self) -> Digest {
+        Digest::default()
+    }
+
+    fn rejected_transactions_debug_string(&self) -> String {
+        "no rejected transactions from TestConsensusCommit".to_string()
     }
 }
 
