@@ -1,11 +1,11 @@
 // allowed, even though a bit pointless
 module a::m {
     use haneul::object::{Self, UID};
-    use haneul::tx_context::{Self, TxContext};
     use haneul::transfer::transfer;
+    use haneul::tx_context::{Self, TxContext};
 
     struct Obj has key {
-        id: UID
+        id: UID,
     }
 
     public entry fun transmute(ctx: &mut TxContext) {
@@ -19,16 +19,17 @@ module a::m {
         let obj = Obj { id };
         transfer(obj, tx_context::sender(ctx))
     }
-
 }
 
 module haneul::object {
     struct UID has store {
         id: address,
     }
+
     public fun new(_: &mut haneul::tx_context::TxContext): UID {
         abort 0
     }
+
     public fun delete(_: UID) {
         abort 0
     }
@@ -36,6 +37,7 @@ module haneul::object {
 
 module haneul::tx_context {
     struct TxContext has drop {}
+
     public fun sender(_: &TxContext): address {
         @0
     }

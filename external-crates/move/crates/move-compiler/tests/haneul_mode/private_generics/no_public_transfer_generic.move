@@ -3,8 +3,8 @@
 // where a given instantiation`T<...>` has key but does _not_ have store
 
 module a::m {
-    use haneul::transfer::{Self, Receiving};
     use haneul::object::UID;
+    use haneul::transfer::{Self, Receiving};
 
     public fun t1<T: key>(s: T) {
         transfer::transfer(s, @0x100);
@@ -36,7 +36,7 @@ module haneul::object {
 module haneul::transfer {
     use haneul::object::UID;
 
-    struct Receiving<phantom T: key> { }
+    struct Receiving<phantom T: key> {}
 
     public fun transfer<T: key>(_: T, _: address) {
         abort 0

@@ -4,11 +4,8 @@ module a::n {
     use haneul::haneul;
     use haneul::tx_context;
 
-    fun init(_otw: haneul::HANEUL, _ctx: &mut tx_context::TxContext) {
-    }
-
+    fun init(_otw: haneul::HANEUL, _ctx: &mut tx_context::TxContext) {}
 }
-
 
 module haneul::tx_context {
     struct TxContext has drop {}

@@ -8,7 +8,7 @@ module a::test {
 
     #[allow(unused_field)]
     struct S1 has key, store {
-        id: UID
+        id: UID,
     }
 
     #[allow(lint(self_transfer, prefer_mut_tx_context))]
@@ -28,9 +28,11 @@ module a::test {
 
 module haneul::object {
     const ZERO: u64 = 0;
+
     struct UID has store {
         id: address,
     }
+
     public fun new(_: &mut haneul::tx_context::TxContext): UID {
         abort ZERO
     }
@@ -38,6 +40,7 @@ module haneul::object {
 
 module haneul::tx_context {
     struct TxContext has drop {}
+
     public fun sender(_: &TxContext): address {
         @0
     }
@@ -45,6 +48,7 @@ module haneul::tx_context {
 
 module haneul::transfer {
     const ZERO: u64 = 0;
+
     public fun transfer<T: key>(_: T, _: address) {
         abort ZERO
     }

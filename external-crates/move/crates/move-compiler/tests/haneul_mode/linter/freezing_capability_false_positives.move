@@ -6,19 +6,19 @@ module a::test_false_positives {
     use haneul::transfer;
 
     struct NoCap has key {
-       id: UID
+        id: UID,
     }
 
     struct CapAndHat has key {
-       id: UID
+        id: UID,
     }
 
     struct Recap has key {
-       id: UID
+        id: UID,
     }
 
     struct MyCapybara has key {
-       id: UID
+        id: UID,
     }
 
     public fun freeze_capture(w: NoCap) {
@@ -46,6 +46,7 @@ module haneul::object {
 
 module haneul::transfer {
     const ZERO: u64 = 0;
+
     public fun public_freeze_object<T: key>(_: T) {
         abort ZERO
     }

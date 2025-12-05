@@ -2,7 +2,9 @@ module haneul::object {
     public struct ID()
     public struct UID()
 }
-module haneul::transfer {}
+module haneul::transfer {
+
+}
 module haneul::tx_context {
     public struct TxContext()
 }

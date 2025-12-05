@@ -2,6 +2,7 @@
 
 module a::m {
     use haneul::object;
+
     struct S has key {
         flag: bool,
         id: object::UID,

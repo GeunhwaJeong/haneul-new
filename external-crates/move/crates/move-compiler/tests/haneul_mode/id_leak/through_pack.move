@@ -4,15 +4,15 @@ module b::test {
     use haneul::transfer::transfer;
 
     struct A has key {
-        id: UID
+        id: UID,
     }
 
     struct C has key {
-        id: UID
+        id: UID,
     }
 
     struct B {
-        id: UID
+        id: UID,
     }
 
     public entry fun test(x: A) {
@@ -42,7 +42,6 @@ module a::m {
         let _b = Bar { id, v: 0 };
         abort 0
     }
-
 }
 
 module haneul::object {
@@ -53,6 +52,7 @@ module haneul::object {
 
 module haneul::tx_context {
     struct TxContext has drop {}
+
     public fun sender(_: &TxContext): address {
         @0
     }

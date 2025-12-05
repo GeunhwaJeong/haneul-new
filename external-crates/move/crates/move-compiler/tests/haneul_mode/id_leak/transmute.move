@@ -1,8 +1,8 @@
 // not allowed, it re-uses an ID in a new object
 module a::m {
     use haneul::object::UID;
-    use haneul::tx_context::{Self, TxContext};
     use haneul::transfer::transfer;
+    use haneul::tx_context::{Self, TxContext};
 
     struct Cat has key {
         id: UID,
@@ -17,7 +17,6 @@ module a::m {
         let dog = Dog { id };
         transfer(dog, tx_context::sender(ctx));
     }
-
 }
 
 module haneul::object {
@@ -28,6 +27,7 @@ module haneul::object {
 
 module haneul::tx_context {
     struct TxContext has drop {}
+
     public fun sender(_: &TxContext): address {
         @0
     }

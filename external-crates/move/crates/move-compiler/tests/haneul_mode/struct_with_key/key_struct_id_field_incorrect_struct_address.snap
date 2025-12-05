@@ -10,7 +10,7 @@ error[Haneul E02007]: invalid object declaration
   │
 4 │     struct S has key {
   │                  --- The 'key' ability is used to declare objects in Haneul
-5 │         id: UID
+5 │         id: UID,
   │         ^^  --- But found type: 'a::object::UID'
   │         │    
   │         Invalid object 'S'. Structs with the 'key' ability must have 'id: haneul::object::UID' as their first field
@@ -20,7 +20,7 @@ error[Haneul E02007]: invalid object declaration
    │
 11 │     struct S has key {
    │                  --- The 'key' ability is used to declare objects in Haneul
-12 │         id: UID
+12 │         id: UID,
    │         ^^  --- But found type: '0x3::object::UID'
    │         │    
    │         Invalid object 'S'. Structs with the 'key' ability must have 'id: haneul::object::UID' as their first field

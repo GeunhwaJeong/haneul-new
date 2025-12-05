@@ -3,14 +3,9 @@
 module a::m {
     use haneul::object;
 
-    public entry fun yes<T>(
-        _: object::ID,
-        _: vector<object::ID>,
-        _: vector<vector<object::ID>>,
-    ) {
+    public entry fun yes<T>(_: object::ID, _: vector<object::ID>, _: vector<vector<object::ID>>) {
         abort 0
     }
-
 }
 
 module haneul::object {

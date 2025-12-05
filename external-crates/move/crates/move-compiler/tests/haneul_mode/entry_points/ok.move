@@ -2,6 +2,7 @@
 
 module a::m {
     use haneul::tx_context;
+
     public entry fun f(_: &tx_context::TxContext) {
         abort 0
     }

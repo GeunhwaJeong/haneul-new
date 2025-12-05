@@ -3,17 +3,18 @@ module a::a {
     use haneul::object::UID;
 
     struct A has key {
-        id: UID
+        id: UID,
     }
 }
 
 module b::b {
-    use haneul::object::UID;
     use a::a::A;
+    use haneul::object::UID;
 
     struct B has key {
-        id: UID
+        id: UID,
     }
+
     public fun no(b: B): A {
         let B { id } = b;
         A { id }

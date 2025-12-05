@@ -51,12 +51,12 @@ module haneul::object {
 
 module haneul::coin {
     use haneul::object::UID;
+
     struct Coin<phantom T> has key, store {
-        id: UID
+        id: UID,
     }
 
     struct TreasuryCap<phantom T> has key, store {
-        id: UID
+        id: UID,
     }
-
 }
