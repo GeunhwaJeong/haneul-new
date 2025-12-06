@@ -50,6 +50,7 @@ title: Module `deepbook::custodian_v2`
 <b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
 <b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;
 <b>use</b> <a href="../haneul/party.md#haneul_party">haneul::party</a>;
+<b>use</b> <a href="../haneul/protocol_config.md#haneul_protocol_config">haneul::protocol_config</a>;
 <b>use</b> <a href="../haneul/table.md#haneul_table">haneul::table</a>;
 <b>use</b> <a href="../haneul/transfer.md#haneul_transfer">haneul::transfer</a>;
 <b>use</b> <a href="../haneul/tx_context.md#haneul_tx_context">haneul::tx_context</a>;

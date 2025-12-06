@@ -36,6 +36,7 @@ title: Module `haneul_system::storage_fund`
 <b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
 <b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;
 <b>use</b> <a href="../haneul/party.md#haneul_party">haneul::party</a>;
+<b>use</b> <a href="../haneul/protocol_config.md#haneul_protocol_config">haneul::protocol_config</a>;
 <b>use</b> <a href="../haneul/haneul.md#haneul_haneul">haneul::haneul</a>;
 <b>use</b> <a href="../haneul/table.md#haneul_table">haneul::table</a>;
 <b>use</b> <a href="../haneul/transfer.md#haneul_transfer">haneul::transfer</a>;

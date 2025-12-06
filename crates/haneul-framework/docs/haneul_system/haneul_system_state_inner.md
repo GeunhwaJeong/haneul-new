@@ -101,6 +101,7 @@ title: Module `haneul_system::haneul_system_state_inner`
 <b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;
 <b>use</b> <a href="../haneul/party.md#haneul_party">haneul::party</a>;
 <b>use</b> <a href="../haneul/priority_queue.md#haneul_priority_queue">haneul::priority_queue</a>;
+<b>use</b> <a href="../haneul/protocol_config.md#haneul_protocol_config">haneul::protocol_config</a>;
 <b>use</b> <a href="../haneul/haneul.md#haneul_haneul">haneul::haneul</a>;
 <b>use</b> <a href="../haneul/table.md#haneul_table">haneul::table</a>;
 <b>use</b> <a href="../haneul/table_vec.md#haneul_table_vec">haneul::table_vec</a>;

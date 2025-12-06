@@ -43,6 +43,7 @@ custom coins with <code><a href="../haneul/balance.md#haneul_balance_Supply">Sup
 <b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
 <b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;
 <b>use</b> <a href="../haneul/party.md#haneul_party">haneul::party</a>;
+<b>use</b> <a href="../haneul/protocol_config.md#haneul_protocol_config">haneul::protocol_config</a>;
 <b>use</b> <a href="../haneul/transfer.md#haneul_transfer">haneul::transfer</a>;
 <b>use</b> <a href="../haneul/tx_context.md#haneul_tx_context">haneul::tx_context</a>;
 <b>use</b> <a href="../haneul/vec_map.md#haneul_vec_map">haneul::vec_map</a>;
@@ -489,7 +490,7 @@ accumulator.
 Create a <code>Withdrawal&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt;</code> from an object to withdraw funds from it.
 
 
-<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/balance.md#haneul_balance_withdraw_funds_from_object">withdraw_funds_from_object</a>&lt;T&gt;(obj: &<b>mut</b> <a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>, <a href="../haneul/balance.md#haneul_balance_value">value</a>: u64): <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_Withdrawal">haneul::funds_accumulator::Withdrawal</a>&lt;<a href="../haneul/balance.md#haneul_balance_Balance">haneul::balance::Balance</a>&lt;T&gt;&gt;
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/balance.md#haneul_balance_withdraw_funds_from_object">withdraw_funds_from_object</a>&lt;T&gt;(obj: &<b>mut</b> <a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>, <a href="../haneul/balance.md#haneul_balance_value">value</a>: u64): <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_Withdrawal">haneul::funds_accumulator::Withdrawal</a>&lt;<a href="../haneul/balance.md#haneul_balance_Balance">haneul::balance::Balance</a>&lt;T&gt;&gt;
 </code></pre>
 
 
@@ -498,10 +499,7 @@ Create a <code>Withdrawal&lt;<a href="../haneul/balance.md#haneul_balance_Balanc
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/balance.md#haneul_balance_withdraw_funds_from_object">withdraw_funds_from_object</a>&lt;T&gt;(
-    obj: &<b>mut</b> UID,
-    <a href="../haneul/balance.md#haneul_balance_value">value</a>: u64,
-): Withdrawal&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt; {
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/balance.md#haneul_balance_withdraw_funds_from_object">withdraw_funds_from_object</a>&lt;T&gt;(obj: &<b>mut</b> UID, <a href="../haneul/balance.md#haneul_balance_value">value</a>: u64): Withdrawal&lt;<a href="../haneul/balance.md#haneul_balance_Balance">Balance</a>&lt;T&gt;&gt; {
     <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_withdraw_from_object">haneul::funds_accumulator::withdraw_from_object</a>(obj, <a href="../haneul/balance.md#haneul_balance_value">value</a> <b>as</b> u256)
 }
 </code></pre>

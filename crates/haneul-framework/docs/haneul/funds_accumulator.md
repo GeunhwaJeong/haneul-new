@@ -31,6 +31,7 @@ A module for accumulating funds, i.e. Balance-like types.
 <b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
 <b>use</b> <a href="../haneul/object.md#haneul_object">haneul::object</a>;
 <b>use</b> <a href="../haneul/party.md#haneul_party">haneul::party</a>;
+<b>use</b> <a href="../haneul/protocol_config.md#haneul_protocol_config">haneul::protocol_config</a>;
 <b>use</b> <a href="../haneul/transfer.md#haneul_transfer">haneul::transfer</a>;
 <b>use</b> <a href="../haneul/tx_context.md#haneul_tx_context">haneul::tx_context</a>;
 <b>use</b> <a href="../haneul/vec_map.md#haneul_vec_map">haneul::vec_map</a>;
@@ -108,6 +109,17 @@ Attempted to join two withdrawals with different owners.
 
 <pre><code>#[error]
 <b>const</b> <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_EOwnerMismatch">EOwnerMismatch</a>: vector&lt;u8&gt; = b"<a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_Withdrawal">Withdrawal</a> owners do not match";
+</code></pre>
+
+
+
+<a name="haneul_funds_accumulator_EObjectFundsWithdrawNotEnabled"></a>
+
+Attempted to withdraw funds from an object when the feature flag is not enabled.
+
+
+<pre><code>#[error]
+<b>const</b> <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_EObjectFundsWithdrawNotEnabled">EObjectFundsWithdrawNotEnabled</a>: vector&lt;u8&gt; = b"Object funds withdraw is not enabled";
 </code></pre>
 
 
@@ -262,6 +274,10 @@ Aborts with <code><a href="../haneul/funds_accumulator.md#haneul_funds_accumulat
 
 
 <pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_withdraw_from_object">withdraw_from_object</a>&lt;T: store&gt;(obj: &<b>mut</b> UID, limit: u256): <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_Withdrawal">Withdrawal</a>&lt;T&gt; {
+    <b>assert</b>!(
+        <a href="../haneul/protocol_config.md#haneul_protocol_config_is_feature_enabled">haneul::protocol_config::is_feature_enabled</a>(b"enable_object_funds_withdraw"),
+        <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_EObjectFundsWithdrawNotEnabled">EObjectFundsWithdrawNotEnabled</a>,
+    );
     <b>let</b> owner = obj.to_address();
     <a href="../haneul/funds_accumulator.md#haneul_funds_accumulator_Withdrawal">Withdrawal</a> { owner, limit }
 }
