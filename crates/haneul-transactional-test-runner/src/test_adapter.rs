@@ -2875,7 +2875,7 @@ impl ReadStore for HaneulTestAdapter {
         &self,
         sequence_number: Option<CheckpointSequenceNumber>,
         digest: &CheckpointContentsDigest,
-    ) -> Option<haneul_types::messages_checkpoint::FullCheckpointContents> {
+    ) -> Option<haneul_types::messages_checkpoint::VersionedFullCheckpointContents> {
         self.executor
             .get_full_checkpoint_contents(sequence_number, digest)
     }

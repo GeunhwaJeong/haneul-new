@@ -386,7 +386,7 @@ impl ReadStore for ValidatorWithFullnode {
         &self,
         _sequence_number: Option<haneul_types::messages_checkpoint::CheckpointSequenceNumber>,
         _digest: &CheckpointContentsDigest,
-    ) -> Option<haneul_types::messages_checkpoint::FullCheckpointContents> {
+    ) -> Option<haneul_types::messages_checkpoint::VersionedFullCheckpointContents> {
         todo!()
     }
 

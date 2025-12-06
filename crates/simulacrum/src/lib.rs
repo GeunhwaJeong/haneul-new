@@ -697,7 +697,7 @@ impl<T, V: store::SimulatorStore> ReadStore for Simulacrum<T, V> {
         &self,
         _sequence_number: Option<haneul_types::messages_checkpoint::CheckpointSequenceNumber>,
         _digest: &haneul_types::messages_checkpoint::CheckpointContentsDigest,
-    ) -> Option<haneul_types::messages_checkpoint::FullCheckpointContents> {
+    ) -> Option<haneul_types::messages_checkpoint::VersionedFullCheckpointContents> {
         todo!()
     }
 

@@ -620,6 +620,9 @@ impl HaneulTransactionBlockKind {
                             EndOfEpochTransactionKind::DisplayRegistryCreate => {
                                 HaneulEndOfEpochTransactionKind::DisplayRegistryCreate
                             }
+                            EndOfEpochTransactionKind::AddressAliasStateCreate => {
+                                HaneulEndOfEpochTransactionKind::AddressAliasStateCreate
+                            }
                         })
                         .collect(),
                 })
@@ -1784,6 +1787,7 @@ pub enum HaneulEndOfEpochTransactionKind {
     AccumulatorRootCreate,
     CoinRegistryCreate,
     DisplayRegistryCreate,
+    AddressAliasStateCreate,
 }
 
 #[serde_as]

@@ -31,10 +31,10 @@ use std::{
 };
 use haneul_protocol_config::{LimitThresholdCrossed, ProtocolConfig, check_limit_by_meter};
 use haneul_types::{
-    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_BRIDGE_OBJECT_ID,
-    HANEUL_CLOCK_OBJECT_ID, HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_DENY_LIST_OBJECT_ID,
-    HANEUL_DISPLAY_REGISTRY_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
-    TypeTag,
+    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_ADDRESS_ALIAS_STATE_OBJECT_ID,
+    HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_BRIDGE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID,
+    HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_DENY_LIST_OBJECT_ID, HANEUL_DISPLAY_REGISTRY_OBJECT_ID,
+    HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID, TypeTag,
     base_types::{MoveObjectType, ObjectID, SequenceNumber, HaneulAddress},
     committee::EpochId,
     error::{ExecutionError, ExecutionErrorKind, VMMemoryLimitExceededSubStatusCode},
@@ -294,6 +294,7 @@ impl<'a> ObjectRuntime<'a> {
             HANEUL_ACCUMULATOR_ROOT_OBJECT_ID,
             HANEUL_COIN_REGISTRY_OBJECT_ID,
             HANEUL_DISPLAY_REGISTRY_OBJECT_ID,
+            HANEUL_ADDRESS_ALIAS_STATE_OBJECT_ID,
         ]
         .contains(&id);
         let transfer_result = if self.state.new_ids.contains(&id) {

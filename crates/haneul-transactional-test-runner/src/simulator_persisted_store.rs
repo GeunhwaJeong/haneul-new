@@ -626,7 +626,7 @@ impl ReadStore for PersistedStoreInnerReadOnlyWrapper {
         &self,
         _sequence_number: Option<CheckpointSequenceNumber>,
         _digest: &CheckpointContentsDigest,
-    ) -> Option<haneul_types::messages_checkpoint::FullCheckpointContents> {
+    ) -> Option<haneul_types::messages_checkpoint::VersionedFullCheckpointContents> {
         todo!()
     }
 

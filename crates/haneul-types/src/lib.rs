@@ -28,6 +28,7 @@ pub mod error;
 pub mod accumulator_event;
 pub mod accumulator_metadata;
 pub mod accumulator_root;
+pub mod address_alias;
 pub mod authenticator_state;
 pub mod balance;
 pub mod balance_change;
@@ -140,6 +141,7 @@ built_in_ids! {
     HANEUL_DISPLAY_REGISTRY_ADDRESS / HANEUL_DISPLAY_REGISTRY_OBJECT_ID = 0xd;
     HANEUL_DENY_LIST_ADDRESS / HANEUL_DENY_LIST_OBJECT_ID = 0x403;
     HANEUL_ACCUMULATOR_ROOT_ADDRESS / HANEUL_ACCUMULATOR_ROOT_OBJECT_ID = 0xacc;
+    HANEUL_ADDRESS_ALIAS_STATE_ADDRESS / HANEUL_ADDRESS_ALIAS_STATE_OBJECT_ID = 0xa;
 }
 
 pub const HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION: SequenceNumber = OBJECT_START_VERSION;

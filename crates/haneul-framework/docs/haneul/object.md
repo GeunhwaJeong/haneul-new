@@ -22,6 +22,7 @@ Haneul object identifiers
 -  [Function `haneul_coin_registry_object_id`](#haneul_object_haneul_coin_registry_object_id)
 -  [Function `haneul_coin_registry_address`](#haneul_object_haneul_coin_registry_address)
 -  [Function `bridge`](#haneul_object_bridge)
+-  [Function `address_alias_state`](#haneul_object_address_alias_state)
 -  [Function `uid_as_inner`](#haneul_object_uid_as_inner)
 -  [Function `uid_to_inner`](#haneul_object_uid_to_inner)
 -  [Function `uid_to_bytes`](#haneul_object_uid_to_bytes)
@@ -195,6 +196,16 @@ The hardcoded ID for the Coin Registry Object.
 
 
 <pre><code><b>const</b> <a href="../haneul/object.md#haneul_object_HANEUL_COIN_REGISTRY_OBJECT_ID">HANEUL_COIN_REGISTRY_OBJECT_ID</a>: <b>address</b> = 0xc;
+</code></pre>
+
+
+
+<a name="haneul_object_HANEUL_ADDRESS_ALIAS_STATE_ID"></a>
+
+The hardcoded ID for the AddressAliasState Object.
+
+
+<pre><code><b>const</b> <a href="../haneul/object.md#haneul_object_HANEUL_ADDRESS_ALIAS_STATE_ID">HANEUL_ADDRESS_ALIAS_STATE_ID</a>: <b>address</b> = 0xa;
 </code></pre>
 
 
@@ -572,6 +583,34 @@ This should only be called once from <code><a href="../haneul/object.md#haneul_o
 <pre><code><b>fun</b> <a href="../haneul/object.md#haneul_object_bridge">bridge</a>(): <a href="../haneul/object.md#haneul_object_UID">UID</a> {
     <a href="../haneul/object.md#haneul_object_UID">UID</a> {
         <a href="../haneul/object.md#haneul_object_id">id</a>: <a href="../haneul/object.md#haneul_object_ID">ID</a> { bytes: <a href="../haneul/object.md#haneul_object_HANEUL_BRIDGE_ID">HANEUL_BRIDGE_ID</a> },
+    }
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_object_address_alias_state"></a>
+
+## Function `address_alias_state`
+
+Create the <code><a href="../haneul/object.md#haneul_object_UID">UID</a></code> for the singleton <code>AddressAliasState</code> object.
+This should only be called once from <code><a href="../haneul/address_alias.md#haneul_address_alias">address_alias</a></code>.
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/object.md#haneul_object_address_alias_state">address_alias_state</a>(): <a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/object.md#haneul_object_address_alias_state">address_alias_state</a>(): <a href="../haneul/object.md#haneul_object_UID">UID</a> {
+    <a href="../haneul/object.md#haneul_object_UID">UID</a> {
+        <a href="../haneul/object.md#haneul_object_id">id</a>: <a href="../haneul/object.md#haneul_object_ID">ID</a> { bytes: <a href="../haneul/object.md#haneul_object_HANEUL_ADDRESS_ALIAS_STATE_ID">HANEUL_ADDRESS_ALIAS_STATE_ID</a> },
     }
 }
 </code></pre>
