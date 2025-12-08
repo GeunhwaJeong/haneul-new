@@ -62,7 +62,10 @@ use haneul_json_rpc_types::{
     DevInspectResults, DryRunTransactionBlockResponse, HaneulAccumulatorOperation, HaneulExecutionStatus,
     HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockEvents,
 };
-use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
+use haneul_protocol_config::{
+    Chain, ExecutionTimeEstimateParams, PerObjectCongestionControlMode, ProtocolConfig,
+    ProtocolVersion,
+};
 use haneul_storage::{
     key_value_store::TransactionKeyValueStore, key_value_store_metrics::KeyValueStoreMetrics,
 };
@@ -281,6 +284,18 @@ impl AdapterInitConfig {
         }
         if let Some(enable) = shared_object_deletion {
             protocol_config.set_shared_object_deletion_for_testing(enable);
+        }
+        // Older protocol versions use deprecated congestion control modes. Override to use
+        // ExecutionTimeEstimate mode which is the only supported mode.
+        if !matches!(
+            protocol_config.per_object_congestion_control_mode(),
+            PerObjectCongestionControlMode::ExecutionTimeEstimate(_)
+        ) {
+            protocol_config.set_per_object_congestion_control_mode_for_testing(
+                PerObjectCongestionControlMode::ExecutionTimeEstimate(
+                    ExecutionTimeEstimateParams::default(),
+                ),
+            );
         }
         if let Some(mx_tx_gas_override) = max_gas {
             if simulator {
