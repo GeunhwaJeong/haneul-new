@@ -9,7 +9,7 @@ description: tests/shell_tests/dummy/dummy.sh
 # simple test just to make sure the test runner works
 echo "dummy test"
 cat data/data.txt
-haneul move new dummy
+haneul move --client.config $CONFIG new dummy
 
 ----- results -----
 success: true

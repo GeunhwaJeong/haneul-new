@@ -24,7 +24,7 @@ use serde::Serialize;
 use std::collections::BTreeMap;
 use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI};
 use haneul_keys::keystore::AccountKeystore;
-use haneul_sdk::{HaneulClient, wallet_context::WalletContext};
+use haneul_sdk::{apis::ReadApi, wallet_context::WalletContext};
 use haneul_types::{
     base_types::ObjectID,
     digests::TransactionDigest,
@@ -159,7 +159,8 @@ impl PTB {
             starting_addresses.extend(mvr_data);
         }
 
-        let (res, warnings) = Self::build_ptb(program, starting_addresses, client.clone()).await;
+        let (res, warnings) =
+            Self::build_ptb(program, starting_addresses, client.read_api(), context).await;
 
         // Render warnings
         if !warnings.is_empty() {
@@ -291,12 +292,13 @@ impl PTB {
     pub async fn build_ptb(
         program: Program,
         starting_addresses: BTreeMap<String, AddressData>,
-        client: HaneulClient,
+        reader: &ReadApi,
+        wallet: &WalletContext,
     ) -> (
         Result<ProgrammableTransaction, Vec<PTBError>>,
         Vec<PTBError>,
     ) {
-        let builder = PTBBuilder::new(starting_addresses, client.read_api());
+        let builder = PTBBuilder::new(starting_addresses, reader, wallet);
         builder.build(program).await
     }
 
@@ -458,7 +460,7 @@ pub fn ptb_description() -> clap::Command {
             \n --assign sender\
             \n --publish \".\"\
             \n --assign upgrade_cap\
-            \n --transfer-objects sender \"[upgrade_cap]\""
+            \n --transfer-objects \"[upgrade_cap]\" sender"
         ).value_hint(ValueHint::DirPath))
         .arg(arg!(
             --"upgrade" <MOVE_PACKAGE_PATH>

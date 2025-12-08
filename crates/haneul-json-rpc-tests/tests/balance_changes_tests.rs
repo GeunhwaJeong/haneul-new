@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::path::PathBuf;
-use haneul_move_build::{BuildConfig, HaneulPackageHooks};
+use haneul_move_build::BuildConfig;
 use haneul_sdk::HaneulClient;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{TransactionData, TransactionKind};
@@ -17,7 +17,6 @@ async fn test_dry_run_publish_with_mocked_coin() -> Result<(), anyhow::Error> {
     let client: HaneulClient = context.get_client().await.unwrap();
 
     // Publish test coin package
-    move_package::package_hooks::register_package_hooks(Box::new(HaneulPackageHooks));
     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     path.extend(["tests", "data", "dummy_modules_publish"]);
     let compiled_package = BuildConfig::new_for_testing().build(&path)?;

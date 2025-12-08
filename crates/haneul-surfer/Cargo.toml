@@ -34,4 +34,3 @@ prometheus.workspace = true
 haneul-macros.workspace = true
 haneul-simulator.workspace = true
 
-move-package.workspace = true

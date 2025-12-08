@@ -1,11 +1,8 @@
 [package]
-name = "J"
-edition = "2024.beta"
+name = "j"
+edition = "2024"
+implicit-dependencies = false
 
 [dependencies]
 # this is relative to the temp directory where this whole tree shaking dir is copied to
-Haneul = { local = "../../system-packages/haneul-framework", override = true }
-
-[addresses]
-j = "0x0"
-
+haneul = { local = "../../system-packages/haneul-framework", override = true }

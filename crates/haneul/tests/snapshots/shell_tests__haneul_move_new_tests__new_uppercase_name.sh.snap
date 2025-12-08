@@ -1,13 +1,13 @@
 ---
 source: crates/haneul/tests/shell_tests.rs
-description: tests/shell_tests/new_tests/new_uppercase_name.sh
+description: tests/shell_tests/haneul_move_new_tests/new_uppercase_name.sh
 ---
 ----- script -----
 # Copyright (c) Mysten Labs, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
 # test that `haneul move new` works as expected with `<NAME>` containing uppercase letter(s)
-haneul move new _Example_A
+haneul move --client.config $CONFIG new _Example_A
 echo ==== files in project ====
 ls -A _Example_A
 echo ==== files in sources ====

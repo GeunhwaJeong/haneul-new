@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # test that `haneul move new` works as expected with `<NAME>` containing uppercase letter(s)
-haneul move new _Example_A
+haneul move --client.config $CONFIG new _Example_A
 echo ==== files in project ====
 ls -A _Example_A
 echo ==== files in sources ====

@@ -1,0 +1,8 @@
+[package]
+name = "invalid"
+version = "0.0.1"
+implicit-dependencies = false
+
+[dependencies]
+haneul = { local = "../system-packages/haneul-framework" }
+std = { local = "../system-packages/move-stdlib" }

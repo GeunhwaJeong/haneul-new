@@ -5,8 +5,10 @@ use std::path::PathBuf;
 
 use clap::*;
 use colored::Colorize;
-use move_package::BuildConfig as MoveBuildConfig;
+use move_package_alt_compilation::build_config::BuildConfig as MoveBuildConfig;
+use haneul_config::{HANEUL_CLIENT_CONFIG, haneul_config_dir};
 use haneul_move::execute_move_command;
+use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::exit_main;
 use tracing::debug;
 
@@ -64,10 +66,18 @@ async fn main() {
         .init();
     debug!("Haneul-Move CLI version: {VERSION}");
 
-    exit_main!(execute_move_command(
+    exit_main!(execute(args).await);
+}
+
+async fn execute(args: Args) -> anyhow::Result<()> {
+    let config = haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG);
+    let wallet = WalletContext::new(&config)?;
+    execute_move_command(
         args.package_path.as_deref(),
         args.build_config,
         args.cmd,
         None,
-    ));
+        &wallet,
+    )
+    .await
 }

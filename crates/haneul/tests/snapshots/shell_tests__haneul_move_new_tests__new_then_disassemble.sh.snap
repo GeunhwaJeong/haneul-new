@@ -9,7 +9,7 @@ description: tests/shell_tests/haneul_move_new_tests/new_then_disassemble.sh
 # tests that haneul move new followed by haneul move disassemble succeeds
 
 
-haneul move new example
+haneul move --client.config $CONFIG new example
 cat > example/sources/example.move <<EOF
 module example::example;
 
@@ -18,10 +18,10 @@ EOF
 cd example
 
 echo "=== Build ===" >&2
-haneul move build
+haneul move --client.config $CONFIG build
 
 echo "=== Disassemble ===" >&2
-haneul move disassemble build/example/bytecode_modules/example.mv
+haneul move --client.config $CONFIG disassemble build/example/bytecode_modules/example.mv
 
 ----- results -----
 success: true
@@ -41,9 +41,7 @@ B0:
 
 ----- stderr -----
 === Build ===
-INCLUDING DEPENDENCY Bridge
-INCLUDING DEPENDENCY HaneulSystem
-INCLUDING DEPENDENCY Haneul
 INCLUDING DEPENDENCY MoveStdlib
+INCLUDING DEPENDENCY Haneul
 BUILDING example
 === Disassemble ===

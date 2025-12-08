@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # basic test that haneul move new outputs correct files
-haneul move new example
+haneul move --client.config $CONFIG new example
 echo ==== files in project ====
 ls -A example
 echo ==== files in sources ====

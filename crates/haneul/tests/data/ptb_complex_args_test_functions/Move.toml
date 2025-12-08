@@ -1,9 +1,9 @@
 [package]
 name = "test_functions"
 edition = "2024.beta"
+# turn off system deps
+implicit-dependencies = false
 
 [dependencies]
-Haneul = { local = "../../../../haneul-framework/packages/haneul-framework" }
-
-[addresses]
-test_functions = "0x0"
+haneul = { local = "../system-packages/haneul-framework" }
+std = { local = "../system-packages/move-stdlib" }

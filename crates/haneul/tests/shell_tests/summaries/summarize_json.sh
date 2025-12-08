@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Default output format is JSON
-haneul move summary --path data/move_package
+haneul move --client.config $CONFIG summary --path data/move_package
 ls -1 data/move_package/package_summaries | LC_ALL=C sort -f
 ls -1 data/move_package/package_summaries/move_package | LC_ALL=C sort -f
 ls -1 data/move_package/package_summaries/haneul | LC_ALL=C sort -f

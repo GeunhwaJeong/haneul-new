@@ -43,7 +43,7 @@ use move_core_types::{
     identifier::{IdentStr, Identifier},
 };
 use move_ir_types::location::{ByteIndex, Loc};
-use move_package::compilation::compiled_package::CompiledUnitWithSource;
+use move_package_alt_compilation::compiled_package::CompiledUnitWithSource;
 use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulRawData};
 use haneul_move_build::CompiledPackage;
 use haneul_protocol_config::ProtocolConfig;

@@ -8,8 +8,8 @@ description: tests/shell_tests/haneul_move_new_tests/new_then_build.sh
 
 # tests that haneul move new followed by haneul move build succeeds
 
-haneul move new example
-cd example && haneul move build
+haneul move --client.config $CONFIG new example
+cd example && haneul move --client.config $CONFIG build
 
 ----- results -----
 success: true
@@ -17,8 +17,6 @@ exit_code: 0
 ----- stdout -----
 
 ----- stderr -----
-INCLUDING DEPENDENCY Bridge
-INCLUDING DEPENDENCY HaneulSystem
-INCLUDING DEPENDENCY Haneul
 INCLUDING DEPENDENCY MoveStdlib
+INCLUDING DEPENDENCY Haneul
 BUILDING example

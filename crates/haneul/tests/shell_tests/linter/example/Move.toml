@@ -1,0 +1,9 @@
+[package]
+name = "linter"
+version = "0.0.1"
+edition = "2024.beta"
+implicit-dependencies = false
+
+[dependencies]
+haneul = { local = "../haneul-framework" }
+std = { local = "../move-stdlib" }

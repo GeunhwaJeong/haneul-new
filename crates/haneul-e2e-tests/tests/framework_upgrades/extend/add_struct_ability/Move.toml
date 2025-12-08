@@ -1,0 +1,10 @@
+[package]
+name = "HaneulExtraAddStructAbility"
+edition = "2024.beta"
+
+[dependencies]
+Haneul = { local = "../system-packages/haneul-framework" }
+MoveStdlib = { local = "../system-packages/move-stdlib" }
+
+[addresses]
+haneul_system = "0x3"

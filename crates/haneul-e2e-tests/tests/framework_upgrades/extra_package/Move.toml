@@ -3,9 +3,9 @@ name = "HaneulExtra"
 edition = "2024.beta"
 
 [dependencies]
-HaneulSystem = { local = "../../../../haneul-framework/packages/haneul-system" }
-Haneul = { local = "../../../../haneul-framework/packages/haneul-framework" }
-MoveStdlib = { local = "../../../../haneul-framework/packages/move-stdlib" }
+HaneulSystem = { local = "../system-packages/haneul-system" }
+Haneul = { local = "../system-packages/haneul-framework" }
+MoveStdlib = { local = "../system-packages/move-stdlib" }
 
 [addresses]
 haneul_extra = "0x42"

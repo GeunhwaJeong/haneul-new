@@ -3,5 +3,5 @@
 
 # tests that haneul move new followed by haneul move build succeeds
 
-haneul move new example
-cd example && haneul move build
+haneul move --client.config $CONFIG new example
+cd example && haneul move --client.config $CONFIG build

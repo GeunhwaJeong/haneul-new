@@ -1,7 +1,11 @@
 [package]
-name = "K"
-edition = "2024.beta"
+name = "k"
+edition = "2024"
+implicit-dependencies = false
 
-[addresses]
-k = "0x0"
-
+[dependencies]
+haneul = { local = "../../system-packages/haneul-framework" }
+std = { local = "../../system-packages/move-stdlib" }
+bridge = { local = "../../system-packages/bridge" }
+deepbook = { local = "../../system-packages/deepbook" }
+haneul_system = { local = "../../system-packages/haneul-system" }

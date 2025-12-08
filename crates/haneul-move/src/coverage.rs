@@ -3,8 +3,9 @@
 
 use clap::Parser;
 use move_cli::base::coverage;
-use move_package::BuildConfig;
+use move_package_alt_compilation::build_config::BuildConfig;
 use std::path::Path;
+use haneul_package_alt::HaneulFlavor;
 
 #[derive(Parser)]
 #[group(id = "haneul-move-coverage")]
@@ -14,8 +15,14 @@ pub struct Coverage {
 }
 
 impl Coverage {
-    pub fn execute(self, path: Option<&Path>, build_config: BuildConfig) -> anyhow::Result<()> {
-        self.coverage.execute(path, build_config)?;
+    pub async fn execute(
+        self,
+        path: Option<&Path>,
+        build_config: BuildConfig,
+    ) -> anyhow::Result<()> {
+        self.coverage
+            .execute::<HaneulFlavor>(path, build_config)
+            .await?;
         Ok(())
     }
 }

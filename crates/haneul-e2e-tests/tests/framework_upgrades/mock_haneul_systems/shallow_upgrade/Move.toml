@@ -3,9 +3,9 @@ name = "HaneulSystemShallowUpgrade"
 version = "0.0.1"
 edition = "2024.beta"
 
-[dependencies]
-Haneul = { local = "../../../../../haneul-framework/packages/haneul-framework" }
-MoveStdlib = { local = "../../../../../haneul-framework/packages/move-stdlib" }
+[dependencies]  
+Haneul = { local = "../system-packages/haneul-framework" }
+MoveStdlib = { local = "../system-packages/move-stdlib" }
 
 [addresses]
 haneul_system = "0x3"

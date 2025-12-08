@@ -3,6 +3,12 @@
 
 #![allow(unused)]
 
+mod environments;
+mod find_env;
 mod haneul_flavor;
 
+pub use environments::*;
+pub use find_env::find_environment;
+pub use haneul_flavor::BuildParams;
+pub use haneul_flavor::PublishedMetadata;
 pub use haneul_flavor::HaneulFlavor;

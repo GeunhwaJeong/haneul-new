@@ -24,3 +24,4 @@ fastcrypto.workspace = true
 test-fuzz.workspace = true
 haneul-move-build.workspace = true
 haneul-framework.workspace = true
+tokio.workspace = true
