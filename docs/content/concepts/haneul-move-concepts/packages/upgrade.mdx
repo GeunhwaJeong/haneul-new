@@ -4,7 +4,7 @@ description: Haneul provides a method of upgrading your packages while still ret
 keywords: [ upgrading packages, upgrade considerations, how to upgrade a package, how to upgrade, update package, update, how to update ]
 ---
 
-Haneul smart contracts are immutable package objects consisting of a collection of Move modules. Because the packages are immutable, transactions can safely access smart contracts without full consensus (fastpath transactions). If someone could change these packages, they would become [shared objects](/concepts/object-ownership/shared.mdx#shared), which would require full consensus before completing a transaction.
+Haneul smart contracts are immutable package objects consisting of a collection of Move modules. Because the packages are immutable, transactions can safely access smart contracts without full consensus (fastpath transactions). If someone could change these packages, they would become [shared objects](/guides/developer/objects/object-ownership/shared.mdx#shared), which would require full consensus before completing a transaction.
 
 The inability to change package objects, however, becomes a problem when considering the iterative nature of code development. Builders require the ability to update their code and pull changes from other developers while still being able to reap the benefits of fastpath transactions. Fortunately, the Haneul network provides a method of upgrading your packages while still retaining their immutable properties.
 
