@@ -12,13 +12,13 @@ use std::time::Duration;
 use haneul_json_rpc_types::BcsEvent;
 use haneul_json_rpc_types::{EventFilter, Page, HaneulEvent};
 use haneul_json_rpc_types::{
-    EventPage, HaneulObjectDataOptions, HaneulTransactionBlockResponse,
-    HaneulTransactionBlockResponseOptions,
+    EventPage, HaneulExecutionStatus, HaneulObjectDataOptions, HaneulTransactionBlockResponseOptions,
 };
 use haneul_rpc::field::{FieldMask, FieldMaskUtil};
 use haneul_rpc::proto::haneul::rpc::v2::{
-    Checkpoint, ExecutedTransaction, GetCheckpointRequest, GetObjectRequest, GetServiceInfoRequest,
-    GetTransactionRequest, Object,
+    Checkpoint, ExecuteTransactionRequest, ExecutedTransaction, GetCheckpointRequest,
+    GetObjectRequest, GetServiceInfoRequest, GetTransactionRequest, Object,
+    Transaction as ProtoTransaction, UserSignature as ProtoUserSignature,
 };
 use haneul_sdk::{HaneulClient as HaneulSdkClient, HaneulClientBuilder};
 use haneul_sdk_types::Address;
@@ -64,6 +64,12 @@ pub type HaneulBridgeClient = HaneulClient<HaneulClientInternal>;
 pub struct HaneulClientInternal {
     jsonrpc_client: HaneulSdkClient,
     grpc_client: haneul_rpc::Client,
+}
+
+#[derive(Clone, Debug)]
+pub struct ExecuteTransactionResult {
+    pub status: HaneulExecutionStatus,
+    pub events: Vec<HaneulEvent>,
 }
 
 impl HaneulBridgeClient {
@@ -302,7 +308,7 @@ where
     pub async fn execute_transaction_block_with_effects(
         &self,
         tx: haneul_types::transaction::Transaction,
-    ) -> BridgeResult<HaneulTransactionBlockResponse> {
+    ) -> BridgeResult<ExecuteTransactionResult> {
         self.inner.execute_transaction_block_with_effects(tx).await
     }
 
@@ -428,7 +434,7 @@ pub trait HaneulClientInner: Send + Sync {
     async fn execute_transaction_block_with_effects(
         &self,
         tx: Transaction,
-    ) -> Result<HaneulTransactionBlockResponse, BridgeError>;
+    ) -> Result<ExecuteTransactionResult, BridgeError>;
 
     async fn get_token_transfer_action_onchain_status(
         &self,
@@ -524,14 +530,22 @@ impl HaneulClientInner for HaneulSdkClient {
     async fn execute_transaction_block_with_effects(
         &self,
         tx: Transaction,
-    ) -> Result<HaneulTransactionBlockResponse, BridgeError> {
+    ) -> Result<ExecuteTransactionResult, BridgeError> {
+        use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
         match self.quorum_driver_api().execute_transaction_block(
             tx,
             HaneulTransactionBlockResponseOptions::new().with_effects().with_events(),
             Some(haneul_types::quorum_driver_types::ExecuteTransactionRequestType::WaitForEffectsCert),
         ).await {
-            Ok(response) => Ok(response),
-            Err(e) => return Err(BridgeError::HaneulTxFailureGeneric(e.to_string())),
+            Ok(response) => {
+                let effects = response.effects.expect("We requested effects but got None.");
+                let events = response.events.expect("We requested events but got None.");
+                Ok(ExecuteTransactionResult {
+                    status: effects.status().clone(),
+                    events: events.data,
+                })
+            }
+            Err(e) => Err(BridgeError::HaneulTxFailureGeneric(e.to_string())),
         }
     }
 
@@ -780,9 +794,100 @@ impl HaneulClientInner for haneul_rpc::Client {
 
     async fn execute_transaction_block_with_effects(
         &self,
-        _tx: Transaction,
-    ) -> Result<HaneulTransactionBlockResponse, BridgeError> {
-        todo!()
+        tx: Transaction,
+    ) -> Result<ExecuteTransactionResult, BridgeError> {
+        use move_core_types::language_storage::StructTag;
+        use haneul_rpc::proto::haneul::rpc::v2::ExecutedTransaction as ProtoExecutedTransaction;
+        use haneul_sdk_types::SignedTransaction;
+
+        let signed_tx: SignedTransaction = tx.try_into().map_err(|e| {
+            BridgeError::HaneulTxFailureGeneric(format!("Failed to convert transaction: {:?}", e))
+        })?;
+
+        let proto_tx: ProtoTransaction = signed_tx.transaction.into();
+        let proto_sigs: Vec<ProtoUserSignature> =
+            signed_tx.signatures.into_iter().map(Into::into).collect();
+
+        let request = ExecuteTransactionRequest::default()
+            .with_transaction(proto_tx)
+            .with_signatures(proto_sigs)
+            .with_read_mask(FieldMask::from_paths([
+                ProtoExecutedTransaction::path_builder()
+                    .effects()
+                    .status()
+                    .finish(),
+                ProtoExecutedTransaction::path_builder()
+                    .events()
+                    .events()
+                    .finish(),
+            ]));
+
+        let response = self
+            .clone()
+            .execution_client()
+            .execute_transaction(request)
+            .await
+            .map_err(|e| BridgeError::HaneulTxFailureGeneric(format!("gRPC execute failed: {:?}", e)))?
+            .into_inner();
+
+        let executed_tx = response.transaction();
+
+        let effects = executed_tx.effects();
+        let status = effects.status();
+
+        let haneul_status = if status.success() {
+            HaneulExecutionStatus::Success
+        } else {
+            let error = status.error();
+            let description = error.description().to_string();
+
+            let failure_msg = if !description.is_empty() {
+                description
+            } else {
+                format!("{:?}", error.kind())
+            };
+
+            HaneulExecutionStatus::Failure { error: failure_msg }
+        };
+
+        let haneul_events: Vec<HaneulEvent> = executed_tx
+            .events()
+            .events()
+            .iter()
+            .filter_map(|event| {
+                let package_id: ObjectID = event.package_id().parse().ok()?;
+                let module = event.module().to_string();
+                let sender: haneul_types::base_types::HaneulAddress = event.sender().parse().ok()?;
+
+                let event_type_tag: haneul_types::TypeTag =
+                    parse_haneul_type_tag(event.event_type()).ok()?;
+                let struct_tag: StructTag = match event_type_tag {
+                    haneul_types::TypeTag::Struct(s) => *s,
+                    _ => return None,
+                };
+                let contents = event.contents();
+                let bcs_bytes = contents.value().to_vec();
+
+                Some(HaneulEvent {
+                    id: EventID {
+                        tx_digest: TransactionDigest::default(),
+                        event_seq: 0,
+                    },
+                    package_id,
+                    transaction_module: Identifier::new(module).ok()?,
+                    sender,
+                    type_: struct_tag,
+                    parsed_json: serde_json::Value::Null,
+                    bcs: BcsEvent::new(bcs_bytes),
+                    timestamp_ms: None,
+                })
+            })
+            .collect();
+
+        Ok(ExecuteTransactionResult {
+            status: haneul_status,
+            events: haneul_events,
+        })
     }
 
     async fn get_parsed_token_transfer_message(
@@ -882,9 +987,44 @@ impl HaneulClientInner for haneul_rpc::Client {
 
     async fn get_gas_data_panic_if_not_gas(
         &self,
-        _gas_object_id: ObjectID,
+        gas_object_id: ObjectID,
     ) -> (GasCoin, ObjectRef, Owner) {
-        todo!()
+        loop {
+            let result = async {
+                let resp = self
+                    .clone()
+                    .ledger_client()
+                    .get_object(
+                        GetObjectRequest::new(&(gas_object_id.into())).with_read_mask(
+                            FieldMask::from_paths([Object::path_builder().bcs().finish()]),
+                        ),
+                    )
+                    .await?
+                    .into_inner();
+
+                let obj = resp.object();
+                let object: haneul_types::object::Object = obj.bcs().deserialize().map_err(|e| {
+                    BridgeError::Generic(format!("Failed to deserialize object from BCS: {e}"))
+                })?;
+
+                let object_ref = object.compute_object_reference();
+                let owner = object.owner().clone();
+                let gas_coin = GasCoin::try_from(&object).map_err(|e| {
+                    BridgeError::Generic(format!("Failed to convert object to gas coin: {e}"))
+                })?;
+
+                Ok::<_, BridgeError>((gas_coin, object_ref, owner))
+            }
+            .await;
+
+            match result {
+                Ok(data) => return data,
+                Err(e) => {
+                    warn!("Can't get gas object: {:?}: {:?}", gas_object_id, e);
+                    tokio::time::sleep(Duration::from_secs(5)).await;
+                }
+            }
+        }
     }
 }
 
@@ -960,8 +1100,8 @@ impl HaneulClientInner for HaneulClientInternal {
     async fn execute_transaction_block_with_effects(
         &self,
         tx: Transaction,
-    ) -> Result<HaneulTransactionBlockResponse, BridgeError> {
-        self.jsonrpc_client
+    ) -> Result<ExecuteTransactionResult, BridgeError> {
+        self.grpc_client
             .execute_transaction_block_with_effects(tx)
             .await
     }

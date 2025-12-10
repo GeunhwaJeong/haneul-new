@@ -149,13 +149,13 @@ async fn main() -> anyhow::Result<()> {
                     .execute_transaction_block_with_effects(tx)
                     .await
                     .expect("Failed to execute transaction block with effects");
-                if resp.status_ok().unwrap() {
-                    println!("Haneul Transaction succeeded: {:?}", resp.digest);
-                } else {
-                    println!(
-                        "Haneul Transaction failed: {:?}. Effects: {:?}",
-                        resp.digest, resp.effects
-                    );
+                match &resp.status {
+                    haneul_json_rpc_types::HaneulExecutionStatus::Success => {
+                        println!("Haneul Transaction succeeded");
+                    }
+                    haneul_json_rpc_types::HaneulExecutionStatus::Failure { error } => {
+                        println!("Haneul Transaction failed: {:?}", error);
+                    }
                 }
                 return Ok(());
             }

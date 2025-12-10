@@ -665,15 +665,18 @@ async fn deposit_on_haneul(
         .execute_transaction_block_with_effects(signed_tx)
         .await
         .expect("Failed to execute transaction block");
-    if !resp.status_ok().unwrap() {
-        return Err(anyhow!("Transaction {:?} failed: {:?}", tx_digest, resp));
+    match &resp.status {
+        haneul_json_rpc_types::HaneulExecutionStatus::Success => {
+            info!(
+                ?tx_digest,
+                "Deposit transaction succeeded. Events: {:?}", resp.events
+            );
+            Ok(())
+        }
+        haneul_json_rpc_types::HaneulExecutionStatus::Failure { error } => {
+            Err(anyhow!("Transaction {:?} failed: {:?}", tx_digest, error))
+        }
     }
-    let events = resp.events.unwrap();
-    info!(
-        ?tx_digest,
-        "Deposit transaction succeeded. Events: {:?}", events
-    );
-    Ok(())
 }
 
 async fn claim_on_eth(

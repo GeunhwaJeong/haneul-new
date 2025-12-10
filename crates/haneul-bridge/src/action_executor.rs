@@ -9,9 +9,7 @@ use crate::types::IsBridgePaused;
 use arc_swap::ArcSwap;
 use haneullabs_metrics::spawn_logged_monitored_task;
 use shared_crypto::intent::{Intent, IntentMessage};
-use haneul_json_rpc_types::{
-    HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
-};
+use haneul_json_rpc_types::HaneulExecutionStatus;
 use haneul_types::TypeTag;
 use haneul_types::transaction::ObjectArg;
 use haneul_types::{
@@ -32,7 +30,7 @@ use crate::{
     client::bridge_authority_aggregator::BridgeAuthorityAggregator,
     error::BridgeError,
     storage::BridgeOrchestratorTables,
-    haneul_client::{HaneulClient, HaneulClientInner},
+    haneul_client::{ExecuteTransactionResult, HaneulClient, HaneulClientInner},
     haneul_transaction_builder::build_haneul_transaction,
     types::{BridgeAction, BridgeActionStatus, VerifiedCertifiedBridgeAction},
 };
@@ -574,21 +572,15 @@ where
     // TODO: do we need a mechanism to periodically read pending actions from DB?
     async fn handle_execution_effects(
         tx_digest: TransactionDigest,
-        response: HaneulTransactionBlockResponse,
+        response: ExecuteTransactionResult,
         store: &Arc<BridgeOrchestratorTables>,
         action: &BridgeAction,
         metrics: &Arc<BridgeMetrics>,
     ) {
-        let effects = response
-            .effects
-            .clone()
-            .expect("We requested effects but got None.");
-        let status = effects.status();
-        match status {
+        match &response.status {
             HaneulExecutionStatus::Success => {
-                let events = response.events.expect("We requested events but got None.");
-                let relevant_events = events
-                    .data
+                let relevant_events = response
+                    .events
                     .iter()
                     .filter(|e| {
                         e.type_ == *TokenTransferAlreadyClaimed.get().unwrap()
@@ -601,7 +593,7 @@ where
                     !relevant_events.is_empty(),
                     "Expected TokenTransferAlreadyClaimed, TokenTransferClaimed, TokenTransferApproved \
                     or TokenTransferAlreadyApproved event but got: {:?}",
-                    events
+                    response.events
                 );
                 info!(?tx_digest, "Haneul transaction executed successfully");
                 // track successful approval and claim events
@@ -691,9 +683,7 @@ mod tests {
     use prometheus::Registry;
     use std::collections::{BTreeMap, HashMap};
     use std::str::FromStr;
-    use haneul_json_rpc_types::HaneulTransactionBlockEffects;
-    use haneul_json_rpc_types::HaneulTransactionBlockEvents;
-    use haneul_json_rpc_types::{HaneulEvent, HaneulTransactionBlockResponse};
+    use haneul_json_rpc_types::HaneulEvent;
     use haneul_types::TypeTag;
     use haneul_types::crypto::get_key_pair;
     use haneul_types::gas_coin::GasCoin;
@@ -1493,12 +1483,10 @@ mod tests {
         events: Option<Vec<HaneulEvent>>,
         wildcard: bool,
     ) {
-        let mut response = HaneulTransactionBlockResponse::new(tx_digest);
-        let effects = HaneulTransactionBlockEffects::new_for_testing(tx_digest, status);
-        if let Some(events) = events {
-            response.events = Some(HaneulTransactionBlockEvents { data: events });
-        }
-        response.effects = Some(effects);
+        let response = ExecuteTransactionResult {
+            status,
+            events: events.unwrap_or_default(),
+        };
         if wildcard {
             haneul_client_mock.set_wildcard_transaction_response(Ok(response));
         } else {

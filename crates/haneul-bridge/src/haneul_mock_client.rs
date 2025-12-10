@@ -9,7 +9,6 @@ use async_trait::async_trait;
 use std::collections::{HashMap, VecDeque};
 use std::sync::atomic::AtomicU64;
 use std::sync::{Arc, Mutex};
-use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_json_rpc_types::{EventFilter, EventPage, HaneulEvent};
 use haneul_types::Identifier;
 use haneul_types::base_types::ObjectID;
@@ -24,7 +23,7 @@ use haneul_types::object::Owner;
 use haneul_types::transaction::ObjectArg;
 use haneul_types::transaction::Transaction;
 
-use crate::haneul_client::HaneulClientInner;
+use crate::haneul_client::{ExecuteTransactionResult, HaneulClientInner};
 use crate::types::{BridgeAction, BridgeActionStatus, IsBridgePaused, HaneulEvents};
 
 /// Mock client used in test environments.
@@ -39,8 +38,8 @@ pub struct HaneulMockClient {
     events_by_tx_digest:
         Arc<Mutex<HashMap<TransactionDigest, Result<Vec<HaneulEvent>, haneul_sdk::error::Error>>>>,
     transaction_responses:
-        Arc<Mutex<HashMap<TransactionDigest, BridgeResult<HaneulTransactionBlockResponse>>>>,
-    wildcard_transaction_response: Arc<Mutex<Option<BridgeResult<HaneulTransactionBlockResponse>>>>,
+        Arc<Mutex<HashMap<TransactionDigest, BridgeResult<ExecuteTransactionResult>>>>,
+    wildcard_transaction_response: Arc<Mutex<Option<BridgeResult<ExecuteTransactionResult>>>>,
     get_object_info: Arc<Mutex<HashMap<ObjectID, (GasCoin, ObjectRef, Owner)>>>,
     onchain_status: Arc<Mutex<HashMap<(u8, u64), BridgeActionStatus>>>,
     bridge_committee_summary: Arc<Mutex<Option<BridgeCommitteeSummary>>>,
@@ -96,7 +95,7 @@ impl HaneulMockClient {
     pub fn add_transaction_response(
         &self,
         tx_digest: TransactionDigest,
-        response: BridgeResult<HaneulTransactionBlockResponse>,
+        response: BridgeResult<ExecuteTransactionResult>,
     ) {
         self.transaction_responses
             .lock()
@@ -124,7 +123,7 @@ impl HaneulMockClient {
 
     pub fn set_wildcard_transaction_response(
         &self,
-        response: BridgeResult<HaneulTransactionBlockResponse>,
+        response: BridgeResult<ExecuteTransactionResult>,
     ) {
         *self.wildcard_transaction_response.lock().unwrap() = Some(response);
     }
@@ -281,7 +280,7 @@ impl HaneulClientInner for HaneulMockClient {
     async fn execute_transaction_block_with_effects(
         &self,
         tx: Transaction,
-    ) -> Result<HaneulTransactionBlockResponse, BridgeError> {
+    ) -> Result<ExecuteTransactionResult, BridgeError> {
         self.requested_transactions_tx.send(*tx.digest()).unwrap();
         match self.transaction_responses.lock().unwrap().get(tx.digest()) {
             Some(response) => response.clone(),
