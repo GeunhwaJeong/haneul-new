@@ -18,7 +18,6 @@ use haneul_types::{
     programmable_transaction_builder::ProgrammableTransactionBuilder,
     transaction::{ObjectArg, SharedObjectMutability, Transaction, TransactionData},
 };
-use tokio_util::sync::CancellationToken;
 
 /// 5 HANEUL gas budget
 const DEFAULT_GAS_BUDGET: u64 = 5_000_000_000;
@@ -89,8 +88,6 @@ async fn test_resolve_domain() {
     assert_resolved!(target, c.resolve_address("foo.haneul").await.unwrap());
     assert_resolved!(target, c.resolve_address("@foo").await.unwrap());
     assert_reverse!("foo.haneul", c.resolve_name(target).await.unwrap());
-
-    c.cluster.stopped().await;
 }
 
 /// If a domain name exists but has no target, we can't resolve it, but it's not an error.
@@ -108,8 +105,6 @@ async fn test_resolve_domain_no_target() {
     let resp = c.resolve_address("foo.haneul").await.unwrap();
     assert!(resp["data"]["haneulnsName"].is_null());
     assert!(resp["errors"].is_null());
-
-    c.cluster.stopped().await;
 }
 
 /// Set-up a domain with an expiry, and confirm that it exists, then advance time on-chain until it
@@ -136,8 +131,6 @@ async fn test_resolve_domain_expiry() {
 
     assert_not_resolved!(c.resolve_address("foo.haneul").await.unwrap());
     assert_no_reverse!(c.resolve_name(target).await.unwrap());
-
-    c.cluster.stopped().await;
 }
 
 #[tokio::test]
@@ -146,8 +139,6 @@ async fn test_resolve_nonexistent_domain() {
     c.cluster.create_checkpoint().await;
 
     assert_not_resolved!(c.resolve_address("foo.haneul").await.unwrap());
-
-    c.cluster.stopped().await;
 }
 
 /// Test resolving a valid sub-domain (which requires both the sub-domain and its parent to exist
@@ -172,8 +163,6 @@ async fn test_resolve_subdomain() {
     assert_resolved!(target, c.resolve_address("bar.foo.haneul").await.unwrap());
     assert_resolved!(target, c.resolve_address("bar@foo").await.unwrap());
     assert_reverse!("bar.foo.haneul", c.resolve_name(target).await.unwrap());
-
-    c.cluster.stopped().await;
 }
 
 /// Like the parent domain case, but a sub-domain's expiry is controlled by its parent's expiry
@@ -203,8 +192,6 @@ async fn test_resolve_subdomain_parent_expiry() {
 
     assert_not_resolved!(c.resolve_address("bar.foo.haneul").await.unwrap());
     assert_no_reverse!(c.resolve_name(target).await.unwrap());
-
-    c.cluster.stopped().await;
 }
 
 /// A sub-domain that has its own expiry, in addition to (and before) the parent's expiry.
@@ -236,8 +223,6 @@ async fn test_resolve_subdomain_expiry() {
 
     assert_not_resolved!(c.resolve_address("bar.foo.haneul").await.unwrap());
     assert_no_reverse!(c.resolve_name(target).await.unwrap());
-
-    c.cluster.stopped().await;
 }
 
 /// A sub-domain where the parent domain's NFT is different from the sub-domain's NFT, is
@@ -264,8 +249,6 @@ async fn test_resolve_subdomain_bad_parent() {
 
     assert_not_resolved!(c.resolve_address("bar.foo.haneul").await.unwrap());
     assert_no_reverse!(c.resolve_name(target).await.unwrap());
-
-    c.cluster.stopped().await;
 }
 
 /// The parent domain record does not exist, so the sub-domain is considered expired.
@@ -284,8 +267,6 @@ async fn test_resolve_subdomain_no_parent() {
 
     assert_not_resolved!(c.resolve_address("bar.foo.haneul").await.unwrap());
     assert_no_reverse!(c.resolve_name(target).await.unwrap());
-
-    c.cluster.stopped().await;
 }
 
 struct HaneulNSCluster {
@@ -424,7 +405,6 @@ impl HaneulNSCluster {
                 ..Default::default()
             },
             &prometheus::Registry::new(),
-            CancellationToken::new(),
         )
         .await
         .expect("Failed to set-up cluster");

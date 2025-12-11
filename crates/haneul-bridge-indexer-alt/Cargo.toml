@@ -8,7 +8,6 @@ edition = "2024"
 
 [dependencies]
 tokio.workspace = true
-tokio-util.workspace = true
 anyhow.workspace = true
 haneul-bridge.workspace = true
 haneul-bridge-schema.workspace = true

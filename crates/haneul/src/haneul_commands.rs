@@ -1,15 +1,15 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::client_commands::{
-    HaneulClientCommands, USER_AGENT, check_for_unpublished_deps, load_root_pkg_for_publish_upgrade,
-    pkg_tree_shake,
-};
-use crate::fire_drill::{FireDrill, run_fire_drill};
-use crate::genesis_ceremony::{Ceremony, run};
-use crate::keytool::KeyToolCommand;
-use crate::trace_analysis_commands::AnalyzeTraceCommand;
-use crate::validator_commands::HaneulValidatorCommand;
+use std::io::{Write, stdout};
+use std::net::{AddrParseError, IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
+use std::num::NonZeroUsize;
+use std::ops::Deref;
+use std::path::{Path, PathBuf};
+use std::sync::Arc;
+use std::time::Duration;
+use std::{fs, io};
+
 use anyhow::{Context, anyhow, bail, ensure};
 use clap::*;
 use colored::Colorize;
@@ -22,15 +22,8 @@ use move_package_alt_compilation::build_config::BuildConfig;
 use haneullabs_common::tempdir;
 use prometheus::Registry;
 use rand::rngs::OsRng;
+use serde_json::json;
 use std::collections::BTreeMap;
-use std::io::{Write, stdout};
-use std::net::{AddrParseError, IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
-use std::num::NonZeroUsize;
-use std::ops::Deref;
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
-use std::time::Duration;
-use std::{fs, io};
 use haneul_bridge::config::BridgeCommitteeConfig;
 use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge::haneul_client::HaneulBridgeClient;
@@ -45,15 +38,7 @@ use haneul_config::{
     HANEUL_BENCHMARK_GENESIS_GAS_KEYSTORE_FILENAME, HANEUL_GENESIS_FILENAME, HANEUL_KEYSTORE_FILENAME,
 };
 use haneul_faucet::{AppState, FaucetConfig, LocalFaucet, create_wallet_context, start_faucet};
-use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulRawData};
-use haneul_move::summary::PackageSummaryMetadata;
-use haneul_move_build::BuildConfig as HaneulBuildConfig;
-use haneul_sdk::HaneulClient;
-use haneul_sdk::apis::ReadApi;
-use haneul_types::move_package::MovePackage;
-use tokio::time::interval;
-use tokio_util::sync::CancellationToken;
-
+use haneul_futures::service::Service;
 use haneul_indexer_alt::{config::IndexerConfig, setup_indexer};
 use haneul_indexer_alt_consistent_store::{
     args::RpcArgs as ConsistentArgs, config::ServiceConfig as ConsistentConfig,
@@ -71,17 +56,20 @@ use haneul_indexer_alt_reader::{
     consistent_reader::ConsistentReaderArgs, fullnode_client::FullnodeArgs,
     system_package_task::SystemPackageTaskArgs,
 };
-
-use serde_json::json;
+use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulRawData};
 use haneul_keys::key_derive::generate_new_key;
 use haneul_keys::keypair_file::read_key;
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
+use haneul_move::summary::PackageSummaryMetadata;
 use haneul_move::{self, execute_move_command};
+use haneul_move_build::BuildConfig as HaneulBuildConfig;
 use haneul_package_alt::{HaneulFlavor, find_environment};
 use haneul_pg_db::DbArgs;
 use haneul_pg_db::temp::{LocalDatabase, get_available_port};
 use haneul_protocol_config::Chain;
 use haneul_replay_2 as SR2;
+use haneul_sdk::HaneulClient;
+use haneul_sdk::apis::ReadApi;
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_swarm::memory::Swarm;
@@ -92,8 +80,20 @@ use haneul_swarm_config::node_config_builder::FullnodeConfigBuilder;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::crypto::{SignatureScheme, HaneulKeyPair, ToFromBytes};
 use haneul_types::digests::ChainIdentifier;
+use haneul_types::move_package::MovePackage;
+use tokio::time::interval;
 use tracing::info;
 use url::Url;
+
+use crate::client_commands::{
+    HaneulClientCommands, USER_AGENT, check_for_unpublished_deps, load_root_pkg_for_publish_upgrade,
+    pkg_tree_shake,
+};
+use crate::fire_drill::{FireDrill, run_fire_drill};
+use crate::genesis_ceremony::{Ceremony, run};
+use crate::keytool::KeyToolCommand;
+use crate::trace_analysis_commands::AnalyzeTraceCommand;
+use crate::validator_commands::HaneulValidatorCommand;
 
 const DEFAULT_EPOCH_DURATION_MS: u64 = 60_000;
 
@@ -1014,8 +1014,7 @@ async fn start(
     info!("Fullnode RPC URL: {fullnode_rpc_url}");
 
     let prometheus_registry = Registry::new();
-    let cancel = CancellationToken::new();
-    let mut rpc_services = vec![];
+    let mut rpc_services = Service::new();
 
     // Set-up the database for the indexer, if needed
     let (_database, database_url) = match with_indexer {
@@ -1065,14 +1064,12 @@ async fn start(
             IndexerConfig::for_test(),
             None,
             &prometheus_registry,
-            cancel.child_token(),
         )
         .await
         .context("Failed to setup indexer")?;
 
         let pipelines = indexer.pipelines().map(|s| s.to_string()).collect();
-        let handle = indexer.run().await.context("Failed to start indexer")?;
-        rpc_services.push(handle);
+        rpc_services = rpc_services.merge(indexer.run().await.context("Failed to start indexer")?);
 
         info!("Indexer started with pipelines: {pipelines:?}");
         pipelines
@@ -1097,19 +1094,19 @@ async fn start(
             ..Default::default()
         };
 
-        let handle = start_consistent_store(
-            config_dir.join("consistent_store"),
-            IndexerArgs::default(),
-            client_args,
-            consistent_args,
-            "0.0.0",
-            ConsistentConfig::for_test(),
-            &prometheus_registry,
-            cancel.child_token(),
-        )
-        .await
-        .context("Failed to start Consistent Store")?;
-        rpc_services.push(handle);
+        rpc_services = rpc_services.merge(
+            start_consistent_store(
+                config_dir.join("consistent_store"),
+                IndexerArgs::default(),
+                client_args,
+                consistent_args,
+                "0.0.0",
+                ConsistentConfig::for_test(),
+                &prometheus_registry,
+            )
+            .await
+            .context("Failed to start Consistent Store")?,
+        );
 
         info!("Consistent Store started at {address}");
         Some(address)
@@ -1141,23 +1138,23 @@ async fn start(
         let mut graphql_config = GraphQlConfig::default();
         graphql_config.zklogin.env = haneul_indexer_alt_graphql::config::ZkLoginEnv::Test;
 
-        let handle = start_graphql(
-            database_url.clone(),
-            fullnode_args,
-            DbArgs::default(),
-            GraphQlKvArgs::default(),
-            consistent_reader_args,
-            graphql_args,
-            SystemPackageTaskArgs::default(),
-            "0.0.0",
-            graphql_config,
-            pipelines,
-            &prometheus_registry,
-            cancel.child_token(),
-        )
-        .await
-        .context("Failed to start GraphQL server")?;
-        rpc_services.push(handle);
+        rpc_services = rpc_services.merge(
+            start_graphql(
+                database_url.clone(),
+                fullnode_args,
+                DbArgs::default(),
+                GraphQlKvArgs::default(),
+                consistent_reader_args,
+                graphql_args,
+                SystemPackageTaskArgs::default(),
+                "0.0.0",
+                graphql_config,
+                pipelines,
+                &prometheus_registry,
+            )
+            .await
+            .context("Failed to start GraphQL server")?,
+        );
 
         info!("GraphQL started at {address}");
     }
@@ -1260,13 +1257,8 @@ async fn start(
         }
     }
 
-    // Trigger cancellation to shut down all RPC services, and wait for all services to exit
-    // cleanly.
-    cancel.cancel();
-    // TODO (amnn): The indexer can take some time to shut down if the database it is talking to
-    // stops responding. Re-enable graceful shutdown once cancel handling is revamped across the
-    // framework.
-    // future::join_all(rpc_services).await;
+    info!("Shutting down RPC services...");
+    rpc_services.shutdown().await?;
     Ok(())
 }
 
