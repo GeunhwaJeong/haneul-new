@@ -11,18 +11,14 @@ use haneul_rpc::merge::Merge;
 use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
 use haneul_rpc::proto::haneul::rpc::v2::BatchGetTransactionsRequest;
 use haneul_rpc::proto::haneul::rpc::v2::BatchGetTransactionsResponse;
-use haneul_rpc::proto::haneul::rpc::v2::Event;
 use haneul_rpc::proto::haneul::rpc::v2::ExecutedTransaction;
 use haneul_rpc::proto::haneul::rpc::v2::GetTransactionRequest;
 use haneul_rpc::proto::haneul::rpc::v2::GetTransactionResponse;
 use haneul_rpc::proto::haneul::rpc::v2::GetTransactionResult;
 use haneul_rpc::proto::haneul::rpc::v2::Transaction;
-use haneul_rpc::proto::haneul::rpc::v2::TransactionEffects;
-use haneul_rpc::proto::haneul::rpc::v2::TransactionEvents;
 use haneul_rpc::proto::haneul::rpc::v2::UserSignature;
 use haneul_rpc::proto::timestamp_ms_to_proto;
-use haneul_sdk_types::{Address, Digest};
-use haneul_types::haneul_sdk_types_conversions::struct_tag_sdk_to_core;
+use haneul_sdk_types::Digest;
 
 pub const READ_MASK_DEFAULT: &str = "digest";
 
@@ -135,80 +131,25 @@ fn transaction_to_response(
     }
 
     if let Some(submask) = mask.subtree(ExecutedTransaction::EFFECTS_FIELD.name) {
-        let mut effects = TransactionEffects::merge_from(&source.effects, &submask);
-
-        if submask.contains(TransactionEffects::UNCHANGED_LOADED_RUNTIME_OBJECTS_FIELD) {
-            effects.unchanged_loaded_runtime_objects = source
-                .unchanged_loaded_runtime_objects
-                .unwrap_or_default()
-                .iter()
-                .map(Into::into)
-                .collect();
-        }
-
-        if let Some(object_types) = source.object_types {
-            if submask.contains(TransactionEffects::CHANGED_OBJECTS_FIELD.name) {
-                for changed_object in effects.changed_objects.iter_mut() {
-                    let Ok(object_id) = changed_object.object_id().parse::<Address>() else {
-                        continue;
-                    };
-
-                    if let Some(ty) = object_types.get(&object_id.into()) {
-                        changed_object.object_type = Some(match ty {
-                            haneul_types::base_types::ObjectType::Package => "package".to_owned(),
-                            haneul_types::base_types::ObjectType::Struct(struct_tag) => {
-                                struct_tag.to_canonical_string(true)
-                            }
-                        });
-                    }
-                }
-            }
-
-            if submask.contains(TransactionEffects::UNCHANGED_CONSENSUS_OBJECTS_FIELD.name) {
-                for unchanged_consensus_object in effects.unchanged_consensus_objects.iter_mut() {
-                    let Ok(object_id) = unchanged_consensus_object.object_id().parse::<Address>()
-                    else {
-                        continue;
-                    };
-
-                    if let Some(ty) = object_types.get(&object_id.into()) {
-                        unchanged_consensus_object.object_type = Some(match ty {
-                            haneul_types::base_types::ObjectType::Package => "package".to_owned(),
-                            haneul_types::base_types::ObjectType::Struct(struct_tag) => {
-                                struct_tag.to_canonical_string(true)
-                            }
-                        });
-                    }
-                }
-            }
-        }
-
-        // Try to render clever error info
-        render_clever_error(service, &mut effects);
+        let effects = service.render_effects_to_proto(
+            &source.effects,
+            &source.unchanged_loaded_runtime_objects.unwrap_or_default(),
+            |object_id| {
+                source
+                    .object_types
+                    .as_ref()
+                    .and_then(|types| types.get(object_id).cloned())
+            },
+            &submask,
+        );
 
         message.effects = Some(effects);
     }
 
     if let Some(submask) = mask.subtree(ExecutedTransaction::EVENTS_FIELD.name) {
-        message.events = source.events.map(|events| {
-            let mut message = TransactionEvents::merge_from(events.clone(), &submask);
-
-            if let Some(event_mask) = submask.subtree(TransactionEvents::EVENTS_FIELD.name)
-                && event_mask.contains(Event::JSON_FIELD.name)
-            {
-                for (message, event) in message.events.iter_mut().zip(&events.0) {
-                    message.json =
-                        struct_tag_sdk_to_core(event.type_.clone())
-                            .ok()
-                            .and_then(|struct_tag| {
-                                crate::grpc::v2::render_json(service, &struct_tag, &event.contents)
-                                    .map(Box::new)
-                            });
-                }
-            }
-
-            message
-        });
+        message.events = source
+            .events
+            .map(|events| service.render_events_to_proto(&events, &submask));
     }
 
     if mask.contains(ExecutedTransaction::CHECKPOINT_FIELD.name) {
@@ -227,61 +168,4 @@ fn transaction_to_response(
     }
 
     message
-}
-
-pub(crate) fn render_clever_error(service: &RpcService, effects: &mut TransactionEffects) {
-    use haneul_rpc::proto::haneul::rpc::v2::CleverError;
-    use haneul_rpc::proto::haneul::rpc::v2::MoveAbort;
-    use haneul_rpc::proto::haneul::rpc::v2::clever_error;
-    use haneul_rpc::proto::haneul::rpc::v2::execution_error::ErrorDetails;
-
-    let Some(move_abort) = effects
-        .status
-        .as_mut()
-        .and_then(|status| status.error.as_mut())
-        .and_then(|error| match &mut error.error_details {
-            Some(ErrorDetails::Abort(move_abort)) => Some(move_abort),
-            _ => None,
-        })
-    else {
-        return;
-    };
-
-    fn render(service: &RpcService, move_abort: &MoveAbort) -> Option<CleverError> {
-        let location = move_abort.location.as_ref()?;
-        let abort_code = move_abort.abort_code();
-        let package_id = location.package().parse::<haneul_sdk_types::Address>().ok()?;
-        let module = location.module();
-
-        let package = {
-            let object = service.reader.inner().get_object(&package_id.into())?;
-            haneul_package_resolver::Package::read_from_object(&object).ok()?
-        };
-
-        let clever_error = package.resolve_clever_error(module, abort_code)?;
-
-        let mut clever_error_message = CleverError::default();
-
-        match clever_error.error_info {
-            haneul_package_resolver::ErrorConstants::None => {}
-            haneul_package_resolver::ErrorConstants::Rendered {
-                identifier,
-                constant,
-            } => {
-                clever_error_message.constant_name = Some(identifier);
-                clever_error_message.value = Some(clever_error::Value::Rendered(constant));
-            }
-            haneul_package_resolver::ErrorConstants::Raw { identifier, bytes } => {
-                clever_error_message.constant_name = Some(identifier);
-                clever_error_message.value = Some(clever_error::Value::Raw(bytes.into()));
-            }
-        }
-
-        clever_error_message.error_code = clever_error.error_code.map(Into::into);
-        clever_error_message.line_number = Some(clever_error.source_line_number.into());
-
-        Some(clever_error_message)
-    }
-
-    move_abort.clever_error = render(service, move_abort);
 }

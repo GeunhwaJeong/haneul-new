@@ -91,8 +91,8 @@ impl StateReader {
         digest: haneul_sdk_types::Digest,
     ) -> crate::Result<(
         haneul_sdk_types::SignedTransaction,
-        haneul_sdk_types::TransactionEffects,
-        Option<haneul_sdk_types::TransactionEvents>,
+        haneul_types::effects::TransactionEffects,
+        Option<haneul_types::effects::TransactionEvents>,
     )> {
         use haneul_types::effects::TransactionEffectsAPI;
 
@@ -117,11 +117,7 @@ impl StateReader {
             None
         };
 
-        Ok((
-            transaction.try_into()?,
-            effects.try_into()?,
-            events.map(TryInto::try_into).transpose()?,
-        ))
+        Ok((transaction.try_into()?, effects, events))
     }
 
     #[tracing::instrument(skip(self))]
@@ -211,8 +207,8 @@ pub struct TransactionRead {
     pub digest: haneul_sdk_types::Digest,
     pub transaction: haneul_sdk_types::Transaction,
     pub signatures: Vec<haneul_sdk_types::UserSignature>,
-    pub effects: haneul_sdk_types::TransactionEffects,
-    pub events: Option<haneul_sdk_types::TransactionEvents>,
+    pub effects: haneul_types::effects::TransactionEffects,
+    pub events: Option<haneul_types::effects::TransactionEvents>,
     pub checkpoint: Option<u64>,
     pub timestamp_ms: Option<u64>,
     pub balance_changes: Option<Vec<BalanceChange>>,
