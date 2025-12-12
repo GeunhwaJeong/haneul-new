@@ -30,3 +30,4 @@ package-lock.json
 # Generated awesome-haneul files
 static/awesome-haneul/
 src/static/awesome-haneul/
+../docs/subtree/
