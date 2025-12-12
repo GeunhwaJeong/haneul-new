@@ -1,0 +1,8 @@
+[package]
+name = "legacy_can_use_legacy"
+
+[dependencies]
+Haneul = { local = "../haneul-framework" }
+
+[addresses]
+legacy_can_use_legacy = "0x0"
