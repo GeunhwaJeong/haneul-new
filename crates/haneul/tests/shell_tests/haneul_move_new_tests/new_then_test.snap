@@ -1,0 +1,22 @@
+---
+source: crates/haneul/tests/shell_tests.rs
+---
+----- script -----
+# Copyright (c) Mysten Labs, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+# check that haneul move new followed by haneul move test succeeds
+haneul move --client.config $CONFIG new example
+cd example && haneul move --client.config $CONFIG test
+
+----- results -----
+success: true
+exit_code: 0
+----- stdout -----
+INCLUDING DEPENDENCY MoveStdlib
+INCLUDING DEPENDENCY Haneul
+BUILDING example
+Running Move unit tests
+Test result: OK. Total tests: 0; passed: 0; failed: 0
+
+----- stderr -----
