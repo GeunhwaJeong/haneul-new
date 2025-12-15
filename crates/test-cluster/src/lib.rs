@@ -648,6 +648,14 @@ impl TestCluster {
             .map(tonic::Response::into_inner)?;
         assert_eq!(result.results.len(), signed_txs.len());
 
+        for raw_result in result.results.iter() {
+            let submit_result: haneul_types::messages_grpc::SubmitTxResult =
+                raw_result.clone().try_into()?;
+            if let haneul_types::messages_grpc::SubmitTxResult::Rejected { error } = submit_result {
+                return Err(error);
+            }
+        }
+
         let effects = self
             .fullnode_handle
             .haneul_node
