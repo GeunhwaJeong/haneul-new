@@ -16,7 +16,6 @@ use tokio::{sync::mpsc, time::sleep};
 use crate::{
     authority::{AuthorityState, test_authority_builder::TestAuthorityBuilder},
     checkpoints::{CheckpointMetrics, CheckpointService, CheckpointServiceNoop},
-    consensus_adapter::NoopConsensusOverloadChecker,
     consensus_handler::ConsensusHandlerInitializer,
     consensus_manager::{ConsensusManager, UpdatableConsensusClient},
     consensus_validator::{HaneulTxValidator, HaneulTxValidatorMetrics},
@@ -96,7 +95,6 @@ async fn test_consensus_manager() {
                 consensus_handler_initializer,
                 HaneulTxValidator::new(
                     state.clone(),
-                    Arc::new(NoopConsensusOverloadChecker {}),
                     Arc::new(CheckpointServiceNoop {}),
                     HaneulTxValidatorMetrics::new(&Registry::new()),
                 ),
