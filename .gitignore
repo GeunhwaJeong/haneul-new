@@ -74,7 +74,7 @@ checkpoints_dir/*
 light_client.yaml
 docs/content/references/haneul-api/haneul-graphql/*
 docs/content/references/framework/**
-
+docs/subtrees
 lcov.info
 
 .sparse
