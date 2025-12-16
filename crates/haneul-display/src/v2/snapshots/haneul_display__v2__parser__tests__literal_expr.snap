@@ -3,4 +3,4 @@ source: crates/haneul-display/src/v2/parser.rs
 expression: "strands(r#\"{true}\"#)"
 ---
 { true
-}
+}@0
