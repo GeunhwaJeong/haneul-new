@@ -7,10 +7,16 @@ use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
-use crate::{HANEUL_DEVNET_URL, HANEUL_LOCAL_NETWORK_URL, HANEUL_TESTNET_URL, HaneulClient, HaneulClientBuilder};
+use crate::{
+    HANEUL_DEVNET_URL, HANEUL_LOCAL_NETWORK_URL, HANEUL_MAINNET_URL, HANEUL_TESTNET_URL, HaneulClient,
+    HaneulClientBuilder,
+};
 use haneul_config::Config;
 use haneul_keys::keystore::{AccountKeystore, Keystore};
-use haneul_types::base_types::*;
+use haneul_types::{
+    base_types::*,
+    digests::{get_mainnet_chain_identifier, get_testnet_chain_identifier},
+};
 
 #[serde_as]
 #[derive(Serialize, Deserialize)]
@@ -137,7 +143,7 @@ impl HaneulEnv {
             rpc: HANEUL_TESTNET_URL.into(),
             ws: None,
             basic_auth: None,
-            chain_id: None,
+            chain_id: Some(get_testnet_chain_identifier().to_string()),
         }
     }
 
@@ -148,6 +154,16 @@ impl HaneulEnv {
             ws: None,
             basic_auth: None,
             chain_id: None,
+        }
+    }
+
+    pub fn mainnet() -> Self {
+        Self {
+            alias: "mainnet".to_string(),
+            rpc: HANEUL_MAINNET_URL.into(),
+            ws: None,
+            basic_auth: None,
+            chain_id: Some(get_mainnet_chain_identifier().to_string()),
         }
     }
 }

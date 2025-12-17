@@ -1,0 +1,57 @@
+---
+source: crates/haneul/tests/shell_tests.rs
+---
+----- script -----
+# Copyright (c) Mysten Labs, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+# If `-y` is passed and the config file doesn't exist, it is created
+# This is the same as prompt.sh except we pass -y instead of writing <enter> on stdin
+haneul move --client.config ./client.yaml -y new example \
+  | sed 's/Generated new keypair.*$/Generated new keypair <REDACTED>/g' \
+  | sed 's/recovery phrase : \[.*\]/recovery phrase : <REDACTED>/g'
+
+sed 's/active_address:.*$/active_address: <REDACTED>/g' client.yaml
+
+echo ""
+echo "check for keystore:"
+ls haneul.keystore
+
+----- results -----
+success: true
+exit_code: 0
+----- stdout -----
+Generated new keypair <REDACTED>
+  secret recovery phrase : <REDACTED>
+Created "./client.yaml"
+Set active environment to testnet
+---
+keystore:
+  File: "./haneul.keystore"
+external_keys: ~
+envs:
+  - alias: testnet
+    rpc: "https://fullnode.testnet.haneul.io:443"
+    ws: ~
+    basic_auth: ~
+    chain_id: 4c78adac
+  - alias: mainnet
+    rpc: "https://fullnode.mainnet.haneul.io:443"
+    ws: ~
+    basic_auth: ~
+    chain_id: 35834a8a
+  - alias: devnet
+    rpc: "https://fullnode.devnet.haneul.io:443"
+    ws: ~
+    basic_auth: ~
+  - alias: local
+    rpc: "http://127.0.0.1:9000"
+    ws: ~
+    basic_auth: ~
+active_env: testnet
+active_address: <REDACTED>
+
+check for keystore:
+haneul.keystore
+
+----- stderr -----
