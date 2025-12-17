@@ -36,9 +36,6 @@ haneul-protocol-config.workspace = true
 haneul-types.workspace = true
 parking_lot.workspace = true
 
-[dev-dependencies]
-move-package.workspace = true
-
 [features]
 tracing = [
     "haneul-types/tracing",
