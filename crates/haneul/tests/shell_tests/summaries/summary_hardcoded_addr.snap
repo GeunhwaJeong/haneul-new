@@ -286,3 +286,4 @@ summary_pkg
   "summary_pkg": "0x0000000000000000000000000000000000000000000000000000000000c0ffee"
 }
 ----- stderr -----
+[NOTE] Dependencies on Haneul, MoveStdlib, Bridge, DeepBook, and HaneulSystem are automatically added, but this feature is disabled for your package because you have explicitly included dependencies on Haneul. Consider removing these dependencies from `Move.toml`.
