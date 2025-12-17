@@ -37,7 +37,7 @@ use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::HANEUL_DENY_LIST_OBJECT_ID;
 use haneul_types::error::HaneulErrorKind;
 use haneul_types::execution_params::{
-    BalanceWithdrawStatus, ExecutionOrEarlyError, get_early_execution_error,
+    ExecutionOrEarlyError, FundsWithdrawStatus, get_early_execution_error,
 };
 use haneul_types::in_memory_storage::InMemoryStorage;
 use haneul_types::message_envelope::Message;
@@ -783,7 +783,7 @@ impl LocalExec {
             &checked_input_objects,
             &HashSet::new(),
             // TODO(address-balances): Support balance withdraw status for replay
-            &BalanceWithdrawStatus::MaybeSufficient,
+            &FundsWithdrawStatus::MaybeSufficient,
         );
         let execution_params = match early_execution_error {
             Some(error) => ExecutionOrEarlyError::Err(error),
@@ -860,7 +860,7 @@ impl LocalExec {
             &checked_input_objects,
             &HashSet::new(),
             // TODO(address-balances): Support balance withdraw status for replay
-            &BalanceWithdrawStatus::MaybeSufficient,
+            &FundsWithdrawStatus::MaybeSufficient,
         );
         let execution_params = match early_execution_error {
             Some(error) => ExecutionOrEarlyError::Err(error),
@@ -976,7 +976,7 @@ impl LocalExec {
             &input_objects,
             &HashSet::new(),
             // TODO(address-balances): Support balance withdraw status for replay
-            &BalanceWithdrawStatus::MaybeSufficient,
+            &FundsWithdrawStatus::MaybeSufficient,
         );
         let execution_params = match early_execution_error {
             Some(error) => ExecutionOrEarlyError::Err(error),
