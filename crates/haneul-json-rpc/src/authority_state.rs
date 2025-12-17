@@ -6,6 +6,7 @@ use async_trait::async_trait;
 use move_core_types::language_storage::TypeTag;
 use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
+use haneul_core::accumulators::balances::{get_all_balances_for_owner, get_balance};
 use haneul_core::authority::AuthorityState;
 use haneul_core::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use haneul_core::execution_cache::ObjectCacheRead;
@@ -26,7 +27,7 @@ use haneul_types::committee::{Committee, EpochId};
 use haneul_types::digests::{ChainIdentifier, TransactionDigest};
 use haneul_types::dynamic_field::DynamicFieldInfo;
 use haneul_types::effects::TransactionEffects;
-use haneul_types::error::{HaneulError, HaneulErrorKind, UserInputError};
+use haneul_types::error::{HaneulError, HaneulErrorKind, HaneulResult, UserInputError};
 use haneul_types::event::EventID;
 use haneul_types::governance::StakedHaneul;
 use haneul_types::messages_checkpoint::{
@@ -449,16 +450,27 @@ impl StateRead for AuthorityState {
         coin_type: TypeTag,
     ) -> StateReadResult<TotalBalance> {
         let indexes = self.indexes.clone();
-        Ok(tokio::task::spawn_blocking(move || {
-            indexes
-                .as_ref()
-                .ok_or(HaneulErrorKind::IndexStoreNotAvailable)?
-                .get_balance(owner, coin_type)
-        })
-        .await
-        .map_err(|e: JoinError| {
-            HaneulError(Box::new(HaneulErrorKind::ExecutionError(e.to_string())))
-        })??)
+        let child_object_resolver = self.get_child_object_resolver().clone();
+        Ok(
+            tokio::task::spawn_blocking(move || -> HaneulResult<TotalBalance> {
+                let address_balance =
+                    get_balance(owner, child_object_resolver.as_ref(), coin_type.clone())?;
+                let coin_balance = indexes
+                    .as_ref()
+                    .ok_or(HaneulErrorKind::IndexStoreNotAvailable)?
+                    .get_coin_object_balance(owner, coin_type)?;
+                let mut total_balance = coin_balance;
+                if address_balance > 0 {
+                    total_balance.balance += address_balance as i128;
+                    total_balance.num_coins += 1;
+                }
+                Ok(total_balance)
+            })
+            .await
+            .map_err(|e: JoinError| {
+                HaneulError(Box::new(HaneulErrorKind::ExecutionError(e.to_string())))
+            })??,
+        )
     }
 
     async fn get_all_balance(
@@ -466,12 +478,32 @@ impl StateRead for AuthorityState {
         owner: HaneulAddress,
     ) -> StateReadResult<Arc<HashMap<TypeTag, TotalBalance>>> {
         let indexes = self.indexes.clone();
-        Ok(tokio::task::spawn_blocking(move || {
-            indexes
-                .as_ref()
-                .ok_or(HaneulErrorKind::IndexStoreNotAvailable)?
-                .get_all_balance(owner)
-        })
+        let child_object_resolver = self.get_child_object_resolver().clone();
+        Ok(tokio::task::spawn_blocking(
+            move || -> HaneulResult<Arc<HashMap<TypeTag, TotalBalance>>> {
+                let indexes = indexes
+                    .as_ref()
+                    .ok_or(HaneulErrorKind::IndexStoreNotAvailable)?;
+                let address_balances = get_all_balances_for_owner(
+                    owner,
+                    child_object_resolver.as_ref(),
+                    indexes.tables(),
+                    usize::MAX,
+                    None,
+                )?;
+                let coin_balances = (*indexes.get_all_coin_object_balances(owner)?).clone();
+                let mut all_balances = coin_balances;
+                for (coin_type, balance) in address_balances {
+                    let existing_balance = all_balances.entry(coin_type).or_insert(TotalBalance {
+                        balance: 0,
+                        num_coins: 0,
+                    });
+                    existing_balance.balance += balance as i128;
+                    existing_balance.num_coins += 1;
+                }
+                Ok(Arc::new(all_balances))
+            },
+        )
         .await
         .map_err(|e: JoinError| {
             HaneulError(Box::new(HaneulErrorKind::ExecutionError(e.to_string())))
