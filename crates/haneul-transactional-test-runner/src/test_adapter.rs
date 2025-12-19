@@ -1328,11 +1328,9 @@ impl MoveTestAdapter<'_> for HaneulTestAdapter {
                     HaneulValue::Digest(_) => bail!("digest is not supported as an input"),
                     HaneulValue::ObjVec(_) => bail!("obj vec is not supported as an input"),
                     HaneulValue::Receiving(_, _) => bail!("receiving is not supported as an input"),
-                    HaneulValue::ImmShared(_, _) => {
-                        bail!("read-only shared object is not supported as an input")
-                    }
-                    HaneulValue::NonExclusiveWrite(_, _) => {
-                        bail!("non-exclusive write object is not supported as an input")
+                    HaneulValue::Owned(_, _) => bail!("owned object is not supported as an input"),
+                    HaneulValue::Shared(_, _, _) => {
+                        bail!("shared object is not supported as an input")
                     }
                     HaneulValue::Withdraw(_, _) => {
                         bail!("withdraw reservation is not supported as an input for set-address")
