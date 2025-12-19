@@ -24,7 +24,7 @@ module test::m {
     public entry fun share(ctx: &mut TxContext) {
         let mut id = haneul::object::new(ctx);
         let child = S { id: haneul::object::new(ctx) };
-        ofield::add(&mut id, 0, child);
+        ofield::add(&mut id, 0u64, child);
         haneul::transfer::public_share_object(S { id })
     }
 

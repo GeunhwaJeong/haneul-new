@@ -29,21 +29,21 @@ module test::m1 {
 
     public entry fun test_dof(parent: &mut Object, ctx: &mut TxContext) {
         let c1 = C1 { id: object::new(ctx) };
-        haneul::dynamic_object_field::add(&mut parent.id, 0, c1);
-        let C1 { id } = haneul::dynamic_object_field::remove(&mut parent.id, 0);
+        haneul::dynamic_object_field::add(&mut parent.id, 0u64, c1);
+        let C1 { id } = haneul::dynamic_object_field::remove(&mut parent.id, 0u64);
         object::delete(id);
 
         let c2 = C2 { id: object::new(ctx) };
-        haneul::dynamic_object_field::add(&mut parent.id, 0, c2);
-        let C2 { id } = haneul::dynamic_object_field::remove(&mut parent.id, 0);
+        haneul::dynamic_object_field::add(&mut parent.id, 0u64, c2);
+        let C2 { id } = haneul::dynamic_object_field::remove(&mut parent.id, 0u64);
         object::delete(id);
     }
 
     public entry fun test_df(parent: &mut Object) {
-        haneul::dynamic_field::add(&mut parent.id, 0, b"true");
-        let _: vector<u8> = haneul::dynamic_field::remove(&mut parent.id, 0);
-        haneul::dynamic_field::add(&mut parent.id, 0, true);
-        let _: bool = haneul::dynamic_field::remove(&mut parent.id, 0);
+        haneul::dynamic_field::add(&mut parent.id, 0u64, b"true");
+        let _: vector<u8> = haneul::dynamic_field::remove(&mut parent.id, 0u64);
+        haneul::dynamic_field::add(&mut parent.id, 0u64, true);
+        let _: bool = haneul::dynamic_field::remove(&mut parent.id, 0u64);
     }
 }
 

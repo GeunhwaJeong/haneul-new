@@ -23,7 +23,7 @@ module test::m {
     public entry fun test_wrap(ctx: &mut TxContext) {
         let mut id = haneul::object::new(ctx);
         let child = S { id: haneul::object::new(ctx) };
-        ofield::add(&mut id, 0, child);
+        ofield::add(&mut id, 0u64, child);
         let parent = S { id };
         let r = R { id: haneul::object::new(ctx), s: parent };
         haneul::transfer::transfer(r, tx_context::sender(ctx))

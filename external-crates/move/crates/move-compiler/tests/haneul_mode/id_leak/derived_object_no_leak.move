@@ -9,7 +9,7 @@ module a::m {
 
     public fun no_leak(ctx: &mut haneul::tx_context::TxContext): A {
         A {
-            id: derived_object::claim(object::new(ctx), 0),
+            id: derived_object::claim(object::new(ctx), 0u64),
         }
     }
 }

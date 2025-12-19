@@ -43,11 +43,11 @@ module t2::o2 {
     }
 
     public fun dofer(parent: &mut Obj2, o2: Coin<HANEUL>) {
-        dof::add(&mut parent.id, 0, o2);
+        dof::add(&mut parent.id, 0u64, o2);
     }
 
     public fun dfer(parent: &mut Obj2, o2: Coin<HANEUL>) {
-        df::add(&mut parent.id, 0, o2);
+        df::add(&mut parent.id, 0u64, o2);
     }
 
     public fun transferer(o2: Coin<HANEUL>) {

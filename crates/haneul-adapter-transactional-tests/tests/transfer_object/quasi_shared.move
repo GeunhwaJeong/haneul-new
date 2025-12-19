@@ -18,7 +18,7 @@ module test::m {
 
     public entry fun mint_child(s: &mut S, ctx: &mut TxContext) {
         let id = object::new(ctx);
-        haneul::dynamic_object_field::add(&mut s.id, 0, Child { id });
+        haneul::dynamic_object_field::add(&mut s.id, 0u64, Child { id });
     }
 }
 
