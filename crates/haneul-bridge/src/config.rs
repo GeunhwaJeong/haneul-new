@@ -91,6 +91,11 @@ pub struct HaneulConfig {
     /// Otherwise, it will miss one event because of fullnode Event query semantics.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub haneul_bridge_module_last_processed_event_id_override: Option<EventID>,
+    /// Override the next sequence number for HaneulSyncer
+    /// When set, HaneulSyncer will start from this sequence number (exclusively) instead of the one in storage.
+    /// If the sequence number is not found in storage or override, the query will first fallback to the sequence number corresponding to the last processed EventID from the bridge module `bridge` (which in turn can be overridden via `haneul_bridge_module_last_processed_event_id_override`) if available, otherwise fallback to 0.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub haneul_bridge_next_sequence_number_override: Option<u64>,
 }
 
 #[serde_as]
@@ -246,6 +251,10 @@ impl BridgeNodeConfig {
             haneul_bridge_module_last_processed_event_id_override: self
                 .haneul
                 .haneul_bridge_module_last_processed_event_id_override,
+            haneul_bridge_next_sequence_number_override: self
+                .haneul
+                .haneul_bridge_next_sequence_number_override,
+            haneul_bridge_chain_id: self.haneul.haneul_bridge_chain_id,
         };
 
         info!("Config validation complete");
@@ -434,6 +443,8 @@ pub struct BridgeClientConfig {
     pub eth_contracts_start_block_fallback: u64,
     pub eth_contracts_start_block_override: Option<u64>,
     pub haneul_bridge_module_last_processed_event_id_override: Option<EventID>,
+    pub haneul_bridge_next_sequence_number_override: Option<u64>,
+    pub haneul_bridge_chain_id: u8,
 }
 
 #[serde_as]
