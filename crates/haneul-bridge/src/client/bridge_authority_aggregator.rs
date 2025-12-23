@@ -229,11 +229,13 @@ async fn request_sign_bridge_action_into_certification(
     // we pass in `Some` to make sure the validators with higher voting power are requested first
     // to save gas cost.
     let preference = match action {
-        BridgeAction::HaneulToEthBridgeAction(_) => Some(SigRequestPrefs {
+        BridgeAction::HaneulToEthBridgeAction(_)
+        | BridgeAction::HaneulToEthTokenTransfer(_)
+        | BridgeAction::HaneulToEthTokenTransferV2(_) => Some(SigRequestPrefs {
             ordering_pref: BTreeSet::new(),
             prefetch_timeout,
         }),
-        BridgeAction::EthToHaneulBridgeAction(_) => None,
+        BridgeAction::EthToHaneulBridgeAction(_) | BridgeAction::EthToHaneulTokenTransferV2(_) => None,
         _ => {
             if action.chain_id().is_haneul_chain() {
                 None

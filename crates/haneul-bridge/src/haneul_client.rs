@@ -32,7 +32,9 @@ use haneul_types::bridge::{
 };
 use haneul_types::bridge::{BridgeTrait, BridgeTreasurySummary};
 use haneul_types::bridge::{MoveTypeBridgeMessage, MoveTypeParsedTokenTransferMessage};
-use haneul_types::bridge::{MoveTypeCommitteeMember, MoveTypeTokenTransferPayload};
+use haneul_types::bridge::{
+    MoveTypeCommitteeMember, MoveTypeTokenTransferPayload, MoveTypeTokenTransferPayloadV2,
+};
 use haneul_types::collection_types::LinkedTableNode;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::Owner;
@@ -987,10 +989,16 @@ impl HaneulClientInner for haneul_rpc::Client {
             payload,
         } = record.message;
 
-        let mut parsed_payload: MoveTypeTokenTransferPayload = bcs::from_bytes(&payload)?;
-
-        // we deser'd le bytes but this needs to be interpreted as be bytes
-        parsed_payload.amount = u64::from_be_bytes(parsed_payload.amount.to_le_bytes());
+        // Parse payload based on message version.
+        let parsed_payload: MoveTypeTokenTransferPayload = if message_version == 2 {
+            let mut v2: MoveTypeTokenTransferPayloadV2 = bcs::from_bytes(&payload)?;
+            v2.amount = u64::from_be_bytes(v2.amount.to_le_bytes());
+            v2.into()
+        } else {
+            let mut v1: MoveTypeTokenTransferPayload = bcs::from_bytes(&payload)?;
+            v1.amount = u64::from_be_bytes(v1.amount.to_le_bytes());
+            v1
+        };
 
         Ok(Some(MoveTypeParsedTokenTransferMessage {
             message_version,

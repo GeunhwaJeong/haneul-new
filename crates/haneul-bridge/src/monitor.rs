@@ -122,6 +122,7 @@ where
 
         match event {
             HaneulBridgeEvent::HaneulToEthTokenBridgeV1(_) => (),
+            HaneulBridgeEvent::HaneulToEthTokenBridgeV2(_) => (),
             HaneulBridgeEvent::TokenTransferApproved(_) => (),
             HaneulBridgeEvent::TokenTransferClaimed(_) => (),
             HaneulBridgeEvent::TokenTransferAlreadyApproved(_) => (),
@@ -315,6 +316,7 @@ where
             EthBridgeEvent::EthHaneulBridgeEvents(event) => match event {
                 EthHaneulBridgeEvents::TokensClaimedFilter(_) => (),
                 EthHaneulBridgeEvents::TokensDepositedFilter(_) => (),
+                EthHaneulBridgeEvents::TokensDepositedV2Filter(_) => (),
                 EthHaneulBridgeEvents::PausedFilter(_) => bump_eth_counter!("bridge_paused"),
                 EthHaneulBridgeEvents::UnpausedFilter(_) => bump_eth_counter!("bridge_unpaused"),
                 EthHaneulBridgeEvents::UpgradedFilter(_) => {

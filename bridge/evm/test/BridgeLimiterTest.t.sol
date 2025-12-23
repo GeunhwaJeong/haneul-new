@@ -14,12 +14,12 @@ contract BridgeLimiterTest is BridgeBaseTest {
         supportedChainID = 0;
     }
 
-    function testBridgeLimiterInitialization() public {
+    function testBridgeLimiterInitialization() public view {
         assertEq(limiter.oldestChainTimestamp(supportedChainID), uint32(block.timestamp / 1 hours));
         assertEq(limiter.chainLimits(supportedChainID), totalLimit);
     }
 
-    function testCalculateAmountInUSD() public {
+    function testCalculateAmountInUSD() public view {
         uint8 tokenID = 1; // wBTC
         uint256 wBTCAmount = 1_00000000; // wBTC has 8 decimals
         uint256 actual = limiter.calculateAmountInUSD(tokenID, wBTCAmount);
@@ -163,7 +163,15 @@ contract BridgeLimiterTest is BridgeBaseTest {
             "BridgeConfig.sol",
             abi.encodeCall(
                 BridgeConfig.initialize,
-                (address(committee), chainID, _supportedTokens, tokenPrices, tokenIds, haneulDecimals, supportedChains)
+                (
+                    address(committee),
+                    chainID,
+                    _supportedTokens,
+                    tokenPrices,
+                    tokenIds,
+                    haneulDecimals,
+                    supportedChains
+                )
             ),
             opts
         );
@@ -265,7 +273,15 @@ contract BridgeLimiterTest is BridgeBaseTest {
             "BridgeConfig.sol",
             abi.encodeCall(
                 BridgeConfig.initialize,
-                (address(committee), chainID, supportedTokens, tokenPrices, tokenIds, haneulDecimals, _supportedChains)
+                (
+                    address(committee),
+                    chainID,
+                    supportedTokens,
+                    tokenPrices,
+                    tokenIds,
+                    haneulDecimals,
+                    _supportedChains
+                )
             ),
             opts
         );
@@ -288,7 +304,7 @@ contract BridgeLimiterTest is BridgeBaseTest {
             opts
         );
         limiter = BridgeLimiter(_limiter);
-        address _haneulBridge = Upgrades.deployUUPSProxy(
+        Upgrades.deployUUPSProxy(
             "HaneulBridge.sol",
             abi.encodeCall(
                 HaneulBridge.initialize, (address(committee), address(vault), address(limiter))
@@ -351,7 +367,15 @@ contract BridgeLimiterTest is BridgeBaseTest {
             "BridgeConfig.sol",
             abi.encodeCall(
                 BridgeConfig.initialize,
-                (address(committee), chainID, supportedTokens, tokenPrices, tokenIds, haneulDecimals, _supportedChains)
+                (
+                    address(committee),
+                    chainID,
+                    supportedTokens,
+                    tokenPrices,
+                    tokenIds,
+                    haneulDecimals,
+                    _supportedChains
+                )
             ),
             opts
         );
@@ -375,7 +399,7 @@ contract BridgeLimiterTest is BridgeBaseTest {
             opts
         );
         limiter = BridgeLimiter(_limiter);
-        address _haneulBridge = Upgrades.deployUUPSProxy(
+        Upgrades.deployUUPSProxy(
             "HaneulBridge.sol",
             abi.encodeCall(
                 HaneulBridge.initialize, (address(committee), address(vault), address(limiter))

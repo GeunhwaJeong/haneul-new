@@ -12,7 +12,7 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
         setUpBridgeTest();
     }
 
-    function testHaneulBridgeInitialization() public {
+    function testHaneulBridgeInitialization() public view {
         assertEq(address(bridge.committee()), address(committee));
         assertEq(address(bridge.vault()), address(vault));
     }
@@ -500,7 +500,7 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
         // approve
         bytes4 selector = bytes4(keccak256("approve(address,uint256)"));
         bytes memory data = abi.encodeWithSelector(selector, address(bridge), usdtAmount);
-        (bool success, bytes memory returnData) = USDT.call(data);
+        (bool success,) = USDT.call(data);
         require(success, "Call failed");
 
         assertEq(IERC20(USDT).balanceOf(address(vault)), 0);
@@ -677,7 +677,15 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
             "BridgeConfig.sol",
             abi.encodeCall(
                 BridgeConfig.initialize,
-                (address(committee), 11, _supportedTokens, tokenPrices, tokenIds, haneulDecimals, _supportedDestinationChains)
+                (
+                    address(committee),
+                    11,
+                    _supportedTokens,
+                    tokenPrices,
+                    tokenIds,
+                    haneulDecimals,
+                    _supportedDestinationChains
+                )
             ),
             opts
         );
@@ -871,7 +879,15 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
             "BridgeConfig.sol",
             abi.encodeCall(
                 BridgeConfig.initialize,
-                (address(committee), chainID, supportedTokens, tokenPrices, tokenIds, haneulDecimals, supportedChains)
+                (
+                    address(committee),
+                    chainID,
+                    supportedTokens,
+                    tokenPrices,
+                    tokenIds,
+                    haneulDecimals,
+                    supportedChains
+                )
             ),
             opts
         );

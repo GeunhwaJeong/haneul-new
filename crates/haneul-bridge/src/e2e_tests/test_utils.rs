@@ -15,7 +15,9 @@ use crate::haneul_transaction_builder::build_committee_register_transaction;
 use crate::types::CertifiedBridgeAction;
 use crate::types::VerifiedCertifiedBridgeAction;
 use crate::types::{BridgeAction, BridgeActionStatus};
-use crate::types::{BridgeCommitteeValiditySignInfo, HaneulToEthTokenTransfer};
+use crate::types::{
+    BridgeCommitteeValiditySignInfo, HaneulToEthTokenTransfer, HaneulToEthTokenTransferV2,
+};
 use crate::utils::EthSigner;
 use crate::utils::get_eth_signer_client;
 use crate::utils::publish_and_register_coins_return_add_coins_on_haneul_action;
@@ -60,7 +62,9 @@ use haneul_types::crypto::ToFromBytes;
 use haneul_types::crypto::get_key_pair;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::object::Object;
-use haneul_types::transaction::{ObjectArg, SharedObjectMutability, Transaction, TransactionData};
+use haneul_types::transaction::{
+    CallArg, ObjectArg, SharedObjectMutability, Transaction, TransactionData,
+};
 use haneul_types::{BRIDGE_PACKAGE_ID, HANEUL_BRIDGE_OBJECT_ID};
 use tokio::join;
 use tokio::task::JoinHandle;
@@ -459,6 +463,110 @@ impl BridgeTestCluster {
                     .cloned()
             })
             .collect()
+    }
+
+    /// Upgrades the HaneulBridge proxy to HaneulBridgeV2.
+    /// This method:
+    /// 1. Deploys HaneulBridgeV2 implementation using forge
+    /// 2. Creates an EvmContractUpgradeAction
+    /// 3. Signs it with all bridge authority keys
+    /// 4. Executes the upgrade via upgradeWithSignatures
+    pub async fn upgrade_bridge_to_v2(&self) -> anyhow::Result<()> {
+        use crate::crypto::BridgeAuthoritySignInfo;
+        use crate::eth_transaction_builder::build_evm_upgrade_transaction;
+        use crate::types::{BridgeCommitteeValiditySignInfo, EvmContractUpgradeAction};
+        use std::collections::BTreeMap;
+
+        let sol_path = format!("{}/../../bridge/evm", env!("CARGO_MANIFEST_DIR"));
+        let eth_signer = self.get_eth_signer().await;
+        let haneul_bridge_proxy = self.contracts().haneul_bridge;
+
+        info!("Upgrading HaneulBridge to V2...");
+        info!("  Proxy address: {:?}", haneul_bridge_proxy);
+
+        // Step 1: Deploy HaneulBridgeV2 implementation using forge create
+        let (_, eth_pk_hex) = self.get_eth_signer_and_private_key().await?;
+        let output = std::process::Command::new("forge")
+            .current_dir(&sol_path)
+            .args([
+                "create",
+                "contracts/HaneulBridgeV2.sol:HaneulBridgeV2",
+                "--rpc-url",
+                &self.eth_rpc_url(),
+                "--private-key",
+                &eth_pk_hex,
+                "--json",
+            ])
+            .output()
+            .expect("Failed to deploy HaneulBridgeV2");
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            return Err(anyhow::anyhow!("Failed to deploy HaneulBridgeV2: {}", stderr));
+        }
+
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let deploy_result: serde_json::Value = serde_json::from_str(&stdout)?;
+        let new_impl_address_str = deploy_result["deployedTo"]
+            .as_str()
+            .ok_or_else(|| anyhow::anyhow!("Failed to parse deployed address"))?;
+        let new_impl_address = EthAddress::from_str(new_impl_address_str)?;
+        info!("  New implementation address: {:?}", new_impl_address);
+
+        // Step 2: Get the current upgrade nonce from the committee
+        let bridge_contract = EthHaneulBridge::new(haneul_bridge_proxy, eth_signer.clone().into());
+        let committee_address = bridge_contract.committee().call().await?;
+        let committee_contract =
+            EthBridgeCommittee::new(committee_address, eth_signer.clone().into());
+        let upgrade_nonce = committee_contract.nonces(6u8).call().await?; // 6 = UPGRADE message type
+
+        // Step 3: Create the upgrade action
+        let upgrade_action = EvmContractUpgradeAction {
+            nonce: upgrade_nonce,
+            chain_id: self.eth_chain_id,
+            proxy_address: haneul_bridge_proxy,
+            new_impl_address,
+            call_data: vec![], // No initializer needed for V2
+        };
+        let action = BridgeAction::EvmContractUpgradeAction(upgrade_action.clone());
+
+        // Step 4: Sign with all bridge authority keys
+        let mut signatures = BTreeMap::new();
+        for i in 0..self.num_validators {
+            let key = self.bridge_authority_key(i);
+            let sig = BridgeAuthoritySignInfo::new(&action, &key);
+            signatures.insert(key.public().into(), sig.signature);
+        }
+        let sigs = BridgeCommitteeValiditySignInfo { signatures };
+
+        info!(
+            "  Collected {} signatures for upgrade",
+            sigs.signatures.len()
+        );
+
+        // Step 5: Execute the upgrade
+        let tx = build_evm_upgrade_transaction(eth_signer.clone(), upgrade_action, &sigs)
+            .await
+            .map_err(|e| anyhow::anyhow!("Failed to build upgrade transaction: {:?}", e))?;
+        let pending_tx = tx.send().await?;
+        let receipt = pending_tx
+            .await?
+            .ok_or_else(|| anyhow::anyhow!("Failed to get transaction receipt for upgrade"))?;
+
+        if receipt.status != Some(1.into()) {
+            return Err(anyhow::anyhow!(
+                "Upgrade transaction failed with status: {:?}",
+                receipt.status
+            ));
+        }
+
+        info!(
+            "  Upgrade transaction successful: {:?}",
+            receipt.transaction_hash
+        );
+        info!("HaneulBridge upgraded to V2 successfully!");
+
+        Ok(())
     }
 }
 
@@ -1230,7 +1338,27 @@ pub async fn initiate_bridge_eth_to_haneul(
     amount: u64,
     nonce: u64,
 ) -> Result<(), anyhow::Error> {
-    info!("Depositing native Ether to Solidity contract, nonce: {nonce}, amount: {amount}");
+    initiate_bridge_eth_to_haneul_internal(bridge_test_cluster, amount, nonce, false).await
+}
+
+pub async fn initiate_bridge_eth_to_haneul_v2(
+    bridge_test_cluster: &BridgeTestCluster,
+    amount: u64,
+    nonce: u64,
+) -> Result<(), anyhow::Error> {
+    initiate_bridge_eth_to_haneul_internal(bridge_test_cluster, amount, nonce, true).await
+}
+
+async fn initiate_bridge_eth_to_haneul_internal(
+    bridge_test_cluster: &BridgeTestCluster,
+    amount: u64,
+    nonce: u64,
+    use_v2: bool,
+) -> Result<(), anyhow::Error> {
+    info!(
+        "Depositing native Ether to Solidity contract (v{}), nonce: {nonce}, amount: {amount}",
+        if use_v2 { "2" } else { "1" }
+    );
     let (eth_signer, eth_address) = bridge_test_cluster
         .get_eth_signer_and_address()
         .await
@@ -1249,6 +1377,7 @@ pub async fn initiate_bridge_eth_to_haneul(
         haneul_address,
         haneul_chain_id,
         amount,
+        use_v2,
     )
     .await;
     let tx_receipt = send_eth_tx_and_get_tx_receipt(eth_tx).await;
@@ -1257,22 +1386,49 @@ pub async fn initiate_bridge_eth_to_haneul(
         .iter()
         .find_map(EthBridgeEvent::try_from_log)
         .unwrap();
-    let EthBridgeEvent::EthHaneulBridgeEvents(EthHaneulBridgeEvents::TokensDepositedFilter(
-        eth_bridge_event,
-    )) = eth_bridge_event
-    else {
-        unreachable!();
+    let (
+        source_chain_id,
+        destination_chain_id,
+        emitted_token_id,
+        emitted_amount,
+        sender,
+        recipient,
+        timestamp,
+    ) = match eth_bridge_event {
+        EthBridgeEvent::EthHaneulBridgeEvents(EthHaneulBridgeEvents::TokensDepositedFilter(event)) => (
+            event.source_chain_id,
+            event.destination_chain_id,
+            event.token_id,
+            event.haneul_adjusted_amount,
+            event.sender_address,
+            event.recipient_address.to_vec(),
+            None,
+        ),
+        EthBridgeEvent::EthHaneulBridgeEvents(EthHaneulBridgeEvents::TokensDepositedV2Filter(event)) => (
+            event.source_chain_id,
+            event.destination_chain_id,
+            event.token_id,
+            event.haneul_adjusted_amount,
+            event.sender_address,
+            event.recipient_address.to_vec(),
+            Some(event.timestamp_seconds.as_u64()),
+        ),
+        _ => unreachable!(),
     };
+
     // assert eth log matches
-    assert_eq!(eth_bridge_event.source_chain_id, eth_chain_id as u8);
-    assert_eq!(eth_bridge_event.nonce, nonce);
-    assert_eq!(eth_bridge_event.destination_chain_id, haneul_chain_id as u8);
-    assert_eq!(eth_bridge_event.token_id, token_id);
-    assert_eq!(eth_bridge_event.haneul_adjusted_amount, haneul_amount);
-    assert_eq!(eth_bridge_event.sender_address, eth_address);
-    assert_eq!(eth_bridge_event.recipient_address, haneul_address.to_vec());
+    assert_eq!(source_chain_id, eth_chain_id as u8);
+    assert_eq!(destination_chain_id, haneul_chain_id as u8);
+    assert_eq!(emitted_token_id, token_id);
+    assert_eq!(emitted_amount, haneul_amount);
+    assert_eq!(sender, eth_address);
+    assert_eq!(recipient, haneul_address.to_vec());
+    if use_v2 {
+        assert!(timestamp.is_some(), "V2 deposit must emit timestamp");
+    }
     info!(
-        "Deposited Eth to Solidity contract, block: {:?}",
+        "Deposited Eth to Solidity contract (v{}), block: {:?}",
+        if use_v2 { "2" } else { "1" },
         tx_receipt.block_number
     );
 
@@ -1295,6 +1451,51 @@ pub async fn initiate_bridge_haneul_to_eth(
     nonce: u64,
     haneul_amount: u64,
 ) -> Result<HaneulToEthTokenTransfer, anyhow::Error> {
+    match initiate_bridge_haneul_to_eth_internal(
+        bridge_test_cluster,
+        eth_address,
+        token,
+        nonce,
+        haneul_amount,
+        false,
+    )
+    .await?
+    {
+        BridgeAction::HaneulToEthTokenTransfer(action) => Ok(action),
+        _ => unreachable!("Expected V1 token transfer action"),
+    }
+}
+
+pub async fn initiate_bridge_haneul_to_eth_v2(
+    bridge_test_cluster: &BridgeTestCluster,
+    eth_address: EthAddress,
+    token: ObjectRef,
+    nonce: u64,
+    haneul_amount: u64,
+) -> Result<HaneulToEthTokenTransferV2, anyhow::Error> {
+    match initiate_bridge_haneul_to_eth_internal(
+        bridge_test_cluster,
+        eth_address,
+        token,
+        nonce,
+        haneul_amount,
+        true,
+    )
+    .await?
+    {
+        BridgeAction::HaneulToEthTokenTransferV2(action) => Ok(action),
+        _ => unreachable!("Expected V2 token transfer action"),
+    }
+}
+
+async fn initiate_bridge_haneul_to_eth_internal(
+    bridge_test_cluster: &BridgeTestCluster,
+    eth_address: EthAddress,
+    token: ObjectRef,
+    nonce: u64,
+    haneul_amount: u64,
+    use_v2: bool,
+) -> Result<BridgeAction, anyhow::Error> {
     let bridge_object_arg = bridge_test_cluster
         .bridge_client()
         .get_mutable_bridge_object_arg_must_succeed()
@@ -1316,6 +1517,7 @@ pub async fn initiate_bridge_haneul_to_eth(
         token,
         bridge_object_arg,
         &token_types,
+        use_v2,
     )
     .await
     {
@@ -1336,28 +1538,40 @@ pub async fn initiate_bridge_haneul_to_eth(
             let haneul_bridge_event = HaneulBridgeEvent::try_from_haneul_event(e).unwrap()?;
             haneul_bridge_event.try_into_bridge_action()
         })
-        .find_map(|e| {
-            if let BridgeAction::HaneulToEthTokenTransfer(a) = e {
-                Some(a)
-            } else {
-                None
-            }
+        .find(|action| {
+            matches!(
+                action,
+                BridgeAction::HaneulToEthTokenTransfer(_) | BridgeAction::HaneulToEthTokenTransferV2(_)
+            )
         })
         .unwrap();
-    info!("Deposited Eth to move package");
-    assert_eq!(bridge_action.nonce, nonce);
-    assert_eq!(
-        bridge_action.haneul_chain_id,
-        bridge_test_cluster.haneul_chain_id()
+    info!(
+        "Deposited Eth to move package via v{}",
+        if use_v2 { "2" } else { "1" }
     );
-    assert_eq!(
-        bridge_action.eth_chain_id,
-        bridge_test_cluster.eth_chain_id()
-    );
-    assert_eq!(bridge_action.haneul_address, haneul_address);
-    assert_eq!(bridge_action.eth_address, eth_address);
-    assert_eq!(bridge_action.token_id, TOKEN_ID_ETH);
-    assert_eq!(bridge_action.amount_adjusted, haneul_amount);
+
+    match &bridge_action {
+        BridgeAction::HaneulToEthTokenTransfer(action) => {
+            assert_eq!(action.nonce, nonce);
+            assert_eq!(action.haneul_chain_id, bridge_test_cluster.haneul_chain_id());
+            assert_eq!(action.eth_chain_id, bridge_test_cluster.eth_chain_id());
+            assert_eq!(action.haneul_address, haneul_address);
+            assert_eq!(action.eth_address, eth_address);
+            assert_eq!(action.token_id, TOKEN_ID_ETH);
+            assert_eq!(action.amount_adjusted, haneul_amount);
+        }
+        BridgeAction::HaneulToEthTokenTransferV2(action) => {
+            assert_eq!(action.nonce, nonce);
+            assert_eq!(action.haneul_chain_id, bridge_test_cluster.haneul_chain_id());
+            assert_eq!(action.eth_chain_id, bridge_test_cluster.eth_chain_id());
+            assert_eq!(action.haneul_address, haneul_address);
+            assert_eq!(action.eth_address, eth_address);
+            assert_eq!(action.token_id, TOKEN_ID_ETH);
+            assert_eq!(action.amount_adjusted, haneul_amount);
+            assert!(action.timestamp_ms > 0, "V2 action must include timestamp");
+        }
+        _ => unreachable!(),
+    }
 
     // Wait for the bridge action to be approved
     wait_for_transfer_action_status(
@@ -1423,20 +1637,37 @@ async fn deposit_eth_to_haneul_package(
     token: ObjectRef,
     bridge_object_arg: ObjectArg,
     haneul_token_type_tags: &HashMap<u8, TypeTag>,
+    use_v2: bool,
 ) -> Result<HaneulTransactionBlockResponse, anyhow::Error> {
     let mut builder = ProgrammableTransactionBuilder::new();
     let arg_target_chain = builder.pure(target_chain as u8).unwrap();
     let arg_target_address = builder.pure(target_address.as_bytes()).unwrap();
     let arg_token = builder.obj(ObjectArg::ImmOrOwnedObject(token)).unwrap();
     let arg_bridge = builder.obj(bridge_object_arg).unwrap();
-
-    builder.programmable_move_call(
-        BRIDGE_PACKAGE_ID,
-        BRIDGE_MODULE_NAME.to_owned(),
-        ident_str!("send_token").to_owned(),
-        vec![haneul_token_type_tags.get(&TOKEN_ID_ETH).unwrap().clone()],
-        vec![arg_bridge, arg_target_chain, arg_target_address, arg_token],
-    );
+    if use_v2 {
+        let arg_clock = builder.input(CallArg::CLOCK_IMM).unwrap();
+        builder.programmable_move_call(
+            BRIDGE_PACKAGE_ID,
+            BRIDGE_MODULE_NAME.to_owned(),
+            ident_str!("send_token_v2").to_owned(),
+            vec![haneul_token_type_tags.get(&TOKEN_ID_ETH).unwrap().clone()],
+            vec![
+                arg_bridge,
+                arg_target_chain,
+                arg_target_address,
+                arg_token,
+                arg_clock,
+            ],
+        );
+    } else {
+        builder.programmable_move_call(
+            BRIDGE_PACKAGE_ID,
+            BRIDGE_MODULE_NAME.to_owned(),
+            ident_str!("send_token").to_owned(),
+            vec![haneul_token_type_tags.get(&TOKEN_ID_ETH).unwrap().clone()],
+            vec![arg_bridge, arg_target_chain, arg_target_address, arg_token],
+        );
+    }
 
     let pt = builder.finish();
     let gas_object_ref = wallet_context
@@ -1553,11 +1784,18 @@ pub(crate) async fn deposit_native_eth_to_sol_contract(
     haneul_recipient_address: HaneulAddress,
     haneul_chain_id: BridgeChainId,
     amount: u64,
+    use_v2: bool,
 ) -> ContractCall<EthSigner, ()> {
     let contract = EthHaneulBridge::new(contract_address, signer.clone().into());
     let haneul_recipient_address = haneul_recipient_address.to_vec().into();
     let amount = U256::from(amount) * U256::exp10(18); // 1 ETH
-    contract
-        .bridge_eth(haneul_recipient_address, haneul_chain_id as u8)
-        .value(amount)
+    if use_v2 {
+        contract
+            .bridge_ethv2(haneul_recipient_address, haneul_chain_id as u8)
+            .value(amount)
+    } else {
+        contract
+            .bridge_eth(haneul_recipient_address, haneul_chain_id as u8)
+            .value(amount)
+    }
 }

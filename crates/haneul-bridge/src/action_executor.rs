@@ -343,7 +343,9 @@ where
         match &action {
             BridgeAction::HaneulToEthBridgeAction(_)
             | BridgeAction::HaneulToEthTokenTransfer(_)
-            | BridgeAction::EthToHaneulBridgeAction(_) => (),
+            | BridgeAction::HaneulToEthTokenTransferV2(_)
+            | BridgeAction::EthToHaneulBridgeAction(_)
+            | BridgeAction::EthToHaneulTokenTransferV2(_) => (),
             _ => unreachable!("Non token transfer action should not reach here"),
         };
 
@@ -600,20 +602,26 @@ where
                 relevant_events.iter().for_each(|e| {
                     if e.type_ == *TokenTransferClaimed.get().unwrap() {
                         match action {
-                            BridgeAction::EthToHaneulBridgeAction(_) => {
+                            BridgeAction::EthToHaneulBridgeAction(_)
+                            | BridgeAction::EthToHaneulTokenTransferV2(_) => {
                                 metrics.eth_haneul_token_transfer_claimed.inc();
                             }
-                            BridgeAction::HaneulToEthBridgeAction(_) => {
+                            BridgeAction::HaneulToEthBridgeAction(_)
+                            | BridgeAction::HaneulToEthTokenTransfer(_)
+                            | BridgeAction::HaneulToEthTokenTransferV2(_) => {
                                 metrics.haneul_eth_token_transfer_claimed.inc();
                             }
                             _ => error!("Unexpected action type for claimed event: {:?}", action),
                         }
                     } else if e.type_ == *TokenTransferApproved.get().unwrap() {
                         match action {
-                            BridgeAction::EthToHaneulBridgeAction(_) => {
+                            BridgeAction::EthToHaneulBridgeAction(_)
+                            | BridgeAction::EthToHaneulTokenTransferV2(_) => {
                                 metrics.eth_haneul_token_transfer_approved.inc();
                             }
-                            BridgeAction::HaneulToEthBridgeAction(_) => {
+                            BridgeAction::HaneulToEthBridgeAction(_)
+                            | BridgeAction::HaneulToEthTokenTransfer(_)
+                            | BridgeAction::HaneulToEthTokenTransferV2(_) => {
                                 metrics.haneul_eth_token_transfer_approved.inc();
                             }
                             _ => error!("Unexpected action type for approved event: {:?}", action),

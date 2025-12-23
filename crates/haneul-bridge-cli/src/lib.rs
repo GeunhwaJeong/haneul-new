@@ -20,6 +20,7 @@ use std::sync::Arc;
 use haneul_bridge::abi::EthBridgeCommittee;
 use haneul_bridge::abi::{EthHaneulBridge, eth_haneul_bridge};
 use haneul_bridge::crypto::BridgeAuthorityPublicKeyBytes;
+use haneul_bridge::encoding::TOKEN_TRANSFER_MESSAGE_VERSION_V2;
 use haneul_bridge::error::BridgeResult;
 use haneul_bridge::haneul_client::HaneulBridgeClient;
 use haneul_bridge::types::BridgeAction;
@@ -694,6 +695,7 @@ async fn claim_on_eth(
         return Ok(());
     }
     let parsed_message = parsed_message.unwrap();
+    let message_version = parsed_message.message_version;
     let sigs = haneul_bridge_client
         .get_token_transfer_action_onchain_signatures_until_success(haneul_chain_id, seq_num)
         .await;
@@ -712,7 +714,11 @@ async fn claim_on_eth(
         Arc::new(config.eth_signer().clone()),
     );
     let message = eth_haneul_bridge::Message::from(parsed_message);
-    let tx = eth_haneul_bridge.transfer_bridged_tokens_with_signatures(signatures, message);
+    let tx = if message_version == TOKEN_TRANSFER_MESSAGE_VERSION_V2 {
+        eth_haneul_bridge.transfer_bridged_tokens_with_signatures_v2(signatures, message)
+    } else {
+        eth_haneul_bridge.transfer_bridged_tokens_with_signatures(signatures, message)
+    };
     if dry_run {
         let tx = tx.tx;
         let resp = config.eth_signer.estimate_gas(&tx, None).await;

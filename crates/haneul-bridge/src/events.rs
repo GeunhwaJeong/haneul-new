@@ -13,6 +13,7 @@ use crate::error::BridgeError;
 use crate::error::BridgeResult;
 use crate::types::BridgeAction;
 use crate::types::HaneulToEthTokenTransfer;
+use crate::types::HaneulToEthTokenTransferV2;
 use ethers::types::Address as EthAddress;
 use fastcrypto::encoding::Encoding;
 use fastcrypto::encoding::Hex;
@@ -42,6 +43,19 @@ pub struct MoveTokenDepositedEvent {
     pub target_address: Vec<u8>,
     pub token_type: u8,
     pub amount_haneul_adjusted: u64,
+}
+
+// `TokendDepositedEventV2` emitted in bridge.move
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct MoveTokenDepositedEventV2 {
+    pub seq_num: u64,
+    pub source_chain: u8,
+    pub sender_address: Vec<u8>,
+    pub target_chain: u8,
+    pub target_address: Vec<u8>,
+    pub token_type: u8,
+    pub amount_haneul_adjusted: u64,
+    pub timestamp_ms: u64,
 }
 
 macro_rules! new_move_event {
@@ -221,6 +235,20 @@ pub struct EmittedHaneulToEthTokenBridgeV1 {
     pub amount_haneul_adjusted: u64,
 }
 
+// Sanitized version of MoveTokenDepositedEventV2
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Hash)]
+pub struct EmittedHaneulToEthTokenBridgeV2 {
+    pub nonce: u64,
+    pub haneul_chain_id: BridgeChainId,
+    pub eth_chain_id: BridgeChainId,
+    pub haneul_address: HaneulAddress,
+    pub eth_address: EthAddress,
+    pub token_id: u8,
+    // The amount of tokens deposited with decimal points on Haneul side
+    pub amount_haneul_adjusted: u64,
+    pub timestamp_ms: u64,
+}
+
 // Sanitized version of MoveCommitteeUpdateEvent
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct CommitteeUpdate {
@@ -342,6 +370,60 @@ impl TryFrom<MoveTokenDepositedEvent> for EmittedHaneulToEthTokenBridgeV1 {
     }
 }
 
+impl TryFrom<MoveTokenDepositedEventV2> for EmittedHaneulToEthTokenBridgeV2 {
+    type Error = BridgeError;
+
+    fn try_from(event: MoveTokenDepositedEventV2) -> BridgeResult<Self> {
+        if event.amount_haneul_adjusted == 0 {
+            return Err(BridgeError::ZeroValueBridgeTransfer(format!(
+                "Failed to convert MoveTokenDepositedEvent to EmittedHaneulToEthTokenBridgeV1. Manual intervention is required. 0 value transfer should not be allowed in Move: {:?}",
+                event,
+            )));
+        }
+
+        let token_id = event.token_type;
+        let haneul_chain_id = BridgeChainId::try_from(event.source_chain).map_err(|_e| {
+            BridgeError::Generic(format!(
+                "Failed to convert MoveTokenDepositedEvent to EmittedHaneulToEthTokenBridgeV1. Failed to convert source chain {} to BridgeChainId",
+                event.token_type,
+            ))
+        })?;
+        let eth_chain_id = BridgeChainId::try_from(event.target_chain).map_err(|_e| {
+            BridgeError::Generic(format!(
+                "Failed to convert MoveTokenDepositedEvent to EmittedHaneulToEthTokenBridgeV1. Failed to convert target chain {} to BridgeChainId",
+                event.token_type,
+            ))
+        })?;
+        if !haneul_chain_id.is_haneul_chain() {
+            return Err(BridgeError::Generic(format!(
+                "Failed to convert MoveTokenDepositedEvent to EmittedHaneulToEthTokenBridgeV1. Invalid source chain {}",
+                event.source_chain
+            )));
+        }
+        if eth_chain_id.is_haneul_chain() {
+            return Err(BridgeError::Generic(format!(
+                "Failed to convert MoveTokenDepositedEvent to EmittedHaneulToEthTokenBridgeV1. Invalid target chain {}",
+                event.target_chain
+            )));
+        }
+
+        let haneul_address = HaneulAddress::from_bytes(event.sender_address)
+            .map_err(|e| BridgeError::Generic(format!("Failed to convert MoveTokenDepositedEvent to EmittedHaneulToEthTokenBridgeV1. Failed to convert sender_address to HaneulAddress: {:?}", e)))?;
+        let eth_address = EthAddress::from_str(&Hex::encode(&event.target_address))?;
+
+        Ok(Self {
+            nonce: event.seq_num,
+            haneul_chain_id,
+            eth_chain_id,
+            haneul_address,
+            eth_address,
+            token_id,
+            amount_haneul_adjusted: event.amount_haneul_adjusted,
+            timestamp_ms: event.timestamp_ms,
+        })
+    }
+}
+
 crate::declare_events!(
     HaneulToEthTokenBridgeV1(EmittedHaneulToEthTokenBridgeV1) => ("bridge::TokenDepositedEvent", MoveTokenDepositedEvent),
     TokenTransferApproved(TokenTransferApproved) => ("bridge::TokenTransferApproved", MoveTokenTransferApproved),
@@ -360,6 +442,7 @@ crate::declare_events!(
     NewTokenEvent(NewTokenEvent) => ("treasury::NewTokenEvent", MoveNewTokenEvent),
     UpdateTokenPriceEvent(UpdateTokenPriceEvent) => ("treasury::UpdateTokenPriceEvent", UpdateTokenPriceEvent),
     UpdateRouteLimitEvent(UpdateRouteLimitEvent) => ("limiter::UpdateRouteLimitEvent", UpdateRouteLimitEvent),
+    HaneulToEthTokenBridgeV2(EmittedHaneulToEthTokenBridgeV2) => ("bridge::TokenDepositedEventV2", MoveTokenDepositedEventV2),
 
     // Add new event types here. Format:
     // EnumVariantName(Struct) => ("{module}::{event_struct}", CorrespondingMoveStruct)
@@ -424,6 +507,18 @@ impl HaneulBridgeEvent {
                     amount_adjusted: amount_haneul_adjusted,
                 }))
             }
+            HaneulBridgeEvent::HaneulToEthTokenBridgeV2(event) => Some(
+                BridgeAction::HaneulToEthTokenTransferV2(HaneulToEthTokenTransferV2 {
+                    nonce: event.nonce,
+                    haneul_chain_id: event.haneul_chain_id,
+                    eth_chain_id: event.eth_chain_id,
+                    haneul_address: event.haneul_address,
+                    eth_address: event.eth_address,
+                    token_id: event.token_id,
+                    amount_adjusted: event.amount_haneul_adjusted,
+                    timestamp_ms: event.timestamp_ms,
+                }),
+            ),
             HaneulBridgeEvent::TokenTransferApproved(_event) => None,
             HaneulBridgeEvent::TokenTransferClaimed(_event) => None,
             HaneulBridgeEvent::TokenTransferAlreadyApproved(_event) => None,

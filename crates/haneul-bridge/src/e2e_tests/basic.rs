@@ -7,11 +7,14 @@ use crate::crypto::BridgeAuthorityKeyPair;
 use crate::e2e_tests::test_utils::TestClusterWrapperBuilder;
 use crate::e2e_tests::test_utils::{
     BridgeTestClusterBuilder, get_signatures, initiate_bridge_erc20_to_haneul,
-    initiate_bridge_eth_to_haneul, initiate_bridge_haneul_to_eth, send_eth_tx_and_get_tx_receipt,
+    initiate_bridge_eth_to_haneul, initiate_bridge_eth_to_haneul_v2, initiate_bridge_haneul_to_eth,
+    initiate_bridge_haneul_to_eth_v2, send_eth_tx_and_get_tx_receipt,
 };
+use crate::encoding::TOKEN_TRANSFER_MESSAGE_VERSION_V2;
 use crate::eth_transaction_builder::build_eth_transaction;
 use crate::events::{
-    HaneulBridgeEvent, HaneulToEthTokenBridgeV1, TokenTransferApproved, TokenTransferClaimed,
+    HaneulBridgeEvent, HaneulToEthTokenBridgeV1, HaneulToEthTokenBridgeV2, TokenTransferApproved,
+    TokenTransferClaimed,
 };
 use crate::haneul_transaction_builder::build_add_tokens_on_haneul_transaction;
 use crate::types::{AddTokensOnEvmAction, BridgeAction};
@@ -157,6 +160,147 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
         timer.elapsed()
     );
     // Assert eth_address_1 has received ETH
+    assert_eq!(
+        eth_signer.get_balance(eth_address_1, None).await.unwrap(),
+        U256::from(amount) * U256::exp10(18)
+    );
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 8)]
+async fn test_bridge_from_eth_to_haneul_to_eth_v2() {
+    telemetry_subscribers::init_for_testing();
+
+    let eth_chain_id = BridgeChainId::EthCustom as u8;
+    let haneul_chain_id = BridgeChainId::HaneulCustom as u8;
+    let timer = std::time::Instant::now();
+    let mut bridge_test_cluster = BridgeTestClusterBuilder::new()
+        .with_eth_env(true)
+        .with_bridge_cluster(true)
+        .with_num_validators(3)
+        .build()
+        .await;
+    info!(
+        "[Timer] Bridge test cluster started in {:?}",
+        timer.elapsed()
+    );
+
+    // Upgrade the bridge to V2 before testing V2 functionality
+    let timer = std::time::Instant::now();
+    bridge_test_cluster
+        .upgrade_bridge_to_v2()
+        .await
+        .expect("Failed to upgrade bridge to V2");
+    info!("[Timer] Bridge upgraded to V2 in {:?}", timer.elapsed());
+
+    let timer = std::time::Instant::now();
+    let (eth_signer, _) = bridge_test_cluster
+        .get_eth_signer_and_address()
+        .await
+        .unwrap();
+
+    let haneul_address = bridge_test_cluster.haneul_user_address();
+    let amount = 24;
+    let haneul_amount = amount * 100_000_000;
+
+    initiate_bridge_eth_to_haneul_v2(&bridge_test_cluster, amount, 0)
+        .await
+        .unwrap();
+    let events = bridge_test_cluster
+        .new_bridge_events(
+            HashSet::from_iter([
+                TokenTransferApproved.get().unwrap().clone(),
+                TokenTransferClaimed.get().unwrap().clone(),
+            ]),
+            true,
+        )
+        .await;
+    assert_eq!(events.len(), 2);
+
+    let eth_coin = bridge_test_cluster
+        .haneul_client()
+        .coin_read_api()
+        .get_all_coins(haneul_address, None, None)
+        .await
+        .unwrap()
+        .data
+        .iter()
+        .find(|c| c.coin_type.contains("ETH"))
+        .expect("Recipient should have received ETH coin now")
+        .clone();
+    assert_eq!(eth_coin.balance, haneul_amount);
+    info!(
+        "[Timer] Eth to Haneul bridge transfer v2 finished in {:?}",
+        timer.elapsed()
+    );
+    let timer = std::time::Instant::now();
+
+    let eth_address_1 = EthAddress::random();
+    let nonce = 0;
+
+    let haneul_to_eth_bridge_action = initiate_bridge_haneul_to_eth_v2(
+        &bridge_test_cluster,
+        eth_address_1,
+        eth_coin.object_ref(),
+        nonce,
+        haneul_amount,
+    )
+    .await
+    .unwrap();
+    let events = bridge_test_cluster
+        .new_bridge_events(
+            HashSet::from_iter([
+                HaneulToEthTokenBridgeV2.get().unwrap().clone(),
+                TokenTransferApproved.get().unwrap().clone(),
+                TokenTransferClaimed.get().unwrap().clone(),
+            ]),
+            true,
+        )
+        .await;
+    assert_eq!(events.len(), 2);
+    info!(
+        "[Timer] Haneul to Eth bridge transfer v2 approved in {:?}",
+        timer.elapsed()
+    );
+    let timer = std::time::Instant::now();
+
+    let parsed_msg = bridge_test_cluster
+        .bridge_client()
+        .get_parsed_token_transfer_message(haneul_chain_id, nonce)
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(parsed_msg.source_chain as u8, haneul_chain_id);
+    assert_eq!(parsed_msg.seq_num, nonce);
+    assert_eq!(
+        parsed_msg.parsed_payload.sender_address,
+        haneul_address.to_vec()
+    );
+    assert_eq!(
+        &parsed_msg.parsed_payload.target_address,
+        eth_address_1.as_bytes()
+    );
+    assert_eq!(parsed_msg.parsed_payload.target_chain, eth_chain_id);
+    assert_eq!(parsed_msg.parsed_payload.token_type, TOKEN_ID_ETH);
+    assert_eq!(parsed_msg.parsed_payload.amount, haneul_amount);
+    assert_eq!(
+        parsed_msg.message_version,
+        TOKEN_TRANSFER_MESSAGE_VERSION_V2
+    );
+
+    let message: eth_haneul_bridge::Message = haneul_to_eth_bridge_action.try_into().unwrap();
+    let signatures = get_signatures(bridge_test_cluster.bridge_client(), nonce, haneul_chain_id).await;
+
+    let eth_haneul_bridge = EthHaneulBridge::new(
+        bridge_test_cluster.contracts().haneul_bridge,
+        eth_signer.clone().into(),
+    );
+    let call = eth_haneul_bridge.transfer_bridged_tokens_with_signatures_v2(signatures, message);
+    let eth_claim_tx_receipt = send_eth_tx_and_get_tx_receipt(call).await;
+    assert_eq!(eth_claim_tx_receipt.status.unwrap().as_u64(), 1);
+    info!(
+        "[Timer] Haneul to Eth bridge transfer v2 claimed in {:?}",
+        timer.elapsed()
+    );
     assert_eq!(
         eth_signer.get_balance(eth_address_1, None).await.unwrap(),
         U256::from(amount) * U256::exp10(18)
