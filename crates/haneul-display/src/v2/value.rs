@@ -18,10 +18,14 @@ use serde::Serialize;
 use serde::ser::SerializeSeq as _;
 use serde::ser::SerializeTuple as _;
 use serde::ser::SerializeTupleVariant;
+use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::RESOLVED_UTF8_STR;
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::move_ascii_str_layout;
 use haneul_types::base_types::move_utf8_str_layout;
 use haneul_types::base_types::url_layout;
+use haneul_types::dynamic_field::DynamicFieldInfo;
+use haneul_types::dynamic_field::derive_dynamic_field_id;
 use haneul_types::id::ID;
 use haneul_types::id::UID;
 use haneul_types::object::rpc_visitor as RV;
@@ -140,6 +144,30 @@ pub enum Fields<'s> {
 }
 
 impl Value<'_> {
+    /// Treat this value as a dynamic field name, and derive the ID of its `Field<K, V>` object,
+    /// under the given `parent` address.
+    pub fn derive_dynamic_field_id(
+        &self,
+        parent: impl Into<HaneulAddress>,
+    ) -> Result<ObjectID, FormatError> {
+        let bytes = bcs::to_bytes(self)?;
+        let type_ = self.type_();
+
+        Ok(derive_dynamic_field_id(parent, &type_, &bytes)?)
+    }
+
+    /// Treat this value as a dynamic object field name, and derive the ID of its `Field<K, V>`
+    /// object, under the given `parent` address.
+    pub fn derive_dynamic_object_field_id(
+        &self,
+        parent: impl Into<HaneulAddress>,
+    ) -> Result<ObjectID, FormatError> {
+        let bytes = bcs::to_bytes(self)?;
+        let type_ = DynamicFieldInfo::dynamic_object_field_wrapper(self.type_()).into();
+
+        Ok(derive_dynamic_field_id(parent, &type_, &bytes)?)
+    }
+
     /// Write out a formatted representation of this value, transformed by `transform`, to the
     /// provided writer.
     ///
