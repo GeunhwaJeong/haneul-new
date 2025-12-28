@@ -75,6 +75,7 @@ haneul-types.workspace = true
 
 [dev-dependencies]
 insta.workspace = true
+reqwest.workspace = true
 
 [features]
 staging = []
