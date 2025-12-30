@@ -23,6 +23,7 @@ use haneul_macros::sim_test;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::error::UserInputError;
+use haneul_types::messages_grpc::{SubmitTxRequest, SubmitTxResponse, SubmitTxResult};
 use haneul_types::multisig_legacy::MultiSigLegacy;
 use haneul_types::passkey_authenticator::{PasskeyAuthenticator, to_signing_message};
 use haneul_types::{
@@ -45,7 +46,7 @@ use haneul_types::{
 };
 use test_cluster::{TestCluster, TestClusterBuilder};
 use url::Url;
-async fn do_upgraded_multisig_test() -> HaneulResult {
+async fn do_upgraded_multisig_test() -> HaneulResult<SubmitTxResponse> {
     let test_cluster = TestClusterBuilder::new().build().await;
     let tx = make_upgraded_multisig_tx();
 
@@ -56,9 +57,11 @@ async fn do_upgraded_multisig_test() -> HaneulResult {
         .next()
         .unwrap()
         .authority_client()
-        .handle_transaction(tx, Some(SocketAddr::new([127, 0, 0, 1].into(), 0)))
+        .submit_transaction(
+            SubmitTxRequest::new_transaction(tx),
+            Some(SocketAddr::new([127, 0, 0, 1].into(), 0)),
+        )
         .await
-        .map(|_| ())
 }
 
 async fn create_credential_and_sign_test_tx_with_passkey_multisig(
@@ -315,14 +318,30 @@ async fn test_upgraded_multisig_feature_allow() {
         config
     });
 
-    let res = do_upgraded_multisig_test().await;
-
-    // we didn't make a real transaction with a valid object, but we verify that we pass the
-    // feature gate.
-    assert!(matches!(
-        res.unwrap_err().as_inner(),
-        HaneulErrorKind::UserInputError { .. }
-    ));
+    // When the feature is enabled, the transaction passes the feature gate check.
+    // The transaction is rejected for other reasons (dummy tx has no valid objects),
+    // but importantly NOT with Unsupported error.
+    let response = do_upgraded_multisig_test().await.unwrap();
+    assert_eq!(response.results.len(), 1);
+    match &response.results[0] {
+        SubmitTxResult::Rejected { error } => {
+            // Verify it's not an Unsupported error (which would mean feature gate failed)
+            assert!(
+                !matches!(
+                    error.as_inner(),
+                    HaneulErrorKind::UserInputError {
+                        error: UserInputError::Unsupported(..)
+                    }
+                ),
+                "Transaction should pass feature gate, but got Unsupported error: {:?}",
+                error
+            );
+        }
+        other => panic!(
+            "Expected Rejected result (tx uses dummy objects), got {:?}",
+            other
+        ),
+    }
 }
 
 #[sim_test]

@@ -28,16 +28,13 @@ use haneul_types::{
     },
     messages_consensus::ConsensusPosition,
     messages_grpc::{
-        ExecutedData, HandleCertificateRequestV3, HandleCertificateResponseV2,
-        HandleCertificateResponseV3, HandleSoftBundleCertificatesRequestV3,
-        HandleSoftBundleCertificatesResponseV3, HandleTransactionResponse, ObjectInfoRequest,
-        ObjectInfoResponse, SubmitTxRequest, SubmitTxResponse, SubmitTxResult, SystemStateRequest,
-        TransactionInfoRequest, TransactionInfoResponse, TxType, ValidatorHealthRequest,
-        ValidatorHealthResponse, WaitForEffectsRequest, WaitForEffectsResponse,
+        ExecutedData, ObjectInfoRequest, ObjectInfoResponse, SubmitTxRequest, SubmitTxResponse,
+        SubmitTxResult, SystemStateRequest, TransactionInfoRequest, TransactionInfoResponse,
+        TxType, ValidatorHealthRequest, ValidatorHealthResponse, WaitForEffectsRequest,
+        WaitForEffectsResponse,
     },
-    quorum_driver_types::EffectsFinalityInfo,
     haneul_system_state::HaneulSystemState,
-    transaction::{CertifiedTransaction, Transaction},
+    transaction_driver_types::EffectsFinalityInfo,
 };
 use tokio::time::{Duration, sleep};
 
@@ -123,38 +120,6 @@ impl AuthorityAPI for MockAuthority {
             }
             .into())
         }
-    }
-
-    async fn handle_transaction(
-        &self,
-        _transaction: Transaction,
-        _client_addr: Option<SocketAddr>,
-    ) -> Result<HandleTransactionResponse, HaneulError> {
-        unimplemented!();
-    }
-
-    async fn handle_certificate_v2(
-        &self,
-        _certificate: CertifiedTransaction,
-        _client_addr: Option<SocketAddr>,
-    ) -> Result<HandleCertificateResponseV2, HaneulError> {
-        unimplemented!();
-    }
-
-    async fn handle_certificate_v3(
-        &self,
-        _request: HandleCertificateRequestV3,
-        _client_addr: Option<SocketAddr>,
-    ) -> Result<HandleCertificateResponseV3, HaneulError> {
-        unimplemented!()
-    }
-
-    async fn handle_soft_bundle_certificates_v3(
-        &self,
-        _request: HandleSoftBundleCertificatesRequestV3,
-        _client_addr: Option<SocketAddr>,
-    ) -> Result<HandleSoftBundleCertificatesResponseV3, HaneulError> {
-        unimplemented!()
     }
 
     async fn handle_object_info_request(

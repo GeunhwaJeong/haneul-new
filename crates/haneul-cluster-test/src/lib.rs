@@ -18,8 +18,8 @@ use haneul_sdk::wallet_context::WalletContext;
 use haneul_test_transaction_builder::batch_make_transfer_transactions;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::object::Owner;
-use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
+use haneul_types::transaction_driver_types::ExecuteTransactionRequestType;
 
 use haneul_sdk::HaneulClient;
 use haneul_types::gas_coin::GasCoin;

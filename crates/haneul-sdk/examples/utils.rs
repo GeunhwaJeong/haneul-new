@@ -23,8 +23,8 @@ use haneul_sdk::types::{
     base_types::{ObjectID, HaneulAddress},
     digests::TransactionDigest,
     programmable_transaction_builder::ProgrammableTransactionBuilder,
-    quorum_driver_types::ExecuteTransactionRequestType,
     transaction::{Argument, Command, Transaction, TransactionData},
+    transaction_driver_types::ExecuteTransactionRequestType,
 };
 
 use haneul_sdk::{HaneulClient, HaneulClientBuilder, rpc_types::HaneulTransactionBlockResponseOptions};

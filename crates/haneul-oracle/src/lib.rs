@@ -25,9 +25,9 @@ use haneul_types::error::UserInputError;
 use haneul_types::object::{Object, Owner};
 use haneul_types::parse_haneul_type_tag;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use haneul_types::quorum_driver_types::NON_RECOVERABLE_ERROR_MSG;
 use haneul_types::transaction::{Argument, Transaction};
 use haneul_types::transaction::{Command, ObjectArg, SharedObjectMutability};
+use haneul_types::transaction_driver_types::NON_RECOVERABLE_ERROR_MSG;
 use haneul_types::{
     base_types::HaneulAddress,
     transaction::{CallArg, TransactionData},
@@ -581,8 +581,8 @@ impl OnChainDataUploader {
                     tx.clone(),
                     HaneulTransactionBlockResponseOptions::new().with_effects(),
                     // TODO: after 1.4.0, we can simply use `WaitForEffectsCert` which is faster.
-                    // Some(haneul_types::quorum_driver_types::ExecuteTransactionRequestType::WaitForEffectsCert),
-                    Some(haneul_types::quorum_driver_types::ExecuteTransactionRequestType::WaitForLocalExecution),
+                    // Some(haneul_types::transaction_driver_types::ExecuteTransactionRequestType::WaitForEffectsCert),
+                    Some(haneul_types::transaction_driver_types::ExecuteTransactionRequestType::WaitForLocalExecution),
                 )
                 .await {
                 Ok(response) => return Ok(response),

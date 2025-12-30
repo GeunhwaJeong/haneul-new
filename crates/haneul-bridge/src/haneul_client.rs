@@ -599,7 +599,7 @@ impl HaneulClientInner for HaneulSdkClient {
         match self.quorum_driver_api().execute_transaction_block(
             tx,
             HaneulTransactionBlockResponseOptions::new().with_effects().with_events(),
-            Some(haneul_types::quorum_driver_types::ExecuteTransactionRequestType::WaitForEffectsCert),
+            Some(haneul_types::transaction_driver_types::ExecuteTransactionRequestType::WaitForEffectsCert),
         ).await {
             Ok(response) => {
                 let effects = response.effects.expect("We requested effects but got None.");

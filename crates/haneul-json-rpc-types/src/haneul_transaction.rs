@@ -45,7 +45,6 @@ use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::messages_consensus::ConsensusDeterminedVersionAssignments;
 use haneul_types::object::Owner;
 use haneul_types::parse_haneul_type_tag;
-use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::signature::GenericSignature;
 use haneul_types::storage::{DeleteKind, WriteKind};
 use haneul_types::haneul_serde::Readable;
@@ -58,6 +57,7 @@ use haneul_types::transaction::{
     SenderSignedData, TransactionData, TransactionDataAPI, TransactionKind, WithdrawFrom,
     WithdrawalTypeArg,
 };
+use haneul_types::transaction_driver_types::ExecuteTransactionRequestType;
 use haneul_types::{authenticator_state::ActiveJwk, transaction::SharedObjectMutability};
 
 use crate::balance_changes::BalanceChange;

@@ -13,8 +13,8 @@ use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_sdk::HaneulClient;
 use haneul_types::effects::TransactionEffects as NativeTransactionEffects;
 use haneul_types::event::Event as NativeEvent;
-use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::transaction::SenderSignedData;
+use haneul_types::transaction_driver_types::ExecuteTransactionRequestType;
 use haneul_types::{signature::GenericSignature, transaction::Transaction};
 pub struct Mutation;
 

@@ -13,8 +13,8 @@ use haneul_move_build::BuildConfig;
 use haneul_types::Identifier;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::transaction::{CallArg, ObjectArg, TransactionData, TransactionKind};
+use haneul_types::transaction_driver_types::ExecuteTransactionRequestType;
 use test_cluster::TestClusterBuilder;
 
 #[tokio::test]

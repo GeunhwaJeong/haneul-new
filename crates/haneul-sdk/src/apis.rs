@@ -37,10 +37,10 @@ use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, Transact
 use haneul_types::dynamic_field::DynamicFieldName;
 use haneul_types::event::EventID;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
-use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::haneul_serde::BigInt;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 use haneul_types::transaction::{Transaction, TransactionData, TransactionKind};
+use haneul_types::transaction_driver_types::ExecuteTransactionRequestType;
 
 const WAIT_FOR_LOCAL_EXECUTION_MIN_INTERVAL: Duration = Duration::from_millis(100);
 const WAIT_FOR_LOCAL_EXECUTION_MAX_INTERVAL: Duration = Duration::from_secs(2);

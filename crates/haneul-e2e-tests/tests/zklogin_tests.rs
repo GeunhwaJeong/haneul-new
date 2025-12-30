@@ -13,6 +13,7 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::Signature;
 use haneul_types::error::{HaneulErrorKind, HaneulResult, UserInputError};
+use haneul_types::messages_grpc::SubmitTxRequest;
 use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::Transaction;
 use haneul_types::utils::load_test_vectors;
@@ -34,7 +35,10 @@ async fn do_zklogin_test(address: HaneulAddress, legacy: bool) -> HaneulResult {
         .next()
         .unwrap()
         .authority_client()
-        .handle_transaction(tx, Some(SocketAddr::new([127, 0, 0, 1].into(), 0)))
+        .submit_transaction(
+            SubmitTxRequest::new_transaction(tx),
+            Some(SocketAddr::new([127, 0, 0, 1].into(), 0)),
+        )
         .await
         .map(|_| ())
 }

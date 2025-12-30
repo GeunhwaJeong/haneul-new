@@ -15,7 +15,7 @@ use haneul_sdk::types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_sdk::types::coin::{COIN_MODULE_NAME, COIN_TREASURE_CAP_NAME};
 use haneul_sdk::types::crypto::{Signature, HaneulKeyPair};
 use haneul_sdk::types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use haneul_sdk::types::quorum_driver_types::ExecuteTransactionRequestType;
+use haneul_sdk::types::transaction_driver_types::ExecuteTransactionRequestType;
 use haneul_sdk::types::transaction::{Argument, Command, ObjectArg, Transaction, TransactionData};
 use haneul_sdk::types::{HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID};
 use haneul_sdk::HaneulClient;

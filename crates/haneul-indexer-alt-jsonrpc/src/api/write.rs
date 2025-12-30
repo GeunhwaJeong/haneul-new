@@ -8,7 +8,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_open_rpc::Module;
 use haneul_open_rpc_macros::open_rpc;
-use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
+use haneul_types::transaction_driver_types::ExecuteTransactionRequestType;
 
 use crate::error::{client_error_to_error_object, invalid_params};
 

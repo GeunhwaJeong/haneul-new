@@ -81,7 +81,7 @@ use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
 use haneul_core::authority::epoch_start_configuration::EpochStartConfigTrait;
 use haneul_core::authority::epoch_start_configuration::EpochStartConfiguration;
 use haneul_core::authority::submitted_transaction_cache::SubmittedTransactionCacheMetrics;
-use haneul_core::authority_aggregator::{AuthAggMetrics, AuthorityAggregator};
+use haneul_core::authority_aggregator::AuthorityAggregator;
 use haneul_core::authority_server::{ValidatorService, ValidatorServiceMetrics};
 use haneul_core::checkpoints::checkpoint_executor::metrics::CheckpointExecutorMetrics;
 use haneul_core::checkpoints::checkpoint_executor::{CheckpointExecutor, StopReason};
@@ -234,7 +234,6 @@ use simulator::*;
 use haneul_core::authority::authority_store_pruner::{ObjectsCompactionFilter, PrunerWatermarks};
 use haneul_core::{
     consensus_handler::ConsensusHandlerInitializer, safe_client::SafeClientMetricsBase,
-    validator_tx_finalizer::ValidatorTxFinalizer,
 };
 
 const DEFAULT_GRPC_CONNECT_TIMEOUT: Duration = Duration::from_secs(60);
@@ -556,13 +555,11 @@ impl HaneulNode {
 
         let auth_agg = {
             let safe_client_metrics_base = SafeClientMetricsBase::new(&prometheus_registry);
-            let auth_agg_metrics = Arc::new(AuthAggMetrics::new(&prometheus_registry));
             Arc::new(ArcSwap::new(Arc::new(
                 AuthorityAggregator::new_from_epoch_start_state(
                     epoch_start_configuration.epoch_start_state(),
                     &committee_store,
                     safe_client_metrics_base,
-                    auth_agg_metrics,
                 ),
             )))
         };
@@ -740,14 +737,6 @@ impl HaneulNode {
         }
 
         let authority_name = config.protocol_public_key();
-        let validator_tx_finalizer =
-            config
-                .enable_validator_tx_finalizer
-                .then_some(Arc::new(ValidatorTxFinalizer::new(
-                    auth_agg.clone(),
-                    authority_name,
-                    &prometheus_registry,
-                )));
 
         info!("create authority state");
         let state = AuthorityState::new(
@@ -765,7 +754,6 @@ impl HaneulNode {
             genesis.objects(),
             &db_checkpoint_config,
             config.clone(),
-            validator_tx_finalizer,
             chain_identifier,
             pruner_db,
             config.policy_config.clone(),

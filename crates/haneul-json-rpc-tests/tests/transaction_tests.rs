@@ -20,10 +20,10 @@ use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::gas_coin::GAS;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use haneul_types::quorum_driver_types::ExecuteTransactionRequestType;
 use haneul_types::transaction::Command;
 use haneul_types::transaction::SenderSignedData;
 use haneul_types::transaction::TransactionData;
+use haneul_types::transaction_driver_types::ExecuteTransactionRequestType;
 use test_cluster::TestClusterBuilder;
 
 use haneul_json_rpc_api::{IndexerApiClient, TransactionBuilderClient, WriteApiClient};

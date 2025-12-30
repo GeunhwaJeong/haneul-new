@@ -8,7 +8,7 @@ use haneul_json_rpc_types::{
 };
 use haneul_sdk::HaneulClient;
 use haneul_types::{
-    base_types::TransactionDigest, quorum_driver_types::ExecuteTransactionRequestType,
+    base_types::TransactionDigest, transaction_driver_types::ExecuteTransactionRequestType,
 };
 use tracing::info;
 

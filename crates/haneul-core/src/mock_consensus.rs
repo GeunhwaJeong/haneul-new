@@ -14,7 +14,7 @@ use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::messages_consensus::{
     ConsensusPosition, ConsensusTransaction, ConsensusTransactionKind,
 };
-use haneul_types::transaction::{VerifiedCertificate, VerifiedTransaction};
+use haneul_types::transaction::VerifiedTransaction;
 use tokio::sync::{mpsc, oneshot};
 use tokio::task::JoinHandle;
 use tracing::debug;
@@ -65,14 +65,17 @@ impl MockConsensusClient {
                 ConsensusMode::DirectSequencing => {
                     // Extract the executable transaction from the consensus transaction
                     let executable_tx = match &tx.kind {
-                        ConsensusTransactionKind::CertifiedTransaction(cert) => {
-                            Some(VerifiedExecutableTransaction::new_from_certificate(
-                                VerifiedCertificate::new_unchecked(*cert.clone()),
-                            ))
-                        }
+                        // DEPRECATED: CertifiedTransaction is no longer used since MFP is live.
+                        ConsensusTransactionKind::CertifiedTransaction(_) => None,
                         ConsensusTransactionKind::UserTransaction(tx) => {
                             Some(VerifiedExecutableTransaction::new_from_consensus(
                                 VerifiedTransaction::new_unchecked(*tx.clone()),
+                                0,
+                            ))
+                        }
+                        ConsensusTransactionKind::UserTransactionV2(tx) => {
+                            Some(VerifiedExecutableTransaction::new_from_consensus(
+                                VerifiedTransaction::new_unchecked(tx.tx().clone()),
                                 0,
                             ))
                         }
@@ -101,19 +104,9 @@ impl MockConsensusClient {
                 }
             };
             match &tx.kind {
-                ConsensusTransactionKind::CertifiedTransaction(tx) => {
-                    if tx.is_consensus_tx() {
-                        validator.execution_scheduler().enqueue(
-                            vec![(
-                                VerifiedExecutableTransaction::new_from_certificate(
-                                    VerifiedCertificate::new_unchecked(*tx.clone()),
-                                )
-                                .into(),
-                                env,
-                            )],
-                            &epoch_store,
-                        );
-                    }
+                // DEPRECATED: CertifiedTransaction is no longer used since MFP is live.
+                ConsensusTransactionKind::CertifiedTransaction(_) => {
+                    debug!("Ignoring deprecated CertifiedTransaction in MockConsensusClient");
                 }
                 ConsensusTransactionKind::UserTransaction(tx) => {
                     if tx.is_consensus_tx() {

@@ -23,6 +23,7 @@ use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::crypto::Signature;
 use haneul_types::error::UserInputError;
 use haneul_types::error::{HaneulErrorKind, HaneulResult};
+use haneul_types::messages_grpc::SubmitTxRequest;
 use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::Transaction;
 use haneul_types::{
@@ -78,7 +79,10 @@ async fn execute_tx(tx: Transaction, test_cluster: &TestCluster) -> HaneulResult
         .next()
         .unwrap()
         .authority_client()
-        .handle_transaction(tx, Some(SocketAddr::new([127, 0, 0, 1].into(), 0)))
+        .submit_transaction(
+            SubmitTxRequest::new_transaction(tx),
+            Some(SocketAddr::new([127, 0, 0, 1].into(), 0)),
+        )
         .await
         .map(|_| ())
 }

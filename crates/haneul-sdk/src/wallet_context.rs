@@ -547,7 +547,7 @@ impl WalletContext {
                     .with_events()
                     .with_object_changes()
                     .with_balance_changes(),
-                Some(haneul_types::quorum_driver_types::ExecuteTransactionRequestType::WaitForLocalExecution),
+                Some(haneul_types::transaction_driver_types::ExecuteTransactionRequestType::WaitForLocalExecution),
             )
             .await?)
     }

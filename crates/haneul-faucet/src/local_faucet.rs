@@ -13,7 +13,7 @@ use crate::FaucetConfig;
 use crate::FaucetError;
 use haneul_sdk::{
     rpc_types::{HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions},
-    types::quorum_driver_types::ExecuteTransactionRequestType,
+    types::transaction_driver_types::ExecuteTransactionRequestType,
 };
 
 use crate::CoinInfo;
