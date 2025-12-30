@@ -150,6 +150,10 @@ impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerV1 {
         self.parameters.epoch_duration_ms
     }
 
+    fn extra_fields(&self) -> &Bag {
+        &self.extra_fields
+    }
+
     fn safe_mode(&self) -> bool {
         self.safe_mode
     }
@@ -269,6 +273,10 @@ impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerShallowV2 {
 
     fn epoch_duration_ms(&self) -> u64 {
         self.parameters.epoch_duration_ms
+    }
+
+    fn extra_fields(&self) -> &Bag {
+        &self.extra_fields
     }
 
     fn safe_mode(&self) -> bool {
@@ -419,6 +427,10 @@ impl HaneulSystemStateTrait for SimTestHaneulSystemStateInnerDeepV2 {
 
     fn epoch_duration_ms(&self) -> u64 {
         self.parameters.epoch_duration_ms
+    }
+
+    fn extra_fields(&self) -> &Bag {
+        &self.extra_fields
     }
 
     fn safe_mode(&self) -> bool {

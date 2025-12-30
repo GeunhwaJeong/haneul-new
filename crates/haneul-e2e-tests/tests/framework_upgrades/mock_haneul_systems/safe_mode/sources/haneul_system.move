@@ -77,4 +77,11 @@ module haneul_system::haneul_system {
         let version = self.version;
         dynamic_field::borrow_mut(&mut self.id, version)
     }
+
+    fun write_accumulator_storage_cost(
+        _wrapper: &mut HaneulSystemState,
+        _storage_cost: u64,
+        _ctx: &TxContext,
+    ) {
+    }
 }

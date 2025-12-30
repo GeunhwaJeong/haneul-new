@@ -8,6 +8,7 @@ title: Module `haneul::accumulator_metadata`
 -  [Struct `Owner`](#haneul_accumulator_metadata_Owner)
 -  [Struct `MetadataKey`](#haneul_accumulator_metadata_MetadataKey)
 -  [Struct `Metadata`](#haneul_accumulator_metadata_Metadata)
+-  [Struct `AccumulatorObjectCountKey`](#haneul_accumulator_metadata_AccumulatorObjectCountKey)
 -  [Constants](#@Constants_0)
 -  [Function `accumulator_root_owner_exists`](#haneul_accumulator_metadata_accumulator_root_owner_exists)
 -  [Function `accumulator_root_borrow_owner_mut`](#haneul_accumulator_metadata_accumulator_root_borrow_owner_mut)
@@ -18,6 +19,8 @@ title: Module `haneul::accumulator_metadata`
 -  [Function `accumulator_owner_attach_metadata`](#haneul_accumulator_metadata_accumulator_owner_attach_metadata)
 -  [Function `accumulator_owner_detach_metadata`](#haneul_accumulator_metadata_accumulator_owner_detach_metadata)
 -  [Function `accumulator_owner_destroy`](#haneul_accumulator_metadata_accumulator_owner_destroy)
+-  [Function `record_accumulator_object_changes`](#haneul_accumulator_metadata_record_accumulator_object_changes)
+-  [Function `get_accumulator_object_count`](#haneul_accumulator_metadata_get_accumulator_object_count)
 
 
 <pre><code><b>use</b> <a href="../std/ascii.md#std_ascii">std::ascii</a>;
@@ -153,6 +156,28 @@ A metadata field for a balance field with type T.
 <dd>
  Any per-balance fields we wish to add in the future.
 </dd>
+</dl>
+
+
+</details>
+
+<a name="haneul_accumulator_metadata_AccumulatorObjectCountKey"></a>
+
+## Struct `AccumulatorObjectCountKey`
+
+Key for storing the net count of accumulator objects as a dynamic field on the accumulator root.
+
+
+<pre><code><b>public</b> <b>struct</b> <a href="../haneul/accumulator_metadata.md#haneul_accumulator_metadata_AccumulatorObjectCountKey">AccumulatorObjectCountKey</a> <b>has</b> <b>copy</b>, drop, store
+</code></pre>
+
+
+
+<details>
+<summary>Fields</summary>
+
+
+<dl>
 </dl>
 
 
@@ -430,6 +455,79 @@ Destroy an owner field.
 <pre><code><b>fun</b> <a href="../haneul/accumulator_metadata.md#haneul_accumulator_metadata_accumulator_owner_destroy">accumulator_owner_destroy</a>(this: <a href="../haneul/accumulator_metadata.md#haneul_accumulator_metadata_Owner">Owner</a>) {
     <b>let</b> <a href="../haneul/accumulator_metadata.md#haneul_accumulator_metadata_Owner">Owner</a> { balances, .. } = this;
     balances.destroy_empty();
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_accumulator_metadata_record_accumulator_object_changes"></a>
+
+## Function `record_accumulator_object_changes`
+
+Records changes in the net count of accumulator objects. Called by the barrier transaction
+as part of accumulator settlement.
+
+This value is copied to the Haneul system state object at end-of-epoch by the
+WriteAccumulatorStorageCost transaction, for use in storage fund accounting. Copying once
+at end-of-epoch lets us avoid depending on the Haneul system state object in the settlement
+barrier transaction.
+
+
+<pre><code><b>fun</b> <a href="../haneul/accumulator_metadata.md#haneul_accumulator_metadata_record_accumulator_object_changes">record_accumulator_object_changes</a>(accumulator_root: &<b>mut</b> <a href="../haneul/accumulator.md#haneul_accumulator_AccumulatorRoot">haneul::accumulator::AccumulatorRoot</a>, objects_created: u64, objects_destroyed: u64)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>fun</b> <a href="../haneul/accumulator_metadata.md#haneul_accumulator_metadata_record_accumulator_object_changes">record_accumulator_object_changes</a>(
+    accumulator_root: &<b>mut</b> AccumulatorRoot,
+    objects_created: u64,
+    objects_destroyed: u64,
+) {
+    <b>let</b> key = <a href="../haneul/accumulator_metadata.md#haneul_accumulator_metadata_AccumulatorObjectCountKey">AccumulatorObjectCountKey</a>();
+    <b>if</b> (<a href="../haneul/dynamic_field.md#haneul_dynamic_field_exists_">dynamic_field::exists_</a>(accumulator_root.id_mut(), key)) {
+        <b>let</b> current_count: &<b>mut</b> u64 = <a href="../haneul/dynamic_field.md#haneul_dynamic_field_borrow_mut">dynamic_field::borrow_mut</a>(accumulator_root.id_mut(), key);
+        <b>assert</b>!(*current_count + objects_created &gt;= objects_destroyed, <a href="../haneul/accumulator_metadata.md#haneul_accumulator_metadata_EInvariantViolation">EInvariantViolation</a>);
+        *current_count = *current_count + objects_created - objects_destroyed;
+    } <b>else</b> {
+        <b>assert</b>!(objects_created &gt;= objects_destroyed, <a href="../haneul/accumulator_metadata.md#haneul_accumulator_metadata_EInvariantViolation">EInvariantViolation</a>);
+        <a href="../haneul/dynamic_field.md#haneul_dynamic_field_add">dynamic_field::add</a>(accumulator_root.id_mut(), key, objects_created - objects_destroyed);
+    };
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_accumulator_metadata_get_accumulator_object_count"></a>
+
+## Function `get_accumulator_object_count`
+
+Returns the current count of accumulator objects stored as a dynamic field.
+
+
+<pre><code><b>fun</b> <a href="../haneul/accumulator_metadata.md#haneul_accumulator_metadata_get_accumulator_object_count">get_accumulator_object_count</a>(accumulator_root: &<a href="../haneul/accumulator.md#haneul_accumulator_AccumulatorRoot">haneul::accumulator::AccumulatorRoot</a>): u64
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>fun</b> <a href="../haneul/accumulator_metadata.md#haneul_accumulator_metadata_get_accumulator_object_count">get_accumulator_object_count</a>(accumulator_root: &AccumulatorRoot): u64 {
+    <b>let</b> key = <a href="../haneul/accumulator_metadata.md#haneul_accumulator_metadata_AccumulatorObjectCountKey">AccumulatorObjectCountKey</a>();
+    <b>if</b> (<a href="../haneul/dynamic_field.md#haneul_dynamic_field_exists_">dynamic_field::exists_</a>(accumulator_root.id(), key)) {
+        *<a href="../haneul/dynamic_field.md#haneul_dynamic_field_borrow">dynamic_field::borrow</a>(accumulator_root.id(), key)
+    } <b>else</b> {
+        0
+    }
 }
 </code></pre>
 

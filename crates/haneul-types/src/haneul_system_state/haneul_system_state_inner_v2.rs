@@ -101,6 +101,10 @@ impl HaneulSystemStateTrait for HaneulSystemStateInnerV2 {
         self.parameters.epoch_duration_ms
     }
 
+    fn extra_fields(&self) -> &Bag {
+        &self.extra_fields
+    }
+
     fn safe_mode(&self) -> bool {
         self.safe_mode
     }
