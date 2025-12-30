@@ -42,6 +42,11 @@ use self::simtest_haneul_system_state_inner::{
 const HANEUL_SYSTEM_STATE_WRAPPER_STRUCT_NAME: &IdentStr = ident_str!("HaneulSystemState");
 
 pub const HANEUL_SYSTEM_MODULE_NAME: &IdentStr = ident_str!("haneul_system");
+pub const HANEUL_SYSTEM_STATE_INNER_MODULE_NAME: &IdentStr = ident_str!("haneul_system_state_inner");
+pub const HANEUL_SYSTEM_STATE_INNER_V1_STRUCT_NAME: &IdentStr = ident_str!("HaneulSystemStateInner");
+pub const HANEUL_SYSTEM_STATE_INNER_V2_STRUCT_NAME: &IdentStr = ident_str!("HaneulSystemStateInnerV2");
+pub const VALIDATOR_MODULE_NAME: &IdentStr = ident_str!("validator");
+pub const VALIDATOR_STRUCT_NAME: &IdentStr = ident_str!("Validator");
 pub const ADVANCE_EPOCH_FUNCTION_NAME: &IdentStr = ident_str!("advance_epoch");
 pub const ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME: &IdentStr = ident_str!("advance_epoch_safe_mode");
 

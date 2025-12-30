@@ -15186,6 +15186,7 @@ dependencies = [
  "shared-crypto",
  "simulacrum",
  "haneul-field-count",
+ "haneul-framework",
  "haneul-futures",
  "haneul-indexer-alt",
  "haneul-indexer-alt-consistent-api",

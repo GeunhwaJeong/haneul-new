@@ -60,6 +60,7 @@ telemetry-subscribers.workspace = true
 tonic.workspace = true
 
 haneul-field-count.workspace = true
+haneul-framework.workspace = true
 haneul-json-rpc-types.workspace = true
 haneul-macros.workspace = true
 haneul-sdk.workspace = true
