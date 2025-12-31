@@ -4,11 +4,16 @@
 use async_graphql::{InputValueError, Scalar, ScalarType, Value};
 use fastcrypto::encoding::{Base64, Encoding};
 use serde::{Deserialize, Serialize};
-use haneul_types::base_types::HaneulAddress as NativeHaneulAddress;
+use haneul_types::{
+    base_types::{SequenceNumber, HaneulAddress as NativeHaneulAddress},
+    digests::ObjectDigest,
+};
 
 #[derive(Serialize, Deserialize)]
 pub(crate) enum Id {
     Address(NativeHaneulAddress),
+    ObjectByAddress(NativeHaneulAddress),
+    ObjectByRef(NativeHaneulAddress, SequenceNumber, ObjectDigest),
 }
 
 #[derive(thiserror::Error, Debug)]
