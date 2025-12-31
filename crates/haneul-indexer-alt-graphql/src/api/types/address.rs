@@ -10,7 +10,7 @@ use haneul_types::{base_types::HaneulAddress as NativeHaneulAddress, dynamic_fie
 
 use crate::{
     api::{
-        scalars::{owner_kind::OwnerKind, haneul_address::HaneulAddress, type_filter::TypeInput},
+        scalars::{id::Id, owner_kind::OwnerKind, haneul_address::HaneulAddress, type_filter::TypeInput},
         types::validator::Validator,
     },
     error::RpcError,
@@ -105,6 +105,10 @@ pub(crate) struct Address {
 
 #[Object]
 impl Address {
+    pub(crate) async fn id(&self) -> Id {
+        Id::Address(self.address)
+    }
+
     /// The Address' identifier, a 32-byte number represented as a 64-character hex string, with a lead "0x".
     pub(crate) async fn address(&self) -> Result<HaneulAddress, RpcError> {
         Ok(self.address.into())
