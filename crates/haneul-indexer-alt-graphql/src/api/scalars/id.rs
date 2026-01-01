@@ -12,6 +12,7 @@ use haneul_types::{
 #[derive(Serialize, Deserialize)]
 pub(crate) enum Id {
     Address(NativeHaneulAddress),
+    Checkpoint(u64),
     Epoch(u64),
     MovePackage(NativeHaneulAddress),
     ObjectByAddress(NativeHaneulAddress),
