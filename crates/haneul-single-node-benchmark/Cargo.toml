@@ -17,6 +17,7 @@ haneul-test-transaction-builder.workspace = true
 haneul-transaction-checks.workspace = true
 haneul-types.workspace = true
 haneul-storage.workspace = true
+haneul-protocol-config.workspace = true
 
 async-trait.workspace = true
 bcs.workspace = true
@@ -34,5 +35,4 @@ tracing.workspace = true
 
 [dev-dependencies]
 haneul-macros.workspace = true
-haneul-protocol-config.workspace = true
 haneul-simulator.workspace = true
