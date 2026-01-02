@@ -13,6 +13,8 @@ use haneul_types::{
 pub(crate) enum Id {
     Address(NativeHaneulAddress),
     Checkpoint(u64),
+    DynamicFieldByAddress(NativeHaneulAddress),
+    DynamicFieldByRef(NativeHaneulAddress, SequenceNumber, ObjectDigest),
     Epoch(u64),
     MoveObjectByAddress(NativeHaneulAddress),
     MoveObjectByRef(NativeHaneulAddress, SequenceNumber, ObjectDigest),
