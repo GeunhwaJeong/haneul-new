@@ -6,7 +6,7 @@ use fastcrypto::encoding::{Base64, Encoding};
 use serde::{Deserialize, Serialize};
 use haneul_types::{
     base_types::{SequenceNumber, HaneulAddress as NativeHaneulAddress},
-    digests::ObjectDigest,
+    digests::{ObjectDigest, TransactionDigest},
 };
 
 #[derive(Serialize, Deserialize)]
@@ -17,6 +17,7 @@ pub(crate) enum Id {
     MovePackage(NativeHaneulAddress),
     ObjectByAddress(NativeHaneulAddress),
     ObjectByRef(NativeHaneulAddress, SequenceNumber, ObjectDigest),
+    Transaction(TransactionDigest),
 }
 
 #[derive(thiserror::Error, Debug)]
