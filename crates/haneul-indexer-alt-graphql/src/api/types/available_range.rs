@@ -235,6 +235,7 @@ collect_pipelines! {
     Address.[asObject] => IObject.objectAt();
     Address.[transactions] => Query.transactions(.., "affectedAddress");
     Address.[balance, balances, multiGetBalances, objects] => IAddressable.*;
+    Address.[defaultNameRecord] => IAddressable.defaultNameRecord;
     Address.[defaultHaneulnsName] => IAddressable.defaultHaneulnsName;
     Address.[dynamicField, dynamicFields, dynamicObjectField, multiGetDynamicFields, multiGetDynamicObjectFields] => IMoveObject.*;
 
@@ -242,6 +243,7 @@ collect_pipelines! {
 
     CoinMetadata.[address, addressAt] => IAddressable.*;
     CoinMetadata.[balance, balances, multiGetBalances, objects] => IAddressable.*;
+    CoinMetadata.[defaultNameRecord] => IAddressable.defaultNameRecord();
     CoinMetadata.[defaultHaneulnsName] => IAddressable.defaultHaneulnsName();
     CoinMetadata.[contents, hasPublicTransfer, moveObjectBcs] => IMoveObject.*;
     CoinMetadata.[dynamicField, dynamicObjectField, multiGetDynamicFields, multiGetDynamicObjectFields] => IMoveObject.*;
@@ -255,6 +257,7 @@ collect_pipelines! {
 
     DynamicField.[address, addressAt] => IAddressable.*;
     DynamicField.[balance, balances, multiGetBalances, objects] => IAddressable.*;
+    DynamicField.[defaultNameRecord] => IAddressable.defaultNameRecord();
     DynamicField.[defaultHaneulnsName] => IAddressable.defaultHaneulnsName();
     DynamicField.[contents, hasPublicTransfer, moveObjectBcs] => IMoveObject.*;
     DynamicField.[dynamicField, dynamicObjectField, multiGetDynamicFields, multiGetDynamicObjectFields] => IMoveObject.*;
@@ -273,6 +276,9 @@ collect_pipelines! {
 
     IAddressable.[balance, balances, multiGetBalances, objects] |pipelines, _filters| {
         pipelines.insert("consistent".to_string());
+    };
+    IAddressable.[defaultNameRecord] |pipelines, _filters| {
+        pipelines.insert("obj_versions".to_string());
     };
     IAddressable.[defaultHaneulnsName] |pipelines, _filters| {
         pipelines.insert("obj_versions".to_string());
@@ -308,6 +314,7 @@ collect_pipelines! {
 
     MoveObject.[address, addressAt] => IAddressable.*;
     MoveObject.[balance, balances, multiGetBalances, objects] => IAddressable.*;
+    MoveObject.[defaultNameRecord] => IAddressable.defaultNameRecord();
     MoveObject.[defaultHaneulnsName] => IAddressable.defaultHaneulnsName();
     MoveObject.[contents, hasPublicTransfer, moveObjectBcs] => IMoveObject.*;
     MoveObject.[dynamicField, dynamicObjectField, multiGetDynamicFields, multiGetDynamicObjectFields] => IMoveObject.*;
@@ -318,6 +325,7 @@ collect_pipelines! {
 
     MovePackage.[address, addressAt] => IAddressable.*;
     MovePackage.[balance, balances, multiGetBalances, objects] => IAddressable.*;
+    MovePackage.[defaultNameRecord] => IAddressable.defaultNameRecord();
     MovePackage.[defaultHaneulnsName] => IAddressable.defaultHaneulnsName();
     MovePackage.[objectAt, objectVersionsAfter, objectVersionsBefore] => IObject.*;
     MovePackage.[digest, objectBcs, owner, previousTransaction, storageRebate, version] => IObject.*;
@@ -331,6 +339,7 @@ collect_pipelines! {
 
     Object.[address, addressAt] => IAddressable.*;
     Object.[balance, balances, multiGetBalances, objects] => IAddressable.*;
+    Object.[defaultNameRecord] => IAddressable.defaultNameRecord();
     Object.[defaultHaneulnsName] => IAddressable.defaultHaneulnsName();
     Object.[dynamicField, dynamicObjectField, multiGetDynamicFields, multiGetDynamicObjectFields] => IMoveObject.*;
     Object.[dynamicFields] => IMoveObject.dynamicFields();
