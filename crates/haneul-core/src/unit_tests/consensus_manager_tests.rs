@@ -95,6 +95,7 @@ async fn test_consensus_manager() {
                 consensus_handler_initializer,
                 HaneulTxValidator::new(
                     state.clone(),
+                    epoch_store.clone(),
                     Arc::new(CheckpointServiceNoop {}),
                     HaneulTxValidatorMetrics::new(&Registry::new()),
                 ),

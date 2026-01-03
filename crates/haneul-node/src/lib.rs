@@ -1418,6 +1418,7 @@ impl HaneulNode {
             let epoch_store = epoch_store.clone();
             let haneul_tx_validator = HaneulTxValidator::new(
                 state.clone(),
+                epoch_store.clone(),
                 checkpoint_service.clone(),
                 haneul_tx_validator_metrics.clone(),
             );
