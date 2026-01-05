@@ -41,6 +41,7 @@ haneul-macros.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
 parking_lot.workspace = true
+either.workspace = true
 
 [features]
 tracing = [
