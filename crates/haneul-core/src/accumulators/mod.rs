@@ -29,7 +29,6 @@ use haneul_types::transaction::{
 use haneul_types::{
     HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID, TypeTag,
 };
-use tracing::debug;
 
 use crate::execution_cache::TransactionCacheRead;
 
@@ -467,14 +466,6 @@ pub fn build_accumulator_barrier_tx(
                 IDOperation::None => (created, destroyed),
             }
         });
-
-    debug!(
-        epoch,
-        checkpoint_height,
-        "building barrier transaction with {objects_created} objects created and {objects_destroyed} objects destroyed in {num_settlements} settlement tx"
-    );
-
-    debug!("barrier settlement effects: {:#?}", settlement_effects); //TODO-DNS
 
     let mut builder = ProgrammableTransactionBuilder::new();
     let root = builder
