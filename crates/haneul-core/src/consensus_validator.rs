@@ -80,21 +80,13 @@ impl HaneulTxValidator {
                     }
                     cert_batch.push(certificate.as_ref());
                 }
-                ConsensusTransactionKind::CheckpointSignature(signature) => {
-                    ckpt_messages.push(signature.as_ref());
-                    ckpt_batch.push(&signature.summary);
+                ConsensusTransactionKind::CheckpointSignature(_) => {
+                    return Err(HaneulErrorKind::UnexpectedMessage(
+                        "CheckpointSignature V1 is no longer supported".to_string(),
+                    )
+                    .into());
                 }
                 ConsensusTransactionKind::CheckpointSignatureV2(signature) => {
-                    if !epoch_store
-                        .protocol_config()
-                        .consensus_checkpoint_signature_key_includes_digest()
-                    {
-                        return Err(HaneulErrorKind::UnexpectedMessage(
-                            "ConsensusTransactionKind::CheckpointSignatureV2 is unsupported"
-                                .to_string(),
-                        )
-                        .into());
-                    }
                     ckpt_messages.push(signature.as_ref());
                     ckpt_batch.push(&signature.summary);
                 }
@@ -111,7 +103,12 @@ impl HaneulTxValidator {
                     }
                 }
 
-                ConsensusTransactionKind::CapabilityNotification(_) => {}
+                ConsensusTransactionKind::CapabilityNotification(_) => {
+                    return Err(HaneulErrorKind::UnexpectedMessage(
+                        "CapabilityNotification V1 is no longer supported".to_string(),
+                    )
+                    .into());
+                }
 
                 ConsensusTransactionKind::EndOfPublish(_)
                 | ConsensusTransactionKind::NewJWKFetched(_, _, _)
@@ -441,7 +438,7 @@ mod tests {
     use fastcrypto::traits::KeyPair;
     use haneul_config::transaction_deny_config::TransactionDenyConfigBuilder;
     use haneul_macros::sim_test;
-    use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
+    use haneul_protocol_config::ProtocolConfig;
     use haneul_types::crypto::deterministic_random_account_key;
     use haneul_types::error::{HaneulErrorKind, UserInputError};
     use haneul_types::executable_transaction::VerifiedExecutableTransaction;
@@ -673,70 +670,12 @@ mod tests {
     }
 
     #[sim_test]
-    async fn reject_checkpoint_signature_v2_when_flag_disabled() {
-        // Build a single-validator network and authority with protocol version < 93 (flag disabled)
+    async fn accept_checkpoint_signature_v2() {
         let network_config =
             haneul_swarm_config::network_config_builder::ConfigBuilder::new_with_temp_dir().build();
 
-        let disabled_cfg =
-            ProtocolConfig::get_for_version(ProtocolVersion::new(92), Chain::Unknown);
         let state = TestAuthorityBuilder::new()
             .with_network_config(&network_config, 0)
-            .with_protocol_config(disabled_cfg)
-            .build()
-            .await;
-
-        let epoch_store = state.load_epoch_store_one_call_per_task();
-
-        // Create a minimal checkpoint summary and sign it with the validator's protocol key
-        let checkpoint_summary = CheckpointSummary::new(
-            &ProtocolConfig::get_for_max_version_UNSAFE(),
-            epoch_store.epoch(),
-            0,
-            0,
-            &CheckpointContents::new_with_digests_only_for_tests([ExecutionDigests::random()]),
-            None,
-            Default::default(),
-            None,
-            0,
-            Vec::new(),
-            Vec::new(),
-        );
-
-        let keypair = network_config.validator_configs()[0].protocol_key_pair();
-        let authority = keypair.public().into();
-        let signed = SignedCheckpointSummary::new(
-            epoch_store.epoch(),
-            checkpoint_summary,
-            keypair,
-            authority,
-        );
-        let message = CheckpointSignatureMessage { summary: signed };
-
-        let tx = ConsensusTransaction::new_checkpoint_signature_message_v2(message);
-        let bytes = bcs::to_bytes(&tx).unwrap();
-
-        let validator = HaneulTxValidator::new(
-            state.clone(),
-            state.epoch_store_for_testing().clone(),
-            Arc::new(CheckpointServiceNoop {}),
-            HaneulTxValidatorMetrics::new(&Default::default()),
-        );
-
-        let res = validator.verify_batch(&[&bytes]);
-        assert!(res.is_err());
-    }
-
-    #[sim_test]
-    async fn accept_checkpoint_signature_v2_when_flag_enabled() {
-        // Build a single-validator network and authority with protocol version >= 93 (flag enabled)
-        let network_config =
-            haneul_swarm_config::network_config_builder::ConfigBuilder::new_with_temp_dir().build();
-
-        let enabled_cfg = ProtocolConfig::get_for_version(ProtocolVersion::new(93), Chain::Unknown);
-        let state = TestAuthorityBuilder::new()
-            .with_network_config(&network_config, 0)
-            .with_protocol_config(enabled_cfg)
             .build()
             .await;
 
