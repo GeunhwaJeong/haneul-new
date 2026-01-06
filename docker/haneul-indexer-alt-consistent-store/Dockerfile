@@ -2,8 +2,9 @@
 #
 # Copy in all crates, Cargo.toml and Cargo.lock unmodified,
 # and build the application.
-FROM rust:1.90-bullseye AS builder
 ARG PROFILE=release-unwind
+FROM rust:1.90-bullseye AS builder
+ARG PROFILE
 ARG GIT_REVISION
 ENV GIT_REVISION=$GIT_REVISION
 WORKDIR "$WORKDIR/haneul"
@@ -23,11 +24,12 @@ RUN cargo build --profile ${PROFILE} --bin haneul-indexer-alt-consistent-store
 
 # Production Image
 FROM debian:bullseye-slim AS runtime
+ARG PROFILE
 # Use jemalloc as memory allocator
 RUN apt-get update && apt-get install -y libjemalloc-dev ca-certificates curl
 ENV LD_PRELOAD /usr/lib/x86_64-linux-gnu/libjemalloc.so
 WORKDIR "$WORKDIR/haneul"
-COPY --from=builder /haneul/target/release/haneul-indexer-alt-consistent-store  /usr/local/bin
+COPY --from=builder /haneul/target/${PROFILE}/haneul-indexer-alt-consistent-store /usr/local/bin
 RUN apt update && apt install -y ca-certificates
 
 ARG BUILD_DATE
