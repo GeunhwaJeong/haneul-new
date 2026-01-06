@@ -47,7 +47,6 @@ move-stdlib = { path = "../../external-crates/move/crates/move-stdlib" }
 move-vm-runtime = { path = "../../external-crates/move/crates/move-vm-runtime" }
 
 simulacrum.workspace = true
-haneul-graphql-rpc.workspace = true
 haneul-rpc-api.workspace = true
 haneul-swarm-config.workspace = true
 haneul-config.workspace = true

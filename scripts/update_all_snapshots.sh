@@ -47,9 +47,6 @@ cd "$ROOT/crates/haneul-swarm-config" && cargo insta test
 cd "$ROOT/crates/haneul-open-rpc" && cargo run --example generate-json-rpc-spec -- record
 cd "$ROOT/crates/haneul-core" && cargo insta test -- snapshot_tests
 cd "$ROOT/crates/haneul-core" && cargo run --example generate-format -- print > tests/staged/haneul.yaml
-cd "$ROOT/crates/haneul-graphql-rpc" && cargo insta test -- snapshot_tests
-cd "$ROOT/crates/haneul-graphql-rpc" && cargo insta test -- test_schema_sdl_export
-cd "$ROOT/crates/haneul-graphql-rpc" && cargo insta test --features staging -- test_schema_sdl_export
 cd "$ROOT/crates/haneul-indexer-alt-graphql" && cargo insta test -- test_schema_sdl_export
 cd "$ROOT/crates/haneul-indexer-alt-graphql" && cargo insta test --features staging -- test_schema_sdl_export
 exit 0

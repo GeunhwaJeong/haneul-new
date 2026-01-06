@@ -19,7 +19,6 @@ use move_core_types::runtime_value::{MoveStruct, MoveValue};
 use move_core_types::u256::U256;
 use move_symbol_pool::Symbol;
 use move_transactional_test_runner::tasks::{RunCommand, SyntaxChoice};
-use haneul_graphql_rpc::test_infra::cluster::SnapshotLagConfig;
 use haneul_types::balance::Balance;
 use haneul_types::base_types::{SequenceNumber, HaneulAddress};
 use haneul_types::move_package::UpgradePolicy;
@@ -31,6 +30,7 @@ use haneul_types::transaction::{
 use haneul_types::type_input::TypeInput;
 
 pub const HANEUL_ARGS_LONG: &str = "haneul-args";
+const DEFAULT_CONSISTENT_RANGE: usize = 300;
 
 #[derive(Clone, Debug, clap::Parser)]
 pub struct HaneulRunArgs {
@@ -74,14 +74,10 @@ pub struct HaneulInitArgs {
     pub reference_gas_price: Option<u64>,
     #[clap(long = "default-gas-price")]
     pub default_gas_price: Option<u64>,
-    #[clap(flatten)]
-    pub snapshot_config: SnapshotLagConfig,
     #[clap(long = "flavor")]
     pub flavor: Option<Flavor>,
-    /// The number of epochs to keep in the database. Epochs outside of this range will be pruned by
-    /// the indexer.
-    #[clap(long = "epochs-to-keep")]
-    pub epochs_to_keep: Option<u64>,
+    #[clap(long = "consistent-range", default_value_t = DEFAULT_CONSISTENT_RANGE)]
+    pub consistent_range: usize,
     /// Dir for simulacrum to write checkpoint files to. To be passed to the offchain indexer and
     /// reader.
     #[clap(long)]

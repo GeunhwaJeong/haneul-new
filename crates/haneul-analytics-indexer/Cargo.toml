@@ -35,7 +35,6 @@ arrow-array.workspace = true
 fastcrypto = { workspace = true, features = ["copy_key"] }
 haneullabs-metrics.workspace = true
 haneul-analytics-indexer-derive.workspace = true
-haneul-indexer.workspace = true
 eyre.workspace = true
 tempfile.workspace = true
 haneul-types.workspace = true

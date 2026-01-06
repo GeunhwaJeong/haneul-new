@@ -42,7 +42,6 @@ haneul-indexer-builder.workspace = true
 haneul-test-transaction-builder.workspace = true
 test-cluster.workspace = true
 hex-literal = "0.3.4"
-haneul-indexer.workspace = true
 diesel_migrations = "2.2.0"
 haneul-indexer-builder = { workspace = true, features = ["test-utils"] }
 haneul-bridge = { workspace = true, features = ["test-utils"] }

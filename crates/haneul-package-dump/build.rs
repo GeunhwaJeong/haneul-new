@@ -3,7 +3,7 @@
 
 fn main() {
     cynic_codegen::register_schema("haneul")
-        .from_sdl_file("../haneul-graphql-rpc/schema.graphql")
+        .from_sdl_file("../haneul-indexer-alt-graphql/schema.graphql")
         .unwrap()
         .as_default()
         .unwrap();

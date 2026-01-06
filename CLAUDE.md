@@ -57,18 +57,18 @@ cargo xclippy
 
 ```
 haneul/
-├── crates/                   # Main Rust crates
-│   ├── haneul-core/             # Core blockchain logic
-│   ├── haneul-node/             # Validator node implementation
-│   ├── haneul-framework/        # Move system packages & stdlib
-│   ├── haneul-types/            # Core type definitions
-│   ├── haneul-json-rpc/         # JSON-RPC API server
-│   ├── haneul-graphql-rpc/      # GraphQL API server
-│   └── haneul-indexer-alt/      # Blockchain data indexer
-├── consensus/                # Consensus mechanism (Mysticeti)
-├── haneul-execution/            # Move execution layer with versions (v0, v1, v2 and latest)
-├── apps/                     # Frontend applications
-└── external-crates/          # Move compiler and VM
+├── crates/                             # Main Rust crates
+│   ├── haneul-core/                       # Core blockchain logic
+│   ├── haneul-node/                       # Validator node implementation
+│   ├── haneul-framework/                  # Move system packages & stdlib
+│   ├── haneul-types/                      # Core type definitions
+│   ├── haneul-json-rpc/                   # JSON-RPC API server
+│   ├── haneul-indexer-alt-graphql/        # GraphQL API server
+│   └── haneul-indexer-alt/                # Blockchain data indexer
+├── consensus/                          # Consensus mechanism (Mysticeti)
+├── haneul-execution/                      # Move execution layer with versions (v0, v1, v2 and latest)
+├── apps/                               # Frontend applications
+└── external-crates/                    # Move compiler and VM
 ```
 
 ### Key Architectural Patterns
@@ -84,7 +84,7 @@ haneul/
    - Transactions affecting only owned objects can start execution before consensus
    - Shared object transactions require consensus ordering before execution
 
-4. **Storage Layer**: 
+4. **Storage Layer**:
    - Uses RocksDB for persistent storage
    - Separate stores for objects, transactions, and effects
    - Checkpointing system for state synchronization
@@ -109,7 +109,7 @@ haneul/
 **Do NOT comment the obvious** - comments should not simply repeat what the code does.
 **When to comment**:
 - Non-obvious algorithms or business logic
-- Temporary exclusions, timeouts, or thresholds and their reasoning  
+- Temporary exclusions, timeouts, or thresholds and their reasoning
 - Complex calculations where the "why" isn't immediately clear
 - Subtle race conditions or threading considerations
 - Assumptions about external state or preconditions
