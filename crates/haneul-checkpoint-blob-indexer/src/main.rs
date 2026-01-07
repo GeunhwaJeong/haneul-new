@@ -1,18 +1,26 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::{path::PathBuf, sync::Arc, time::Duration};
+use std::path::PathBuf;
+use std::sync::Arc;
+use std::time::Duration;
 
-use object_store::{
-    ClientOptions, aws::AmazonS3Builder, azure::MicrosoftAzureBuilder,
-    gcp::GoogleCloudStorageBuilder, http::HttpBuilder, local::LocalFileSystem,
-};
-use haneul_checkpoint_blob_indexer::{CheckpointBlobPipeline, EpochsPipeline};
+use object_store::ClientOptions;
+use object_store::aws::AmazonS3Builder;
+use object_store::azure::MicrosoftAzureBuilder;
+use object_store::gcp::GoogleCloudStorageBuilder;
+use object_store::http::HttpBuilder;
+use object_store::local::LocalFileSystem;
+use haneul_indexer_alt_framework::Indexer;
+use haneul_indexer_alt_framework::IndexerArgs;
+use haneul_indexer_alt_framework::ingestion::ClientArgs;
 use haneul_indexer_alt_framework::service::Error;
-use haneul_indexer_alt_framework::{Indexer, IndexerArgs, ingestion::ClientArgs};
 use haneul_indexer_alt_metrics::MetricsArgs;
 use haneul_indexer_alt_object_store::ObjectStore;
 use url::Url;
+
+use haneul_checkpoint_blob_indexer::CheckpointBlobPipeline;
+use haneul_checkpoint_blob_indexer::EpochsPipeline;
 
 #[derive(Debug, clap::Parser)]
 #[command(name = "haneul-checkpoint-blob-indexer")]
@@ -71,10 +79,9 @@ struct Args {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     use clap::Parser;
-    use haneul_indexer_alt_framework::{
-        ingestion::IngestionConfig,
-        pipeline::{CommitterConfig, concurrent::ConcurrentConfig},
-    };
+    use haneul_indexer_alt_framework::ingestion::IngestionConfig;
+    use haneul_indexer_alt_framework::pipeline::CommitterConfig;
+    use haneul_indexer_alt_framework::pipeline::concurrent::ConcurrentConfig;
     use tracing::info;
 
     let args = Args::parse();

@@ -1,16 +1,21 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::sync::{Arc, LazyLock};
+use std::sync::Arc;
+use std::sync::LazyLock;
 
-use bytes::{BufMut, Bytes, BytesMut};
+use bytes::BufMut;
+use bytes::Bytes;
+use bytes::BytesMut;
 use object_store::path::Path as ObjectPath;
 use prost::Message;
+use haneul_indexer_alt_framework::pipeline::Processor;
+use haneul_indexer_alt_framework::pipeline::concurrent::BatchStatus;
 use haneul_indexer_alt_framework::pipeline::concurrent::Handler;
-use haneul_indexer_alt_framework::pipeline::{Processor, concurrent::BatchStatus};
 use haneul_indexer_alt_framework::store::Store;
 use haneul_indexer_alt_object_store::ObjectStore;
-use haneul_rpc::field::{FieldMask, FieldMaskUtil};
+use haneul_rpc::field::FieldMask;
+use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::merge::Merge;
 use haneul_rpc::proto::haneul::rpc;
 use haneul_types::full_checkpoint_content::Checkpoint;
