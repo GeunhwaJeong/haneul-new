@@ -1,35 +1,50 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-mod mock_store;
+use std::fs;
+use std::sync::Arc;
+use std::sync::RwLock;
+use std::time::Duration;
 
 use mock_store::MockStore;
 use object_store::ObjectStore;
 use object_store::memory::InMemory;
 use parquet::file::reader::FileReader;
-use std::fs;
-use std::sync::Arc;
-use std::sync::RwLock;
-use std::time::Duration;
-use haneul_analytics_indexer::RowSchema;
-use haneul_analytics_indexer::config::{
-    BatchSizeConfig, FileFormat, IndexerConfig, OutputStoreConfig, PipelineConfig,
-};
-use haneul_analytics_indexer::metrics::Metrics;
-use haneul_analytics_indexer::pipeline::Pipeline;
-use haneul_analytics_indexer::store::AnalyticsStore;
-use haneul_analytics_indexer::tables::{
-    CheckpointRow, DynamicFieldRow, EventRow, MoveCallRow, MovePackageRow, ObjectRow,
-    PackageBCSRow, TransactionBCSRow, TransactionObjectRow, TransactionRow, WrappedObjectRow,
-};
 use haneul_indexer_alt_framework::ingestion::IngestionConfig;
 use haneul_indexer_alt_framework::pipeline::sequential::SequentialConfig;
 use haneul_indexer_alt_framework::store::Store;
-use haneul_indexer_alt_framework_store_traits::{CommitterWatermark, Connection};
-use haneul_storage::blob::{Blob, BlobEncoding};
-use haneul_types::full_checkpoint_content::{Checkpoint, CheckpointData};
-use haneul_types::test_checkpoint_data_builder::{AdvanceEpochConfig, TestCheckpointBuilder};
+use haneul_indexer_alt_framework_store_traits::CommitterWatermark;
+use haneul_indexer_alt_framework_store_traits::Connection;
+use haneul_storage::blob::Blob;
+use haneul_storage::blob::BlobEncoding;
+use haneul_types::full_checkpoint_content::Checkpoint;
+use haneul_types::full_checkpoint_content::CheckpointData;
+use haneul_types::test_checkpoint_data_builder::AdvanceEpochConfig;
+use haneul_types::test_checkpoint_data_builder::TestCheckpointBuilder;
 use tempfile::TempDir;
+
+use haneul_analytics_indexer::RowSchema;
+use haneul_analytics_indexer::config::BatchSizeConfig;
+use haneul_analytics_indexer::config::FileFormat;
+use haneul_analytics_indexer::config::IndexerConfig;
+use haneul_analytics_indexer::config::OutputStoreConfig;
+use haneul_analytics_indexer::config::PipelineConfig;
+use haneul_analytics_indexer::metrics::Metrics;
+use haneul_analytics_indexer::pipeline::Pipeline;
+use haneul_analytics_indexer::store::AnalyticsStore;
+use haneul_analytics_indexer::tables::CheckpointRow;
+use haneul_analytics_indexer::tables::DynamicFieldRow;
+use haneul_analytics_indexer::tables::EventRow;
+use haneul_analytics_indexer::tables::MoveCallRow;
+use haneul_analytics_indexer::tables::MovePackageRow;
+use haneul_analytics_indexer::tables::ObjectRow;
+use haneul_analytics_indexer::tables::PackageBCSRow;
+use haneul_analytics_indexer::tables::TransactionBCSRow;
+use haneul_analytics_indexer::tables::TransactionObjectRow;
+use haneul_analytics_indexer::tables::TransactionRow;
+use haneul_analytics_indexer::tables::WrappedObjectRow;
+
+mod mock_store;
 
 /// Helper to get schema for a pipeline (used in tests to verify output).
 fn pipeline_schema(pipeline: &Pipeline) -> &'static [&'static str] {

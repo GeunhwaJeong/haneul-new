@@ -1,13 +1,16 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use std::env;
+
 use anyhow::Result;
 use prometheus::Registry;
-use std::env;
-use haneul_analytics_indexer::metrics::Metrics;
-use haneul_analytics_indexer::{IndexerConfig, build_analytics_indexer};
 use haneul_futures::service::Error;
 use tracing::info;
+
+use haneul_analytics_indexer::IndexerConfig;
+use haneul_analytics_indexer::build_analytics_indexer;
+use haneul_analytics_indexer::metrics::Metrics;
 
 #[tokio::main]
 async fn main() -> Result<()> {

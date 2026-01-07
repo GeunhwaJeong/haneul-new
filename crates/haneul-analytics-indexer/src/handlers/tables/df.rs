@@ -4,18 +4,23 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use anyhow::{Context as _, Result};
+use anyhow::Context as _;
+use anyhow::Result;
 use async_trait::async_trait;
-use fastcrypto::encoding::{Base64, Encoding};
+use fastcrypto::encoding::Base64;
+use fastcrypto::encoding::Encoding;
 use haneul_indexer_alt_framework::pipeline::Processor;
 use haneul_json_rpc_types::HaneulMoveValue;
 use haneul_types::TypeTag;
-use haneul_types::base_types::{EpochId, ObjectID};
+use haneul_types::base_types::EpochId;
+use haneul_types::base_types::ObjectID;
+use haneul_types::dynamic_field::DynamicFieldName;
+use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::dynamic_field::visitor as DFV;
-use haneul_types::dynamic_field::{DynamicFieldName, DynamicFieldType};
 use haneul_types::full_checkpoint_content::Checkpoint;
+use haneul_types::object::Object;
+use haneul_types::object::Owner;
 use haneul_types::object::bounded_visitor::BoundedVisitor;
-use haneul_types::object::{Object, Owner};
 use tap::tap::TapFallible;
 use tracing::warn;
 

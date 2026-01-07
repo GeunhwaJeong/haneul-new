@@ -5,7 +5,8 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use async_trait::async_trait;
-use fastcrypto::encoding::{Base64, Encoding};
+use fastcrypto::encoding::Base64;
+use fastcrypto::encoding::Encoding;
 use haneul_indexer_alt_framework::pipeline::Processor;
 use haneul_types::base_types::EpochId;
 use haneul_types::full_checkpoint_content::Checkpoint;

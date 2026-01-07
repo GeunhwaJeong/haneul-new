@@ -11,8 +11,9 @@ use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::full_checkpoint_content::Checkpoint;
 use haneul_types::transaction::TransactionDataAPI;
 
-use super::{InputObjectTracker, ObjectStatusTracker};
 use crate::Row;
+use crate::handlers::tables::InputObjectTracker;
+use crate::handlers::tables::ObjectStatusTracker;
 use crate::pipeline::Pipeline;
 use crate::tables::TransactionObjectRow;
 

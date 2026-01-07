@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::collections::{BTreeSet, HashMap};
+use std::collections::BTreeSet;
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use anyhow::Result;
@@ -12,7 +13,9 @@ use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::full_checkpoint_content::Checkpoint;
 use haneul_types::messages_checkpoint::CheckpointContents;
-use haneul_types::transaction::{Command, TransactionDataAPI, TransactionKind};
+use haneul_types::transaction::Command;
+use haneul_types::transaction::TransactionDataAPI;
+use haneul_types::transaction::TransactionKind;
 use tracing::error;
 
 use crate::Row;

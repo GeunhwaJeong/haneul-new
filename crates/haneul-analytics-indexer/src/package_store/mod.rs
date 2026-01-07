@@ -1,28 +1,33 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use async_trait::async_trait;
-use lru::LruCache;
-use move_core_types::account_address::AccountAddress;
 use std::num::NonZeroUsize;
 use std::ops::Deref;
 use std::path::Path;
 use std::result::Result as StdResult;
 use std::sync::Arc;
 use std::sync::Mutex;
-use haneul_package_resolver::{
-    Package, PackageStore, PackageStoreWithLruCache, Resolver, Result,
-    error::Error as ResolverError,
-};
+
+use async_trait::async_trait;
+use lru::LruCache;
+use move_core_types::account_address::AccountAddress;
+use haneul_package_resolver::Package;
+use haneul_package_resolver::PackageStore;
+use haneul_package_resolver::PackageStoreWithLruCache;
+use haneul_package_resolver::Resolver;
+use haneul_package_resolver::Result;
+use haneul_package_resolver::error::Error as ResolverError;
 use haneul_rpc_api::Client;
-use haneul_types::{
-    SYSTEM_PACKAGE_ADDRESSES,
-    base_types::ObjectID,
-    object::{Data, Object},
-};
+use haneul_types::SYSTEM_PACKAGE_ADDRESSES;
+use haneul_types::base_types::ObjectID;
+use haneul_types::object::Data;
+use haneul_types::object::Object;
 use thiserror::Error;
-use typed_store::rocks::{DBMap, MetricConf};
-use typed_store::{DBMapUtils, Map, TypedStoreError};
+use typed_store::DBMapUtils;
+use typed_store::Map;
+use typed_store::TypedStoreError;
+use typed_store::rocks::DBMap;
+use typed_store::rocks::MetricConf;
 
 const STORE: &str = "RocksDB";
 const MAX_EPOCH_CACHES: usize = 2; // keep at most two epochs in memory
