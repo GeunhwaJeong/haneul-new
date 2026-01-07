@@ -7,20 +7,21 @@ use diesel::QueryDsl;
 use diesel_async::RunQueryDsl;
 use prometheus::Registry;
 use haneul_field_count::FieldCount;
-use haneul_indexer_alt_framework::{
-    Indexer, IndexerArgs,
-    ingestion::{
-        ClientArgs, IngestionConfig, ingestion_client::IngestionClientArgs,
-        streaming_client::StreamingClientArgs,
-    },
-    pipeline::{
-        Processor,
-        concurrent::{self, BatchStatus, ConcurrentConfig},
-    },
-};
-use haneul_pg_db::{Db, DbArgs};
+use haneul_indexer_alt_framework::Indexer;
+use haneul_indexer_alt_framework::IndexerArgs;
+use haneul_indexer_alt_framework::ingestion::ClientArgs;
+use haneul_indexer_alt_framework::ingestion::IngestionConfig;
+use haneul_indexer_alt_framework::ingestion::ingestion_client::IngestionClientArgs;
+use haneul_indexer_alt_framework::ingestion::streaming_client::StreamingClientArgs;
+use haneul_indexer_alt_framework::pipeline::Processor;
+use haneul_indexer_alt_framework::pipeline::concurrent::BatchStatus;
+use haneul_indexer_alt_framework::pipeline::concurrent::ConcurrentConfig;
+use haneul_indexer_alt_framework::pipeline::concurrent::{self};
+use haneul_pg_db::Db;
+use haneul_pg_db::DbArgs;
 use haneul_test_transaction_builder::TestTransactionBuilder;
-use haneul_types::{full_checkpoint_content::Checkpoint, transaction::TransactionDataAPI};
+use haneul_types::full_checkpoint_content::Checkpoint;
+use haneul_types::transaction::TransactionDataAPI;
 use tempfile::tempdir;
 use test_cluster::TestClusterBuilder;
 

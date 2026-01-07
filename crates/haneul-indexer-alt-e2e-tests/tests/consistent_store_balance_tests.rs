@@ -3,21 +3,23 @@
 
 use std::path::PathBuf;
 
-use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::{
-    BatchGetBalancesRequest, GetBalanceRequest, ListBalancesRequest,
-    consistent_service_client::ConsistentServiceClient,
-};
-use haneul_indexer_alt_e2e_tests::{FullCluster, find};
+use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::BatchGetBalancesRequest;
+use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::GetBalanceRequest;
+use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::ListBalancesRequest;
+use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::consistent_service_client::ConsistentServiceClient;
 use haneul_test_transaction_builder::TestTransactionBuilder;
-use haneul_types::{
-    base_types::{ObjectRef, HaneulAddress},
-    crypto::get_account_key_pair,
-    effects::TransactionEffectsAPI,
-    gas_coin::GAS,
-    object::Owner,
-    programmable_transaction_builder::ProgrammableTransactionBuilder,
-    transaction::{Transaction, TransactionData},
-};
+use haneul_types::base_types::ObjectRef;
+use haneul_types::base_types::HaneulAddress;
+use haneul_types::crypto::get_account_key_pair;
+use haneul_types::effects::TransactionEffectsAPI;
+use haneul_types::gas_coin::GAS;
+use haneul_types::object::Owner;
+use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
+use haneul_types::transaction::Transaction;
+use haneul_types::transaction::TransactionData;
+
+use haneul_indexer_alt_e2e_tests::FullCluster;
+use haneul_indexer_alt_e2e_tests::find;
 
 /// 5 HANEUL gas budget
 const DEFAULT_GAS_BUDGET: u64 = 5_000_000_000;

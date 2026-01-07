@@ -3,25 +3,36 @@
 
 use std::time::Duration;
 
-use anyhow::{Context as _, bail};
-use fastcrypto::encoding::{Base64, Encoding};
+use anyhow::Context as _;
+use anyhow::bail;
+use fastcrypto::encoding::Base64;
+use fastcrypto::encoding::Encoding;
 use insta::assert_debug_snapshot;
 use prometheus::Registry;
 use serde::Deserialize;
 use serde_json::json;
-use shared_crypto::intent::{Intent, IntentMessage, PersonalMessage};
-use haneul_indexer_alt_e2e_tests::{OffchainCluster, OffchainClusterConfig};
-use haneul_indexer_alt_framework::ingestion::{ClientArgs, ingestion_client::IngestionClientArgs};
-use haneul_indexer_alt_graphql::config::{RpcConfig as GraphQlConfig, ZkLoginConfig, ZkLoginEnv};
+use shared_crypto::intent::Intent;
+use shared_crypto::intent::IntentMessage;
+use shared_crypto::intent::PersonalMessage;
+use haneul_indexer_alt_framework::ingestion::ClientArgs;
+use haneul_indexer_alt_framework::ingestion::ingestion_client::IngestionClientArgs;
+use haneul_indexer_alt_graphql::config::RpcConfig as GraphQlConfig;
+use haneul_indexer_alt_graphql::config::ZkLoginConfig;
+use haneul_indexer_alt_graphql::config::ZkLoginEnv;
 use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_test_transaction_builder::TestTransactionBuilder;
-use haneul_types::{
-    base_types::HaneulAddress, crypto::Signature, signature::GenericSignature,
-    utils::load_test_vectors, zk_login_authenticator::ZkLoginAuthenticator,
-};
+use haneul_types::base_types::HaneulAddress;
+use haneul_types::crypto::Signature;
+use haneul_types::signature::GenericSignature;
+use haneul_types::utils::load_test_vectors;
+use haneul_types::zk_login_authenticator::ZkLoginAuthenticator;
 use tempfile::TempDir;
-use test_cluster::{TestCluster, TestClusterBuilder};
+use test_cluster::TestCluster;
+use test_cluster::TestClusterBuilder;
 use tokio::time::interval;
+
+use haneul_indexer_alt_e2e_tests::OffchainCluster;
+use haneul_indexer_alt_e2e_tests::OffchainClusterConfig;
 
 const QUERY: &str = r#"
 query ($bytes: Base64!, $signature: Base64!, $scope: ZkLoginIntentScope!, $author: HaneulAddress!) {
