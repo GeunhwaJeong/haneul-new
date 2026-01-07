@@ -7,15 +7,16 @@ use anyhow::Context;
 use clap::Parser;
 use futures::TryFutureExt as _;
 use prometheus::Registry;
-use haneul_indexer_alt_consistent_store::{
-    args::{Args, Command},
-    config::ServiceConfig,
-    restore::start_restorer,
-    start_service,
-};
 use haneul_indexer_alt_framework::service::Error;
-use haneul_indexer_alt_metrics::{MetricsService, uptime};
+use haneul_indexer_alt_metrics::MetricsService;
+use haneul_indexer_alt_metrics::uptime;
 use tokio::fs;
+
+use haneul_indexer_alt_consistent_store::args::Args;
+use haneul_indexer_alt_consistent_store::args::Command;
+use haneul_indexer_alt_consistent_store::config::ServiceConfig;
+use haneul_indexer_alt_consistent_store::restore::start_restorer;
+use haneul_indexer_alt_consistent_store::start_service;
 
 // Define the `GIT_REVISION` const
 bin_version::git_revision!();

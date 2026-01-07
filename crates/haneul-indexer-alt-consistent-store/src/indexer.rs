@@ -3,20 +3,22 @@
 
 use std::path::Path;
 
-use anyhow::{Context as _, ensure};
+use anyhow::Context as _;
+use anyhow::ensure;
 use prometheus::Registry;
-use haneul_indexer_alt_framework::{
-    self as framework, IndexerArgs,
-    ingestion::{ClientArgs, IngestionConfig},
-    pipeline::sequential::{self, SequentialConfig},
-    service::Service,
-};
+use haneul_indexer_alt_framework::IndexerArgs;
+use haneul_indexer_alt_framework::ingestion::ClientArgs;
+use haneul_indexer_alt_framework::ingestion::IngestionConfig;
+use haneul_indexer_alt_framework::pipeline::sequential::SequentialConfig;
+use haneul_indexer_alt_framework::pipeline::sequential::{self};
+use haneul_indexer_alt_framework::service::Service;
+use haneul_indexer_alt_framework::{self as framework};
 
-use crate::{
-    config::ConsistencyConfig,
-    db::config::DbConfig,
-    store::{Schema, Store, synchronizer::Synchronizer},
-};
+use crate::config::ConsistencyConfig;
+use crate::db::config::DbConfig;
+use crate::store::Schema;
+use crate::store::Store;
+use crate::store::synchronizer::Synchronizer;
 
 /// An indexer specialised for writing to a RocksDB store via a schema, `S`, composed of three main
 /// components:
@@ -148,17 +150,15 @@ impl<S: Schema + Send + Sync + 'static> Indexer<S> {
 mod tests {
     use std::sync::Arc;
 
-    use haneul_indexer_alt_framework::{
-        ingestion::ingestion_client::IngestionClientArgs,
-        pipeline::Processor,
-        types::{full_checkpoint_content::Checkpoint, object::Object},
-    };
+    use haneul_indexer_alt_framework::ingestion::ingestion_client::IngestionClientArgs;
+    use haneul_indexer_alt_framework::pipeline::Processor;
+    use haneul_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
+    use haneul_indexer_alt_framework::types::object::Object;
 
-    use crate::{
-        db::{Db, tests::wm},
-        restore::Restore,
-        store::Connection,
-    };
+    use crate::db::Db;
+    use crate::db::tests::wm;
+    use crate::restore::Restore;
+    use crate::store::Connection;
 
     use super::*;
 

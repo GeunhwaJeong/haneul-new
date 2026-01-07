@@ -1,8 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use bincode::{Decode, Encode};
-use haneul_indexer_alt_framework::types::{TypeTag, base_types::HaneulAddress};
+use bincode::Decode;
+use bincode::Encode;
+use haneul_indexer_alt_framework::types::TypeTag;
+use haneul_indexer_alt_framework::types::base_types::HaneulAddress;
 
 /// Key for the index that supports fetching an account's balance (the sum of balances of all coins
 /// it owns).
