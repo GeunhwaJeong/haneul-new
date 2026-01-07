@@ -15,8 +15,8 @@ use haneul_types::collection_types::Entry;
 use haneul_types::collection_types::VecMap;
 use haneul_types::object::bounded_visitor::BoundedVisitor;
 
-use self::parser::Parser;
-use self::parser::Strand;
+use crate::v1::parser::Parser;
+use crate::v1::parser::Strand;
 
 pub(crate) mod lexer;
 pub(crate) mod parser;
