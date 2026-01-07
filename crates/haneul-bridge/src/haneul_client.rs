@@ -1,6 +1,15 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::crypto::BridgeAuthorityPublicKey;
+use crate::error::{BridgeError, BridgeResult};
+use crate::events::HaneulBridgeEvent;
+use crate::metrics::BridgeMetrics;
+use crate::retry_with_max_elapsed_time;
+use crate::types::BridgeActionStatus;
+use crate::types::ParsedTokenTransferMessage;
+use crate::types::HaneulEvents;
+use crate::types::{BridgeAction, BridgeAuthority, BridgeCommittee};
 use anyhow::anyhow;
 use async_trait::async_trait;
 use core::panic;
@@ -23,8 +32,10 @@ use haneul_rpc::proto::haneul::rpc::v2::{
 use haneul_sdk::{HaneulClient as HaneulSdkClient, HaneulClientBuilder};
 use haneul_sdk_types::Address;
 use haneul_types::BRIDGE_PACKAGE_ID;
+use haneul_types::Identifier;
 use haneul_types::HANEUL_BRIDGE_OBJECT_ID;
 use haneul_types::TypeTag;
+use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::bridge::{
@@ -36,25 +47,16 @@ use haneul_types::bridge::{
     MoveTypeCommitteeMember, MoveTypeTokenTransferPayload, MoveTypeTokenTransferPayloadV2,
 };
 use haneul_types::collection_types::LinkedTableNode;
+use haneul_types::digests::TransactionDigest;
+use haneul_types::event::EventID;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::Owner;
 use haneul_types::parse_haneul_type_tag;
 use haneul_types::transaction::ObjectArg;
 use haneul_types::transaction::SharedObjectMutability;
 use haneul_types::transaction::Transaction;
-use haneul_types::{Identifier, base_types::ObjectID, digests::TransactionDigest, event::EventID};
 use tokio::sync::OnceCell;
 use tracing::{error, warn};
-
-use crate::crypto::BridgeAuthorityPublicKey;
-use crate::error::{BridgeError, BridgeResult};
-use crate::events::HaneulBridgeEvent;
-use crate::metrics::BridgeMetrics;
-use crate::retry_with_max_elapsed_time;
-use crate::types::BridgeActionStatus;
-use crate::types::ParsedTokenTransferMessage;
-use crate::types::HaneulEvents;
-use crate::types::{BridgeAction, BridgeAuthority, BridgeCommittee};
 
 pub struct HaneulClient<P> {
     inner: P,
@@ -1285,7 +1287,7 @@ mod tests {
             get_test_haneul_to_eth_bridge_action,
         },
     };
-    use ethers::types::Address as EthAddress;
+    use alloy::primitives::Address as EthAddress;
     use move_core_types::account_address::AccountAddress;
     use serde::{Deserialize, Serialize};
     use std::str::FromStr;
@@ -1324,7 +1326,7 @@ mod tests {
             source_chain: sanitized_event_1.haneul_chain_id as u8,
             sender_address: sanitized_event_1.haneul_address.to_vec(),
             target_chain: sanitized_event_1.eth_chain_id as u8,
-            target_address: sanitized_event_1.eth_address.as_bytes().to_vec(),
+            target_address: sanitized_event_1.eth_address.to_vec(),
             token_type: sanitized_event_1.token_id,
             amount_haneul_adjusted: sanitized_event_1.amount_haneul_adjusted,
         };

@@ -9,14 +9,12 @@ use crate::metrics::BridgeIndexerMetrics;
 use crate::postgres_manager::PgPool;
 use crate::storage::PgBridgePersistent;
 use crate::haneul_bridge_indexer::HaneulBridgeDataMapper;
-use ethers::providers::{Http, Provider};
-use ethers::types::Address as EthAddress;
+use alloy::primitives::Address as EthAddress;
 use std::str::FromStr;
 use std::sync::Arc;
 use haneul_bridge::eth_client::EthClient;
-use haneul_bridge::metered_eth_provider::MeteredEthHttpProvider;
 use haneul_bridge::metrics::BridgeMetrics;
-use haneul_bridge::utils::get_eth_contract_addresses;
+use haneul_bridge::utils::{get_eth_contract_addresses, get_eth_provider};
 use haneul_bridge_schema::models::{
     BridgeDataSource, GovernanceAction as DBGovernanceAction, TokenTransferStatus,
 };
@@ -204,7 +202,7 @@ pub async fn create_eth_sync_indexer(
     metrics: BridgeIndexerMetrics,
     bridge_metrics: Arc<BridgeMetrics>,
     config: &IndexerConfig,
-    eth_client: Arc<EthClient<MeteredEthHttpProvider>>,
+    eth_client: Arc<EthClient>,
 ) -> Result<Indexer<PgBridgePersistent, EthFinalizedSyncDatasource, EthDataMapper>, anyhow::Error> {
     let bridge_addresses = get_eth_bridge_contract_addresses(config).await?;
     // Start the eth sync data source
@@ -232,7 +230,7 @@ pub async fn create_eth_subscription_indexer(
     pool: PgPool,
     metrics: BridgeIndexerMetrics,
     config: &IndexerConfig,
-    eth_client: Arc<EthClient<MeteredEthHttpProvider>>,
+    eth_client: Arc<EthClient>,
 ) -> Result<Indexer<PgBridgePersistent, EthSubscriptionDatasource, EthDataMapper>, anyhow::Error> {
     // Start the eth subscription indexer
     let bridge_addresses = get_eth_bridge_contract_addresses(config).await?;
@@ -283,11 +281,8 @@ async fn get_eth_bridge_contract_addresses(
     config: &IndexerConfig,
 ) -> Result<Vec<EthAddress>, anyhow::Error> {
     let bridge_address = EthAddress::from_str(&config.eth_haneul_bridge_contract_address)?;
-    let provider = Arc::new(
-        Provider::<Http>::try_from(&config.eth_rpc_url)?
-            .interval(std::time::Duration::from_millis(2000)),
-    );
-    let bridge_addresses = get_eth_contract_addresses(bridge_address, &provider).await?;
+    let eth_provider = get_eth_provider(&config.eth_rpc_url)?;
+    let bridge_addresses = get_eth_contract_addresses(bridge_address, eth_provider).await?;
     Ok(vec![
         bridge_address,
         bridge_addresses.0,

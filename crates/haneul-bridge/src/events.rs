@@ -14,7 +14,7 @@ use crate::error::BridgeResult;
 use crate::types::BridgeAction;
 use crate::types::HaneulToEthTokenTransfer;
 use crate::types::HaneulToEthTokenTransferV2;
-use ethers::types::Address as EthAddress;
+use alloy::primitives::Address as EthAddress;
 use fastcrypto::encoding::Encoding;
 use fastcrypto::encoding::Hex;
 use move_core_types::language_storage::StructTag;
@@ -546,7 +546,7 @@ pub mod tests {
     use crate::e2e_tests::test_utils::BridgeTestClusterBuilder;
     use crate::types::BridgeAction;
     use crate::types::HaneulToEthBridgeAction;
-    use ethers::types::Address as EthAddress;
+    use alloy::primitives::Address as EthAddress;
     use haneul_json_rpc_types::BcsEvent;
     use haneul_json_rpc_types::HaneulEvent;
     use haneul_types::Identifier;
@@ -575,7 +575,7 @@ pub mod tests {
             source_chain: sanitized_event.haneul_chain_id as u8,
             sender_address: sanitized_event.haneul_address.to_vec(),
             target_chain: sanitized_event.eth_chain_id as u8,
-            target_address: sanitized_event.eth_address.as_bytes().to_vec(),
+            target_address: sanitized_event.eth_address.to_vec(),
             token_type: sanitized_event.token_id,
             amount_haneul_adjusted: sanitized_event.amount_haneul_adjusted,
         };
@@ -679,7 +679,7 @@ pub mod tests {
             source_chain: BridgeChainId::HaneulTestnet as u8,
             sender_address: HaneulAddress::random_for_testing_only().to_vec(),
             target_chain: BridgeChainId::EthSepolia as u8,
-            target_address: EthAddress::random().as_bytes().to_vec(),
+            target_address: EthAddress::random().to_vec(),
             token_type: TOKEN_ID_HANEUL,
             amount_haneul_adjusted: 0,
         };
