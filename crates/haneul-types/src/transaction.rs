@@ -221,7 +221,7 @@ impl FundsWithdrawalArg {
         }
     }
 
-    fn owner_for_withdrawal(&self, tx: &impl TransactionDataAPI) -> HaneulAddress {
+    pub fn owner_for_withdrawal(&self, tx: &impl TransactionDataAPI) -> HaneulAddress {
         match self.withdraw_from {
             WithdrawFrom::Sender => tx.sender(),
             WithdrawFrom::Sponsor => tx.gas_owner(),
