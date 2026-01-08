@@ -3,23 +3,26 @@
 
 use std::time::Duration;
 
-use crate::Indexer;
-use anyhow::{Context, Result, bail};
-use diesel::{OptionalExtension, QueryDsl, SelectableHelper};
+use anyhow::Context;
+use anyhow::Result;
+use anyhow::bail;
+use diesel::OptionalExtension;
+use diesel::QueryDsl;
+use diesel::SelectableHelper;
 use diesel_async::RunQueryDsl;
 use haneul_indexer_alt_framework::postgres::Db;
-use haneul_indexer_alt_framework::types::{
-    full_checkpoint_content::Checkpoint,
-    haneul_system_state::{HaneulSystemStateTrait, get_haneul_system_state},
-    transaction::TransactionKind,
-};
-use haneul_indexer_alt_schema::{
-    checkpoints::StoredGenesis,
-    epochs::StoredEpochStart,
-    schema::{kv_epoch_starts, kv_genesis},
-};
+use haneul_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
+use haneul_indexer_alt_framework::types::haneul_system_state::HaneulSystemStateTrait;
+use haneul_indexer_alt_framework::types::haneul_system_state::get_haneul_system_state;
+use haneul_indexer_alt_framework::types::transaction::TransactionKind;
+use haneul_indexer_alt_schema::checkpoints::StoredGenesis;
+use haneul_indexer_alt_schema::epochs::StoredEpochStart;
+use haneul_indexer_alt_schema::schema::kv_epoch_starts;
+use haneul_indexer_alt_schema::schema::kv_genesis;
 use haneul_types::transaction::TransactionDataAPI;
 use tracing::info;
+
+use crate::Indexer;
 
 pub struct BootstrapGenesis {
     pub stored_genesis: StoredGenesis,

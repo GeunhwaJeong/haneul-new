@@ -1,13 +1,15 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::collections::{BTreeMap, HashSet, btree_map::Entry};
+use std::collections::BTreeMap;
+use std::collections::HashSet;
+use std::collections::btree_map::Entry;
 
 use anyhow::Context;
-use haneul_indexer_alt_framework::types::{
-    base_types::ObjectID, effects::TransactionEffectsAPI, full_checkpoint_content::Checkpoint,
-    object::Object,
-};
+use haneul_indexer_alt_framework::types::base_types::ObjectID;
+use haneul_indexer_alt_framework::types::effects::TransactionEffectsAPI;
+use haneul_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
+use haneul_indexer_alt_framework::types::object::Object;
 
 pub(crate) mod coin_balance_buckets;
 pub(crate) mod cp_sequence_numbers;
@@ -87,9 +89,8 @@ pub(crate) fn checkpoint_input_objects(
 
 #[cfg(test)]
 mod tests {
-    use haneul_indexer_alt_framework::types::{
-        object::Owner, test_checkpoint_data_builder::TestCheckpointBuilder,
-    };
+    use haneul_indexer_alt_framework::types::object::Owner;
+    use haneul_indexer_alt_framework::types::test_checkpoint_data_builder::TestCheckpointBuilder;
 
     use super::*;
 

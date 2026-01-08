@@ -4,23 +4,25 @@
 use std::ops::Range;
 use std::sync::Arc;
 
-use crate::handlers::cp_sequence_numbers::tx_interval;
 use anyhow::Result;
 use async_trait::async_trait;
-use diesel::{ExpressionMethods, QueryDsl};
+use diesel::ExpressionMethods;
+use diesel::QueryDsl;
 use diesel_async::RunQueryDsl;
 use itertools::Itertools;
-use haneul_indexer_alt_framework::{
-    pipeline::Processor,
-    postgres::{Connection, handler::Handler},
-    types::{full_checkpoint_content::Checkpoint, object::Owner},
-};
-use haneul_indexer_alt_schema::{
-    schema::tx_affected_addresses, transactions::StoredTxAffectedAddress,
-};
+use haneul_indexer_alt_framework::pipeline::Processor;
+use haneul_indexer_alt_framework::postgres::Connection;
+use haneul_indexer_alt_framework::postgres::handler::Handler;
+use haneul_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
+use haneul_indexer_alt_framework::types::object::Owner;
+use haneul_indexer_alt_schema::schema::tx_affected_addresses;
+use haneul_indexer_alt_schema::transactions::StoredTxAffectedAddress;
 use haneul_types::balance::Balance;
-use haneul_types::effects::{AccumulatorValue, TransactionEffectsAPI};
+use haneul_types::effects::AccumulatorValue;
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::transaction::TransactionDataAPI;
+
+use crate::handlers::cp_sequence_numbers::tx_interval;
 
 pub(crate) struct TxAffectedAddresses;
 
@@ -117,14 +119,14 @@ impl Handler for TxAffectedAddresses {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use diesel_async::RunQueryDsl;
-    use haneul_indexer_alt_framework::{
-        Indexer, types::test_checkpoint_data_builder::TestCheckpointBuilder,
-    };
+    use haneul_indexer_alt_framework::Indexer;
+    use haneul_indexer_alt_framework::types::test_checkpoint_data_builder::TestCheckpointBuilder;
     use haneul_indexer_alt_schema::MIGRATIONS;
 
     use crate::handlers::cp_sequence_numbers::CpSequenceNumbers;
+
+    use super::*;
 
     async fn get_all_tx_affected_addresses(conn: &mut Connection<'_>) -> Result<Vec<i64>> {
         Ok(tx_affected_addresses::table

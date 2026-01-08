@@ -1,22 +1,26 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::{path::PathBuf, time::Instant};
+use std::path::PathBuf;
+use std::time::Instant;
 
-use crate::{BootstrapGenesis, config::IndexerConfig, setup_indexer};
 use prometheus::Registry;
-use haneul_indexer_alt_framework::{
-    IndexerArgs,
-    ingestion::{ClientArgs, ingestion_client::IngestionClientArgs},
-    postgres::{DbArgs, reset_database},
-    service::terminate,
-};
+use haneul_indexer_alt_framework::IndexerArgs;
+use haneul_indexer_alt_framework::ingestion::ClientArgs;
+use haneul_indexer_alt_framework::ingestion::ingestion_client::IngestionClientArgs;
+use haneul_indexer_alt_framework::postgres::DbArgs;
+use haneul_indexer_alt_framework::postgres::reset_database;
+use haneul_indexer_alt_framework::service::terminate;
 use haneul_indexer_alt_schema::MIGRATIONS;
 use haneul_indexer_alt_schema::checkpoints::StoredGenesis;
 use haneul_indexer_alt_schema::epochs::StoredEpochStart;
 use haneul_synthetic_ingestion::synthetic_ingestion::read_ingestion_data;
 use tracing::info;
 use url::Url;
+
+use crate::BootstrapGenesis;
+use crate::config::IndexerConfig;
+use crate::setup_indexer;
 
 #[derive(clap::Args, Debug, Clone)]
 pub struct BenchmarkArgs {

@@ -4,22 +4,24 @@
 use std::ops::Range;
 use std::sync::Arc;
 
-use anyhow::{Context, Result, bail};
-use diesel::{ExpressionMethods, QueryDsl};
+use anyhow::Context;
+use anyhow::Result;
+use anyhow::bail;
+use async_trait::async_trait;
+use diesel::ExpressionMethods;
+use diesel::QueryDsl;
 use diesel_async::RunQueryDsl;
-use haneul_indexer_alt_framework::{
-    pipeline::Processor,
-    postgres::{Connection, handler::Handler},
-    types::{
-        event::SystemEpochInfoEvent,
-        full_checkpoint_content::Checkpoint,
-        transaction::{TransactionDataAPI, TransactionKind},
-    },
-};
-use haneul_indexer_alt_schema::{epochs::StoredEpochEnd, schema::kv_epoch_ends};
+use haneul_indexer_alt_framework::pipeline::Processor;
+use haneul_indexer_alt_framework::postgres::Connection;
+use haneul_indexer_alt_framework::postgres::handler::Handler;
+use haneul_indexer_alt_framework::types::event::SystemEpochInfoEvent;
+use haneul_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
+use haneul_indexer_alt_framework::types::transaction::TransactionDataAPI;
+use haneul_indexer_alt_framework::types::transaction::TransactionKind;
+use haneul_indexer_alt_schema::epochs::StoredEpochEnd;
+use haneul_indexer_alt_schema::schema::kv_epoch_ends;
 
 use crate::handlers::cp_sequence_numbers::epoch_interval;
-use async_trait::async_trait;
 
 pub(crate) struct KvEpochEnds;
 
@@ -156,15 +158,15 @@ impl Handler for KvEpochEnds {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use anyhow::Result;
+    use haneul_indexer_alt_framework::Indexer;
     use haneul_indexer_alt_framework::types::test_checkpoint_data_builder::AdvanceEpochConfig;
-    use haneul_indexer_alt_framework::{
-        Indexer, types::test_checkpoint_data_builder::TestCheckpointBuilder,
-    };
+    use haneul_indexer_alt_framework::types::test_checkpoint_data_builder::TestCheckpointBuilder;
     use haneul_indexer_alt_schema::MIGRATIONS;
 
     use crate::handlers::cp_sequence_numbers::CpSequenceNumbers;
+
+    use super::*;
 
     async fn get_all_kv_epoch_ends(conn: &mut Connection<'_>) -> Result<Vec<StoredEpochEnd>> {
         let result = kv_epoch_ends::table

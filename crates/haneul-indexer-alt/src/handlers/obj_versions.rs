@@ -6,12 +6,13 @@ use std::sync::Arc;
 use anyhow::Result;
 use async_trait::async_trait;
 use diesel_async::RunQueryDsl;
-use haneul_indexer_alt_framework::{
-    pipeline::Processor,
-    postgres::{Connection, handler::Handler},
-    types::{effects::TransactionEffectsAPI, full_checkpoint_content::Checkpoint},
-};
-use haneul_indexer_alt_schema::{objects::StoredObjVersion, schema::obj_versions};
+use haneul_indexer_alt_framework::pipeline::Processor;
+use haneul_indexer_alt_framework::postgres::Connection;
+use haneul_indexer_alt_framework::postgres::handler::Handler;
+use haneul_indexer_alt_framework::types::effects::TransactionEffectsAPI;
+use haneul_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
+use haneul_indexer_alt_schema::objects::StoredObjVersion;
+use haneul_indexer_alt_schema::schema::obj_versions;
 
 pub(crate) struct ObjVersions;
 
