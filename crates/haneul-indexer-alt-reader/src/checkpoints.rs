@@ -1,24 +1,26 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::collections::{BTreeSet, HashMap};
+use std::collections::BTreeSet;
+use std::collections::HashMap;
 
 use anyhow::Context;
 use async_graphql::dataloader::Loader;
-use diesel::{ExpressionMethods, QueryDsl};
+use diesel::ExpressionMethods;
+use diesel::QueryDsl;
 use prost_types::FieldMask;
-use haneul_indexer_alt_schema::{checkpoints::StoredCheckpoint, schema::kv_checkpoints};
+use haneul_indexer_alt_schema::checkpoints::StoredCheckpoint;
+use haneul_indexer_alt_schema::schema::kv_checkpoints;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2 as proto;
-use haneul_types::{
-    crypto::AuthorityQuorumSignInfo,
-    messages_checkpoint::{CheckpointContents, CheckpointSummary},
-};
+use haneul_types::crypto::AuthorityQuorumSignInfo;
+use haneul_types::messages_checkpoint::CheckpointContents;
+use haneul_types::messages_checkpoint::CheckpointSummary;
 
-use crate::{
-    bigtable_reader::BigtableReader, error::Error, ledger_grpc_reader::LedgerGrpcReader,
-    pg_reader::PgReader,
-};
+use crate::bigtable_reader::BigtableReader;
+use crate::error::Error;
+use crate::ledger_grpc_reader::LedgerGrpcReader;
+use crate::pg_reader::PgReader;
 
 /// Key for fetching a checkpoint's content by its sequence number.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

@@ -6,11 +6,14 @@ use std::time::Duration;
 use anyhow::Context;
 use async_graphql::dataloader::DataLoader;
 use haneul_rpc::proto::haneul::rpc::v2::ledger_service_client::LedgerServiceClient;
-use haneul_types::{
-    effects::TransactionEffects, event::Event, messages_checkpoint::CheckpointSummary,
-    signature::GenericSignature, transaction::TransactionData,
-};
-use tonic::transport::{Channel, ClientTlsConfig, Uri};
+use haneul_types::effects::TransactionEffects;
+use haneul_types::event::Event;
+use haneul_types::messages_checkpoint::CheckpointSummary;
+use haneul_types::signature::GenericSignature;
+use haneul_types::transaction::TransactionData;
+use tonic::transport::Channel;
+use tonic::transport::ClientTlsConfig;
+use tonic::transport::Uri;
 
 #[derive(clap::Args, Debug, Clone, Default)]
 pub struct LedgerGrpcArgs {

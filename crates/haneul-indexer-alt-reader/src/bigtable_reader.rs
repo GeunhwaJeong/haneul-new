@@ -5,14 +5,18 @@ use std::fmt::Debug;
 use std::future::Future;
 use std::time::Duration;
 
-use anyhow::{Context, bail};
+use anyhow::Context;
+use anyhow::bail;
 use async_graphql::dataloader::DataLoader;
 use prometheus::Registry;
-use haneul_kvstore::{
-    BigTableClient, Checkpoint, KeyValueStoreReader, TransactionData, TransactionEventsData,
-};
+use haneul_kvstore::BigTableClient;
+use haneul_kvstore::Checkpoint;
+use haneul_kvstore::KeyValueStoreReader;
+use haneul_kvstore::TransactionData;
+use haneul_kvstore::TransactionEventsData;
 use haneul_types::digests::TransactionDigest;
-use haneul_types::messages_checkpoint::{CheckpointSequenceNumber, CheckpointSummary};
+use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
+use haneul_types::messages_checkpoint::CheckpointSummary;
 use haneul_types::object::Object;
 use haneul_types::storage::ObjectKey;
 use tracing::warn;

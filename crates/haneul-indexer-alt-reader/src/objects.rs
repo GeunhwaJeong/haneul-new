@@ -5,17 +5,22 @@ use std::collections::HashMap;
 
 use anyhow::Context;
 use async_graphql::dataloader::Loader;
-use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl};
+use diesel::BoolExpressionMethods;
+use diesel::ExpressionMethods;
+use diesel::QueryDsl;
 use prost_types::FieldMask;
-use haneul_indexer_alt_schema::{objects::StoredObject, schema::kv_objects};
+use haneul_indexer_alt_schema::objects::StoredObject;
+use haneul_indexer_alt_schema::schema::kv_objects;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2 as proto;
-use haneul_types::{base_types::ObjectID, object::Object, storage::ObjectKey};
+use haneul_types::base_types::ObjectID;
+use haneul_types::object::Object;
+use haneul_types::storage::ObjectKey;
 
-use crate::{
-    bigtable_reader::BigtableReader, error::Error, ledger_grpc_reader::LedgerGrpcReader,
-    pg_reader::PgReader,
-};
+use crate::bigtable_reader::BigtableReader;
+use crate::error::Error;
+use crate::ledger_grpc_reader::LedgerGrpcReader;
+use crate::pg_reader::PgReader;
 
 /// Key for fetching the contents a particular version of an object.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

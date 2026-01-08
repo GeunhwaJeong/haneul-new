@@ -1,38 +1,40 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
+use std::sync::Arc;
 
 use anyhow::Context;
 use async_graphql::dataloader::DataLoader;
 use haneul_indexer_alt_schema::transactions::StoredTransaction;
-use haneul_kvstore::{
-    TransactionData as KVTransactionData, TransactionEventsData as KVTransactionEventsData,
-};
+use haneul_kvstore::TransactionData as KVTransactionData;
+use haneul_kvstore::TransactionEventsData as KVTransactionEventsData;
 use haneul_rpc::proto::haneul::rpc::v2 as grpc;
-use haneul_types::{
-    base_types::ObjectID,
-    crypto::AuthorityQuorumSignInfo,
-    digests::{TransactionDigest, TransactionEffectsDigest},
-    effects::{TransactionEffects, TransactionEffectsAPI, TransactionEvents},
-    event::Event,
-    message_envelope::Message,
-    messages_checkpoint::{CheckpointContents, CheckpointSummary},
-    object::Object,
-    signature::GenericSignature,
-    transaction::TransactionData,
-};
+use haneul_types::base_types::ObjectID;
+use haneul_types::crypto::AuthorityQuorumSignInfo;
+use haneul_types::digests::TransactionDigest;
+use haneul_types::digests::TransactionEffectsDigest;
+use haneul_types::effects::TransactionEffects;
+use haneul_types::effects::TransactionEffectsAPI;
+use haneul_types::effects::TransactionEvents;
+use haneul_types::event::Event;
+use haneul_types::message_envelope::Message;
+use haneul_types::messages_checkpoint::CheckpointContents;
+use haneul_types::messages_checkpoint::CheckpointSummary;
+use haneul_types::object::Object;
+use haneul_types::signature::GenericSignature;
+use haneul_types::transaction::TransactionData;
 
-use crate::{
-    bigtable_reader::BigtableReader,
-    checkpoints::CheckpointKey,
-    error::Error,
-    events::{StoredTransactionEvents, TransactionEventsKey},
-    ledger_grpc_reader::{CheckpointedTransaction, LedgerGrpcReader},
-    objects::VersionedObjectKey,
-    pg_reader::PgReader,
-    transactions::TransactionKey,
-};
+use crate::bigtable_reader::BigtableReader;
+use crate::checkpoints::CheckpointKey;
+use crate::error::Error;
+use crate::events::StoredTransactionEvents;
+use crate::events::TransactionEventsKey;
+use crate::ledger_grpc_reader::CheckpointedTransaction;
+use crate::ledger_grpc_reader::LedgerGrpcReader;
+use crate::objects::VersionedObjectKey;
+use crate::pg_reader::PgReader;
+use crate::transactions::TransactionKey;
 
 /// A loader for point lookups in kv stores backed by either Bigtable, Postgres, or KV gRPC.
 /// Supported lookups:
