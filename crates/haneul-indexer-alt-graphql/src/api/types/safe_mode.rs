@@ -1,9 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::api::types::gas::GasCostSummary;
 use async_graphql::Object;
-use haneul_types::haneul_system_state::{HaneulSystemState, HaneulSystemStateTrait};
+use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::haneul_system_state::HaneulSystemStateTrait;
+
+use crate::api::types::gas::GasCostSummary;
 
 /// Information about whether epoch changes are using safe mode.
 pub(crate) struct SafeMode {

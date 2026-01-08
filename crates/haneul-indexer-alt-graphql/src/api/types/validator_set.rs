@@ -1,24 +1,27 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::{collections::BTreeMap, sync::Arc};
+use std::collections::BTreeMap;
+use std::sync::Arc;
 
-use async_graphql::{Context, Object, connection::Connection, indexmap::IndexMap};
-use haneul_types::{
-    base_types::HaneulAddress as NativeHaneulAddress,
-    collection_types::{Entry, VecMap, VecSet},
-    haneul_system_state::haneul_system_state_inner_v1::ValidatorSetV1,
-};
+use async_graphql::Context;
+use async_graphql::Object;
+use async_graphql::connection::Connection;
+use async_graphql::indexmap::IndexMap;
+use haneul_types::base_types::HaneulAddress as NativeHaneulAddress;
+use haneul_types::collection_types::Entry;
+use haneul_types::collection_types::VecMap;
+use haneul_types::collection_types::VecSet;
+use haneul_types::haneul_system_state::haneul_system_state_inner_v1::ValidatorSetV1;
 
-use crate::{
-    api::{
-        scalars::{big_int::BigInt, cursor::JsonCursor, haneul_address::HaneulAddress},
-        types::validator::Validator,
-    },
-    error::RpcError,
-    pagination::{Page, PaginationConfig},
-    scope::Scope,
-};
+use crate::api::scalars::big_int::BigInt;
+use crate::api::scalars::cursor::JsonCursor;
+use crate::api::scalars::haneul_address::HaneulAddress;
+use crate::api::types::validator::Validator;
+use crate::error::RpcError;
+use crate::pagination::Page;
+use crate::pagination::PaginationConfig;
+use crate::scope::Scope;
 
 pub(crate) type CValidator = JsonCursor<usize>;
 

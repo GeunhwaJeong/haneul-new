@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use async_graphql::*;
+use async_graphql::SimpleObject;
 
-use crate::api::scalars::{base64::Base64, haneul_address::HaneulAddress};
-
-use super::TransactionArgument;
+use crate::api::scalars::base64::Base64;
+use crate::api::scalars::haneul_address::HaneulAddress;
+use crate::api::types::transaction_kind::programmable::commands::TransactionArgument;
 
 /// Upgrades a Move Package.
 #[derive(SimpleObject, Clone)]

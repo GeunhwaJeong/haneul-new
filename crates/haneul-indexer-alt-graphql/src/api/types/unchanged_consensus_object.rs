@@ -1,23 +1,27 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use anyhow::Context as _;
-use async_graphql::{Context, Enum, Object, SimpleObject, Union, dataloader::DataLoader};
 use std::sync::Arc;
-use haneul_indexer_alt_reader::{epochs::EpochStartKey, pg_reader::PgReader};
-use haneul_types::{
-    base_types::{ObjectID, SequenceNumber},
-    digests::ObjectDigest,
-    effects::UnchangedConsensusKind as NativeUnchangedConsensusKind,
-};
 
-use crate::{
-    api::scalars::{haneul_address::HaneulAddress, uint53::UInt53},
-    error::RpcError,
-    scope::Scope,
-};
+use anyhow::Context as _;
+use async_graphql::Context;
+use async_graphql::Enum;
+use async_graphql::Object;
+use async_graphql::SimpleObject;
+use async_graphql::Union;
+use async_graphql::dataloader::DataLoader;
+use haneul_indexer_alt_reader::epochs::EpochStartKey;
+use haneul_indexer_alt_reader::pg_reader::PgReader;
+use haneul_types::base_types::ObjectID;
+use haneul_types::base_types::SequenceNumber;
+use haneul_types::digests::ObjectDigest;
+use haneul_types::effects::UnchangedConsensusKind as NativeUnchangedConsensusKind;
 
-use super::object::Object;
+use crate::api::scalars::haneul_address::HaneulAddress;
+use crate::api::scalars::uint53::UInt53;
+use crate::api::types::object::Object;
+use crate::error::RpcError;
+use crate::scope::Scope;
 
 /// Reason why a transaction that attempted to access a consensus-managed object was cancelled.
 #[derive(Enum, Copy, Clone, Eq, PartialEq)]

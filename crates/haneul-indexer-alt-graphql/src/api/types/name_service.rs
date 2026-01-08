@@ -6,15 +6,19 @@ use std::sync::Arc;
 use anyhow::Context as _;
 use async_graphql::Context;
 use futures::future::OptionFuture;
-use haneul_name_service::{Domain as NativeDomain, NameRecord, NameServiceConfig};
-use haneul_types::{base_types::HaneulAddress, dynamic_field::Field};
+use haneul_name_service::Domain as NativeDomain;
+use haneul_name_service::NameRecord;
+use haneul_name_service::NameServiceConfig;
+use haneul_types::base_types::HaneulAddress;
+use haneul_types::dynamic_field::Field;
 use tokio::join;
 
-use crate::{
-    api::scalars::domain::Domain, error::RpcError, scope::Scope, task::watermark::Watermarks,
-};
-
-use super::{address::Address, object::Object};
+use crate::api::scalars::domain::Domain;
+use crate::api::types::address::Address;
+use crate::api::types::object::Object;
+use crate::error::RpcError;
+use crate::scope::Scope;
+use crate::task::watermark::Watermarks;
 
 /// Attempt to translate the given HaneulNS `domain` to its address, as long as the mapping exists,
 /// and it hasn't expired as of the service's high watermark timestamp.

@@ -1,13 +1,18 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use async_graphql::{InputValueError, Scalar, ScalarType, Value};
-use fastcrypto::encoding::{Base64, Encoding};
-use serde::{Deserialize, Serialize};
-use haneul_types::{
-    base_types::{SequenceNumber, HaneulAddress as NativeHaneulAddress},
-    digests::{ObjectDigest, TransactionDigest},
-};
+use async_graphql::InputValueError;
+use async_graphql::Scalar;
+use async_graphql::ScalarType;
+use async_graphql::Value;
+use fastcrypto::encoding::Base64;
+use fastcrypto::encoding::Encoding;
+use serde::Deserialize;
+use serde::Serialize;
+use haneul_types::base_types::SequenceNumber;
+use haneul_types::base_types::HaneulAddress as NativeHaneulAddress;
+use haneul_types::digests::ObjectDigest;
+use haneul_types::digests::TransactionDigest;
 
 #[derive(Serialize, Deserialize)]
 pub(crate) enum Id {

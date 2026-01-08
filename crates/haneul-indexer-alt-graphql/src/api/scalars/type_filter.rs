@@ -1,14 +1,19 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use std::fmt;
+use std::str::FromStr;
+
 use async_graphql::*;
 use move_core_types::language_storage::StructTag;
-use std::{fmt, str::FromStr};
-use haneul_types::{
-    TypeTag, parse_haneul_address, parse_haneul_module_id, parse_haneul_struct_tag, parse_haneul_type_tag,
-};
+use haneul_types::TypeTag;
+use haneul_types::parse_haneul_address;
+use haneul_types::parse_haneul_module_id;
+use haneul_types::parse_haneul_struct_tag;
+use haneul_types::parse_haneul_type_tag;
 
-use crate::api::scalars::{impl_string_input, haneul_address::HaneulAddress};
+use crate::api::scalars::impl_string_input;
+use crate::api::scalars::haneul_address::HaneulAddress;
 
 /// A GraphQL scalar for accepting a type as input (exact type with all type parameters).
 #[derive(Clone, Debug, Eq, PartialEq)]

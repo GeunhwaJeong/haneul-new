@@ -1,11 +1,15 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use async_graphql::*;
-use std::{fmt, str::FromStr};
-use haneul_types::{parse_haneul_address, parse_haneul_module_id};
+use std::fmt;
+use std::str::FromStr;
 
-use crate::api::scalars::{impl_string_input, haneul_address::HaneulAddress};
+use async_graphql::*;
+use haneul_types::parse_haneul_address;
+use haneul_types::parse_haneul_module_id;
+
+use crate::api::scalars::impl_string_input;
+use crate::api::scalars::haneul_address::HaneulAddress;
 
 /// GraphQL scalar containing a filter on modules. The filter can be one of:
 ///

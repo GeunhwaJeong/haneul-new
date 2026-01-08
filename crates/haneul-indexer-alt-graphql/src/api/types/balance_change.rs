@@ -7,11 +7,14 @@ use anyhow::Context as _;
 use async_graphql::SimpleObject;
 use haneul_indexer_alt_schema::transactions::BalanceChange as StoredBalanceChange;
 use haneul_rpc::proto::haneul::rpc::v2::BalanceChange as GrpcBalanceChange;
-use haneul_types::{TypeTag, object::Owner};
+use haneul_types::TypeTag;
+use haneul_types::object::Owner;
 
-use crate::{api::scalars::big_int::BigInt, error::RpcError, scope::Scope};
-
-use super::{address::Address, move_type::MoveType};
+use crate::api::scalars::big_int::BigInt;
+use crate::api::types::address::Address;
+use crate::api::types::move_type::MoveType;
+use crate::error::RpcError;
+use crate::scope::Scope;
 
 /// Effects to the balance (sum of coin values per coin type) of addresses and objects.
 #[derive(Clone, SimpleObject)]
