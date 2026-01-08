@@ -68,29 +68,7 @@ const concepts = [
 			id: 'concepts/haneul-move-concepts',
 		},
 		items: [
-			{
-				type: 'category',
-				label: 'Packages',
-				link: {
-					type: 'doc',
-					id: 'concepts/haneul-move-concepts/packages',
-				},
-				items: [
-					'concepts/haneul-move-concepts/packages/upgrade',
-					'concepts/haneul-move-concepts/packages/custom-policies',
-					'concepts/haneul-move-concepts/packages/automated-address-management',
-				],
-			},
-			{
-				type: 'category',
-				label: 'Dynamic Fields',
-				link: {
-					type: 'doc',
-					id: 'concepts/dynamic-fields',
-				},
-				items: ['concepts/dynamic-fields/tables-bags'],
-			},
-			'concepts/haneul-move-concepts/derived-objects',
+			'concepts/haneul-move-concepts/packages',
 			'concepts/haneul-move-concepts/conventions',
 		],
 	},
