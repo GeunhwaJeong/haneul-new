@@ -1,13 +1,17 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use anyhow::{Result, anyhow};
+use anyhow::Result;
+use anyhow::anyhow;
 use diesel::prelude::*;
 use haneul_field_count::FieldCount;
-use haneul_protocol_config::{Chain, ProtocolVersion};
-use haneul_types::digests::{ChainIdentifier, CheckpointDigest};
+use haneul_protocol_config::Chain;
+use haneul_protocol_config::ProtocolVersion;
+use haneul_types::digests::ChainIdentifier;
+use haneul_types::digests::CheckpointDigest;
 
-use crate::schema::{kv_checkpoints, kv_genesis};
+use crate::schema::kv_checkpoints;
+use crate::schema::kv_genesis;
 
 #[derive(Insertable, Debug, Clone, FieldCount, Queryable)]
 #[diesel(table_name = kv_checkpoints)]
