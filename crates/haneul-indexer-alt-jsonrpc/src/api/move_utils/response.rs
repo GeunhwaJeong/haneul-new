@@ -2,20 +2,25 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use anyhow::anyhow;
-use move_binary_format::file_format::{Ability, AbilitySet, Visibility};
-use haneul_json_rpc_types::{
-    HaneulMoveAbility, HaneulMoveAbilitySet, HaneulMoveNormalizedFunction, HaneulMoveNormalizedType,
-    HaneulMoveVisibility,
-};
-use haneul_package_resolver::{FunctionDef, OpenSignature, OpenSignatureBody, Reference};
-use haneul_types::{Identifier, base_types::ObjectID};
+use move_binary_format::file_format::Ability;
+use move_binary_format::file_format::AbilitySet;
+use move_binary_format::file_format::Visibility;
+use haneul_json_rpc_types::HaneulMoveAbility;
+use haneul_json_rpc_types::HaneulMoveAbilitySet;
+use haneul_json_rpc_types::HaneulMoveNormalizedFunction;
+use haneul_json_rpc_types::HaneulMoveNormalizedType;
+use haneul_json_rpc_types::HaneulMoveVisibility;
+use haneul_package_resolver::FunctionDef;
+use haneul_package_resolver::OpenSignature;
+use haneul_package_resolver::OpenSignatureBody;
+use haneul_package_resolver::Reference;
+use haneul_types::Identifier;
+use haneul_types::base_types::ObjectID;
 
-use crate::{
-    context::Context,
-    error::{RpcError, invalid_params},
-};
-
-use super::error::Error;
+use crate::api::move_utils::error::Error;
+use crate::context::Context;
+use crate::error::RpcError;
+use crate::error::invalid_params;
 
 /// Load information about a function, and convert it into a JSON-RPC response.
 pub(super) async fn function(

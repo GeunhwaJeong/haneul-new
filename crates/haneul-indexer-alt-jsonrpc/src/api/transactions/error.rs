@@ -1,7 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use haneul_types::{base_types::ObjectID, digests::TransactionDigest};
+use haneul_types::base_types::ObjectID;
+use haneul_types::digests::TransactionDigest;
 
 #[derive(thiserror::Error, Debug)]
 pub(super) enum Error {

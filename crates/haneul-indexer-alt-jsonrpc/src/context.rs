@@ -5,17 +5,18 @@ use std::sync::Arc;
 
 use async_graphql::dataloader::DataLoader;
 use prometheus::Registry;
-use haneul_indexer_alt_reader::{
-    bigtable_reader::{BigtableArgs, BigtableReader},
-    kv_loader::KvLoader,
-    package_resolver::{DbPackageStore, PackageCache},
-    pg_reader::PgReader,
-    pg_reader::db::DbArgs,
-};
+use haneul_indexer_alt_reader::bigtable_reader::BigtableArgs;
+use haneul_indexer_alt_reader::bigtable_reader::BigtableReader;
+use haneul_indexer_alt_reader::kv_loader::KvLoader;
+use haneul_indexer_alt_reader::package_resolver::DbPackageStore;
+use haneul_indexer_alt_reader::package_resolver::PackageCache;
+use haneul_indexer_alt_reader::pg_reader::PgReader;
+use haneul_indexer_alt_reader::pg_reader::db::DbArgs;
 use haneul_package_resolver::Resolver;
 use url::Url;
 
-use crate::{config::RpcConfig, metrics::RpcMetrics};
+use crate::config::RpcConfig;
+use crate::metrics::RpcMetrics;
 
 /// A bundle of different interfaces to data, for use by JSON-RPC method implementations.
 #[derive(Clone)]

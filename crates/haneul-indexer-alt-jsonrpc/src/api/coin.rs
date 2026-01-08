@@ -7,32 +7,40 @@ use anyhow::Context as _;
 use diesel::prelude::*;
 use diesel::sql_types::Bool;
 use futures::future;
-use jsonrpsee::{core::RpcResult, http_client::HttpClient, proc_macros::rpc};
-use move_core_types::language_storage::{StructTag, TypeTag};
-use serde::{Deserialize, Serialize};
+use jsonrpsee::core::RpcResult;
+use jsonrpsee::http_client::HttpClient;
+use jsonrpsee::proc_macros::rpc;
+use move_core_types::language_storage::StructTag;
+use move_core_types::language_storage::TypeTag;
+use serde::Deserialize;
+use serde::Serialize;
 use haneul_indexer_alt_reader::coin_metadata::CoinMetadataKey;
 use haneul_indexer_alt_schema::objects::StoredCoinOwnerKind;
 use haneul_indexer_alt_schema::schema::coin_balance_buckets;
-use haneul_json_rpc_types::{Balance, Coin, Page as PageResponse, HaneulCoinMetadata};
+use haneul_json_rpc_types::Balance;
+use haneul_json_rpc_types::Coin;
+use haneul_json_rpc_types::Page as PageResponse;
+use haneul_json_rpc_types::HaneulCoinMetadata;
 use haneul_open_rpc::Module;
 use haneul_open_rpc_macros::open_rpc;
 use haneul_sql_macro::sql;
+use haneul_types::base_types::ObjectID;
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::coin::CoinMetadata;
 use haneul_types::coin_registry::Currency;
+use haneul_types::gas_coin::GAS;
 use haneul_types::object::Object;
-use haneul_types::{
-    base_types::{ObjectID, HaneulAddress},
-    gas_coin::GAS,
-};
 
-use crate::{
-    context::Context,
-    data::load_live,
-    error::{InternalContext, RpcError, client_error_to_error_object, invalid_params},
-    paginate::{BcsCursor, Cursor as _, Page},
-};
-
-use super::rpc_module::RpcModule;
+use crate::api::rpc_module::RpcModule;
+use crate::context::Context;
+use crate::data::load_live;
+use crate::error::InternalContext;
+use crate::error::RpcError;
+use crate::error::client_error_to_error_object;
+use crate::error::invalid_params;
+use crate::paginate::BcsCursor;
+use crate::paginate::Cursor as _;
+use crate::paginate::Page;
 
 #[open_rpc(namespace = "haneulx", tag = "Coin API")]
 #[rpc(server, namespace = "haneulx")]

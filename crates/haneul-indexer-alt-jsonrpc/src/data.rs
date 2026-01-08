@@ -1,8 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
+
 use std::time::Duration;
 
-use anyhow::{Context as _, ensure};
+use anyhow::Context as _;
+use anyhow::ensure;
 use serde::de::DeserializeOwned;
 use haneul_indexer_alt_reader::object_versions::LatestObjectVersionKey;
 use haneul_types::base_types::ObjectID;

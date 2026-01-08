@@ -8,7 +8,8 @@ use haneul_indexer_alt_reader::bigtable_reader::BigtableArgs;
 use haneul_indexer_alt_reader::pg_reader::db::DbArgs;
 use url::Url;
 
-use crate::{NodeArgs, RpcArgs};
+use crate::NodeArgs;
+use crate::RpcArgs;
 
 pub use haneul_indexer_alt_reader::system_package_task::SystemPackageTaskArgs;
 

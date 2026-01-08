@@ -2,20 +2,22 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use futures::future;
-use jsonrpsee::{core::RpcResult, proc_macros::rpc};
-use haneul_json_rpc_types::{Page, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions};
+use jsonrpsee::core::RpcResult;
+use jsonrpsee::proc_macros::rpc;
+use haneul_json_rpc_types::Page;
+use haneul_json_rpc_types::HaneulTransactionBlockResponse;
+use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_open_rpc::Module;
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::digests::TransactionDigest;
 
-use self::{error::Error, filter::HaneulTransactionBlockResponseQuery};
-
-use crate::{
-    context::Context,
-    error::{InternalContext, RpcError, rpc_bail},
-};
-
-use super::rpc_module::RpcModule;
+use crate::api::rpc_module::RpcModule;
+use crate::api::transactions::error::Error;
+use crate::api::transactions::filter::HaneulTransactionBlockResponseQuery;
+use crate::context::Context;
+use crate::error::InternalContext;
+use crate::error::RpcError;
+use crate::error::rpc_bail;
 
 mod error;
 mod filter;
