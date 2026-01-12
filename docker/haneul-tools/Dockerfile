@@ -19,7 +19,6 @@ RUN cargo build --profile ${PROFILE} \
     --bin haneul-faucet \
     --bin haneul-bridge \
     --bin bridge-indexer \
-    --bin deepbook-indexer \
     --bin haneul-bridge-cli \
     --bin haneul \
     --bin haneul-cluster-test \
@@ -35,7 +34,6 @@ RUN apt-get update && apt-get install -y libpq5 libpq-dev ca-certificates git
 COPY --from=builder /haneul/target/release/haneul-faucet /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-bridge /usr/local/bin
 COPY --from=builder /haneul/target/release/bridge-indexer /usr/local/bin
-COPY --from=builder /haneul/target/release/deepbook-indexer /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-bridge-cli /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul /usr/local/bin
 COPY --from=builder /haneul/target/release/haneul-cluster-test /usr/local/bin

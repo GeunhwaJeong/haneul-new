@@ -13,8 +13,7 @@ COPY crates crates
 COPY haneul-execution haneul-execution
 COPY external-crates external-crates
 RUN cargo build --release \
-    --bin haneul-oracle \
-    --bin haneulns-indexer
+    --bin haneul-oracle
 RUN mkdir /haneul/bin/
 RUN find /haneul/target/release/ -maxdepth 1 -type f -executable -print 
 RUN find /haneul/target/release/ -maxdepth 1 -type f -executable -print | xargs cp -t /haneul/bin/
