@@ -27,7 +27,6 @@ use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuild
 use haneul_types::transaction::{
     Argument, CallArg, FundsWithdrawalArg, ObjectArg, SharedObjectMutability,
 };
-use haneul_types::type_input::TypeInput;
 
 pub const HANEUL_ARGS_LONG: &str = "haneul-args";
 const DEFAULT_CONSISTENT_RANGE: usize = 300;
@@ -757,10 +756,8 @@ impl HaneulValue {
                             type_tag
                         )
                     })?;
-                let inner_type_input = TypeInput::from(inner_type);
                 CallArg::FundsWithdrawal(FundsWithdrawalArg::balance_from_sender(
-                    amount,
-                    inner_type_input,
+                    amount, inner_type,
                 ))
             }
         })

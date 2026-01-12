@@ -2395,7 +2395,7 @@ impl HaneulCallArg {
                 },
                 type_arg: match arg.type_arg {
                     WithdrawalTypeArg::Balance(type_input) => {
-                        HaneulWithdrawalTypeArg::Balance(type_input.to_type_tag()?.into())
+                        HaneulWithdrawalTypeArg::Balance(type_input.into())
                     }
                 },
                 withdraw_from: match arg.withdraw_from {
