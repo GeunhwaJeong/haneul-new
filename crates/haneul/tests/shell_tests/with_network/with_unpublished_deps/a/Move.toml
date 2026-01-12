@@ -1,0 +1,8 @@
+[package]
+name = "examples"
+version = "0.0.1"
+implicit-dependencies = false
+
+[dependencies]
+haneul = { local = "../haneul-framework" }
+non_zero = { local = "../b" }

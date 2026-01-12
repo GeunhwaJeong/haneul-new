@@ -26,6 +26,7 @@ use haneul_package_management::system_package_versions::{
 use haneul_sdk::types::{
     base_types::ObjectID,
     digests::{get_mainnet_chain_identifier, get_testnet_chain_identifier},
+    is_system_package,
     supported_protocol_versions::Chain,
 };
 
@@ -148,6 +149,10 @@ impl MoveFlavor for HaneulFlavor {
         } else {
             Ok(())
         }
+    }
+
+    fn is_system_address(address: &move_package_alt::schema::OriginalID) -> bool {
+        is_system_package(address.0)
     }
 }
 
