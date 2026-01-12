@@ -68,7 +68,7 @@ impl HaneulTxValidator {
     }
 
     fn validate_transactions(&self, txs: &[ConsensusTransactionKind]) -> Result<(), HaneulError> {
-        let epoch_store = self.epoch_store.clone();
+        let epoch_store = &self.epoch_store;
         let mut cert_batch = Vec::new();
         let mut ckpt_messages = Vec::new();
         let mut ckpt_batch = Vec::new();
@@ -178,7 +178,7 @@ impl HaneulTxValidator {
         // All checkpoint sigs have been verified, forward them to the checkpoint service
         for ckpt in ckpt_messages {
             self.checkpoint_service
-                .notify_checkpoint_signature(&epoch_store, ckpt)?;
+                .notify_checkpoint_signature(epoch_store, ckpt)?;
         }
 
         self.metrics
@@ -196,7 +196,7 @@ impl HaneulTxValidator {
         block_ref: &BlockRef,
         txs: Vec<ConsensusTransactionKind>,
     ) -> Vec<TransactionIndex> {
-        let epoch_store = self.epoch_store.clone();
+        let epoch_store = &self.epoch_store;
         if !epoch_store.protocol_config().mysticeti_fastpath() {
             return vec![];
         }
@@ -212,7 +212,7 @@ impl HaneulTxValidator {
             };
 
             let tx_digest = *tx.tx().digest();
-            if let Err(error) = self.vote_transaction(&epoch_store, tx) {
+            if let Err(error) = self.vote_transaction(epoch_store, tx) {
                 debug!(?tx_digest, "Voting to reject transaction: {error}");
                 self.metrics
                     .transaction_reject_votes
