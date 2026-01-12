@@ -28,3 +28,9 @@ add_env_to_toml a
 add_env_to_toml b
 
 haneul client --client.config $CONFIG publish b
+
+# Publish A, so we can try to publish twice
+haneul client --client.config $CONFIG publish a > /dev/null || echo "failed to publish a"
+
+# Try to publish A again.
+haneul client --client.config $CONFIG publish a
