@@ -16,8 +16,9 @@ use haneul_config::{Config, ExecutionCacheConfig, HANEUL_CLIENT_CONFIG, HANEUL_N
 use haneul_config::{NodeConfig, PersistedConfig, HANEUL_KEYSTORE_FILENAME};
 use haneul_core::authority_aggregator::AuthorityAggregator;
 use haneul_core::authority_client::NetworkAuthorityClient;
+use haneul_json_rpc_api::CoinReadApiClient;
 use haneul_json_rpc_types::{
-    HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
+    Balance, HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
     TransactionFilter,
 };
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
@@ -62,6 +63,8 @@ use tokio::time::{Instant, timeout};
 use tokio::{task::JoinHandle, time::sleep};
 use tonic::IntoRequest;
 use tracing::{error, info};
+
+pub mod addr_balance_test_env;
 
 const NUM_VALIDATOR: usize = 4;
 
@@ -918,6 +921,22 @@ impl TestCluster {
             .unwrap();
         assert_eq!(&HaneulExecutionStatus::Success, effects.status());
         effects.created().first().unwrap().object_id()
+    }
+
+    pub async fn get_haneul_balance(&self, address: HaneulAddress) -> Balance {
+        self.fullnode_handle
+            .rpc_client
+            .get_balance(address, Some("0x2::haneul::HANEUL".to_string()))
+            .await
+            .unwrap()
+    }
+
+    pub async fn get_address_balance(&self, address: HaneulAddress, coin_type: &str) -> Balance {
+        self.fullnode_handle
+            .rpc_client
+            .get_balance(address, Some(coin_type.to_string()))
+            .await
+            .unwrap()
     }
 
     #[cfg(msim)]
