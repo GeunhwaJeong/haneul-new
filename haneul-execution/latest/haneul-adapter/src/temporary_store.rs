@@ -10,7 +10,7 @@ use haneul_types::accumulator_event::AccumulatorEvent;
 use haneul_types::base_types::VersionDigest;
 use haneul_types::committee::EpochId;
 use haneul_types::deny_list_v2::check_coin_deny_list_v2_during_execution;
-use haneul_types::effects::{TransactionEffects, TransactionEvents};
+use haneul_types::effects::{AccumulatorWriteV1, TransactionEffects, TransactionEvents};
 use haneul_types::error::ExecutionErrorKind;
 use haneul_types::execution::{
     DynamicallyLoadedObjectMetadata, ExecutionResults, ExecutionResultsV2, SharedInput,
@@ -513,8 +513,17 @@ impl<'backing> TemporaryStore<'backing> {
         self.mutate_input_object(system_state_wrapper);
     }
 
-    /// Add an accumulator event to the execution results
+    /// Add an accumulator event to the execution results, merging with any existing
+    /// event for the same accumulator object.
     pub fn add_accumulator_event(&mut self, event: AccumulatorEvent) {
+        let obj_id = *event.accumulator_obj.inner();
+        for existing in self.execution_results.accumulator_events.iter_mut() {
+            if *existing.accumulator_obj.inner() == obj_id {
+                existing.write =
+                    AccumulatorWriteV1::merge(vec![existing.write.clone(), event.write]);
+                return;
+            }
+        }
         self.execution_results.accumulator_events.push(event);
     }
 
