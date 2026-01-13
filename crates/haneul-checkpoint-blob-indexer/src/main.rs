@@ -19,6 +19,7 @@ use haneul_indexer_alt_metrics::MetricsArgs;
 use haneul_indexer_alt_object_store::ObjectStore;
 use url::Url;
 
+use haneul_checkpoint_blob_indexer::CheckpointBcsPipeline;
 use haneul_checkpoint_blob_indexer::CheckpointBlobPipeline;
 use haneul_checkpoint_blob_indexer::EpochsPipeline;
 
@@ -166,6 +167,10 @@ async fn main() -> anyhow::Result<()> {
 
     indexer
         .concurrent_pipeline(EpochsPipeline, config.clone())
+        .await?;
+
+    indexer
+        .concurrent_pipeline(CheckpointBcsPipeline, config.clone())
         .await?;
 
     let s_metrics = metrics_service.run().await?;

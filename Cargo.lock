@@ -14423,6 +14423,7 @@ dependencies = [
  "haneul-indexer-alt-metrics",
  "haneul-indexer-alt-object-store",
  "haneul-rpc",
+ "haneul-storage",
  "haneul-types",
  "tokio",
  "tracing",
