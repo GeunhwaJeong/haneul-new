@@ -11,6 +11,8 @@ title: Module `haneul::accumulator`
 -  [Function `create`](#haneul_accumulator_create)
 -  [Function `root_id`](#haneul_accumulator_root_id)
 -  [Function `root_id_mut`](#haneul_accumulator_root_id_mut)
+-  [Function `accumulator_u128_exists`](#haneul_accumulator_accumulator_u128_exists)
+-  [Function `accumulator_u128_read`](#haneul_accumulator_accumulator_u128_read)
 -  [Function `create_u128`](#haneul_accumulator_create_u128)
 -  [Function `destroy_u128`](#haneul_accumulator_destroy_u128)
 -  [Function `update_u128`](#haneul_accumulator_update_u128)
@@ -20,6 +22,7 @@ title: Module `haneul::accumulator`
 -  [Function `root_has_accumulator`](#haneul_accumulator_root_has_accumulator)
 -  [Function `root_add_accumulator`](#haneul_accumulator_root_add_accumulator)
 -  [Function `root_borrow_accumulator_mut`](#haneul_accumulator_root_borrow_accumulator_mut)
+-  [Function `root_borrow_accumulator`](#haneul_accumulator_root_borrow_accumulator)
 -  [Function `root_remove_accumulator`](#haneul_accumulator_root_remove_accumulator)
 -  [Function `emit_deposit_event`](#haneul_accumulator_emit_deposit_event)
 -  [Function `emit_withdraw_event`](#haneul_accumulator_emit_withdraw_event)
@@ -209,6 +212,55 @@ to cause an overflow.
 
 <pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/accumulator.md#haneul_accumulator_root_id_mut">root_id_mut</a>(accumulator_root: &<b>mut</b> <a href="../haneul/accumulator.md#haneul_accumulator_AccumulatorRoot">AccumulatorRoot</a>): &<b>mut</b> UID {
     &<b>mut</b> accumulator_root.id
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_accumulator_accumulator_u128_exists"></a>
+
+## Function `accumulator_u128_exists`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/accumulator.md#haneul_accumulator_accumulator_u128_exists">accumulator_u128_exists</a>&lt;T&gt;(root: &<a href="../haneul/accumulator.md#haneul_accumulator_AccumulatorRoot">haneul::accumulator::AccumulatorRoot</a>, <b>address</b>: <b>address</b>): bool
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/accumulator.md#haneul_accumulator_accumulator_u128_exists">accumulator_u128_exists</a>&lt;T&gt;(root: &<a href="../haneul/accumulator.md#haneul_accumulator_AccumulatorRoot">AccumulatorRoot</a>, <b>address</b>: <b>address</b>): bool {
+    root.has_accumulator&lt;T, <a href="../haneul/accumulator.md#haneul_accumulator_U128">U128</a>&gt;(<a href="../haneul/accumulator.md#haneul_accumulator_Key">Key</a>&lt;T&gt; { <b>address</b> })
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_accumulator_accumulator_u128_read"></a>
+
+## Function `accumulator_u128_read`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/accumulator.md#haneul_accumulator_accumulator_u128_read">accumulator_u128_read</a>&lt;T&gt;(root: &<a href="../haneul/accumulator.md#haneul_accumulator_AccumulatorRoot">haneul::accumulator::AccumulatorRoot</a>, <b>address</b>: <b>address</b>): u128
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/accumulator.md#haneul_accumulator_accumulator_u128_read">accumulator_u128_read</a>&lt;T&gt;(root: &<a href="../haneul/accumulator.md#haneul_accumulator_AccumulatorRoot">AccumulatorRoot</a>, <b>address</b>: <b>address</b>): u128 {
+    <b>let</b> <a href="../haneul/accumulator.md#haneul_accumulator">accumulator</a> = root.borrow_accumulator&lt;T, <a href="../haneul/accumulator.md#haneul_accumulator_U128">U128</a>&gt;(<a href="../haneul/accumulator.md#haneul_accumulator_Key">Key</a>&lt;T&gt; { <b>address</b> });
+    <a href="../haneul/accumulator.md#haneul_accumulator">accumulator</a>.value
 }
 </code></pre>
 
@@ -437,6 +489,33 @@ Balance object methods
     name: <a href="../haneul/accumulator.md#haneul_accumulator_Key">Key</a>&lt;K&gt;,
 ): &<b>mut</b> V {
     <a href="../haneul/dynamic_field.md#haneul_dynamic_field_borrow_mut">dynamic_field::borrow_mut</a>&lt;<a href="../haneul/accumulator.md#haneul_accumulator_Key">Key</a>&lt;K&gt;, V&gt;(&<b>mut</b> accumulator_root.id, name)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_accumulator_root_borrow_accumulator"></a>
+
+## Function `root_borrow_accumulator`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/accumulator.md#haneul_accumulator_root_borrow_accumulator">root_borrow_accumulator</a>&lt;K, V: store&gt;(accumulator_root: &<a href="../haneul/accumulator.md#haneul_accumulator_AccumulatorRoot">haneul::accumulator::AccumulatorRoot</a>, name: <a href="../haneul/accumulator.md#haneul_accumulator_Key">haneul::accumulator::Key</a>&lt;K&gt;): &V
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/accumulator.md#haneul_accumulator_root_borrow_accumulator">root_borrow_accumulator</a>&lt;K, V: store&gt;(
+    accumulator_root: &<a href="../haneul/accumulator.md#haneul_accumulator_AccumulatorRoot">AccumulatorRoot</a>,
+    name: <a href="../haneul/accumulator.md#haneul_accumulator_Key">Key</a>&lt;K&gt;,
+): &V {
+    <a href="../haneul/dynamic_field.md#haneul_dynamic_field_borrow">dynamic_field::borrow</a>&lt;<a href="../haneul/accumulator.md#haneul_accumulator_Key">Key</a>&lt;K&gt;, V&gt;(&accumulator_root.id, name)
 }
 </code></pre>
 
