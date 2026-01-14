@@ -20,4 +20,5 @@ haneul-types.workspace = true
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }
-haneul-move-build.workspace = true
+haneul-package-alt.workspace = true
+move-package-alt.workspace = true
