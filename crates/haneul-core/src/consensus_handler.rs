@@ -27,7 +27,7 @@ use haneullabs_metrics::{
 use parking_lot::RwLockWriteGuard;
 use serde::{Deserialize, Serialize};
 use haneul_macros::{fail_point, fail_point_arg, fail_point_if};
-use haneul_protocol_config::ProtocolConfig;
+use haneul_protocol_config::{PerObjectCongestionControlMode, ProtocolConfig};
 use haneul_types::{
     HANEUL_RANDOMNESS_STATE_OBJECT_ID,
     authenticator_state::ActiveJwk,
@@ -575,6 +575,16 @@ impl<C> ConsensusHandler<C> {
         backpressure_subscriber: BackpressureSubscriber,
         traffic_controller: Option<Arc<TrafficController>>,
     ) -> Self {
+        assert!(
+            matches!(
+                epoch_store
+                    .protocol_config()
+                    .per_object_congestion_control_mode(),
+                PerObjectCongestionControlMode::ExecutionTimeEstimate(_)
+            ),
+            "support for congestion control modes other than PerObjectCongestionControlMode::ExecutionTimeEstimate has been removed"
+        );
+
         // Recover last_consensus_stats so it is consistent across validators.
         let mut last_consensus_stats = epoch_store
             .get_last_consensus_stats()
