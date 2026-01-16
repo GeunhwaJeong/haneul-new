@@ -88,7 +88,6 @@ title: Module `deepbook::clob_v2`
 <b>use</b> <a href="../std/u128.md#std_u128">std::u128</a>;
 <b>use</b> <a href="../std/vector.md#std_vector">std::vector</a>;
 <b>use</b> <a href="../haneul/accumulator.md#haneul_accumulator">haneul::accumulator</a>;
-<b>use</b> <a href="../haneul/accumulator_metadata.md#haneul_accumulator_metadata">haneul::accumulator_metadata</a>;
 <b>use</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement">haneul::accumulator_settlement</a>;
 <b>use</b> <a href="../haneul/address.md#haneul_address">haneul::address</a>;
 <b>use</b> <a href="../haneul/bag.md#haneul_bag">haneul::bag</a>;

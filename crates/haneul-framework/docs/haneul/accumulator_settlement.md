@@ -22,9 +22,7 @@ title: Module `haneul::accumulator_settlement`
 <b>use</b> <a href="../std/string.md#std_string">std::string</a>;
 <b>use</b> <a href="../std/vector.md#std_vector">std::vector</a>;
 <b>use</b> <a href="../haneul/accumulator.md#haneul_accumulator">haneul::accumulator</a>;
-<b>use</b> <a href="../haneul/accumulator_metadata.md#haneul_accumulator_metadata">haneul::accumulator_metadata</a>;
 <b>use</b> <a href="../haneul/address.md#haneul_address">haneul::address</a>;
-<b>use</b> <a href="../haneul/bag.md#haneul_bag">haneul::bag</a>;
 <b>use</b> <a href="../haneul/bcs.md#haneul_bcs">haneul::bcs</a>;
 <b>use</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field">haneul::dynamic_field</a>;
 <b>use</b> <a href="../haneul/hash.md#haneul_hash">haneul::hash</a>;
@@ -143,7 +141,7 @@ digest.
 
 
 
-<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_settle_u128">settle_u128</a>&lt;T&gt;(accumulator_root: &<b>mut</b> <a href="../haneul/accumulator.md#haneul_accumulator_AccumulatorRoot">haneul::accumulator::AccumulatorRoot</a>, owner: <b>address</b>, merge: u128, split: u128, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
+<pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_settle_u128">settle_u128</a>&lt;T&gt;(accumulator_root: &<b>mut</b> <a href="../haneul/accumulator.md#haneul_accumulator_AccumulatorRoot">haneul::accumulator::AccumulatorRoot</a>, owner: <b>address</b>, merge: u128, split: u128, ctx: &<a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
 </code></pre>
 
 
@@ -157,7 +155,7 @@ digest.
     owner: <b>address</b>,
     merge: u128,
     split: u128,
-    ctx: &<b>mut</b> TxContext,
+    ctx: &TxContext,
 ) {
     <b>assert</b>!(ctx.sender() == @0x0, <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_ENotSystemAddress">ENotSystemAddress</a>);
     // Merge and split should be netted out prior to calling this function.
@@ -172,14 +170,12 @@ digest.
         <b>if</b> (is_zero) {
             <b>let</b> value = accumulator_root.remove_accumulator&lt;T, U128&gt;(name);
             destroy_u128(value);
-            accumulator_root.remove_metadata&lt;T&gt;(owner);
         }
     } <b>else</b> {
         // cannot split <b>if</b> the field does not yet exist
         <b>assert</b>!(split == 0, <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_EInvalidSplitAmount">EInvalidSplitAmount</a>);
         <b>let</b> value = create_u128(merge);
         accumulator_root.add_accumulator(name, value);
-        accumulator_root.create_metadata&lt;T&gt;(owner, ctx);
     };
 }
 </code></pre>
