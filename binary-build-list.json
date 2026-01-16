@@ -4,7 +4,6 @@
         "haneul-node",
         "haneul-tool",
         "haneul-faucet",
-        "haneul-data-ingestion",
         "haneul-bridge",
         "haneul-bridge-cli",
         "haneul-test-validator",
