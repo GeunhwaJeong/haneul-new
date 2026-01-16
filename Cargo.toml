@@ -111,7 +111,6 @@ members = [
   "crates/haneul-config",
   "crates/haneul-core",
   "crates/haneul-cost",
-  "crates/haneul-data-ingestion",
   "crates/haneul-data-ingestion-core",
   "crates/haneul-data-store",
   "crates/haneul-default-config",
@@ -698,7 +697,6 @@ haneul-cluster-test = { path = "crates/haneul-cluster-test" }
 haneul-config = { path = "crates/haneul-config" }
 haneul-core = { path = "crates/haneul-core" }
 haneul-cost = { path = "crates/haneul-cost" }
-haneul-data-ingestion = { path = "crates/haneul-data-ingestion" }
 haneul-data-ingestion-core = { path = "crates/haneul-data-ingestion-core" }
 haneul-data-store = { path = "crates/haneul-data-store" }
 haneul-default-config = { path = "crates/haneul-default-config" }
