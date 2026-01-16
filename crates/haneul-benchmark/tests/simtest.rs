@@ -17,6 +17,8 @@ mod test {
     use haneul_benchmark::system_state_observer::SystemStateObserver;
     use haneul_benchmark::workloads::adversarial::AdversarialPayloadCfg;
     use haneul_benchmark::workloads::benchmark_move_base_dir;
+    use haneul_benchmark::workloads::composite::CompositeWorkload;
+    use haneul_benchmark::workloads::composite::CompositeWorkloadConfig;
     use haneul_benchmark::workloads::expected_failure::ExpectedFailurePayloadCfg;
     use haneul_benchmark::workloads::workload::ExpectedFailureType;
     use haneul_benchmark::workloads::workload_configuration::{
@@ -1055,7 +1057,7 @@ mod test {
         conflicting_transfer_weight: u32,
         num_contested_objects: u64,
         composite_weight: u32,
-        composite_config: Option<haneul_benchmark::workloads::composite::CompositeWorkloadConfig>,
+        composite_config: Option<CompositeWorkloadConfig>,
     }
 
     impl Default for SimulatedLoadConfig {
@@ -1084,8 +1086,8 @@ mod test {
                 party_weight: 0,
                 conflicting_transfer_weight: 0,
                 num_contested_objects: 2,
-                composite_weight: 0,
-                composite_config: None,
+                composite_weight: 1,
+                composite_config: Some(CompositeWorkloadConfig::balanced()),
             }
         }
     }
