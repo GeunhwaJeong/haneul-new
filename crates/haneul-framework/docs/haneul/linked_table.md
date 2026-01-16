@@ -405,7 +405,7 @@ that key <code>k: K</code>
 ## Function `next`
 
 Borrows the key for the next entry of the specified key <code>k: K</code> in the table
-<code><a href="../haneul/table.md#haneul_table">table</a>: &<a href="../haneul/linked_table.md#haneul_linked_table_LinkedTable">LinkedTable</a>&lt;K, V&gt;</code>. Returns None if the entry does not have a predecessor.
+<code><a href="../haneul/table.md#haneul_table">table</a>: &<a href="../haneul/linked_table.md#haneul_linked_table_LinkedTable">LinkedTable</a>&lt;K, V&gt;</code>. Returns None if the entry does not have a successor.
 Aborts with <code><a href="../haneul/dynamic_field.md#haneul_dynamic_field_EFieldDoesNotExist">haneul::dynamic_field::EFieldDoesNotExist</a></code> if the table does not have an entry with
 that key <code>k: K</code>
 
