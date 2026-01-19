@@ -44,7 +44,7 @@ do
   echo === publishing $i ===
   add_env_to_toml $i
 
-  haneul client --client.config $CONFIG publish $i > /dev/null || echo "failed to build $i"
+  haneul client --client.config $CONFIG publish $i > output.log 2>&1 || cat output.log
   extract_published $i/Published.toml
 
 done

@@ -32,24 +32,24 @@ add_env_to_toml b
 
 echo "=== test-publish a, then test-publish b, then add a module to b & upgrade b ==="
 
-haneul client --client.config $CONFIG publish a > /dev/null || echo "failed to publish a"
+haneul client --client.config $CONFIG publish a > output.log 2>&1 || cat output.log
 
 echo "=== published a ==="
 extract_published a/Published.toml
 
-haneul client --client.config $CONFIG publish b > /dev/null || echo "failed to publish b"
+haneul client --client.config $CONFIG publish b > output.log 2>&1 || cat output.log
 
 echo "=== published b ==="
 extract_published b/Published.toml
 
 echo "module b::new_module; public fun b() { a::a::a() }" >> b/sources/new_module.move
 
-haneul client --client.config $CONFIG upgrade b > /dev/null || echo "failed to upgrade b"
+haneul client --client.config $CONFIG upgrade b > output.log 2>&1 || cat output.log
 
 echo "=== upgraded b ==="
 extract_published b/Published.toml
 
-haneul client --client.config $CONFIG upgrade a > /dev/null || echo "failed to upgrade a"
+haneul client --client.config $CONFIG upgrade a > output.log 2>&1 || cat output.log
 
 echo "=== upgraded a ==="
 extract_published a/Published.toml
