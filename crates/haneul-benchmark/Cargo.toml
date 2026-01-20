@@ -54,9 +54,12 @@ sysinfo.workspace = true
 haneul-move-build.workspace = true
 
 [target.'cfg(msim)'.dependencies]
+prost.workspace = true
 haneul-framework.workspace = true
 haneul-framework-snapshot.workspace = true
 haneul-macros.workspace = true
+haneul-rpc.workspace = true
 haneul-simulator.workspace = true
 typed-store.workspace = true
 haneullabs-common.workspace = true
+zstd.workspace = true

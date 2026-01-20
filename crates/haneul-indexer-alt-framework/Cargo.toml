@@ -43,7 +43,9 @@ haneul-sdk-types.workspace = true
 haneul-rpc-api.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
+prost.workspace = true
 prost-types.workspace = true
+zstd.workspace = true
 
 haneul-pg-db = { workspace = true, optional = true }
 

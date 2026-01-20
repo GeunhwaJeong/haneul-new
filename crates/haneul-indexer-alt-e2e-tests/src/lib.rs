@@ -15,6 +15,7 @@ use diesel::ExpressionMethods;
 use diesel::OptionalExtension;
 use diesel::QueryDsl;
 use diesel_async::RunQueryDsl;
+use prost::Message;
 use reqwest::Client;
 use serde_json::Value;
 use serde_json::json;
@@ -49,15 +50,16 @@ use haneul_pg_db::Db;
 use haneul_pg_db::DbArgs;
 use haneul_pg_db::temp::TempDb;
 use haneul_pg_db::temp::get_available_port;
-use haneul_storage::blob::Blob;
-use haneul_storage::blob::BlobEncoding;
+use haneul_rpc::field::FieldMask;
+use haneul_rpc::field::FieldMaskUtil;
+use haneul_rpc::merge::Merge;
+use haneul_rpc::proto::haneul::rpc;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::AccountKeyPair;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::error::ExecutionError;
 use haneul_types::full_checkpoint_content::Checkpoint;
-use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::messages_checkpoint::VerifiedCheckpoint;
 use haneul_types::transaction::Transaction;
 use tempfile::TempDir;
@@ -675,12 +677,46 @@ pub fn local_ingestion_client_args() -> (ClientArgs, TempDir) {
 
 /// Writes a checkpoint file to the given path.
 pub async fn write_checkpoint(path: &Path, checkpoint: Checkpoint) -> anyhow::Result<()> {
-    // Convert to CheckpointData for serialization
-    // TODO: Change to proto format once we merge pull/24066
-    let checkpoint_data: CheckpointData = checkpoint.into();
-    let file_name = format!("{}.chk", checkpoint_data.checkpoint_summary.sequence_number);
+    let sequence_number = checkpoint.summary.sequence_number;
+
+    let mask = FieldMask::from_paths([
+        rpc::v2::Checkpoint::path_builder().sequence_number(),
+        rpc::v2::Checkpoint::path_builder().summary().bcs().value(),
+        rpc::v2::Checkpoint::path_builder().signature().finish(),
+        rpc::v2::Checkpoint::path_builder().contents().bcs().value(),
+        rpc::v2::Checkpoint::path_builder()
+            .transactions()
+            .transaction()
+            .bcs()
+            .value(),
+        rpc::v2::Checkpoint::path_builder()
+            .transactions()
+            .effects()
+            .bcs()
+            .value(),
+        rpc::v2::Checkpoint::path_builder()
+            .transactions()
+            .effects()
+            .unchanged_loaded_runtime_objects()
+            .finish(),
+        rpc::v2::Checkpoint::path_builder()
+            .transactions()
+            .events()
+            .bcs()
+            .value(),
+        rpc::v2::Checkpoint::path_builder()
+            .objects()
+            .objects()
+            .bcs()
+            .value(),
+    ]);
+
+    let proto_checkpoint = rpc::v2::Checkpoint::merge_from(&checkpoint, &mask.into());
+    let proto_bytes = proto_checkpoint.encode_to_vec();
+    let compressed = zstd::encode_all(&proto_bytes[..], 3)?;
+
+    let file_name = format!("{}.binpb.zst", sequence_number);
     let file_path = path.join(file_name);
-    let blob = Blob::encode(&checkpoint_data, BlobEncoding::Bcs)?;
-    fs::write(file_path, blob.to_bytes())?;
+    fs::write(file_path, compressed)?;
     Ok(())
 }

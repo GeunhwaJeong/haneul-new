@@ -77,8 +77,10 @@ telemetry-subscribers.workspace = true
 typed-store.workspace = true
 
 haneullabs-metrics.workspace = true
+prost.workspace = true
 shared-crypto.workspace = true
 haneul-config.workspace = true
+haneul-rpc.workspace = true
 haneul-authority-aggregation.workspace = true
 haneul-execution.workspace = true
 haneul-framework.workspace = true
@@ -94,6 +96,7 @@ haneul-storage.workspace = true
 haneul-tls.workspace = true
 haneul-types.workspace = true
 nonempty.workspace = true
+zstd.workspace = true
 
 [dev-dependencies]
 haneul-move-build.workspace = true
