@@ -4,6 +4,7 @@
 use crate::{ErrorReason, Result, RpcError, RpcService};
 use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
 use haneul_rpc::proto::haneul::rpc::v2::{Balance, GetBalanceRequest, GetBalanceResponse};
+use haneul_sdk_types::Address;
 use haneul_sdk_types::StructTag;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::storage::BalanceInfo;
@@ -25,12 +26,13 @@ pub fn get_balance(service: &RpcService, request: GetBalanceRequest) -> Result<G
                 .with_description("missing owner")
                 .with_reason(ErrorReason::FieldMissing)
         })?
-        .parse::<HaneulAddress>()
+        .parse::<Address>()
         .map_err(|e| {
             FieldViolation::new("owner")
                 .with_description(format!("invalid owner: {e}"))
                 .with_reason(ErrorReason::FieldInvalid)
         })?;
+    let owner = HaneulAddress::from(owner);
 
     let coin_type = request
         .coin_type
