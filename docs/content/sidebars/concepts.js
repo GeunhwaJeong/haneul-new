@@ -4,6 +4,7 @@
 const concepts = [
 	'concepts',
 	'concepts/haneul-for-ethereum',
+	'concepts/haneul-for-solana',
 	{
 		type: 'category',
 		label: 'Architecture',
