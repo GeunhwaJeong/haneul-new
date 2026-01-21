@@ -1193,7 +1193,7 @@ impl CheckpointStateHasher {
 }
 
 #[derive(Debug)]
-pub(crate) enum CheckpointBuilderError {
+pub enum CheckpointBuilderError {
     ChangeEpochTxAlreadyExecuted,
     SystemPackagesMissing,
     Retry(anyhow::Error),
@@ -1207,7 +1207,7 @@ impl<HaneulError: std::error::Error + Send + Sync + 'static> From<HaneulError>
     }
 }
 
-pub(crate) type CheckpointBuilderResult<T = ()> = Result<T, CheckpointBuilderError>;
+pub type CheckpointBuilderResult<T = ()> = Result<T, CheckpointBuilderError>;
 
 pub struct CheckpointBuilder {
     state: Arc<AuthorityState>,

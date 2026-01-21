@@ -4,14 +4,17 @@
 use std::sync::Arc;
 
 use bytes::Bytes;
+use object_store::ObjectStoreExt;
 use object_store::path::Path as ObjectPath;
 use haneul_indexer_alt_framework::pipeline::Processor;
 use haneul_indexer_alt_framework::pipeline::concurrent::BatchStatus;
 use haneul_indexer_alt_framework::pipeline::concurrent::Handler;
 use haneul_indexer_alt_framework::store::Store;
 use haneul_indexer_alt_object_store::ObjectStore;
-use haneul_storage::blob::{Blob, BlobEncoding};
-use haneul_types::full_checkpoint_content::{Checkpoint, CheckpointData};
+use haneul_storage::blob::Blob;
+use haneul_storage::blob::BlobEncoding;
+use haneul_types::full_checkpoint_content::Checkpoint;
+use haneul_types::full_checkpoint_content::CheckpointData;
 
 pub struct BcsCheckpoint {
     pub sequence_number: u64,

@@ -4,7 +4,7 @@
 use crate::config::Config;
 use anyhow::{Result, anyhow};
 use async_trait::async_trait;
-use object_store::{ObjectStore, path::Path};
+use object_store::{ObjectStore, ObjectStoreExt as _, path::Path};
 use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::messages_checkpoint::CertifiedCheckpointSummary;
 use tracing::info;
