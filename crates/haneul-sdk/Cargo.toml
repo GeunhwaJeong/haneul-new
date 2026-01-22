@@ -43,6 +43,9 @@ shared-crypto.workspace = true
 tracing.workspace = true
 move-core-types.workspace = true
 fastcrypto.workspace = true
+haneul-crypto.workspace = true
+haneul-rpc.workspace = true
+haneul-sdk-types.workspace = true
 
 # NOTE: It's important to keep the above dependency list short.
 # This and the haneul-json-rpc-api crate are widely used to develop on Haneul and it's valuable
