@@ -14372,8 +14372,6 @@ dependencies = [
  "haneul-bridge",
  "haneul-bridge-schema",
  "haneul-config",
- "haneul-data-ingestion-core",
- "haneul-indexer-builder",
  "haneul-json-rpc-types",
  "haneul-pg-db",
  "haneul-sdk",
@@ -14422,7 +14420,6 @@ dependencies = [
  "strum 0.27.1",
  "strum_macros 0.27.1",
  "haneul-field-count",
- "haneul-indexer-builder",
 ]
 
 [[package]]
@@ -15499,25 +15496,6 @@ dependencies = [
  "haneul-field-count",
  "haneul-protocol-config",
  "haneul-types",
-]
-
-[[package]]
-name = "haneul-indexer-builder"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "futures",
- "haneullabs-metrics",
- "prometheus",
- "haneul-data-ingestion-core",
- "haneul-indexer-builder",
- "haneul-sdk",
- "haneul-types",
- "tap",
- "telemetry-subscribers",
- "tokio",
- "tracing",
 ]
 
 [[package]]

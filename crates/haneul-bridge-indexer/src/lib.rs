@@ -8,7 +8,6 @@ use crate::eth_bridge_indexer::{
 use crate::metrics::BridgeIndexerMetrics;
 use crate::postgres_manager::PgPool;
 use crate::storage::PgBridgePersistent;
-use crate::haneul_bridge_indexer::HaneulBridgeDataMapper;
 use alloy::primitives::Address as EthAddress;
 use std::str::FromStr;
 use std::sync::Arc;
@@ -20,26 +19,18 @@ use haneul_bridge_schema::models::{
 };
 use haneul_bridge_schema::models::{GovernanceActionType, TokenTransferData as DBTokenTransferData};
 use haneul_bridge_schema::models::{HaneulErrorTransactions, TokenTransfer as DBTokenTransfer};
-use haneul_data_ingestion_core::DataIngestionMetrics;
-use haneul_indexer_builder::indexer_builder::{BackfillStrategy, Datasource, Indexer, IndexerBuilder};
-use haneul_indexer_builder::metrics::IndexerMetricProvider;
-use haneul_indexer_builder::progress::{
-    OutOfOrderSaveAfterDurationPolicy, ProgressSavingPolicy, SaveAfterDurationPolicy,
-};
-use haneul_indexer_builder::haneul_datasource::HaneulCheckpointDatasource;
-use haneul_sdk::HaneulClientBuilder;
 use haneul_types::base_types::{HaneulAddress, TransactionDigest};
 
 pub mod config;
 pub mod metrics;
 pub mod postgres_manager;
-pub mod storage;
-pub mod haneul_transaction_handler;
-pub mod haneul_transaction_queries;
-pub mod types;
+mod storage;
 
-pub mod eth_bridge_indexer;
-pub mod haneul_bridge_indexer;
+mod eth_bridge_indexer;
+
+use indexer_builder::{BackfillStrategy, Datasource, Indexer, IndexerBuilder};
+use metrics::IndexerMetricProvider;
+use progress::{ProgressSavingPolicy, SaveAfterDurationPolicy};
 
 #[derive(Clone)]
 pub enum ProcessedTxnData {
@@ -152,51 +143,6 @@ impl GovernanceAction {
     }
 }
 
-pub async fn create_haneul_indexer(
-    pool: PgPool,
-    metrics: BridgeIndexerMetrics,
-    ingestion_metrics: DataIngestionMetrics,
-    config: &IndexerConfig,
-) -> anyhow::Result<
-    Indexer<PgBridgePersistent, HaneulCheckpointDatasource, HaneulBridgeDataMapper>,
-    anyhow::Error,
-> {
-    let datastore_with_out_of_order_source = PgBridgePersistent::new(
-        pool,
-        ProgressSavingPolicy::OutOfOrderSaveAfterDuration(OutOfOrderSaveAfterDurationPolicy::new(
-            tokio::time::Duration::from_secs(30),
-        )),
-    );
-
-    let haneul_client = Arc::new(
-        HaneulClientBuilder::default()
-            .build(config.haneul_rpc_url.clone())
-            .await?,
-    );
-
-    let haneul_checkpoint_datasource = HaneulCheckpointDatasource::new(
-        config.remote_store_url.clone(),
-        haneul_client,
-        config.concurrency as usize,
-        config
-            .checkpoints_path
-            .clone()
-            .map(|p| p.into())
-            .unwrap_or(tempfile::tempdir()?.keep()),
-        config.haneul_bridge_genesis_checkpoint,
-        ingestion_metrics,
-        metrics.clone().boxed(),
-    );
-
-    Ok(IndexerBuilder::new(
-        "HaneulBridgeIndexer",
-        haneul_checkpoint_datasource,
-        HaneulBridgeDataMapper { metrics },
-        datastore_with_out_of_order_source,
-    )
-    .build())
-}
-
 pub async fn create_eth_sync_indexer(
     pool: PgPool,
     metrics: BridgeIndexerMetrics,
@@ -290,4 +236,71 @@ async fn get_eth_bridge_contract_addresses(
         bridge_addresses.2,
         bridge_addresses.3,
     ])
+}
+
+// inline old haneul-indexer-builder
+
+mod indexer_builder;
+mod progress;
+const LIVE_TASK_TARGET_CHECKPOINT: i64 = i64::MAX;
+
+#[derive(Clone, Debug)]
+pub struct Task {
+    pub task_name: String,
+    pub start_checkpoint: u64,
+    pub target_checkpoint: u64,
+    pub timestamp: u64,
+    pub is_live_task: bool,
+}
+
+impl Task {
+    // TODO: this is really fragile and we should fix the task naming thing and storage schema asasp
+    pub fn name_prefix(&self) -> &str {
+        self.task_name.split(' ').next().unwrap_or("Unknown")
+    }
+
+    pub fn type_str(&self) -> &str {
+        if self.is_live_task {
+            "live"
+        } else {
+            "backfill"
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct Tasks {
+    live_task: Option<Task>,
+    backfill_tasks: Vec<Task>,
+}
+
+impl Tasks {
+    pub fn new(tasks: Vec<Task>) -> anyhow::Result<Self> {
+        let mut live_tasks = vec![];
+        let mut backfill_tasks = vec![];
+        for task in tasks {
+            if task.is_live_task {
+                live_tasks.push(task);
+            } else {
+                backfill_tasks.push(task);
+            }
+        }
+        if live_tasks.len() > 1 {
+            anyhow::bail!("More than one live task found: {:?}", live_tasks);
+        }
+        Ok(Self {
+            live_task: live_tasks.pop(),
+            backfill_tasks,
+        })
+    }
+
+    pub fn live_task(&self) -> Option<Task> {
+        self.live_task.clone()
+    }
+
+    pub fn backfill_tasks_ordered_desc(&self) -> Vec<Task> {
+        let mut tasks = self.backfill_tasks.clone();
+        tasks.sort_by(|t1, t2| t2.start_checkpoint.cmp(&t1.start_checkpoint));
+        tasks
+    }
 }

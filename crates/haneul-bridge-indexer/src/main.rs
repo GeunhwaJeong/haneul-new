@@ -18,10 +18,8 @@ use haneul_bridge::haneul_bridge_watchdog::Observable;
 use haneul_bridge::haneul_client::HaneulBridgeClient;
 use haneul_bridge::utils::get_eth_contract_addresses;
 use haneul_config::Config;
-use tokio::task::JoinHandle;
 use tracing::info;
 
-use haneullabs_metrics::metered_channel::channel;
 use haneullabs_metrics::spawn_logged_monitored_task;
 use haneullabs_metrics::start_prometheus_server;
 
@@ -35,14 +33,8 @@ use haneul_bridge::haneul_bridge_watchdog::{
 };
 use haneul_bridge_indexer::config::IndexerConfig;
 use haneul_bridge_indexer::metrics::BridgeIndexerMetrics;
-use haneul_bridge_indexer::postgres_manager::{get_connection_pool, read_haneul_progress_store};
-use haneul_bridge_indexer::haneul_transaction_handler::handle_haneul_transactions_loop;
-use haneul_bridge_indexer::haneul_transaction_queries::start_haneul_tx_polling_task;
-use haneul_bridge_indexer::{
-    create_eth_subscription_indexer, create_eth_sync_indexer, create_haneul_indexer,
-};
-use haneul_data_ingestion_core::DataIngestionMetrics;
-use haneul_sdk::HaneulClientBuilder;
+use haneul_bridge_indexer::postgres_manager::get_connection_pool;
+use haneul_bridge_indexer::{create_eth_subscription_indexer, create_eth_sync_indexer};
 
 #[derive(Parser, Clone, Debug)]
 struct Args {
@@ -78,7 +70,6 @@ async fn main() -> Result<()> {
     info!("Metrics server started at port {}", config.metric_port);
 
     let indexer_meterics = BridgeIndexerMetrics::new(&registry);
-    let ingestion_metrics = DataIngestionMetrics::new(&registry);
     let bridge_metrics = Arc::new(BridgeMetrics::new(&registry));
 
     let db_url = config.db_url.clone();
@@ -116,12 +107,6 @@ async fn main() -> Result<()> {
     )
     .await?;
     tasks.push(spawn_logged_monitored_task!(eth_sync_indexer.start()));
-
-    if !config.eth_only {
-        let indexer =
-            create_haneul_indexer(pool, indexer_meterics, ingestion_metrics, &config).await?;
-        tasks.push(spawn_logged_monitored_task!(indexer.start()));
-    }
 
     let haneul_bridge_client =
         Arc::new(HaneulBridgeClient::new(&config.haneul_rpc_url, bridge_metrics.clone()).await?);
@@ -230,34 +215,4 @@ async fn start_watchdog(
     BridgeWatchDog::new(observables).run().await;
 
     Ok(())
-}
-
-#[allow(unused)]
-async fn start_processing_haneul_checkpoints_by_querying_txns(
-    haneul_rpc_url: String,
-    db_url: String,
-    indexer_metrics: BridgeIndexerMetrics,
-) -> Result<Vec<JoinHandle<()>>> {
-    let pg_pool = get_connection_pool(db_url.clone()).await;
-    let (tx, rx) = channel(
-        100,
-        &haneullabs_metrics::get_metrics()
-            .unwrap()
-            .channel_inflight
-            .with_label_values(&["haneul_transaction_processing_queue"]),
-    );
-    let mut handles = vec![];
-    let cursor = read_haneul_progress_store(&pg_pool)
-        .await
-        .expect("Failed to read cursor from haneul progress store");
-    let haneul_client = HaneulClientBuilder::default().build(haneul_rpc_url).await?;
-    handles.push(spawn_logged_monitored_task!(
-        start_haneul_tx_polling_task(haneul_client, cursor, tx),
-        "start_haneul_tx_polling_task"
-    ));
-    handles.push(spawn_logged_monitored_task!(
-        handle_haneul_transactions_loop(pg_pool.clone(), rx, indexer_metrics.clone()),
-        "handle_haneul_transcations_loop"
-    ));
-    Ok(handles)
 }
