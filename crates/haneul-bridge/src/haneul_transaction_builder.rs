@@ -87,7 +87,7 @@ pub fn build_haneul_transaction(
             rgp,
         ),
         BridgeAction::EvmContractUpgradeAction(_) => {
-            // It does not need a Haneul tranaction to execute EVM contract upgrade
+            // It does not need a Haneul transaction to execute EVM contract upgrade
             unreachable!()
         }
         BridgeAction::AddTokensOnHaneulAction(_) => build_add_tokens_on_haneul_transaction(
@@ -98,7 +98,7 @@ pub fn build_haneul_transaction(
             rgp,
         ),
         BridgeAction::AddTokensOnEvmAction(_) => {
-            // It does not need a Haneul tranaction to add tokens on EVM
+            // It does not need a Haneul transaction to add tokens on EVM
             unreachable!()
         }
     }
