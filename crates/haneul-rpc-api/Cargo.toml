@@ -35,6 +35,7 @@ base64.workspace = true
 haneul-name-service.workspace = true
 fastcrypto.workspace = true
 haneul-types.workspace = true
+haneul-macros.workspace = true
 haneullabs-network.workspace = true
 haneul-protocol-config.workspace = true
 haneul-package-resolver.workspace = true

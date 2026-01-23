@@ -4,7 +4,7 @@
 use move_core_types::{account_address::AccountAddress, identifier::Identifier};
 use haneul_json_rpc_types::{HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse};
 use haneul_keys::keystore::AccountKeystore;
-use haneul_light_client::mmr::apply_stream_updates;
+use haneul_light_client::authenticated_events::mmr::apply_stream_updates;
 use haneul_macros::sim_test;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::accumulator_root::EventCommitment;
