@@ -50,6 +50,7 @@ move-core-types.workspace = true
 haneullabs-metrics.workspace = true
 test-cluster.workspace = true
 sysinfo.workspace = true
+haneullabs-common.workspace = true
 
 haneul-move-build.workspace = true
 
@@ -61,5 +62,4 @@ haneul-macros.workspace = true
 haneul-rpc.workspace = true
 haneul-simulator.workspace = true
 typed-store.workspace = true
-haneullabs-common.workspace = true
 zstd.workspace = true
