@@ -17,6 +17,7 @@ use haneul_rpc_api::{
 };
 use haneul_types::base_types::TransactionDigest;
 
+pub const MAX_BATCH_REQUESTS: usize = 200;
 pub const READ_MASK_DEFAULT: &str = "digest";
 
 pub async fn get_transaction(
@@ -78,6 +79,13 @@ pub async fn batch_get_transactions(
             })?;
         FieldMaskTree::from(read_mask)
     };
+
+    if digests.len() > MAX_BATCH_REQUESTS {
+        return Err(RpcError::new(
+            tonic::Code::InvalidArgument,
+            format!("number of batch requests exceed limit of {MAX_BATCH_REQUESTS}"),
+        ));
+    }
 
     let digests = digests
         .iter()
