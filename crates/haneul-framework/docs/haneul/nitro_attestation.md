@@ -287,8 +287,7 @@ may abort with errors described above.
 
 Returns a list of mapping PCREntry containg the index and the PCR bytes.
 AWS supports PCR0-31. Required PCRs (index 0-4 & 8) are always included regardless of their
-value. In devnet and testnet, additional custom PCRs (index 5-7, 9-31) are also included if
-they are nonzeros. In mainnet, only required PCRs (index 0-4 & 8) are included.
+value. Additional custom PCRs (index 5-7, 9-31) are also included if they are nonzeros.
 
 
 <pre><code><b>public</b> <b>fun</b> <a href="../haneul/nitro_attestation.md#haneul_nitro_attestation_pcrs">pcrs</a>(attestation: &<a href="../haneul/nitro_attestation.md#haneul_nitro_attestation_NitroAttestationDocument">haneul::nitro_attestation::NitroAttestationDocument</a>): &vector&lt;<a href="../haneul/nitro_attestation.md#haneul_nitro_attestation_PCREntry">haneul::nitro_attestation::PCREntry</a>&gt;
