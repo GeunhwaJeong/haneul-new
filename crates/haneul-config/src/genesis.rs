@@ -26,7 +26,6 @@ use haneul_types::transaction::Transaction;
 use haneul_types::{HANEUL_BRIDGE_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
 use haneul_types::{
     committee::{Committee, EpochId, ProtocolVersion},
-    error::HaneulResult,
     object::Object,
 };
 use tracing::trace;
@@ -113,7 +112,7 @@ impl Genesis {
     pub fn checkpoint(&self) -> VerifiedCheckpoint {
         self.checkpoint
             .clone()
-            .try_into_verified(&self.committee().unwrap())
+            .try_into_verified(&self.committee())
             .unwrap()
     }
 
@@ -140,9 +139,8 @@ impl Genesis {
         self.haneul_system_object().reference_gas_price()
     }
 
-    // TODO: No need to return HaneulResult. Also consider return &.
-    pub fn committee(&self) -> HaneulResult<Committee> {
-        Ok(self.committee_with_network().committee().clone())
+    pub fn committee(&self) -> Committee {
+        self.committee_with_network().committee().clone()
     }
 
     pub fn haneul_system_wrapper_object(&self) -> HaneulSystemStateWrapper {
