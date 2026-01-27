@@ -827,7 +827,7 @@ impl HaneulClientCommands {
             } => {
                 let address = context.get_identity_address(address)?;
                 let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
 
                 let mut objects: Vec<Coin> = Vec::new();
                 let mut cursor = None;
@@ -898,7 +898,7 @@ impl HaneulClientCommands {
 
             HaneulClientCommands::DynamicFieldQuery { id, cursor, limit } => {
                 let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
                 let df_read = client
                     .read_api()
                     .get_dynamic_fields(id, cursor, Some(limit))
@@ -908,8 +908,7 @@ impl HaneulClientCommands {
 
             HaneulClientCommands::Upgrade(args) => {
                 verify_no_test_mode(&args.build_config)?;
-                let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
                 upgrade_command(args, context, None).await?
             }
 
@@ -920,8 +919,7 @@ impl HaneulClientCommands {
 
             HaneulClientCommands::Publish(args) => {
                 verify_no_test_mode(&args.build_config)?;
-                let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
                 let mut root_package = load_root_pkg_for_publish_upgrade(
                     context,
                     &args.build_config,
@@ -979,7 +977,7 @@ impl HaneulClientCommands {
                 build_config,
             } => {
                 let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
                 let read_api = client.read_api();
                 let protocol_version =
                     protocol_version.map_or(ProtocolVersion::MAX, ProtocolVersion::new);
@@ -1065,7 +1063,7 @@ impl HaneulClientCommands {
             HaneulClientCommands::Object { id, bcs } => {
                 // Fetch the object ref
                 let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
                 if !bcs {
                     let object_read = client
                         .read_api()
@@ -1083,7 +1081,7 @@ impl HaneulClientCommands {
 
             HaneulClientCommands::TransactionBlock { digest } => {
                 let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
                 let tx_read = client
                     .read_api()
                     .get_transaction_with_options(
@@ -1125,7 +1123,7 @@ impl HaneulClientCommands {
                     .collect::<Vec<_>>();
 
                 let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
 
                 let tx_kind = client
                     .transaction_builder()
@@ -1161,7 +1159,7 @@ impl HaneulClientCommands {
                 let signer = context.get_object_owner(&object_id).await?;
                 let to = context.get_identity_address(Some(to))?;
                 let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
 
                 let tx_kind = client
                     .transaction_builder()
@@ -1194,7 +1192,7 @@ impl HaneulClientCommands {
                 let signer = context.get_object_owner(&object_id).await?;
                 let to = context.get_identity_address(Some(to))?;
                 let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
 
                 let tx_kind = client
                     .transaction_builder()
@@ -1247,7 +1245,7 @@ impl HaneulClientCommands {
                     .map_err(|e| anyhow!("{e}"))?;
                 let signer = context.get_object_owner(&input_coins[0]).await?;
                 let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
                 let tx_kind = client
                     .transaction_builder()
                     .pay_tx_kind(input_coins.clone(), recipients.clone(), amounts.clone())
@@ -1304,7 +1302,7 @@ impl HaneulClientCommands {
                     .map_err(|e| anyhow!("{e}"))?;
                 let signer = context.get_object_owner(&input_coins[0]).await?;
                 let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
 
                 let tx_kind = client
                     .transaction_builder()
@@ -1339,7 +1337,7 @@ impl HaneulClientCommands {
                 let recipient = context.get_identity_address(Some(recipient))?;
                 let signer = context.get_object_owner(&input_coins[0]).await?;
                 let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
 
                 let tx_kind = client.transaction_builder().pay_all_haneul_tx_kind(recipient);
                 let gas_payment = client
@@ -1361,7 +1359,7 @@ impl HaneulClientCommands {
             HaneulClientCommands::Objects { address } => {
                 let address = context.get_identity_address(address)?;
                 let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
                 let mut objects: Vec<HaneulObjectResponse> = Vec::new();
                 let mut cursor = None;
                 loop {
@@ -1434,7 +1432,7 @@ impl HaneulClientCommands {
                     // Ok to unwrap() since `get_gas_objects` guarantees gas
                     .map(|(_val, object)| GasCoin::try_from(object).unwrap())
                     .collect();
-                let _ = context.cache_chain_id(&context.get_client().await?).await?;
+                let _ = context.cache_chain_id().await?;
                 HaneulClientCommandResult::Gas(coins)
             }
             HaneulClientCommands::Faucet { address, url } => {
@@ -1454,12 +1452,11 @@ impl HaneulClientCommands {
                     }
                 };
                 request_tokens_from_faucet(address, url).await?;
-                let _ = context.cache_chain_id(&context.get_client().await?).await?;
+                let _ = context.cache_chain_id().await?;
                 HaneulClientCommandResult::NoOutput
             }
             HaneulClientCommands::ChainIdentifier => {
-                let client = context.get_client().await?;
-                let ci = context.cache_chain_id(&client).await?;
+                let ci = context.cache_chain_id().await?;
                 HaneulClientCommandResult::ChainIdentifier(ci)
             }
             HaneulClientCommands::SplitCoin {
@@ -1478,7 +1475,7 @@ impl HaneulClientCommands {
                 }
 
                 let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
                 let signer = context.get_object_owner(&coin_id).await?;
 
                 let tx_kind = client
@@ -1509,7 +1506,7 @@ impl HaneulClientCommands {
                 processing,
             } => {
                 let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
                 let signer = context.get_object_owner(&primary_coin).await?;
 
                 let tx_kind = client
@@ -1686,7 +1683,7 @@ impl HaneulClientCommands {
                 env.create_rpc_client(None, None).await?;
                 context.config.envs.push(env.clone());
                 context.config.save()?;
-                let chain_id = context.cache_chain_id(&context.get_client().await?).await?;
+                let chain_id = context.cache_chain_id().await?;
                 env.chain_id = Some(chain_id);
                 HaneulClientCommandResult::NewEnv(env)
             }
@@ -1750,7 +1747,7 @@ impl HaneulClientCommands {
                 let signer = context.get_object_owner(&object_id).await?;
                 let to = context.get_identity_address(Some(to))?;
                 let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
                 let transaction_builder = client.transaction_builder();
 
                 let (full_obj_ref, object_type) = transaction_builder
@@ -1807,8 +1804,7 @@ impl HaneulClientCommands {
                 .await?
             }
             HaneulClientCommands::PTB(ptb) => {
-                let client = context.get_client().await?;
-                let _ = context.cache_chain_id(&client).await?;
+                let _ = context.cache_chain_id().await?;
                 ptb.execute(context).await?;
                 HaneulClientCommandResult::NoOutput
             }
