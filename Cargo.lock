@@ -16756,6 +16756,7 @@ dependencies = [
  "haneul-macros",
  "haneul-protocol-config",
  "haneul-rpc",
+ "haneul-rpc-api",
  "haneul-sdk-types",
  "haneul-simulator",
  "haneul-transaction-builder",

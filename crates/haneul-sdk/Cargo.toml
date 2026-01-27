@@ -44,6 +44,7 @@ tracing.workspace = true
 move-core-types.workspace = true
 fastcrypto.workspace = true
 haneul-crypto.workspace = true
+haneul-rpc-api.workspace = true
 haneul-rpc.workspace = true
 haneul-sdk-types.workspace = true
 
