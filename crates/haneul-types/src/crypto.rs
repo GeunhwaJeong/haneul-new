@@ -285,6 +285,49 @@ impl ZkLoginPublicIdentifier {
 
         Ok(Self(bytes))
     }
+
+    /// Validates zkLogin public identifier structure: iss_len || iss || padded_32_byte_address_seed.
+    pub fn validate(&self) -> HaneulResult<()> {
+        let bytes = &self.0;
+
+        // Parse issuer length and bytes.
+        let iss_len = *bytes
+            .first()
+            .ok_or_else(|| HaneulErrorKind::InvalidSignature {
+                error: "invalid zklogin pk".to_string(),
+            })? as usize;
+        let iss_bytes =
+            bytes
+                .get(1..1 + iss_len)
+                .ok_or_else(|| HaneulErrorKind::InvalidSignature {
+                    error: "invalid zklogin pk iss length".to_string(),
+                })?;
+
+        // Validate issuer string.
+        std::str::from_utf8(iss_bytes).map_err(|e| HaneulErrorKind::InvalidSignature {
+            error: format!("zkLogin pk issuer is not valid: {}", e),
+        })?;
+
+        // Validate address seed length <= 32 bytes.
+        let address_seed_bytes =
+            bytes
+                .get(1 + iss_len..)
+                .ok_or_else(|| HaneulErrorKind::InvalidSignature {
+                    error: "zkLogin pk has no address seed".to_string(),
+                })?;
+
+        if address_seed_bytes.len() > 32 {
+            return Err(HaneulErrorKind::InvalidSignature {
+                error: format!(
+                    "address seed must be at most 32 bytes, got {}",
+                    address_seed_bytes.len()
+                ),
+            }
+            .into());
+        }
+
+        Ok(())
+    }
 }
 impl AsRef<[u8]> for PublicKey {
     fn as_ref(&self) -> &[u8] {
