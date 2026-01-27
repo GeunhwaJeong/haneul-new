@@ -11,6 +11,7 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use haneul_config::genesis::Genesis;
+use haneul_config::node::FundsWithdrawSchedulerType;
 use haneul_config::node::{AuthorityOverloadConfig, DBCheckpointConfig, RunWithRange};
 use haneul_config::{Config, ExecutionCacheConfig, HANEUL_CLIENT_CONFIG, HANEUL_NETWORK_CONFIG};
 use haneul_config::{NodeConfig, PersistedConfig, HANEUL_KEYSTORE_FILENAME};
@@ -31,8 +32,8 @@ use haneul_swarm_config::genesis_config::{
 };
 use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_swarm_config::network_config_builder::{
-    GlobalStateHashV2EnabledCallback, GlobalStateHashV2EnabledConfig, ProtocolVersionsConfig,
-    SupportedProtocolVersionsCallback,
+    FundsWithdrawSchedulerTypeConfig, GlobalStateHashV2EnabledCallback,
+    GlobalStateHashV2EnabledConfig, ProtocolVersionsConfig, SupportedProtocolVersionsCallback,
 };
 use haneul_swarm_config::node_config_builder::{FullnodeConfigBuilder, ValidatorConfigBuilder};
 use haneul_test_transaction_builder::TestTransactionBuilder;
@@ -1057,6 +1058,7 @@ pub struct TestClusterBuilder {
     max_submit_position: Option<usize>,
     submit_delay_step_override_millis: Option<u64>,
     validator_global_state_hash_v2_enabled_config: GlobalStateHashV2EnabledConfig,
+    validator_funds_withdraw_scheduler_type_config: FundsWithdrawSchedulerTypeConfig,
 
     rpc_config: Option<haneul_config::RpcConfig>,
 
@@ -1101,6 +1103,14 @@ impl TestClusterBuilder {
             validator_global_state_hash_v2_enabled_config: GlobalStateHashV2EnabledConfig::Global(
                 true,
             ),
+            validator_funds_withdraw_scheduler_type_config:
+                FundsWithdrawSchedulerTypeConfig::PerValidator(Arc::new(|idx| {
+                    if idx % 2 == 0 {
+                        FundsWithdrawSchedulerType::Eager
+                    } else {
+                        FundsWithdrawSchedulerType::Naive
+                    }
+                })),
             rpc_config: None,
             execution_time_observer_config: None,
             state_sync_config: None,
@@ -1421,6 +1431,9 @@ impl TestClusterBuilder {
             )
             .with_global_state_hash_v2_enabled_config(
                 self.validator_global_state_hash_v2_enabled_config.clone(),
+            )
+            .with_funds_withdraw_scheduler_type_config(
+                self.validator_funds_withdraw_scheduler_type_config.clone(),
             )
             .with_fullnode_count(1)
             .with_fullnode_supported_protocol_versions_config(
