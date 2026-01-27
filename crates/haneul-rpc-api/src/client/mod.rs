@@ -1,13 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_types::digests::ChainIdentifier;
 use tap::Pipe;
 use tonic::metadata::MetadataMap;
 
 use prost_types::FieldMask;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::TryFromProtoError;
-use haneul_rpc::proto::haneul::rpc::v2 as proto;
+use haneul_rpc::proto::haneul::rpc::v2::{self as proto, GetServiceInfoRequest};
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::full_checkpoint_content::CheckpointData;
@@ -173,6 +174,25 @@ impl Client {
 
         execute_transaction_response_try_from_proto(&response)
             .map_err(|e| status_from_error_with_metadata(e, metadata))
+    }
+
+    pub async fn get_chain_identifier(&self) -> Result<ChainIdentifier> {
+        let response = self
+            .0
+            .clone()
+            .ledger_client()
+            .get_service_info(GetServiceInfoRequest::default())
+            .await?
+            .into_inner();
+        let chain_id = response
+            .chain_id()
+            .parse::<haneul_sdk_types::Digest>()
+            .map_err(|e| TryFromProtoError::invalid("chain_id", e))
+            .map_err(|e| Status::from_error(e.into()))?;
+
+        Ok(ChainIdentifier::from(
+            haneul_types::digests::CheckpointDigest::from(chain_id),
+        ))
     }
 }
 
