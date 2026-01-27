@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use bytes::Bytes;
 use haneul_types::digests::ChainIdentifier;
 use tap::Pipe;
 use tonic::metadata::MetadataMap;
@@ -9,7 +10,7 @@ use prost_types::FieldMask;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::TryFromProtoError;
 use haneul_rpc::proto::haneul::rpc::v2::{self as proto, GetServiceInfoRequest};
-use haneul_types::base_types::{ObjectID, SequenceNumber};
+use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::full_checkpoint_content::ObjectSet;
@@ -22,6 +23,11 @@ pub use haneul_rpc::client::ResponseExt;
 
 pub type Result<T, E = tonic::Status> = std::result::Result<T, E>;
 pub type BoxError = Box<dyn std::error::Error + Send + Sync + 'static>;
+
+pub struct Page<T> {
+    pub items: Vec<T>,
+    pub next_page_token: Option<Bytes>,
+}
 
 use tonic::Status;
 
@@ -193,6 +199,49 @@ impl Client {
         Ok(ChainIdentifier::from(
             haneul_types::digests::CheckpointDigest::from(chain_id),
         ))
+    }
+
+    pub async fn get_owned_objects(
+        &self,
+        owner: HaneulAddress,
+        object_type: Option<move_core_types::language_storage::StructTag>,
+        page_size: Option<u32>,
+        page_token: Option<Bytes>,
+    ) -> Result<Page<Object>> {
+        let mut request = proto::ListOwnedObjectsRequest::default()
+            .with_owner(owner.to_string())
+            .with_read_mask(FieldMask::from_paths(["bcs"]));
+        if let Some(object_type) = object_type {
+            request.set_object_type(object_type.to_canonical_string(true));
+        }
+
+        if let Some(page_size) = page_size {
+            request.set_page_size(page_size);
+        }
+
+        if let Some(page_token) = page_token {
+            request.set_page_token(page_token);
+        }
+
+        let (metadata, response, _extentions) = self
+            .0
+            .clone()
+            .state_client()
+            .list_owned_objects(request)
+            .await?
+            .into_parts();
+
+        let objects = response
+            .objects()
+            .iter()
+            .map(object_try_from_proto)
+            .collect::<Result<_, _>>()
+            .map_err(|e| status_from_error_with_metadata(e, metadata))?;
+
+        Ok(Page {
+            items: objects,
+            next_page_token: response.next_page_token,
+        })
     }
 }
 
