@@ -31,7 +31,6 @@ use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::net::SocketAddr;
 use haneul_config::local_ip_utils;
-use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::ObjectRef;
@@ -42,6 +41,7 @@ use haneul_types::bridge::{BridgeChainId, BridgeCommitteeSummary, TOKEN_ID_USDC}
 use haneul_types::crypto::ToFromBytes;
 use haneul_types::crypto::get_key_pair;
 use haneul_types::digests::TransactionDigest;
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::object::Owner;
 use haneul_types::transaction::{CallArg, ObjectArg, SharedObjectMutability};
 use haneul_types::{BRIDGE_PACKAGE_ID, HANEUL_BRIDGE_OBJECT_ID};
@@ -335,7 +335,7 @@ pub async fn bridge_token(
     let bridge_events = events
         .data
         .iter()
-        .filter_map(|event| HaneulBridgeEvent::try_from_haneul_event(event).unwrap())
+        .filter_map(|event| HaneulBridgeEvent::try_from_event(event).unwrap())
         .collect::<Vec<_>>();
     bridge_events
         .iter()
@@ -409,9 +409,9 @@ pub async fn approve_action_with_validator_secrets(
     expected_token_receiver?;
 
     let expected_token_receiver = expected_token_receiver.unwrap();
-    for created in resp.effects.unwrap().created() {
-        if created.owner == Owner::AddressOwner(expected_token_receiver) {
-            return Some(created.reference.to_object_ref());
+    for created in resp.effects.created() {
+        if created.1 == Owner::AddressOwner(expected_token_receiver) {
+            return Some(created.0);
         }
     }
     panic!(

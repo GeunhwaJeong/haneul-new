@@ -47,12 +47,12 @@ use haneul_json_rpc_types::{
     DynamicFieldPage, HaneulCoinMetadata, HaneulData, HaneulExecutionStatus, HaneulObjectData,
     HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedData,
     HaneulProtocolConfigValue, HaneulRawData, HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI,
-    HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_keys::key_identity::KeyIdentity;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_move_build::{BuildConfig, CompiledPackage, PackageDependencies};
 use haneul_package_management::LockCommand;
+use haneul_rpc_api::client::ExecutedTransaction;
 use haneul_sdk::{
     HANEUL_COIN_TYPE, HANEUL_DEVNET_URL, HANEUL_LOCAL_NETWORK_URL, HANEUL_LOCAL_NETWORK_URL_0, HANEUL_TESTNET_URL,
     HaneulClient,
@@ -65,7 +65,9 @@ use haneul_types::{
     base_types::{FullObjectID, ObjectID, ObjectRef, ObjectType, SequenceNumber, HaneulAddress},
     crypto::{EmptySignInfo, SignatureScheme},
     digests::TransactionDigest,
+    effects::TransactionEffectsAPI,
     error::HaneulErrorKind,
+    execution_status::ExecutionStatus,
     gas::GasCostSummary,
     gas_coin::GasCoin,
     message_envelope::Envelope,
@@ -1080,23 +1082,8 @@ impl HaneulClientCommands {
             }
 
             HaneulClientCommands::TransactionBlock { digest } => {
-                let client = context.get_client().await?;
                 let _ = context.cache_chain_id().await?;
-                let tx_read = client
-                    .read_api()
-                    .get_transaction_with_options(
-                        digest,
-                        HaneulTransactionBlockResponseOptions {
-                            show_input: true,
-                            show_raw_input: false,
-                            show_effects: true,
-                            show_events: true,
-                            show_object_changes: true,
-                            show_balance_changes: false,
-                            show_raw_effects: false,
-                        },
-                    )
-                    .await?;
+                let tx_read = context.grpc_client()?.get_transaction(&digest).await?;
                 HaneulClientCommandResult::TransactionBlock(tx_read)
             }
 
@@ -2233,7 +2220,11 @@ impl Display for HaneulClientCommandResult {
                 }
             }
             HaneulClientCommandResult::TransactionBlock(response) => {
-                write!(writer, "{}", response)?;
+                write!(
+                    writer,
+                    "{}",
+                    serde_json::to_string_pretty(&response).unwrap()
+                )?;
             }
             HaneulClientCommandResult::RawObject(raw_object_read) => {
                 let raw_object = match raw_object_read.object() {
@@ -2481,7 +2472,7 @@ impl HaneulClientCommandResult {
         }
     }
 
-    pub fn tx_block_response(&self) -> Option<&HaneulTransactionBlockResponse> {
+    pub fn tx_block_response(&self) -> Option<&ExecutedTransaction> {
         use HaneulClientCommandResult::*;
         match self {
             TransactionBlock(b) => Some(b),
@@ -2491,20 +2482,13 @@ impl HaneulClientCommandResult {
 
     pub async fn prerender_clever_errors(mut self, context: &mut WalletContext) -> Self {
         match &mut self {
-            HaneulClientCommandResult::DryRun(DryRunTransactionBlockResponse { effects, .. })
-            | HaneulClientCommandResult::TransactionBlock(HaneulTransactionBlockResponse {
-                effects: Some(effects),
-                ..
-            }) => {
+            HaneulClientCommandResult::DryRun(DryRunTransactionBlockResponse { effects, .. }) => {
                 let client = context.get_client().await.expect("Cannot connect to RPC");
                 prerender_clever_errors(effects, client.read_api()).await
             }
 
-            HaneulClientCommandResult::TransactionBlock(HaneulTransactionBlockResponse {
-                effects: None,
-                ..
-            }) => (),
-            HaneulClientCommandResult::ActiveAddress(_)
+            HaneulClientCommandResult::TransactionBlock(_)
+            | HaneulClientCommandResult::ActiveAddress(_)
             | HaneulClientCommandResult::ActiveEnv(_)
             | HaneulClientCommandResult::Addresses(_)
             | HaneulClientCommandResult::Balance(_, _)
@@ -2660,6 +2644,7 @@ impl ObjectsOutput {
 
 #[derive(Serialize)]
 #[serde(untagged)]
+#[allow(clippy::large_enum_variant)]
 pub enum HaneulClientCommandResult {
     ActiveAddress(Option<HaneulAddress>),
     ActiveEnv(Option<String>),
@@ -2683,7 +2668,7 @@ pub enum HaneulClientCommandResult {
     SerializedUnsignedTransaction(TransactionData),
     Switch(SwitchResponse),
     SyncClientState,
-    TransactionBlock(HaneulTransactionBlockResponse),
+    TransactionBlock(ExecutedTransaction),
     VerifyBytecodeMeter {
         success: bool,
         max_package_ticks: Option<u128>,
@@ -3157,20 +3142,24 @@ pub(crate) async fn dry_run_or_execute_or_serialize(
         } else {
             let transaction = Transaction::new(sender_signed_data);
             debug!("Executing transaction: {:?}", transaction);
-            let mut response = context
+            let response = context
                 .execute_transaction_may_fail(transaction.clone())
                 .await?;
             debug!("Transaction executed: {:?}", transaction);
-            if let Some(effects) = response.effects.as_mut() {
-                prerender_clever_errors(effects, client.read_api()).await;
-            }
-            let effects = response.effects.as_ref().ok_or_else(|| {
-                anyhow!("Effects from HaneulTransactionBlockResult should not be empty")
-            })?;
-            if let HaneulExecutionStatus::Failure { error } = effects.status() {
+            if let ExecutionStatus::Failure { error, command } = response.effects.status() {
+                let description = if let Some(command) = command {
+                    format!("{error:?} in command {command}")
+                } else {
+                    format!("{error:?}")
+                };
+
+                let error = render_clever_error_opt(&description, client.read_api())
+                    .await
+                    .unwrap_or(description);
+
                 return Err(anyhow!(
                     "Error executing transaction '{}': {error}",
-                    response.digest
+                    response.transaction.digest(),
                 ));
             }
             Ok(HaneulClientCommandResult::TransactionBlock(response))
@@ -3441,7 +3430,7 @@ async fn load_root_pkg_for_ephemeral_publish_or_upgrade(
 pub fn update_publication(
     chain_id: &str,
     command: LockCommand,
-    response: &HaneulTransactionBlockResponse,
+    response: &ExecutedTransaction,
     _build_config: &MoveBuildConfig,
     publication: Option<&mut Publication<HaneulFlavor>>,
 ) -> Result<Publication<HaneulFlavor>, anyhow::Error> {

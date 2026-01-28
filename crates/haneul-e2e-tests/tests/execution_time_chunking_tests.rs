@@ -8,7 +8,6 @@ use haneul_config::node::ExecutionTimeObserverConfig;
 use haneul_core::authority::execution_time_estimator::{
     EXTRA_FIELD_EXECUTION_TIME_ESTIMATES_CHUNK_COUNT_KEY, EXTRA_FIELD_EXECUTION_TIME_ESTIMATES_KEY,
 };
-use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::sim_test;
 use haneul_protocol_config::{
@@ -16,6 +15,7 @@ use haneul_protocol_config::{
 };
 use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
 use haneul_types::dynamic_field::get_dynamic_field_from_store;
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::execution::ExecutionTimeObservationChunkKey;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state;
@@ -209,17 +209,12 @@ async fn create_shared_counter(
 
     let created_obj = response
         .effects
-        .unwrap()
         .created()
-        .iter()
-        .find(|obj| obj.owner.is_shared())
-        .unwrap()
-        .clone();
+        .into_iter()
+        .find(|obj| obj.1.is_shared())
+        .unwrap();
 
-    (
-        created_obj.reference.object_id,
-        created_obj.reference.version,
-    )
+    (created_obj.0.0, created_obj.0.1)
 }
 
 async fn send_transactions(
@@ -278,7 +273,7 @@ async fn send_transactions(
 
         let res = test_cluster.execute_transaction(signed_tx).await;
         assert_eq!(
-            res.effects.unwrap().executed_epoch(),
+            res.effects.executed_epoch(),
             0,
             "all txns to execute in epoch 0"
         );

@@ -23,11 +23,11 @@ use alloy::providers::Provider;
 use std::collections::HashSet;
 use std::path::Path;
 use std::sync::Arc;
-use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI};
 use haneul_types::bridge::{
     BridgeChainId, BridgeTokenMetadata, BridgeTrait, TOKEN_ID_ETH, get_bridge,
 };
 use haneul_types::crypto::get_key_pair;
+use haneul_types::effects::TransactionEffectsAPI;
 use tracing::info;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 8)]
@@ -387,10 +387,10 @@ async fn test_add_new_coins_on_haneul_and_eth() {
     .unwrap();
 
     let response = bridge_test_cluster.sign_and_execute_transaction(&tx).await;
-    let effects = response.effects.unwrap();
-    assert_eq!(effects.status(), &HaneulExecutionStatus::Success);
+    let effects = response.effects;
+    assert!(effects.status().is_ok());
     assert!(response.events.unwrap().data.iter().any(|e| {
-        let haneul_bridge_event = HaneulBridgeEvent::try_from_haneul_event(e).unwrap().unwrap();
+        let haneul_bridge_event = HaneulBridgeEvent::try_from_event(e).unwrap().unwrap();
         match haneul_bridge_event {
             HaneulBridgeEvent::NewTokenEvent(e) => {
                 assert_eq!(e.token_id, token_id);

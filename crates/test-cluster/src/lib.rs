@@ -17,13 +17,11 @@ use haneul_config::{NodeConfig, PersistedConfig, HANEUL_KEYSTORE_FILENAME};
 use haneul_core::authority_aggregator::AuthorityAggregator;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_json_rpc_api::CoinReadApiClient;
-use haneul_json_rpc_types::{
-    Balance, HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
-    TransactionFilter,
-};
+use haneul_json_rpc_types::{Balance, HaneulTransactionBlockEffectsAPI, TransactionFilter};
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_node::HaneulNodeHandle;
 use haneul_protocol_config::{Chain, ProtocolVersion};
+use haneul_rpc_api::client::ExecutedTransaction;
 use haneul_sdk::apis::QuorumDriverApi;
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::wallet_context::WalletContext;
@@ -46,6 +44,7 @@ use haneul_types::committee::{Committee, EpochId};
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::HaneulKeyPair;
 use haneul_types::digests::{ChainIdentifier, TransactionDigest};
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::error::HaneulResult;
 use haneul_types::messages_grpc::{
@@ -599,7 +598,7 @@ impl TestCluster {
     pub async fn sign_and_execute_transaction(
         &self,
         tx_data: &TransactionData,
-    ) -> HaneulTransactionBlockResponse {
+    ) -> ExecutedTransaction {
         let tx = self.wallet.sign_transaction(tx_data).await;
         self.execute_transaction(tx).await
     }
@@ -803,7 +802,7 @@ impl TestCluster {
     /// Also expects the effects status to be ExecutionStatus::Success.
     /// This function is recommended for transaction execution since it most resembles the
     /// production path.
-    pub async fn execute_transaction(&self, tx: Transaction) -> HaneulTransactionBlockResponse {
+    pub async fn execute_transaction(&self, tx: Transaction) -> ExecutedTransaction {
         self.wallet.execute_transaction_must_succeed(tx).await
     }
 
@@ -930,13 +929,10 @@ impl TestCluster {
             .await
             .transfer_haneul(Some(amount), receiver)
             .build();
-        let effects = self
-            .sign_and_execute_transaction(&tx)
-            .await
-            .effects
-            .unwrap();
-        assert_eq!(&HaneulExecutionStatus::Success, effects.status());
-        effects.created().first().unwrap().object_id()
+        let effects = self.sign_and_execute_transaction(&tx).await.effects;
+        assert!(effects.status().is_ok());
+        // assert_eq!(&HaneulExecutionStatus::Success, effects.status());
+        effects.created().first().unwrap().0.0
     }
 
     pub async fn get_haneul_balance(&self, address: HaneulAddress) -> Balance {

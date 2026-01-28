@@ -31,6 +31,7 @@ use haneul_types::bridge::MoveTypeCommitteeMember;
 use haneul_types::bridge::MoveTypeCommitteeMemberRegistration;
 use haneul_types::collection_types::VecMap;
 use haneul_types::crypto::ToFromBytes;
+use haneul_types::event::Event;
 use haneul_types::parse_haneul_type_tag;
 
 // `TokendDepositedEvent` emitted in bridge.move
@@ -474,6 +475,19 @@ macro_rules! declare_events {
                 $(
                     if &event.type_ == $variant.get().unwrap() {
                         let event_struct: $event_struct = bcs::from_bytes(event.bcs.bytes()).map_err(|e| BridgeError::InternalError(format!("Failed to deserialize event to {}: {:?}", stringify!($event_struct), e)))?;
+                        return Ok(Some(HaneulBridgeEvent::$variant(event_struct.try_into()?)));
+                    }
+                )*
+                Ok(None)
+            }
+
+            pub fn try_from_event(event: &Event) -> BridgeResult<Option<HaneulBridgeEvent>> {
+                init_all_struct_tags(); // Ensure all tags are initialized
+
+                // Unwrap safe: we inited above
+                $(
+                    if &event.type_ == $variant.get().unwrap() {
+                        let event_struct: $event_struct = bcs::from_bytes(&event.contents).map_err(|e| BridgeError::InternalError(format!("Failed to deserialize event to {}: {:?}", stringify!($event_struct), e)))?;
                         return Ok(Some(HaneulBridgeEvent::$variant(event_struct.try_into()?)));
                     }
                 )*

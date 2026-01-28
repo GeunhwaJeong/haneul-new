@@ -52,7 +52,6 @@ mod test {
     use haneul_swarm_config::network_config_builder::ConfigBuilder;
     use haneul_types::base_types::{AuthorityName, ConciseableName, ObjectID, SequenceNumber};
     use haneul_types::digests::TransactionDigest;
-    use haneul_types::full_checkpoint_content::CheckpointData;
     use haneul_types::messages_checkpoint::VerifiedCheckpoint;
     use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
     use haneul_types::traffic_control::{FreqThresholdConfig, PolicyConfig, PolicyType};

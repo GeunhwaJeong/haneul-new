@@ -48,9 +48,10 @@ use std::sync::Arc;
 use haneul_config::local_ip_utils::get_available_port;
 use haneul_json_rpc_api::BridgeReadApiClient;
 use haneul_json_rpc_types::{
-    HaneulEvent, HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
-    HaneulTransactionBlockResponseOptions, HaneulTransactionBlockResponseQuery, TransactionFilter,
+    HaneulEvent, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
+    HaneulTransactionBlockResponseQuery, TransactionFilter,
 };
+use haneul_rpc_api::client::ExecutedTransaction;
 use haneul_sdk::HaneulClient;
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_test_transaction_builder::TestTransactionBuilder;
@@ -62,6 +63,8 @@ use haneul_types::bridge::{
 use haneul_types::committee::{ProtocolVersion, TOTAL_VOTING_POWER};
 use haneul_types::crypto::{EncodeDecodeBase64, KeypairTraits, ToFromBytes, get_key_pair};
 use haneul_types::digests::TransactionDigest;
+use haneul_types::effects::TransactionEffectsAPI;
+use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::object::Object;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{
@@ -343,7 +346,7 @@ impl BridgeTestCluster {
     pub async fn sign_and_execute_transaction(
         &self,
         tx_data: &TransactionData,
-    ) -> HaneulTransactionBlockResponse {
+    ) -> ExecutedTransaction {
         self.test_cluster
             .inner
             .sign_and_execute_transaction(tx_data)
@@ -1036,7 +1039,6 @@ impl TestClusterWrapperBuilder {
         // Committee registers themselves
         let mut server_ports = vec![];
         let mut tasks = vec![];
-        let quorum_driver_api = test_cluster.quorum_driver_api().clone();
         // Reorder the nodes so that the last node has the largest stake.
         let validator_with_max_stake = test_cluster
             .haneul_client()
@@ -1090,14 +1092,10 @@ impl TestClusterWrapperBuilder {
                 data,
                 vec![node.config().account_key_pair.keypair()],
             );
-            let api_clone = quorum_driver_api.clone();
+            let api_clone = test_cluster.wallet.grpc_client().unwrap();
             tasks.push(async move {
                 api_clone
-                    .execute_transaction_block(
-                        tx,
-                        HaneulTransactionBlockResponseOptions::new().with_effects(),
-                        None,
-                    )
+                    .execute_transaction_and_wait_for_checkpoint(&tx)
                     .await
             });
         }
@@ -1164,19 +1162,14 @@ impl TestClusterWrapperBuilder {
             .unwrap();
 
             let response = test_cluster.sign_and_execute_transaction(&tx).await;
-            assert_eq!(
-                response.effects.unwrap().status(),
-                &HaneulExecutionStatus::Success
-            );
+            assert!(response.effects.status().is_ok());
             info!("Deploy tokens took {:?} secs", timer.elapsed().as_secs());
         } else {
             await_committee_register_tasks(&test_cluster, tasks).await;
         }
         async fn await_committee_register_tasks(
             test_cluster: &TestCluster,
-            tasks: Vec<
-                impl Future<Output = Result<HaneulTransactionBlockResponse, haneul_sdk::error::Error>>,
-            >,
+            tasks: Vec<impl Future<Output = Result<ExecutedTransaction, tonic::Status>>>,
         ) {
             // The tx may fail if a member tries to register when the committee is already finalized.
             // In that case, we just need to check the committee members is not empty since once
@@ -1184,7 +1177,7 @@ impl TestClusterWrapperBuilder {
             let responses = join_all(tasks).await;
             let mut has_failure = false;
             for response in responses {
-                if response.unwrap().effects.unwrap().status() != &HaneulExecutionStatus::Success {
+                if response.unwrap().effects.status() != &ExecutionStatus::Success {
                     has_failure = true;
                 }
             }
@@ -1509,7 +1502,7 @@ async fn initiate_bridge_haneul_to_eth_internal(
     .await
     {
         Ok(resp) => {
-            if !resp.status_ok().unwrap() {
+            if !resp.effects.status().is_ok() {
                 return Err(anyhow!("Haneul TX error"));
             } else {
                 resp
@@ -1522,7 +1515,7 @@ async fn initiate_bridge_haneul_to_eth_internal(
     let bridge_action = haneul_events
         .iter()
         .filter_map(|e| {
-            let haneul_bridge_event = HaneulBridgeEvent::try_from_haneul_event(e).unwrap()?;
+            let haneul_bridge_event = HaneulBridgeEvent::try_from_event(e).unwrap()?;
             haneul_bridge_event.try_into_bridge_action()
         })
         .find(|action| {
@@ -1625,7 +1618,7 @@ async fn deposit_eth_to_haneul_package(
     bridge_object_arg: ObjectArg,
     haneul_token_type_tags: &HashMap<u8, TypeTag>,
     use_v2: bool,
-) -> Result<HaneulTransactionBlockResponse, anyhow::Error> {
+) -> Result<ExecutedTransaction, anyhow::Error> {
     let mut builder = ProgrammableTransactionBuilder::new();
     let arg_target_chain = builder.pure(target_chain as u8).unwrap();
     let arg_target_address = builder.pure(target_address.as_slice()).unwrap();

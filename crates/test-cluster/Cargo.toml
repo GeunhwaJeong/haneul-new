@@ -37,6 +37,7 @@ prometheus.workspace = true
 haneul-keys.workspace = true
 haneul-sdk.workspace = true
 haneul-test-transaction-builder.workspace = true
+haneul-rpc-api.workspace = true
 
 move-binary-format.workspace = true
 

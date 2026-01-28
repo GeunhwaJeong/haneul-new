@@ -14,6 +14,7 @@ use haneul_rpc::proto::haneul::rpc::v2::regulated_coin_metadata::CoinRegulatedSt
 use haneul_rpc::proto::haneul::rpc::v2::state_service_client::StateServiceClient;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::coin_registry::Currency;
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::SharedObjectMutability;
 use haneul_types::transaction::{ObjectArg, TransactionData};
@@ -944,24 +945,23 @@ async fn publish_non_otw_coin(
     let create_tx = test_cluster.sign_and_execute_transaction(&tx_data).await;
 
     // Get treasury cap and metadata cap from created objects
-    use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
-    let effects = create_tx.effects.as_ref().unwrap();
+    let effects = create_tx.effects;
 
     let mut treasury_cap = None;
     let mut metadata_cap = None;
 
     for o in effects.created() {
         let obj = test_cluster
-            .get_object_from_fullnode_store(&o.reference.object_id)
+            .get_object_from_fullnode_store(&o.0.0)
             .await
             .unwrap();
 
         if let Some(type_) = obj.type_() {
             let type_str = type_.to_string();
             if type_str.contains("TreasuryCap") {
-                treasury_cap = Some(o.reference.object_id);
+                treasury_cap = Some(obj.id());
             } else if type_str.contains("MetadataCap") {
-                metadata_cap = Some(o.reference.object_id);
+                metadata_cap = Some(obj.id());
             }
         }
     }

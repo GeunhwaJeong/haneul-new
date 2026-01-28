@@ -11,8 +11,8 @@ use crate::haneul_transaction_builder::build_haneul_transaction;
 use crate::types::{BridgeAction, BridgeActionStatus, EmergencyAction, EmergencyActionType};
 use alloy::primitives::{Address as EthAddress, U256};
 use std::sync::Arc;
-use haneul_json_rpc_types::{HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI};
 use haneul_types::bridge::{BridgeChainId, TOKEN_ID_ETH};
+use haneul_types::effects::TransactionEffectsAPI;
 use tracing::info;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 16)]
@@ -97,10 +97,7 @@ async fn test_haneul_bridge_paused() {
     .unwrap();
 
     let response = bridge_test_cluster.sign_and_execute_transaction(&tx).await;
-    assert_eq!(
-        response.effects.unwrap().status(),
-        &HaneulExecutionStatus::Success
-    );
+    assert!(response.effects.status().is_ok(),);
     info!("Bridge paused");
 
     // verify bridge paused

@@ -14001,6 +14001,7 @@ dependencies = [
  "haneul-pg-db",
  "haneul-protocol-config",
  "haneul-replay-2",
+ "haneul-rpc-api",
  "haneul-sdk",
  "haneul-simulator",
  "haneul-source-validation",
@@ -14354,6 +14355,7 @@ dependencies = [
  "haneul-keys",
  "haneul-metrics-push-client",
  "haneul-rpc",
+ "haneul-rpc-api",
  "haneul-sdk",
  "haneul-sdk-types",
  "haneul-test-transaction-builder",
@@ -14704,7 +14706,7 @@ dependencies = [
 [[package]]
 name = "haneul-crypto"
 version = "0.2.0"
-source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=9d9539e620b8b668c1a19528d9700be3f35f269e#9d9539e620b8b668c1a19528d9700be3f35f269e"
+source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=aef7655b45dcf3747281456f4999542dc52f6af6#aef7655b45dcf3747281456f4999542dc52f6af6"
 dependencies = [
  "ark-bn254",
  "ark-ff 0.4.2",
@@ -16582,8 +16584,8 @@ dependencies = [
 
 [[package]]
 name = "haneul-rpc"
-version = "0.2.1"
-source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=9d9539e620b8b668c1a19528d9700be3f35f269e#9d9539e620b8b668c1a19528d9700be3f35f269e"
+version = "0.2.2"
+source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=aef7655b45dcf3747281456f4999542dc52f6af6#aef7655b45dcf3747281456f4999542dc52f6af6"
 dependencies = [
  "base64 0.22.1",
  "bcs",
@@ -16773,8 +16775,8 @@ dependencies = [
 
 [[package]]
 name = "haneul-sdk-types"
-version = "0.2.1"
-source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=9d9539e620b8b668c1a19528d9700be3f35f269e#9d9539e620b8b668c1a19528d9700be3f35f269e"
+version = "0.2.2"
+source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=aef7655b45dcf3747281456f4999542dc52f6af6#aef7655b45dcf3747281456f4999542dc52f6af6"
 dependencies = [
  "base64ct",
  "bcs",
@@ -17128,6 +17130,7 @@ dependencies = [
  "shared-crypto",
  "haneul-genesis-builder",
  "haneul-move-build",
+ "haneul-rpc-api",
  "haneul-sdk",
  "haneul-types",
 ]
@@ -17761,6 +17764,7 @@ dependencies = [
  "haneul-macros",
  "haneul-node",
  "haneul-protocol-config",
+ "haneul-rpc-api",
  "haneul-sdk",
  "haneul-simulator",
  "haneul-swarm",

@@ -50,6 +50,7 @@ tracing.workspace = true
 uuid.workspace = true
 url.workspace = true
 
+haneul-rpc-api.workspace = true
 haneul-config.workspace = true
 haneul-bridge.workspace = true
 haneul-data-store.workspace = true

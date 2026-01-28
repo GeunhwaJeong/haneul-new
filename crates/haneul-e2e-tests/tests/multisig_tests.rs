@@ -22,7 +22,6 @@ use haneul_core::authority_client::AuthorityAPI;
 use haneul_macros::sim_test;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_test_transaction_builder::TestTransactionBuilder;
-use haneul_types::error::UserInputError;
 use haneul_types::messages_grpc::{SubmitTxRequest, SubmitTxResponse, SubmitTxResult};
 use haneul_types::multisig_legacy::MultiSigLegacy;
 use haneul_types::passkey_authenticator::{PasskeyAuthenticator, to_signing_message};
@@ -44,6 +43,7 @@ use haneul_types::{
     crypto::{SignatureScheme, ToFromBytes},
     error::HaneulErrorKind,
 };
+use haneul_types::{effects::TransactionEffectsAPI, error::UserInputError};
 use test_cluster::{TestCluster, TestClusterBuilder};
 use url::Url;
 async fn do_upgraded_multisig_test() -> HaneulResult<SubmitTxResponse> {
@@ -371,7 +371,7 @@ async fn test_multisig_e2e() {
         .transfer_haneul(None, HaneulAddress::ZERO)
         .build_and_sign_multisig(multisig_pk.clone(), &[&keys[0], &keys[1]], 0b011);
     let res = context.execute_transaction_must_succeed(tx1).await;
-    assert!(res.status_ok().unwrap());
+    assert!(res.effects.status().is_ok());
 
     // 2. sign with key 1 and 2 executes successfully.
     let gas = test_cluster
@@ -381,7 +381,7 @@ async fn test_multisig_e2e() {
         .transfer_haneul(None, HaneulAddress::ZERO)
         .build_and_sign_multisig(multisig_pk.clone(), &[&keys[1], &keys[2]], 0b110);
     let res = context.execute_transaction_must_succeed(tx2).await;
-    assert!(res.status_ok().unwrap());
+    assert!(res.effects.status().is_ok());
 
     // 3. signature 2 and 1 swapped fails to execute.
     let gas = test_cluster
@@ -656,11 +656,7 @@ async fn test_multisig_with_zklogin_scenerios() {
 
     let tx_7 = Transaction::from_generic_sig_data(tx_data.clone(), vec![multisig]);
     let res = context.execute_transaction_may_fail(tx_7).await;
-    assert!(
-        res.unwrap_err()
-            .to_string()
-            .contains("Invalid zklogin authenticator bytes")
-    );
+    assert!(res.unwrap_err().to_string().contains("invalid signature"));
 
     // assert positive case for all 4 participanting parties.
     // 1a. good ed25519 sig used in multisig executes successfully.

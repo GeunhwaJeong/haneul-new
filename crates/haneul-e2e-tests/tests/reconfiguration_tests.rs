@@ -1,11 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_core_types::ident_str;
 use rand::rngs::OsRng;
 use std::sync::Arc;
 use std::time::Duration;
-use haneul_json_rpc_types::ObjectChange;
 use haneul_macros::sim_test;
 use haneul_node::HaneulNodeHandle;
 use haneul_protocol_config::{Chain, ProtocolConfig};
@@ -1039,7 +1037,7 @@ async fn execute_remove_validator_tx(test_cluster: &TestCluster, handle: &Haneul
 async fn execute_add_stake_transaction(
     test_cluster: &mut TestCluster,
     stakes: Vec<(HaneulAddress, u64)>,
-) -> Vec<ObjectChange> {
+) {
     let (address, gas) = test_cluster
         .wallet
         .get_one_gas_object()
@@ -1070,21 +1068,9 @@ async fn execute_add_stake_transaction(
         tx_builder.build()
     };
 
-    let response = test_cluster
+    let _response = test_cluster
         .execute_transaction(test_cluster.wallet.sign_transaction(&tx).await)
         .await;
-
-    response
-        .object_changes
-        .unwrap()
-        .into_iter()
-        .filter(|change| match change {
-            ObjectChange::Created { object_type, .. } => {
-                object_type.name == ident_str!("StakedHaneul").into()
-            }
-            _ => false,
-        })
-        .collect::<Vec<_>>()
 }
 
 /// Execute a sequence of transactions to add a validator, including adding candidate, adding stake
