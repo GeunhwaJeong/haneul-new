@@ -5,20 +5,19 @@ use std::path::Path;
 use std::str::FromStr;
 
 use shared_crypto::intent::Intent;
-use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
-use haneul_json_rpc_types::{ObjectChange, HaneulExecutionStatus};
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_move_build::BuildConfig;
-use haneul_sdk::rpc_types::HaneulTransactionBlockResponseOptions;
+use haneul_rpc_api::Client;
+use haneul_sdk::haneul_sdk_types::StructTag;
 use haneul_sdk::types::Identifier;
 use haneul_sdk::types::base_types::{ObjectID, HaneulAddress};
 use haneul_sdk::types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_sdk::types::transaction::{
     CallArg, ObjectArg, SharedObjectMutability, Transaction, TransactionData,
 };
-use haneul_sdk::types::transaction_driver_types::ExecuteTransactionRequestType;
-use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use haneul_types::base_types::{ObjectRef, SequenceNumber};
+use haneul_types::effects::TransactionEffectsAPI;
+use haneul_types::gas_coin::GasCoin;
 use haneul_types::{TypeTag, parse_haneul_type_tag};
 
 // Integration tests for HANEUL Oracle, these test can be run manually on local or remote testnet.
@@ -103,12 +102,7 @@ async fn test_publish_primitive() {
     let tx = Transaction::from_data(data.clone(), vec![signature]);
 
     let result = client
-        .quorum_driver_api()
-        .execute_transaction_block(
-            tx,
-            HaneulTransactionBlockResponseOptions::new().with_effects(),
-            Some(ExecuteTransactionRequestType::WaitForLocalExecution),
-        )
+        .execute_transaction_and_wait_for_checkpoint(&tx)
         .await
         .unwrap();
     println!("{:#?}", result)
@@ -209,12 +203,7 @@ async fn test_publish_complex_value() {
     let tx = Transaction::from_data(data.clone(), vec![signature]);
 
     let result = client
-        .quorum_driver_api()
-        .execute_transaction_block(
-            tx,
-            HaneulTransactionBlockResponseOptions::new().with_effects(),
-            Some(ExecuteTransactionRequestType::WaitForLocalExecution),
-        )
+        .execute_transaction_and_wait_for_checkpoint(&tx)
         .await
         .unwrap();
     println!("{:#?}", result)
@@ -306,16 +295,11 @@ async fn test_consume_oracle_data() {
         let tx = Transaction::from_data(data.clone(), vec![signature]);
 
         let result = client
-            .quorum_driver_api()
-            .execute_transaction_block(
-                tx,
-                HaneulTransactionBlockResponseOptions::new().with_effects(),
-                Some(ExecuteTransactionRequestType::WaitForLocalExecution),
-            )
+            .execute_transaction_and_wait_for_checkpoint(&tx)
             .await
             .unwrap();
 
-        assert!(result.effects.unwrap().status().is_ok());
+        assert!(result.effects.status().is_ok());
     }
 
     let (simple_oracle_id, version) = *oracles.first().unwrap();
@@ -406,39 +390,26 @@ async fn test_consume_oracle_data() {
     let tx = Transaction::from_data(data.clone(), vec![signature]);
 
     let result = client
-        .quorum_driver_api()
-        .execute_transaction_block(
-            tx,
-            HaneulTransactionBlockResponseOptions::new().with_effects(),
-            Some(ExecuteTransactionRequestType::WaitForLocalExecution),
-        )
+        .execute_transaction_and_wait_for_checkpoint(&tx)
         .await
         .unwrap();
 
-    assert!(result.effects.unwrap().status().is_ok());
+    assert!(result.effects.status().is_ok());
 }
 
-async fn get_gas(client: &HaneulClient, sender: HaneulAddress) -> (ObjectRef, u64) {
+async fn get_gas(client: &Client, sender: HaneulAddress) -> (ObjectRef, u64) {
     let gas = client
-        .coin_read_api()
-        .get_coins(sender, None, None, Some(1))
+        .get_owned_objects(sender, Some(GasCoin::type_()), None, None)
         .await
         .unwrap();
-    let gas = gas.data[0].object_ref();
-    let gas_price = client
-        .governance_api()
-        .get_reference_gas_price()
-        .await
-        .unwrap();
+    let gas = gas.items[0].compute_object_reference();
+    let gas_price = client.get_reference_gas_price().await.unwrap();
 
     (gas, gas_price)
 }
 
-async fn init_test_client() -> (HaneulClient, Keystore, HaneulAddress) {
-    let client = HaneulClientBuilder::default()
-        .build("https://rpc.devnet.haneul.io:443")
-        .await
-        .unwrap();
+async fn init_test_client() -> (Client, Keystore, HaneulAddress) {
+    let client = Client::new("https://rpc.devnet.haneul.io:443").unwrap();
 
     let keystore = Keystore::File(
         FileBasedKeystore::load_or_create(
@@ -450,13 +421,12 @@ async fn init_test_client() -> (HaneulClient, Keystore, HaneulAddress) {
     );
     let sender: HaneulAddress = keystore.addresses()[0];
     let gas = client
-        .coin_read_api()
-        .get_coins(sender, None, None, Some(1))
+        .get_owned_objects(sender, Some(GasCoin::type_()), None, None)
         .await
         .unwrap();
 
     assert!(
-        !gas.data.is_empty(),
+        !gas.items.is_empty(),
         "No gas coin found in account, please fund [{}]",
         sender
     );
@@ -467,18 +437,17 @@ async fn init_test_client() -> (HaneulClient, Keystore, HaneulAddress) {
 async fn publish_package(
     sender: HaneulAddress,
     keystore: &Keystore,
-    client: &HaneulClient,
+    client: &Client,
     path: &Path,
 ) -> ObjectID {
     let compiled_package = BuildConfig::new_for_testing().build(path).unwrap();
     let all_module_bytes = compiled_package.get_package_bytes(false);
     let dependencies = compiled_package.get_dependency_storage_package_ids();
     let gas = client
-        .coin_read_api()
-        .get_coins(sender, None, None, Some(1))
+        .get_owned_objects(sender, Some(GasCoin::type_()), None, None)
         .await
         .unwrap();
-    let gas = gas.data[0].object_ref();
+    let gas = gas.items[0].compute_object_reference();
     let data = TransactionData::new_module(
         sender,
         gas,
@@ -495,39 +464,18 @@ async fn publish_package(
     let tx = Transaction::from_data(data.clone(), vec![signature]);
 
     let result = client
-        .quorum_driver_api()
-        .execute_transaction_block(
-            tx,
-            HaneulTransactionBlockResponseOptions::new()
-                .with_effects()
-                .with_object_changes(),
-            Some(ExecuteTransactionRequestType::WaitForLocalExecution),
-        )
+        .execute_transaction_and_wait_for_checkpoint(&tx)
         .await
         .unwrap();
-    assert_eq!(
-        &HaneulExecutionStatus::Success,
-        result.effects.unwrap().status()
-    );
+    assert!(result.effects.status().is_ok(),);
 
-    let publish = result
-        .object_changes
-        .unwrap()
-        .iter()
-        .find(|change| matches!(change, ObjectChange::Published { .. }))
-        .unwrap()
-        .clone();
-
-    let ObjectChange::Published { package_id, .. } = publish else {
-        panic!("Expected published object change")
-    };
-    package_id
+    result.get_new_package_obj().unwrap().0
 }
 
 async fn create_oracle(
     sender: HaneulAddress,
     keystore: &Keystore,
-    client: &HaneulClient,
+    client: &Client,
     package: ObjectID,
     module: Identifier,
 ) -> (ObjectID, SequenceNumber) {
@@ -548,16 +496,11 @@ async fn create_oracle(
         .unwrap();
     let pt = builder.finish();
     let gas = client
-        .coin_read_api()
-        .get_coins(sender, None, None, Some(1))
+        .get_owned_objects(sender, Some(GasCoin::type_()), None, None)
         .await
         .unwrap();
-    let gas = gas.data[0].object_ref();
-    let gas_price = client
-        .governance_api()
-        .get_reference_gas_price()
-        .await
-        .unwrap();
+    let gas = gas.items[0].compute_object_reference();
+    let gas_price = client.get_reference_gas_price().await.unwrap();
     let data = TransactionData::new_programmable(sender, vec![gas], pt, 1000000000, gas_price);
 
     let signature = keystore
@@ -566,29 +509,24 @@ async fn create_oracle(
         .unwrap();
     let tx = Transaction::from_data(data.clone(), vec![signature]);
     let result = client
-        .quorum_driver_api()
-        .execute_transaction_block(
-            tx,
-            HaneulTransactionBlockResponseOptions::new()
-                .with_effects()
-                .with_object_changes(),
-            Some(ExecuteTransactionRequestType::WaitForLocalExecution),
-        )
+        .execute_transaction_and_wait_for_checkpoint(&tx)
         .await
         .unwrap();
-    assert_eq!(
-        &HaneulExecutionStatus::Success,
-        result.effects.unwrap().status()
-    );
-    let simple_oracle = result.object_changes.unwrap().iter().find(|change| matches!(change, ObjectChange::Created {object_type,..} if object_type.name.as_str() == "SimpleOracle")).unwrap().clone();
-    let ObjectChange::Created {
-        object_id: simple_oracle_id,
-        version,
-        ..
-    } = simple_oracle
-    else {
-        panic!("Expected created object change")
-    };
+    assert!(result.effects.status().is_ok(),);
 
-    (simple_oracle_id, version)
+    let simple_oracle = result
+        .changed_objects
+        .iter()
+        .find(|change| {
+            let Ok(ty) = change.object_type().parse::<StructTag>() else {
+                return false;
+            };
+            ty.name().as_str() == "SimpleOracle"
+        })
+        .unwrap();
+
+    (
+        simple_oracle.object_id().parse().unwrap(),
+        simple_oracle.output_version().into(),
+    )
 }
