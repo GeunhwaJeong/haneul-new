@@ -8,7 +8,6 @@ use std::path::PathBuf;
 use haneul_genesis_builder::validator_info::GenesisValidatorMetadata;
 use haneul_move_build::{BuildConfig, CompiledPackage};
 use haneul_rpc_api::client::ExecutedTransaction;
-use haneul_sdk::rpc_types::HaneulObjectDataOptions;
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::balance::Balance;
 use haneul_types::base_types::{FullObjectRef, ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
@@ -952,20 +951,12 @@ pub async fn emit_new_random_u128(
     let (sender, gas_object) = context.get_one_gas_object().await.unwrap().unwrap();
     let rgp = context.get_reference_gas_price().await.unwrap();
 
-    let client = context.get_client().await.unwrap();
+    let mut client = context.grpc_client().unwrap();
     let random_obj = client
-        .read_api()
-        .get_object_with_options(
-            HANEUL_RANDOMNESS_STATE_OBJECT_ID,
-            HaneulObjectDataOptions::new().with_owner(),
-        )
+        .get_object(HANEUL_RANDOMNESS_STATE_OBJECT_ID)
         .await
-        .unwrap()
-        .into_object()
         .unwrap();
-    let random_obj_owner = random_obj
-        .owner
-        .expect("Expect Randomness object to have an owner");
+    let random_obj_owner = random_obj.owner().to_owned();
 
     let Owner::Shared {
         initial_shared_version,
