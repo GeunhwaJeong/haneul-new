@@ -14007,6 +14007,7 @@ dependencies = [
  "haneul-pg-db",
  "haneul-protocol-config",
  "haneul-replay-2",
+ "haneul-rpc",
  "haneul-rpc-api",
  "haneul-sdk",
  "haneul-simulator",

@@ -16,6 +16,7 @@ use std::{
     str::FromStr,
     sync::Arc,
 };
+use haneul_rpc::proto::haneul::rpc::v2::{self as proto};
 
 use anyhow::{Context, anyhow, bail, ensure};
 use bip32::DerivationPath;
@@ -43,10 +44,10 @@ use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
 use shared_crypto::intent::Intent;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    Coin, DevInspectArgs, DevInspectResults, DryRunTransactionBlockResponse, DynamicFieldInfo,
-    DynamicFieldPage, HaneulCoinMetadata, HaneulData, HaneulExecutionStatus, HaneulObjectData,
-    HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedData,
-    HaneulProtocolConfigValue, HaneulRawData, HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI,
+    Coin, DevInspectArgs, DevInspectResults, DryRunTransactionBlockResponse, HaneulCoinMetadata,
+    HaneulData, HaneulExecutionStatus, HaneulObjectData, HaneulObjectDataOptions, HaneulObjectResponse,
+    HaneulObjectResponseQuery, HaneulParsedData, HaneulProtocolConfigValue, HaneulRawData,
+    HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI,
 };
 use haneul_keys::key_identity::KeyIdentity;
 use haneul_keys::keystore::AccountKeystore;
@@ -190,10 +191,10 @@ pub enum HaneulClientCommands {
         id: ObjectID,
         /// Optional paging cursor
         #[clap(long)]
-        cursor: Option<ObjectID>,
+        cursor: Option<String>,
         /// Maximum item returned per page
         #[clap(long, default_value = "50")]
-        limit: usize,
+        limit: u32,
     },
 
     /// List all Haneul environments
@@ -899,11 +900,14 @@ impl HaneulClientCommands {
             }
 
             HaneulClientCommands::DynamicFieldQuery { id, cursor, limit } => {
-                let client = context.get_client().await?;
+                let client = context.grpc_client()?;
                 let _ = context.cache_chain_id().await?;
+                let page_token = cursor
+                    .map(|c| Base64::decode(&c))
+                    .transpose()?
+                    .map(Into::into);
                 let df_read = client
-                    .read_api()
-                    .get_dynamic_fields(id, cursor, Some(limit))
+                    .get_dynamic_fields(id, Some(limit), page_token)
                     .await?;
                 HaneulClientCommandResult::DynamicFieldQuery(df_read)
             }
@@ -2090,12 +2094,6 @@ impl Display for HaneulClientCommandResult {
                 write!(f, "{}", table)?;
             }
             HaneulClientCommandResult::DynamicFieldQuery(df_refs) => {
-                let df_refs = DynamicFieldOutput {
-                    has_next_page: df_refs.has_next_page,
-                    next_cursor: df_refs.next_cursor,
-                    data: df_refs.data.clone(),
-                };
-
                 let json_obj = json!(df_refs);
                 let mut table = json_to_table(&json_obj);
                 let style = TableStyle::rounded().horizontals([]);
@@ -2525,14 +2523,6 @@ pub struct AddressesOutput {
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DynamicFieldOutput {
-    pub has_next_page: bool,
-    pub next_cursor: Option<ObjectID>,
-    pub data: Vec<DynamicFieldInfo>,
-}
-
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct NewAddressOutput {
     pub alias: String,
     pub address: HaneulAddress,
@@ -2652,7 +2642,7 @@ pub enum HaneulClientCommandResult {
     Balance(Vec<(Option<HaneulCoinMetadata>, Vec<Coin>)>, bool),
     ChainIdentifier(String),
     ComputeTransactionDigest(TransactionData),
-    DynamicFieldQuery(DynamicFieldPage),
+    DynamicFieldQuery(proto::ListDynamicFieldsResponse),
     DryRun(DryRunTransactionBlockResponse),
     DevInspect(DevInspectResults),
     Envs(Vec<HaneulEnv>, Option<String>),
