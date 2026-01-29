@@ -20,14 +20,12 @@ use fastcrypto::encoding::{Encoding, Hex};
 use fastcrypto::secp256k1::Secp256k1KeyPair;
 use fastcrypto::traits::{EncodeDecodeBase64, KeyPair};
 use futures::future::join_all;
+use move_core_types::language_storage::StructTag;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::Arc;
 use haneul_config::Config;
-use haneul_json_rpc_types::{
-    HaneulExecutionStatus, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponseOptions,
-};
 use haneul_keys::keypair_file::read_key;
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_test_transaction_builder::TestTransactionBuilder;
@@ -38,6 +36,7 @@ use haneul_types::bridge::{
 };
 use haneul_types::committee::StakeUnit;
 use haneul_types::crypto::{HaneulKeyPair, ToFromBytes, get_key_pair};
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 use haneul_types::transaction::{ObjectArg, TransactionData};
@@ -311,13 +310,8 @@ pub async fn publish_and_register_coins_return_add_coins_on_haneul_action(
 ) -> BridgeAction {
     assert!(token_ids.len() == token_packages_dir.len());
     assert!(token_prices.len() == token_packages_dir.len());
-    let haneul_client = wallet_context.get_client().await.unwrap();
-    let quorum_driver_api = Arc::new(haneul_client.quorum_driver_api().clone());
-    let rgp = haneul_client
-        .governance_api()
-        .get_reference_gas_price()
-        .await
-        .unwrap();
+    let client = wallet_context.grpc_client().unwrap();
+    let rgp = client.get_reference_gas_price().await.unwrap();
 
     let senders = wallet_context.get_addresses();
     // We want each sender to deal with one coin
@@ -336,18 +330,11 @@ pub async fn publish_and_register_coins_return_add_coins_on_haneul_action(
             .publish(token_package_dir.to_path_buf())
             .build();
         let tx = wallet_context.sign_transaction(&tx).await;
-        let api_clone = quorum_driver_api.clone();
+        let api_clone = client.clone();
         publish_tokens_tasks.push(tokio::spawn(async move {
-            api_clone.execute_transaction_block(
-                tx,
-                HaneulTransactionBlockResponseOptions::new()
-                    .with_effects()
-                    .with_input()
-                    .with_events()
-                    .with_object_changes()
-                    .with_balance_changes(),
-                Some(haneul_types::transaction_driver_types::ExecuteTransactionRequestType::WaitForLocalExecution),
-            ).await
+            api_clone
+                .execute_transaction_and_wait_for_checkpoint(&tx)
+                .await
         }));
     }
     let publish_coin_responses = join_all(publish_tokens_tasks).await;
@@ -356,28 +343,42 @@ pub async fn publish_and_register_coins_return_add_coins_on_haneul_action(
     let mut register_tasks = vec![];
     for (response, sender) in publish_coin_responses.into_iter().zip(senders.clone()) {
         let response = response.unwrap().unwrap();
-        assert_eq!(
-            response.effects.unwrap().status(),
-            &HaneulExecutionStatus::Success
-        );
-        let object_changes = response.object_changes.unwrap();
+        assert!(response.effects.status().is_ok());
         let mut tc = None;
         let mut type_ = None;
         let mut uc = None;
         let mut metadata = None;
-        for object_change in &object_changes {
-            if let o @ haneul_json_rpc_types::ObjectChange::Created { object_type, .. } = object_change
-            {
+        for o in &response.changed_objects {
+            use haneul_rpc::proto::haneul::rpc::v2::changed_object::IdOperation;
+            if matches!(o.id_operation(), IdOperation::Created) {
+                let Ok(object_type) = o.object_type().parse::<StructTag>() else {
+                    continue;
+                };
                 if object_type.name.as_str().starts_with("TreasuryCap") {
                     assert!(tc.is_none() && type_.is_none());
-                    tc = Some(o.clone());
+                    tc = {
+                        let id = o.object_id().parse().unwrap();
+                        let version = o.output_version().into();
+                        let digest = o.output_digest().parse().unwrap();
+                        Some((id, version, digest))
+                    };
                     type_ = Some(object_type.type_params.first().unwrap().clone());
                 } else if object_type.name.as_str().starts_with("UpgradeCap") {
                     assert!(uc.is_none());
-                    uc = Some(o.clone());
+                    uc = {
+                        let id = o.object_id().parse().unwrap();
+                        let version = o.output_version().into();
+                        let digest = o.output_digest().parse().unwrap();
+                        Some((id, version, digest))
+                    };
                 } else if object_type.name.as_str().starts_with("CoinMetadata") {
                     assert!(metadata.is_none());
-                    metadata = Some(o.clone());
+                    metadata = {
+                        let id = o.object_id().parse().unwrap();
+                        let version = o.output_version().into();
+                        let digest = o.output_digest().parse().unwrap();
+                        Some((id, version, digest))
+                    };
                 }
             }
         }
@@ -387,15 +388,9 @@ pub async fn publish_and_register_coins_return_add_coins_on_haneul_action(
         // register with the bridge
         let mut builder = ProgrammableTransactionBuilder::new();
         let bridge_arg = builder.obj(bridge_arg).unwrap();
-        let uc_arg = builder
-            .obj(ObjectArg::ImmOrOwnedObject(uc.object_ref()))
-            .unwrap();
-        let tc_arg = builder
-            .obj(ObjectArg::ImmOrOwnedObject(tc.object_ref()))
-            .unwrap();
-        let metadata_arg = builder
-            .obj(ObjectArg::ImmOrOwnedObject(metadata.object_ref()))
-            .unwrap();
+        let uc_arg = builder.obj(ObjectArg::ImmOrOwnedObject(uc)).unwrap();
+        let tc_arg = builder.obj(ObjectArg::ImmOrOwnedObject(tc)).unwrap();
+        let metadata_arg = builder.obj(ObjectArg::ImmOrOwnedObject(metadata)).unwrap();
         builder.programmable_move_call(
             BRIDGE_PACKAGE_ID,
             BRIDGE_MODULE_NAME.into(),
@@ -411,23 +406,16 @@ pub async fn publish_and_register_coins_return_add_coins_on_haneul_action(
             .unwrap();
         let tx = TransactionData::new_programmable(sender, vec![gas], pt, 1_000_000_000, rgp);
         let signed_tx = wallet_context.sign_transaction(&tx).await;
-        let api_clone = quorum_driver_api.clone();
+        let api_clone = client.clone();
         register_tasks.push(async move {
             api_clone
-                .execute_transaction_block(
-                    signed_tx,
-                    HaneulTransactionBlockResponseOptions::new().with_effects(),
-                    None,
-                )
+                .execute_transaction_and_wait_for_checkpoint(&signed_tx)
                 .await
         });
         token_type_names.push(type_);
     }
     for response in join_all(register_tasks).await {
-        assert_eq!(
-            response.unwrap().effects.unwrap().status(),
-            &HaneulExecutionStatus::Success
-        );
+        assert!(response.unwrap().effects.status().is_ok());
     }
 
     BridgeAction::AddTokensOnHaneulAction(AddTokensOnHaneulAction {
