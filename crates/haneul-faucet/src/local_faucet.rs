@@ -5,21 +5,18 @@ use std::fmt;
 use std::sync::Arc;
 
 use anyhow::bail;
+use haneul_rpc_api::client::ExecutedTransaction;
+use haneul_sdk::types::effects::TransactionEffectsAPI;
 use tokio::sync::Mutex;
 use tokio::time::Duration;
 use tracing::info;
 
 use crate::FaucetConfig;
 use crate::FaucetError;
-use haneul_sdk::{
-    rpc_types::{HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions},
-    types::transaction_driver_types::ExecuteTransactionRequestType,
-};
 
 use crate::CoinInfo;
 use shared_crypto::intent::Intent;
 use haneul_keys::keystore::AccountKeystore;
-use haneul_sdk::rpc_types::HaneulTransactionBlockEffectsAPI;
 use haneul_sdk::types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_sdk::types::{
     base_types::{ObjectID, HaneulAddress},
@@ -105,19 +102,14 @@ impl LocalFaucet {
             .await
             .map_err(FaucetError::internal)?;
 
-        let Some(ref effects) = tx.effects else {
-            return Err(FaucetError::internal(
-                "Failed to get coin id from response".to_string(),
-            ));
-        };
-
-        let coins: Vec<CoinInfo> = effects
+        let coins: Vec<CoinInfo> = tx
+            .effects
             .created()
-            .iter()
+            .into_iter()
             .map(|o| CoinInfo {
                 amount: self.coin_amount,
-                id: o.object_id(),
-                transfer_tx_digest: *effects.transaction_digest(),
+                id: o.0.0,
+                transfer_tx_digest: *tx.effects.transaction_digest(),
             })
             .collect();
 
@@ -128,7 +120,7 @@ impl LocalFaucet {
         &self,
         tx_data: &TransactionData,
         coin_id: ObjectID,
-    ) -> Result<HaneulTransactionBlockResponse, anyhow::Error> {
+    ) -> Result<ExecutedTransaction, anyhow::Error> {
         let signature = self
             .wallet
             .config
@@ -138,22 +130,18 @@ impl LocalFaucet {
             .map_err(FaucetError::internal)?;
         let tx = Transaction::from_data(tx_data.clone(), vec![signature]);
 
-        let client = self.wallet.get_client().await?;
+        let client = self.wallet.grpc_client()?;
 
-        Ok(client
-            .quorum_driver_api()
-            .execute_transaction_block(
-                tx.clone(),
-                HaneulTransactionBlockResponseOptions::new().with_effects(),
-                Some(ExecuteTransactionRequestType::WaitForLocalExecution),
-            )
+        client
+            .execute_transaction_and_wait_for_checkpoint(&tx)
             .await
             .map_err(|e| {
                 FaucetError::internal(format!(
                     "Failed to execute PayHaneul transaction for coin {:?}, with err {:?}",
                     coin_id, e
                 ))
-            })?)
+            })
+            .map_err(Into::into)
     }
 
     async fn execute_txn_with_retries(
@@ -161,7 +149,7 @@ impl LocalFaucet {
         tx: TransactionData,
         coin_id: ObjectID,
         num_retries: u8,
-    ) -> Result<HaneulTransactionBlockResponse, anyhow::Error> {
+    ) -> Result<ExecutedTransaction, anyhow::Error> {
         let mut retry_delay = Duration::from_millis(500);
         let mut i = 0;
 

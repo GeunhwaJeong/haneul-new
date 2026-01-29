@@ -25,6 +25,7 @@ tower-http.workspace = true
 tracing.workspace = true
 uuid.workspace = true
 haneul-sdk.workspace = true
+haneul-rpc-api.workspace = true
 haneul-config.workspace = true
 haneul-keys.workspace = true
 shared-crypto.workspace = true

@@ -14954,6 +14954,7 @@ dependencies = [
  "shared-crypto",
  "haneul-config",
  "haneul-keys",
+ "haneul-rpc-api",
  "haneul-sdk",
  "test-cluster",
  "thiserror 1.0.69",
