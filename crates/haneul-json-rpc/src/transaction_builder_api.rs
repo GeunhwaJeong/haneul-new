@@ -13,14 +13,12 @@ use haneul_core::authority::AuthorityState;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_api::{TransactionBuilderOpenRpc, TransactionBuilderServer};
 use haneul_json_rpc_types::{RPCTransactionRequestParams, HaneulObjectDataFilter};
-use haneul_json_rpc_types::{
-    HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionBlockBuilderMode, HaneulTypeTag,
-    TransactionBlockBytes,
-};
+use haneul_json_rpc_types::{HaneulTransactionBlockBuilderMode, HaneulTypeTag, TransactionBlockBytes};
 use haneul_open_rpc::Module;
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
 use haneul_types::base_types::ObjectInfo;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::object::Object;
 use haneul_types::haneul_serde::BigInt;
 
 use crate::HaneulRpcModule;
@@ -64,13 +62,11 @@ impl DataReader for AuthorityStateDataReader {
             )?)
     }
 
-    async fn get_object_with_options(
-        &self,
-        object_id: ObjectID,
-        options: HaneulObjectDataOptions,
-    ) -> Result<HaneulObjectResponse, anyhow::Error> {
-        let result = self.0.get_object_read(&object_id)?;
-        Ok((result, options).try_into()?)
+    async fn get_object(&self, object_id: ObjectID) -> Result<Object, anyhow::Error> {
+        self.0
+            .get_object(&object_id)
+            .await?
+            .ok_or_else(|| anyhow::anyhow!("unable to fetch object {object_id}"))
     }
 
     async fn get_reference_gas_price(&self) -> Result<u64, anyhow::Error> {

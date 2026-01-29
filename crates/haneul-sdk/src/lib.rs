@@ -97,12 +97,12 @@ use haneul_json_rpc_api::{
 };
 pub use haneul_json_rpc_types as rpc_types;
 use haneul_json_rpc_types::{
-    ObjectsPage, HaneulObjectDataFilter, HaneulObjectDataOptions, HaneulObjectResponse,
-    HaneulObjectResponseQuery,
+    ObjectsPage, HaneulObjectDataFilter, HaneulObjectDataOptions, HaneulObjectResponseQuery,
 };
 use haneul_transaction_builder::{DataReader, TransactionBuilder};
 pub use haneul_types as types;
 use haneul_types::base_types::{ObjectID, ObjectInfo, HaneulAddress};
+use haneul_types::object::Object;
 
 use crate::apis::{CoinReadApi, EventApi, GovernanceApi, QuorumDriverApi, ReadApi};
 use crate::error::{Error, HaneulRpcResult};
@@ -634,12 +634,14 @@ impl DataReader for ReadApi {
         Ok(result)
     }
 
-    async fn get_object_with_options(
-        &self,
-        object_id: ObjectID,
-        options: HaneulObjectDataOptions,
-    ) -> Result<HaneulObjectResponse, anyhow::Error> {
-        Ok(self.get_object_with_options(object_id, options).await?)
+    async fn get_object(&self, object_id: ObjectID) -> Result<Object, anyhow::Error> {
+        let resp = self
+            .get_object_with_options(object_id, HaneulObjectDataOptions::bcs_lossless())
+            .await?;
+
+        resp.data
+            .ok_or_else(|| anyhow::anyhow!("unable to fetch object {object_id}"))?
+            .try_into()
     }
 
     /// Returns the reference gas price as a u64 or an error otherwise
