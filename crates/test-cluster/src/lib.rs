@@ -21,6 +21,7 @@ use haneul_json_rpc_types::{Balance, HaneulTransactionBlockEffectsAPI, Transacti
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_node::HaneulNodeHandle;
 use haneul_protocol_config::{Chain, ProtocolVersion};
+use haneul_rpc_api::Client;
 use haneul_rpc_api::client::ExecutedTransaction;
 use haneul_sdk::apis::QuorumDriverApi;
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
@@ -72,6 +73,7 @@ pub struct FullNodeHandle {
     pub haneul_node: HaneulNodeHandle,
     pub haneul_client: HaneulClient,
     pub rpc_client: HttpClient,
+    pub grpc_client: Client,
     pub rpc_url: String,
 }
 
@@ -81,11 +83,13 @@ impl FullNodeHandle {
         let rpc_client = HttpClientBuilder::default().build(&rpc_url).unwrap();
 
         let haneul_client = HaneulClientBuilder::default().build(&rpc_url).await.unwrap();
+        let grpc_client = Client::new(&rpc_url).unwrap();
 
         Self {
             haneul_node,
             haneul_client,
             rpc_client,
+            grpc_client,
             rpc_url,
         }
     }
@@ -104,6 +108,10 @@ impl TestCluster {
 
     pub fn haneul_client(&self) -> &HaneulClient {
         &self.fullnode_handle.haneul_client
+    }
+
+    pub fn grpc_client(&self) -> Client {
+        self.fullnode_handle.grpc_client.clone()
     }
 
     pub fn rpc_url(&self) -> &str {
