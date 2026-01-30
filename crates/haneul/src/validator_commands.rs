@@ -13,19 +13,17 @@ use std::{
 use haneul_genesis_builder::validator_info::GenesisValidatorInfo;
 use url::{ParseError, Url};
 
+use haneul_rpc::proto::haneul::rpc::v2 as proto;
+use haneul_rpc_api::Client;
 use haneul_rpc_api::client::ExecutedTransaction;
 use haneul_types::{
     HANEUL_SYSTEM_PACKAGE_ID,
     base_types::{ObjectID, ObjectRef, HaneulAddress},
     crypto::{AuthorityPublicKey, DEFAULT_EPOCH_ID, NetworkPublicKey, Signable},
-    dynamic_field::Field,
     effects::TransactionEffectsAPI,
     multiaddr::Multiaddr,
     object::Owner,
-    haneul_system_state::{
-        haneul_system_state_inner_v1::{UnverifiedValidatorOperationCapV1, ValidatorV1},
-        haneul_system_state_summary::{HaneulSystemStateSummary, HaneulValidatorSummary},
-    },
+    haneul_system_state::haneul_system_state_inner_v1::{UnverifiedValidatorOperationCapV1, ValidatorV1},
 };
 use tap::tap::TapOptional;
 
@@ -44,7 +42,6 @@ use haneul_bridge::haneul_client::HaneulClient as HaneulBridgeClient;
 use haneul_bridge::haneul_transaction_builder::{
     build_committee_register_transaction, build_committee_update_url_transaction,
 };
-use haneul_json_rpc_types::HaneulObjectDataOptions;
 use haneul_keys::{
     key_derive::generate_new_key,
     keypair_file::{
@@ -53,7 +50,6 @@ use haneul_keys::{
     },
 };
 use haneul_keys::{keypair_file::read_key, keystore::AccountKeystore};
-use haneul_sdk::HaneulClient;
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::crypto::{AuthorityKeyPair, NetworkKeyPair, SignatureScheme, HaneulKeyPair};
 use haneul_types::crypto::{
@@ -472,7 +468,7 @@ impl HaneulValidatorCommand {
             } => {
                 let validator_address = validator_address.unwrap_or(context.active_address()?);
                 // Default display with json serialization for better UX.
-                let haneul_client = context.get_client().await?;
+                let haneul_client = context.grpc_client()?;
                 display_metadata(&haneul_client, validator_address, json.unwrap_or(true)).await?;
                 HaneulValidatorCommandResponse::DisplayMetadata
             }
@@ -605,15 +601,16 @@ impl HaneulValidatorCommand {
                     print_unsigned_transaction_only,
                 )?;
                 // Make sure the address is a validator
-                let haneul_client = context.get_client().await?;
+                let haneul_client = context.grpc_client()?;
                 let active_validators = haneul_client
-                    .governance_api()
-                    .get_latest_haneul_system_state()
+                    .get_system_state(None)
                     .await?
-                    .active_validators;
+                    .validators()
+                    .active_validators()
+                    .to_owned();
                 if !active_validators
                     .into_iter()
-                    .any(|s| s.haneul_address == address)
+                    .any(|s| s.address() == address.to_string())
                 {
                     bail!("Address {} is not in the committee", address);
                 }
@@ -769,21 +766,16 @@ fn check_address(
 async fn get_cap_object_ref(
     context: &mut WalletContext,
     operation_cap_id: Option<ObjectID>,
-) -> Result<(ValidatorStatus, HaneulValidatorSummary, ObjectRef)> {
-    let haneul_client = context.get_client().await?;
+) -> Result<(ValidatorStatus, proto::Validator, ObjectRef)> {
+    let mut haneul_client = context.grpc_client()?;
     if let Some(operation_cap_id) = operation_cap_id {
         let (status, summary) =
             get_validator_summary_from_cap_id(&haneul_client, operation_cap_id).await?;
         let cap_obj_ref = haneul_client
-            .read_api()
-            .get_object_with_options(
-                summary.operation_cap_id,
-                HaneulObjectDataOptions::default().with_owner(),
-            )
+            .get_object(summary.operation_cap_id().parse()?)
             .await?
-            .object_ref_if_exists()
-            .ok_or_else(|| anyhow!("OperationCap {} does not exist", operation_cap_id))?;
-        Ok::<(ValidatorStatus, HaneulValidatorSummary, ObjectRef), anyhow::Error>((
+            .compute_object_reference();
+        Ok::<(ValidatorStatus, proto::Validator, ObjectRef), anyhow::Error>((
             status,
             summary,
             cap_obj_ref,
@@ -796,21 +788,15 @@ async fn get_cap_object_ref(
             .ok_or_else(|| anyhow::anyhow!("{} is not a validator.", validator_address))?;
         // TODO we should allow validator to perform this operation even though the Cap is not at hand.
         // But for now we need to make sure the cap is owned by the sender.
-        let cap_object_id = summary.operation_cap_id;
-        let resp = haneul_client
-            .read_api()
-            .get_object_with_options(cap_object_id, HaneulObjectDataOptions::default().with_owner())
-            .await
-            .map_err(|e| anyhow!(e))?;
+        let cap_object_id = summary.operation_cap_id();
+        let resp = haneul_client.get_object(cap_object_id.parse()?).await?;
         // Safe to unwrap as we ask with `with_owner`.
-        let owner = resp.owner().unwrap();
-        let cap_obj_ref = resp
-            .object_ref_if_exists()
-            .unwrap_or_else(|| panic!("OperationCap {} shall exist.", cap_object_id));
+        let owner = resp.owner().to_owned();
+        let cap_obj_ref = resp.compute_object_reference();
         if owner != Owner::AddressOwner(context.active_address()?) {
             anyhow::bail!(
                 "OperationCap {} is not owned by the sender address {} but {:?}",
-                summary.operation_cap_id,
+                summary.operation_cap_id(),
                 validator_address,
                 owner
             );
@@ -854,7 +840,7 @@ async fn report_validator(
 ) -> Result<(Option<ExecutedTransaction>, Option<String>)> {
     let (status, summary, cap_obj_ref) = get_cap_object_ref(context, operation_cap_id).await?;
 
-    let validator_address = summary.haneul_address;
+    let validator_address = summary.address();
     // Only active validators can report/un-report.
     if !matches!(status, ValidatorStatus::Active) {
         anyhow::bail!(
@@ -883,35 +869,33 @@ async fn report_validator(
 }
 
 async fn get_validator_summary_from_cap_id(
-    client: &HaneulClient,
+    client: &Client,
     operation_cap_id: ObjectID,
-) -> anyhow::Result<(ValidatorStatus, HaneulValidatorSummary)> {
-    let resp = client
-        .read_api()
-        .get_object_with_options(operation_cap_id, HaneulObjectDataOptions::default().with_bcs())
-        .await?;
-    let bcs = resp.move_object_bcs().ok_or_else(|| {
+) -> anyhow::Result<(ValidatorStatus, proto::Validator)> {
+    let resp = client.clone().get_object(operation_cap_id).await?;
+    let bcs = resp.data.try_as_move().ok_or_else(|| {
         anyhow::anyhow!(
             "Object {} does not exist or does not return bcs bytes",
             operation_cap_id
         )
     })?;
-    let cap = bcs::from_bytes::<UnverifiedValidatorOperationCapV1>(bcs).map_err(|e| {
-        anyhow::anyhow!(
-            "Can't convert bcs bytes of object {} to UnverifiedValidatorOperationCapV1: {}",
-            operation_cap_id,
-            e,
-        )
-    })?;
+    let cap =
+        bcs::from_bytes::<UnverifiedValidatorOperationCapV1>(bcs.contents()).map_err(|e| {
+            anyhow::anyhow!(
+                "Can't convert bcs bytes of object {} to UnverifiedValidatorOperationCapV1: {}",
+                operation_cap_id,
+                e,
+            )
+        })?;
     let validator_address = cap.authorizer_validator_address;
     let (status, summary) = get_validator_summary(client, validator_address)
         .await?
         .ok_or_else(|| anyhow::anyhow!("{} is not a validator", validator_address))?;
-    if summary.operation_cap_id != operation_cap_id {
+    if summary.operation_cap_id() != operation_cap_id.to_string() {
         anyhow::bail!(
             "Validator {}'s current operation cap id is {}",
             validator_address,
-            summary.operation_cap_id
+            summary.operation_cap_id()
         );
     }
     Ok((status, summary))
@@ -1104,31 +1088,39 @@ pub enum ValidatorStatus {
 }
 
 pub async fn get_validator_summary(
-    client: &HaneulClient,
+    client: &Client,
     validator_address: HaneulAddress,
-) -> anyhow::Result<Option<(ValidatorStatus, HaneulValidatorSummary)>> {
-    let HaneulSystemStateSummary {
-        active_validators,
-        pending_active_validators_id,
-        ..
-    } = client
-        .governance_api()
-        .get_latest_haneul_system_state()
-        .await?;
+) -> anyhow::Result<Option<(ValidatorStatus, proto::Validator)>> {
+    let system_state = client.get_system_state(None).await?;
     let mut status = None;
-    let mut active_validators = active_validators
-        .into_iter()
-        .map(|s| (s.haneul_address, s))
+    let mut active_validators = system_state
+        .validators()
+        .active_validators()
+        .iter()
+        .map(|s| (s.address().to_owned(), s))
         .collect::<BTreeMap<_, _>>();
-    let validator_info = if active_validators.contains_key(&validator_address) {
+    let validator_info = if active_validators.contains_key(&validator_address.to_string()) {
         status = Some(ValidatorStatus::Active);
-        Some(active_validators.remove(&validator_address).unwrap())
+        Some(
+            active_validators
+                .remove(&validator_address.to_string())
+                .unwrap()
+                .to_owned(),
+        )
     } else {
         // Check panding validators
-        get_pending_candidate_summary(validator_address, client, pending_active_validators_id)
-            .await?
-            .map(|v| v.into_haneul_validator_summary())
-            .tap_some(|_s| status = Some(ValidatorStatus::Pending))
+        get_pending_candidate_summary(
+            validator_address,
+            client,
+            system_state
+                .validators()
+                .pending_active_validators()
+                .id()
+                .parse()
+                .unwrap(),
+        )
+        .await?
+        .tap_some(|_s| status = Some(ValidatorStatus::Pending))
 
         // TODO also check candidate and inactive valdiators
     };
@@ -1141,7 +1133,7 @@ pub async fn get_validator_summary(
 }
 
 async fn display_metadata(
-    client: &HaneulClient,
+    client: &Client,
     validator_address: HaneulAddress,
     json: bool,
 ) -> anyhow::Result<()> {
@@ -1164,42 +1156,24 @@ async fn display_metadata(
 
 async fn get_pending_candidate_summary(
     validator_address: HaneulAddress,
-    haneul_client: &HaneulClient,
+    haneul_client: &Client,
     pending_active_validators_id: ObjectID,
-) -> anyhow::Result<Option<ValidatorV1>> {
+) -> anyhow::Result<Option<proto::Validator>> {
     let pending_validators = haneul_client
-        .read_api()
         .get_dynamic_fields(pending_active_validators_id, None, None)
-        .await?
-        .data
-        .into_iter()
-        .map(|dyi| dyi.object_id)
-        .collect::<Vec<_>>();
-    let resps = haneul_client
-        .read_api()
-        .multi_get_object_with_options(
-            pending_validators,
-            HaneulObjectDataOptions::default().with_bcs(),
-        )
         .await?;
-    for resp in resps {
+    for resp in pending_validators.dynamic_fields() {
         // We always expect an objectId from the response as one of data/error should be included.
-        let object_id = resp.object_id()?;
-        let bcs = resp.move_object_bcs().ok_or_else(|| {
-            anyhow::anyhow!(
-                "Object {} does not exist or does not return bcs bytes",
-                object_id
-            )
-        })?;
-        let field = bcs::from_bytes::<Field<u64, ValidatorV1>>(bcs).map_err(|e| {
+        let object_id = resp.field_id();
+        let field = resp.value().deserialize::<ValidatorV1>().map_err(|e| {
             anyhow::anyhow!(
                 "Can't convert bcs bytes of object {} to ValidatorV1: {}",
                 object_id,
                 e,
             )
         })?;
-        if field.value.verified_metadata().haneul_address == validator_address {
-            return Ok(Some(field.value));
+        if field.verified_metadata().haneul_address == validator_address {
+            return Ok(Some(field.into()));
         }
     }
     Ok(None)
@@ -1424,7 +1398,7 @@ async fn check_status(
     context: &mut WalletContext,
     allowed_status: HashSet<ValidatorStatus>,
 ) -> Result<ValidatorStatus> {
-    let haneul_client = context.get_client().await?;
+    let haneul_client = context.grpc_client()?;
     let validator_address = context.active_address()?;
     let summary = get_validator_summary(&haneul_client, validator_address).await?;
     if summary.is_none() {

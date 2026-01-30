@@ -25,11 +25,11 @@ async fn test_print_raw_rgp_txn() -> Result<(), anyhow::Error> {
         .keypair();
     let validator_address: HaneulAddress = HaneulAddress::from(&keypair.public());
     let mut context = test_cluster.wallet;
-    let haneul_client = context.get_client().await?;
+    let haneul_client = context.grpc_client()?;
     let (_, summary) = get_validator_summary(&haneul_client, validator_address)
         .await?
         .unwrap();
-    let operation_cap_id = summary.operation_cap_id;
+    let operation_cap_id = summary.operation_cap_id().parse()?;
 
     // Execute the command and get the serialized transaction data.
     let response = HaneulValidatorCommand::DisplayGasPriceUpdateRawTxn {
@@ -62,6 +62,6 @@ async fn test_print_raw_rgp_txn() -> Result<(), anyhow::Error> {
         .unwrap();
 
     // Check that the gas price is updated correctly.
-    assert_eq!(summary.next_epoch_gas_price, 42);
+    assert_eq!(summary.next_epoch_gas_price(), 42);
     Ok(())
 }
