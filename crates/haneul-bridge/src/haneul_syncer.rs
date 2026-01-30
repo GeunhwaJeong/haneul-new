@@ -12,7 +12,7 @@
 
 use crate::{
     error::BridgeResult,
-    events::{EmittedHaneulToEthTokenBridgeV1, HaneulBridgeEvent},
+    events::{EmittedHaneulToEthTokenBridgeV1, EmittedHaneulToEthTokenBridgeV2, HaneulBridgeEvent},
     metrics::BridgeMetrics,
     retry_with_max_elapsed_time,
     haneul_client::{HaneulClient, HaneulClientInner},
@@ -336,6 +336,18 @@ where
                     eth_address: transfer.eth_address,
                     token_id: transfer.token_id,
                     amount_haneul_adjusted: transfer.amount_adjusted,
+                }),
+            ),
+            BridgeAction::HaneulToEthTokenTransferV2(transfer) => Ok(
+                HaneulBridgeEvent::HaneulToEthTokenBridgeV2(EmittedHaneulToEthTokenBridgeV2 {
+                    nonce: transfer.nonce,
+                    haneul_chain_id: transfer.haneul_chain_id,
+                    eth_chain_id: transfer.eth_chain_id,
+                    haneul_address: transfer.haneul_address,
+                    eth_address: transfer.eth_address,
+                    token_id: transfer.token_id,
+                    amount_haneul_adjusted: transfer.amount_adjusted,
+                    timestamp_ms: transfer.timestamp_ms,
                 }),
             ),
             _ => Err(crate::error::BridgeError::Generic(format!(
