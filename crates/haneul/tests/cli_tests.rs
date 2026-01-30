@@ -52,8 +52,8 @@ use haneul_config::{
 };
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
-    HaneulExecutionStatus, HaneulObjectData, HaneulObjectDataFilter, HaneulObjectDataOptions,
-    HaneulObjectResponse, HaneulObjectResponseQuery, HaneulRawData, HaneulTransactionBlockEffectsAPI,
+    HaneulObjectData, HaneulObjectDataFilter, HaneulObjectDataOptions, HaneulObjectResponse,
+    HaneulObjectResponseQuery, HaneulRawData,
 };
 use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::sim_test;
@@ -3531,13 +3531,12 @@ async fn key_identity_test() {
 
 fn assert_dry_run(dry_run: HaneulClientCommandResult, object_id: ObjectID, command: &str) {
     if let HaneulClientCommandResult::DryRun(response) = dry_run {
-        assert_eq!(
-            *response.effects.status(),
-            HaneulExecutionStatus::Success,
+        assert!(
+            response.transaction.effects.status().is_ok(),
             "{command} dry run test effects is not success"
         );
         assert_eq!(
-            response.effects.gas_object().object_id(),
+            response.transaction.effects.gas_object().0.0,
             object_id,
             "{command} dry run test failed, gas object used is not the expected one"
         );
@@ -3633,8 +3632,8 @@ async fn test_dry_run() -> Result<(), anyhow::Error> {
     .await?;
 
     if let HaneulClientCommandResult::DryRun(response) = pay_dry_run {
-        assert_eq!(*response.effects.status(), HaneulExecutionStatus::Success);
-        assert_ne!(response.effects.gas_object().object_id(), object_id);
+        assert!(response.transaction.effects.status().is_ok());
+        assert_ne!(response.transaction.effects.gas_object().0.0, object_id);
     } else {
         panic!("Pay dry run failed");
     }
