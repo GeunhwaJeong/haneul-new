@@ -520,6 +520,41 @@ impl Client {
         Ok(resp)
     }
 
+    pub async fn get_balance(
+        &self,
+        owner: HaneulAddress,
+        coin_type: &move_core_types::language_storage::StructTag,
+    ) -> Result<proto::Balance> {
+        let resp = self
+            .0
+            .clone()
+            .state_client()
+            .get_balance(
+                proto::GetBalanceRequest::default()
+                    .with_owner(owner.to_string())
+                    .with_coin_type(coin_type.to_canonical_string(true)),
+            )
+            .await?
+            .into_inner();
+
+        Ok(resp.balance.unwrap_or_default())
+    }
+
+    pub fn list_balances(
+        &self,
+        owner: HaneulAddress,
+    ) -> impl Stream<Item = Result<proto::Balance>> + 'static {
+        self.0
+            .list_balances(proto::ListBalancesRequest::default().with_owner(owner.to_string()))
+    }
+
+    pub async fn list_delegated_stake(
+        &self,
+        owner: HaneulAddress,
+    ) -> Result<Vec<haneul_rpc::client::DelegatedStake>> {
+        self.0.clone().list_delegated_stake(&owner.into()).await
+    }
+
     pub fn transaction_builder(&self) -> haneul_transaction_builder::TransactionBuilder {
         haneul_transaction_builder::TransactionBuilder::new(std::sync::Arc::new(self.clone()) as _)
     }
