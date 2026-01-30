@@ -41,7 +41,7 @@ Haneul Full nodes don't require data from checkpoints to  execute and submit tra
 
 Haneul full nodes support more than 40 RPC types that includes the following categories:
 
-* **General metadata**, such as `haneul_getProtocolConfig` and `haneul_getChainIdentier`. These requests don't depend on additional indexing and don't require historic data to process.
+* **General metadata**, such as `haneul_getProtocolConfig` and `haneul_getChainIdentifier`. These requests don't depend on additional indexing and don't require historic data to process.
 * **Direct lookups**, such as `haneul_getObject`, `haneul_getEvents`. These requests don't depend on additional indexing, but require historic data in some cases, such as `haneul_tryGetPastObject` and `haneul_getTransactionBlock`.
 * **Accumulation and filtering queries**,such as `haneulx_getOwnedObjects` and `haneulx_getCoins`. These requests depend on additional indexing, and require historic data in some cases, such as `haneulx_queryTransactionBlocks`.
 
