@@ -19,12 +19,11 @@ use std::io;
 use std::io::Write;
 use std::thread::sleep;
 use std::time::Duration;
-use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
 use haneul_keys::keystore::{AccountKeystore, Keystore};
-use haneul_sdk::HaneulClientBuilder;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::{PublicKey, HaneulKeyPair};
+use haneul_types::gas_coin::GasCoin;
 use haneul_types::multisig::{MultiSig, MultiSigPublicKey};
 use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::Transaction;
@@ -120,22 +119,21 @@ pub async fn perform_zk_login_test_tx(
     println!("Sender: {:?}", sender);
 
     // Request some coin from faucet and build a test transaction.
-    let haneul = HaneulClientBuilder::default().build(fullnode_url).await?;
+    let mut haneul = haneul_rpc_api::Client::new(fullnode_url)?;
     request_tokens_from_faucet(sender, gas_url).await?; // transfer coin
     request_tokens_from_faucet(sender, gas_url).await?; // gas coin
     sleep(Duration::from_secs(10));
 
     let response = haneul
-        .coin_read_api()
-        .get_coins(sender, None, None, Some(2))
+        .get_owned_objects(sender, Some(GasCoin::type_()), None, None)
         .await?;
 
-    if response.data.len() != 2 {
+    if response.items.len() != 2 {
         panic!("Faucet did not work correctly and the provided Haneul address has no coins")
     }
 
-    let transfer_coin = response.data[0].coin_object_id;
-    let gas_coin = response.data[1].coin_object_id;
+    let transfer_coin = response.items[0].id();
+    let gas_coin = response.items[1].id();
 
     let txb_res = haneul
         .transaction_builder()
@@ -206,14 +204,12 @@ pub async fn perform_zk_login_test_tx(
         single_sig
     };
     let transaction_response = haneul
-        .quorum_driver_api()
-        .execute_transaction_block(
-            Transaction::from_generic_sig_data(txb_res, vec![final_sig]),
-            HaneulTransactionBlockResponseOptions::full_content(),
-            None,
-        )
+        .execute_transaction(&Transaction::from_generic_sig_data(
+            txb_res,
+            vec![final_sig],
+        ))
         .await?;
-    Ok(transaction_response.digest.base58_encode())
+    Ok(transaction_response.transaction.digest().base58_encode())
 }
 
 fn get_config(network: &str) -> (&str, &str) {
