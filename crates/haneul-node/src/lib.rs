@@ -38,7 +38,7 @@ use haneul_core::consensus_adapter::ConsensusClient;
 use haneul_core::consensus_manager::UpdatableConsensusClient;
 use haneul_core::epoch::randomness::RandomnessManager;
 use haneul_core::execution_cache::build_execution_cache;
-use haneul_network::endpoint_manager::EndpointId;
+use haneul_network::endpoint_manager::{AddressSource, EndpointId};
 use haneul_network::validator::server::HANEUL_TLS_SERVER_NAME;
 use haneul_types::full_checkpoint_content::Checkpoint;
 
@@ -2426,7 +2426,11 @@ fn update_peer_addresses(
     for (peer_id, address) in
         epoch_start_state.get_validator_as_p2p_peers(config.protocol_public_key())
     {
-        endpoint_manager.update_endpoint(EndpointId::P2p(peer_id), vec![address]);
+        endpoint_manager.update_endpoint(
+            EndpointId::P2p(peer_id),
+            AddressSource::Committee,
+            vec![address],
+        );
     }
 }
 
