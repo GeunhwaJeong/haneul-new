@@ -12,7 +12,9 @@ diesel = {workspace = true, features = ["postgres_backend", "chrono"]}
 diesel_migrations.workspace = true
 serde.workspace = true
 bcs.workspace = true
+siphasher = "1.0"
 
+move-core-types.workspace = true
 haneul-field-count.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
