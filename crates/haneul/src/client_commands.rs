@@ -8,6 +8,7 @@ use crate::{
     upgrade_compatibility::check_compatibility,
     verifier_meter::{AccumulatingMeter, Accumulator},
 };
+use futures::TryStreamExt;
 use std::{
     collections::{BTreeMap, BTreeSet, btree_map::Entry},
     fmt::{Debug, Display, Formatter, Write},
@@ -45,9 +46,7 @@ use shared_crypto::intent::Intent;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_types::{
     Coin, DevInspectArgs, DevInspectResults, DryRunTransactionBlockResponse, HaneulCoinMetadata,
-    HaneulExecutionStatus, HaneulObjectData, HaneulObjectDataOptions, HaneulObjectResponse,
-    HaneulObjectResponseQuery, HaneulParsedData, HaneulRawData, HaneulTransactionBlockEffects,
-    HaneulTransactionBlockEffectsAPI,
+    HaneulExecutionStatus, HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI,
 };
 use haneul_keys::key_identity::KeyIdentity;
 use haneul_keys::keystore::AccountKeystore;
@@ -58,6 +57,7 @@ use haneul_sdk::{
     HANEUL_COIN_TYPE, HANEUL_DEVNET_URL, HANEUL_LOCAL_NETWORK_URL, HANEUL_LOCAL_NETWORK_URL_0, HANEUL_TESTNET_URL,
     HaneulClient,
     haneul_client_config::{HaneulClientConfig, HaneulEnv},
+    haneul_sdk_types::bcs::ToBcs,
     wallet_context::WalletContext,
 };
 use haneul_types::{
@@ -73,7 +73,7 @@ use haneul_types::{
     message_envelope::Envelope,
     metrics::BytecodeVerifierMetrics,
     move_package::{MovePackage, UpgradeCap},
-    object::Owner,
+    object::{Object, Owner},
     parse_haneul_type_tag,
     programmable_transaction_builder::ProgrammableTransactionBuilder,
     signature::GenericSignature,
@@ -1066,20 +1066,12 @@ impl HaneulClientCommands {
 
             HaneulClientCommands::Object { id, bcs } => {
                 // Fetch the object ref
-                let client = context.get_client().await?;
                 let _ = context.cache_chain_id().await?;
+                let object = context.grpc_client()?.get_object(id).await?;
                 if !bcs {
-                    let object_read = client
-                        .read_api()
-                        .get_object_with_options(id, HaneulObjectDataOptions::full_content())
-                        .await?;
-                    HaneulClientCommandResult::Object(object_read)
+                    HaneulClientCommandResult::Object(object)
                 } else {
-                    let raw_object_read = client
-                        .read_api()
-                        .get_object_with_options(id, HaneulObjectDataOptions::bcs_lossless())
-                        .await?;
-                    HaneulClientCommandResult::RawObject(raw_object_read)
+                    HaneulClientCommandResult::RawObject(object)
                 }
             }
 
@@ -1347,30 +1339,12 @@ impl HaneulClientCommands {
 
             HaneulClientCommands::Objects { address } => {
                 let address = context.get_identity_address(address)?;
-                let client = context.get_client().await?;
+                let client = context.grpc_client()?;
                 let _ = context.cache_chain_id().await?;
-                let mut objects: Vec<HaneulObjectResponse> = Vec::new();
-                let mut cursor = None;
-                loop {
-                    let response = client
-                        .read_api()
-                        .get_owned_objects(
-                            address,
-                            Some(HaneulObjectResponseQuery::new_with_options(
-                                HaneulObjectDataOptions::full_content(),
-                            )),
-                            cursor,
-                            None,
-                        )
-                        .await?;
-                    objects.extend(response.data);
-
-                    if response.has_next_page {
-                        cursor = response.next_cursor;
-                    } else {
-                        break;
-                    }
-                }
+                let objects = client
+                    .list_owned_objects(address, None)
+                    .try_collect()
+                    .await?;
                 HaneulClientCommandResult::Objects(objects)
             }
 
@@ -2182,30 +2156,22 @@ impl Display for HaneulClientCommandResult {
 
                 write!(f, "{}", table)?
             }
-            HaneulClientCommandResult::Object(object_read) => match object_read.object() {
-                Ok(obj) => {
-                    let object = ObjectOutput::from(obj);
-                    let json_obj = json!(&object);
+            HaneulClientCommandResult::Object(object) => {
+                let object = ObjectOutput::from(object);
+                let json_obj = json!(&object);
+                let mut table = json_to_table(&json_obj);
+                table.with(TableStyle::rounded().horizontals([]));
+                writeln!(f, "{}", table)?;
+            }
+            HaneulClientCommandResult::Objects(objects) => {
+                if objects.is_empty() {
+                    writeln!(f, "This address has no owned objects.")?
+                } else {
+                    let objects = ObjectsOutput::from_vec(objects);
+                    let json_obj = json!(objects);
                     let mut table = json_to_table(&json_obj);
                     table.with(TableStyle::rounded().horizontals([]));
                     writeln!(f, "{}", table)?
-                }
-                Err(e) => writeln!(f, "Internal error, cannot read the object: {e}")?,
-            },
-            HaneulClientCommandResult::Objects(object_refs) => {
-                if object_refs.is_empty() {
-                    writeln!(f, "This address has no owned objects.")?
-                } else {
-                    let objects = ObjectsOutput::from_vec(object_refs.to_vec());
-                    match objects {
-                        Ok(objs) => {
-                            let json_obj = json!(objs);
-                            let mut table = json_to_table(&json_obj);
-                            table.with(TableStyle::rounded().horizontals([]));
-                            writeln!(f, "{}", table)?
-                        }
-                        Err(e) => write!(f, "Internal error: {e}")?,
-                    }
                 }
             }
             HaneulClientCommandResult::TransactionBlock(response) => {
@@ -2215,27 +2181,10 @@ impl Display for HaneulClientCommandResult {
                     serde_json::to_string_pretty(&response).unwrap()
                 )?;
             }
-            HaneulClientCommandResult::RawObject(raw_object_read) => {
-                let raw_object = match raw_object_read.object() {
-                    Ok(v) => match &v.bcs {
-                        Some(HaneulRawData::MoveObject(o)) => {
-                            format!("{:?}\nNumber of bytes: {}", o.bcs_bytes, o.bcs_bytes.len())
-                        }
-                        Some(HaneulRawData::Package(p)) => {
-                            let mut temp = String::new();
-                            let mut bcs_bytes = 0usize;
-                            for m in &p.module_map {
-                                temp.push_str(&format!("{:?}\n", m));
-                                bcs_bytes += m.1.len()
-                            }
-                            format!("{}Number of bytes: {}", temp, bcs_bytes)
-                        }
-                        None => "Bcs field is None".to_string().red().to_string(),
-                    },
-                    Err(err) => format!("{err}").red().to_string(),
-                };
-                writeln!(writer, "{}", raw_object)?;
-            }
+            HaneulClientCommandResult::RawObject(o) => match o.to_bcs_base64() {
+                Ok(b64) => writeln!(writer, "{b64}")?,
+                Err(e) => writeln!(writer, "{e}")?,
+            },
             HaneulClientCommandResult::ComputeTransactionDigest(tx_data) => {
                 writeln!(writer, "{}", tx_data.digest())?;
             }
@@ -2416,14 +2365,8 @@ impl Debug for HaneulClientCommandResult {
                     .collect::<Vec<_>>();
                 Ok(serde_json::to_string_pretty(&gas_coins)?)
             }
-            HaneulClientCommandResult::Object(object_read) => {
-                let object = object_read.object()?;
-                Ok(serde_json::to_string_pretty(&object)?)
-            }
-            HaneulClientCommandResult::RawObject(raw_object_read) => {
-                let raw_object = raw_object_read.object()?;
-                Ok(serde_json::to_string_pretty(&raw_object)?)
-            }
+            HaneulClientCommandResult::Object(object) => Ok(serde_json::to_string_pretty(&object)?),
+            HaneulClientCommandResult::RawObject(object) => Ok(serde_json::to_string_pretty(&object)?),
             _ => Ok(serde_json::to_string_pretty(self)?),
         });
         write!(f, "{}", s)
@@ -2438,7 +2381,7 @@ fn unwrap_err_to_string<T: Display, F: FnOnce() -> Result<T, anyhow::Error>>(fun
 }
 
 impl HaneulClientCommandResult {
-    pub fn objects_response(&self) -> Option<Vec<HaneulObjectResponse>> {
+    pub fn objects_response(&self) -> Option<Vec<Object>> {
         use HaneulClientCommandResult::*;
         match self {
             Object(o) | RawObject(o) => Some(vec![o.clone()]),
@@ -2534,31 +2477,29 @@ pub struct ObjectOutput {
     pub version: SequenceNumber,
     pub digest: String,
     pub obj_type: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub owner: Option<Owner>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub prev_tx: Option<TransactionDigest>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub storage_rebate: Option<u64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub content: Option<HaneulParsedData>,
+    pub owner: Owner,
+    pub prev_tx: TransactionDigest,
+    pub storage_rebate: u64,
+    pub content: haneul_types::object::Data,
 }
 
-impl From<&HaneulObjectData> for ObjectOutput {
-    fn from(obj: &HaneulObjectData) -> Self {
-        let obj_type = match obj.type_.as_ref() {
-            Some(x) => x.to_string(),
-            None => "unknown".to_string(),
+impl From<&Object> for ObjectOutput {
+    fn from(obj: &Object) -> Self {
+        let obj_type = if let Some(struct_tag) = obj.struct_tag() {
+            struct_tag.to_canonical_string(true)
+        } else {
+            "package".to_string()
         };
+
         Self {
-            object_id: obj.object_id,
-            version: obj.version,
-            digest: obj.digest.to_string(),
+            object_id: obj.id(),
+            version: obj.version(),
+            digest: obj.digest().base58_encode(),
             obj_type,
-            owner: obj.owner.clone(),
+            owner: obj.owner().clone(),
             prev_tx: obj.previous_transaction,
             storage_rebate: obj.storage_rebate,
-            content: obj.content.clone(),
+            content: obj.data.clone(),
         }
     }
 }
@@ -2591,35 +2532,21 @@ pub struct ObjectsOutput {
 }
 
 impl ObjectsOutput {
-    fn from(obj: HaneulObjectResponse) -> Result<Self, anyhow::Error> {
-        let obj = obj.into_object()?;
-        // this replicates the object type display as in the haneul explorer
-        let object_type = match obj.type_ {
-            Some(haneul_types::base_types::ObjectType::Struct(x)) => {
-                let address = x.address().to_string();
-                // check if the address has length of 64 characters
-                // otherwise, keep it as it is
-                let address = if address.len() == 64 {
-                    format!("0x{}..{}", &address[..4], &address[address.len() - 4..])
-                } else {
-                    address
-                };
-                format!("{}::{}::{}", address, x.module(), x.name(),)
-            }
-            Some(haneul_types::base_types::ObjectType::Package) => "Package".to_string(),
-            None => "unknown".to_string(),
-        };
-        Ok(Self {
-            object_id: obj.object_id,
-            version: obj.version,
-            digest: Base64::encode(obj.digest),
-            object_type,
-        })
+    fn from(obj: &Object) -> Self {
+        Self {
+            object_id: obj.id(),
+            version: obj.version(),
+            digest: obj.digest().base58_encode(),
+            object_type: if let Some(struct_tag) = obj.struct_tag() {
+                struct_tag.to_canonical_string(true)
+            } else {
+                "package".to_string()
+            },
+        }
     }
-    fn from_vec(objs: Vec<HaneulObjectResponse>) -> Result<Vec<Self>, anyhow::Error> {
-        objs.into_iter()
-            .map(ObjectsOutput::from)
-            .collect::<Result<Vec<_>, _>>()
+
+    fn from_vec(objs: &[Object]) -> Vec<Self> {
+        objs.iter().map(ObjectsOutput::from).collect()
     }
 }
 
@@ -2641,9 +2568,9 @@ pub enum HaneulClientCommandResult {
     NewAddress(NewAddressOutput),
     NewEnv(HaneulEnv),
     NoOutput,
-    Object(HaneulObjectResponse),
-    Objects(Vec<HaneulObjectResponse>),
-    RawObject(HaneulObjectResponse),
+    Object(Object),
+    Objects(Vec<Object>),
+    RawObject(Object),
     RemoveAddress(RemoveAddressOutput),
     SerializedSignedTransaction(SenderSignedData),
     SerializedUnsignedTransaction(TransactionData),
