@@ -21,6 +21,7 @@ use serde_with::{Bytes, DeserializeAs, SerializeAs};
 
 use haneul_protocol_config::ProtocolVersion;
 
+use crate::governance::MAX_VALIDATOR_COUNT;
 use crate::{
     DEEPBOOK_ADDRESS, HANEUL_CLOCK_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS,
     HANEUL_SYSTEM_STATE_ADDRESS, parse_haneul_struct_tag, parse_haneul_type_tag,
@@ -343,6 +344,19 @@ impl<'de> DeserializeAs<'de, roaring::RoaringBitmap> for HaneulBitmap {
 // So this function is needed to sanitize the bitmap to ensure unique entries.
 pub(crate) fn deserialize_haneul_bitmap(bytes: &[u8]) -> std::io::Result<roaring::RoaringBitmap> {
     let orig_bitmap = roaring::RoaringBitmap::deserialize_from(bytes)?;
+
+    // Check cardinality before iteration.
+    if orig_bitmap.len() > MAX_VALIDATOR_COUNT {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            format!(
+                "bitmap cardinality {} exceeds max {}",
+                orig_bitmap.len(),
+                MAX_VALIDATOR_COUNT
+            ),
+        ));
+    }
+
     // Ensure there is no duplicated entries in the bitmap.
     let mut seen = std::collections::BTreeSet::new();
     let mut new_bitmap = roaring::RoaringBitmap::new();
