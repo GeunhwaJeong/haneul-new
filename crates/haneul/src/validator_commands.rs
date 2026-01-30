@@ -924,13 +924,10 @@ async fn construct_unsigned_0x5_txn(
     call_args: Vec<CallArg>,
     gas_budget: u64,
 ) -> anyhow::Result<TransactionData> {
-    let haneul_client = context.get_client().await?;
+    let haneul_client = context.grpc_client()?;
     let mut args = vec![CallArg::HANEUL_SYSTEM_MUT];
     args.extend(call_args);
-    let rgp = haneul_client
-        .governance_api()
-        .get_reference_gas_price()
-        .await?;
+    let rgp = haneul_client.get_reference_gas_price().await?;
 
     let gas_obj_ref = get_gas_obj_ref(sender, &haneul_client, gas_budget).await?;
     TransactionData::new_move_call(
