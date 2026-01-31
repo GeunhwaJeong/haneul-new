@@ -1,0 +1,6 @@
+---
+source: crates/haneul-open-rpc/tests/generate-spec.rs
+expression: content.into_bytes()
+extension: json
+snapshot_kind: binary
+---
