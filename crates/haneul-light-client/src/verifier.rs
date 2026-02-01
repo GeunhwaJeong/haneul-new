@@ -6,10 +6,8 @@ use crate::committee::extract_new_committee_info;
 use crate::config::Config;
 use crate::object_store::HaneulObjectStore;
 use anyhow::{Result, anyhow};
-use std::sync::Arc;
 use haneul_config::genesis::Genesis;
-use haneul_json_rpc_types::{HaneulObjectDataOptions, HaneulTransactionBlockResponseOptions};
-use haneul_sdk::HaneulClientBuilder;
+use haneul_rpc_api::Client;
 use haneul_types::base_types::{ObjectID, TransactionDigest};
 use haneul_types::committee::Committee;
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
@@ -55,23 +53,11 @@ pub fn extract_verified_effects_and_events(
 }
 
 pub async fn get_verified_object(config: &Config, id: ObjectID) -> Result<Object> {
-    let haneul_client: Arc<haneul_sdk::HaneulClient> = Arc::new(
-        HaneulClientBuilder::default()
-            .build(config.full_node_url.as_str())
-            .await?,
-    );
+    let mut client = Client::new(config.full_node_url.as_str())?;
 
     info!("Getting object: {}", id);
 
-    let read_api = haneul_client.read_api();
-    let object_json = read_api
-        .get_object_with_options(id, HaneulObjectDataOptions::bcs_lossless())
-        .await
-        .expect("Cannot get object");
-    let object = object_json
-        .into_object()
-        .expect("Cannot make into object data");
-    let object: Object = object.try_into().expect("Cannot reconstruct object");
+    let object = client.get_object(id).await?;
 
     // Need to authenticate this object
     let (effects, _) = get_verified_effects_and_events(config, object.previous_transaction)
@@ -94,19 +80,14 @@ pub async fn get_verified_effects_and_events(
     config: &Config,
     tid: TransactionDigest,
 ) -> Result<(TransactionEffects, Option<TransactionEvents>)> {
-    let haneul_mainnet: haneul_sdk::HaneulClient = HaneulClientBuilder::default()
-        .build(config.full_node_url.as_str())
-        .await?;
-    let read_api = haneul_mainnet.read_api();
+    let mut client = Client::new(config.full_node_url.as_str())?;
 
     info!("Getting effects and events for TID: {}", tid);
 
     // Lookup the transaction id and get the checkpoint sequence number
-    let options = HaneulTransactionBlockResponseOptions::new();
-    let seq = read_api
-        .get_transaction_with_options(tid, options)
-        .await
-        .map_err(|e| anyhow!(format!("Cannot get transaction: {e}")))?
+    let seq = client
+        .get_transaction(&tid)
+        .await?
         .checkpoint
         .ok_or(anyhow!("Transaction not found"))?;
 
@@ -162,25 +143,13 @@ pub async fn get_verified_checkpoint(
     id: ObjectID,
     config: &Config,
 ) -> Result<CheckpointSequenceNumber> {
-    let haneul_client: haneul_sdk::HaneulClient = HaneulClientBuilder::default()
-        .build(config.full_node_url.as_str())
-        .await?;
-    let read_api = haneul_client.read_api();
-    let object_json = read_api
-        .get_object_with_options(id, HaneulObjectDataOptions::bcs_lossless())
-        .await
-        .expect("Cannot get object");
-    let object = object_json
-        .into_object()
-        .expect("Cannot make into object data");
-    let object: Object = object.try_into().expect("Cannot reconstruct object");
+    let mut client = Client::new(config.full_node_url.as_str())?;
+    let object = client.get_object(id).await?;
 
     // Lookup the transaction id and get the checkpoint sequence number
-    let options = HaneulTransactionBlockResponseOptions::new();
-    let seq = read_api
-        .get_transaction_with_options(object.previous_transaction, options)
-        .await
-        .map_err(|e| anyhow!(format!("Cannot get transaction: {e}")))?
+    let seq = client
+        .get_transaction(&object.previous_transaction)
+        .await?
         .checkpoint
         .ok_or(anyhow!("Transaction not found"))?;
 
