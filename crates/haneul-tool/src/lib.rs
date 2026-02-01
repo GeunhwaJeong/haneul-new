@@ -21,8 +21,7 @@ use haneul_core::execution_cache::build_execution_cache_from_env;
 use haneul_data_ingestion_core::{CheckpointReader, create_remote_store_client, end_of_epoch_data};
 use haneul_network::default_haneullabs_network_config;
 use haneul_protocol_config::Chain;
-use haneul_sdk::HaneulClient;
-use haneul_sdk::HaneulClientBuilder;
+use haneul_rpc_api::Client;
 use haneul_storage::object_store::http::HttpDownloaderBuilder;
 use haneul_storage::object_store::util::MANIFEST_FILENAME;
 use haneul_storage::object_store::util::Manifest;
@@ -124,15 +123,14 @@ pub enum SnapshotVerifyMode {
 
 // This functions requires at least one of genesis or fullnode_rpc to be `Some`.
 async fn make_clients(
-    haneul_client: &Arc<HaneulClient>,
+    haneul_client: &Client,
 ) -> Result<BTreeMap<AuthorityName, (Multiaddr, NetworkAuthorityClient)>> {
     let mut net_config = default_haneullabs_network_config();
     net_config.connect_timeout = Some(Duration::from_secs(5));
     let mut authority_clients = BTreeMap::new();
 
     let active_validators = haneul_client
-        .governance_api()
-        .get_latest_haneul_system_state()
+        .get_system_state_summary(None)
         .await?
         .active_validators;
 
@@ -406,7 +404,7 @@ pub async fn get_transaction_block(
     show_input_tx: bool,
     fullnode_rpc: String,
 ) -> Result<String> {
-    let haneul_client = Arc::new(HaneulClientBuilder::default().build(fullnode_rpc).await?);
+    let haneul_client = Client::new(fullnode_rpc)?;
     let clients = make_clients(&haneul_client).await?;
     let timer = Instant::now();
     let responses = join_all(clients.iter().map(|(name, (address, client))| async {
