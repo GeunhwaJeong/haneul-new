@@ -9,6 +9,8 @@ use haneul_rpc::proto::haneul::rpc::v2::Balance;
 use haneul_rpc::proto::haneul::rpc::v2::{ExecutedTransaction, GasCostSummary};
 use haneul_rpc::proto::haneul::rpc::v2::{GetBalanceRequest, ListBalancesRequest};
 use haneul_test_transaction_builder::TestTransactionBuilder;
+use haneul_types::coin::Coin;
+use haneul_types::gas_coin::GasCoin;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{Argument, CallArg, Command, ObjectArg, TransactionData};
 use haneul_types::{Identifier, base_types::HaneulAddress};
@@ -270,20 +272,24 @@ async fn test_custom_coin_balance() {
     let transfer_amount = 300_000;
 
     // Query for the minted coin owned by address_0
-    let haneul_client = test_cluster.haneul_client();
+    let haneul_client = test_cluster.grpc_client();
     let coins = haneul_client
-        .coin_read_api()
-        .get_coins(address, Some(coin_type.clone()), None, Some(1))
+        .get_owned_objects(
+            address,
+            Some(Coin::type_(coin_type.parse().unwrap())),
+            Some(1),
+            None,
+        )
         .await
         .unwrap();
 
     assert_eq!(
-        coins.data.len(),
+        coins.items.len(),
         1,
         "Expected exactly 1 coin, found {}",
-        coins.data.len()
+        coins.items.len()
     );
-    let coin = &coins.data[0];
+    let coin = &coins.items[0];
 
     // Build and execute split-and-transfer transaction
     let gas_object = test_cluster
@@ -298,7 +304,7 @@ async fn test_custom_coin_balance() {
         address,
         address_1,
         (gas_object.0, gas_object.1, gas_object.2),
-        (coin.coin_object_id, coin.version, coin.digest),
+        coin.compute_object_reference(),
         transfer_amount,
         gas_price,
     )
@@ -662,26 +668,21 @@ async fn build_split_and_transfer_transaction(
     amount: u64,
 ) -> TransactionData {
     let gas_price = test_cluster.wallet.get_reference_gas_price().await.unwrap();
-    let haneul_client = test_cluster.haneul_client();
+    let haneul_client = test_cluster.grpc_client();
 
     // Get coins (one for gas, one to split)
     let coins = haneul_client
-        .coin_read_api()
-        .get_coins(sender, Some(HANEUL_COIN_TYPE.to_string()), None, None)
+        .get_owned_objects(sender, Some(GasCoin::type_()), None, None)
         .await
         .unwrap();
 
     // Use first coin as gas
-    let gas_coin = &coins.data[0];
-    let gas_object = (gas_coin.coin_object_id, gas_coin.version, gas_coin.digest);
+    let gas_coin = &coins.items[0];
+    let gas_object = gas_coin.compute_object_reference();
 
     // Use second coin to split from
-    let transfer_coin = &coins.data[1];
-    let coin = (
-        transfer_coin.coin_object_id,
-        transfer_coin.version,
-        transfer_coin.digest,
-    );
+    let transfer_coin = &coins.items[1];
+    let coin = transfer_coin.compute_object_reference();
 
     let mut builder = ProgrammableTransactionBuilder::new();
     let coin_arg = builder.obj(ObjectArg::ImmOrOwnedObject(coin)).unwrap();

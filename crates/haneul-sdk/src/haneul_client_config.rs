@@ -7,10 +7,7 @@ use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
-use crate::{
-    HANEUL_DEVNET_URL, HANEUL_LOCAL_NETWORK_URL, HANEUL_MAINNET_URL, HANEUL_TESTNET_URL, HaneulClient,
-    HaneulClientBuilder,
-};
+use crate::{HANEUL_DEVNET_URL, HANEUL_LOCAL_NETWORK_URL, HANEUL_MAINNET_URL, HANEUL_TESTNET_URL};
 use haneul_config::Config;
 use haneul_keys::keystore::{AccountKeystore, Keystore};
 use haneul_rpc_api::Client;
@@ -102,34 +99,6 @@ pub struct HaneulEnv {
 }
 
 impl HaneulEnv {
-    pub async fn create_rpc_client(
-        &self,
-        request_timeout: Option<std::time::Duration>,
-        max_concurrent_requests: Option<u64>,
-    ) -> Result<HaneulClient, anyhow::Error> {
-        let mut builder = HaneulClientBuilder::default();
-        if let Some(request_timeout) = request_timeout {
-            builder = builder.request_timeout(request_timeout);
-        }
-        if let Some(ws_url) = &self.ws {
-            builder = builder.ws_url(ws_url);
-        }
-        if let Some(basic_auth) = &self.basic_auth {
-            let fields: Vec<_> = basic_auth.split(':').collect();
-            if fields.len() != 2 {
-                return Err(anyhow!(
-                    "Basic auth should be in the format `username:password`"
-                ));
-            }
-            builder = builder.basic_auth(fields[0], fields[1]);
-        }
-
-        if let Some(max_concurrent_requests) = max_concurrent_requests {
-            builder = builder.max_concurrent_requests(max_concurrent_requests as usize);
-        }
-        Ok(builder.build(&self.rpc).await?)
-    }
-
     pub fn create_grpc_client(&self) -> Result<Client, anyhow::Error> {
         let mut client = Client::new(&self.rpc)?;
 

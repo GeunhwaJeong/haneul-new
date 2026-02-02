@@ -13,7 +13,7 @@ use crate::events::*;
 use crate::metrics::BridgeMetrics;
 use crate::node::run_bridge_node;
 use crate::server::BridgeNodePublicMetadata;
-use crate::haneul_client::HaneulBridgeClient;
+use crate::haneul_client::{HaneulBridgeClient, HaneulClientInner};
 use crate::haneul_transaction_builder::{
     build_add_tokens_on_haneul_transaction, build_committee_register_transaction,
 };
@@ -46,7 +46,6 @@ use std::process::{Child, Command};
 use std::str::FromStr;
 use std::sync::Arc;
 use haneul_config::local_ip_utils::get_available_port;
-use haneul_json_rpc_api::BridgeReadApiClient;
 use haneul_json_rpc_types::{
     HaneulEvent, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
     HaneulTransactionBlockResponseQuery, TransactionFilter,
@@ -276,6 +275,7 @@ impl BridgeTestCluster {
     }
 
     pub fn haneul_client(&self) -> &HaneulClient {
+        #[allow(deprecated)]
         &self.test_cluster.inner.fullnode_handle.haneul_client
     }
 
@@ -1041,12 +1041,11 @@ impl TestClusterWrapperBuilder {
         let mut tasks = vec![];
         // Reorder the nodes so that the last node has the largest stake.
         let validator_with_max_stake = test_cluster
-            .haneul_client()
-            .governance_api()
-            .get_committee_info(None)
+            .grpc_client()
+            .get_committee(None)
             .await
             .unwrap()
-            .validators
+            .voting_rights
             .iter()
             .max_by(|a, b| a.0.cmp(&b.0))
             .unwrap()
@@ -1249,9 +1248,9 @@ impl TestClusterWrapper {
 
 async fn get_bridge_summary(test_cluster: &TestCluster) -> BridgeSummary {
     test_cluster
-        .haneul_client()
-        .http()
-        .get_latest_bridge()
+        .grpc_client()
+        .inner_mut()
+        .get_bridge_summary()
         .await
         .unwrap()
 }

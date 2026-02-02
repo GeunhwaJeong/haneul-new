@@ -16,14 +16,12 @@ use haneul_config::{Config, ExecutionCacheConfig, HANEUL_CLIENT_CONFIG, HANEUL_N
 use haneul_config::{NodeConfig, PersistedConfig, HANEUL_KEYSTORE_FILENAME};
 use haneul_core::authority_aggregator::AuthorityAggregator;
 use haneul_core::authority_client::NetworkAuthorityClient;
-use haneul_json_rpc_api::CoinReadApiClient;
-use haneul_json_rpc_types::{Balance, HaneulTransactionBlockEffectsAPI, TransactionFilter};
+use haneul_json_rpc_types::{HaneulTransactionBlockEffectsAPI, TransactionFilter};
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_node::HaneulNodeHandle;
 use haneul_protocol_config::{Chain, ProtocolVersion};
 use haneul_rpc_api::Client;
 use haneul_rpc_api::client::ExecutedTransaction;
-use haneul_sdk::apis::QuorumDriverApi;
 use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
@@ -71,7 +69,9 @@ const NUM_VALIDATOR: usize = 4;
 
 pub struct FullNodeHandle {
     pub haneul_node: HaneulNodeHandle,
+    #[deprecated = "use grpc_client"]
     pub haneul_client: HaneulClient,
+    #[deprecated = "use grpc_client"]
     pub rpc_client: HttpClient,
     pub grpc_client: Client,
     pub rpc_url: String,
@@ -87,7 +87,9 @@ impl FullNodeHandle {
 
         Self {
             haneul_node,
+            #[allow(deprecated)]
             haneul_client,
+            #[allow(deprecated)]
             rpc_client,
             grpc_client,
             rpc_url,
@@ -102,11 +104,15 @@ pub struct TestCluster {
 }
 
 impl TestCluster {
+    #[deprecated = "use grpc_client()"]
     pub fn rpc_client(&self) -> &HttpClient {
+        #[allow(deprecated)]
         &self.fullnode_handle.rpc_client
     }
 
+    #[deprecated = "use grpc_client()"]
     pub fn haneul_client(&self) -> &HaneulClient {
+        #[allow(deprecated)]
         &self.fullnode_handle.haneul_client
     }
 
@@ -116,10 +122,6 @@ impl TestCluster {
 
     pub fn rpc_url(&self) -> &str {
         &self.fullnode_handle.rpc_url
-    }
-
-    pub fn quorum_driver_api(&self) -> &QuorumDriverApi {
-        self.haneul_client().quorum_driver_api()
     }
 
     pub fn wallet(&mut self) -> &WalletContext {
@@ -247,8 +249,7 @@ impl TestCluster {
     }
 
     pub async fn get_reference_gas_price(&self) -> u64 {
-        self.haneul_client()
-            .governance_api()
+        self.grpc_client()
             .get_reference_gas_price()
             .await
             .expect("failed to get reference gas price")
@@ -951,24 +952,7 @@ impl TestCluster {
             .build();
         let effects = self.sign_and_execute_transaction(&tx).await.effects;
         assert!(effects.status().is_ok());
-        // assert_eq!(&HaneulExecutionStatus::Success, effects.status());
         effects.created().first().unwrap().0.0
-    }
-
-    pub async fn get_haneul_balance(&self, address: HaneulAddress) -> Balance {
-        self.fullnode_handle
-            .rpc_client
-            .get_balance(address, Some("0x2::haneul::HANEUL".to_string()))
-            .await
-            .unwrap()
-    }
-
-    pub async fn get_address_balance(&self, address: HaneulAddress, coin_type: &str) -> Balance {
-        self.fullnode_handle
-            .rpc_client
-            .get_balance(address, Some(coin_type.to_string()))
-            .await
-            .unwrap()
     }
 
     #[cfg(msim)]

@@ -135,9 +135,8 @@ impl FnDelegationTestCluster {
 
     async fn get_validator_address(&self) -> HaneulAddress {
         self.onchain_cluster
-            .haneul_client()
-            .governance_api()
-            .get_latest_haneul_system_state()
+            .grpc_client()
+            .get_system_state_summary(None)
             .await
             .unwrap()
             .active_validators
