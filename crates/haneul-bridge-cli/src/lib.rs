@@ -31,13 +31,15 @@ use haneul_bridge::types::{
 };
 use haneul_bridge::utils::{EthSignerProvider, get_eth_signer_provider};
 use haneul_config::Config;
-use haneul_json_rpc_types::HaneulObjectDataOptions;
 use haneul_keys::keypair_file::read_key;
-use haneul_sdk::HaneulClientBuilder;
+use haneul_rpc::field::{FieldMask, FieldMaskUtil};
+use haneul_rpc::proto::haneul::rpc::v2::GetObjectRequest;
+use haneul_rpc_api::Client;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::{ObjectID, ObjectRef};
 use haneul_types::bridge::{BRIDGE_MODULE_NAME, BridgeChainId};
 use haneul_types::crypto::{Signature, HaneulKeyPair};
+use haneul_types::gas_coin::{GAS, GasCoin};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{ObjectArg, Transaction, TransactionData};
 use haneul_types::{BRIDGE_PACKAGE_ID, TypeTag};
@@ -488,24 +490,30 @@ impl LoadedBridgeCliConfig {
     ) -> anyhow::Result<(HaneulKeyPair, HaneulAddress, ObjectRef)> {
         let pubkey = self.haneul_key.public();
         let haneul_client_address = HaneulAddress::from(&pubkey);
-        let haneul_sdk_client = HaneulClientBuilder::default()
-            .build(self.haneul_rpc_url.clone())
-            .await?;
-        let gases = haneul_sdk_client
-            .coin_read_api()
-            .get_coins(haneul_client_address, None, None, None)
+        let haneul_client = Client::new(&self.haneul_rpc_url)?;
+        let gases = haneul_client
+            .get_owned_objects(haneul_client_address, Some(GasCoin::type_()), None, None)
             .await?
-            .data;
+            .items;
         // TODO: is 5 Haneul a good number?
         let gas = gases
             .into_iter()
-            .find(|coin| coin.balance >= 5_000_000_000)
+            .find(|coin| {
+                GasCoin::try_from(coin)
+                    .ok()
+                    .map(|coin| coin.value() >= 5_000_000_000)
+                    .unwrap_or(false)
+            })
             .ok_or(anyhow!(
                 "Did not find gas object with enough balance for {}",
                 haneul_client_address
             ))?;
-        println!("Using Gas object: {}", gas.coin_object_id);
-        Ok((self.haneul_key.copy(), haneul_client_address, gas.object_ref()))
+        println!("Using Gas object: {}", gas.id());
+        Ok((
+            self.haneul_key.copy(),
+            haneul_client_address,
+            gas.compute_object_reference(),
+        ))
     }
 }
 #[derive(Parser)]
@@ -609,30 +617,40 @@ async fn deposit_on_haneul(
     haneul_bridge_client: HaneulBridgeClient,
 ) -> anyhow::Result<()> {
     let target_chain = target_chain as u8;
-    let haneul_client = haneul_bridge_client.jsonrpc_client();
+    let mut haneul_client = haneul_bridge_client.grpc_client().clone();
     let bridge_object_arg = haneul_bridge_client
         .get_mutable_bridge_object_arg_must_succeed()
         .await;
-    let rgp = haneul_client
-        .governance_api()
-        .get_reference_gas_price()
-        .await
-        .unwrap();
+    let rgp = haneul_client.get_reference_gas_price().await.unwrap();
     let sender = HaneulAddress::from(&config.haneul_key.public());
+    let gas_type = haneul_sdk_types::TypeTag::from_str(&GAS::type_().to_canonical_string(true))?;
     let gas_obj_ref = haneul_client
-        .coin_read_api()
-        .select_coins(sender, None, 1_000_000_000, vec![])
+        .select_coins(&sender.into(), &gas_type, 1_000_000_000, &[])
         .await?
-        .first()
-        .ok_or(anyhow!("No coin found for address {}", sender))?
-        .object_ref();
-    let coin_obj_ref = haneul_client
-        .read_api()
-        .get_object_with_options(coin_object_id, HaneulObjectDataOptions::default())
+        .into_iter()
+        .map(|coin| {
+            (
+                coin.object_id().parse().unwrap(),
+                coin.version().into(),
+                coin.digest().parse().unwrap(),
+            )
+        })
+        .collect();
+    let coin_obj = haneul_client
+        .ledger_client()
+        .get_object(
+            GetObjectRequest::new(&(coin_object_id.into()))
+                .with_read_mask(FieldMask::from_paths(["object_id", "version", "digest"])),
+        )
         .await?
-        .data
-        .unwrap()
-        .object_ref();
+        .into_inner()
+        .object
+        .unwrap_or_default();
+    let coin_obj_ref = (
+        coin_obj.object_id().parse()?,
+        coin_obj.version().into(),
+        coin_obj.digest().parse()?,
+    );
 
     let mut builder = ProgrammableTransactionBuilder::new();
     let arg_target_chain = builder.pure(target_chain).unwrap();
@@ -650,8 +668,7 @@ async fn deposit_on_haneul(
         vec![arg_bridge, arg_target_chain, arg_target_address, arg_token],
     );
     let pt = builder.finish();
-    let tx_data =
-        TransactionData::new_programmable(sender, vec![gas_obj_ref], pt, 500_000_000, rgp);
+    let tx_data = TransactionData::new_programmable(sender, gas_obj_ref, pt, 500_000_000, rgp);
     let sig = Signature::new_secure(
         &IntentMessage::new(Intent::haneul_transaction(), tx_data.clone()),
         &config.haneul_key,

@@ -31,7 +31,7 @@ use haneul_bridge_cli::{
     SEPOLIA_BRIDGE_PROXY_ADDR, make_action, select_contract_address,
 };
 use haneul_config::Config;
-use haneul_sdk::HaneulClientBuilder;
+use haneul_rpc_api::Client;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::bridge::BridgeChainId;
 use haneul_types::bridge::{MoveTypeCommitteeMember, MoveTypeCommitteeMemberRegistration};
@@ -287,17 +287,15 @@ async fn main() -> anyhow::Result<()> {
                 .await
                 .map_err(|e| anyhow::anyhow!("Failed to get bridge summary: {:?}", e))?;
             let move_type_bridge_committee = bridge_summary.committee;
-            let haneul_client = HaneulClientBuilder::default().build(haneul_rpc_url).await?;
+            let haneul_client = Client::new(haneul_rpc_url)?;
             let stakes = haneul_client
-                .governance_api()
-                .get_committee_info(None)
+                .get_committee(None)
                 .await?
-                .validators
+                .voting_rights
                 .into_iter()
                 .collect::<HashMap<_, _>>();
             let names = haneul_client
-                .governance_api()
-                .get_latest_haneul_system_state()
+                .get_system_state_summary(None)
                 .await?
                 .active_validators
                 .into_iter()
@@ -373,10 +371,9 @@ async fn main() -> anyhow::Result<()> {
                 .await
                 .map_err(|e| anyhow::anyhow!("Failed to get bridge summary: {:?}", e))?;
             let move_type_bridge_committee = bridge_summary.committee;
-            let haneul_client = HaneulClientBuilder::default().build(haneul_rpc_url).await?;
+            let haneul_client = Client::new(haneul_rpc_url)?;
             let names = haneul_client
-                .governance_api()
-                .get_latest_haneul_system_state()
+                .get_system_state_summary(None)
                 .await?
                 .active_validators
                 .into_iter()
