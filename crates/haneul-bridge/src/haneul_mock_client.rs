@@ -70,19 +70,6 @@ impl HaneulMockClient {
         }
     }
 
-    pub fn add_event_response(
-        &self,
-        package: ObjectID,
-        module: Identifier,
-        cursor: EventID,
-        events: EventPage,
-    ) {
-        self.events
-            .lock()
-            .unwrap()
-            .insert((package, module, Some(cursor)), events);
-    }
-
     pub fn add_events_by_tx_digest(&self, tx_digest: TransactionDigest, events: Vec<HaneulEvent>) {
         self.events_by_tx_digest
             .lock()

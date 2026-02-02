@@ -65,26 +65,6 @@ impl BridgeOrchestratorTables {
             .map_err(|e| BridgeError::StorageError(format!("Couldn't write batch: {:?}", e)))
     }
 
-    pub(crate) fn update_haneul_event_cursor(
-        &self,
-        module: Identifier,
-        cursor: EventID,
-    ) -> BridgeResult<()> {
-        let mut batch = self.haneul_syncer_cursors.batch();
-
-        batch
-            .insert_batch(&self.haneul_syncer_cursors, [(module, cursor)])
-            .map_err(|e| {
-                BridgeError::StorageError(format!(
-                    "Coudln't insert into haneul_syncer_cursors: {:?}",
-                    e
-                ))
-            })?;
-        batch
-            .write()
-            .map_err(|e| BridgeError::StorageError(format!("Couldn't write batch: {:?}", e)))
-    }
-
     pub(crate) fn update_haneul_sequence_number_cursor(&self, cursor: u64) -> BridgeResult<()> {
         let mut batch = self.haneul_syncer_sequence_number_cursor.batch();
 
@@ -197,8 +177,6 @@ impl<'de> Deserialize<'de> for AlloyAddressSerializedAsEthers {
 mod tests {
     use std::str::FromStr;
 
-    use haneul_types::digests::TransactionDigest;
-
     use crate::test_utils::get_test_haneul_to_eth_bridge_action;
 
     use super::*;
@@ -293,29 +271,6 @@ mod tests {
                 .unwrap()[0]
                 .unwrap(),
             eth_block_num
-        );
-
-        // update haneul event cursor
-        let haneul_module = Identifier::from_str("test").unwrap();
-        let haneul_cursor = EventID {
-            tx_digest: TransactionDigest::random(),
-            event_seq: 1,
-        };
-        assert!(
-            store
-                .get_haneul_event_cursors(std::slice::from_ref(&haneul_module))
-                .unwrap()[0]
-                .is_none()
-        );
-        store
-            .update_haneul_event_cursor(haneul_module.clone(), haneul_cursor)
-            .unwrap();
-        assert_eq!(
-            store
-                .get_haneul_event_cursors(std::slice::from_ref(&haneul_module))
-                .unwrap()[0]
-                .unwrap(),
-            haneul_cursor
         );
 
         // update haneul seq cursor

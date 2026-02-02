@@ -34,7 +34,6 @@ pub struct BridgeMetrics {
 
     pub(crate) haneul_watcher_received_events: IntCounter,
     pub(crate) haneul_watcher_received_actions: IntCounter,
-    pub(crate) haneul_watcher_unrecognized_events: IntCounter,
     pub(crate) eth_watcher_received_events: IntCounter,
     pub(crate) eth_watcher_received_actions: IntCounter,
     pub(crate) eth_watcher_unrecognized_events: IntCounter,
@@ -152,12 +151,6 @@ impl BridgeMetrics {
             eth_watcher_received_actions: register_int_counter_with_registry!(
                 "bridge_eth_watcher_received_actions",
                 "Total number of received actions in eth watcher",
-                registry,
-            )
-            .unwrap(),
-            haneul_watcher_unrecognized_events: register_int_counter_with_registry!(
-                "bridge_haneul_watcher_unrecognized_events",
-                "Total number of unrecognized events in haneul watcher",
                 registry,
             )
             .unwrap(),
