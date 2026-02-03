@@ -96,9 +96,8 @@ pub async fn run_bridge_node(
     // Before reconfiguration happens we only set it once when the node starts
     let haneul_system = server_config
         .haneul_client
-        .jsonrpc_client()
-        .governance_api()
-        .get_latest_haneul_system_state()
+        .grpc_client()
+        .get_system_state_summary(None)
         .await?;
 
     // Start Client
