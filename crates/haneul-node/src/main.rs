@@ -176,7 +176,7 @@ fn main() {
             ))
             .unwrap();
 
-        haneul_node::admin::run_admin_server(node, admin_interface_port, filter_handle).await
+        haneul_node::admin::run_admin_server(node, admin_interface_port, Some(filter_handle)).await
     });
 
     runtimes.metrics.spawn(async move {
