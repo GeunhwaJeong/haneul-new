@@ -14,9 +14,9 @@ use haneul_kvstore::CheckpointData;
 use haneul_kvstore::KeyValueStoreReader;
 use haneul_kvstore::TransactionData;
 use haneul_kvstore::TransactionEventsData;
+use haneul_kvstore::Watermark;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
-use haneul_types::messages_checkpoint::CheckpointSummary;
 use haneul_types::object::Object;
 use haneul_types::storage::ObjectKey;
 use tracing::warn;
@@ -82,12 +82,20 @@ impl BigtableReader {
         DataLoader::new(self.clone(), tokio::spawn)
     }
 
-    /// Get the summary for the latest checkpoint known to Bigtable.
-    pub async fn checkpoint_watermark(&self) -> anyhow::Result<Option<CheckpointSummary>> {
+    /// Get the watermark representing the minimum across all pipeline watermarks.
+    pub async fn watermark(&self) -> anyhow::Result<Option<Watermark>> {
+        measure("watermark", &(), self.0.clone().get_watermark()).await
+    }
+
+    /// Get the minimum watermark across the specified pipelines.
+    pub async fn watermark_for_pipeline(
+        &self,
+        pipelines: &[&str],
+    ) -> anyhow::Result<Option<Watermark>> {
         measure(
             "watermark",
             &(),
-            self.0.clone().get_latest_checkpoint_summary(),
+            self.0.clone().get_watermark_for_pipelines(pipelines),
         )
         .await
     }

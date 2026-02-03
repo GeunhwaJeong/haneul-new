@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_data_ingestion_core::{CheckpointReader, create_remote_store_client};
-use haneul_kvstore::{BigTableClient, KeyValueStoreReader};
+use haneul_kvstore::{BigTableClient, CHECKPOINTS_PIPELINE, KeyValueStoreReader};
 use haneul_rpc::field::{FieldMask, FieldMaskTree, FieldMaskUtil};
 use haneul_rpc::merge::Merge;
 use haneul_rpc::proto::haneul::rpc::v2::get_checkpoint_request::CheckpointId;
@@ -48,10 +48,13 @@ pub async fn get_checkpoint(
             .pop()
             .ok_or(CheckpointNotFoundError::sequence_number(sequence_number))?,
         _ => {
-            let sequence_number = client.get_latest_checkpoint().await?;
-            let not_found_response = CheckpointNotFoundError::sequence_number(sequence_number);
+            let sequence_number = client
+                .get_watermark_for_pipelines(&[CHECKPOINTS_PIPELINE])
+                .await?
+                .map(|wm| wm.checkpoint_hi_inclusive)
+                .ok_or(CheckpointNotFoundError::sequence_number(0))?;
             client
-                .get_checkpoints(&[sequence_number.checked_sub(1).ok_or(not_found_response)?])
+                .get_checkpoints(&[sequence_number])
                 .await?
                 .pop()
                 .ok_or(CheckpointNotFoundError::sequence_number(sequence_number))?
