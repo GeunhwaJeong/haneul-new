@@ -636,19 +636,16 @@ pub mod tests {
             .await;
 
         let events = bridge_test_cluster
-            .new_bridge_events(
-                HashSet::from_iter([
-                    CommitteeMemberRegistration.get().unwrap().clone(),
-                    CommitteeUpdateEvent.get().unwrap().clone(),
-                    TokenRegistrationEvent.get().unwrap().clone(),
-                    NewTokenEvent.get().unwrap().clone(),
-                ]),
-                false,
-            )
+            .new_bridge_events(HashSet::from_iter([
+                CommitteeMemberRegistration.get().unwrap().clone(),
+                CommitteeUpdateEvent.get().unwrap().clone(),
+                TokenRegistrationEvent.get().unwrap().clone(),
+                NewTokenEvent.get().unwrap().clone(),
+            ]))
             .await;
         let mut mask = 0u8;
         for event in events.iter() {
-            match HaneulBridgeEvent::try_from_haneul_event(event).unwrap().unwrap() {
+            match HaneulBridgeEvent::try_from_event(event).unwrap().unwrap() {
                 HaneulBridgeEvent::CommitteeMemberRegistration(_event) => mask |= 0x1,
                 HaneulBridgeEvent::CommitteeUpdateEvent(_event) => mask |= 0x2,
                 HaneulBridgeEvent::TokenRegistrationEvent(_event) => mask |= 0x4,

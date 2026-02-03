@@ -180,17 +180,22 @@ async fn test_v2_haneul_with_v1_evm() {
 
     // Verify ETH was received on Haneul
     let eth_coin = bridge_test_cluster
-        .haneul_client()
-        .coin_read_api()
-        .get_all_coins(haneul_address, None, None)
+        .grpc_client()
+        .get_owned_objects(haneul_address, None, None, None)
         .await
         .unwrap()
-        .data
+        .items
         .iter()
-        .find(|c| c.coin_type.contains("ETH"))
-        .expect("Recipient should have received ETH coin")
+        .find(|o| {
+            o.struct_tag()
+                .unwrap()
+                .to_canonical_string(true)
+                .contains("ETH")
+        })
+        .expect("Recipient should have received ETH coin now")
         .clone();
-    assert_eq!(eth_coin.balance, haneul_amount);
+    let (_ty, balance) = Coin::extract_balance_if_coin(&eth_coin).unwrap().unwrap();
+    assert_eq!(balance, haneul_amount);
 
     // === Test 2: V1 Haneul→ETH should work ===
     let timer = std::time::Instant::now();
@@ -199,7 +204,7 @@ async fn test_v2_haneul_with_v1_evm() {
     let haneul_to_eth_bridge_action = initiate_bridge_haneul_to_eth(
         &bridge_test_cluster,
         eth_address_1,
-        eth_coin.object_ref(),
+        eth_coin.compute_object_reference(),
         0, // nonce
         haneul_amount,
     )
@@ -239,15 +244,19 @@ async fn test_v2_haneul_with_v1_evm() {
     );
 
     let eth_coin_for_v2 = bridge_test_cluster
-        .haneul_client()
-        .coin_read_api()
-        .get_all_coins(haneul_address, None, None)
+        .grpc_client()
+        .get_owned_objects(haneul_address, None, None, None)
         .await
         .unwrap()
-        .data
+        .items
         .iter()
-        .find(|c| c.coin_type.contains("ETH"))
-        .expect("Should have ETH coins")
+        .find(|o| {
+            o.struct_tag()
+                .unwrap()
+                .to_canonical_string(true)
+                .contains("ETH")
+        })
+        .expect("Recipient should have received ETH coin now")
         .clone();
 
     // Initiate V2 Haneul→ETH deposit (this should work on Haneul side)
@@ -257,7 +266,7 @@ async fn test_v2_haneul_with_v1_evm() {
     let haneul_to_eth_v2_action = initiate_bridge_haneul_to_eth_v2(
         &bridge_test_cluster,
         eth_address_2,
-        eth_coin_for_v2.object_ref(),
+        eth_coin_for_v2.compute_object_reference(),
         1, // nonce
         haneul_amount,
     )
@@ -388,17 +397,22 @@ async fn test_v1_deposit_during_v2_upgrade() {
 
     // Verify the ETH coin was received on Haneul
     let eth_coin = bridge_test_cluster
-        .haneul_client()
-        .coin_read_api()
-        .get_all_coins(haneul_address, None, None)
+        .grpc_client()
+        .get_owned_objects(haneul_address, None, None, None)
         .await
         .unwrap()
-        .data
+        .items
         .iter()
-        .find(|c| c.coin_type.contains("ETH"))
-        .expect("Recipient should have received ETH coin after V2 upgrade")
+        .find(|o| {
+            o.struct_tag()
+                .unwrap()
+                .to_canonical_string(true)
+                .contains("ETH")
+        })
+        .expect("Recipient should have received ETH coin now")
         .clone();
-    assert_eq!(eth_coin.balance, haneul_amount);
+    let (_ty, balance) = Coin::extract_balance_if_coin(&eth_coin).unwrap().unwrap();
+    assert_eq!(balance, haneul_amount);
     info!("V1 deposit successfully claimed after V2 upgrade - backwards compatibility confirmed!");
 
     // === Optional: Verify V2 operations still work after upgrade ===
@@ -408,7 +422,7 @@ async fn test_v1_deposit_during_v2_upgrade() {
     let haneul_to_eth_v2_action = initiate_bridge_haneul_to_eth_v2(
         &bridge_test_cluster,
         eth_address,
-        eth_coin.object_ref(),
+        eth_coin.compute_object_reference(),
         0, // nonce for Haneul→ETH direction
         haneul_amount,
     )

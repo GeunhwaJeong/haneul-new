@@ -46,12 +46,8 @@ use std::process::{Child, Command};
 use std::str::FromStr;
 use std::sync::Arc;
 use haneul_config::local_ip_utils::get_available_port;
-use haneul_json_rpc_types::{
-    HaneulEvent, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
-    HaneulTransactionBlockResponseQuery, TransactionFilter,
-};
+use haneul_rpc_api::Client;
 use haneul_rpc_api::client::ExecutedTransaction;
-use haneul_sdk::HaneulClient;
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
@@ -61,8 +57,8 @@ use haneul_types::bridge::{
 };
 use haneul_types::committee::{ProtocolVersion, TOTAL_VOTING_POWER};
 use haneul_types::crypto::{EncodeDecodeBase64, KeypairTraits, ToFromBytes, get_key_pair};
-use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::TransactionEffectsAPI;
+use haneul_types::event::Event;
 use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::object::Object;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
@@ -100,7 +96,7 @@ pub struct BridgeTestCluster {
     eth_environment: EthBridgeEnvironment,
     bridge_node_handles: Option<Vec<JoinHandle<()>>>,
     approved_governance_actions_for_next_start: Option<Vec<Vec<BridgeAction>>>,
-    bridge_tx_cursor: Option<TransactionDigest>,
+    events_cursor: Option<u64>,
     eth_chain_id: BridgeChainId,
     haneul_chain_id: BridgeChainId,
 }
@@ -200,6 +196,7 @@ impl BridgeTestClusterBuilder {
             HaneulBridgeClient::new(&test_cluster.inner.fullnode_handle.rpc_url, metrics)
                 .await
                 .unwrap();
+
         info!(
             "Bridge committee: {:?}",
             bridge_client
@@ -215,7 +212,7 @@ impl BridgeTestClusterBuilder {
             eth_environment,
             bridge_node_handles,
             approved_governance_actions_for_next_start: self.approved_governance_actions,
-            bridge_tx_cursor: None,
+            events_cursor: None,
             haneul_chain_id: self.haneul_chain_id,
             eth_chain_id: self.eth_chain_id,
         }
@@ -274,9 +271,8 @@ impl BridgeTestCluster {
         &self.bridge_client
     }
 
-    pub fn haneul_client(&self) -> &HaneulClient {
-        #[allow(deprecated)]
-        &self.test_cluster.inner.fullnode_handle.haneul_client
+    pub fn grpc_client(&self) -> Client {
+        self.test_cluster.inner.fullnode_handle.grpc_client.clone()
     }
 
     pub fn haneul_user_address(&self) -> HaneulAddress {
@@ -377,79 +373,32 @@ impl BridgeTestCluster {
         );
     }
 
-    /// Returns new bridge transaction. It advanaces the stored tx digest cursor.
-    /// When `assert_success` is true, it asserts all transactions are successful.
-    pub async fn new_bridge_transactions(
-        &mut self,
-        assert_success: bool,
-    ) -> Vec<HaneulTransactionBlockResponse> {
-        let resps = self
-            .haneul_client()
-            .read_api()
-            .query_transaction_blocks(
-                HaneulTransactionBlockResponseQuery {
-                    filter: Some(TransactionFilter::InputObject(HANEUL_BRIDGE_OBJECT_ID)),
-                    options: Some(HaneulTransactionBlockResponseOptions::full_content()),
-                },
-                self.bridge_tx_cursor,
-                None,
-                false,
-            )
-            .await
-            .unwrap();
-        self.bridge_tx_cursor = resps.next_cursor;
-
-        for tx in &resps.data {
-            if assert_success {
-                assert!(tx.status_ok().unwrap());
-            }
-            let events = &tx.events.as_ref().unwrap().data;
-            if events
-                .iter()
-                .any(|e| &e.type_ == TokenTransferApproved.get().unwrap())
-            {
-                assert!(
-                    events
-                        .iter()
-                        .any(|e| &e.type_ == TokenTransferClaimed.get().unwrap()
-                            || &e.type_ == TokenTransferApproved.get().unwrap())
-                );
-            } else if events
-                .iter()
-                .any(|e| &e.type_ == TokenTransferAlreadyClaimed.get().unwrap())
-            {
-                assert!(
-                    events
-                        .iter()
-                        .all(|e| &e.type_ == TokenTransferAlreadyClaimed.get().unwrap()
-                            || &e.type_ == TokenTransferAlreadyApproved.get().unwrap())
-                );
-            }
-            // TODO: check for other events e.g. TokenRegistrationEvent, NewTokenEvent etc
-        }
-        resps.data
-    }
-
     /// Returns events that are emitted in new bridge transaction and match `event_types`.
     /// It advanaces the stored tx digest cursor.
-    /// See `new_bridge_transactions` for `assert_success`.
-    pub async fn new_bridge_events(
-        &mut self,
-        event_types: HashSet<StructTag>,
-        assert_success: bool,
-    ) -> Vec<HaneulEvent> {
-        let txes = self.new_bridge_transactions(assert_success).await;
+    pub async fn new_bridge_events(&mut self, event_types: HashSet<StructTag>) -> Vec<Event> {
+        let mut client = self.grpc_client();
 
-        txes.iter()
-            .flat_map(|tx| {
-                tx.events
-                    .as_ref()
-                    .unwrap()
-                    .data
-                    .iter()
-                    .filter(|e| event_types.contains(&e.type_))
-                    .cloned()
-            })
+        let target = client
+            .get_latest_checkpoint()
+            .await
+            .unwrap()
+            .sequence_number;
+
+        let mut events: Vec<Event> = Vec::new();
+        for checkpoint in self.events_cursor.unwrap_or(0)..=target {
+            let checkpoint = client.get_full_checkpoint(checkpoint).await.unwrap();
+
+            for tx in checkpoint.transactions {
+                if let Some(e) = tx.events {
+                    events.extend(e.data);
+                }
+            }
+        }
+
+        self.events_cursor = Some(target);
+        events
+            .into_iter()
+            .filter(|e| event_types.contains(&e.type_))
             .collect()
     }
 
@@ -1478,7 +1427,7 @@ async fn initiate_bridge_haneul_to_eth_internal(
         .bridge_client()
         .get_mutable_bridge_object_arg_must_succeed()
         .await;
-    let haneul_client = bridge_test_cluster.haneul_client();
+    let haneul_client = bridge_test_cluster.grpc_client();
     let token_types = bridge_test_cluster
         .bridge_client()
         .get_token_id_map()
@@ -1607,7 +1556,7 @@ async fn wait_for_transfer_action_status(
 }
 
 async fn deposit_eth_to_haneul_package(
-    haneul_client: &HaneulClient,
+    haneul_client: Client,
     haneul_address: HaneulAddress,
     wallet_context: &WalletContext,
     target_chain: BridgeChainId,
@@ -1658,11 +1607,7 @@ async fn deposit_eth_to_haneul_package(
         vec![gas_object_ref],
         pt,
         500_000_000,
-        haneul_client
-            .governance_api()
-            .get_reference_gas_price()
-            .await
-            .unwrap(),
+        haneul_client.get_reference_gas_price().await.unwrap(),
     );
     let tx = wallet_context.sign_transaction(&tx_data).await;
     wallet_context.execute_transaction_may_fail(tx).await

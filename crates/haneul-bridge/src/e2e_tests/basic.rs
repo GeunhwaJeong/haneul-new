@@ -26,6 +26,7 @@ use std::sync::Arc;
 use haneul_types::bridge::{
     BridgeChainId, BridgeTokenMetadata, BridgeTrait, TOKEN_ID_ETH, get_bridge,
 };
+use haneul_types::coin::Coin;
 use haneul_types::crypto::get_key_pair;
 use haneul_types::effects::TransactionEffectsAPI;
 use tracing::info;
@@ -57,29 +58,31 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
         .await
         .unwrap();
     let events = bridge_test_cluster
-        .new_bridge_events(
-            HashSet::from_iter([
-                TokenTransferApproved.get().unwrap().clone(),
-                TokenTransferClaimed.get().unwrap().clone(),
-            ]),
-            true,
-        )
+        .new_bridge_events(HashSet::from_iter([
+            TokenTransferApproved.get().unwrap().clone(),
+            TokenTransferClaimed.get().unwrap().clone(),
+        ]))
         .await;
     // There are exactly 1 approved and 1 claimed event
     assert_eq!(events.len(), 2);
 
     let eth_coin = bridge_test_cluster
-        .haneul_client()
-        .coin_read_api()
-        .get_all_coins(haneul_address, None, None)
+        .grpc_client()
+        .get_owned_objects(haneul_address, None, None, None)
         .await
         .unwrap()
-        .data
+        .items
         .iter()
-        .find(|c| c.coin_type.contains("ETH"))
+        .find(|o| {
+            o.struct_tag()
+                .unwrap()
+                .to_canonical_string(true)
+                .contains("ETH")
+        })
         .expect("Recipient should have received ETH coin now")
         .clone();
-    assert_eq!(eth_coin.balance, haneul_amount);
+    let (_ty, balance) = Coin::extract_balance_if_coin(&eth_coin).unwrap().unwrap();
+    assert_eq!(balance, haneul_amount);
     info!(
         "[Timer] Eth to Haneul bridge transfer finished in {:?}",
         timer.elapsed()
@@ -93,21 +96,18 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
     let haneul_to_eth_bridge_action = initiate_bridge_haneul_to_eth(
         &bridge_test_cluster,
         eth_address_1,
-        eth_coin.object_ref(),
+        eth_coin.compute_object_reference(),
         nonce,
         haneul_amount,
     )
     .await
     .unwrap();
     let events = bridge_test_cluster
-        .new_bridge_events(
-            HashSet::from_iter([
-                HaneulToEthTokenBridgeV1.get().unwrap().clone(),
-                TokenTransferApproved.get().unwrap().clone(),
-                TokenTransferClaimed.get().unwrap().clone(),
-            ]),
-            true,
-        )
+        .new_bridge_events(HashSet::from_iter([
+            HaneulToEthTokenBridgeV1.get().unwrap().clone(),
+            TokenTransferApproved.get().unwrap().clone(),
+            TokenTransferClaimed.get().unwrap().clone(),
+        ]))
         .await;
     // There are exactly 1 deposit and 1 approved event
     assert_eq!(events.len(), 2);
@@ -200,28 +200,30 @@ async fn test_bridge_from_eth_to_haneul_to_eth_v2() {
         .await
         .unwrap();
     let events = bridge_test_cluster
-        .new_bridge_events(
-            HashSet::from_iter([
-                TokenTransferApproved.get().unwrap().clone(),
-                TokenTransferClaimed.get().unwrap().clone(),
-            ]),
-            true,
-        )
+        .new_bridge_events(HashSet::from_iter([
+            TokenTransferApproved.get().unwrap().clone(),
+            TokenTransferClaimed.get().unwrap().clone(),
+        ]))
         .await;
     assert_eq!(events.len(), 2);
 
     let eth_coin = bridge_test_cluster
-        .haneul_client()
-        .coin_read_api()
-        .get_all_coins(haneul_address, None, None)
+        .grpc_client()
+        .get_owned_objects(haneul_address, None, None, None)
         .await
         .unwrap()
-        .data
+        .items
         .iter()
-        .find(|c| c.coin_type.contains("ETH"))
+        .find(|o| {
+            o.struct_tag()
+                .unwrap()
+                .to_canonical_string(true)
+                .contains("ETH")
+        })
         .expect("Recipient should have received ETH coin now")
         .clone();
-    assert_eq!(eth_coin.balance, haneul_amount);
+    let (_ty, balance) = Coin::extract_balance_if_coin(&eth_coin).unwrap().unwrap();
+    assert_eq!(balance, haneul_amount);
     info!(
         "[Timer] Eth to Haneul bridge transfer v2 finished in {:?}",
         timer.elapsed()
@@ -234,21 +236,18 @@ async fn test_bridge_from_eth_to_haneul_to_eth_v2() {
     let haneul_to_eth_bridge_action = initiate_bridge_haneul_to_eth_v2(
         &bridge_test_cluster,
         eth_address_1,
-        eth_coin.object_ref(),
+        eth_coin.compute_object_reference(),
         nonce,
         haneul_amount,
     )
     .await
     .unwrap();
     let events = bridge_test_cluster
-        .new_bridge_events(
-            HashSet::from_iter([
-                HaneulToEthTokenBridgeV2.get().unwrap().clone(),
-                TokenTransferApproved.get().unwrap().clone(),
-                TokenTransferClaimed.get().unwrap().clone(),
-            ]),
-            true,
-        )
+        .new_bridge_events(HashSet::from_iter([
+            HaneulToEthTokenBridgeV2.get().unwrap().clone(),
+            TokenTransferApproved.get().unwrap().clone(),
+            TokenTransferClaimed.get().unwrap().clone(),
+        ]))
         .await;
     assert_eq!(events.len(), 2);
     info!(
