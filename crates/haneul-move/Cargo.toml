@@ -31,11 +31,14 @@ move-package-alt-compilation.workspace = true
 move-bytecode-source-map.workspace = true
 move-unit-test.workspace = true
 move-core-types.workspace = true
+move-vm-config.workspace = true
 telemetry-subscribers.workspace = true
 tokio = { workspace = true, features = ["full"] }
 
 move-vm-runtime = { path = "../../external-crates/move/crates/move-vm-runtime" }
+move-vm-types = { path = "../../external-crates/move/crates/move-vm-types" }
 haneul-move-natives = { path = "../../haneul-execution/latest/haneul-move-natives", package = "haneul-move-natives-latest" }
+haneul-adapter = { path = "../../haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
 
 haneul-config.workspace = true
 haneul-move-build.workspace = true
