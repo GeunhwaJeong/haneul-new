@@ -625,6 +625,7 @@ async fn deposit_on_haneul(
     let sender = HaneulAddress::from(&config.haneul_key.public());
     let gas_type = haneul_sdk_types::TypeTag::from_str(&GAS::type_().to_canonical_string(true))?;
     let gas_obj_ref = haneul_client
+        .inner_mut()
         .select_coins(&sender.into(), &gas_type, 1_000_000_000, &[])
         .await?
         .into_iter()
@@ -637,6 +638,7 @@ async fn deposit_on_haneul(
         })
         .collect();
     let coin_obj = haneul_client
+        .inner_mut()
         .ledger_client()
         .get_object(
             GetObjectRequest::new(&(coin_object_id.into()))

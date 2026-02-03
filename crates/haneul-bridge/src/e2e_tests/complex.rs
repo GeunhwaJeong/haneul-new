@@ -12,6 +12,7 @@ use crate::types::{BridgeAction, BridgeActionStatus, EmergencyAction, EmergencyA
 use alloy::primitives::{Address as EthAddress, U256};
 use std::sync::Arc;
 use haneul_types::bridge::{BridgeChainId, TOKEN_ID_ETH};
+use haneul_types::coin::Coin;
 use haneul_types::effects::TransactionEffectsAPI;
 use tracing::info;
 
@@ -59,13 +60,19 @@ async fn test_haneul_bridge_paused() {
         .unwrap();
     // verify Eth was transferred to Haneul address
     let eth_coin_type = haneul_token_type_tags.get(&TOKEN_ID_ETH).unwrap();
-    let eth_coin = bridge_client
-        .jsonrpc_client()
-        .coin_read_api()
-        .get_coins(haneul_address, Some(eth_coin_type.to_string()), None, None)
+    let eth_coin = bridge_test_cluster
+        .test_cluster
+        .inner
+        .grpc_client()
+        .get_owned_objects(
+            haneul_address,
+            Some(Coin::type_(eth_coin_type.clone())),
+            None,
+            None,
+        )
         .await
         .unwrap()
-        .data;
+        .items;
     assert_eq!(1, eth_coin.len());
 
     // get pause bridge signatures from committee
@@ -119,7 +126,7 @@ async fn test_haneul_bridge_paused() {
     let haneul_to_eth_bridge_action = initiate_bridge_haneul_to_eth(
         &bridge_test_cluster,
         EthAddress::random(),
-        eth_coin.first().unwrap().object_ref(),
+        eth_coin.first().unwrap().compute_object_reference(),
         0,
         10,
     )

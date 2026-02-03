@@ -22,10 +22,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::Arc;
 use haneul_config::Config;
-use haneul_json_rpc_types::Coin;
 use haneul_keys::keypair_file::read_key;
-use haneul_sdk::HaneulClientBuilder;
-use haneul_sdk::apis::CoinReadApi;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::bridge::BridgeChainId;
@@ -33,6 +30,7 @@ use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::{NetworkKeyPair, HaneulKeyPair, get_key_pair_from_rng};
 use haneul_types::digests::{get_mainnet_chain_identifier, get_testnet_chain_identifier};
 use haneul_types::event::EventID;
+use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::Owner;
 use tracing::info;
 
@@ -388,14 +386,9 @@ impl BridgeNodeConfig {
             Some(id) => id,
             None => {
                 info!("No gas object configured, finding gas object with highest balance");
-                let haneul_client = HaneulClientBuilder::default()
-                    .build(&self.haneul.haneul_rpc_url)
-                    .await?;
-                let coin =
-                    // Minimum balance for gas object is 10 HANEUL
-                    pick_highest_balance_coin(haneul_client.coin_read_api(), client_haneul_address, 10_000_000_000)
-                        .await?;
-                coin.coin_object_id
+                let haneul_client = haneul_rpc_api::Client::new(&self.haneul.haneul_rpc_url)?;
+                // Minimum balance for gas object is 10 HANEUL
+                pick_highest_balance_coin(haneul_client, client_haneul_address, 10_000_000_000).await?
             }
         };
         let (gas_coin, gas_object_ref, owner) = haneul_client
@@ -456,33 +449,38 @@ pub struct BridgeCommitteeConfig {
 impl Config for BridgeCommitteeConfig {}
 
 pub async fn pick_highest_balance_coin(
-    coin_read_api: &CoinReadApi,
+    client: haneul_rpc_api::Client,
     address: HaneulAddress,
     minimal_amount: u64,
-) -> anyhow::Result<Coin> {
+) -> anyhow::Result<ObjectID> {
     info!("Looking for a suitable gas coin for address {:?}", address);
 
     // Only look at HANEUL coins specifically
-    let mut stream = coin_read_api
-        .get_coins_stream(address, Some("0x2::haneul::HANEUL".to_string()))
+    let mut stream = client
+        .list_owned_objects(address, Some(GasCoin::type_()))
         .boxed();
 
     let mut coins_checked = 0;
 
-    while let Some(coin) = stream.next().await {
+    while let Some(Ok(object)) = stream.next().await {
+        let Ok(coin) = GasCoin::try_from(&object) else {
+            continue;
+        };
         info!(
             "Checking coin: {:?}, balance: {}",
-            coin.coin_object_id, coin.balance
+            object.id(),
+            coin.value()
         );
         coins_checked += 1;
 
         // Take the first coin with a sufficient balance
-        if coin.balance >= minimal_amount {
+        if coin.value() >= minimal_amount {
             info!(
                 "Found suitable gas coin with {} geunhwa (object ID: {:?})",
-                coin.balance, coin.coin_object_id
+                coin.value(),
+                object.id(),
             );
-            return Ok(coin);
+            return Ok(object.id());
         }
 
         // Only check a small number of coins before giving up
