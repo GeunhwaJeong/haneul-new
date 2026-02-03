@@ -10,7 +10,7 @@ use haneul_core::{
     safe_client::SafeClientMetricsBase,
     transaction_driver::{AuthorityAggregatorUpdatable, reconfig_observer::ReconfigObserver},
 };
-use haneul_rpc_api::Client;
+use haneul_sdk::{HaneulClient, HaneulClientBuilder};
 use tracing::{debug, error, trace};
 
 /// A ReconfigObserver that polls FullNode periodically
@@ -20,7 +20,7 @@ use tracing::{debug, error, trace};
 /// as stress, but may not be suitable in some other cases.
 #[derive(Clone)]
 pub struct FullNodeReconfigObserver {
-    pub fullnode_client: Client,
+    pub fullnode_client: HaneulClient,
     committee_store: Arc<CommitteeStore>,
     safe_client_metrics_base: SafeClientMetricsBase,
 }
@@ -32,12 +32,15 @@ impl FullNodeReconfigObserver {
         safe_client_metrics_base: SafeClientMetricsBase,
     ) -> Self {
         Self {
-            fullnode_client: Client::new(fullnode_rpc_url).unwrap_or_else(|e| {
-                panic!(
-                    "Can't create HaneulClient with rpc url {fullnode_rpc_url}: {:?}",
-                    e
-                )
-            }),
+            fullnode_client: HaneulClientBuilder::default()
+                .build(fullnode_rpc_url)
+                .await
+                .unwrap_or_else(|e| {
+                    panic!(
+                        "Can't create HaneulClient with rpc url {fullnode_rpc_url}: {:?}",
+                        e
+                    )
+                }),
             committee_store,
             safe_client_metrics_base,
         }
@@ -53,7 +56,12 @@ impl ReconfigObserver<NetworkAuthorityClient> for FullNodeReconfigObserver {
     async fn run(&mut self, driver: Arc<dyn AuthorityAggregatorUpdatable<NetworkAuthorityClient>>) {
         loop {
             tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
-            match self.fullnode_client.get_system_state_summary(None).await {
+            match self
+                .fullnode_client
+                .governance_api()
+                .get_latest_haneul_system_state()
+                .await
+            {
                 Ok(haneul_system_state) => {
                     let epoch_id = haneul_system_state.epoch;
                     if epoch_id > driver.epoch() {

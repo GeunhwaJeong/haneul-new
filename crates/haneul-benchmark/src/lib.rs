@@ -7,9 +7,9 @@ use std::{
     time::{Duration, Instant},
 };
 
+use anyhow::bail;
 use async_trait::async_trait;
 use fullnode_reconfig_observer::FullNodeReconfigObserver;
-use futures::TryStreamExt;
 use haneullabs_common::{fatal, random::get_rng};
 use rand::{Rng, seq::IteratorRandom};
 use haneul_config::genesis::Genesis;
@@ -24,8 +24,13 @@ use haneul_core::{
     },
     validator_client_monitor::ValidatorClientMetrics,
 };
+use haneul_json_rpc_types::{
+    CheckpointId, HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
+    HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponseOptions,
+};
 use haneul_protocol_config::ProtocolConfig;
-use haneul_rpc_api::{Client, client::ExecutedTransaction};
+use haneul_sdk::{HaneulClient, HaneulClientBuilder, error::Error as HaneulSdkError};
+use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 use haneul_types::transaction::Argument;
 use haneul_types::transaction::CallArg;
 use haneul_types::transaction::ObjectArg;
@@ -58,7 +63,6 @@ use haneul_types::{
     effects::{TransactionEffectsAPI, TransactionEvents},
     execution_status::ExecutionFailureStatus,
 };
-use haneul_types::{gas_coin::GAS, haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary};
 use tokio::time::sleep;
 use tracing::{debug, info, instrument, warn};
 
@@ -100,7 +104,7 @@ pub mod workloads;
 #[allow(clippy::large_enum_variant)]
 pub enum ExecutionEffects {
     FinalizedTransactionEffects(FinalizedEffects, TransactionEvents),
-    ExecutedTransaction(ExecutedTransaction),
+    HaneulTransactionBlockEffects(HaneulTransactionBlockEffects),
 }
 
 impl ExecutionEffects {
@@ -109,7 +113,9 @@ impl ExecutionEffects {
             ExecutionEffects::FinalizedTransactionEffects(effects, ..) => {
                 *effects.data().transaction_digest()
             }
-            ExecutionEffects::ExecutedTransaction(txn) => *txn.effects.transaction_digest(),
+            ExecutionEffects::HaneulTransactionBlockEffects(haneul_tx_effects) => {
+                *haneul_tx_effects.transaction_digest()
+            }
         }
     }
 
@@ -118,14 +124,22 @@ impl ExecutionEffects {
             ExecutionEffects::FinalizedTransactionEffects(effects, ..) => {
                 effects.data().mutated().to_vec()
             }
-            ExecutionEffects::ExecutedTransaction(txn) => txn.effects.mutated(),
+            ExecutionEffects::HaneulTransactionBlockEffects(haneul_tx_effects) => haneul_tx_effects
+                .mutated()
+                .iter()
+                .map(|refe| (refe.reference.to_object_ref(), refe.owner.clone()))
+                .collect(),
         }
     }
 
     pub fn created(&self) -> Vec<(ObjectRef, Owner)> {
         match self {
             ExecutionEffects::FinalizedTransactionEffects(effects, ..) => effects.data().created(),
-            ExecutionEffects::ExecutedTransaction(txn) => txn.effects.created(),
+            ExecutionEffects::HaneulTransactionBlockEffects(haneul_tx_effects) => haneul_tx_effects
+                .created()
+                .iter()
+                .map(|refe| (refe.reference.to_object_ref(), refe.owner.clone()))
+                .collect(),
         }
     }
 
@@ -134,7 +148,11 @@ impl ExecutionEffects {
             ExecutionEffects::FinalizedTransactionEffects(effects, ..) => {
                 effects.data().deleted().to_vec()
             }
-            ExecutionEffects::ExecutedTransaction(txn) => txn.effects.deleted(),
+            ExecutionEffects::HaneulTransactionBlockEffects(haneul_tx_effects) => haneul_tx_effects
+                .deleted()
+                .iter()
+                .map(|refe| refe.to_object_ref())
+                .collect(),
         }
     }
 
@@ -146,7 +164,7 @@ impl ExecutionEffects {
                     _ => None,
                 }
             }
-            ExecutionEffects::ExecutedTransaction(_) => None,
+            ExecutionEffects::HaneulTransactionBlockEffects(_) => None,
         }
     }
 
@@ -155,7 +173,10 @@ impl ExecutionEffects {
             ExecutionEffects::FinalizedTransactionEffects(effects, ..) => {
                 effects.data().gas_object()
             }
-            ExecutionEffects::ExecutedTransaction(txn) => txn.effects.gas_object(),
+            ExecutionEffects::HaneulTransactionBlockEffects(haneul_tx_effects) => {
+                let refe = &haneul_tx_effects.gas_object();
+                (refe.reference.to_object_ref(), refe.owner.clone())
+            }
         }
     }
 
@@ -174,7 +195,9 @@ impl ExecutionEffects {
             ExecutionEffects::FinalizedTransactionEffects(effects, ..) => {
                 effects.data().status().is_ok()
             }
-            ExecutionEffects::ExecutedTransaction(txn) => txn.effects.status().is_ok(),
+            ExecutionEffects::HaneulTransactionBlockEffects(haneul_tx_effects) => {
+                haneul_tx_effects.status().is_ok()
+            }
         }
     }
 
@@ -193,15 +216,10 @@ impl ExecutionEffects {
                     _ => false,
                 }
             }
-            ExecutionEffects::ExecutedTransaction(txn) => match txn.effects.status() {
-                haneul_types::execution_status::ExecutionStatus::Success => false,
-                haneul_types::execution_status::ExecutionStatus::Failure {
-                    error:
-                        ExecutionFailureStatus::ExecutionCancelledDueToSharedObjectCongestion { .. },
-                    ..
-                } => true,
-                _ => false,
-            },
+            ExecutionEffects::HaneulTransactionBlockEffects(haneul_tx_effects) => {
+                let status = format!("{}", haneul_tx_effects.status());
+                status.contains("ExecutionCancelledDueToSharedObjectCongestion")
+            }
         }
     }
 
@@ -217,14 +235,10 @@ impl ExecutionEffects {
                     _ => false,
                 }
             }
-            ExecutionEffects::ExecutedTransaction(txn) => match txn.effects.status() {
-                haneul_types::execution_status::ExecutionStatus::Success => false,
-                haneul_types::execution_status::ExecutionStatus::Failure {
-                    error: ExecutionFailureStatus::InsufficientFundsForWithdraw,
-                    ..
-                } => true,
-                _ => false,
-            },
+            ExecutionEffects::HaneulTransactionBlockEffects(haneul_tx_effects) => {
+                let status = format!("{}", haneul_tx_effects.status());
+                status.contains("InsufficientFundsForWithdraw")
+            }
         }
     }
 
@@ -251,25 +265,20 @@ impl ExecutionEffects {
                     _ => false,
                 }
             }
-            ExecutionEffects::ExecutedTransaction(txn) => match txn.effects.status() {
-                haneul_types::execution_status::ExecutionStatus::Failure { error, .. } => {
-                    matches!(
-                        error,
-                        ExecutionFailureStatus::VMVerificationOrDeserializationError
-                            | ExecutionFailureStatus::VMInvariantViolation
-                            | ExecutionFailureStatus::FunctionNotFound
-                            | ExecutionFailureStatus::ArityMismatch
-                            | ExecutionFailureStatus::TypeArityMismatch
-                            | ExecutionFailureStatus::NonEntryFunctionInvoked
-                            | ExecutionFailureStatus::CommandArgumentError { .. }
-                            | ExecutionFailureStatus::TypeArgumentError { .. }
-                            | ExecutionFailureStatus::UnusedValueWithoutDrop { .. }
-                            | ExecutionFailureStatus::InvalidPublicFunctionReturnType { .. }
-                            | ExecutionFailureStatus::InvalidTransferObject
-                    )
-                }
-                _ => false,
-            },
+            ExecutionEffects::HaneulTransactionBlockEffects(haneul_tx_effects) => {
+                let status = format!("{}", haneul_tx_effects.status());
+                status.contains("VMVerificationOrDeserializationError")
+                    || status.contains("VMInvariantViolation")
+                    || status.contains("FunctionNotFound")
+                    || status.contains("ArityMismatch")
+                    || status.contains("TypeArityMismatch")
+                    || status.contains("NonEntryFunctionInvoked")
+                    || status.contains("CommandArgumentError")
+                    || status.contains("TypeArgumentError")
+                    || status.contains("UnusedValueWithoutDrop")
+                    || status.contains("InvalidPublicFunctionReturnType")
+                    || status.contains("InvalidTransferObject")
+            }
         }
     }
 
@@ -278,8 +287,8 @@ impl ExecutionEffects {
             ExecutionEffects::FinalizedTransactionEffects(effects, ..) => {
                 format!("{:#?}", effects.data().status())
             }
-            ExecutionEffects::ExecutedTransaction(txn) => {
-                format!("{:#?}", txn.effects.status())
+            ExecutionEffects::HaneulTransactionBlockEffects(haneul_tx_effects) => {
+                format!("{:#?}", haneul_tx_effects.status())
             }
         }
     }
@@ -289,7 +298,9 @@ impl ExecutionEffects {
             crate::ExecutionEffects::FinalizedTransactionEffects(a, _) => {
                 a.data().gas_cost_summary().clone()
             }
-            ExecutionEffects::ExecutedTransaction(txn) => txn.effects.gas_cost_summary().clone(),
+            crate::ExecutionEffects::HaneulTransactionBlockEffects(b) => {
+                std::convert::Into::<GasCostSummary>::into(b.gas_cost_summary().clone())
+            }
         }
     }
 
@@ -734,7 +745,7 @@ async fn execute_soft_bundle_with_retries(
 }
 
 pub struct FullNodeProxy {
-    haneul_client: Client,
+    haneul_client: HaneulClient,
 
     // Committee and protocol config are initialized on startup and not updated on epoch changes.
     committee: Arc<Committee>,
@@ -757,20 +768,37 @@ impl FullNodeProxy {
         };
 
         // Each request times out after 60s (default value)
-        let haneul_client = Client::new(&http_url)?;
+        let haneul_client = HaneulClientBuilder::default()
+            .max_concurrent_requests(500_000)
+            .build(&http_url)
+            .await?;
 
-        let committee = haneul_client.get_committee(None).await?;
+        let committee = {
+            let resp = haneul_client.read_api().get_committee_info(None).await?;
+            let epoch = resp.epoch;
+            let committee_map = resp.validators.into_iter().collect();
+            Committee::new(epoch, committee_map)
+        };
 
-        let chain_identifier = haneul_client.get_chain_identifier().await?;
+        let chain_identifier = {
+            let genesis = haneul_client
+                .read_api()
+                .get_checkpoint(CheckpointId::SequenceNumber(0))
+                .await?;
+            ChainIdentifier::from(genesis.digest)
+        };
 
         let protocol_config = {
-            let resp = haneul_client.get_protocol_config(None).await?;
+            let resp = haneul_client.read_api().get_protocol_config(None).await?;
             let chain = chain_identifier.chain();
-            ProtocolConfig::get_for_version(resp.protocol_version().into(), chain)
+            ProtocolConfig::get_for_version(resp.protocol_version, chain)
         };
 
         // Build AuthorityAggregator and TransactionDriver for soft bundle support
-        let haneul_system_state = haneul_client.get_system_state_summary(None).await?;
+        let haneul_system_state = haneul_client
+            .governance_api()
+            .get_latest_haneul_system_state()
+            .await?;
         let new_committee = haneul_system_state.get_haneul_committee_for_benchmarking();
         let committee_store = Arc::new(CommitteeStore::new_for_testing(new_committee.committee()));
 
@@ -809,53 +837,94 @@ impl FullNodeProxy {
     }
 }
 
-fn is_retryable_sdk_error(err: &impl std::fmt::Debug) -> bool {
+fn is_retryable_sdk_error(err: &HaneulSdkError) -> bool {
     let err_str = format!("{:?}", err);
     !(err_str.contains("Error checking transaction input objects")
         || err_str.contains("Transaction Expired")
         || err_str.contains("already locked by a different transaction")
         || err_str.contains("is not available for consumption"))
-        || err_str.contains("Transaction executed but checkpoint wait timed out")
 }
 
 #[async_trait]
 impl ValidatorProxy for FullNodeProxy {
     async fn get_haneul_address_balance(&self, address: HaneulAddress) -> Result<u64, anyhow::Error> {
-        let balance = self.haneul_client.get_balance(address, &GAS::type_()).await?;
+        let response = self
+            .haneul_client
+            .coin_read_api()
+            .get_balance(address, None)
+            .await?;
 
-        Ok(balance.address_balance())
+        Ok(u64::try_from(response.funds_in_address_balance).unwrap())
     }
 
     async fn get_object(&self, object_id: ObjectID) -> Result<Object, anyhow::Error> {
-        self.haneul_client
-            .clone()
-            .get_object(object_id)
-            .await
-            .map_err(Into::into)
+        let response = self
+            .haneul_client
+            .read_api()
+            .get_object_with_options(object_id, HaneulObjectDataOptions::bcs_lossless())
+            .await?;
+
+        if let Some(haneul_object) = response.data {
+            haneul_object.try_into_object(&self.protocol_config)
+        } else if let Some(error) = response.error {
+            bail!("Error getting object {:?}: {}", object_id, error)
+        } else {
+            bail!("Object {:?} not found and no error provided", object_id)
+        }
     }
 
     async fn get_owned_objects(
         &self,
         account_address: HaneulAddress,
     ) -> Result<Vec<(u64, Object)>, anyhow::Error> {
-        let objects: Vec<Object> = self
-            .haneul_client
-            .list_owned_objects(account_address, Some(GasCoin::type_()))
-            .try_collect()
-            .await?;
+        let mut objects: Vec<HaneulObjectResponse> = Vec::new();
+        let mut cursor = None;
+        loop {
+            let response = self
+                .haneul_client
+                .read_api()
+                .get_owned_objects(
+                    account_address,
+                    Some(HaneulObjectResponseQuery::new_with_options(
+                        HaneulObjectDataOptions::bcs_lossless(),
+                    )),
+                    cursor,
+                    None,
+                )
+                .await?;
+
+            objects.extend(response.data);
+
+            if response.has_next_page {
+                cursor = response.next_cursor;
+            } else {
+                break;
+            }
+        }
 
         let mut values_objects = Vec::new();
 
         for object in objects {
-            let gas_coin = GasCoin::try_from(&object)?;
-            values_objects.push((gas_coin.value(), object));
+            let o = object.data;
+            if let Some(o) = o {
+                let temp: Object = o.clone().try_into_object(&self.protocol_config)?;
+                let gas_coin = GasCoin::try_from(&temp)?;
+                values_objects.push((
+                    gas_coin.value(),
+                    o.clone().try_into_object(&self.protocol_config)?,
+                ));
+            }
         }
 
         Ok(values_objects)
     }
 
     async fn get_latest_system_state_object(&self) -> Result<HaneulSystemStateSummary, anyhow::Error> {
-        Ok(self.haneul_client.get_system_state_summary(None).await?)
+        Ok(self
+            .haneul_client
+            .governance_api()
+            .get_latest_haneul_system_state()
+            .await?)
     }
 
     async fn execute_transaction_block(
@@ -870,14 +939,20 @@ impl ValidatorProxy for FullNodeProxy {
             // HaneulClient times out after 60s
             match self
                 .haneul_client
-                .clone()
-                .execute_transaction_and_wait_for_checkpoint(&tx)
+                .quorum_driver_api()
+                .execute_transaction_block(
+                    tx.clone(),
+                    HaneulTransactionBlockResponseOptions::new().with_effects(),
+                    None,
+                )
                 .await
             {
                 Ok(resp) => {
                     return (
                         ClientType::QuorumDriver,
-                        Ok(ExecutionEffects::ExecutedTransaction(resp)),
+                        Ok(ExecutionEffects::HaneulTransactionBlockEffects(
+                            resp.effects.expect("effects field should not be None"),
+                        )),
                     );
                 }
                 Err(err) => {
@@ -934,7 +1009,8 @@ impl ValidatorProxy for FullNodeProxy {
     async fn get_validators(&self) -> Result<Vec<HaneulAddress>, anyhow::Error> {
         let validators = self
             .haneul_client
-            .get_system_state_summary(None)
+            .governance_api()
+            .get_latest_haneul_system_state()
             .await?
             .active_validators;
         Ok(validators.into_iter().map(|v| v.haneul_address).collect())
