@@ -4,24 +4,26 @@
 use std::sync::Arc;
 
 use anyhow::Context as _;
-use async_graphql::{Context, Object};
+use async_graphql::Context;
+use async_graphql::Object;
 use futures::future::try_join_all;
-use haneul_name_service::{Domain as NativeDomain, NameRecord as NativeNameRecord, NameServiceConfig};
-use haneul_types::{base_types::HaneulAddress as NativeHaneulAddress, dynamic_field::Field};
+use haneul_name_service::Domain as NativeDomain;
+use haneul_name_service::NameRecord as NativeNameRecord;
+use haneul_name_service::NameServiceConfig;
+use haneul_types::base_types::HaneulAddress as NativeHaneulAddress;
+use haneul_types::dynamic_field::Field;
 
-use crate::{
-    api::scalars::uint53::UInt53,
-    error::{RpcError, upcast},
-    scope::Scope,
-    task::watermark::Watermarks,
-};
-
-use super::{
-    address::{self, Address},
-    move_type::MoveType,
-    move_value::MoveValue,
-    object::{self, Object},
-};
+use crate::api::scalars::uint53::UInt53;
+use crate::api::types::address;
+use crate::api::types::address::Address;
+use crate::api::types::move_type::MoveType;
+use crate::api::types::move_value::MoveValue;
+use crate::api::types::object;
+use crate::api::types::object::Object;
+use crate::error::RpcError;
+use crate::error::upcast;
+use crate::scope::Scope;
+use crate::task::watermark::Watermarks;
 
 pub(crate) struct NameRecord {
     pub(crate) super_: MoveValue,

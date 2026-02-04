@@ -7,9 +7,9 @@ use async_graphql::SimpleObject;
 use async_graphql::connection::Connection;
 use async_graphql::connection::CursorType;
 use async_graphql::connection::Edge;
+use haneul_indexer_alt_reader::consistent_reader;
 use haneul_indexer_alt_reader::consistent_reader::ConsistentReader;
 use haneul_indexer_alt_reader::consistent_reader::proto::Balance as ProtoBalance;
-use haneul_indexer_alt_reader::consistent_reader::{self};
 use haneul_types::TypeTag;
 use haneul_types::base_types::HaneulAddress;
 
