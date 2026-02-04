@@ -10,6 +10,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use std::{fs, io};
 
+use crate::external_signer::ExternalKeysCommand;
 use anyhow::{Context, anyhow, bail, ensure};
 use clap::*;
 use colored::Colorize;
@@ -322,6 +323,18 @@ pub enum HaneulCommand {
         #[clap(subcommand)]
         cmd: KeyToolCommand,
     },
+    /// Manage keys on external signers
+    ExternalKeys {
+        /// Sets the file storing the state of our user accounts (an empty one will be created if missing)
+        #[clap(long)]
+        keystore_path: Option<PathBuf>,
+        /// Return command outputs in json format
+        #[clap(long, global = true)]
+        json: bool,
+        /// Subcommands.
+        #[clap(subcommand)]
+        cmd: ExternalKeysCommand,
+    },
     /// Client for interacting with the Haneul network.
     #[clap(name = "client")]
     Client {
@@ -493,15 +506,27 @@ impl HaneulCommand {
             }
             HaneulCommand::GenesisCeremony(cmd) => run(cmd),
             HaneulCommand::KeyTool {
-                keystore_path,
+                keystore_path: _,
                 json,
                 cmd,
             } => {
-                let keystore_path =
-                    keystore_path.unwrap_or(haneul_config_dir()?.join(HANEUL_KEYSTORE_FILENAME));
-                let mut keystore =
-                    Keystore::from(FileBasedKeystore::load_or_create(&keystore_path)?);
-                cmd.execute(&mut keystore).await?.print(!json);
+                let config_path = haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG);
+                let mut context = WalletContext::new(&config_path)?;
+
+                cmd.execute(&mut context).await?.print(!json);
+                Ok(())
+            }
+            HaneulCommand::ExternalKeys {
+                keystore_path: _,
+                json,
+                cmd,
+            } => {
+                let client_path = haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG);
+                let mut config = PersistedConfig::<HaneulClientConfig>::read(&client_path)?;
+
+                cmd.execute(config.external_keys.as_mut())
+                    .await?
+                    .print(!json);
                 Ok(())
             }
             HaneulCommand::Client { config, cmd, json } => {
