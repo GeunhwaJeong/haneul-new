@@ -26,6 +26,7 @@ use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::{InputConsensusObject, TransactionEffectsAPI};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::messages_consensus::ConsensusTransaction;
+use haneul_types::transaction::PlainTransactionWithClaims;
 use haneul_types::transaction::VerifiedTransaction;
 use haneul_types::transaction::{ObjectArg, SharedObjectMutability};
 use haneul_types::{
@@ -306,9 +307,9 @@ async fn test_congestion_control_execution_cancellation() {
     .await
     .unwrap();
 
-    let consensus_transactions = vec![ConsensusTransaction::new_user_transaction_message(
+    let consensus_transactions = vec![ConsensusTransaction::new_user_transaction_v2_message(
         &authority_state.name,
-        congested_tx.clone(),
+        PlainTransactionWithClaims::no_aliases(congested_tx.clone()),
     )];
     let commit = TestConsensusCommit::new(consensus_transactions, 1, 0, 0);
 
