@@ -12,7 +12,6 @@ use haneul_indexer_alt_framework::postgres::handler::Handler;
 use haneul_indexer_alt_framework::types::effects::TransactionEffectsAPI;
 use haneul_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 use haneul_indexer_alt_framework::types::full_checkpoint_content::ExecutedTransaction;
-use haneul_indexer_alt_framework::types::object::Owner;
 use haneul_indexer_alt_framework::types::transaction::TransactionDataAPI;
 use haneul_indexer_alt_schema::blooms::should_skip_for_bloom;
 use haneul_indexer_alt_schema::cp_blooms::CpBloomFilter;
@@ -20,6 +19,8 @@ use haneul_indexer_alt_schema::cp_blooms::MAX_FOLD_DENSITY;
 use haneul_indexer_alt_schema::cp_blooms::MIN_FOLD_BYTES;
 use haneul_indexer_alt_schema::cp_blooms::StoredCpBlooms;
 use haneul_indexer_alt_schema::schema::cp_blooms;
+
+use crate::handlers::affected_addresses;
 
 /// Indexes bloom filters per checkpoint for transaction scanning.
 pub(crate) struct CpBlooms;
@@ -83,14 +84,7 @@ impl Handler for CpBlooms {
 pub(crate) fn insert_tx_addresses(tx: &ExecutedTransaction, bloom: &mut impl Extend<Vec<u8>>) {
     let sender = std::iter::once(tx.transaction.sender().to_vec());
 
-    let recipients = tx
-        .effects
-        .all_changed_objects()
-        .into_iter()
-        .filter_map(|(_, owner, _)| match owner {
-            Owner::AddressOwner(address) => Some(address.to_vec()),
-            _ => None,
-        });
+    let recipients = affected_addresses(&tx.effects).map(|a| a.to_vec());
 
     let object_ids = tx
         .effects

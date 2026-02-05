@@ -14,7 +14,6 @@ use haneul_indexer_alt_framework::pipeline::Processor;
 use haneul_indexer_alt_framework::postgres::Connection;
 use haneul_indexer_alt_framework::postgres::handler::Handler;
 use haneul_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
-use haneul_indexer_alt_framework::types::object::Owner;
 use haneul_indexer_alt_schema::schema::tx_affected_addresses;
 use haneul_indexer_alt_schema::transactions::StoredTxAffectedAddress;
 use haneul_types::balance::Balance;
@@ -22,6 +21,7 @@ use haneul_types::effects::AccumulatorValue;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::transaction::TransactionDataAPI;
 
+use crate::handlers::affected_addresses;
 use crate::handlers::cp_sequence_numbers::tx_interval;
 
 pub(crate) struct TxAffectedAddresses;
@@ -46,12 +46,7 @@ impl Processor for TxAffectedAddresses {
             let tx_sequence_number = (first_tx + i) as i64;
             let sender = tx.transaction.sender();
             let payer = tx.transaction.gas_data().owner;
-            let recipients = tx.effects.all_changed_objects().into_iter().filter_map(
-                |(_object_ref, owner, _write_kind)| match owner {
-                    Owner::AddressOwner(address) => Some(address),
-                    _ => None,
-                },
-            );
+            let recipients = affected_addresses(&tx.effects);
 
             let accumulator_addresses =
                 tx.effects
