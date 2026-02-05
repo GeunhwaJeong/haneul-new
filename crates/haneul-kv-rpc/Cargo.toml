@@ -12,6 +12,7 @@ axum.workspace = true
 bin-version.workspace = true
 clap.workspace = true
 prometheus.workspace = true
+rustls.workspace = true
 haneullabs-metrics.workspace = true
 haneullabs-network.workspace = true
 haneul-data-ingestion-core.workspace = true
