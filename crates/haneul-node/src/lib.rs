@@ -27,9 +27,7 @@ use std::sync::{Arc, Weak};
 use std::time::Duration;
 use haneul_core::authority::ExecutionEnv;
 use haneul_core::authority::RandomnessRoundReceiver;
-use haneul_core::authority::authority_store_tables::{
-    AuthorityPerpetualTablesOptions, AuthorityPrunerTables,
-};
+use haneul_core::authority::authority_store_tables::AuthorityPerpetualTablesOptions;
 use haneul_core::authority::backpressure::BackpressureManager;
 use haneul_core::authority::epoch_start_configuration::EpochFlag;
 use haneul_core::authority::execution_time_estimator::ExecutionTimeObserver;
@@ -239,7 +237,7 @@ mod simulator {
 pub use simulator::set_jwk_injector;
 #[cfg(msim)]
 use simulator::*;
-use haneul_core::authority::authority_store_pruner::{ObjectsCompactionFilter, PrunerWatermarks};
+use haneul_core::authority::authority_store_pruner::PrunerWatermarks;
 use haneul_core::{
     consensus_handler::ConsensusHandlerInitializer, safe_client::SafeClientMetricsBase,
 };
@@ -513,24 +511,10 @@ impl HaneulNode {
         )
         .await?;
 
-        let mut pruner_db = None;
-        if config
-            .authority_store_pruning_config
-            .enable_compaction_filter
-        {
-            pruner_db = Some(Arc::new(AuthorityPrunerTables::open(
-                &config.db_path().join("store"),
-            )));
-        }
-        let compaction_filter = pruner_db
-            .clone()
-            .map(|db| ObjectsCompactionFilter::new(db, &prometheus_registry));
-
         // By default, only enable write stall on validators for perpetual db.
         let enable_write_stall = config.enable_db_write_stall.unwrap_or(is_validator);
         let perpetual_tables_options = AuthorityPerpetualTablesOptions {
             enable_write_stall,
-            compaction_filter,
             is_validator,
         };
         let perpetual_tables = Arc::new(AuthorityPerpetualTables::open(
@@ -770,7 +754,6 @@ impl HaneulNode {
             &db_checkpoint_config,
             config.clone(),
             chain_identifier,
-            pruner_db,
             config.policy_config.clone(),
             config.firewall_config.clone(),
             pruner_watermarks,
