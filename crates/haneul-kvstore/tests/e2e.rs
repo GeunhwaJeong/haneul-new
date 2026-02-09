@@ -55,7 +55,6 @@ use url::Url;
 const INSTANCE_ID: &str = "bigtable_test_instance";
 const TABLES: &[&str] = &[
     haneul_kvstore::tables::objects::NAME,
-    haneul_kvstore::tables::object_types::NAME,
     haneul_kvstore::tables::transactions::NAME,
     haneul_kvstore::tables::checkpoints::NAME,
     haneul_kvstore::tables::checkpoints_by_digest::NAME,
