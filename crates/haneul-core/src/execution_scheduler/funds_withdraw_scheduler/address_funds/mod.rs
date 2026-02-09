@@ -10,6 +10,7 @@ use haneul_types::{
 use tokio::sync::oneshot;
 
 mod eager_scheduler;
+pub(crate) mod metrics;
 mod naive_scheduler;
 pub(crate) mod scheduler;
 
