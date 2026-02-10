@@ -34,7 +34,6 @@ use haneul_types::storage::ObjectStore;
 use haneul_types::storage::OwnedObjectInfo;
 use haneul_types::storage::RpcIndexes;
 use haneul_types::storage::RpcStateReader;
-use haneul_types::storage::TransactionInfo;
 use haneul_types::storage::WriteStore;
 use haneul_types::storage::error::Error as StorageError;
 use haneul_types::storage::error::Result;
@@ -591,15 +590,6 @@ impl RpcIndexes for RestReadStore {
     fn get_epoch_info(&self, epoch: EpochId) -> Result<Option<haneul_types::storage::EpochInfo>> {
         self.index()?
             .get_epoch_info(epoch)
-            .map_err(StorageError::custom)
-    }
-
-    fn get_transaction_info(
-        &self,
-        digest: &TransactionDigest,
-    ) -> haneul_types::storage::error::Result<Option<TransactionInfo>> {
-        self.index()?
-            .get_transaction_info(digest)
             .map_err(StorageError::custom)
     }
 
