@@ -25,12 +25,13 @@ use haneul_indexer_alt_framework::ingestion::ClientArgs;
 use haneul_indexer_alt_framework::ingestion::IngestionConfig;
 use haneul_indexer_alt_framework::ingestion::ingestion_client::IngestionClientArgs;
 use haneul_indexer_alt_framework::ingestion::streaming_client::StreamingClientArgs;
-use haneul_indexer_alt_framework::pipeline::concurrent::ConcurrentConfig;
+use haneul_indexer_alt_framework::pipeline::CommitterConfig;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_kvstore::BigTableClient;
 use haneul_kvstore::BigTableIndexer;
 use haneul_kvstore::BigTableStore;
 use haneul_kvstore::KeyValueStoreReader;
+use haneul_kvstore::PipelineLayer;
 use haneul_kvstore::set_write_legacy_data;
 use haneul_rpc::client::Client as GrpcClient;
 use haneul_rpc::field::FieldMaskUtil;
@@ -322,8 +323,9 @@ impl TestHarness {
             store,
             indexer_args,
             client_args,
-            ingestion_config,
-            ConcurrentConfig::default(),
+            ingestion_config.into(),
+            CommitterConfig::default(),
+            PipelineLayer::default(),
             &registry,
         )
         .await
