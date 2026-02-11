@@ -3,8 +3,7 @@
 
 use prometheus::Registry;
 use haneul_core::safe_client::SafeClientMetricsBase;
-use haneul_core::transaction_driver::reconfig_observer::OnsiteReconfigObserver;
-use haneul_core::transaction_driver::reconfig_observer::ReconfigObserver;
+use haneul_core::transaction_driver::{OnsiteReconfigObserver, ReconfigObserver};
 use test_cluster::TestClusterBuilder;
 use tracing::info;
 
