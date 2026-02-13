@@ -44,13 +44,17 @@ const config = {
   baseUrl: "/",
 
   onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "throw",
+  onBrokenAnchors: "ignore",
+  onDuplicateRoutes: 'ignore',
 
   staticDirectories: ["static", "src/open-spec"],
 
   markdown: {
     format: "detect",
     mermaid: true,
+    hooks: {
+    onBrokenMarkdownLinks: 'throw',
+  },
   },
   
   clientModules: [require.resolve("./src/client/pushfeedback-toc.js")],
@@ -111,9 +115,13 @@ const config = {
         schema: "../../crates/haneul-indexer-alt-graphql/schema.graphql",
         rootPath: "../content",
         baseURL: "references/haneul-api/haneul-graphql/beta/reference",
+        homepage: false,
         docOptions: {
           frontMatter: {
             isGraphQlBeta: true,
+            pagination_next: null, // disable page navigation next
+            pagination_prev: null, // disable page navigation previous
+            hide_table_of_contents: true, // disable page table of content
           },
         },
         loaders: {
@@ -153,6 +161,7 @@ const config = {
             "**/standards/deepbook-ref/**",
             "**/app-examples/ts-sdk-ref/**",
             "**/haneul-graphql/**/generated.md",
+            "**/haneul-graphql/**/generated.mdx", 
           ],
           admonitions: {
             keywords: ["checkpoint"],
