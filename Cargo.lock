@@ -15599,6 +15599,7 @@ dependencies = [
  "haneul-indexer-alt-framework-store-traits",
  "haneul-indexer-alt-metrics",
  "haneul-keys",
+ "haneul-protocol-config",
  "haneul-rpc",
  "haneul-types",
  "telemetry-subscribers",

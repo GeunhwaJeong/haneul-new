@@ -17,6 +17,7 @@ use haneul_kvstore::BigTableStore;
 use haneul_kvstore::IndexerConfig;
 use haneul_kvstore::set_max_mutations;
 use haneul_kvstore::set_write_legacy_data;
+use haneul_protocol_config::Chain;
 use telemetry_subscribers::TelemetryConfig;
 use tracing::info;
 
@@ -56,6 +57,10 @@ struct Args {
     /// Maximum mutations per BigTable batch (must be < 100k)
     #[arg(long, value_parser = parse_max_mutations)]
     max_mutations: Option<usize>,
+
+    /// Chain identifier for resolving protocol configs (mainnet, testnet, or unknown)
+    #[arg(long)]
+    chain: Chain,
 
     /// Enable writing legacy data: watermark \[0\] row, epoch DEFAULT_COLUMN, and transaction tx column
     #[arg(long)]
@@ -123,6 +128,7 @@ async fn main() -> Result<()> {
         config.ingestion,
         committer,
         config.pipeline,
+        args.chain,
         &registry,
     )
     .await?;

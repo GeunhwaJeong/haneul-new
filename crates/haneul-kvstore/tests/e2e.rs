@@ -33,6 +33,7 @@ use haneul_kvstore::BigTableStore;
 use haneul_kvstore::KeyValueStoreReader;
 use haneul_kvstore::PipelineLayer;
 use haneul_kvstore::set_write_legacy_data;
+use haneul_protocol_config::Chain;
 use haneul_rpc::client::Client as GrpcClient;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::Bcs;
@@ -61,6 +62,7 @@ const TABLES: &[&str] = &[
     haneul_kvstore::tables::checkpoints_by_digest::NAME,
     haneul_kvstore::tables::watermark_alt_legacy::NAME,
     haneul_kvstore::tables::epochs::NAME,
+    haneul_kvstore::tables::protocol_configs::NAME,
 ];
 
 /// Resolve the path to `cbtemulator` relative to the gcloud SDK root.
@@ -326,6 +328,7 @@ impl TestHarness {
             ingestion_config.into(),
             CommitterConfig::default(),
             PipelineLayer::default(),
+            Chain::Unknown,
             &registry,
         )
         .await

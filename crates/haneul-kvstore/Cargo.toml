@@ -25,6 +25,7 @@ haneul-default-config.workspace = true
 haneul-indexer-alt-framework.workspace = true
 haneul-indexer-alt-framework-store-traits.workspace = true
 haneul-indexer-alt-metrics.workspace = true
+haneul-protocol-config.workspace = true
 haneul-types.workspace = true
 telemetry-subscribers.workspace = true
 tokio = { workspace = true, features = ["full"] }
