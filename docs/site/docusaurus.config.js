@@ -160,8 +160,7 @@ const config = {
             "**/snippets/**",
             "**/standards/deepbook-ref/**",
             "**/app-examples/ts-sdk-ref/**",
-            "**/haneul-graphql/**/generated.md",
-            "**/haneul-graphql/**/generated.mdx", 
+            "**/app-examples/ts-sdk-ref/**",
           ],
           admonitions: {
             keywords: ["checkpoint"],
