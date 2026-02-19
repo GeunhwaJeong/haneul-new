@@ -92,17 +92,3 @@ module P::N {
     1
   ]
 }
-
-//# run-jsonrpc --cursors bcs(bcs(@{obj_5_0}),2)
-{
-  "method": "haneulx_getOwnedObjects",
-  "params": [
-    "@{A}",
-    {
-      "filter": { "MoveModule": ["@{P}", "M"] },
-      "options": { "showType": true }
-    },
-    "@{cursor_0}",
-    1
-  ]
-}

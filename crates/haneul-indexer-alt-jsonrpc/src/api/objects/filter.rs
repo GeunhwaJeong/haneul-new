@@ -2,25 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use anyhow::Context as _;
-use diesel::BoolExpressionMethods;
-use diesel::ExpressionMethods;
-use diesel::JoinOnDsl;
-use diesel::QueryDsl;
-use diesel::sql_types::Bool;
 use move_core_types::language_storage::StructTag;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_with::serde_as;
-use haneul_indexer_alt_schema::objects::StoredObjInfo;
+use haneul_indexer_alt_reader::consistent_reader::proto::owner::OwnerKind;
 use haneul_indexer_alt_schema::objects::StoredOwnerKind;
-use haneul_indexer_alt_schema::schema::obj_info;
 use haneul_json_rpc_types::Page as PageResponse;
 use haneul_json_rpc_types::HaneulObjectDataOptions;
-use haneul_sql_macro::sql;
 use haneul_types::Identifier;
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
-use haneul_types::TypeTag;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::dynamic_field::DYNAMIC_FIELD_FIELD_STRUCT_NAME;
@@ -68,192 +60,8 @@ pub(crate) enum HaneulObjectDataFilter {
     ),
 }
 
-/// [HaneulObjectDataFilter] converted into fields that can be compared directly with values coming
-/// from the database.
-enum RawFilter {
-    MatchNone(Vec<RawFilter>),
-    Type {
-        package: Vec<u8>,
-        module: Option<String>,
-        name: Option<String>,
-        instantiation: Option<Vec<u8>>,
-    },
-}
-
-#[derive(Clone, Serialize, Deserialize)]
-pub(crate) struct ObjectCursor {
-    object_id: Vec<u8>,
-    cp_sequence_number: u64,
-}
-
-pub(crate) type Cursor = BcsCursor<ObjectCursor>;
+pub(crate) type Cursor = BcsCursor<Vec<u8>>;
 pub(crate) type ObjectIDs = PageResponse<ObjectID, String>;
-
-impl HaneulObjectDataFilter {
-    /// Whether this is a compound filter (which is implemented using sequential scan), or a simple
-    /// type filter, which can leverage indices on the database.
-    fn is_compound(&self) -> bool {
-        use HaneulObjectDataFilter as F;
-        matches!(self, F::MatchNone(_))
-    }
-
-    fn package(&self) -> Option<ObjectID> {
-        use HaneulObjectDataFilter as F;
-        match self {
-            F::MatchNone(_) => None,
-            F::Package(p) => Some(*p),
-            F::MoveModule { package, .. } => Some(*package),
-            F::StructType(tag) => Some(tag.address.into()),
-        }
-    }
-
-    fn module(&self) -> Option<&str> {
-        use HaneulObjectDataFilter as F;
-        match self {
-            F::MatchNone(_) => None,
-            F::Package(_) => None,
-            F::MoveModule { module, .. } => Some(module.as_str()),
-            F::StructType(tag) => Some(tag.module.as_str()),
-        }
-    }
-
-    fn name(&self) -> Option<&str> {
-        use HaneulObjectDataFilter as F;
-        match self {
-            F::MatchNone(_) => None,
-            F::Package(_) => None,
-            F::MoveModule { .. } => None,
-            F::StructType(tag) => Some(tag.name.as_str()),
-        }
-    }
-
-    fn type_params(&self) -> Option<&[TypeTag]> {
-        use HaneulObjectDataFilter as F;
-        match self {
-            F::MatchNone(_) => None,
-            F::Package(_) => None,
-            F::MoveModule { .. } => None,
-            F::StructType(tag) => (!tag.type_params.is_empty()).then(|| &tag.type_params[..]),
-        }
-    }
-
-    /// Convert this filter into a raw filter which can be matched against a row from the database.
-    /// This operation can fail if the filter exceeds limits (too many type filters or too deep).
-    fn to_raw(&self, ctx: &Context) -> Result<RawFilter, RpcError<Error>> {
-        let config = &ctx.config().objects;
-
-        fn convert(
-            filter: &HaneulObjectDataFilter,
-            max_depth: usize,
-            mut depth: usize,
-            max_type_filters: usize,
-            type_filters: &mut usize,
-        ) -> Result<RawFilter, RpcError<Error>> {
-            if depth == 0 {
-                return Err(invalid_params(Error::FilterTooDeep { max: max_depth }));
-            } else {
-                depth -= 1;
-            }
-
-            if !matches!(filter, F::MatchNone(_)) {
-                if *type_filters == 0 {
-                    return Err(invalid_params(Error::FilterTooBig {
-                        max: max_type_filters,
-                    }));
-                } else {
-                    *type_filters -= 1;
-                }
-            }
-
-            use RawFilter as R;
-            use HaneulObjectDataFilter as F;
-            Ok(match filter {
-                F::MatchNone(filters) => R::MatchNone(
-                    filters
-                        .iter()
-                        .map(|f| convert(f, max_depth, depth, max_type_filters, type_filters))
-                        .collect::<Result<Vec<_>, _>>()?,
-                ),
-
-                F::Package(object_id) => R::Type {
-                    package: object_id.to_vec(),
-                    module: None,
-                    name: None,
-                    instantiation: None,
-                },
-
-                F::MoveModule { package, module } => R::Type {
-                    package: package.to_vec(),
-                    module: Some(module.to_string()),
-                    name: None,
-                    instantiation: None,
-                },
-
-                F::StructType(struct_tag) => R::Type {
-                    package: struct_tag.address.to_vec(),
-                    module: Some(struct_tag.module.to_string()),
-                    name: Some(struct_tag.name.to_string()),
-                    instantiation: (!struct_tag.type_params.is_empty())
-                        .then(|| bcs::to_bytes(&struct_tag.type_params))
-                        .transpose()
-                        .context("Failed to serialize type parameters in filter")?,
-                },
-            })
-        }
-
-        let depth = config.max_filter_depth;
-        let mut type_filters = config.max_type_filters;
-        convert(self, depth, depth, type_filters, &mut type_filters)
-    }
-}
-
-impl RawFilter {
-    /// Check whether the given `info` from the database matches this filter.
-    fn matches(&self, info: &StoredObjInfo) -> bool {
-        let (Some(package), Some(module), Some(name), Some(instantiation)) =
-            (&info.package, &info.module, &info.name, &info.instantiation)
-        else {
-            // If any of these fields are `None`, the record is for a deleted object which cannot
-            // match any filters.
-            return false;
-        };
-
-        use RawFilter as R;
-        let (package_filter, module_filter, name_filter, instantiation_filter) = match self {
-            R::MatchNone(raw_filters) => return !raw_filters.iter().any(|f| f.matches(info)),
-
-            R::Type {
-                package,
-                module,
-                name,
-                instantiation,
-            } => (
-                package,
-                module.as_ref(),
-                name.as_ref(),
-                instantiation.as_ref(),
-            ),
-        };
-
-        if package_filter != package {
-            return false;
-        }
-
-        if module_filter.is_some_and(|m| m != module) {
-            return false;
-        }
-
-        if name_filter.is_some_and(|n| n != name) {
-            return false;
-        }
-
-        if instantiation_filter.is_some_and(|i| i != instantiation) {
-            return false;
-        }
-
-        true
-    }
-}
 
 /// Fetch ObjectIDs for a page of objects owned by `owner` that satisfy the given `filter` and
 /// pagination parameters. Returns the IDs and a cursor pointing to the last result (if there are
@@ -266,11 +74,32 @@ pub(super) async fn owned_objects(
     limit: Option<usize>,
 ) -> Result<ObjectIDs, RpcError<Error>> {
     match filter {
-        Some(f) if f.is_compound() => {
-            by_sequential_scan(ctx, owner, &f.to_raw(ctx)?, cursor, limit).await
+        // Limit filter to a single exclusion
+        Some(HaneulObjectDataFilter::MatchNone(exclusions))
+            if exclusions.len() == 1
+                && !matches!(&exclusions[0], HaneulObjectDataFilter::MatchNone(_)) =>
+        {
+            query_objects(
+                ctx,
+                owner,
+                StoredOwnerKind::Address,
+                Some(format!("!{}", filter_to_type_string(&exclusions[0]))),
+                cursor,
+                limit,
+            )
+            .await
         }
+        Some(HaneulObjectDataFilter::MatchNone(_)) => Err(invalid_params(Error::MultipleExclusions)),
         filter => {
-            by_type_indices(ctx, owner, StoredOwnerKind::Address, filter, cursor, limit).await
+            query_objects(
+                ctx,
+                owner,
+                StoredOwnerKind::Address,
+                filter.as_ref().map(filter_to_type_string),
+                cursor,
+                limit,
+            )
+            .await
         }
     }
 }
@@ -284,209 +113,41 @@ pub(crate) async fn dynamic_fields(
     cursor: Option<String>,
     limit: Option<usize>,
 ) -> Result<ObjectIDs, RpcError<Error>> {
-    by_type_indices(
+    let type_ = StructTag {
+        address: HANEUL_FRAMEWORK_ADDRESS,
+        module: DYNAMIC_FIELD_MODULE_NAME.to_owned(),
+        name: DYNAMIC_FIELD_FIELD_STRUCT_NAME.to_owned(),
+        type_params: vec![],
+    };
+
+    query_objects(
         ctx,
         owner.into(),
         StoredOwnerKind::Object,
-        &Some(HaneulObjectDataFilter::StructType(StructTag {
-            address: HANEUL_FRAMEWORK_ADDRESS,
-            module: DYNAMIC_FIELD_MODULE_NAME.to_owned(),
-            name: DYNAMIC_FIELD_FIELD_STRUCT_NAME.to_owned(),
-            type_params: vec![],
-        })),
+        Some(type_.to_canonical_string(true)),
         cursor,
         limit,
     )
     .await
 }
 
-/// Fetch ObjectIDs for a page of objects owned by `owner` that satisfy the given compound
-/// `filter`. Works by repeatedly fetching pages of objects owned by the owner, filtering out only
-/// matching entries until the limit is met.
-async fn by_sequential_scan(
-    ctx: &Context,
-    owner: HaneulAddress,
-    filter: &RawFilter,
-    cursor: Option<String>,
-    limit: Option<usize>,
-) -> Result<ObjectIDs, RpcError<Error>> {
-    let config = &ctx.config().objects;
-
-    let page: Page<Cursor> = Page::from_params(
-        config.default_page_size,
-        config.max_page_size,
-        cursor,
-        limit,
-        None,
-    )?;
-
-    // Initially, be optimistic and assume that all the results fetched will match.
-    let mut results = vec![];
-    let mut cursor = page.cursor.map(|c| c.0);
-    let mut fetch = page.limit + 1;
-    let mut scans = 0;
-
-    loop {
-        let infos = owned_obj_info(ctx, owner, &cursor, fetch).await?;
-
-        for info in &infos {
-            if filter.matches(info) {
-                results.push((info.object_id.clone(), info.cp_sequence_number as u64));
-            }
-        }
-
-        // If there isn't a last object, we can't compute a next cursor -- stop fetching more info
-        // rows.
-        let Some(last) = infos.last() else {
-            break;
-        };
-
-        // If we have enough data to satisfy the filtered page, or we got back less data than we
-        // asked for in the last request, stop. Otherwise fetch more owned objects from where we
-        // left off, in larger chunks.
-        if results.len() > page.limit as usize || infos.len() < fetch as usize {
-            break;
-        }
-
-        scans += 1;
-        fetch = config.filter_scan_size as i64;
-        cursor = Some(ObjectCursor {
-            object_id: last.object_id.clone(),
-            cp_sequence_number: last.cp_sequence_number as u64,
-        });
+fn filter_to_type_string(filter: &HaneulObjectDataFilter) -> String {
+    match filter {
+        HaneulObjectDataFilter::Package(p) => p.to_string(),
+        HaneulObjectDataFilter::MoveModule { package, module } => format!("{package}::{module}"),
+        HaneulObjectDataFilter::StructType(tag) => tag.to_canonical_string(true),
+        HaneulObjectDataFilter::MatchNone(_) => unreachable!(),
     }
-
-    ctx.metrics()
-        .owned_objects_filter_scans
-        .observe(scans as f64);
-
-    let has_next_page = results.len() > page.limit as usize;
-    if has_next_page {
-        results.truncate(page.limit as usize)
-    }
-
-    // We cannot re-use `cursor` from the loop above here, because we may have over-fetched and
-    // then discarded results when calculating whether we have a next page (above).
-    let next_cursor = results
-        .last()
-        .map(|(o, c)| {
-            BcsCursor(ObjectCursor {
-                object_id: o.clone(),
-                cp_sequence_number: *c,
-            })
-            .encode()
-        })
-        .transpose()
-        .context("Failed to encode next cursor")?;
-
-    let data: Vec<ObjectID> = results
-        .into_iter()
-        .map(|(o, _)| ObjectID::from_bytes(o))
-        .collect::<Result<Vec<_>, _>>()
-        .context("Failed to deserialize Object IDs")?;
-
-    Ok(PageResponse {
-        data,
-        has_next_page,
-        next_cursor,
-    })
 }
 
-/// Fetch a page of `StoredObjInfo` corresponding to objects owned by `owner`.
-#[allow(clippy::double_parens)]
-async fn owned_obj_info(
-    ctx: &Context,
-    owner: HaneulAddress,
-    cursor: &Option<ObjectCursor>,
-    limit: i64,
-) -> Result<Vec<StoredObjInfo>, RpcError<Error>> {
-    use obj_info::dsl as o;
-
-    let (candidates, newer) = diesel::alias!(obj_info as candidates, obj_info as newer);
-
-    macro_rules! candidates {
-        ($($field:ident),* $(,)?) => {
-            candidates.fields(($(o::$field),*))
-        };
-    }
-
-    macro_rules! newer {
-        ($($field:ident),* $(,)?) => {
-            newer.fields(($(o::$field),*))
-        };
-    }
-
-    let mut query = candidates
-        .select(candidates!(
-            object_id,
-            cp_sequence_number,
-            owner_kind,
-            owner_id,
-            package,
-            module,
-            name,
-            instantiation,
-        ))
-        .left_join(
-            newer.on(candidates!(object_id)
-                .eq(newer!(object_id))
-                .and(candidates!(cp_sequence_number).lt(newer!(cp_sequence_number)))),
-        )
-        .filter(newer!(object_id).is_null())
-        .filter(candidates!(owner_kind).eq(StoredOwnerKind::Address))
-        .filter(candidates!(owner_id).eq(owner.to_inner()))
-        .order_by(candidates!(cp_sequence_number).desc())
-        .then_order_by(candidates!(object_id).desc())
-        .limit(limit)
-        .into_boxed();
-
-    if let Some(c) = cursor {
-        query = query.filter(sql!(as Bool,
-            "(candidates.cp_sequence_number, candidates.object_id) < ({BigInt}, {Bytea})",
-            c.cp_sequence_number as i64,
-            c.object_id.clone(),
-        ));
-    }
-
-    Ok(ctx
-        .pg_reader()
-        .connect()
-        .await
-        .context("Failed to connect to the database")?
-        .results(query)
-        .await
-        .context("Failed to fetch object info")?)
-}
-
-/// Fetch ObjectIDs for a page of objects owned by `owner` that satisfy the given `filter` which is
-/// assumed to be a simple type filter that can be served by indices in the database, as well as
-/// the pagination parameters. Returns the IDs and a cursor pointing to the last result (if
-/// there are any results).
-#[allow(clippy::double_parens)]
-async fn by_type_indices(
+async fn query_objects(
     ctx: &Context,
     owner: HaneulAddress,
     kind: StoredOwnerKind,
-    filter: &Option<HaneulObjectDataFilter>,
+    object_type: Option<String>,
     cursor: Option<String>,
     limit: Option<usize>,
 ) -> Result<ObjectIDs, RpcError<Error>> {
-    use obj_info::dsl as o;
-
-    let (candidates, newer) = diesel::alias!(obj_info as candidates, obj_info as newer);
-
-    macro_rules! candidates {
-        ($($field:ident),*) => {
-            candidates.fields(($(o::$field),*))
-        };
-    }
-
-    macro_rules! newer {
-        ($($field:ident),*) => {
-            newer.fields(($(o::$field),*))
-        };
-    }
-
     let config = &ctx.config().objects;
     let page: Page<Cursor> = Page::from_params(
         config.default_page_size,
@@ -496,82 +157,49 @@ async fn by_type_indices(
         None,
     )?;
 
-    let mut query = candidates
-        .select(candidates!(object_id, cp_sequence_number))
-        .left_join(
-            newer.on(candidates!(object_id)
-                .eq(newer!(object_id))
-                .and(candidates!(cp_sequence_number).lt(newer!(cp_sequence_number)))),
+    let owner_kind = match kind {
+        StoredOwnerKind::Address => OwnerKind::Address,
+        StoredOwnerKind::Object => OwnerKind::Object,
+        StoredOwnerKind::Shared | StoredOwnerKind::Immutable => {
+            return Ok(PageResponse {
+                data: vec![],
+                next_cursor: None,
+                has_next_page: false,
+            });
+        }
+    };
+
+    let results = ctx
+        .consistent_reader()
+        .list_owned_objects(
+            None,
+            owner_kind,
+            Some(owner.to_string()),
+            object_type,
+            Some(page.limit as u32),
+            page.cursor.as_ref().map(|c| c.0.clone()),
+            None,
+            true,
         )
-        .filter(newer!(object_id).is_null())
-        .filter(candidates!(owner_kind).eq(kind))
-        .filter(candidates!(owner_id).eq(owner.to_inner()))
-        .order_by(candidates!(cp_sequence_number).desc())
-        .then_order_by(candidates!(object_id).desc())
-        .limit(page.limit + 1)
-        .into_boxed();
-
-    if let Some(c) = page.cursor {
-        query = query.filter(sql!(as Bool,
-            "(candidates.cp_sequence_number, candidates.object_id) < ({BigInt}, {Bytea})",
-            c.cp_sequence_number as i64,
-            c.object_id.clone(),
-        ));
-    }
-
-    let filter = filter.as_ref();
-    if let Some(package) = filter.and_then(|f| f.package()) {
-        query = query.filter(candidates!(package).eq(package.into_bytes()));
-    }
-
-    if let Some(module) = filter.and_then(|f| f.module()) {
-        query = query.filter(candidates!(module).eq(module));
-    }
-
-    if let Some(name) = filter.and_then(|f| f.name()) {
-        query = query.filter(candidates!(name).eq(name));
-    }
-
-    if let Some(type_params) = filter.and_then(|f| f.type_params()) {
-        let bytes = bcs::to_bytes(type_params).context("Failed to serialize type params")?;
-        query = query.filter(candidates!(instantiation).eq(bytes));
-    }
-
-    let mut results: Vec<(Vec<u8>, i64)> = ctx
-        .pg_reader()
-        .connect()
         .await
-        .context("Failed to connect to the database")?
-        .results(query)
-        .await
-        .context("Failed to fetch object info")?;
+        .context("Failed to list owned objects")?;
 
-    let has_next_page = results.len() > page.limit as usize;
-    if has_next_page {
-        results.truncate(page.limit as usize);
-    }
+    let obj_ids = results
+        .results
+        .iter()
+        .map(|obj_ref| obj_ref.value.0)
+        .collect::<Vec<_>>();
 
     let next_cursor = results
+        .results
         .last()
-        .map(|(o, c)| {
-            BcsCursor(ObjectCursor {
-                object_id: o.clone(),
-                cp_sequence_number: *c as u64,
-            })
-            .encode()
-        })
+        .map(|edge| BcsCursor(edge.token.clone()).encode())
         .transpose()
-        .context("Failed to encode next cursor")?;
-
-    let data: Vec<ObjectID> = results
-        .into_iter()
-        .map(|(o, _)| ObjectID::from_bytes(o))
-        .collect::<Result<Vec<_>, _>>()
-        .context("Failed to deserialize Object IDs")?;
+        .context("Failed to encode cursor")?;
 
     Ok(PageResponse {
-        data,
+        data: obj_ids,
         next_cursor,
-        has_next_page,
+        has_next_page: results.has_next_page,
     })
 }
