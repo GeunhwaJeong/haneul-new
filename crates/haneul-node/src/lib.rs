@@ -39,7 +39,6 @@ use haneul_network::endpoint_manager::{AddressSource, EndpointId};
 use haneul_network::validator::server::HANEUL_TLS_SERVER_NAME;
 use haneul_types::full_checkpoint_content::Checkpoint;
 
-use haneul_core::execution_scheduler::SchedulingSource;
 use haneul_core::global_state_hasher::GlobalStateHashMetrics;
 use haneul_core::storage::RestReadStore;
 use haneul_json_rpc::bridge_api::BridgeReadApi;
@@ -772,11 +771,7 @@ impl HaneulNode {
                     ),
                 );
             state
-                .try_execute_immediately(
-                    &transaction,
-                    ExecutionEnv::new().with_scheduling_source(SchedulingSource::NonFastPath),
-                    &epoch_store,
-                )
+                .try_execute_immediately(&transaction, ExecutionEnv::new(), &epoch_store)
                 .instrument(span)
                 .await
                 .unwrap();
