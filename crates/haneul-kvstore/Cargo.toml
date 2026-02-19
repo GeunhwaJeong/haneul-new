@@ -38,6 +38,7 @@ futures.workspace = true
 haneul-indexer-alt-framework = { workspace = true, features = ["cluster"] }
 haneul-keys.workspace = true
 haneul-rpc.workspace = true
+haneul-test-transaction-builder.workspace = true
 test-cluster.workspace = true
 tokio-stream.workspace = true
 url.workspace = true
