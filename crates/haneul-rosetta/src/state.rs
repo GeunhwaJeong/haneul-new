@@ -9,7 +9,9 @@ use std::str::FromStr;
 use std::sync::Arc;
 use haneul_rpc::client::Client as GrpcClient;
 use haneul_rpc::field::FieldMaskUtil;
-use haneul_rpc::proto::haneul::rpc::v2::{Checkpoint, GetCheckpointRequest, get_checkpoint_request};
+use haneul_rpc::proto::haneul::rpc::v2::{
+    Checkpoint, GetCheckpointRequest, GetServiceInfoRequest, get_checkpoint_request,
+};
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::digests::CheckpointDigest;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
@@ -154,11 +156,32 @@ impl BlockProvider for CheckpointBlockProvider {
     }
 
     async fn genesis_block_identifier(&self) -> Result<BlockIdentifier, Error> {
-        self.create_block_identifier(0).await
+        let response = self
+            .client
+            .clone()
+            .ledger_client()
+            .get_service_info(GetServiceInfoRequest::default())
+            .await?
+            .into_inner();
+        let chain_id = response
+            .chain_id
+            .ok_or_else(|| Error::DataError("Missing chain_id".to_string()))?;
+        let hash = CheckpointDigest::from_str(&chain_id)?;
+        Ok(BlockIdentifier { index: 0, hash })
     }
 
     async fn oldest_block_identifier(&self) -> Result<BlockIdentifier, Error> {
-        self.create_block_identifier(0).await
+        let response = self
+            .client
+            .clone()
+            .ledger_client()
+            .get_service_info(GetServiceInfoRequest::default())
+            .await?
+            .into_inner();
+        let lowest = response
+            .lowest_available_checkpoint
+            .ok_or_else(|| Error::DataError("Missing lowest_available_checkpoint".to_string()))?;
+        self.create_block_identifier(lowest).await
     }
 
     async fn current_block_identifier(&self) -> Result<BlockIdentifier, Error> {
