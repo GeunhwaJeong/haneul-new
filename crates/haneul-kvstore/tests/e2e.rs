@@ -30,6 +30,7 @@ use haneul_keys::keystore::AccountKeystore;
 use haneul_kvstore::BigTableClient;
 use haneul_kvstore::BigTableIndexer;
 use haneul_kvstore::BigTableStore;
+use haneul_kvstore::IndexerConfig;
 use haneul_kvstore::KeyValueStoreReader;
 use haneul_kvstore::PipelineLayer;
 use haneul_kvstore::set_write_legacy_data;
@@ -335,6 +336,7 @@ impl TestHarness {
             client_args,
             ingestion_config.into(),
             CommitterConfig::default(),
+            IndexerConfig::default(),
             PipelineLayer::default(),
             Chain::Unknown,
             &registry,
