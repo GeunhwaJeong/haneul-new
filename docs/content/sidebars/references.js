@@ -167,6 +167,7 @@ const references = [
 		],
 	},
 	'references/awesome-haneul',
+	'references/awesome-haneul-gaming',
 	'references/haneul-glossary',
 	{
 		type: 'category',
