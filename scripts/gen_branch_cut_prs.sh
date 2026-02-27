@@ -108,6 +108,10 @@ elif [[ "$PR_TYPE" == *version-bump* ]]; then
   # Update the version in Cargo.toml and openrpc.json
   sed -i -E "s/^(version = \")[0-9]+\.[0-9]+\.[0-9]+(\"$)/\1${NEW_HANEUL_VERSION}\2/" Cargo.toml
   sed -i -E "s/(\"version\": \")([0-9]+\.[0-9]+\.[0-9]+)(\")/\1${NEW_HANEUL_VERSION}\3/" crates/haneul-open-rpc/spec/openrpc.json
+  SNAP_FILE="crates/haneul-open-rpc/tests/snapshots/generate_spec__openrpc.snap.json"
+  if [[ -f "$SNAP_FILE" ]]; then
+    sed -i -E "s/(\"version\": \")([0-9]+\.[0-9]+\.[0-9]+)(\")/\1${NEW_HANEUL_VERSION}\3/" "$SNAP_FILE"
+  fi
 
   # Cargo check to generate Cargo.lock changes
   cargo check || true
