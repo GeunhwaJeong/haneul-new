@@ -21,8 +21,9 @@ mod checked {
         TransactionDataAPI, TransactionKind,
     };
     use haneul_types::{
-        HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
-        HANEUL_RANDOMNESS_STATE_OBJECT_ID,
+        HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_ADDRESS_ALIAS_STATE_OBJECT_ID, HANEUL_BRIDGE_OBJECT_ID,
+        HANEUL_CLOCK_OBJECT_ID, HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_DENY_LIST_OBJECT_ID,
+        HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
     };
     use haneul_types::{
         base_types::{SequenceNumber, HaneulAddress},
@@ -523,56 +524,43 @@ mod checked {
                 };
             }
             InputObjectKind::SharedMoveObject {
-                id: HANEUL_CLOCK_OBJECT_ID,
-                initial_shared_version: HANEUL_CLOCK_OBJECT_SHARED_VERSION,
-                mutability: SharedObjectMutability::Mutable,
-            } => {
-                // Only system transactions can accept the Clock
-                // object as a mutable parameter.
-                if system_transaction {
-                    return Ok(());
-                } else {
-                    return Err(UserInputError::ImmutableParameterExpectedError {
-                        object_id: HANEUL_CLOCK_OBJECT_ID,
-                    });
-                }
-            }
-            InputObjectKind::SharedMoveObject {
-                id: HANEUL_AUTHENTICATOR_STATE_OBJECT_ID,
-                ..
-            } => {
-                if system_transaction {
-                    return Ok(());
-                } else {
-                    return Err(UserInputError::InaccessibleSystemObject {
-                        object_id: HANEUL_AUTHENTICATOR_STATE_OBJECT_ID,
-                    });
-                }
-            }
-            InputObjectKind::SharedMoveObject {
-                id: HANEUL_RANDOMNESS_STATE_OBJECT_ID,
-                mutability: SharedObjectMutability::Mutable,
-                ..
-            } => {
-                // Only system transactions can accept the Random
-                // object as a mutable parameter.
-                if system_transaction {
-                    return Ok(());
-                } else {
-                    return Err(UserInputError::ImmutableParameterExpectedError {
-                        object_id: HANEUL_RANDOMNESS_STATE_OBJECT_ID,
-                    });
-                }
-            }
-            InputObjectKind::SharedMoveObject {
                 id: object_id,
                 initial_shared_version: input_initial_shared_version,
-                ..
+                mutability,
             } => {
                 fp_ensure!(
                     object.version() < SequenceNumber::MAX,
                     UserInputError::InvalidSequenceNumber
                 );
+
+                if object_id.is_system_object() {
+                    // System transactions can access system objects without further validation
+                    // (e.g., AuthenticatorStateUpdate uses a placeholder initial_shared_version).
+                    if system_transaction {
+                        return Ok(());
+                    }
+
+                    match (object_id, mutability) {
+                        // System objects that can be taken mutably
+                        (HANEUL_SYSTEM_STATE_OBJECT_ID, _)
+                        | (HANEUL_ADDRESS_ALIAS_STATE_OBJECT_ID, _)
+                        | (HANEUL_COIN_REGISTRY_OBJECT_ID, _)
+                        | (HANEUL_DENY_LIST_OBJECT_ID, _)
+                        | (HANEUL_BRIDGE_OBJECT_ID, _)
+
+                        // System objects that can only be taken immutably
+                        | (HANEUL_CLOCK_OBJECT_ID, SharedObjectMutability::Immutable)
+                        | (HANEUL_RANDOMNESS_STATE_OBJECT_ID, SharedObjectMutability::Immutable)
+                        | (HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, SharedObjectMutability::Immutable) => (),
+
+                        // All other system objects: cannot be used as input at all
+                        _ => {
+                            return Err(UserInputError::ImmutableParameterExpectedError {
+                                object_id,
+                            });
+                        }
+                    }
+                }
 
                 match &object.owner {
                     Owner::AddressOwner(_) | Owner::ObjectOwner(_) | Owner::Immutable => {
