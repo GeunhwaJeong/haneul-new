@@ -1193,9 +1193,28 @@ impl AuthorityStore {
                                     total_storage_rebate += object.storage_rebate;
                                     // get_total_haneul includes storage rebate, however all storage rebate is
                                     // also stored in the storage fund, so we need to subtract it here.
-                                    total_haneul +=
-                                        object.get_total_haneul(layout_resolver.as_mut()).unwrap()
-                                            - object.storage_rebate;
+                                    let object_contained_haneul = match object
+                                        .get_total_haneul(layout_resolver.as_mut())
+                                    {
+                                        Ok(haneul) => haneul,
+                                        Err(e)
+                                            if old_epoch_store.get_chain()
+                                                == haneul_protocol_config::Chain::Testnet =>
+                                        {
+                                            error!(
+                                                "Error calculating total HANEUL for object {:?}: {:?}",
+                                                object.compute_object_reference(),
+                                                e
+                                            );
+                                            0
+                                        }
+                                        Err(e) => panic!(
+                                            "Error calculating total HANEUL for object {:?}: {:?}",
+                                            object.compute_object_reference(),
+                                            e
+                                        ),
+                                    };
+                                    total_haneul += object_contained_haneul - object.storage_rebate;
                                 }
                                 if count % 50_000_000 == 0 {
                                     info!("Processed {} objects", count);
