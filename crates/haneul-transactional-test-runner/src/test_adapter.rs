@@ -107,7 +107,10 @@ use haneul_types::{
     programmable_transaction_builder::ProgrammableTransactionBuilder,
 };
 use haneul_types::{HANEUL_SYSTEM_PACKAGE_ID, utils::to_sender_signed_transaction};
-use haneul_types::{execution_status::ExecutionStatus, transaction::TransactionKind};
+use haneul_types::{
+    execution_status::{ExecutionFailure, ExecutionStatus},
+    transaction::TransactionKind,
+};
 use haneul_types::{gas::GasCostSummary, object::GAS_VALUE_FOR_TESTING};
 use haneul_types::{
     move_package::MovePackage,
@@ -1917,7 +1920,7 @@ impl HaneulTestAdapter {
                     unchanged_shared: unchanged_shared_ids,
                 })
             }
-            ExecutionStatus::Failure { error, command } => {
+            ExecutionStatus::Failure(ExecutionFailure { error, command }) => {
                 let execution_msg = if is_consensus_tx {
                     format!("Debug of error: {error:?} at command {command:?}")
                 } else {

@@ -11,7 +11,7 @@ use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::crypto::AccountKeyPair;
 use haneul_types::effects::{SignedTransactionEffects, TransactionEffectsAPI};
 use haneul_types::error::{HaneulErrorKind, UserInputError};
-use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
+use haneul_types::execution_status::{ExecutionFailure, ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::Object;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
@@ -81,10 +81,10 @@ async fn test_pay_haneul_failure_insufficient_total_balance_one_input_coin() {
 
     assert_eq!(
         res.txn_result.as_ref().unwrap().status(),
-        &ExecutionStatus::Failure {
+        &ExecutionStatus::Failure(ExecutionFailure {
             error: ExecutionFailureStatus::InsufficientCoinBalance,
             command: Some(0) // SplitCoins is the first command in the implementation of pay
-        },
+        }),
     );
 }
 
@@ -134,10 +134,10 @@ async fn test_pay_haneul_failure_insufficient_total_balance_multiple_input_coins
     .await;
     assert_eq!(
         res.txn_result.as_ref().unwrap().status(),
-        &ExecutionStatus::Failure {
+        &ExecutionStatus::Failure(ExecutionFailure {
             error: ExecutionFailureStatus::InsufficientCoinBalance,
             command: Some(0) // SplitCoins is the first command in the implementation of pay
-        },
+        }),
     );
 }
 

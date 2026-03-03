@@ -55,7 +55,7 @@ use haneul_types::{
 };
 use haneul_types::{
     effects::{TransactionEffectsAPI, TransactionEvents},
-    execution_status::ExecutionFailureStatus,
+    execution_status::{ExecutionFailure, ExecutionFailureStatus, ExecutionStatus},
 };
 use haneul_types::{gas_coin::GAS, haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary};
 use tokio::time::sleep;
@@ -181,24 +181,24 @@ impl ExecutionEffects {
         match self {
             ExecutionEffects::FinalizedTransactionEffects(effects, ..) => {
                 match effects.data().status() {
-                    haneul_types::execution_status::ExecutionStatus::Success => false,
-                    haneul_types::execution_status::ExecutionStatus::Failure {
+                    ExecutionStatus::Success => false,
+                    ExecutionStatus::Failure(ExecutionFailure {
                         error:
                             ExecutionFailureStatus::ExecutionCancelledDueToSharedObjectCongestion {
                                 ..
                             },
                         ..
-                    } => true,
+                    }) => true,
                     _ => false,
                 }
             }
             ExecutionEffects::ExecutedTransaction(txn) => match txn.effects.status() {
-                haneul_types::execution_status::ExecutionStatus::Success => false,
-                haneul_types::execution_status::ExecutionStatus::Failure {
+                ExecutionStatus::Success => false,
+                ExecutionStatus::Failure(ExecutionFailure {
                     error:
                         ExecutionFailureStatus::ExecutionCancelledDueToSharedObjectCongestion { .. },
                     ..
-                } => true,
+                }) => true,
                 _ => false,
             },
         }
@@ -208,20 +208,20 @@ impl ExecutionEffects {
         match self {
             ExecutionEffects::FinalizedTransactionEffects(effects, ..) => {
                 match effects.data().status() {
-                    haneul_types::execution_status::ExecutionStatus::Success => false,
-                    haneul_types::execution_status::ExecutionStatus::Failure {
+                    ExecutionStatus::Success => false,
+                    ExecutionStatus::Failure(ExecutionFailure {
                         error: ExecutionFailureStatus::InsufficientFundsForWithdraw,
                         ..
-                    } => true,
+                    }) => true,
                     _ => false,
                 }
             }
             ExecutionEffects::ExecutedTransaction(txn) => match txn.effects.status() {
-                haneul_types::execution_status::ExecutionStatus::Success => false,
-                haneul_types::execution_status::ExecutionStatus::Failure {
+                ExecutionStatus::Success => false,
+                ExecutionStatus::Failure(ExecutionFailure {
                     error: ExecutionFailureStatus::InsufficientFundsForWithdraw,
                     ..
-                } => true,
+                }) => true,
                 _ => false,
             },
         }
@@ -231,7 +231,7 @@ impl ExecutionEffects {
         match self {
             ExecutionEffects::FinalizedTransactionEffects(effects, ..) => {
                 match effects.data().status() {
-                    haneul_types::execution_status::ExecutionStatus::Failure { error, .. } => {
+                    ExecutionStatus::Failure(ExecutionFailure { error, .. }) => {
                         matches!(
                             error,
                             ExecutionFailureStatus::VMVerificationOrDeserializationError
@@ -251,7 +251,7 @@ impl ExecutionEffects {
                 }
             }
             ExecutionEffects::ExecutedTransaction(txn) => match txn.effects.status() {
-                haneul_types::execution_status::ExecutionStatus::Failure { error, .. } => {
+                ExecutionStatus::Failure(ExecutionFailure { error, .. }) => {
                     matches!(
                         error,
                         ExecutionFailureStatus::VMVerificationOrDeserializationError

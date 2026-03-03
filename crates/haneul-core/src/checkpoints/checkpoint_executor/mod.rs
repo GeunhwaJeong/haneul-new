@@ -33,7 +33,7 @@ use haneul_config::node::{CheckpointExecutorConfig, RunWithRange};
 use haneul_macros::fail_point;
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
-use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
+use haneul_types::execution_status::{ExecutionFailure, ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::full_checkpoint_content::Checkpoint;
 use haneul_types::global_state_hash::GlobalStateHash;
 use haneul_types::message_envelope::Message;
@@ -910,10 +910,10 @@ impl CheckpointExecutor {
                             .with_barrier_dependencies(barrier_deps);
 
                         // Check if the expected effects indicate insufficient balance
-                        if let &ExecutionStatus::Failure {
+                        if let &ExecutionStatus::Failure(ExecutionFailure {
                             error: ExecutionFailureStatus::InsufficientFundsForWithdraw,
                             ..
-                        } = effects.status()
+                        }) = effects.status()
                         {
                             env = env.with_insufficient_funds();
                         }

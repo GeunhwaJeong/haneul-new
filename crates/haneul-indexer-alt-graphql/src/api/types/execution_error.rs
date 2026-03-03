@@ -9,8 +9,8 @@ use fastcrypto::encoding::Encoding;
 use haneul_package_resolver::CleverError;
 use haneul_package_resolver::ErrorConstants;
 use haneul_types::execution_status::ExecutionFailureStatus;
-use haneul_types::execution_status::ExecutionStatus as NativeExecutionStatus;
 use haneul_types::execution_status::MoveLocation;
+use haneul_types::execution_status::{ExecutionFailure, ExecutionStatus as NativeExecutionStatus};
 use haneul_types::transaction::ProgrammableTransaction;
 use tokio::sync::OnceCell;
 
@@ -149,7 +149,7 @@ impl ExecutionError {
         status: &NativeExecutionStatus,
         programmable_tx: Option<&ProgrammableTransaction>,
     ) -> Result<Option<Self>, RpcError> {
-        let NativeExecutionStatus::Failure { error, command } = status else {
+        let NativeExecutionStatus::Failure(ExecutionFailure { error, command }) = status else {
             return Ok(None);
         };
 

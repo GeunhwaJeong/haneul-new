@@ -15,7 +15,9 @@ use haneul_types::base_types::FullObjectRef;
 use haneul_types::crypto::{AccountKeyPair, get_key_pair};
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::event::Event;
-use haneul_types::execution_status::{CommandArgumentError, ExecutionFailureStatus, ExecutionStatus};
+use haneul_types::execution_status::{
+    CommandArgumentError, ExecutionFailure, ExecutionFailureStatus, ExecutionStatus,
+};
 use haneul_types::messages_grpc::WaitForEffectsResponse;
 use haneul_types::transaction::{CallArg, ObjectArg, SharedObjectMutability};
 use test_cluster::TestClusterBuilder;
@@ -416,13 +418,13 @@ async fn call_shared_object_contract() {
     // Transaction fails
     assert_eq!(
         effects.status(),
-        &ExecutionStatus::Failure {
+        &ExecutionStatus::Failure(ExecutionFailure {
             error: ExecutionFailureStatus::CommandArgumentError {
                 arg_idx: 0,
                 kind: CommandArgumentError::InvalidObjectByMutRef,
             },
             command: Some(0),
-        }
+        })
     );
     assert!(
         effects

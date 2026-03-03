@@ -8,7 +8,7 @@ use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber};
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
-use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
+use haneul_types::execution_status::{ExecutionFailure, ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::object::{OBJECT_START_VERSION, Owner};
 use haneul_types::transaction::{CallArg, ObjectArg, SharedObjectMutability};
 use test_cluster::{TestCluster, TestClusterBuilder};
@@ -188,7 +188,7 @@ impl TestEnvironment {
             .await
             .unwrap();
 
-        if let ExecutionStatus::Failure { error, .. } = fx.status() {
+        if let ExecutionStatus::Failure(ExecutionFailure { error, .. }) = fx.status() {
             return Err(error.clone());
         }
 

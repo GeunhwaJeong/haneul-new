@@ -38,7 +38,7 @@ use haneul_types::effects::{
     TransactionEvents,
 };
 use haneul_types::error::{ExecutionError, HaneulError, HaneulResult};
-use haneul_types::execution_status::ExecutionStatus;
+use haneul_types::execution_status::{ExecutionFailure, ExecutionStatus};
 use haneul_types::gas::GasCostSummary;
 use haneul_types::layout_resolver::{LayoutResolver, get_layout_from_struct_tag};
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
@@ -1432,16 +1432,16 @@ impl From<ExecutionStatus> for HaneulExecutionStatus {
     fn from(status: ExecutionStatus) -> Self {
         match status {
             ExecutionStatus::Success => Self::Success,
-            ExecutionStatus::Failure {
+            ExecutionStatus::Failure(ExecutionFailure {
                 error,
                 command: None,
-            } => Self::Failure {
+            }) => Self::Failure {
                 error: format!("{error:?}"),
             },
-            ExecutionStatus::Failure {
+            ExecutionStatus::Failure(ExecutionFailure {
                 error,
                 command: Some(idx),
-            } => Self::Failure {
+            }) => Self::Failure {
                 error: format!("{error:?} in command {idx}"),
             },
         }

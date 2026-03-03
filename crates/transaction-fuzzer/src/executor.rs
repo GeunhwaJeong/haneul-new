@@ -13,7 +13,7 @@ use haneul_move_build::BuildConfig;
 use haneul_types::base_types::ObjectID;
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::error::HaneulError;
-use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
+use haneul_types::execution_status::{ExecutionFailure, ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::object::Object;
 use haneul_types::transaction::{Transaction, TransactionData};
 use haneul_types::utils::to_sender_signed_transaction;
@@ -39,10 +39,10 @@ fn build_test_modules(test_dir: &str) -> (Vec<u8>, Vec<Vec<u8>>) {
 // which case we want to panic.
 pub fn assert_is_acceptable_result(result: &ExecutionResult) {
     if let Ok(
-        e @ ExecutionStatus::Failure {
+        e @ ExecutionStatus::Failure(ExecutionFailure {
             error: ExecutionFailureStatus::InvariantViolation,
-            command: _,
-        },
+            ..
+        }),
     ) = result
     {
         panic!("Invariant violation: {e:#?}")

@@ -21,7 +21,7 @@ use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::error::{HaneulErrorKind, HaneulResult, UserInputError};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
-use haneul_types::execution_status::{ExecutionFailureStatus, ExecutionStatus};
+use haneul_types::execution_status::{ExecutionFailure, ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{
     CallArg, TEST_ONLY_GAS_UNIT_FOR_TRANSFER, Transaction, TransactionData, TransactionKind,
@@ -483,10 +483,10 @@ async fn test_certificate_deny() {
         .await;
     assert!(matches!(
         effects.status(),
-        &ExecutionStatus::Failure {
+        &ExecutionStatus::Failure(ExecutionFailure {
             error: ExecutionFailureStatus::CertificateDenied,
             ..
-        }
+        })
     ));
 }
 
