@@ -9,6 +9,7 @@ use move_core_types::u256::U256;
 use prometheus::Registry;
 use rand::rngs::OsRng;
 use simulacrum::Simulacrum;
+use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::CHECKPOINT_HEIGHT_METADATA;
 use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::ListOwnedObjectsRequest;
 use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::Owner;
 use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::consistent_service_client::ConsistentServiceClient;
@@ -67,9 +68,10 @@ async fn test_address_owner() {
         });
 
         if let Some(checkpoint) = checkpoint {
-            request
-                .metadata_mut()
-                .insert("x-haneul-checkpoint", checkpoint.to_string().parse().unwrap());
+            request.metadata_mut().insert(
+                CHECKPOINT_HEIGHT_METADATA,
+                checkpoint.to_string().parse().unwrap(),
+            );
         }
 
         let response = client.list_owned_objects(request).await?.into_inner();

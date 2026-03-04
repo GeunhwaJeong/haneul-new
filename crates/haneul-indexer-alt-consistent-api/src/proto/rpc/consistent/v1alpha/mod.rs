@@ -8,9 +8,22 @@ include!("../../../generated/haneul.rpc.consistent.v1alpha.rs");
 pub const FILE_DESCRIPTOR_SET: &[u8] =
     include_bytes!("../../../generated/haneul.rpc.consistent.v1alpha.fds.bin");
 
-/// Metadata name used in requests to set the checkpoint to make the request at, and in responses
-/// to indicate the checkpoint at which the response was generated.
-pub const CHECKPOINT_METADATA: &str = "x-haneul-checkpoint";
+/// Metadata name used in requests to set the checkpoint to make the request at.
+///
+/// Mirrors fullnode gRPC header naming in `haneul-rpc`.
+pub const CHECKPOINT_HEIGHT_METADATA: &str = "x-haneul-checkpoint-height";
+
+/// Metadata name used in responses to indicate the minimum checkpoint currently retained by
+/// consistent store.
+///
+/// Mirrors fullnode gRPC header naming in `haneul-rpc`.
+pub const LOWEST_AVAILABLE_CHECKPOINT_METADATA: &str = "x-haneul-lowest-available-checkpoint";
+
+/// Legacy metadata name for input checkpoints.
+///
+/// TODO(2026-03-09): Remove support for this legacy input header one release after introducing
+/// `x-haneul-checkpoint-height`.
+pub const LEGACY_CHECKPOINT_METADATA: &str = "x-haneul-checkpoint";
 
 #[cfg(test)]
 mod tests {
