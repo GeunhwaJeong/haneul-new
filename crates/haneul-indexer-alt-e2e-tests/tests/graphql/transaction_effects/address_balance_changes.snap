@@ -38,7 +38,7 @@ Contents: haneul::coin::Coin<haneul::haneul::HANEUL> {
 }
 
 task 4, line 22:
-//# transfer-object --recipient A --sender B 0,1 --gas-budget-from-address-balance 1000000000
+//# transfer-object --recipient A --sender B 0,1 --gas-budget 1000000000 --address-balance-gas
 mutated: object(0,1)
 accumulators_written: (object(1,0), B, haneul::balance::Balance<haneul::haneul::HANEUL>, Split)
 gas summary: computation_cost: 1000000, storage_cost: 988000,  storage_rebate: 0, non_refundable_storage_fee: 0
@@ -48,7 +48,7 @@ task 5, lines 24-26:
 Checkpoint created: 2
 
 task 6, lines 27-29:
-//# programmable --sender B --inputs withdraw<haneul::balance::Balance<haneul::haneul::HANEUL>>(5000000) @C --gas-budget-from-address-balance 1000000000
+//# programmable --sender B --inputs withdraw<haneul::balance::Balance<haneul::haneul::HANEUL>>(5000000) @C --gas-budget 1000000000 --address-balance-gas
 //> 0: haneul::balance::redeem_funds<haneul::haneul::HANEUL>(Input(0));
 //> 1: haneul::balance::send_funds<haneul::haneul::HANEUL>(Result(0), Input(1));
 accumulators_written: (object(1,0), B, haneul::balance::Balance<haneul::haneul::HANEUL>, Split), (object(1,1), C, haneul::balance::Balance<haneul::haneul::HANEUL>, Merge)

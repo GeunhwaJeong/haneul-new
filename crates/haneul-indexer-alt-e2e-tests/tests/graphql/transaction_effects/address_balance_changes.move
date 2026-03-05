@@ -19,12 +19,12 @@
 //# view-object 0,1
 
 // Use address balance as gas
-//# transfer-object --recipient A --sender B 0,1 --gas-budget-from-address-balance 1000000000
+//# transfer-object --recipient A --sender B 0,1 --gas-budget 1000000000 --address-balance-gas
 
 //# create-checkpoint
 
 // Now have B send address balance to C using address balance as gas
-//# programmable --sender B --inputs withdraw<haneul::balance::Balance<haneul::haneul::HANEUL>>(5000000) @C --gas-budget-from-address-balance 1000000000
+//# programmable --sender B --inputs withdraw<haneul::balance::Balance<haneul::haneul::HANEUL>>(5000000) @C --gas-budget 1000000000 --address-balance-gas
 //> 0: haneul::balance::redeem_funds<haneul::haneul::HANEUL>(Input(0));
 //> 1: haneul::balance::send_funds<haneul::haneul::HANEUL>(Result(0), Input(1));
 
