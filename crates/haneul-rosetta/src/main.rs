@@ -7,6 +7,7 @@ use std::fs::File;
 use std::io::BufReader;
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
+use std::str::FromStr;
 
 use anyhow::anyhow;
 use clap::Parser;
@@ -17,8 +18,10 @@ use haneul_config::{HANEUL_KEYSTORE_FILENAME, haneul_config_dir};
 use haneul_rosetta::types::{CurveType, PrefundedAccount, HaneulEnv};
 use haneul_rosetta::{RosettaOfflineServer, RosettaOnlineServer, HANEUL};
 use haneul_rpc::client::Client as GrpcClient;
+use haneul_rpc::proto::haneul::rpc::v2::GetServiceInfoRequest;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{KeypairTraits, HaneulKeyPair, ToFromBytes};
+use haneul_types::digests::{ChainIdentifier, CheckpointDigest};
 use tracing::info;
 
 #[derive(Parser)]
@@ -129,14 +132,25 @@ impl RosettaServerCommand {
                 );
                 let rosetta_path = data_path.join("rosetta_db");
                 info!("Rosetta db path : {rosetta_path:?}");
-                let client = GrpcClient::new(&full_node_url)
+                let mut client = GrpcClient::new(&full_node_url)
                     .map_err(|e| anyhow::anyhow!("Failed to create gRPC client: {}", e))?;
-                let rosetta = RosettaOnlineServer::new(env, client);
+                let chain_id = fetch_chain_id(&mut client).await?;
+                let rosetta = RosettaOnlineServer::new(env, client, chain_id);
                 rosetta.serve(addr).await;
             }
         };
         Ok(())
     }
+}
+
+async fn fetch_chain_id(client: &mut GrpcClient) -> Result<ChainIdentifier, anyhow::Error> {
+    let response = client
+        .ledger_client()
+        .get_service_info(GetServiceInfoRequest::default())
+        .await?
+        .into_inner();
+    let digest = CheckpointDigest::from_str(response.chain_id())?;
+    Ok(ChainIdentifier::from(digest))
 }
 
 /// This method reads the keypairs from the Haneul keystore to create the PrefundedAccount objects,

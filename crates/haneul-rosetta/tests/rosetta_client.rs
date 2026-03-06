@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tokio::task::JoinHandle;
 
+use prost_types::FieldMask;
 use haneul_config::local_ip_utils;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
@@ -26,11 +27,26 @@ use haneul_rosetta::types::{
 };
 use haneul_rosetta::{RosettaOfflineServer, RosettaOnlineServer};
 use haneul_rpc::client::Client as GrpcClient;
+use haneul_rpc::field::FieldMaskUtil;
+use haneul_rpc::proto::haneul::rpc::v2::GetCheckpointRequest;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::HaneulSignature;
+use haneul_types::digests::{ChainIdentifier, CheckpointDigest};
 
-pub async fn start_rosetta_test_server(client: GrpcClient) -> (RosettaClient, Vec<JoinHandle<()>>) {
-    let online_server = RosettaOnlineServer::new(HaneulEnv::LocalNet, client);
+pub async fn start_rosetta_test_server(
+    mut client: GrpcClient,
+) -> (RosettaClient, Vec<JoinHandle<()>>) {
+    let request = GetCheckpointRequest::by_sequence_number(0)
+        .with_read_mask(FieldMask::from_paths(["digest"]));
+    let response = client
+        .ledger_client()
+        .get_checkpoint(request)
+        .await
+        .expect("Failed to fetch genesis checkpoint");
+    let digest = CheckpointDigest::from_str(response.into_inner().checkpoint().digest())
+        .expect("Failed to parse genesis checkpoint digest");
+    let chain_id = ChainIdentifier::from(digest);
+    let online_server = RosettaOnlineServer::new(HaneulEnv::LocalNet, client, chain_id);
     let offline_server = RosettaOfflineServer::new(HaneulEnv::LocalNet);
     let local_ip = local_ip_utils::localhost_for_testing();
     let port = local_ip_utils::get_available_port(&local_ip);
@@ -231,6 +247,7 @@ impl RosettaClient {
         resps
     }
 
+    #[allow(dead_code)]
     pub async fn get_balance(
         &self,
         network_identifier: NetworkIdentifier,
