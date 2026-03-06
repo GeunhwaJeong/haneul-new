@@ -67,14 +67,3 @@ Refer to the following articles outlining general differences between gRPC and G
 Directly connect to [JSON-RPC](/references/haneul-api.mdx) hosted on Haneul [full nodes](/guides/operator/haneul-full-node.mdx) that are operated by [RPC providers](https://haneul.io/developers#dev-tools) (filter by `RPC`) or [data indexer operators](https://github.com/haneul-foundation/awesome-haneul?tab=readme-ov-file#indexers--data-services). The Mainnet, Testnet, or Devnet load balancer URLs abstract the Haneul Foundation-managed full nodes. Those are not recommended for production use.
 
 You can get real-time or historical data using JSON-RPC. The retention period for historical data depends on the [pruning strategy](/guides/operator/data-management.mdx#haneul-full-node-pruning-policies) that node operators implement, though the default configuration for all full nodes is to implicitly fall back on the [Archival Store](#archival-store-and-service) managed by the Haneul Foundation.
-
-## Related links
-
-<RelatedLink to="/concepts/data-access/grpc.mdx" />
-<RelatedLink to="/concepts/data-access/custom-indexers.mdx" />
-<RelatedLink to="/concepts/data-access/graphql-rpc.mdx" />
-<RelatedLink to="/concepts/data-access/archival-store.mdx" />
-<RelatedLink to="/guides/developer/accessing-data/custom-indexer/build.mdx" />
-<RelatedLink to="/concepts/data-access/pipeline-architecture.mdx" />
-<RelatedLink href="/references/fullnode-protocol" label="Haneul Full Node gRPC" desc="Generated documentation from the Haneul gRPC schema." />
-<RelatedLink href="/references/haneul-api/haneul-graphql/beta/reference" label="GraphQL Beta schema" desc="Schema documentation for GraphQL Beta." />
