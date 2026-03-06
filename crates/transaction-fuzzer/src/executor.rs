@@ -10,12 +10,14 @@ use haneul_core::authority::AuthorityState;
 use haneul_core::authority::authority_test_utils::submit_and_execute;
 use haneul_core::authority::test_authority_builder::TestAuthorityBuilder;
 use haneul_move_build::BuildConfig;
-use haneul_types::base_types::ObjectID;
+use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
+use haneul_types::crypto::get_authority_key_pair;
+use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::error::HaneulError;
 use haneul_types::execution_status::{ExecutionFailure, ExecutionFailureStatus, ExecutionStatus};
 use haneul_types::object::Object;
-use haneul_types::transaction::{Transaction, TransactionData};
+use haneul_types::transaction::{Transaction, TransactionData, TransactionKind};
 use haneul_types::utils::to_sender_signed_transaction;
 use tokio::runtime::Runtime;
 
@@ -71,6 +73,20 @@ impl Executor {
     pub fn new() -> Self {
         let rt = Runtime::new().unwrap();
         let state = rt.block_on(TestAuthorityBuilder::new().build());
+        Self {
+            state,
+            rt: Arc::new(rt),
+        }
+    }
+
+    pub fn new_fullnode() -> Self {
+        let rt = Runtime::new().unwrap();
+        let fullnode_key_pair = get_authority_key_pair().1;
+        let state = rt.block_on(
+            TestAuthorityBuilder::new()
+                .with_keypair(&fullnode_key_pair)
+                .build(),
+        );
         Self {
             state,
             rt: Arc::new(rt),
@@ -148,5 +164,36 @@ impl Executor {
         txn.into_iter()
             .map(|txn| self.execute_transaction(txn))
             .collect()
+    }
+
+    pub fn dry_run_transaction(&self, tx_data: TransactionData) -> Result<(), HaneulError> {
+        let digest = TransactionDigest::random();
+        self.rt
+            .block_on(self.state.dry_exec_transaction(tx_data, digest))
+            .map(|_| ())
+    }
+
+    pub fn dev_inspect_transaction(
+        &self,
+        sender: HaneulAddress,
+        kind: TransactionKind,
+        gas_price: Option<u64>,
+        gas_budget: Option<u64>,
+        gas_sponsor: Option<HaneulAddress>,
+        gas_objects: Option<Vec<ObjectRef>>,
+        skip_checks: Option<bool>,
+    ) -> Result<(), HaneulError> {
+        self.rt
+            .block_on(self.state.dev_inspect_transaction_block(
+                sender,
+                kind,
+                gas_price,
+                gas_budget,
+                gas_sponsor,
+                gas_objects,
+                None,
+                skip_checks,
+            ))
+            .map(|_| ())
     }
 }
