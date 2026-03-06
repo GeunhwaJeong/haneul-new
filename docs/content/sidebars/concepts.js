@@ -10,9 +10,10 @@ const concepts = [
 		label: 'Architecture',
 		link: {
 			type: 'doc',
-			id: 'concepts/architecture',
+			id: 'concepts/haneul-architecture/index',
 		},
 		items: [
+			'concepts/haneul-architecture/components',
 			'concepts/haneul-architecture/networks',
 			'concepts/haneul-architecture/haneul-storage',
 			'concepts/haneul-architecture/consensus',
@@ -23,42 +24,20 @@ const concepts = [
 	},
 	{
 		type: 'category',
-		label: 'Transactions',
-		items: [
-			'concepts/transactions/transaction-lifecycle',
-			'concepts/transactions/inputs-and-results',
-			'concepts/transactions/gas-smashing',
-			'concepts/transactions/transaction-auth',
-		],
-	},
-	{
-		type: 'category',
 		label: 'Tokenomics',
 		link: {
 			type: 'doc',
-			id: 'concepts/tokenomics',
+			id: 'concepts/tokenomics/index',
 		},
 		items: [
+			'concepts/tokenomics/tokenomics-overview',
 			'concepts/tokenomics/staking-unstaking',
 			'concepts/tokenomics/haneul-bridging',
 			'concepts/tokenomics/gas-in-haneul',
 		],
 	},
 	'concepts/coin-mgt',
-
-	{
-		type: 'category',
-		label: 'Move',
-		link: {
-			type: 'doc',
-			id: 'concepts/haneul-move-concepts',
-		},
-		items: [
-			'concepts/haneul-move-concepts/packages',
-			'concepts/haneul-move-concepts/conventions',
-			'concepts/haneul-move-concepts/move-2024-migration',
-		],
-	},
+	'concepts/haneul-move-concepts',
 	{
 		type: 'category',
 		label: 'Accessing Data',
@@ -90,10 +69,9 @@ const concepts = [
 		label: 'Cryptography',
 		link: {
 			type: 'doc',
-			id: 'concepts/cryptography',
+			id: 'concepts/cryptography/index',
 		},
 		items: [
-			'concepts/cryptography/zklogin',
 			'concepts/cryptography/passkeys',
 			'concepts/cryptography/system/checkpoint-verification',
 			/*{

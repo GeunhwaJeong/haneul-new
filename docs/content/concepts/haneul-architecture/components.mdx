@@ -1,0 +1,100 @@
+---
+title: Components of Haneul
+slug: /concepts/architecture
+description: Haneul is a layer 1 blockchain that performs its own consensus and validation of transaction blocks. Haneul is comprised of the blockchain itself, the blockchain's activity such as transactions, and the validator entities that verify this activity.
+keywords: [ haneul blockchain, haneul components, haneul validators, haneul transactions, components of haneul, what is haneul comprised of, delegated proof of stake, delegated proof-of-stake, dpos, consensus, haneul networks, haneul mainnet, haneul testnet, haneul devnet, move, move language ]
+---
+
+Haneul is a layer 1 blockchain. Layer 1 networks consist of the following primary components:
+
+1. [**Nodes**](/guides/operator/index.mdx) that run the network's binaries and participate in network activity such as consensus. Nodes provide compute and [storage](/concepts/haneul-architecture/haneul-storage.mdx) resources to the network.
+
+1. The [**consensus mechanism**](/concepts/haneul-architecture/consensus.mdx) used to validate transactions.
+
+1. [**Transactions**](/guides/developer/transactions/txn-overview.mdx) themselves, which on Haneul reflect on-chain operations such as creating objects or sending assets.
+
+1. [**Tokens**](/concepts/tokenomics) used to pay for resources and transactions on the network.
+
+On Haneul specifically, other core components include:
+
+1. [**Objects**](/guides/developer/objects/object-model), the most basic unit of storage on Haneul that are addressable on-chain by unique IDs.
+
+1. [**Move**](/concepts/haneul-move-concepts), the programming language used to create smart contracts on Haneul.
+
+## Networks
+
+Haneul operates multiple networks that are comprised of these essential components. Each network serves a different purpose:
+
+- **Mainnet:** Production network for live transactions and real-value assets.
+
+- **Testnet:** Staging network for testing changes before production deployment.
+
+- **Devnet:** For developing and testing new features.
+
+- **Localnet:** Local network you can run on your own machine for optimized development.
+
+Learn more about the [Haneul networks](/concepts/haneul-architecture/networks.mdx).
+
+### Nodes
+
+On Haneul, nodes on the network participate directly in the chain's consensus mechanism to validate all on-chain activity. Activity comes in the form of transaction blocks that must be validated before being finalized and permanently committed to the network's history.
+
+There are 2 types of nodes on Haneul:
+
+1. **Full node:** Responsible for validating blockchain activity such as transactions, checkpoints, and [epoch](/concepts/haneul-architecture/epochs.mdx) changes. Each full node stores the blockchain's state and history to serve queries.
+
+2. **Validator node:** Responsible for executing more tasks than full nodes, such as staking, gas price references, and tallying rules.
+
+Learn more about [nodes on Haneul](/guides/operator/index.mdx).
+
+## Delegated proof-of-stake consensus
+
+Haneul uses a delegated proof-of-stake (DPoS) consensus mechanism to validate transactions. Validators must stake HANEUL tokens on the network, either their own or delegated by other token holders, to participate in consensus. This approach aligns validator incentives with network security and efficiency without the high energy costs of proof-of-work systems.
+
+To learn more about consensus on Haneul, see:
+
+- [Haneul Consensus](/concepts/haneul-architecture/consensus.mdx)
+
+- [Validator Committee](/concepts/haneul-architecture/consensus.mdx)
+
+## Transactions
+
+Transactions on Haneul consist of several commands that execute on inputs. These inputs define the result of the transaction. All updates to the Haneul network happen through transactions. There are only 2 types of transactions on Haneul:
+
+1. **Programmable transaction blocks:** Define all user transactions on Haneul, as they can be submitted by anyone. They are used for activities such as sending tokens, creating objects, and interacting with smart contracts.
+
+1. **System transactions:** Only submittable by validator nodes. These transactions are for network functions such as changing epochs or starting checkpoints.
+
+Learn more about both types of [transactions](/guides/developer/transactions/txn-overview.mdx), or learn more about [programmable transaction blocks](/guides/developer/transactions/ptbs/prog-txn-blocks).
+
+## Tokens
+
+The native token for Haneul is **HANEUL**. Transactions on Haneul often deal with small fractions of the value of 1 HANEUL. To make it easier to work with transactions, Haneul also provides the token **GEUNHWA**. 1 billion GEUNHWA equals 1 HANEUL.
+
+On the network, everything has a cost. It costs money to provide computational power, process transactions, and store transaction data. This cost is referred to as _gas_. You pay gas fees with a blockchain's native token, in this case, HANEUL or GEUNHWA.
+
+To learn more about the tokenomics of Haneul, see the following topics:
+
+- [Haneul Tokenomics](/concepts/tokenomics)
+
+- [Gas Fees](/concepts/tokenomics/gas-in-haneul.mdx)
+
+- [Staking and Unstaking](/concepts/tokenomics/staking-unstaking.mdx)
+
+- [Haneul Bridging](/concepts/tokenomics/haneul-bridging.mdx)
+
+## Objects
+
+The basic unit of storage in Haneul is the object. Blocks on the chain are actually objects that define assets rather than simple key-value stores that define addresses. Haneul's storage is centered around objects that are addressable on-chain by unique IDs. A smart contract is an object (called a Haneul Move package), and these smart contracts manipulate objects on the Haneul network.
+
+Every object has an owner field that dictates how you can use it in transactions. Objects can be owned by an address or party, or they can be immutable, shared, or wrapped.
+
+Learn more about the [Haneul Object Model](/guides/developer/objects/object-model.mdx) or [Object Ownership](/guides/developer/objects/object-ownership).
+
+## Move
+
+Move is an open source programming language that is used for all activity on Haneul, such as creating or trading NFTs, using apps, and all other transaction-based events. It is used for writing safe packages that can create and manipulate objects on-chain.
+
+Move is platform-agnostic to enable common libraries, tooling, and developer communities across blockchains with vastly different data and execution models.
+
+To learn more about Move, see [Move Concepts](/concepts/haneul-move-concepts.mdx).
