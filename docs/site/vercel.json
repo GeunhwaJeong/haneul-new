@@ -1,806 +1,3381 @@
 {
   "redirects": [
-      { "source": "/testnet/:path*", "destination": "/:path*", "permanent": false },
-      { "source": "/devnet/:path*", "destination": "/:path*", "permanent": false },
-      { "source": "/learn/object-package-versions", "destination": "/guides/developer/objects/versioning", "permanent": true },
-      { "source": "/learn/objects", "destination": "/guides/developer/objects/object-model", "permanent": true },
-      { "source": "/learn/about-haneul", "destination": "/concepts/architecture", "permanent": true },
-      { "source": "/learn/index", "destination": "/concepts", "permanent": true },
-      { "source": "/learn", "destination": "/concepts", "permanent": true },
-      { "source": "/learn/sponsored-transactions", "destination": "/guides/developer/transactions/sponsor-txn", "permanent": true },
-      { "source": "/learn/why-move", "destination": "/concepts/haneul-move-concepts", "permanent": true },
-      { "source": "/learn/haneul-move-diffs", "destination": "/concepts/haneul-move-concepts", "permanent": true },
-      { "source": "/learn/transactions", "destination": "/guides/developer/transactions/txn-overview", "permanent": true },
-      { "source": "/learn/cryptography/groth16", "destination": "/guides/developer/cryptography/groth16", "permanent": true },
-      { "source": "/learn/cryptography/haneul-multisig", "destination": "/guides/developer/transactions/transaction-auth/multisig", "permanent": true },
-      { "source": "/learn/cryptography/haneul-signatures", "destination": "/concepts/transactions/transaction-auth/signatures", "permanent": true },
-      { "source": "/learn/cryptography/hashing", "destination": "/guides/developer/cryptography/hashing", "permanent": true },
-      { "source": "/learn/cryptography/haneul-intent-signing", "destination": "/concepts/transactions/transaction-auth/intent-signing", "permanent": true },
-      { "source": "/learn/cryptography/index", "destination": "/concepts/cryptography", "permanent": true },
-      { "source": "/learn/cryptography", "destination": "/concepts/cryptography", "permanent": true },
-      { "source": "/learn/cryptography/ecvrf", "destination": "/guides/developer/cryptography/ecvrf", "permanent": true },
-      { "source": "/learn/cryptography/haneul-move-signatures", "destination": "/concepts/transactions/transaction-auth/signatures", "permanent": true },
-      { "source": "/learn/cryptography/haneul-offline-signing", "destination": "/concepts/transactions/transaction-auth/offline-signing", "permanent": true },
-      { "source": "/learn/architecture/haneul-full-node-data", "destination": "/guides/operator/data-management", "permanent": true },
-      { "source": "/learn/architecture/validators", "destination": "/concepts/haneul-architecture/consensus", "permanent": true },
-      { "source": "/learn/tokenomics/storage-fund", "destination": "/concepts/tokenomics/storage-fund", "permanent": true },
-      { "source": "/learn/tokenomics/haneul-token", "destination": "/concepts/tokenomics/haneul-token", "permanent": true },
-      { "source": "/learn/tokenomics/gas-pricing", "destination": "/concepts/tokenomics/gas-pricing", "permanent": true },
-      { "source": "/learn/tokenomics/proof-of-stake", "destination": "/concepts/tokenomics/proof-of-stake", "permanent": true },
-      { "source": "/learn/tokenomics/gas-in-haneul", "destination": "/concepts/tokenomics/gas-in-haneul", "permanent": true },
-      { "source": "/learn/tokenomics/index", "destination": "/concepts/tokenomics", "permanent": true },
-      { "source": "/learn/tokenomics", "destination": "/concepts/tokenomics", "permanent": true },
-      { "source": "/explore/examples", "destination": "/guides/developer", "permanent": true },
-      { "source": "/explore/tutorials", "destination": "/guides", "permanent": true },
-      { "source": "/explore/index", "destination": "/concepts", "permanent": true },
-      { "source": "/explore", "destination": "/concepts", "permanent": true },
-      { "source": "/build/haneul-gas-charges", "destination": "/concepts/tokenomics/gas-pricing", "permanent": true },
-      { "source": "/build/haneul-json", "destination": "/references/haneul-api", "permanent": true },
-      { "source": "/build/event_api", "destination": "/guides/developer/accessing-data/using-events", "permanent": true },
-      { "source": "/build/dev_cheat_sheet", "destination": "/guides/developer/dev-cheat-sheet", "permanent": true },
-      { "source": "/build/haneul-object-display", "destination": "/standards/display", "permanent": true },
-      { "source": "/build/fullnode", "destination": "/guides/operator/haneul-full-node", "permanent": true },
-      { "source": "/build/json-rpc", "destination": "/references/haneul-api", "permanent": true },
-      { "source": "/build/haneul-transfer-policy", "destination": "/guides/developer/packages/custom-policies", "permanent": true },
-      { "source": "/build/snapshot", "destination": "/guides/operator/snapshots", "permanent": true },
-      { "source": "/build/haneul-kiosk", "destination": "/standards/kiosk", "permanent": true },
-      { "source": "/build/faucet", "destination": "/guides/developer/getting-started/get-coins", "permanent": true },
-      { "source": "/build/install", "destination": "/guides/developer/getting-started/haneul-install", "permanent": true },
-      { "source": "/build/haneul-local-network", "destination": "/guides/developer/getting-started/local-network", "permanent": true },
-      { "source": "/build/comms", "destination": "/guides/developer/haneul-101/connect", "permanent": true },
-      { "source": "/build/index", "destination": "/guides", "permanent": true },
-      { "source": "/build", "destination": "/guides", "permanent": true },
-      { "source": "/build/rust-sdk", "destination": "/references/sdk/rust-sdk", "permanent": true },
-      { "source": "/build/rpc-best-practices", "destination": "/references/haneul-api/rpc-best-practices", "permanent": true },
-      { "source": "/build/zk_login", "destination": "/guides/developer/cryptography/zklogin-integration/zklogin-integration", "permanent": true },
-      { "source": "/build/package-upgrades", "destination": "/guides/developer/packages/upgrade", "permanent": true },
-      { "source": "/build/custom-upgrade-policy", "destination": "/guides/developer/packages/custom-policies", "permanent": true },
-      { "source": "/build/automated-address-management", "destination": "/guides/developer/packages/automated-address-management", "permanent": true },
-      { "source": "/build/cli-client", "destination": "/references/cli/client", "permanent": true },
-      { "source": "/build/connect-haneul-network", "destination": "/guides/developer/haneul-101/connect", "permanent": true },
-      { "source": "/build/prog-trans-ts-sdk", "destination": "/guides/developer/transactions/ptbs/building-ptb", "permanent": true },
-      { "source": "/build/validator-node", "destination": "/guides/operator/validator/validator-config", "permanent": true },
-      { "source": "/build/move/debug-publish", "destination": "/references/ide/debugger", "permanent": true },
-      { "source": "/build/move/write-package", "destination": "/guides/developer/getting-started/hello-world", "permanent": true },
-      { "source": "/build/move/lock-file", "destination": "/references/move/move-lock", "permanent": true },
-      { "source": "/build/move/build-test", "destination": "/guides/developer/getting-started/hello-world", "permanent": true },
-      { "source": "/build/move/manifest", "destination": "/references/move/move-toml", "permanent": true },
-      { "source": "/build/move/index", "destination": "/guides/developer/haneul-101", "permanent": true },
-      { "source": "/build/move", "destination": "/guides/developer/haneul-101", "permanent": true },
-      { "source": "/build/move/time", "destination": "/guides/developer/on-chain-primitives/access-time", "permanent": true },
-      { "source": "/build/move/haneul-move-library", "destination": "/concepts/haneul-move-concepts", "permanent": true },
-      { "source": "/build/programming-with-objects/ch6-collections", "destination": "/guides/developer/objects/tables-tabs", "permanent": true },
-      { "source": "/build/programming-with-objects/ch1-object-basics", "destination": "/guides/developer/objects/object-model", "permanent": true },
-      { "source": "/build/programming-with-objects/ch4-object-wrapping", "destination": "/guides/developer/objects/object-ownership/wrapped", "permanent": true },
-      { "source": "/build/programming-with-objects/ch2-using-objects", "destination": "/guides/developer/objects/object-ownership", "permanent": true },
-      { "source": "/build/programming-with-objects/index", "destination": "/guides/developer/objects/object-model", "permanent": true },
-      { "source": "/build/programming-with-objects/ch3-immutable-objects", "destination": "/guides/developer/objects/object-ownership/immutable", "permanent": true },
-      { "source": "/build/programming-with-objects/ch5-dynamic-fields", "destination": "/guides/developer/objects/dynamic-fields", "permanent": true },
-      { "source": "/reference/haneul-json", "destination": "/haneul-api-ref", "permanent": true },
-      { "source": "/reference/index", "destination": "/references", "permanent": true },
-      { "source": "/reference", "destination": "/references", "permanent": true },
-      { "source": "/concepts/dynamic-fields/events", "destination": "/concepts/events", "permanent": true },
-      { "source": "/concepts/dynamic-fields/versioning", "destination": "/guides/developer/objects/versioning", "permanent": true },
-      { "source": "/learn/exchange-integration-guide", "destination": "/guides/operator/exchange-integration", "permanent": true },
-      { "source": "/learn/exchange-integration-faq", "destination": "/guides/operator/exchange-integration", "permanent": true },
-      { "source": "/learn/how-haneul-works", "destination": "/concepts/architecture", "permanent": true },
-      { "source": "/learn/haneul-compared", "destination": "/concepts/architecture", "permanent": true },
-      { "source": "/learn/haneul-bridging", "destination": "/concepts/tokenomics/haneul-bridging", "permanent": true },
-      { "source": "/concepts/transactions/transaction-lifecycle", "destination": "/guides/developer/transactions/transaction-lifecycle", "permanent": true },
-      { "source": "/standards/closed-loop-token/overview", "destination": "/standards/closed-loop-token", "permanent": true },
-      { "source": "/concepts/dynamic-fields/transfers/custom-rules", "destination": "/guides/developer/objects/transfers/custom-rules", "permanent": true },
-      { "source": "/concepts/dynamic-fields/transfers/transfer-to-object", "destination": "/guides/developer/objects/transfers/transfer-to-object", "permanent": true },
-      { "source": "/references/research-papers", "destination": "/concepts/research-papers", "permanent": true },
-      { "source": "/guides/developer/app-examples/trading/:path*", "destination": "/guides/developer/app-examples/trustless-swap/:path*", "permanent": true },
-      { "source": "/guides/developer/app-examples/trustless-token-swap/:path*", "destination": "/guides/developer/app-examples/trustless-swap/:path*", "permanent": true },
-      { "source": "/concepts/cryptography/zklogin/zklogin-example", "destination": "/guides/developer/cryptography/zklogin-integration/zklogin-example", "permanent": true },
-      { "source": "/guides/developer/getting-started/haneul-environment", "destination": "/references/contribute/haneul-environment", "permanent": true },
-      { "source": "/concepts/haneul-move-concepts/patterns/capabilities", "destination": "https://move-book.com/programmability/capability.html", "permanent": true },
-      { "source": "/concepts/haneul-move-concepts/patterns/witness", "destination": "https://move-book.com/programmability/witness-pattern.html", "permanent": true },
-      { "source": "/concepts/haneul-move-concepts/patterns/hot-potato", "destination": "https://examples.haneul.io/patterns/hot-potato.html", "permanent": false },
-      { "source": "/concepts/haneul-move-concepts/patterns/id-pointer", "destination": "https://move-book.com/storage/uid-and-id.html", "permanent": true },
-      { "source": "/concepts/haneul-move-concepts/patterns/transferrable-witness", "destination": "https://move-book.com/programmability/witness-pattern.html", "permanent": true },
-      { "source": "/guides/developer/advanced/asset-tokenization", "destination": "/guides/developer/nft/asset-tokenization", "permanent": true },
-      { "source": "/guides/developer/haneul-101/shared-owned", "destination": "/guides/developer/objects/object-ownership", "permanent": true },
-      { "source": "/references/move/move-toml", "destination": "https://move-book.com/concepts/manifest.html", "permanent": true },
-      { "source": "/standards/deepbook-pools", "destination": "/standards/deepbook", "permanent": true },
-      { "source": "/standards/routing-a-swap", "destination": "/standards/deepbook", "permanent": true },
-      { "source": "/standards/trade-and-swap", "destination": "/standards/deepbook", "permanent": true },
-      { "source": "/standards/query-the-pool", "destination": "/standards/deepbookv3/query-the-pool", "permanent": true },
-      { "source": "/standards/deepbook-design", "destination": "/standards/deepbookv3/design", "permanent": true },
-      { "source": "/standards/deepbook-orders", "destination": "/standards/deepbookv3/orders", "permanent": true },
-      { "source": "/concepts/events", "destination": "/guides/developer/accessing-data/using-events", "permanent": true },
-      { "source": "/concepts/tokenomics/haneul-coin", "destination": "/concepts/tokenomics#haneul-coin", "permanent": true },
-      { "source": "/concepts/tokenomics/storage-fund", "destination": "/concepts/tokenomics#storage-fund", "permanent": true },
-      { "source": "/concepts/tokenomics/proof-of-stake", "destination": "/concepts/tokenomics#proof-of-stake", "permanent": true },
-      { "source": "/concepts/tokenomics/validators-staking", "destination": "/concepts/tokenomics#validators-and-staking-pools", "permanent": true },
-      { "source": "/concepts/haneul-move-concepts/strings", "destination": "/concepts/haneul-move-concepts", "permanent": true },
-      { "source": "/concepts/haneul-move-concepts/collections", "destination": "/concepts/haneul-move-concepts", "permanent": true },
-      { "source": "/concepts/haneul-move-concepts/init", "destination": "/concepts/haneul-move-concepts", "permanent": true },
-      { "source": "/concepts/haneul-move-concepts/entry-functions", "destination": "/concepts/haneul-move-concepts", "permanent": true },
-      { "source": "/concepts/haneul-move-concepts/one-time-witness", "destination": "/concepts/haneul-move-concepts", "permanent": true },
-      { "source": "/references/framework/haneul-framework/:path*", "destination": "/references/framework/haneul/:path*", "permanent": true },
-      { "source": "/references/framework/move-stdlib/:path*", "destination": "/references/framework/std/:path*", "permanent": true },
-      { "source": "/references/framework/haneul-system/:path*", "destination": "/references/framework/haneul_system/:path*", "permanent": true },
-      { "source": "/references/haneul-api/haneul-graphql/reference/:path*", "destination": "/references/haneul-api/haneul-graphql/beta/reference/:path*" },
-      { "source": "/guides/operator/validator-committee", "destination": "/concepts/haneul-architecture/consensus" },
-      { "source": "/guides/operator/node-tools", "destination": "/guides/operator/validator/node-tools" },
-      { "source": "/guides/operator/validator-config", "destination": "/guides/operator/validator/validator-config" },
-      { "source": "/guides/operator/validator-tasks", "destination": "/guides/operator/validator/validator-tasks" },
-      { "source": "/standards/deepbookv2/:path*", "destination": "/standards/deepbook" },
-      { "source": "/guides/developer/advanced/graphql-migration", "destination": "/concepts/data-access/graphql-rpc", "permanent": true },
-      { "source": "/references/framework/bridge/:path*", "destination": "/references/framework/haneul_bridge/:path*" },
-      { "source": "/references/framework/std/:path*", "destination": "/references/framework/haneul_std/:path*" },
-      { "source": "/references/framework/haneul/:path*", "destination": "/references/framework/haneul_haneul/:path*" },
-      { "source": "/references/framework/haneul_system/:path*", "destination": "/references/framework/haneul_haneul_system/:path*" },
-      { "source": "/standards/deepbookv3", "destination": "/standards/deepbook" },
-      { "source": "/guides/developer/getting-started/connect", "destination": "/guides/developer/haneul-101/connect" },
-      { "source": "/guides/developer/haneul-101/local-network", "destination": "/guides/developer/getting-started/local-network" },
-      { "source": "/guides/developer/getting-started/data-serving", "destination": "/concepts/data-access/data-serving" },
-      { "source": "/guides/developer/first-app/write-package", "destination": "/guides/developer/getting-started/hello-world" },
-      { "source": "/guides/developer/first-app/build-test", "destination": "/guides/developer/getting-started/hello-world" },
-      { "source": "/guides/developer/first-app/publish", "destination": "/guides/developer/getting-started/hello-world" },
-      { "source": "/guides/developer/first-app/client-tssdk", "destination": "/guides/developer/haneul-101/client-tssdk" },
-      { "source": "/guides/developer/first-app/debug", "destination": "/references/ide/debugger" },
-      { "source": "/guides/developer/stablecoins", "destination": "/guides/developer/coin/stablecoins", "permanent": true },
-      { "source": "/standards/coin", "destination": "/standards/currency" },
-      { "source": "/standards/deepbookv3", "destination": "/standards/deepbook" },
-      { "source": "/guides/developer/getting-started/graphql-rpc", "destination": "/concepts/data-access/graphql-rpc" },
-      { "source": "/concepts/tokenomics/gas-pricing", "destination": "concepts/tokenomics/gas-in-haneul" },
-      { "source": "/concepts/components", "destination": "/concepts/haneul-architecture/components", "permanent": true },
-      { "source": "/operator/validator/validator-committee", "destination": "/concepts/haneul-architecture/consensus" },
-      { "source": "/guides/developer/haneul-101/avoid-equivocation", "destination": "/concepts/haneul-architecture/epochs" },
-      { "source": "/guides/developer/haneul-101/data-serving", "destination": "/concepts/data-access/data-serving" },
-      { "source": "/concepts/haneul-architecture/indexer-functions", "destination": "/concepts/data-access/data-serving" },
-      { "source": "/concepts/haneul-architecture/transaction-lifecycle", "destination": "/guides/developer/transactions/transaction-lifecycle", "permanent": true },
-      { "source": "/concepts/app-devs", "destination": "/concepts" },
-      { "source": "/concepts/grpc-overview", "destination": "/concepts/data-access/grpc" },
-      { "source": "/concepts/graphql-indexer", "destination": "/concepts/data-access/custom-indexers" },
-      { "source": "/concepts/data-access/graphql-indexer", "destination": "/concepts/data-access/custom-indexers" },
-      { "source": "/concepts/graphql-rpc", "destination": "/concepts/data-access/graphql-rpc" },
-      { "source": "/concepts/custom-indexing-framework", "destination": "/guides/developer/accessing-data/custom-indexing-framework" },
-      { "source": "/concepts/custom-indexer/pipeline-architecture", "destination": "/concepts/data-access/pipeline-architecture" },
-      { "source": "/concepts/archival-store", "destination": "/guides/developer/accessing-data/archival-store" },
-      { "source": "/concepts/transactions/transaction-auth", "destination": "/guides/developer/transactions/transaction-auth/auth-overview", "permanent": true },
-      { "source": "/concepts/transactions/transaction-auth/keys-addresses", "destination": "/concepts/transactions/transaction-auth" },
-      { "source": "/concepts/cryptography/transaction-auth/keys-addresses", "destination": "/concepts/transactions/transaction-auth" },
-      { "source": "/concepts/cryptography/transaction-auth/:path*", "destination": "/concepts/transactions/transaction-auth/:path*" },
-      { "source": "/concepts/tokenomics/vesting-strategies", "destination": "/guides/developer/coin/vesting-strategies" },
-      { "source": "/guides/developer/haneul-101/object-ownership", "destination": "/guides/developer/objects/object-ownership" },
-      { "source": "/concepts/object-model", "destination": "/guides/developer/objects/object-model" },
-      { "source": "/concepts/object-ownership", "destination": "/guides/developer/objects/object-ownership" },
-      { "source": "/concepts/object-ownership/:path*", "destination": "/guides/developer/objects/object-ownership/:path*" },
-      { "source": "/concepts/transfers", "destination": "/guides/developer/objects/transfers" },
-      { "source": "/concepts/transfers/:path*", "destination": "/guides/developer/objects/transfers/:path*" },
-      { "source": "/concepts/versioning", "destination": "/guides/developer/objects/versioning" },
-      { "source": "/guides/developer/haneul-101/connect", "destination": "/guides/developer/getting-started/hello-world" },
-      { "source": "/concepts/haneul-move-concepts/derived-objects", "destination": "/guides/developer/objects/derived-objects" },
-      { "source": "/guides/developer/haneul-101/move-package-management", "destination": "/guides/developer/packages/move-package-management" },
-      { "source": "/concepts/haneul-move-concepts/packages/upgrade", "destination": "/guides/developer/packages/upgrade" },
-      { "source": "/concepts/haneul-move-concepts/packages/custom-policies", "destination": "/guides/developer/packages/custom-policies" },
-      { "source": "/concepts/haneul-move-concepts/packages/automated-address-management", "destination": "/guides/developer/packages/automated-address-management" },
-      { "source": "/concepts/dynamic-fields", "destination": "/guides/developer/objects/dynamic-fields" },
-      { "source": "/concepts/dynamic-fields/tables-bags", "destination": "/guides/developer/objects/tables-bags" },
-      { "source": "/concepts/cryptography/nautilus", "destination": "/guides/developer/nautilus/" },
-      { "source": "/concepts/cryptography/nautilus/using-nautilus", "destination": "/guides/developer/nautilus/using-nautilus" },
-      { "source": "/guides/developer/advanced/move-2024-migration", "destination": "https://move-book.com/reference/", "permanent": true },
-      { "source": "/guides/developer/haneul-101/coin-mgt", "destination": "/concepts/transactions/coin-mgt" },
-      { "source": "/guides/developer/advanced/custom-indexer", "destination": "/guides/developer/accessing-data/custom-indexer" },
-      { "source": "/guides/developer/advanced/custom-indexer/build", "destination": "/guides/developer/accessing-data/custom-indexer/build" },
-      { "source": "/guides/developer/advanced/custom-indexer/indexer-data-integration", "destination": "/concepts/data-access/indexer-data-integration" },
-      { "source": "/guides/developer/advanced/custom-indexer/indexer-runtime-perf", "destination": "/concepts/data-access/indexer-runtime-perf" },
-      { "source": "/guides/developer/advanced/custom-indexer/indexer-walrus", "destination": "/guides/developer/accessing-data/custom-indexer/indexer-walrus" },
-      { "source": "/guides/developer/advanced/graphql-rpc", "destination": "/concepts/data-access/graphql-rpc" },
-      { "source": "/guides/developer/haneul-101/using-events", "destination": "/guides/developer/accessing-data/using-events" },
-      { "source": "/guides/developer/haneul-101/local-network", "destination": "/guides/developer/getting-started/local-network" },
-      { "source": "/guides/developer/advanced/local-fee-markets", "destination": "/guides/developer/objects/local-fee-markets" },
-      { "source": "/guides/developer/haneul-101/access-time", "destination": "/guides/developer/on-chain-primitives/access-time" },
-      { "source": "/guides/developer/advanced/randomness-onchain", "destination": "/guides/developer/on-chain-primitives/randomness-onchain" },
-      { "source": "/guides/developer/haneul-101/building-ptb", "destination": "/guides/developer/transactions/ptbs/building-ptb", "permanent": true },
-      { "source": "/guides/developer/haneul-101/sign-and-send-txn", "destination": "/guides/developer/transactions/ptbs/sign-and-send-txn", "permanent": true },
-      { "source": "/guides/developer/haneul-101/simulating-refs", "destination": "/guides/developer/objects/simulating-refs" },
-      { "source": "/guides/developer/haneul-101/sponsor-txn", "destination": "/guides/developer/transactions/sponsor-txn" },
-      { "source": "/guides/developer/haneul-101/working-with-ptbs", "destination": "/guides/developer/transactions/ptbs/prog-txn-blocks" },
-      { "source": "/concepts/data-access/archival-store", "destination": "/guides/developer/accessing-data/archival-store" },
-      { "source": "/concepts/data-access/custom-indexing-framework", "destination": "/guides/developer/accessing-data/custom-indexing-framework" },
-      { "source": "/concepts/data-access/grpc-overview", "destination": "/concepts/data-access/grpc" },
-      { "source": "/concepts/data-access/pipeline-architecture", "destination": "/concepts/data-access/pipeline-architecture" },
-      { "source": "/guides/developer/haneul-move", "destination": "/guides" },
-      { "source": "/learn/architecture", "destination": "/concepts" },
-      { "source": "/concepts/governance", "destination": "/concepts" },
-      { "source": "/concepts/haneul-tokenomics", "destination": "/concepts" },
-      { "source": "/guides/developer/haneul-wallet", "destination": "/guides" },
-      { "source": "/concepts/haneul-move-concepts/object-model", "destination": "/concepts" },
-      { "source": "/references/rpc", "destination": "/guides" },
-      { "source": "/concepts/haneul-object-model", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/gas-fees", "destination": "/concepts" },
-      { "source": "/guides/developer/haneul-101/zklogin", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-upgrade", "destination": "/guides" },
-      { "source": "/guides/operator/haneul-validator", "destination": "/guides" },
-      { "source": "/concepts/mysticeti", "destination": "/concepts" },
-      { "source": "/concepts/oracles", "destination": "/concepts" },
-      { "source": "/concepts/haneul-architecture/checkpoints", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move", "destination": "/concepts" },
-      { "source": "/references/sdk/rust", "destination": "/guides" },
-      { "source": "/build/programmable-transaction-blocks", "destination": "/guides" },
-      { "source": "/concepts/haneul-move-concepts/objects", "destination": "/concepts" },
-      { "source": "/guides/developer/app-examples/games", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-install", "destination": "/guides" },
-      { "source": "/guides/developer/zklogin", "destination": "/guides" },
-      { "source": "/guides/validator/validator-setup", "destination": "/guides" },
-      { "source": "/references/graphql", "destination": "/guides" },
-      { "source": "/references/haneul-cli-client", "destination": "/guides" },
-      { "source": "/technology", "destination": "/guides" },
-      { "source": "/apps/deepbook", "destination": "/guides" },
-      { "source": "/apps/haneul-wallet", "destination": "/guides" },
-      { "source": "/concepts/consensus/mysticeti", "destination": "/concepts" },
-      { "source": "/concepts/staking", "destination": "/concepts" },
-      { "source": "/concepts/haneul-compared", "destination": "/guides" },
-      { "source": "/concepts/haneul-tokenomics/staking-and-participation", "destination": "/concepts" },
-      { "source": "/concepts/haneul-tokenomics/staking-unstaking", "destination": "/concepts" },
-      { "source": "/guides/developer/first-smart-contract", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/connect-to-testnet", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/get-testnet-haneul", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/install-cli", "destination": "/guides" },
-      { "source": "/guides/developer/staking", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/working-with-coins", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-cli-client", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-cli/client-commands", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-programmable-transaction-blocks", "destination": "/guides" },
-      { "source": "/guides/user/stake-delegate", "destination": "/guides" },
-      { "source": "/learn/tokenomics/token-release-schedule", "destination": "/guides" },
-      { "source": "/guides/developer/app-examples/zklogin", "destination": "/guides" },
-      { "source": "/concepts/haneul-move-concepts/object-model/one-time-witness", "destination": "/concepts" },
-      { "source": "/concepts/haneul-object-runtime/object-basics", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/fungible-tokens", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/staking-and-participation", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/staking-rewards", "destination": "/concepts" },
-      { "source": "/concepts/transactions/gas-fees", "destination": "/concepts" },
-      { "source": "/guides/developer/advanced/rpc-api", "destination": "/guides" },
-      { "source": "/guides/developer/advanced/zklogin", "destination": "/guides" },
-      { "source": "/guides/developer/best-practices/security", "destination": "/guides" },
-      { "source": "/guides/developer/deepbookv3/introduction", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/move-write-package", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/haneul-cli-client", "destination": "/guides" },
-      { "source": "/guides/developer/staking-unstaking", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/create-nft", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/haneul-addresses", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-grpc", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-jsonrpc", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move-concepts", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/create-coin-token", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/use-randomness", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-sdk", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-token", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-zklogin", "destination": "/guides" },
-      { "source": "/guides/operator/run-fullnode", "destination": "/guides" },
-      { "source": "/guides/operator/validator-guide", "destination": "/guides" },
-      { "source": "/references/rpc/fullnode", "destination": "/guides" },
-      { "source": "/references/haneul-token", "destination": "/guides" },
-      { "source": "/haneul-tokenomics", "destination": "/guides" },
-      { "source": "/tutorials/apps/simple-dex", "destination": "/guides" },
-      { "source": "/apps/slush-wallet", "destination": "/guides" },
-      { "source": "/build/graphql", "destination": "/guides" },
-      { "source": "/build/smart-contracts/security", "destination": "/guides" },
-      { "source": "/build/haneul-move/token-standard", "destination": "/guides" },
-      { "source": "/concepts/cryptography/groth16", "destination": "/concepts" },
-      { "source": "/concepts/object-centric-model", "destination": "/concepts" },
-      { "source": "/concepts/scaling", "destination": "/concepts" },
-      { "source": "/concepts/storage/walrus", "destination": "/concepts" },
-      { "source": "/concepts/haneul-architecture/tokenomics", "destination": "/concepts" },
-      { "source": "/concepts/haneul-economics", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move-concepts/object", "destination": "/concepts" },
-      { "source": "/concepts/haneul-ns", "destination": "/concepts" },
-      { "source": "/concepts/haneul-token", "destination": "/concepts" },
-      { "source": "/concepts/haneul-tokenomics/stake-subsidy", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/nft-marketplaces", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/objects", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/overview", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/haneul-testnet", "destination": "/concepts" },
-      { "source": "/concepts/transaction-processing", "destination": "/concepts" },
-      { "source": "/concepts/zklogin", "destination": "/concepts" },
-      { "source": "/develop", "destination": "/guides" },
-      { "source": "/guides/consumer/staking", "destination": "/guides" },
-      { "source": "/guides/developer/advanced/run-indexer", "destination": "/guides" },
-      { "source": "/guides/developer/app-examples/connect-wallet", "destination": "/guides" },
-      { "source": "/guides/developer/app-examples/distributed-counter", "destination": "/guides" },
-      { "source": "/guides/developer/devnet-testnet", "destination": "/guides" },
-      { "source": "/guides/developer/first-app/coin-flip", "destination": "/guides" },
-      { "source": "/guides/developer/full-node", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/build-from-main", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/connect-to-metamask", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/connect-to-network", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/haneul-wallet", "destination": "/guides" },
-      { "source": "/guides/developer/publish", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/haneul-overview", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-coin", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-economics/gas-pricing", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-liquid-staking", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move-concepts/coin", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move-vs-rust", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/move.toml-manifest", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/reference/arithmetic", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/write-smart-contracts", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-multisig", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-wallets", "destination": "/guides" },
-      { "source": "/guides/developer/wallet-integration/zklogin", "destination": "/guides" },
-      { "source": "/guides/developer/wallet-standard", "destination": "/guides" },
-      { "source": "/guides/developer/zklogin-integration", "destination": "/guides" },
-      { "source": "/guides/operator/haneul-foundation-delegation", "destination": "/guides" },
-      { "source": "/guides/operator/haneul-tool", "destination": "/guides" },
-      { "source": "/guides/staking", "destination": "/guides" },
-      { "source": "/guides/haneul-wallet", "destination": "/guides" },
-      { "source": "/guides/haneul-wallet/ledger-support", "destination": "/guides" },
-      { "source": "/guides/haneul-wallet/staking", "destination": "/guides" },
-      { "source": "/learn/haneul-object-model", "destination": "/guides" },
-      { "source": "/proposals/sip-39", "destination": "/guides" },
-      { "source": "/references/cli-client", "destination": "/guides" },
-      { "source": "/references/cli/tool", "destination": "/guides" },
-      { "source": "/references/haneul-api/reference/rest/transaction-operations/dry-run-transaction-block", "destination": "/guides" },
-      { "source": "/references/haneul-graphql/reference", "destination": "/guides" },
-      { "source": "/references/haneul-tokenomics", "destination": "/guides" },
-      { "source": "/references/haneul-typescript-sdk", "destination": "/guides" },
-      { "source": "/standards/haneulns", "destination": "/guides" },
-      { "source": "/tokenomics", "destination": "/guides" },
-      { "source": "/guides/developer/app-examples/merge-coins", "destination": "/guides" },
-      { "source": "/references/move/haneul/package", "destination": "/guides" },
-      { "source": "/applications", "destination": "/guides" },
-      { "source": "/applications/walrus", "destination": "/guides" },
-      { "source": "/apps/walrus/overview", "destination": "/guides" },
-      { "source": "/architecture", "destination": "/guides" },
-      { "source": "/build/move/publish", "destination": "/guides" },
-      { "source": "/build/rpc", "destination": "/guides" },
-      { "source": "/concepts/architecture/high-level-overview", "destination": "/concepts" },
-      { "source": "/concepts/data-access/graphql-overview", "destination": "/concepts" },
-      { "source": "/concepts/objects-transactions-gas/objects/object-versioning", "destination": "/concepts" },
-      { "source": "/concepts/haneul-gas", "destination": "/concepts" },
-      { "source": "/concepts/haneul-gas-model", "destination": "/concepts" },
-      { "source": "/concepts/haneul-governance", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move-concepts/gas-coins", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move-concepts/generics", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move-concepts/objects/destroying-objects", "destination": "/concepts" },
-      { "source": "/concepts/haneul-object-model/storage-gas", "destination": "/concepts" },
-      { "source": "/concepts/haneul-overview", "destination": "/concepts" },
-      { "source": "/concepts/haneul-performance", "destination": "/concepts" },
-      { "source": "/concepts/haneul-tokenomics/gas-fees", "destination": "/concepts" },
-      { "source": "/concepts/token/haneul-token", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/staking", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/staking-and-delegation", "destination": "/concepts" },
-      { "source": "/concepts/transaction-deps", "destination": "/concepts" },
-      { "source": "/concepts/transactions/transaction-auth/consensus", "destination": "/concepts" },
-      { "source": "/concepts/transactions/transaction-auth/zklogin", "destination": "/concepts" },
-      { "source": "/concepts/transactions/transaction-types", "destination": "/concepts" },
-      { "source": "/concepts/validators", "destination": "/concepts" },
-      { "source": "/contribute/security", "destination": "/guides" },
-      { "source": "/guides/apps/walrus", "destination": "/guides" },
-      { "source": "/guides/consumer/slush", "destination": "/guides" },
-      { "source": "/guides/consumer/stake", "destination": "/guides" },
-      { "source": "/guides/consumer/haneul-wallets", "destination": "/guides" },
-      { "source": "/guides/developer/advanced/build-from-source", "destination": "/guides" },
-      { "source": "/guides/developer/advanced/programmable-transaction-blocks", "destination": "/guides" },
-      { "source": "/guides/developer/advanced/pruning", "destination": "/guides" },
-      { "source": "/guides/developer/advanced/testing-modules", "destination": "/guides" },
-      { "source": "/guides/developer/app-examples/token", "destination": "/guides" },
-      { "source": "/guides/developer/app-examples/wallet-kit", "destination": "/guides" },
-      { "source": "/guides/developer/app-examples/zk-login-salt-management", "destination": "/guides" },
-      { "source": "/guides/developer/coin/managed", "destination": "/guides" },
-      { "source": "/guides/developer/common-tasks/create-nft", "destination": "/guides" },
-      { "source": "/guides/developer/crypto/signing", "destination": "/guides" },
-      { "source": "/guides/developer/cryptography/keypairs", "destination": "/guides" },
-      { "source": "/guides/developer/first-app/create-coin", "destination": "/guides" },
-      { "source": "/guides/developer/first-app/quick-start", "destination": "/guides" },
-      { "source": "/guides/developer/first-move-package", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/connect-to-devnet", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/connect-to-grpc", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/connect-wallet", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/create-your-first-dapp", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/first-app", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/get-a-wallet", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/get-haneul-binary", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/get-testnet-funds", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/installation", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/move", "destination": "/guides" },
-      { "source": "/guides/developer/seal", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/counter-e2e", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/create-fungible-token", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/gas-fees", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/sign-transaction", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/testing-tooling", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-assets/nfts", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-local-network", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-local-testnet", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-mobile", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move-concepts/object-ownership", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move-examples", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move-guides/token-standard", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move-standards/closed-loop-token", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/examples/nft", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/flash-loan", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/modules-and-packages", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/move-differences", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/publish-modules", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/publish-package", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-performance", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-sdk-examples", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-wallet-kit/sign-message", "destination": "/guides" },
-      { "source": "/guides/developer/haneulns", "destination": "/guides" },
-      { "source": "/guides/developer/token-standard", "destination": "/guides" },
-      { "source": "/guides/operating-a-validator/staking", "destination": "/guides" },
-      { "source": "/guides/operator/run-full-node", "destination": "/guides" },
-      { "source": "/guides/operator/staking-rewards", "destination": "/guides" },
-      { "source": "/guides/operator/haneul-full-node/indexing", "destination": "/guides" },
-      { "source": "/guides/operator/validator-rewards", "destination": "/guides" },
-      { "source": "/guides/participant/staking", "destination": "/guides" },
-      { "source": "/guides/haneul-tokenomics/haneul-token", "destination": "/guides" },
-      { "source": "/guides/validator/staking-delegation", "destination": "/guides" },
-      { "source": "/guides/validator/staking-unstaking", "destination": "/guides" },
-      { "source": "/guides/zklogin", "destination": "/guides" },
-      { "source": "/learn/haneul-transaction-model", "destination": "/guides" },
-      { "source": "/learn/tokenomics/stake-subsidy", "destination": "/guides" },
-      { "source": "/learn/tokenomics/staking-and-participation", "destination": "/guides" },
-      { "source": "/references/move", "destination": "/guides" },
-      { "source": "/references/move/haneul/random", "destination": "/guides" },
-      { "source": "/references/move/syntax/modules", "destination": "/guides" },
-      { "source": "/references/networks", "destination": "/guides" },
-      { "source": "/references/haneul-framework/haneul/versioned", "destination": "/guides" },
-      { "source": "/references/haneul-system", "destination": "/guides" },
-      { "source": "/references/haneul-txns", "destination": "/guides" },
-      { "source": "/standards/coin-standard", "destination": "/guides" },
-      { "source": "/standards/zklogin", "destination": "/guides" },
-      { "source": "/build/building-from-source", "destination": "/guides" },
-      { "source": "/concepts/haneul-economics/overview", "destination": "/concepts" },
-      { "source": "/apps/deepbook/reference/fees", "destination": "/guides" },
-      { "source": "/apps/dexes", "destination": "/guides" },
-      { "source": "/apps/walrus", "destination": "/guides" },
-      { "source": "/build/build-install", "destination": "/guides" },
-      { "source": "/build/dapp-kit", "destination": "/guides" },
-      { "source": "/build/devnet", "destination": "/guides" },
-      { "source": "/build/programmable-objects/programmable-transaction-blocks", "destination": "/guides" },
-      { "source": "/build/testing", "destination": "/guides" },
-      { "source": "/build/zklogin", "destination": "/guides" },
-      { "source": "/concepts/architecture/high-level", "destination": "/concepts" },
-      { "source": "/concepts/cryptography/merkle-trees", "destination": "/concepts" },
-      { "source": "/concepts/cryptography/haneul-addresses", "destination": "/concepts" },
-      { "source": "/concepts/gas", "destination": "/concepts" },
-      { "source": "/concepts/gas-fees", "destination": "/concepts" },
-      { "source": "/concepts/objects", "destination": "/concepts" },
-      { "source": "/concepts/objects/kiosk", "destination": "/concepts" },
-      { "source": "/concepts/overview", "destination": "/concepts" },
-      { "source": "/concepts/randomness", "destination": "/concepts" },
-      { "source": "/concepts/staking-unstaking", "destination": "/concepts" },
-      { "source": "/concepts/haneul-addresses", "destination": "/concepts" },
-      { "source": "/concepts/haneul-architecture/transaction-model", "destination": "/concepts" },
-      { "source": "/concepts/haneul-architecture/transaction-processing", "destination": "/concepts" },
-      { "source": "/concepts/haneul-bridge", "destination": "/concepts" },
-      { "source": "/concepts/haneul-consensus", "destination": "/concepts" },
-      { "source": "/concepts/haneul-consensus/mysticeti", "destination": "/concepts" },
-      { "source": "/concepts/haneul-deny-list", "destination": "/concepts" },
-      { "source": "/concepts/haneul-economy/gas", "destination": "/concepts" },
-      { "source": "/concepts/haneul-indexer", "destination": "/concepts" },
-      { "source": "/concepts/haneul-jsonrpc-api", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move-concepts/applications/kiosk", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move-concepts/applications/nft-protocol/kiosk", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move-concepts/object-centric-world", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move-concepts/receiving-objects", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move-concepts/sponsored-transactions", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move-concepts/testing", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move/object-model", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move/overview", "destination": "/concepts" },
-      { "source": "/concepts/haneul-nodes", "destination": "/concepts" },
-      { "source": "/concepts/haneul-object-runtime", "destination": "/concepts" },
-      { "source": "/concepts/haneul-ownership", "destination": "/concepts" },
-      { "source": "/concepts/haneul-wallet", "destination": "/concepts" },
-      { "source": "/concepts/token-io/nft", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/stablecoins/usdc", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/staking-and-inflation", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/token-utility", "destination": "/concepts" },
-      { "source": "/concepts/transaction-flow", "destination": "/concepts" },
-      { "source": "/concepts/transaction-lifecycle", "destination": "/concepts" },
-      { "source": "/concepts/transactions/programmable-transaction-blocks", "destination": "/concepts" },
-      { "source": "/concepts/transactions/transaction-auth/authorized", "destination": "/concepts" },
-      { "source": "/guides/app-examples", "destination": "/guides" },
-      { "source": "/guides/build", "destination": "/guides" },
-      { "source": "/guides/developer/advanced/bcs", "destination": "/guides" },
-      { "source": "/guides/developer/advanced/grpc", "destination": "/guides" },
-      { "source": "/guides/developer/coin-standard", "destination": "/guides" },
-      { "source": "/guides/developer/cryptography/zklogin-recovery", "destination": "/guides" },
-      { "source": "/guides/developer/dapp-connect-wallet", "destination": "/guides" },
-      { "source": "/guides/developer/dapp-kit/dapp-kit-intro", "destination": "/guides" },
-      { "source": "/guides/developer/examples/tic-tac-toe", "destination": "/guides" },
-      { "source": "/guides/developer/first-app/admin-dashboard", "destination": "/guides" },
-      { "source": "/guides/developer/first-app/publish-package", "destination": "/guides" },
-      { "source": "/guides/developer/first-app/shared-counter", "destination": "/guides" },
-      { "source": "/guides/developer/first-app/write-smart-contract", "destination": "/guides" },
-      { "source": "/guides/developer/first-package/publish-package", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/call-move-functions", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/cli-client", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/deploy-on-haneul", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/move-setup", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/run-a-local-full-node", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/zk-login", "destination": "/guides" },
-      { "source": "/guides/developer/grants", "destination": "/guides" },
-      { "source": "/guides/developer/kiosk", "destination": "/guides" },
-      { "source": "/guides/developer/liquid-staking", "destination": "/guides" },
-      { "source": "/guides/developer/move/move-registry", "destination": "/guides" },
-      { "source": "/guides/developer/nft/kiosk", "destination": "/guides" },
-      { "source": "/guides/developer/starter-templates", "destination": "/guides/developer/getting-started", "permanent": true },
-      { "source": "/guides/developer/haneul-101/create-capabilities", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/creating-coin", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/gas-in-haneul", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/graphql", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/working-with-bcs", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/working-with-keys", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-bridge", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-cli-client/ptb", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move-reference", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/create-nft", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/kiosk", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/migration-guide", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/move-prover", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/move-toml", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/object", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-programmability/interacting-with-contracts", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-prover", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-sdk/rust-sdk", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-signatures", "destination": "/guides" },
-      { "source": "/guides/developer/wallet-kit/quickstart", "destination": "/guides" },
-      { "source": "/guides/developer/wallets/web3-integration", "destination": "/guides" },
-      { "source": "/guides/operate-a-haneul-node", "destination": "/guides" },
-      { "source": "/guides/operating-a-validator/staking-and-delegation", "destination": "/guides" },
-      { "source": "/guides/operating-a-validator/staking-rewards", "destination": "/guides" },
-      { "source": "/guides/operator/configure-snapshots", "destination": "/guides" },
-      { "source": "/guides/operator/run-validator", "destination": "/guides" },
-      { "source": "/guides/operator/stake-management", "destination": "/guides" },
-      { "source": "/guides/operator/staking", "destination": "/guides" },
-      { "source": "/guides/operator/haneul-consensus", "destination": "/guides" },
-      { "source": "/guides/operator/haneul-fullnode", "destination": "/guides" },
-      { "source": "/guides/operator/validator/setup-validator", "destination": "/guides" },
-      { "source": "/guides/operator/validator/validator-setup", "destination": "/guides" },
-      { "source": "/guides/haneul-tokenomics/staking-and-unstaking", "destination": "/guides" },
-      { "source": "/guides/haneul-tokenomics/staking-rewards", "destination": "/guides" },
-      { "source": "/guides/user/haneul-wallets/ledger", "destination": "/guides" },
-      { "source": "/guides/validator/staking", "destination": "/guides" },
-      { "source": "/intro-to-haneul", "destination": "/guides" },
-      { "source": "/learn/about-haneul/performance", "destination": "/guides" },
-      { "source": "/learn/consensus", "destination": "/guides" },
-      { "source": "/learn/haneul-architecture/consensus", "destination": "/guides" },
-      { "source": "/learn/haneul-architecture/high-level-view", "destination": "/guides" },
-      { "source": "/learn/tokenomics/gas-fees", "destination": "/guides" },
-      { "source": "/references/api/reference", "destination": "/guides" },
-      { "source": "/references/fullnode-protocol/grpc-v2", "destination": "/guides" },
-      { "source": "/references/move-stdlib/crypto/ecdsa_k1", "destination": "/guides" },
-      { "source": "/references/move/stdlib/ecdsa_k1", "destination": "/guides" },
-      { "source": "/references/move/test_scenario", "destination": "/guides" },
-      { "source": "/references/rpc/servers", "destination": "/guides" },
-      { "source": "/references/haneul-consensus", "destination": "/guides" },
-      { "source": "/references/haneul-glossary", "destination": "/guides" },
-      { "source": "/references/haneul-move-examples", "destination": "/guides" },
-      { "source": "/references/haneul-move/coin", "destination": "/guides" },
-      { "source": "/references/haneul-protocol/haneul-consensus", "destination": "/guides" },
-      { "source": "/references/haneul-token.pdf", "destination": "/guides" },
-      { "source": "/applications/walrus/overview", "destination": "/guides" },
-      { "source": "/build/dapps/connecting-to-wallets", "destination": "/guides" },
-      { "source": "/build/dev-guide", "destination": "/guides" },
-      { "source": "/build/devex/swap-fees", "destination": "/guides" },
-      { "source": "/build/move-apps", "destination": "/guides" },
-      { "source": "/build/haneul-sdk-kit/haneul-java-sdk", "destination": "/guides" },
-      { "source": "/build/wallet", "destination": "/guides" },
-      { "source": "/concepts/components/narwhal", "destination": "/concepts" },
-      { "source": "/concepts/cryptography/zklogin/user-salt", "destination": "/concepts" },
-      { "source": "/concepts/deepbook", "destination": "/concepts" },
-      { "source": "/concepts/economics/gas-pricing", "destination": "/concepts" },
-      { "source": "/concepts/governance/epoch", "destination": "/concepts" },
-      { "source": "/concepts/governance/validators", "destination": "/concepts" },
-      { "source": "/concepts/objects/object-model", "destination": "/concepts" },
-      { "source": "/concepts/parallel-execution", "destination": "/concepts" },
-      { "source": "/concepts/haneul-architecture/consensus-engine", "destination": "/concepts" },
-      { "source": "/concepts/haneul-architecture/consensus/mysticeti", "destination": "/concepts" },
-      { "source": "/concepts/haneul-architecture/fees", "destination": "/concepts" },
-      { "source": "/concepts/haneul-architecture/gas-fees", "destination": "/concepts" },
-      { "source": "/concepts/haneul-architecture/gas-model", "destination": "/concepts" },
-      { "source": "/concepts/haneul-architecture/high-level-architecture", "destination": "/concepts" },
-      { "source": "/concepts/haneul-architecture/object-centric", "destination": "/concepts" },
-      { "source": "/concepts/haneul-architecture/haneul-transaction-processing", "destination": "/concepts" },
-      { "source": "/concepts/haneul-architecture/transaction-processing/gas-fees", "destination": "/concepts" },
-      { "source": "/concepts/haneul-architecture/transactions-and-consensus", "destination": "/concepts" },
-      { "source": "/concepts/haneul-delegated-pos", "destination": "/concepts" },
-      { "source": "/concepts/haneul-grants", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move-concepts/events", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move-concepts/programming-with-objects", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move-concepts/storage/gas-storage-fund", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move-differences", "destination": "/concepts" },
-      { "source": "/concepts/haneul-move/move-overview", "destination": "/concepts" },
-      { "source": "/concepts/haneul-objects/object-ownership", "destination": "/concepts" },
-      { "source": "/concepts/haneul-objects/runtime/object-runtime", "destination": "/concepts" },
-      { "source": "/concepts/haneul-tokenomics/staking-delegation", "destination": "/concepts" },
-      { "source": "/concepts/haneul-tokenomics/staking-rewards", "destination": "/concepts" },
-      { "source": "/concepts/haneul-tokenomics/haneul-token", "destination": "/concepts" },
-      { "source": "/concepts/haneul-transaction-builder/gas-fees", "destination": "/concepts" },
-      { "source": "/concepts/technology-overview", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/airdrop", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/gas", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/gas-distribution", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/object-renting", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/package-publish", "destination": "/concepts" },
-      { "source": "/concepts/tokenomics/token-haneul", "destination": "/concepts" },
-      { "source": "/concepts/transactions/gas", "destination": "/concepts" },
-      { "source": "/concepts/transactions/mysticeti", "destination": "/concepts" },
-      { "source": "/concepts/transactions/prog-txns/mysticeti", "destination": "/concepts" },
-      { "source": "/developing/building-apps/first-app", "destination": "/guides" },
-      { "source": "/guides/build/smart-contracts", "destination": "/guides" },
-      { "source": "/guides/consumer/zk-login", "destination": "/guides" },
-      { "source": "/guides/developer/advanced/dev-inspect", "destination": "/guides" },
-      { "source": "/guides/developer/app-examples/create-currency", "destination": "/guides" },
-      { "source": "/guides/developer/app-examples/fungible-token", "destination": "/guides" },
-      { "source": "/guides/developer/app-examples/games/coin-flip", "destination": "/guides" },
-      { "source": "/guides/developer/app-examples/nft", "destination": "/guides" },
-      { "source": "/guides/developer/app-examples/personal-message", "destination": "/guides" },
-      { "source": "/guides/developer/app-examples/prediction-market", "destination": "/guides" },
-      { "source": "/guides/developer/app-examples/random", "destination": "/guides" },
-      { "source": "/guides/developer/app-examples/sponsored-transactions", "destination": "/guides" },
-      { "source": "/guides/developer/coin/create-coin", "destination": "/guides" },
-      { "source": "/guides/developer/first-app/blackjack", "destination": "/guides" },
-      { "source": "/guides/developer/first-app/write-move-packages", "destination": "/guides" },
-      { "source": "/guides/developer/flash-loans", "destination": "/guides" },
-      { "source": "/guides/developer/framework/move", "destination": "/guides" },
-      { "source": "/guides/developer/getting-start", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/cli", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/first-move-move", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/get-tokens", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/haneul-wallets", "destination": "/guides" },
-      { "source": "/guides/developer/getting-started/wallets", "destination": "/guides" },
-      { "source": "/guides/developer/graphql/reference/queries", "destination": "/guides" },
-      { "source": "/guides/developer/object-io", "destination": "/guides" },
-      { "source": "/guides/developer/sdk/rust-sdk", "destination": "/guides" },
-      { "source": "/guides/developer/security/gas-charges", "destination": "/guides" },
-      { "source": "/guides/developer/smart-contracts/upgrade-packages", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/coin-management", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/connect-wallet", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/send-receive-tokens", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/using-move", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/using-phantom", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/working-objects", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-api/graphql", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-architecture/high-level", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-examples/fungible-tokens", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move-land/move-toml", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move-tutorial/ch01-get-started", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/coin", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-move/publishing", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-nft", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-staking", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-wallet-kit", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-wallet-standard", "destination": "/guides" },
-      { "source": "/guides/developer/testing", "destination": "/guides" },
-      { "source": "/guides/developer/troubleshooting", "destination": "/guides" },
-      { "source": "/guides/developer/wallet-integrations", "destination": "/guides" },
-      { "source": "/guides/developer/wallet-kit", "destination": "/guides" },
-      { "source": "/guides/developer/walrus", "destination": "/guides" },
-      { "source": "/guides/operating/staking-unstaking", "destination": "/guides" },
-      { "source": "/guides/operator/full-node/setup", "destination": "/guides" },
-      { "source": "/guides/operator/fullnode/run-fullnode", "destination": "/guides" },
-      { "source": "/guides/operator/prune-node", "destination": "/guides" },
-      { "source": "/guides/operator/validator-activities", "destination": "/guides" },
-      { "source": "/guides/operator/validator/update-validator-info", "destination": "/guides" },
-      { "source": "/guides/user/stake-haneul", "destination": "/guides" },
-      { "source": "/guides/user/haneul-wallets/hardware-wallets/ledger", "destination": "/guides" },
-      { "source": "/guides/validator/run-a-validator", "destination": "/guides" },
-      { "source": "/learn/architecture/high-level-overview", "destination": "/guides" },
-      { "source": "/learn/architecture/overview", "destination": "/guides" },
-      { "source": "/learn/move/move-overview", "destination": "/guides" },
-      { "source": "/learn/objects/object-ownership", "destination": "/guides" },
-      { "source": "/learn/tokenomics/haneul-economy", "destination": "/guides" },
-      { "source": "/quick-start", "destination": "/guides" },
-      { "source": "/references/cli/haneulup", "destination": "/guides" },
-      { "source": "/references/dapp-kit", "destination": "/guides" },
-      { "source": "/references/sdk/typescript", "destination": "/guides" },
-      { "source": "/references/haneul-dapp-toolkit", "destination": "/guides" },
-      { "source": "/references/haneul-framework/staking-pool", "destination": "/guides" },
-      { "source": "/references/haneul-token/use", "destination": "/guides" },
-      { "source": "/references/haneul-types/transaction", "destination": "/guides" },
-      { "source": "/references/transaction-format", "destination": "/guides" },
-      { "source": "/haneul-paper/haneul.pdf", "destination": "/guides" },
-      { "source": "/haneul-rpc", "destination": "/guides" },
-      { "source": "/technology/architecture", "destination": "/guides" },
-      { "source": "/technology/transaction-flow", "destination": "/guides" },
-      { "source": "/haneul-whitepaper", "destination": "/guides" },
-      { "source": "/contribute-to-haneul-repos", "destination": "/guides" },
-      { "source": "/guides/bridge", "destination": "/guides" },
-      { "source": "/learn/tokenomics/staking", "destination": "/guides" },
-      { "source": "/concepts/tokenomics/coin", "destination": "/concepts" },
-      { "source": "/guides/developer/deepbook", "destination": "/guides" },
-      { "source": "/references/haneul-move/modules/coin_registry", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-token-standard", "destination": "/guides" },
-      { "source": "/references/cli/client", "destination": "/guides" },
-      { "source": "/contribute/faq", "destination": "/guides" },
-      { "source": "/deepbook", "destination": "/guides" },
-      { "source": "/references/rpc/mainnet", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/create-coin/loyalty", "destination": "/guides" },
-      { "source": "/guides/operator/full-node", "destination": "/guides" },
-      { "source": "/guides/validator/run-validator", "destination": "/guides" },
-      { "source": "/learn/architecture/consensus/mysticeti", "destination": "/guides" },
-      { "source": "/guides/developer/deepbookv3/flash-loans", "destination": "/guides" },
-      { "source": "/concepts/tokenomics/rewards", "destination": "/concepts" },
-      { "source": "/concepts/economics", "destination": "/concepts" },
-      { "source": "/guides/developer/haneul-cli/client", "destination": "/guides" },
-      { "source": "/explore/panzerdogs", "destination": "/guides" },
-      { "source": "/localize-haneul-docs", "destination": "/guides" },
-      { "source": "/concepts/tokenomics/haneul-token", "destination": "/concepts" },
-      { "source": "/exchange-integration-guide", "destination": "/guides" },
-      { "source": "/concepts/cryptography/transaction-auth", "destination": "/concepts" },
-      { "source": "/guides/developer/getting-started/cli-install", "destination": "/guides" },
-      { "source": "/concepts/haneul-architecture", "destination": "/concepts" },
-      { "source": "/concepts/consensus", "destination": "/concepts" },
-      { "source": "/build/programming-with-objects", "destination": "/guides" },
-      { "source": "/guides/developer/advanced", "destination": "/guides" },
-      { "source": "/guides/developer/nautilus/index", "destination": "/guides/developer/nautilus" },
-      { "source": "/guides/developer/haneul-101", "destination": "/guides" },
-      { "source": "/guides/developer/haneul-101/client-tssdk", "destination": "/guides/developer/app-examples/client-tssdk" },
-      { "source": "/guides/developer/haneul-101/common-errors", "destination": "/guides/developer/common-errors" },
-      { "source": "/concepts/transactions/coin-mgt", "destination": "/concepts/coin-mgt" },
-      { "source": "/concepts/transactions", "destination": "/guides/developer/transactions/txn-overview" },
-      { "source": "/concepts/transactions/prog-txn-blocks", "destination": "/guides/developer/transactions/ptbs/prog-txn-blocks", "permanent": true },
-      { "source": "/concepts/transactions/transaction-auth/intent-signing", "destination": "/guides/developer/transactions/transaction-auth/intent-signing" },
-      { "source": "/concepts/transactions/transaction-auth/multisig", "destination": "/guides/developer/transactions/transaction-auth/multisig" },
-      { "source": "/concepts/transactions/transaction-auth/offline-signing", "destination": "/guides/developer/transactions/transaction-auth/offline-signing" },
-      { "source": "/guides/developer/transactions/working-with-ptbs", "destination": "/guides/developer/transactions/ptbs/prog-txn-blocks" },
-      { "source": "/concepts/transactions/sponsored-transactions", "destination": "/guides/developer/transactions/sponsor-txn" },
-      { "source": "/guides/developer/accessing-data/custom-indexer", "destination": "/guides/developer/accessing-data/custom-indexer" },
-      { "source": "/guides/developer/accessing-data/custom-indexer/indexer-runtime-perf", "destination": "/concepts/data-access/indexer-runtime-perf" },
-      { "source": "/guides/developer/accessing-data/custom-indexer/pipeline-architecture", "destination": "/concepts/data-access/pipeline-architecture" },
-      { "source": "/guides/developer/accessing-data/custom-indexer/indexer-data-integration", "destination": "/concepts/data-access/indexer-data-integration" },
-      { "source": "/concepts/cryptography/nautilus/nautilus-design", "destination": "/guides/developer/nautilus/nautilus-design" },
-      { "source": "/concepts/architecture", "destination": "/concepts/haneul-architecture/components", "permanent": true },
-      { "source": "/concepts/tokenomics", "destination": "/concepts/tokenomics/tokenomics-overview", "permanent": true },
-      { "source": "/guides/developer/accessing-data/custom-indexing-framework", "destination": "/guides/developer/accessing-data/custom-indexer", "permanent": true },
-      { "source": "/guides/developer/currency", "destination": "/guides/developer/coin/currency", "permanent": true },
-      { "source": "/guides/developer/cryptography/zklogin-integration", "destination": "/guides/developer/cryptography/zklogin-integration/zklogin-integration", "permanent": true },
-      { "source": "/concepts/cryptography/zklogin", "destination": "/guides/developer/cryptography/zklogin-integration/zklogin", "permanent": true },
-      { "source": "/concepts/haneul-move-concepts/conventions", "destination": "/guides/developer/move-best-practices", "permanent": true },
-      { "source": "/guides/developer/nft", "destination": "/guides/developer/nft/nft", "permanent": true },
-      { "source": "/concepts/haneul-move-concepts/packages", "destination": "/guides/developer/packages/package-overview", "permanent": true },
-      { "source": "/concepts/transactions/gas-smashing", "destination": "/guides/developer/transactions/gas-smashing", "permanent": true },
-      { "source": "/guides/developer/transactions/building-ptb", "destination": "/guides/developer/transactions/ptbs/building-ptb", "permanent": true },
-      { "source": "/concepts/transactions/inputs-and-results", "destination": "/guides/developer/transactions/ptbs/inputs-and-results", "permanent": true },
-      { "source": "/guides/developer/transactions/sign-and-send-txn", "destination": "/guides/developer/transactions/ptbs/sign-and-send-txn", "permanent": true },
-      { "source": "/guides/developer/wallet-index", "destination": "/guides/developer/wallets/wallet-index", "permanent": true },
-      { "source": "/concepts/cryptography/system", "destination": "/concepts/cryptography", "permanent": true },
-      { "source": "/concepts/haneul-move-concepts/move-2024-migration", "destination": "https://move-book.com/reference/", "permanent": true },
-      { "source": "/guides/developer/advanced/efficient-smart-contracts", "destination": "/guides/developer/dev-cheat-sheet", "permanent": true },
-      { "source": "/guides/developer/advanced/maximize-reach", "destination": "/guides/developer/dev-cheat-sheet", "permanent": true },
-      { "source": "/guides/developer/advanced/min-gas-fees", "destination": "/concepts/tokenomics/gas-in-haneul", "permanent": true },
-      { "source": "/guides/developer/advanced/security-best-practices", "destination": "/guides/developer/dev-cheat-sheet", "permanent": true },
-      { "source": "/guides/developer/advanced/wallet-integrations", "destination": "/guides/developer/wallets/wallet-index", "permanent": true },
-      { "source": "/guides/developer/app-examples", "destination": "/guides/developer", "permanent": true },
-      { "source": "/guides/developer/coin-index", "destination": "/guides/developer/coin", "permanent": true },
-      { "source": "/guides/developer/cryptography", "destination": "/concepts/cryptography", "permanent": true },
-      { "source": "/guides/developer/nft-index", "destination": "/guides/developer/nft", "permanent": true },
-      { "source": "/guides/developer/zklogin-onboarding", "destination": "/guides/developer/cryptography/zklogin-integration/zklogin-integration", "permanent": true },
-      { "source": "/guides/operator", "destination": "/guides/operator/haneul-full-node", "permanent": true }
-    ],
-    "rewrites": [
-      {
-        "source": "/(.+)\\.md",
-        "destination": "/markdown/$1.md"
-      }
-    ],
-    "headers": [
-      {
-        "source": "/markdown/(.*).md",
-        "headers": [
-          {
-            "key": "Content-Type",
-            "value": "text/markdown; charset=utf-8"
-          },
-          {
-            "key": "Content-Disposition",
-            "value": "inline"
-          },
-          {
-            "key": "Cache-Control",
-            "value": "public, max-age=3600, s-maxage=3600"
-          }
-        ]
-      }
-    ]
+    {
+      "source": "/testnet/:path*",
+      "destination": "/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/devnet/:path*",
+      "destination": "/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/learn/object-package-versions",
+      "destination": "/guides/developer/objects/versioning",
+      "permanent": true
+    },
+    {
+      "source": "/learn/objects",
+      "destination": "/guides/developer/objects/object-model",
+      "permanent": true
+    },
+    {
+      "source": "/learn/about-haneul",
+      "destination": "/concepts/architecture",
+      "permanent": true
+    },
+    {
+      "source": "/learn/index",
+      "destination": "/concepts",
+      "permanent": true
+    },
+    {
+      "source": "/learn",
+      "destination": "/concepts",
+      "permanent": true
+    },
+    {
+      "source": "/learn/sponsored-transactions",
+      "destination": "/guides/developer/transactions/sponsor-txn",
+      "permanent": true
+    },
+    {
+      "source": "/learn/why-move",
+      "destination": "/concepts/haneul-move-concepts",
+      "permanent": true
+    },
+    {
+      "source": "/learn/haneul-move-diffs",
+      "destination": "/concepts/haneul-move-concepts",
+      "permanent": true
+    },
+    {
+      "source": "/learn/transactions",
+      "destination": "/guides/developer/transactions/txn-overview",
+      "permanent": true
+    },
+    {
+      "source": "/learn/cryptography/groth16",
+      "destination": "/guides/developer/cryptography/groth16",
+      "permanent": true
+    },
+    {
+      "source": "/learn/cryptography/haneul-multisig",
+      "destination": "/guides/developer/transactions/transaction-auth/multisig",
+      "permanent": true
+    },
+    {
+      "source": "/learn/cryptography/haneul-signatures",
+      "destination": "/concepts/transactions/transaction-auth/signatures",
+      "permanent": true
+    },
+    {
+      "source": "/learn/cryptography/hashing",
+      "destination": "/guides/developer/cryptography/hashing",
+      "permanent": true
+    },
+    {
+      "source": "/learn/cryptography/haneul-intent-signing",
+      "destination": "/concepts/transactions/transaction-auth/intent-signing",
+      "permanent": true
+    },
+    {
+      "source": "/learn/cryptography/index",
+      "destination": "/concepts/cryptography",
+      "permanent": true
+    },
+    {
+      "source": "/learn/cryptography",
+      "destination": "/concepts/cryptography",
+      "permanent": true
+    },
+    {
+      "source": "/learn/cryptography/ecvrf",
+      "destination": "/guides/developer/cryptography/ecvrf",
+      "permanent": true
+    },
+    {
+      "source": "/learn/cryptography/haneul-move-signatures",
+      "destination": "/concepts/transactions/transaction-auth/signatures",
+      "permanent": true
+    },
+    {
+      "source": "/learn/cryptography/haneul-offline-signing",
+      "destination": "/concepts/transactions/transaction-auth/offline-signing",
+      "permanent": true
+    },
+    {
+      "source": "/learn/architecture/haneul-full-node-data",
+      "destination": "/guides/operator/data-management",
+      "permanent": true
+    },
+    {
+      "source": "/learn/architecture/validators",
+      "destination": "/concepts/haneul-architecture/consensus",
+      "permanent": true
+    },
+    {
+      "source": "/learn/tokenomics/storage-fund",
+      "destination": "/concepts/tokenomics/storage-fund",
+      "permanent": true
+    },
+    {
+      "source": "/learn/tokenomics/haneul-token",
+      "destination": "/concepts/tokenomics/haneul-token",
+      "permanent": true
+    },
+    {
+      "source": "/learn/tokenomics/gas-pricing",
+      "destination": "/concepts/tokenomics/gas-pricing",
+      "permanent": true
+    },
+    {
+      "source": "/learn/tokenomics/proof-of-stake",
+      "destination": "/concepts/tokenomics/proof-of-stake",
+      "permanent": true
+    },
+    {
+      "source": "/learn/tokenomics/gas-in-haneul",
+      "destination": "/concepts/tokenomics/gas-in-haneul",
+      "permanent": true
+    },
+    {
+      "source": "/learn/tokenomics/index",
+      "destination": "/concepts/tokenomics",
+      "permanent": true
+    },
+    {
+      "source": "/learn/tokenomics",
+      "destination": "/concepts/tokenomics",
+      "permanent": true
+    },
+    {
+      "source": "/explore/examples",
+      "destination": "/guides/developer",
+      "permanent": true
+    },
+    {
+      "source": "/explore/tutorials",
+      "destination": "/guides",
+      "permanent": true
+    },
+    {
+      "source": "/explore/index",
+      "destination": "/concepts",
+      "permanent": true
+    },
+    {
+      "source": "/explore",
+      "destination": "/concepts",
+      "permanent": true
+    },
+    {
+      "source": "/build/haneul-gas-charges",
+      "destination": "/concepts/tokenomics/gas-pricing",
+      "permanent": true
+    },
+    {
+      "source": "/build/haneul-json",
+      "destination": "/references/haneul-api",
+      "permanent": true
+    },
+    {
+      "source": "/build/event_api",
+      "destination": "/guides/developer/accessing-data/using-events",
+      "permanent": true
+    },
+    {
+      "source": "/build/dev_cheat_sheet",
+      "destination": "/guides/developer/dev-cheat-sheet",
+      "permanent": true
+    },
+    {
+      "source": "/build/haneul-object-display",
+      "destination": "/standards/display",
+      "permanent": true
+    },
+    {
+      "source": "/build/fullnode",
+      "destination": "/guides/operator/haneul-full-node",
+      "permanent": true
+    },
+    {
+      "source": "/build/json-rpc",
+      "destination": "/references/haneul-api",
+      "permanent": true
+    },
+    {
+      "source": "/build/haneul-transfer-policy",
+      "destination": "/guides/developer/packages/custom-policies",
+      "permanent": true
+    },
+    {
+      "source": "/build/snapshot",
+      "destination": "/guides/operator/snapshots",
+      "permanent": true
+    },
+    {
+      "source": "/build/haneul-kiosk",
+      "destination": "/standards/kiosk",
+      "permanent": true
+    },
+    {
+      "source": "/build/faucet",
+      "destination": "/guides/developer/getting-started/get-coins",
+      "permanent": true
+    },
+    {
+      "source": "/build/install",
+      "destination": "/guides/developer/getting-started/haneul-install",
+      "permanent": true
+    },
+    {
+      "source": "/build/haneul-local-network",
+      "destination": "/guides/developer/getting-started/local-network",
+      "permanent": true
+    },
+    {
+      "source": "/build/comms",
+      "destination": "/guides/developer/haneul-101/connect",
+      "permanent": true
+    },
+    {
+      "source": "/build/index",
+      "destination": "/guides",
+      "permanent": true
+    },
+    {
+      "source": "/build",
+      "destination": "/guides",
+      "permanent": true
+    },
+    {
+      "source": "/build/rust-sdk",
+      "destination": "/references/sdk/rust-sdk",
+      "permanent": true
+    },
+    {
+      "source": "/build/rpc-best-practices",
+      "destination": "/references/haneul-api/rpc-best-practices",
+      "permanent": true
+    },
+    {
+      "source": "/build/zk_login",
+      "destination": "/guides/developer/cryptography/zklogin-integration/zklogin-integration",
+      "permanent": true
+    },
+    {
+      "source": "/build/package-upgrades",
+      "destination": "/guides/developer/packages/upgrade",
+      "permanent": true
+    },
+    {
+      "source": "/build/custom-upgrade-policy",
+      "destination": "/guides/developer/packages/custom-policies",
+      "permanent": true
+    },
+    {
+      "source": "/build/automated-address-management",
+      "destination": "/guides/developer/packages/automated-address-management",
+      "permanent": true
+    },
+    {
+      "source": "/build/cli-client",
+      "destination": "/references/cli/client",
+      "permanent": true
+    },
+    {
+      "source": "/build/connect-haneul-network",
+      "destination": "/guides/developer/haneul-101/connect",
+      "permanent": true
+    },
+    {
+      "source": "/build/prog-trans-ts-sdk",
+      "destination": "/guides/developer/transactions/ptbs/building-ptb",
+      "permanent": true
+    },
+    {
+      "source": "/build/validator-node",
+      "destination": "/guides/operator/validator/validator-config",
+      "permanent": true
+    },
+    {
+      "source": "/build/move/debug-publish",
+      "destination": "/references/ide/debugger",
+      "permanent": true
+    },
+    {
+      "source": "/build/move/write-package",
+      "destination": "/guides/developer/getting-started/hello-world",
+      "permanent": true
+    },
+    {
+      "source": "/build/move/lock-file",
+      "destination": "/references/move/move-lock",
+      "permanent": true
+    },
+    {
+      "source": "/build/move/build-test",
+      "destination": "/guides/developer/getting-started/hello-world",
+      "permanent": true
+    },
+    {
+      "source": "/build/move/manifest",
+      "destination": "/references/move/move-toml",
+      "permanent": true
+    },
+    {
+      "source": "/build/move/index",
+      "destination": "/guides/developer/haneul-101",
+      "permanent": true
+    },
+    {
+      "source": "/build/move",
+      "destination": "/guides/developer/haneul-101",
+      "permanent": true
+    },
+    {
+      "source": "/build/move/time",
+      "destination": "/guides/developer/on-chain-primitives/access-time",
+      "permanent": true
+    },
+    {
+      "source": "/build/move/haneul-move-library",
+      "destination": "/concepts/haneul-move-concepts",
+      "permanent": true
+    },
+    {
+      "source": "/build/programming-with-objects/ch6-collections",
+      "destination": "/guides/developer/objects/tables-tabs",
+      "permanent": true
+    },
+    {
+      "source": "/build/programming-with-objects/ch1-object-basics",
+      "destination": "/guides/developer/objects/object-model",
+      "permanent": true
+    },
+    {
+      "source": "/build/programming-with-objects/ch4-object-wrapping",
+      "destination": "/guides/developer/objects/object-ownership/wrapped",
+      "permanent": true
+    },
+    {
+      "source": "/build/programming-with-objects/ch2-using-objects",
+      "destination": "/guides/developer/objects/object-ownership",
+      "permanent": true
+    },
+    {
+      "source": "/build/programming-with-objects/index",
+      "destination": "/guides/developer/objects/object-model",
+      "permanent": true
+    },
+    {
+      "source": "/build/programming-with-objects/ch3-immutable-objects",
+      "destination": "/guides/developer/objects/object-ownership/immutable",
+      "permanent": true
+    },
+    {
+      "source": "/build/programming-with-objects/ch5-dynamic-fields",
+      "destination": "/guides/developer/objects/dynamic-fields",
+      "permanent": true
+    },
+    {
+      "source": "/reference/haneul-json",
+      "destination": "/haneul-api-ref",
+      "permanent": true
+    },
+    {
+      "source": "/reference/index",
+      "destination": "/references",
+      "permanent": true
+    },
+    {
+      "source": "/reference",
+      "destination": "/references",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/dynamic-fields/events",
+      "destination": "/concepts/events",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/dynamic-fields/versioning",
+      "destination": "/guides/developer/objects/versioning",
+      "permanent": true
+    },
+    {
+      "source": "/learn/exchange-integration-guide",
+      "destination": "/guides/operator/exchange-integration",
+      "permanent": true
+    },
+    {
+      "source": "/learn/exchange-integration-faq",
+      "destination": "/guides/operator/exchange-integration",
+      "permanent": true
+    },
+    {
+      "source": "/learn/how-haneul-works",
+      "destination": "/concepts/architecture",
+      "permanent": true
+    },
+    {
+      "source": "/learn/haneul-compared",
+      "destination": "/concepts/architecture",
+      "permanent": true
+    },
+    {
+      "source": "/learn/haneul-bridging",
+      "destination": "/concepts/tokenomics/haneul-bridging",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/transactions/transaction-lifecycle",
+      "destination": "/guides/developer/transactions/transaction-lifecycle",
+      "permanent": true
+    },
+    {
+      "source": "/standards/closed-loop-token/overview",
+      "destination": "/standards/closed-loop-token",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/dynamic-fields/transfers/custom-rules",
+      "destination": "/guides/developer/objects/transfers/custom-rules",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/dynamic-fields/transfers/transfer-to-object",
+      "destination": "/guides/developer/objects/transfers/transfer-to-object",
+      "permanent": true
+    },
+    {
+      "source": "/references/research-papers",
+      "destination": "/concepts/research-papers",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/app-examples/trading/:path*",
+      "destination": "/guides/developer/app-examples/trustless-swap/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/app-examples/trustless-token-swap/:path*",
+      "destination": "/guides/developer/app-examples/trustless-swap/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/cryptography/zklogin/zklogin-example",
+      "destination": "/guides/developer/cryptography/zklogin-integration/zklogin-example",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/getting-started/haneul-environment",
+      "destination": "/references/contribute/haneul-environment",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/patterns/capabilities",
+      "destination": "https://move-book.com/programmability/capability.html",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/patterns/witness",
+      "destination": "https://move-book.com/programmability/witness-pattern.html",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/patterns/hot-potato",
+      "destination": "https://examples.haneul.io/patterns/hot-potato.html",
+      "permanent": false
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/patterns/id-pointer",
+      "destination": "https://move-book.com/storage/uid-and-id.html",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/patterns/transferrable-witness",
+      "destination": "https://move-book.com/programmability/witness-pattern.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/advanced/asset-tokenization",
+      "destination": "/guides/developer/nft/asset-tokenization",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/haneul-101/shared-owned",
+      "destination": "/guides/developer/objects/object-ownership",
+      "permanent": true
+    },
+    {
+      "source": "/references/move/move-toml",
+      "destination": "https://move-book.com/concepts/manifest.html",
+      "permanent": true
+    },
+    {
+      "source": "/standards/deepbook-pools",
+      "destination": "/standards/deepbook",
+      "permanent": true
+    },
+    {
+      "source": "/standards/routing-a-swap",
+      "destination": "/standards/deepbook",
+      "permanent": true
+    },
+    {
+      "source": "/standards/trade-and-swap",
+      "destination": "/standards/deepbook",
+      "permanent": true
+    },
+    {
+      "source": "/standards/query-the-pool",
+      "destination": "/standards/deepbookv3/query-the-pool",
+      "permanent": true
+    },
+    {
+      "source": "/standards/deepbook-design",
+      "destination": "/standards/deepbookv3/design",
+      "permanent": true
+    },
+    {
+      "source": "/standards/deepbook-orders",
+      "destination": "/standards/deepbookv3/orders",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/events",
+      "destination": "/guides/developer/accessing-data/using-events",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/tokenomics/haneul-coin",
+      "destination": "/concepts/tokenomics#haneul-coin",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/tokenomics/storage-fund",
+      "destination": "/concepts/tokenomics#storage-fund",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/tokenomics/proof-of-stake",
+      "destination": "/concepts/tokenomics#proof-of-stake",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/tokenomics/validators-staking",
+      "destination": "/concepts/tokenomics#validators-and-staking-pools",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/strings",
+      "destination": "/concepts/haneul-move-concepts",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/collections",
+      "destination": "/concepts/haneul-move-concepts",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/init",
+      "destination": "/concepts/haneul-move-concepts",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/entry-functions",
+      "destination": "/concepts/haneul-move-concepts",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/one-time-witness",
+      "destination": "/concepts/haneul-move-concepts",
+      "permanent": true
+    },
+    {
+      "source": "/references/framework/haneul-framework/:path*",
+      "destination": "/references/framework/haneul/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/references/framework/move-stdlib/:path*",
+      "destination": "/references/framework/std/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/references/framework/haneul-system/:path*",
+      "destination": "/references/framework/haneul_system/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/references/haneul-api/haneul-graphql/reference/:path*",
+      "destination": "/references/haneul-api/haneul-graphql/beta/reference/:path*"
+    },
+    {
+      "source": "/guides/operator/validator-committee",
+      "destination": "/concepts/haneul-architecture/consensus"
+    },
+    {
+      "source": "/guides/operator/node-tools",
+      "destination": "/guides/operator/validator/node-tools"
+    },
+    {
+      "source": "/guides/operator/validator-config",
+      "destination": "/guides/operator/validator/validator-config"
+    },
+    {
+      "source": "/guides/operator/validator-tasks",
+      "destination": "/guides/operator/validator/validator-tasks"
+    },
+    {
+      "source": "/standards/deepbookv2/:path*",
+      "destination": "/standards/deepbook"
+    },
+    {
+      "source": "/guides/developer/advanced/graphql-migration",
+      "destination": "/concepts/data-access/graphql-rpc",
+      "permanent": true
+    },
+    {
+      "source": "/references/framework/bridge/:path*",
+      "destination": "/references/framework/haneul_bridge/:path*"
+    },
+    {
+      "source": "/references/framework/std/:path*",
+      "destination": "/references/framework/haneul_std/:path*"
+    },
+    {
+      "source": "/references/framework/haneul/:path*",
+      "destination": "/references/framework/haneul_haneul/:path*"
+    },
+    {
+      "source": "/references/framework/haneul_system/:path*",
+      "destination": "/references/framework/haneul_haneul_system/:path*"
+    },
+    {
+      "source": "/standards/deepbookv3",
+      "destination": "/standards/deepbook"
+    },
+    {
+      "source": "/guides/developer/getting-started/connect",
+      "destination": "/guides/developer/haneul-101/connect"
+    },
+    {
+      "source": "/guides/developer/haneul-101/local-network",
+      "destination": "/guides/developer/getting-started/local-network"
+    },
+    {
+      "source": "/guides/developer/getting-started/data-serving",
+      "destination": "/concepts/data-access/data-serving"
+    },
+    {
+      "source": "/guides/developer/first-app/write-package",
+      "destination": "/guides/developer/getting-started/hello-world"
+    },
+    {
+      "source": "/guides/developer/first-app/build-test",
+      "destination": "/guides/developer/getting-started/hello-world"
+    },
+    {
+      "source": "/guides/developer/first-app/publish",
+      "destination": "/guides/developer/getting-started/hello-world"
+    },
+    {
+      "source": "/guides/developer/first-app/client-tssdk",
+      "destination": "/guides/developer/haneul-101/client-tssdk"
+    },
+    {
+      "source": "/guides/developer/first-app/debug",
+      "destination": "/references/ide/debugger"
+    },
+    {
+      "source": "/guides/developer/stablecoins",
+      "destination": "/guides/developer/coin/stablecoins",
+      "permanent": true
+    },
+    {
+      "source": "/standards/coin",
+      "destination": "/standards/currency"
+    },
+    {
+      "source": "/guides/developer/getting-started/graphql-rpc",
+      "destination": "/concepts/data-access/graphql-rpc"
+    },
+    {
+      "source": "/concepts/tokenomics/gas-pricing",
+      "destination": "concepts/tokenomics/gas-in-haneul"
+    },
+    {
+      "source": "/concepts/components",
+      "destination": "/concepts/haneul-architecture/components",
+      "permanent": true
+    },
+    {
+      "source": "/operator/validator/validator-committee",
+      "destination": "/concepts/haneul-architecture/consensus"
+    },
+    {
+      "source": "/guides/developer/haneul-101/avoid-equivocation",
+      "destination": "/concepts/haneul-architecture/epochs"
+    },
+    {
+      "source": "/guides/developer/haneul-101/data-serving",
+      "destination": "/concepts/data-access/data-serving"
+    },
+    {
+      "source": "/concepts/haneul-architecture/indexer-functions",
+      "destination": "/concepts/data-access/data-serving"
+    },
+    {
+      "source": "/concepts/haneul-architecture/transaction-lifecycle",
+      "destination": "/guides/developer/transactions/transaction-lifecycle",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/app-devs",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/grpc-overview",
+      "destination": "/concepts/data-access/grpc"
+    },
+    {
+      "source": "/concepts/graphql-indexer",
+      "destination": "/concepts/data-access/custom-indexers"
+    },
+    {
+      "source": "/concepts/data-access/graphql-indexer",
+      "destination": "/concepts/data-access/custom-indexers"
+    },
+    {
+      "source": "/concepts/graphql-rpc",
+      "destination": "/concepts/data-access/graphql-rpc"
+    },
+    {
+      "source": "/concepts/custom-indexing-framework",
+      "destination": "/guides/developer/accessing-data/custom-indexing-framework"
+    },
+    {
+      "source": "/concepts/custom-indexer/pipeline-architecture",
+      "destination": "/concepts/data-access/pipeline-architecture"
+    },
+    {
+      "source": "/concepts/archival-store",
+      "destination": "/guides/developer/accessing-data/archival-store"
+    },
+    {
+      "source": "/concepts/transactions/transaction-auth",
+      "destination": "/guides/developer/transactions/transaction-auth/auth-overview",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/transactions/transaction-auth/keys-addresses",
+      "destination": "/concepts/transactions/transaction-auth"
+    },
+    {
+      "source": "/concepts/cryptography/transaction-auth/keys-addresses",
+      "destination": "/concepts/transactions/transaction-auth"
+    },
+    {
+      "source": "/concepts/cryptography/transaction-auth/:path*",
+      "destination": "/concepts/transactions/transaction-auth/:path*"
+    },
+    {
+      "source": "/concepts/tokenomics/vesting-strategies",
+      "destination": "/guides/developer/coin/vesting-strategies"
+    },
+    {
+      "source": "/guides/developer/haneul-101/object-ownership",
+      "destination": "/guides/developer/objects/object-ownership"
+    },
+    {
+      "source": "/concepts/object-model",
+      "destination": "/guides/developer/objects/object-model"
+    },
+    {
+      "source": "/concepts/object-ownership",
+      "destination": "/guides/developer/objects/object-ownership"
+    },
+    {
+      "source": "/concepts/object-ownership/:path*",
+      "destination": "/guides/developer/objects/object-ownership/:path*"
+    },
+    {
+      "source": "/concepts/transfers",
+      "destination": "/guides/developer/objects/transfers"
+    },
+    {
+      "source": "/concepts/transfers/:path*",
+      "destination": "/guides/developer/objects/transfers/:path*"
+    },
+    {
+      "source": "/concepts/versioning",
+      "destination": "/guides/developer/objects/versioning"
+    },
+    {
+      "source": "/guides/developer/haneul-101/connect",
+      "destination": "/guides/developer/getting-started/hello-world"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/derived-objects",
+      "destination": "/guides/developer/objects/derived-objects"
+    },
+    {
+      "source": "/guides/developer/haneul-101/move-package-management",
+      "destination": "/guides/developer/packages/move-package-management"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/packages/upgrade",
+      "destination": "/guides/developer/packages/upgrade"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/packages/custom-policies",
+      "destination": "/guides/developer/packages/custom-policies"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/packages/automated-address-management",
+      "destination": "/guides/developer/packages/automated-address-management"
+    },
+    {
+      "source": "/concepts/dynamic-fields",
+      "destination": "/guides/developer/objects/dynamic-fields"
+    },
+    {
+      "source": "/concepts/dynamic-fields/tables-bags",
+      "destination": "/guides/developer/objects/tables-bags"
+    },
+    {
+      "source": "/concepts/cryptography/nautilus",
+      "destination": "/guides/developer/nautilus/"
+    },
+    {
+      "source": "/concepts/cryptography/nautilus/using-nautilus",
+      "destination": "/guides/developer/nautilus/using-nautilus"
+    },
+    {
+      "source": "/guides/developer/advanced/move-2024-migration",
+      "destination": "https://move-book.com/reference/",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/haneul-101/coin-mgt",
+      "destination": "/concepts/transactions/coin-mgt"
+    },
+    {
+      "source": "/guides/developer/advanced/custom-indexer",
+      "destination": "/guides/developer/accessing-data/custom-indexer"
+    },
+    {
+      "source": "/guides/developer/advanced/custom-indexer/build",
+      "destination": "/guides/developer/accessing-data/custom-indexer/build"
+    },
+    {
+      "source": "/guides/developer/advanced/custom-indexer/indexer-data-integration",
+      "destination": "/concepts/data-access/indexer-data-integration"
+    },
+    {
+      "source": "/guides/developer/advanced/custom-indexer/indexer-runtime-perf",
+      "destination": "/concepts/data-access/indexer-runtime-perf"
+    },
+    {
+      "source": "/guides/developer/advanced/custom-indexer/indexer-walrus",
+      "destination": "/guides/developer/accessing-data/custom-indexer/indexer-walrus"
+    },
+    {
+      "source": "/guides/developer/advanced/graphql-rpc",
+      "destination": "/concepts/data-access/graphql-rpc"
+    },
+    {
+      "source": "/guides/developer/haneul-101/using-events",
+      "destination": "/guides/developer/accessing-data/using-events"
+    },
+    {
+      "source": "/guides/developer/advanced/local-fee-markets",
+      "destination": "/guides/developer/objects/local-fee-markets"
+    },
+    {
+      "source": "/guides/developer/haneul-101/access-time",
+      "destination": "/guides/developer/on-chain-primitives/access-time"
+    },
+    {
+      "source": "/guides/developer/advanced/randomness-onchain",
+      "destination": "/guides/developer/on-chain-primitives/randomness-onchain"
+    },
+    {
+      "source": "/guides/developer/haneul-101/building-ptb",
+      "destination": "/guides/developer/transactions/ptbs/building-ptb",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/haneul-101/sign-and-send-txn",
+      "destination": "/guides/developer/transactions/ptbs/sign-and-send-txn",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/haneul-101/simulating-refs",
+      "destination": "/guides/developer/objects/simulating-refs"
+    },
+    {
+      "source": "/guides/developer/haneul-101/sponsor-txn",
+      "destination": "/guides/developer/transactions/sponsor-txn"
+    },
+    {
+      "source": "/guides/developer/haneul-101/working-with-ptbs",
+      "destination": "/guides/developer/transactions/ptbs/prog-txn-blocks"
+    },
+    {
+      "source": "/concepts/data-access/archival-store",
+      "destination": "/guides/developer/accessing-data/archival-store"
+    },
+    {
+      "source": "/concepts/data-access/custom-indexing-framework",
+      "destination": "/guides/developer/accessing-data/custom-indexing-framework"
+    },
+    {
+      "source": "/concepts/data-access/grpc-overview",
+      "destination": "/concepts/data-access/grpc"
+    },
+    {
+      "source": "/guides/developer/haneul-move",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/architecture",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/governance",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-tokenomics",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/guides/developer/haneul-wallet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/object-model",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/references/rpc",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/haneul-object-model",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/gas-fees",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/guides/developer/haneul-101/zklogin",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-upgrade",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/haneul-validator",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/mysticeti",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/oracles",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-architecture/checkpoints",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/references/sdk/rust",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/programmable-transaction-blocks",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/objects",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/guides/developer/app-examples/games",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-install",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/zklogin",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/validator/validator-setup",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/graphql",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-cli-client",
+      "destination": "/guides"
+    },
+    {
+      "source": "/technology",
+      "destination": "/guides"
+    },
+    {
+      "source": "/apps/deepbook",
+      "destination": "/guides"
+    },
+    {
+      "source": "/apps/haneul-wallet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/consensus/mysticeti",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/staking",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-compared",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/haneul-tokenomics/staking-and-participation",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-tokenomics/staking-unstaking",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/guides/developer/first-smart-contract",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/connect-to-testnet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/get-testnet-haneul",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/install-cli",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/staking",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/working-with-coins",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-cli-client",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-cli/client-commands",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-programmable-transaction-blocks",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/user/stake-delegate",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/tokenomics/token-release-schedule",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/app-examples/zklogin",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/object-model/one-time-witness",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-object-runtime/object-basics",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/fungible-tokens",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/staking-and-participation",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/staking-rewards",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/transactions/gas-fees",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/guides/developer/advanced/rpc-api",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/advanced/zklogin",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/best-practices/security",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/deepbookv3/introduction",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/move-write-package",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/haneul-cli-client",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/staking-unstaking",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/create-nft",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/haneul-addresses",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-grpc",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-jsonrpc",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move-concepts",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/create-coin-token",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/use-randomness",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-sdk",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-token",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-zklogin",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/run-fullnode",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/validator-guide",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/rpc/fullnode",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-token",
+      "destination": "/guides"
+    },
+    {
+      "source": "/haneul-tokenomics",
+      "destination": "/guides"
+    },
+    {
+      "source": "/tutorials/apps/simple-dex",
+      "destination": "/guides"
+    },
+    {
+      "source": "/apps/slush-wallet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/graphql",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/smart-contracts/security",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/haneul-move/token-standard",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/cryptography/groth16",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/object-centric-model",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/scaling",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/storage/walrus",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-architecture/tokenomics",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-economics",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/object",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-ns",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-token",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-tokenomics/stake-subsidy",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/nft-marketplaces",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/objects",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/overview",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/haneul-testnet",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/transaction-processing",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/zklogin",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/develop",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/consumer/staking",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/advanced/run-indexer",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/app-examples/connect-wallet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/app-examples/distributed-counter",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/devnet-testnet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/first-app/coin-flip",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/full-node",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/build-from-main",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/connect-to-metamask",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/connect-to-network",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/haneul-wallet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/publish",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/haneul-overview",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-coin",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-economics/gas-pricing",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-liquid-staking",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move-concepts/coin",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move-vs-rust",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/move.toml-manifest",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/reference/arithmetic",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/write-smart-contracts",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-multisig",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-wallets",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/wallet-integration/zklogin",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/wallet-standard",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/zklogin-integration",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/haneul-foundation-delegation",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/haneul-tool",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/staking",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/haneul-wallet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/haneul-wallet/ledger-support",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/haneul-wallet/staking",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/haneul-object-model",
+      "destination": "/guides"
+    },
+    {
+      "source": "/proposals/sip-39",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/cli-client",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/cli/tool",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-api/reference/rest/transaction-operations/dry-run-transaction-block",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-graphql/reference",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-tokenomics",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-typescript-sdk",
+      "destination": "/guides"
+    },
+    {
+      "source": "/standards/haneulns",
+      "destination": "/guides"
+    },
+    {
+      "source": "/tokenomics",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/app-examples/merge-coins",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/move/haneul/package",
+      "destination": "/guides"
+    },
+    {
+      "source": "/applications",
+      "destination": "/guides"
+    },
+    {
+      "source": "/applications/walrus",
+      "destination": "/guides"
+    },
+    {
+      "source": "/apps/walrus/overview",
+      "destination": "/guides"
+    },
+    {
+      "source": "/architecture",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/move/publish",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/rpc",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/architecture/high-level-overview",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/objects-transactions-gas/objects/object-versioning",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-gas",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-gas-model",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-governance",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/gas-coins",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/generics",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/objects/destroying-objects",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-object-model/storage-gas",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-overview",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-performance",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-tokenomics/gas-fees",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/token/haneul-token",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/staking",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/staking-and-delegation",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/transaction-deps",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/transactions/transaction-auth/consensus",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/transactions/transaction-auth/zklogin",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/transactions/transaction-types",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/validators",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/contribute/security",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/apps/walrus",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/consumer/slush",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/consumer/stake",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/consumer/haneul-wallets",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/advanced/build-from-source",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/advanced/programmable-transaction-blocks",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/advanced/pruning",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/advanced/testing-modules",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/app-examples/token",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/app-examples/wallet-kit",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/app-examples/zk-login-salt-management",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/coin/managed",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/common-tasks/create-nft",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/crypto/signing",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/cryptography/keypairs",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/first-app/create-coin",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/first-app/quick-start",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/first-move-package",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/connect-to-devnet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/connect-to-grpc",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/connect-wallet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/create-your-first-dapp",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/first-app",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/get-a-wallet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/get-haneul-binary",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/get-testnet-funds",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/installation",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/move",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/seal",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/counter-e2e",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/create-fungible-token",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/gas-fees",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/sign-transaction",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/testing-tooling",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-assets/nfts",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-local-network",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-local-testnet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-mobile",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move-concepts/object-ownership",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move-examples",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move-guides/token-standard",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move-standards/closed-loop-token",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/examples/nft",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/flash-loan",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/modules-and-packages",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/move-differences",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/publish-modules",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/publish-package",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-performance",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-sdk-examples",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-wallet-kit/sign-message",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneulns",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/token-standard",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operating-a-validator/staking",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/run-full-node",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/staking-rewards",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/haneul-full-node/indexing",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/validator-rewards",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/participant/staking",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/haneul-tokenomics/haneul-token",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/validator/staking-delegation",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/validator/staking-unstaking",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/zklogin",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/haneul-transaction-model",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/tokenomics/stake-subsidy",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/tokenomics/staking-and-participation",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/move",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/move/haneul/random",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/move/syntax/modules",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/networks",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-framework/haneul/versioned",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-system",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-txns",
+      "destination": "/guides"
+    },
+    {
+      "source": "/standards/coin-standard",
+      "destination": "/guides"
+    },
+    {
+      "source": "/standards/zklogin",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/building-from-source",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/haneul-economics/overview",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/apps/deepbook/reference/fees",
+      "destination": "/guides"
+    },
+    {
+      "source": "/apps/dexes",
+      "destination": "/guides"
+    },
+    {
+      "source": "/apps/walrus",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/build-install",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/dapp-kit",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/devnet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/programmable-objects/programmable-transaction-blocks",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/testing",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/zklogin",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/architecture/high-level",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/cryptography/merkle-trees",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/cryptography/haneul-addresses",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/gas",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/gas-fees",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/objects",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/objects/kiosk",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/overview",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/randomness",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/staking-unstaking",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-addresses",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-architecture/transaction-model",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-architecture/transaction-processing",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-bridge",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-consensus",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-consensus/mysticeti",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-deny-list",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-economy/gas",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-indexer",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-jsonrpc-api",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/applications/kiosk",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/applications/nft-protocol/kiosk",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/object-centric-world",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/receiving-objects",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/sponsored-transactions",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/testing",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move/object-model",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move/overview",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-nodes",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-object-runtime",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-ownership",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-wallet",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/token-io/nft",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/stablecoins/usdc",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/staking-and-inflation",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/token-utility",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/transaction-flow",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/transaction-lifecycle",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/transactions/programmable-transaction-blocks",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/transactions/transaction-auth/authorized",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/guides/app-examples",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/build",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/advanced/bcs",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/advanced/grpc",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/coin-standard",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/cryptography/zklogin-recovery",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/dapp-connect-wallet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/dapp-kit/dapp-kit-intro",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/examples/tic-tac-toe",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/first-app/admin-dashboard",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/first-app/publish-package",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/first-app/shared-counter",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/first-app/write-smart-contract",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/first-package/publish-package",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/call-move-functions",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/cli-client",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/deploy-on-haneul",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/move-setup",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/run-a-local-full-node",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/zk-login",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/grants",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/kiosk",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/liquid-staking",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/move/move-registry",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/nft/kiosk",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/starter-templates",
+      "destination": "/guides/developer/getting-started",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/haneul-101/create-capabilities",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/creating-coin",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/gas-in-haneul",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/graphql",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/working-with-bcs",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/working-with-keys",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-bridge",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-cli-client/ptb",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move-reference",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/create-nft",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/kiosk",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/migration-guide",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/move-prover",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/move-toml",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/object",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-programmability/interacting-with-contracts",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-prover",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-sdk/rust-sdk",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-signatures",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/wallet-kit/quickstart",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/wallets/web3-integration",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operate-a-haneul-node",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operating-a-validator/staking-and-delegation",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operating-a-validator/staking-rewards",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/configure-snapshots",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/run-validator",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/stake-management",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/staking",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/haneul-consensus",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/haneul-fullnode",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/validator/setup-validator",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/validator/validator-setup",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/haneul-tokenomics/staking-and-unstaking",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/haneul-tokenomics/staking-rewards",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/user/haneul-wallets/ledger",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/validator/staking",
+      "destination": "/guides"
+    },
+    {
+      "source": "/intro-to-haneul",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/about-haneul/performance",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/consensus",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/haneul-architecture/consensus",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/haneul-architecture/high-level-view",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/tokenomics/gas-fees",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/api/reference",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/fullnode-protocol/grpc-v2",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/move-stdlib/crypto/ecdsa_k1",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/move/stdlib/ecdsa_k1",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/move/test_scenario",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/rpc/servers",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-consensus",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-glossary",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-move-examples",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-move/coin",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-protocol/haneul-consensus",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-token.pdf",
+      "destination": "/guides"
+    },
+    {
+      "source": "/applications/walrus/overview",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/dapps/connecting-to-wallets",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/dev-guide",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/devex/swap-fees",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/move-apps",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/haneul-sdk-kit/haneul-java-sdk",
+      "destination": "/guides"
+    },
+    {
+      "source": "/build/wallet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/components/narwhal",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/cryptography/zklogin/user-salt",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/deepbook",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/economics/gas-pricing",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/governance/epoch",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/governance/validators",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/objects/object-model",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/parallel-execution",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-architecture/consensus-engine",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-architecture/consensus/mysticeti",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-architecture/fees",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-architecture/gas-fees",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-architecture/gas-model",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-architecture/high-level-architecture",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-architecture/object-centric",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-architecture/haneul-transaction-processing",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-architecture/transaction-processing/gas-fees",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-architecture/transactions-and-consensus",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-delegated-pos",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-grants",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/events",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/programming-with-objects",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/storage/gas-storage-fund",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move-differences",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-move/move-overview",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-objects/object-ownership",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-objects/runtime/object-runtime",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-tokenomics/staking-delegation",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-tokenomics/staking-rewards",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-tokenomics/haneul-token",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/haneul-transaction-builder/gas-fees",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/technology-overview",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/airdrop",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/gas",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/gas-distribution",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/object-renting",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/package-publish",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/tokenomics/token-haneul",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/transactions/gas",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/transactions/mysticeti",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/transactions/prog-txns/mysticeti",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/developing/building-apps/first-app",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/build/smart-contracts",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/consumer/zk-login",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/advanced/dev-inspect",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/app-examples/create-currency",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/app-examples/fungible-token",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/app-examples/games/coin-flip",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/app-examples/nft",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/app-examples/personal-message",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/app-examples/prediction-market",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/app-examples/random",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/app-examples/sponsored-transactions",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/coin/create-coin",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/first-app/blackjack",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/first-app/write-move-packages",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/flash-loans",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/framework/move",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-start",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/cli",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/first-move-move",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/get-tokens",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/haneul-wallets",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/getting-started/wallets",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/graphql/reference/queries",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/object-io",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/sdk/rust-sdk",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/security/gas-charges",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/smart-contracts/upgrade-packages",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/coin-management",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/connect-wallet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/send-receive-tokens",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/using-move",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/using-phantom",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/working-objects",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-api/graphql",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-architecture/high-level",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-examples/fungible-tokens",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move-land/move-toml",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move-tutorial/ch01-get-started",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/coin",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-move/publishing",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-nft",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-staking",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-wallet-kit",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-wallet-standard",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/testing",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/troubleshooting",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/wallet-integrations",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/wallet-kit",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/walrus",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operating/staking-unstaking",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/full-node/setup",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/fullnode/run-fullnode",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/prune-node",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/validator-activities",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/validator/update-validator-info",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/user/stake-haneul",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/user/haneul-wallets/hardware-wallets/ledger",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/validator/run-a-validator",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/architecture/high-level-overview",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/architecture/overview",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/move/move-overview",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/objects/object-ownership",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/tokenomics/haneul-economy",
+      "destination": "/guides"
+    },
+    {
+      "source": "/quick-start",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/cli/haneulup",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/dapp-kit",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/sdk/typescript",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-dapp-toolkit",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-framework/staking-pool",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-token/use",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-types/transaction",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/transaction-format",
+      "destination": "/guides"
+    },
+    {
+      "source": "/haneul-paper/haneul.pdf",
+      "destination": "/guides"
+    },
+    {
+      "source": "/haneul-rpc",
+      "destination": "/guides"
+    },
+    {
+      "source": "/technology/architecture",
+      "destination": "/guides"
+    },
+    {
+      "source": "/technology/transaction-flow",
+      "destination": "/guides"
+    },
+    {
+      "source": "/haneul-whitepaper",
+      "destination": "/guides"
+    },
+    {
+      "source": "/contribute-to-haneul-repos",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/bridge",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/tokenomics/staking",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/tokenomics/coin",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/guides/developer/deepbook",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/haneul-move/modules/coin_registry",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-token-standard",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/cli/client",
+      "destination": "/guides"
+    },
+    {
+      "source": "/contribute/faq",
+      "destination": "/guides"
+    },
+    {
+      "source": "/deepbook",
+      "destination": "/guides"
+    },
+    {
+      "source": "/references/rpc/mainnet",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/create-coin/loyalty",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/operator/full-node",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/validator/run-validator",
+      "destination": "/guides"
+    },
+    {
+      "source": "/learn/architecture/consensus/mysticeti",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/deepbookv3/flash-loans",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/tokenomics/rewards",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/economics",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/guides/developer/haneul-cli/client",
+      "destination": "/guides"
+    },
+    {
+      "source": "/explore/panzerdogs",
+      "destination": "/guides"
+    },
+    {
+      "source": "/localize-haneul-docs",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/tokenomics/haneul-token",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/exchange-integration-guide",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/cryptography/transaction-auth",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/guides/developer/getting-started/cli-install",
+      "destination": "/guides"
+    },
+    {
+      "source": "/concepts/haneul-architecture",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/concepts/consensus",
+      "destination": "/concepts"
+    },
+    {
+      "source": "/build/programming-with-objects",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/advanced",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/nautilus/index",
+      "destination": "/guides/developer/nautilus"
+    },
+    {
+      "source": "/guides/developer/haneul-101",
+      "destination": "/guides"
+    },
+    {
+      "source": "/guides/developer/haneul-101/client-tssdk",
+      "destination": "/guides/developer/app-examples/client-tssdk"
+    },
+    {
+      "source": "/guides/developer/haneul-101/common-errors",
+      "destination": "/guides/developer/common-errors"
+    },
+    {
+      "source": "/concepts/transactions/coin-mgt",
+      "destination": "/concepts/coin-mgt"
+    },
+    {
+      "source": "/concepts/transactions",
+      "destination": "/guides/developer/transactions/txn-overview"
+    },
+    {
+      "source": "/concepts/transactions/prog-txn-blocks",
+      "destination": "/guides/developer/transactions/ptbs/prog-txn-blocks",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/transactions/transaction-auth/intent-signing",
+      "destination": "/guides/developer/transactions/transaction-auth/intent-signing"
+    },
+    {
+      "source": "/concepts/transactions/transaction-auth/multisig",
+      "destination": "/guides/developer/transactions/transaction-auth/multisig"
+    },
+    {
+      "source": "/concepts/transactions/transaction-auth/offline-signing",
+      "destination": "/guides/developer/transactions/transaction-auth/offline-signing"
+    },
+    {
+      "source": "/guides/developer/transactions/working-with-ptbs",
+      "destination": "/guides/developer/transactions/ptbs/prog-txn-blocks"
+    },
+    {
+      "source": "/concepts/transactions/sponsored-transactions",
+      "destination": "/guides/developer/transactions/sponsor-txn"
+    },
+    {
+      "source": "/guides/developer/accessing-data/custom-indexer/indexer-runtime-perf",
+      "destination": "/concepts/data-access/indexer-runtime-perf"
+    },
+    {
+      "source": "/guides/developer/accessing-data/custom-indexer/pipeline-architecture",
+      "destination": "/concepts/data-access/pipeline-architecture"
+    },
+    {
+      "source": "/guides/developer/accessing-data/custom-indexer/indexer-data-integration",
+      "destination": "/concepts/data-access/indexer-data-integration"
+    },
+    {
+      "source": "/concepts/cryptography/nautilus/nautilus-design",
+      "destination": "/guides/developer/nautilus/nautilus-design"
+    },
+    {
+      "source": "/concepts/architecture",
+      "destination": "/concepts/haneul-architecture/components",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/tokenomics",
+      "destination": "/concepts/tokenomics/tokenomics-overview",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/accessing-data/custom-indexing-framework",
+      "destination": "/guides/developer/accessing-data/custom-indexer",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/currency",
+      "destination": "/guides/developer/coin/currency",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/cryptography/zklogin-integration",
+      "destination": "/guides/developer/cryptography/zklogin-integration/zklogin-integration",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/cryptography/zklogin",
+      "destination": "/guides/developer/cryptography/zklogin-integration/zklogin",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/conventions",
+      "destination": "/guides/developer/move-best-practices",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/nft",
+      "destination": "/guides/developer/nft/nft",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/packages",
+      "destination": "/guides/developer/packages/package-overview",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/transactions/gas-smashing",
+      "destination": "/guides/developer/transactions/gas-smashing",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/transactions/building-ptb",
+      "destination": "/guides/developer/transactions/ptbs/building-ptb",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/transactions/inputs-and-results",
+      "destination": "/guides/developer/transactions/ptbs/inputs-and-results",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/transactions/sign-and-send-txn",
+      "destination": "/guides/developer/transactions/ptbs/sign-and-send-txn",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/wallet-index",
+      "destination": "/guides/developer/wallets/wallet-index",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/cryptography/system",
+      "destination": "/concepts/cryptography",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/haneul-move-concepts/move-2024-migration",
+      "destination": "https://move-book.com/reference/",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/advanced/efficient-smart-contracts",
+      "destination": "/guides/developer/dev-cheat-sheet",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/advanced/maximize-reach",
+      "destination": "/guides/developer/dev-cheat-sheet",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/advanced/min-gas-fees",
+      "destination": "/concepts/tokenomics/gas-in-haneul",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/advanced/security-best-practices",
+      "destination": "/guides/developer/dev-cheat-sheet",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/advanced/wallet-integrations",
+      "destination": "/guides/developer/wallets/wallet-index",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/app-examples",
+      "destination": "/guides/developer",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/coin-index",
+      "destination": "/guides/developer/coin",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/cryptography",
+      "destination": "/concepts/cryptography",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/nft-index",
+      "destination": "/guides/developer/nft",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/zklogin-onboarding",
+      "destination": "/guides/developer/cryptography/zklogin-integration/zklogin-integration",
+      "permanent": true
+    },
+    {
+      "source": "/guides/operator",
+      "destination": "/guides/operator/haneul-full-node",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/cryptography/system/intents-for-validation",
+      "destination": "/guides/developer/transactions/transaction-auth/intent-signing",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/cryptography/system/validator-signatures",
+      "destination": "/guides/developer/transactions/transaction-auth/signatures",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/haneul-architecture/components",
+      "destination": "/concepts/haneul-architecture",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/app-examples/auction",
+      "destination": "/guides/developer/app-examples",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/app-examples/meta-pricing-oracle",
+      "destination": "/guides/developer/app-examples",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/app-examples/recaptcha",
+      "destination": "/guides/developer/app-examples",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/app-examples/turnip-town",
+      "destination": "/guides/developer/app-examples",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/getting-started",
+      "destination": "/guides/developer/getting-started/haneul-install",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/nautilus/nautilus-overview",
+      "destination": "/guides/developer/nautilus",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/nft/nft-rental",
+      "destination": "/guides/developer/nft/nft",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/nft/nft-soulbound",
+      "destination": "/guides/developer/nft/nft",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/objects",
+      "destination": "/guides/developer/objects/object-model",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/packages",
+      "destination": "/guides/developer/packages/package-overview",
+      "permanent": true
+    },
+    {
+      "source": "/guides/developer/transactions",
+      "destination": "/guides/developer/transactions/txn-overview",
+      "permanent": true
+    },
+    {
+      "source": "/references/contribute/code-of-conduct",
+      "destination": "/references/contribute",
+      "permanent": true
+    },
+    {
+      "source": "/references/contribute/contribute-to-haneul-repos",
+      "destination": "/references/contribute",
+      "permanent": true
+    },
+    {
+      "source": "/references/contribute/localize-haneul-docs",
+      "destination": "/references/contribute",
+      "permanent": true
+    },
+    {
+      "source": "/references/contribute/style-guide",
+      "destination": "/references/contribute",
+      "permanent": true
+    },
+    {
+      "source": "/references/exchange-integration-guide",
+      "destination": "/guides/operator/exchange-integration",
+      "permanent": true
+    },
+    {
+      "source": "/references/haneul-api/haneul-graphql/beta/reference/types/enums/multisig-member-signature-scheme",
+      "destination": "/references/haneul-api/haneul-graphql/beta/reference",
+      "permanent": true
+    },
+    {
+      "source": "/references/haneul-api/haneul-graphql/beta/reference/types/objects/multisig-member-signature",
+      "destination": "/references/haneul-api/haneul-graphql/beta/reference",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.+)\\.md",
+      "destination": "/markdown/$1.md"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/markdown/(.*).md",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/markdown; charset=utf-8"
+        },
+        {
+          "key": "Content-Disposition",
+          "value": "inline"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, s-maxage=3600"
+        }
+      ]
+    }
+  ]
 }
