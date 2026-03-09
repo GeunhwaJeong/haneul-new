@@ -12,11 +12,11 @@ const __dirname = path.dirname(__filename);
 // Paths (adjusted for new location)
 const readmePath = path.join(
   __dirname,
-  "../../../subtree/awesome-haneul-gaming/README.md",
+  "../../subtree/awesome-haneul-gaming/README.md",
 );
 const readmeTargetPath = path.join(
   __dirname,
-  "../../../content/references/awesome-haneul-gaming.mdx",
+  "../../content/references/awesome-haneul-gaming.mdx",
 );
 
 // Process the content for the awesome-haneul-gaming README structure:

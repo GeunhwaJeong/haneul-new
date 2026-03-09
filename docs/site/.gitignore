@@ -30,4 +30,14 @@ package-lock.json
 # Generated awesome-haneul files
 static/awesome-haneul/
 src/static/awesome-haneul/
+static/awesome-haneul-gaming/
+src/static/awesome-haneul-gaming/
+
+## Subtrees
 ../docs/subtree/
+
+## locally cloned display preview - should only exist during build
+static/display-preview/
+
+## shared components pulled in from ml-shared-components repo
+src/shared

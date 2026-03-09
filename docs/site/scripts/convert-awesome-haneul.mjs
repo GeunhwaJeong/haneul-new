@@ -12,19 +12,19 @@ const __dirname = path.dirname(__filename);
 // Paths (adjusted for new location)
 const readmePath = path.join(
   __dirname,
-  "../../../subtree/awesome-haneul/README.md",
+  "../../subtree/awesome-haneul/README.md",
 );
 const detailsSourceDir = path.join(
   __dirname,
-  "../../../subtree/awesome-haneul/details",
+  "../../subtree/awesome-haneul/details",
 );
 const mediaSourceDir = path.join(
   __dirname,
-  "../../../subtree/awesome-haneul/media",
+  "../../subtree/awesome-haneul/media",
 );
 const readmeTargetPath = path.join(
   __dirname,
-  "../../../content/references/awesome-haneul.mdx",
+  "../../content/references/awesome-haneul.mdx",
 );
 const mediaTargetDir = path.join(
   __dirname,
