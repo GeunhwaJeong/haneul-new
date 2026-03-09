@@ -11,7 +11,7 @@ use move_core_types::{
 };
 use move_vm_runtime::move_vm::MoveVM;
 use haneul_types::error::{ExecutionError, HaneulError};
-use haneul_types::execution_status::{ExecutionFailureStatus, MoveLocation, MoveLocationOpt};
+use haneul_types::execution_status::{ExecutionErrorKind, MoveLocation, MoveLocationOpt};
 
 pub(crate) fn convert_vm_error<S: MoveResolver<Err = HaneulError>>(
     error: VMError,
@@ -22,12 +22,12 @@ pub(crate) fn convert_vm_error<S: MoveResolver<Err = HaneulError>>(
         (StatusCode::EXECUTED, _, _) => {
             // If we have an error the status probably shouldn't ever be Executed
             debug_assert!(false, "VmError shouldn't ever report successful execution");
-            ExecutionFailureStatus::VMInvariantViolation
+            ExecutionErrorKind::VMInvariantViolation
         }
         (StatusCode::ABORTED, None, _) => {
             debug_assert!(false, "No abort code");
             // this is a Move VM invariant violation, the code should always be there
-            ExecutionFailureStatus::VMInvariantViolation
+            ExecutionErrorKind::VMInvariantViolation
         }
         (StatusCode::ABORTED, Some(code), Location::Module(id)) => {
             let offset = error.offsets().first().copied().map(|(f, i)| (f.0, i));
@@ -38,7 +38,7 @@ pub(crate) fn convert_vm_error<S: MoveResolver<Err = HaneulError>>(
                 let fhandle = module.function_handle_at(fdef.function);
                 module.identifier_at(fhandle.name).to_string()
             });
-            ExecutionFailureStatus::MoveAbort(
+            ExecutionErrorKind::MoveAbort(
                 MoveLocation {
                     module: id.clone(),
                     function,
@@ -48,7 +48,7 @@ pub(crate) fn convert_vm_error<S: MoveResolver<Err = HaneulError>>(
                 code,
             )
         }
-        (StatusCode::OUT_OF_GAS, _, _) => ExecutionFailureStatus::InsufficientGas,
+        (StatusCode::OUT_OF_GAS, _, _) => ExecutionErrorKind::InsufficientGas,
         (_, _, location) => match error.major_status().status_type() {
             StatusType::Execution => {
                 debug_assert!(error.major_status() != StatusCode::ABORTED);
@@ -74,13 +74,13 @@ pub(crate) fn convert_vm_error<S: MoveResolver<Err = HaneulError>>(
                     }
                     _ => None,
                 };
-                ExecutionFailureStatus::MovePrimitiveRuntimeError(MoveLocationOpt(location))
+                ExecutionErrorKind::MovePrimitiveRuntimeError(MoveLocationOpt(location))
             }
             StatusType::Validation
             | StatusType::Verification
             | StatusType::Deserialization
-            | StatusType::Unknown => ExecutionFailureStatus::VMVerificationOrDeserializationError,
-            StatusType::InvariantViolation => ExecutionFailureStatus::VMInvariantViolation,
+            | StatusType::Unknown => ExecutionErrorKind::VMVerificationOrDeserializationError,
+            StatusType::InvariantViolation => ExecutionErrorKind::VMInvariantViolation,
         },
     };
     ExecutionError::new_with_source(kind, error)

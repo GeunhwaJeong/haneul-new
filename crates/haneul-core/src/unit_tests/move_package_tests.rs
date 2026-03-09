@@ -10,8 +10,7 @@ use haneul_protocol_config::{Chain, ProtocolConfig};
 use haneul_types::{
     base_types::ObjectID,
     digests::TransactionDigest,
-    error::ExecutionErrorKind,
-    execution_status::PackageUpgradeError,
+    execution_status::{ExecutionErrorKind, PackageUpgradeError},
     move_package::{MovePackage, TypeOrigin, UpgradeInfo},
     object::{Data, OBJECT_START_VERSION, Object},
 };

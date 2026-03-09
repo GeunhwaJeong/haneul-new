@@ -20,7 +20,7 @@ use haneul_types::effects::{AccumulatorOperation, AccumulatorValue, TransactionE
 use haneul_types::event::Event;
 use haneul_types::execution::ExecutionTimeObservationKey;
 use haneul_types::execution_status::{
-    CommandArgumentError, ExecutionFailureStatus, ExecutionStatus, PackageUpgradeError,
+    CommandArgumentError, ExecutionErrorKind, ExecutionStatus, PackageUpgradeError,
     TypeArgumentError,
 };
 use haneul_types::full_checkpoint_content::{CheckpointData, CheckpointTransaction};
@@ -194,9 +194,7 @@ fn get_registry() -> Result<Registry> {
     tracer.trace_type::<TypeInput>(&samples).unwrap();
     tracer.trace_type::<Owner>(&samples).unwrap();
     tracer.trace_type::<ExecutionStatus>(&samples).unwrap();
-    tracer
-        .trace_type::<ExecutionFailureStatus>(&samples)
-        .unwrap();
+    tracer.trace_type::<ExecutionErrorKind>(&samples).unwrap();
     tracer.trace_type::<Reservation>(&samples).unwrap();
     tracer.trace_type::<WithdrawFrom>(&samples).unwrap();
     tracer.trace_type::<WithdrawalTypeArg>(&samples).unwrap();

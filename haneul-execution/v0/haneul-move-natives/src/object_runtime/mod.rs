@@ -19,8 +19,9 @@ use std::{
 use haneul_protocol_config::{check_limit_by_meter, LimitThresholdCrossed, ProtocolConfig};
 use haneul_types::{
     base_types::{MoveObjectType, ObjectID, SequenceNumber, HaneulAddress},
-    error::{ExecutionError, ExecutionErrorKind, VMMemoryLimitExceededSubStatusCode},
+    error::{ExecutionError, VMMemoryLimitExceededSubStatusCode},
     execution::DynamicallyLoadedObjectMetadata,
+    execution_status::ExecutionErrorKind,
     id::UID,
     metrics::LimitsMetrics,
     object::{MoveObject, Owner},

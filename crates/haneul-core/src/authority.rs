@@ -132,9 +132,10 @@ use haneul_types::effects::{
     InputConsensusObject, SignedTransactionEffects, TransactionEffects, TransactionEffectsAPI,
     TransactionEvents, VerifiedSignedTransactionEffects,
 };
-use haneul_types::error::{ExecutionError, ExecutionErrorKind, HaneulErrorKind, UserInputError};
+use haneul_types::error::{ExecutionError, HaneulErrorKind, UserInputError};
 use haneul_types::event::{Event, EventID};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
+use haneul_types::execution_status::ExecutionErrorKind;
 use haneul_types::gas::{GasCostSummary, HaneulGasStatus};
 use haneul_types::inner_temporary_store::{
     InnerTemporaryStore, ObjectMap, TemporaryModuleResolver, TxCoins, WrittenObjects,

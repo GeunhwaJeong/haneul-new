@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::HANEUL_FRAMEWORK_ADDRESS;
-use crate::error::{ExecutionError, ExecutionErrorKind};
 use crate::haneul_serde::BigInt;
 use crate::haneul_serde::Readable;
+use crate::{error::ExecutionError, execution_status::ExecutionErrorKind};
 use move_core_types::account_address::AccountAddress;
 use move_core_types::annotated_value::{MoveFieldLayout, MoveStructLayout, MoveTypeLayout};
 use move_core_types::ident_str;

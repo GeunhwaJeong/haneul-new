@@ -15,11 +15,10 @@ use haneul_types::effects::{
     AccumulatorOperation, AccumulatorValue, AccumulatorWriteV1, TransactionEffects,
     TransactionEvents,
 };
-use haneul_types::error::ExecutionErrorKind;
 use haneul_types::execution::{
     DynamicallyLoadedObjectMetadata, ExecutionResults, ExecutionResultsV2, SharedInput,
 };
-use haneul_types::execution_status::ExecutionStatus;
+use haneul_types::execution_status::{ExecutionErrorKind, ExecutionStatus};
 use haneul_types::inner_temporary_store::InnerTemporaryStore;
 use haneul_types::layout_resolver::LayoutResolver;
 use haneul_types::object::Data;

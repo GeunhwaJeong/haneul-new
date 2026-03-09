@@ -327,7 +327,7 @@ pub mod checked {
                     .map(|err| {
                         matches!(
                             err.kind(),
-                            haneul_types::execution_status::ExecutionFailureStatus::MoveAbort(_, _)
+                            haneul_types::execution_status::ExecutionErrorKind::MoveAbort(_, _)
                         )
                     })
                     .unwrap_or(false);
@@ -363,7 +363,7 @@ pub mod checked {
                 .map(|err| {
                     matches!(
                         err.kind(),
-                        haneul_types::execution_status::ExecutionFailureStatus::InsufficientFundsForWithdraw
+                        haneul_types::execution_status::ExecutionErrorKind::InsufficientFundsForWithdraw
                     )
                 })
                 .unwrap_or(false)

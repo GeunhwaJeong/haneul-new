@@ -29,8 +29,8 @@ mod checked {
     use haneul_protocol_config::ProtocolConfig;
     use haneul_types::{
         base_types::*,
-        error::ExecutionError,
-        error::{ExecutionErrorKind, HaneulError},
+        error::{ExecutionError, HaneulError},
+        execution_status::ExecutionErrorKind,
         metrics::LimitsMetrics,
         storage::ChildObjectResolver,
     };

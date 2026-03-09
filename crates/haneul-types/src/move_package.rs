@@ -6,7 +6,8 @@ use crate::{
     HANEUL_FRAMEWORK_ADDRESS,
     base_types::{ObjectID, SequenceNumber},
     crypto::DefaultHash,
-    error::{ExecutionError, ExecutionErrorKind, HaneulErrorKind, HaneulResult},
+    error::{ExecutionError, HaneulErrorKind, HaneulResult},
+    execution_status::ExecutionErrorKind,
     id::{ID, UID},
     object::OBJECT_START_VERSION,
 };

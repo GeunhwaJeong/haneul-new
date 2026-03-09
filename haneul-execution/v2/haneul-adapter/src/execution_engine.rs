@@ -39,8 +39,8 @@ mod checked {
     use haneul_types::committee::EpochId;
     use haneul_types::deny_list_v1::{DENY_LIST_CREATE_FUNC, DENY_LIST_MODULE};
     use haneul_types::effects::TransactionEffects;
-    use haneul_types::error::{ExecutionError, ExecutionErrorKind};
-    use haneul_types::execution_status::ExecutionStatus;
+    use haneul_types::error::ExecutionError;
+    use haneul_types::execution_status::{ExecutionErrorKind, ExecutionStatus};
     use haneul_types::gas::GasCostSummary;
     use haneul_types::gas::HaneulGasStatus;
     use haneul_types::inner_temporary_store::InnerTemporaryStore;

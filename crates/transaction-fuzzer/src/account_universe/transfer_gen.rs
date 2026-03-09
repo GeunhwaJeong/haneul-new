@@ -16,7 +16,7 @@ use std::sync::Arc;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::error::HaneulErrorKind;
-use haneul_types::execution_status::{ExecutionFailure, ExecutionFailureStatus, ExecutionStatus};
+use haneul_types::execution_status::{ExecutionErrorKind, ExecutionFailure, ExecutionStatus};
 use haneul_types::{
     base_types::HaneulAddress,
     error::{HaneulError, UserInputError},
@@ -522,7 +522,7 @@ impl AUTransactionGen for P2PTransferGenRandomGasRandomPriceRandomSponsorship {
             } => {
                 self.fix_balance_and_gas_coins(payer, false);
                 Ok(ExecutionStatus::Failure(ExecutionFailure {
-                    error: ExecutionFailureStatus::InsufficientCoinBalance,
+                    error: ExecutionErrorKind::InsufficientCoinBalance,
                     command: Some(0),
                 }))
             }
@@ -532,7 +532,7 @@ impl AUTransactionGen for P2PTransferGenRandomGasRandomPriceRandomSponsorship {
             } => {
                 self.fix_balance_and_gas_coins(payer, false);
                 Ok(ExecutionStatus::Failure(ExecutionFailure {
-                    error: ExecutionFailureStatus::InsufficientGas,
+                    error: ExecutionErrorKind::InsufficientGas,
                     command: None,
                 }))
             }

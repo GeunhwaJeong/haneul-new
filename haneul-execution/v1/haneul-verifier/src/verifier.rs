@@ -38,7 +38,7 @@ pub fn haneul_verify_module_metered_check_timeout_only(
     if let Err(error) = haneul_verify_module_metered(module, fn_info_map, meter) {
         if matches!(
             error.kind(),
-            haneul_types::execution_status::ExecutionFailureStatus::HaneulMoveVerificationTimedout
+            haneul_types::execution_status::ExecutionErrorKind::HaneulMoveVerificationTimedout
         ) {
             return Err(error);
         }
@@ -56,7 +56,7 @@ pub fn haneul_verify_module_unmetered(
         debug_assert!(
             !matches!(
                 err.kind(),
-                haneul_types::execution_status::ExecutionFailureStatus::HaneulMoveVerificationTimedout
+                haneul_types::execution_status::ExecutionErrorKind::HaneulMoveVerificationTimedout
             ),
             "Unexpected timeout error in execution"
         );

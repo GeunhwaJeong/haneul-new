@@ -60,9 +60,9 @@ mod checked {
         ChainIdentifier, get_mainnet_chain_identifier, get_testnet_chain_identifier,
     };
     use haneul_types::effects::TransactionEffects;
-    use haneul_types::error::{ExecutionError, ExecutionErrorKind};
+    use haneul_types::error::ExecutionError;
     use haneul_types::execution::{ExecutionTiming, ResultWithTimings};
-    use haneul_types::execution_status::ExecutionStatus;
+    use haneul_types::execution_status::{ExecutionErrorKind, ExecutionStatus};
     use haneul_types::gas::GasCostSummary;
     use haneul_types::gas::HaneulGasStatus;
     use haneul_types::id::UID;

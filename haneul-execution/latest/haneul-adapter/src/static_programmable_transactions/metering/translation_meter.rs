@@ -3,7 +3,8 @@
 
 use crate::gas_charger::GasCharger;
 use haneul_protocol_config::ProtocolConfig;
-use haneul_types::error::{ExecutionError, ExecutionErrorKind};
+use haneul_types::error::ExecutionError;
+use haneul_types::execution_status::ExecutionErrorKind;
 
 /// The [`TranslationMeter`] is responsible for metering gas usage for various operations
 /// during the translation of a transaction. It interacts with and exposes interfaces to the

@@ -33,8 +33,8 @@ mod checked {
     use haneul_types::clock::{CLOCK_MODULE_NAME, CONSENSUS_COMMIT_PROLOGUE_FUNCTION_NAME};
     use haneul_types::committee::EpochId;
     use haneul_types::effects::TransactionEffects;
-    use haneul_types::error::{ExecutionError, ExecutionErrorKind};
-    use haneul_types::execution_status::ExecutionStatus;
+    use haneul_types::error::ExecutionError;
+    use haneul_types::execution_status::{ExecutionErrorKind, ExecutionStatus};
     use haneul_types::gas::GasCostSummary;
     use haneul_types::gas::HaneulGasStatus;
     use haneul_types::inner_temporary_store::InnerTemporaryStore;

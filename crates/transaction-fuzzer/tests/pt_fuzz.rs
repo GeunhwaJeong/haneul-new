@@ -13,7 +13,7 @@ use transaction_fuzzer::type_arg_fuzzer::{run_pt, run_pt_effects};
 
 use haneul_types::base_types::ObjectRef;
 use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::execution_status::{ExecutionFailure, ExecutionFailureStatus, ExecutionStatus};
+use haneul_types::execution_status::{ExecutionErrorKind, ExecutionFailure, ExecutionStatus};
 use haneul_types::object::Owner;
 use haneul_types::transaction::{CallArg, ObjectArg, ProgrammableTransaction};
 use haneul_types::{MOVE_STDLIB_PACKAGE_ID, HANEUL_FRAMEWORK_PACKAGE_ID};
@@ -94,7 +94,7 @@ pub fn run_pt_success(
         matches!(
             status,
             ExecutionStatus::Failure(ExecutionFailure {
-                error: ExecutionFailureStatus::UnusedValueWithoutDrop { .. },
+                error: ExecutionErrorKind::UnusedValueWithoutDrop { .. },
                 ..
             })
         ),

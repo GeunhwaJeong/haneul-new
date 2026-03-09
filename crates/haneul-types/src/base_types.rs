@@ -27,10 +27,10 @@ use crate::dynamic_field::{DYNAMIC_FIELD_FIELD_STRUCT_NAME, DYNAMIC_FIELD_MODULE
 use crate::effects::TransactionEffects;
 use crate::effects::TransactionEffectsAPI;
 use crate::epoch_data::EpochData;
-use crate::error::ExecutionErrorKind;
 use crate::error::HaneulError;
 use crate::error::HaneulErrorKind;
 use crate::error::{ExecutionError, HaneulResult};
+use crate::execution_status::ExecutionErrorKind;
 use crate::gas_coin::GAS;
 use crate::gas_coin::GasCoin;
 use crate::governance::STAKED_HANEUL_STRUCT_NAME;

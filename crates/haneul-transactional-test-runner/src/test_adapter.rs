@@ -79,7 +79,7 @@ use haneul_types::digests::{ChainIdentifier, ConsensusCommitDigest, TransactionD
 use haneul_types::effects::{
     AccumulatorOperation, TransactionEffects, TransactionEffectsAPI, TransactionEvents,
 };
-use haneul_types::execution_status::ExecutionFailureStatus;
+use haneul_types::execution_status::ExecutionErrorKind;
 use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointContentsDigest, CheckpointSequenceNumber, VerifiedCheckpoint,
 };
@@ -1981,7 +1981,7 @@ impl HaneulTestAdapter {
                     format!("Execution Error: {}", error_opt.unwrap())
                 };
                 let error = match error {
-                    ExecutionFailureStatus::MoveAbort(loc, code)
+                    ExecutionErrorKind::MoveAbort(loc, code)
                         if ErrorBitset::from_u64(*code).is_some() =>
                     {
                         let clever_code = ErrorBitset::from_u64(*code).unwrap();
