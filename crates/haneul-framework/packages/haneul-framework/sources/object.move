@@ -49,6 +49,9 @@ const HANEUL_BRIDGE_ID: address = @0x9;
 /// The hardcoded ID for the Coin Registry Object.
 const HANEUL_COIN_REGISTRY_OBJECT_ID: address = @0xc;
 
+/// The hardcoded ID for the Display Registry Object.
+const HANEUL_DISPLAY_REGISTRY_OBJECT_ID: address = @0xd;
+
 /// The hardcoded ID for the AddressAliasState Object.
 const HANEUL_ADDRESS_ALIAS_STATE_ID: address = @0xa;
 
@@ -165,6 +168,18 @@ public(package) fun haneul_coin_registry_object_id(): UID {
 
 public(package) fun haneul_coin_registry_address(): address {
     HANEUL_COIN_REGISTRY_OBJECT_ID
+}
+
+/// Create the `UID` for the singleton `DisplayRegistry` object.
+/// This should only be called once from `display_registry`.
+public(package) fun haneul_display_registry_object_id(): UID {
+    UID {
+        id: ID { bytes: HANEUL_DISPLAY_REGISTRY_OBJECT_ID },
+    }
+}
+
+public(package) fun haneul_display_registry_address(): address {
+    HANEUL_DISPLAY_REGISTRY_OBJECT_ID
 }
 
 #[allow(unused_function)]

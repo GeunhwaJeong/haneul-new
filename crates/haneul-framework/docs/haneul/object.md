@@ -21,6 +21,8 @@ Haneul object identifiers
 -  [Function `haneul_accumulator_root_address`](#haneul_object_haneul_accumulator_root_address)
 -  [Function `haneul_coin_registry_object_id`](#haneul_object_haneul_coin_registry_object_id)
 -  [Function `haneul_coin_registry_address`](#haneul_object_haneul_coin_registry_address)
+-  [Function `haneul_display_registry_object_id`](#haneul_object_haneul_display_registry_object_id)
+-  [Function `haneul_display_registry_address`](#haneul_object_haneul_display_registry_address)
 -  [Function `bridge`](#haneul_object_bridge)
 -  [Function `address_alias_state`](#haneul_object_address_alias_state)
 -  [Function `uid_as_inner`](#haneul_object_uid_as_inner)
@@ -196,6 +198,16 @@ The hardcoded ID for the Coin Registry Object.
 
 
 <pre><code><b>const</b> <a href="../haneul/object.md#haneul_object_HANEUL_COIN_REGISTRY_OBJECT_ID">HANEUL_COIN_REGISTRY_OBJECT_ID</a>: <b>address</b> = 0xc;
+</code></pre>
+
+
+
+<a name="haneul_object_HANEUL_DISPLAY_REGISTRY_OBJECT_ID"></a>
+
+The hardcoded ID for the Display Registry Object.
+
+
+<pre><code><b>const</b> <a href="../haneul/object.md#haneul_object_HANEUL_DISPLAY_REGISTRY_OBJECT_ID">HANEUL_DISPLAY_REGISTRY_OBJECT_ID</a>: <b>address</b> = 0xd;
 </code></pre>
 
 
@@ -556,6 +568,58 @@ This should only be called once from <code><a href="../haneul/coin_registry.md#h
 
 <pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/object.md#haneul_object_haneul_coin_registry_address">haneul_coin_registry_address</a>(): <b>address</b> {
     <a href="../haneul/object.md#haneul_object_HANEUL_COIN_REGISTRY_OBJECT_ID">HANEUL_COIN_REGISTRY_OBJECT_ID</a>
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_object_haneul_display_registry_object_id"></a>
+
+## Function `haneul_display_registry_object_id`
+
+Create the <code><a href="../haneul/object.md#haneul_object_UID">UID</a></code> for the singleton <code>DisplayRegistry</code> object.
+This should only be called once from <code><a href="../haneul/display_registry.md#haneul_display_registry">display_registry</a></code>.
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/object.md#haneul_object_haneul_display_registry_object_id">haneul_display_registry_object_id</a>(): <a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/object.md#haneul_object_haneul_display_registry_object_id">haneul_display_registry_object_id</a>(): <a href="../haneul/object.md#haneul_object_UID">UID</a> {
+    <a href="../haneul/object.md#haneul_object_UID">UID</a> {
+        <a href="../haneul/object.md#haneul_object_id">id</a>: <a href="../haneul/object.md#haneul_object_ID">ID</a> { bytes: <a href="../haneul/object.md#haneul_object_HANEUL_DISPLAY_REGISTRY_OBJECT_ID">HANEUL_DISPLAY_REGISTRY_OBJECT_ID</a> },
+    }
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_object_haneul_display_registry_address"></a>
+
+## Function `haneul_display_registry_address`
+
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/object.md#haneul_object_haneul_display_registry_address">haneul_display_registry_address</a>(): <b>address</b>
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/object.md#haneul_object_haneul_display_registry_address">haneul_display_registry_address</a>(): <b>address</b> {
+    <a href="../haneul/object.md#haneul_object_HANEUL_DISPLAY_REGISTRY_OBJECT_ID">HANEUL_DISPLAY_REGISTRY_OBJECT_ID</a>
 }
 </code></pre>
 

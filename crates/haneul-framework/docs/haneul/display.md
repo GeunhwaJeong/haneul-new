@@ -28,6 +28,7 @@ More entry functions might be added in the future depending on the use cases.
 -  [Function `is_authorized`](#haneul_display_is_authorized)
 -  [Function `version`](#haneul_display_version)
 -  [Function `fields`](#haneul_display_fields)
+-  [Function `destroy`](#haneul_display_destroy)
 -  [Function `create_internal`](#haneul_display_create_internal)
 -  [Function `add_internal`](#haneul_display_add_internal)
 
@@ -505,6 +506,32 @@ Read the <code><a href="../haneul/display.md#haneul_display_fields">fields</a></
 
 <pre><code><b>public</b> <b>fun</b> <a href="../haneul/display.md#haneul_display_fields">fields</a>&lt;T: key&gt;(d: &<a href="../haneul/display.md#haneul_display_Display">Display</a>&lt;T&gt;): &VecMap&lt;String, String&gt; {
     &d.<a href="../haneul/display.md#haneul_display_fields">fields</a>
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_display_destroy"></a>
+
+## Function `destroy`
+
+Allow destroying legacy display objects.
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/display.md#haneul_display_destroy">destroy</a>&lt;T: key&gt;(<a href="../haneul/display.md#haneul_display">display</a>: <a href="../haneul/display.md#haneul_display_Display">haneul::display::Display</a>&lt;T&gt;)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b>(<a href="../haneul/package.md#haneul_package">package</a>) <b>fun</b> <a href="../haneul/display.md#haneul_display_destroy">destroy</a>&lt;T: key&gt;(<a href="../haneul/display.md#haneul_display">display</a>: <a href="../haneul/display.md#haneul_display_Display">Display</a>&lt;T&gt;) {
+    <b>let</b> <a href="../haneul/display.md#haneul_display_Display">Display</a> { id, .. } = <a href="../haneul/display.md#haneul_display">display</a>;
+    id.delete();
 }
 </code></pre>
 

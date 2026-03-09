@@ -250,6 +250,7 @@ public fun create_system_objects(scenario: &mut Scenario) {
     haneul::clock::create_for_testing(scenario.ctx()).share_for_testing();
     haneul::random::create_for_testing(scenario.ctx());
     haneul::deny_list::create_for_testing(scenario.ctx());
+    haneul::display_registry::create_for_testing(scenario.ctx());
     scenario.next_tx(sender);
 }
 

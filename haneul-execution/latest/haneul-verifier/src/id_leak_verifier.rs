@@ -106,6 +106,11 @@ const HANEUL_COIN_REGISTRY_CREATE: FunctionIdent = (
     ident_str!("coin_registry"),
     ident_str!("create"),
 );
+const HANEUL_DISPLAY_REGISTRY_CREATE: FunctionIdent = (
+    HANEUL_FRAMEWORK_ADDRESS,
+    ident_str!("display_registry"),
+    ident_str!("create"),
+);
 const HANEUL_ALIAS_CREATE: FunctionIdent = (
     HANEUL_FRAMEWORK_ADDRESS,
     ident_str!("address_alias"),
@@ -126,6 +131,7 @@ const FUNCTIONS_TO_SKIP: &[FunctionIdent] = &[
     HANEUL_BRIDGE_CREATE,
     HANEUL_ACCUMULATOR_CREATE,
     HANEUL_COIN_REGISTRY_CREATE,
+    HANEUL_DISPLAY_REGISTRY_CREATE,
     HANEUL_ALIAS_CREATE,
 ];
 

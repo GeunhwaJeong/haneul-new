@@ -90,7 +90,7 @@ use haneul_types::storage::{ObjectStore, RpcStateReader};
 use haneul_types::transaction::Command;
 use haneul_types::transaction::ProgrammableTransaction;
 use haneul_types::utils::to_sender_signed_transaction_with_multi_signers;
-use haneul_types::{BRIDGE_ADDRESS, MOVE_STDLIB_PACKAGE_ID};
+use haneul_types::{BRIDGE_ADDRESS, MOVE_STDLIB_PACKAGE_ID, HANEUL_DISPLAY_REGISTRY_OBJECT_ID};
 use haneul_types::{DEEPBOOK_ADDRESS, HANEUL_DENY_LIST_OBJECT_ID};
 use haneul_types::{DEEPBOOK_PACKAGE_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
 use haneul_types::{
@@ -136,6 +136,7 @@ const WELL_KNOWN_OBJECTS: &[ObjectID] = &[
     HANEUL_DENY_LIST_OBJECT_ID,
     HANEUL_RANDOMNESS_STATE_OBJECT_ID,
     HANEUL_COIN_REGISTRY_OBJECT_ID,
+    HANEUL_DISPLAY_REGISTRY_OBJECT_ID,
     HANEUL_ACCUMULATOR_ROOT_OBJECT_ID,
 ];
 // TODO use the file name as a seed
