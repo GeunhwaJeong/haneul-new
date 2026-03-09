@@ -36,8 +36,6 @@ const concepts = [
 			'concepts/tokenomics/gas-in-haneul',
 		],
 	},
-	'concepts/coin-mgt',
-	'concepts/haneul-move-concepts',
 	{
 		type: 'category',
 		label: 'Accessing Data',
@@ -76,6 +74,8 @@ const concepts = [
 			'concepts/cryptography/system/checkpoint-verification',
 		],
 	},
+	'concepts/coin-mgt',
+	'concepts/haneul-move-concepts',
 	'concepts/gaming',
 	'concepts/research-papers',
 ];
