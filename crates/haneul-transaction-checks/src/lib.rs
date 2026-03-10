@@ -23,7 +23,7 @@ mod checked {
     use haneul_types::{
         HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_ADDRESS_ALIAS_STATE_OBJECT_ID, HANEUL_BRIDGE_OBJECT_ID,
         HANEUL_CLOCK_OBJECT_ID, HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_DENY_LIST_OBJECT_ID,
-        HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
+        HANEUL_DISPLAY_REGISTRY_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
     };
     use haneul_types::{
         base_types::{SequenceNumber, HaneulAddress},
@@ -573,6 +573,7 @@ mod checked {
                         (HANEUL_SYSTEM_STATE_OBJECT_ID, _)
                         | (HANEUL_ADDRESS_ALIAS_STATE_OBJECT_ID, _)
                         | (HANEUL_COIN_REGISTRY_OBJECT_ID, _)
+                        | (HANEUL_DISPLAY_REGISTRY_OBJECT_ID, _)
                         | (HANEUL_DENY_LIST_OBJECT_ID, _)
                         | (HANEUL_BRIDGE_OBJECT_ID, _)
 
