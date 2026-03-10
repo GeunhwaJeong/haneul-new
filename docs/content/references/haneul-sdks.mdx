@@ -9,15 +9,23 @@ Haneul provides developer kits that act as wrappers for the Haneul API. The Hane
 
 ## Haneul SDKs
 
+:::caution 
+
+`haneul-rust-sdk` does not support JSON RPC. If you need JSON RPC access, use the [legacy Rust SDK](/references/rust-sdk). It is forward and backward compatible.
+
+<ImportContent source="json-rpc-deprecation.mdx" mode="snippet" />
+
+:::
+
 <Cards>
 <Card title="dApp Kit" href="https://sdk.haneul-labs.com/dapp-kit">
     A web frontend SDK that interacts with the Haneul API. It is available as an NPM package.
 </Card>
-<Card title="Rust SDK" href="./rust-sdk">
-    SDK configuration and examples of using the Haneul API with Rust, using the `haneul-sdk` crate.
+<Card title="Rust SDK" href="https://github.com/GeunhwaJeong/haneul-rust-sdk">
+    SDK configuration and examples of using the Haneul API with Rust, using the `haneul-rust-sdk` crate.
 </Card>
-<Card title="Rust SDK Auto-generated Docs" href="https://haneullabs.github.io/haneul/haneul_sdk/index.html">
-    Auto-generated documentation for the `haneul-sdk` crate in the Haneul repository.
+<Card title="Legacy Rust SDK" href="/references/rust-sdk">
+    Supports JSON RPC access. It is forward and backward compatible.
 </Card>
 <Card title="TypeScript SDK" href="https://sdk.haneul-labs.com/typescript">
     TypeScript SDK for integrating Haneul in your TS apps.

@@ -114,7 +114,12 @@ const references = [
 				label: 'dApp Kit',
 				href: 'https://sdk.haneul-labs.com/dapp-kit',
 			},
-			'references/rust-sdk',
+			{
+				type: 'link',
+				label: 'Rust SDK',
+				href: 'https://github.com/GeunhwaJeong/haneul-rust-sdk',
+			},
+			"references/rust-sdk",
 			{
 				type: 'link',
 				label: 'TypeScript SDK',
