@@ -21,7 +21,7 @@ use tracing::info;
 
 use haneul_indexer_alt_framework::Indexer;
 use haneul_indexer_alt_framework::IndexerArgs;
-use haneul_indexer_alt_framework::ingestion::ClientArgs;
+use haneul_indexer_alt_framework::ingestion::{ClientArgs, IngestionConfig};
 use haneul_indexer_alt_framework::pipeline::CommitterConfig;
 use haneul_indexer_alt_framework::pipeline::sequential::SequentialConfig;
 use haneul_indexer_alt_framework::service::Service;
@@ -83,7 +83,7 @@ pub async fn build_analytics_indexer(
         task: indexer_args.task,
     };
 
-    let ingestion_config = config.ingestion.clone();
+    let ingestion_config = config.ingestion.clone().finish(IngestionConfig::default());
 
     let mut indexer = Indexer::new(
         store.clone(),
