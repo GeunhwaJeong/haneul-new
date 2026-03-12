@@ -171,6 +171,7 @@ const references = [
 			},
 		],
 	},
+	'references/object-display-syntax',
 	'references/awesome-haneul',
 	'references/awesome-haneul-gaming',
 	'references/haneul-glossary',
