@@ -338,6 +338,16 @@ The <code><a href="../haneul_system/genesis.md#haneul_system_genesis_create">cre
 
 
 
+<a name="haneul_system_genesis_ENotAValidator"></a>
+
+The validator address is not in the validator set.
+
+
+<pre><code><b>const</b> <a href="../haneul_system/genesis.md#haneul_system_genesis_ENotAValidator">ENotAValidator</a>: u64 = 2;
+</code></pre>
+
+
+
 <a name="haneul_system_genesis_create"></a>
 
 ## Function `create`
@@ -482,8 +492,10 @@ all the information we need in the system.
             <b>let</b> allocation_balance = haneul_supply.split(amount_geunhwa);
             <b>if</b> (staked_with_validator.is_some()) {
                 <b>let</b> validator_address = staked_with_validator.destroy_some();
-                <b>let</b> <a href="../haneul_system/validator.md#haneul_system_validator">validator</a> = <a href="../haneul_system/validator_set.md#haneul_system_validator_set_get_validator_mut">validator_set::get_validator_mut</a>(validators, validator_address);
-                <a href="../haneul_system/validator.md#haneul_system_validator">validator</a>.request_add_stake_at_genesis(
+                <b>let</b> validator_idx = validators
+                    .find_index!(|v| v.haneul_address() == validator_address)
+                    .destroy_or!(<b>abort</b> <a href="../haneul_system/genesis.md#haneul_system_genesis_ENotAValidator">ENotAValidator</a>);
+                validators[validator_idx].request_add_stake_at_genesis(
                     allocation_balance,
                     recipient_address,
                     ctx,
