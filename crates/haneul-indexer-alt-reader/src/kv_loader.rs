@@ -10,6 +10,7 @@ use haneul_indexer_alt_schema::transactions::StoredTransaction;
 use haneul_kvstore::TransactionData as KVTransactionData;
 use haneul_kvstore::TransactionEventsData as KVTransactionEventsData;
 use haneul_rpc::proto::haneul::rpc::v2 as grpc;
+use haneul_types::balance_change::BalanceChange as NativeBalanceChange;
 use haneul_types::base_types::ObjectID;
 use haneul_types::crypto::AuthorityQuorumSignInfo;
 use haneul_types::digests::TransactionDigest;
@@ -74,6 +75,13 @@ pub enum TransactionContents {
 pub enum TransactionEventsContents {
     Deserialized(KVTransactionEventsData),
     Serialized(StoredTransactionEvents),
+}
+
+// A wrapper for a single balance change, either from gRPC or from native type.
+#[derive(Clone)]
+pub enum BalanceChangeContents {
+    Grpc(grpc::BalanceChange),
+    Native(NativeBalanceChange),
 }
 
 impl KvLoader {
@@ -361,11 +369,28 @@ impl TransactionContents {
         }
     }
 
-    pub fn balance_changes(&self) -> Option<&[grpc::BalanceChange]> {
+    pub fn balance_changes(&self) -> Option<Vec<BalanceChangeContents>> {
         match self {
             Self::ExecutedTransaction {
                 balance_changes, ..
-            } => Some(balance_changes),
+            } => Some(
+                balance_changes
+                    .iter()
+                    .map(|c| BalanceChangeContents::Grpc(c.clone()))
+                    .collect(),
+            ),
+            Self::LedgerGrpc(txn) => Some(
+                txn.balance_changes
+                    .iter()
+                    .map(|c| BalanceChangeContents::Grpc(c.clone()))
+                    .collect(),
+            ),
+            Self::Bigtable(kv) => Some(
+                kv.balance_changes
+                    .iter()
+                    .map(|c| BalanceChangeContents::Native(c.clone()))
+                    .collect(),
+            ),
             _ => None,
         }
     }
