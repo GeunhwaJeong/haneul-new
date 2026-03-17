@@ -123,6 +123,7 @@ impl TryConstructTransaction for WithdrawStake {
             total_haneul_balance,
             budget,
             address_balance_withdrawal: 0,
+            fss_object_count: None,
         })
     }
 }

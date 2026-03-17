@@ -31,6 +31,8 @@ use haneul_types::transaction::{
 
 use crate::errors::Error;
 use crate::types::ConstructionMetadata;
+pub use consolidate_to_fungible::ConsolidateAllStakedHaneulToFungible;
+use consolidate_to_fungible::consolidate_to_fungible_pt;
 pub use pay_coin::PayCoin;
 pub(crate) use pay_coin::pay_coin_pt;
 pub use pay_haneul::PayHaneul;
@@ -40,6 +42,7 @@ use stake::{stake_pt_ab_gas, stake_pt_coin_gas};
 pub use withdraw_stake::WithdrawStake;
 use withdraw_stake::withdraw_stake_pt;
 
+mod consolidate_to_fungible;
 mod pay_coin;
 mod pay_haneul;
 mod stake;
@@ -62,6 +65,9 @@ pub struct TransactionObjectData {
     pub budget: u64,
     /// Amount to withdraw from address balance for payment
     pub address_balance_withdrawal: u64,
+    /// Number of FungibleStakedHaneul objects in the `objects` array (the rest are StakedHaneul).
+    /// Used by ConsolidateAllStakedHaneulToFungible to split objects for PTB construction.
+    pub fss_object_count: Option<u64>,
 }
 
 #[async_trait]
@@ -82,6 +88,7 @@ pub enum InternalOperation {
     PayCoin(PayCoin),
     Stake(Stake),
     WithdrawStake(WithdrawStake),
+    ConsolidateAllStakedHaneulToFungible(ConsolidateAllStakedHaneulToFungible),
 }
 
 impl InternalOperation {
@@ -90,7 +97,10 @@ impl InternalOperation {
             InternalOperation::PayHaneul(PayHaneul { sender, .. })
             | InternalOperation::PayCoin(PayCoin { sender, .. })
             | InternalOperation::Stake(Stake { sender, .. })
-            | InternalOperation::WithdrawStake(WithdrawStake { sender, .. }) => *sender,
+            | InternalOperation::WithdrawStake(WithdrawStake { sender, .. })
+            | InternalOperation::ConsolidateAllStakedHaneulToFungible(
+                ConsolidateAllStakedHaneulToFungible { sender, .. },
+            ) => *sender,
         }
     }
 
@@ -193,6 +203,16 @@ impl InternalOperation {
             InternalOperation::WithdrawStake(WithdrawStake { stake_ids, .. }) => {
                 let withdraw_all = stake_ids.is_empty();
                 withdraw_stake_pt(metadata.objects, withdraw_all)?
+            }
+            InternalOperation::ConsolidateAllStakedHaneulToFungible(
+                ConsolidateAllStakedHaneulToFungible { sender, .. },
+            ) => {
+                // objects[0..fss_count] are FungibleStakedHaneul, objects[fss_count..] are StakedHaneul
+                let fss_count = metadata.fss_object_count.unwrap_or(0) as usize;
+                let (fss_refs, staked_haneul_refs) = metadata
+                    .objects
+                    .split_at(fss_count.min(metadata.objects.len()));
+                consolidate_to_fungible_pt(sender, fss_refs.to_vec(), staked_haneul_refs.to_vec())?
             }
         };
 
