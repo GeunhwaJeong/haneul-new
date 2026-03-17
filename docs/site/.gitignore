@@ -32,6 +32,9 @@ static/awesome-haneul/
 src/static/awesome-haneul/
 static/awesome-haneul-gaming/
 src/static/awesome-haneul-gaming/
+static/awesome-haneul/
+
+scripts/.cache/
 
 ## Subtrees
 ../docs/subtree/
