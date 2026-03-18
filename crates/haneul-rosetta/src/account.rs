@@ -29,10 +29,10 @@ use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 /// Field order must match the Move struct definition exactly (BCS is positional).
 /// See: crates/haneul-framework/packages/haneul-system/sources/staking_pool.move
 #[derive(serde::Deserialize)]
-struct FungibleStakedHaneulBcs {
-    _id: Address,
-    pool_id: Address,
-    value: u64,
+pub(crate) struct FungibleStakedHaneulBcs {
+    pub _id: Address,
+    pub pool_id: Address,
+    pub value: u64,
 }
 
 /// Get an array of all AccountBalances for an AccountIdentifier and the BlockIdentifier

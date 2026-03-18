@@ -33,6 +33,9 @@ use crate::errors::Error;
 use crate::types::ConstructionMetadata;
 pub use consolidate_to_fungible::ConsolidateAllStakedHaneulToFungible;
 use consolidate_to_fungible::consolidate_to_fungible_pt;
+pub(crate) use consolidate_to_fungible::get_validator_pool_id;
+pub use merge_and_redeem::MergeAndRedeemFungibleStakedHaneul;
+use merge_and_redeem::merge_and_redeem_fss_pt;
 pub use pay_coin::PayCoin;
 pub(crate) use pay_coin::pay_coin_pt;
 pub use pay_haneul::PayHaneul;
@@ -43,6 +46,7 @@ pub use withdraw_stake::WithdrawStake;
 use withdraw_stake::withdraw_stake_pt;
 
 mod consolidate_to_fungible;
+mod merge_and_redeem;
 mod pay_coin;
 mod pay_haneul;
 mod stake;
@@ -68,6 +72,9 @@ pub struct TransactionObjectData {
     /// Number of FungibleStakedHaneul objects in the `objects` array (the rest are StakedHaneul).
     /// Used by ConsolidateAllStakedHaneulToFungible to split objects for PTB construction.
     pub fss_object_count: Option<u64>,
+    /// Pool tokens to redeem. None = redeem all.
+    /// Used by MergeAndRedeemFungibleStakedHaneul.
+    pub redeem_token_amount: Option<u64>,
 }
 
 #[async_trait]
@@ -89,6 +96,7 @@ pub enum InternalOperation {
     Stake(Stake),
     WithdrawStake(WithdrawStake),
     ConsolidateAllStakedHaneulToFungible(ConsolidateAllStakedHaneulToFungible),
+    MergeAndRedeemFungibleStakedHaneul(MergeAndRedeemFungibleStakedHaneul),
 }
 
 impl InternalOperation {
@@ -100,6 +108,9 @@ impl InternalOperation {
             | InternalOperation::WithdrawStake(WithdrawStake { sender, .. })
             | InternalOperation::ConsolidateAllStakedHaneulToFungible(
                 ConsolidateAllStakedHaneulToFungible { sender, .. },
+            )
+            | InternalOperation::MergeAndRedeemFungibleStakedHaneul(
+                MergeAndRedeemFungibleStakedHaneul { sender, .. },
             ) => *sender,
         }
     }
@@ -214,6 +225,9 @@ impl InternalOperation {
                     .split_at(fss_count.min(metadata.objects.len()));
                 consolidate_to_fungible_pt(sender, fss_refs.to_vec(), staked_haneul_refs.to_vec())?
             }
+            InternalOperation::MergeAndRedeemFungibleStakedHaneul(
+                MergeAndRedeemFungibleStakedHaneul { sender, .. },
+            ) => merge_and_redeem_fss_pt(sender, metadata.objects, metadata.redeem_token_amount)?,
         };
 
         if metadata.gas_coins.is_empty() {
