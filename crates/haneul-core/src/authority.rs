@@ -109,7 +109,7 @@ use crate::jsonrpc_index::IndexStore;
 use crate::jsonrpc_index::{
     CoinInfo, IndexStoreCacheUpdates, IndexStoreCacheUpdatesWithLocks, ObjectIndexChanges,
 };
-use haneullabs_common::debug_fatal;
+use haneullabs_common::{debug_fatal, debug_fatal_no_invariant};
 use shared_crypto::intent::{AppId, Intent, IntentMessage, IntentScope, IntentVersion};
 use haneul_config::genesis::Genesis;
 use haneul_config::node::{DBCheckpointConfig, ExpensiveSafetyCheckConfig};
@@ -6500,7 +6500,7 @@ impl RandomnessRoundReceiver {
                 Ok(result) => result,
                 Err(_) => {
                     // Crash on randomness update execution timeout in debug builds.
-                    debug_fatal!(
+                    debug_fatal_no_invariant!(
                         "randomness state update transaction execution timed out at epoch {epoch}, round {round}"
                     );
                     // Continue waiting as long as necessary in non-debug builds.
