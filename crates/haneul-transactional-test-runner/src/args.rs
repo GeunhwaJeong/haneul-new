@@ -110,6 +110,13 @@ pub struct ViewObjectCommand {
 }
 
 #[derive(Debug, clap::Parser)]
+pub struct ViewFundsCommand {
+    #[clap(value_parser = ParsedType::parse)]
+    pub funds_type: ParsedType,
+    pub address: String,
+}
+
+#[derive(Debug, clap::Parser)]
 pub struct TransferObjectCommand {
     #[clap(value_parser = parse_fake_id)]
     pub id: FakeID,
@@ -292,6 +299,7 @@ pub struct AuthenticatorStateUpdateCommand {
 #[derive(Debug)]
 pub enum HaneulSubcommand<ExtraValueArgs: ParsableValue, ExtraRunArgs: Parser> {
     ViewObject(ViewObjectCommand),
+    ViewFunds(ViewFundsCommand),
     TransferObject(TransferObjectCommand),
     ConsensusCommitPrologue(ConsensusCommitPrologueCommand),
     ProgrammableTransaction(ProgrammableTransactionCommand),
@@ -316,6 +324,9 @@ impl<ExtraValueArgs: ParsableValue, ExtraRunArgs: Parser> clap::FromArgMatches
         Ok(match matches.subcommand() {
             Some(("view-object", matches)) => {
                 HaneulSubcommand::ViewObject(ViewObjectCommand::from_arg_matches(matches)?)
+            }
+            Some(("view-funds", matches)) => {
+                HaneulSubcommand::ViewFunds(ViewFundsCommand::from_arg_matches(matches)?)
             }
             Some(("transfer-object", matches)) => {
                 HaneulSubcommand::TransferObject(TransferObjectCommand::from_arg_matches(matches)?)
@@ -384,6 +395,7 @@ impl<ExtraValueArgs: ParsableValue, ExtraRunArgs: Parser> clap::CommandFactory
     fn command() -> clap::Command {
         clap::Command::new("haneul_sub_command")
             .subcommand(ViewObjectCommand::command().name("view-object"))
+            .subcommand(ViewFundsCommand::command().name("view-funds"))
             .subcommand(TransferObjectCommand::command().name("transfer-object"))
             .subcommand(ConsensusCommitPrologueCommand::command().name("consensus-commit-prologue"))
             .subcommand(ProgrammableTransactionCommand::command().name("programmable"))
