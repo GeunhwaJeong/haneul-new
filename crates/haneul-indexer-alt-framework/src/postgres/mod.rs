@@ -109,8 +109,9 @@ pub mod tests {
     use std::sync::Arc;
 
     use async_trait::async_trait;
+    use haneul_indexer_alt_framework_store_traits::CommitterWatermark;
     use haneul_indexer_alt_framework_store_traits::Connection as _;
-    use haneul_indexer_alt_framework_store_traits::{CommitterWatermark, InitWatermark};
+    use haneul_indexer_alt_framework_store_traits::InitWatermark;
     use haneul_types::full_checkpoint_content::Checkpoint;
 
     use crate::ConcurrentConfig;
