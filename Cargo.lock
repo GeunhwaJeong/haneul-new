@@ -15456,35 +15456,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "haneul-indexer-alt-restorer"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "clap",
- "diesel",
- "diesel-async",
- "futures",
- "indicatif",
- "object_store 0.13.0",
- "prometheus",
- "haneul-config",
- "haneul-core",
- "haneul-data-ingestion-core",
- "haneul-field-count",
- "haneul-futures",
- "haneul-indexer-alt-schema",
- "haneul-pg-db",
- "haneul-snapshot",
- "haneul-storage",
- "haneul-types",
- "telemetry-subscribers",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
 name = "haneul-indexer-alt-schema"
 version = "1.69.0"
 dependencies = [
