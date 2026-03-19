@@ -150,8 +150,8 @@ pub struct ProgrammableTransactionCommand {
     pub address_balance_gas: bool,
     #[clap(long = "gas-price")]
     pub gas_price: Option<u64>,
-    #[clap(long = "gas-payment", value_parser = parse_fake_id)]
-    pub gas_payment: Option<Vec<FakeID>>,
+    #[clap(long = "gas-payment", value_parser = ParsedValue::<HaneulExtraValueArgs>::parse)]
+    pub gas_payment: Option<Vec<ParsedValue<HaneulExtraValueArgs>>>,
     #[clap(long = "dev-inspect")]
     pub dev_inspect: bool,
     #[clap(long = "dry-run")]
