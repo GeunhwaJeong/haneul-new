@@ -1025,10 +1025,6 @@ struct FeatureFlags {
     // If true, mark the gas coin as uninitialized in drop safety when there is no gas coin.
     #[serde(skip_serializing_if = "is_false")]
     gasless_transaction_drop_safety: bool,
-
-    // Set to true if new VM (bella ciao) is enabled in this protocol version.
-    #[serde(skip_serializing_if = "is_false")]
-    new_vm_enabled: bool,
 }
 
 fn is_false(b: &bool) -> bool {
@@ -2668,7 +2664,7 @@ impl ProtocolConfig {
     }
 
     pub fn new_vm_enabled(&self) -> bool {
-        self.feature_flags.new_vm_enabled
+        self.execution_version.is_some_and(|v| v >= 4)
     }
 }
 
@@ -4687,7 +4683,7 @@ impl ProtocolConfig {
                 118 => {
                     // Enable new VM.
                     cfg.execution_version = Some(4);
-                    cfg.feature_flags.new_vm_enabled = true;
+                    cfg.feature_flags.address_balance_gas_reject_gas_coin_arg = false;
                 }
                 // Use this template when making changes:
                 //
@@ -5021,7 +5017,8 @@ impl ProtocolConfig {
         self.feature_flags.allow_private_accumulator_entrypoints = true;
         self.feature_flags.enable_address_balance_gas_payments = true;
         self.feature_flags.address_balance_gas_check_rgp_at_signing = true;
-        self.feature_flags.address_balance_gas_reject_gas_coin_arg = true;
+        self.feature_flags.address_balance_gas_reject_gas_coin_arg = false;
+        self.execution_version = Some(self.execution_version.map_or(4, |v| v.max(4)))
     }
 
     pub fn disable_address_balance_gas_payments_for_testing(&mut self) {

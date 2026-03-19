@@ -1,24 +1,56 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-// Tests transferring the GasCoin by value when using --address-balance-gas.
+// Tests using the GasCoin when using --address-balance-gas.
 
-//# init --addresses test=0x0 --accounts A --enable-address-balance-gas-payments --enable-accumulators
+//# init --addresses test=0x0 --accounts A B C  --enable-address-balance-gas-payments --enable-accumulators
 
-// First send funds to A's address balance so we can pay for gas from it
 //# programmable --sender A --inputs 10000000000 @A
+// First send funds to A's address balance so we can pay for gas from it
 //> 0: SplitCoins(Gas, [Input(0)]);
-//> 1: haneul::coin::into_balance<haneul::haneul::HANEUL>(Result(0));
-//> 2: haneul::balance::send_funds<haneul::haneul::HANEUL>(Result(1), Input(1));
+//> 1: haneul::coin::send_funds<haneul::haneul::HANEUL>(Result(0), Input(1));
+
+//# programmable --sender B --inputs 10000000000 @B
+// First send funds to B's address balance so we can pay for gas from it
+//> 0: SplitCoins(Gas, [Input(0)]);
+//> 1: haneul::coin::send_funds<haneul::haneul::HANEUL>(Result(0), Input(1));
+
+//# programmable --sender C --inputs 10000000000 @C
+// First send funds to C's address balance so we can pay for gas from it
+//> 0: SplitCoins(Gas, [Input(0)]);
+//> 1: haneul::coin::send_funds<haneul::haneul::HANEUL>(Result(0), Input(1));
 
 //# create-checkpoint
 
 //# view-funds haneul::balance::Balance<haneul::haneul::HANEUL> A
 
-// Transfer gas coin to 0x0 via TransferObjects while paying with address balance
+//# view-funds haneul::balance::Balance<haneul::haneul::HANEUL> B
+
+//# view-funds haneul::balance::Balance<haneul::haneul::HANEUL> C
+
 //# programmable --sender A --inputs @0x0 object(0,0) --address-balance-gas
+// Transfer gas coin to 0x0 via TransferObjects while paying with address balance
 //> TransferObjects([Gas], Input(0))
 
+//# view-object 8,0
+
+//# programmable --sender B --inputs @B object(0,1) --address-balance-gas
+// Transfer gas coin to the sender to show an object was created, even at the same address
+//> TransferObjects([Gas], Input(0))
+
+//# view-object 10,0
+
+//# programmable --sender C --inputs @C 0 object(0,2) --address-balance-gas
+// Split off from the gas coin and transfer that to self. Only one coin in total should be created
+//> 0: SplitCoins(Gas, [Input(1)]);
+//> 1: TransferObjects([Result(0)], Input(0))
+
+//# view-object 12,0
+
 //# create-checkpoint
 
 //# view-funds haneul::balance::Balance<haneul::haneul::HANEUL> A
+
+//# view-funds haneul::balance::Balance<haneul::haneul::HANEUL> B
+
+//# view-funds haneul::balance::Balance<haneul::haneul::HANEUL> C
