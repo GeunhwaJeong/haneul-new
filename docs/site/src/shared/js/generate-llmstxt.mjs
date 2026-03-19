@@ -20,8 +20,8 @@ for (let i = 0; i < args.length; i++) {
 
 const scriptDir = path.dirname(new URL(import.meta.url).pathname);
 const markdownDir = path.resolve(positional[0] ?? path.join(scriptDir, "../../static/markdown"));
-const outputFile = flags["output"] ?? path.join(scriptDir, "../../static/llms.txt");
-const baseUrl = flags["base-url"] ?? "";
+const outputFile = flags["output"] ?? path.join(scriptDir, "../../../static/llms.txt");
+const baseUrl = flags["base-url"] ?? "https://docs.haneul.io";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const TARGET_CHARS = 100_000;
@@ -29,21 +29,70 @@ const PINNED_SECTIONS = ["Move", "Top Level Navigation", "Haneul Developer Skill
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+const IGNORE_DIRS = new Set([
+  "snippets",
+]);
+
+const IGNORE_PATHS = new Set([
+  "guides/developer/digital-assets",
+  "guides/developer/wallets",
+]);
+
+const IGNORE_FILES = new Set([
+  "guides/operator/observability.md",
+  "references/ts-asset-tokenization.md",
+  "guides/developer/getting-started/haneul-wallets.md",
+  "guides/developer/coin/stablecoins.md",
+  "guides/developer/app-examples/recaptcha.md",
+  "guides/developer/accessing-data/index.md",
+  "references/framework/haneul_bridge/message_types.md",
+  "references/framework/haneul_std/address.md",
+  "references/framework/haneul_std/bool.md",
+  "references/framework/haneul_haneul/hex.md",
+  "references/framework/haneul_haneul/prover.md",
+  "references/framework/haneul_haneul_system/validator_wrapper.md",
+  "references/haneul-api/haneul-graphql/beta/reference/types/enums/multisig-member-signature-scheme.md",
+  "references/haneul-api/haneul-graphql/beta/reference/types/objects/multisig-member-signature.md",
+  "references/haneul-framework-reference.md",
+]);
+
 function walk(dir, results = []) {
   if (!fs.existsSync(dir)) return results;
 
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
+    const rel = path.relative(markdownDir, full).replace(/\\/g, "/");
 
     if (entry.isDirectory()) {
-      if (entry.name === "snippets") continue; // exclude snippets
+      // Ignore by directory name
+      if (IGNORE_DIRS.has(entry.name)) continue;
+
+      // Ignore by full relative path (subtrees)
+      if (IGNORE_PATHS.has(rel)) continue;
+
       walk(full, results);
     } else if (entry.name.endsWith(".md") || entry.name.endsWith(".mdx")) {
+      // Ignore specific files
+      if (IGNORE_FILES.has(rel)) continue;
+
       results.push(full);
     }
   }
 
   return results;
+}
+
+function isDraft(filePath) {
+  const content = fs.readFileSync(filePath, "utf8");
+  // Only check within the first 1KB (safely within frontmatter range)
+  const head = content.slice(0, 1024);
+  // Must start with frontmatter delimiter
+  if (!head.startsWith("---")) return false;
+  // Find the closing delimiter
+  const end = head.indexOf("\n---", 3);
+  if (end === -1) return false;
+  const frontmatter = head.slice(0, end);
+  return /draft:\s*true/i.test(frontmatter);
 }
 
 function joinUrl(base, p) {
@@ -155,6 +204,8 @@ if (skills.length) grouped["Haneul Developer Skills"] = skills;
 // ── Markdown pages ───────────────────────────────────────────────────────────
 
 for (const file of files) {
+  if (isDraft(file)) continue;
+
   const rel = path.relative(markdownDir, file).replace(/\\/g, "/");
 
   const { section, subsection, isIndex, parts } = getHierarchy(rel);
@@ -171,8 +222,14 @@ for (const file of files) {
     title = formatTitle(path.basename(file, path.extname(file)));
   }
 
+  // Index files: preserve /index in the URL so they resolve correctly
+  // e.g. guides/developer/digital-assets/index.md → .../digital-assets/index.md
+  // Non-index files: strip extension and re-add .md
+  // e.g. guides/developer/coin/currency.md → .../coin/currency.md
   const cleanPath = rel.replace(/\.mdx?$/, "").replace(/\/index$/, "");
-  const url = joinUrl(baseUrl, cleanPath) + ".md";
+  const url = isIndex
+    ? joinUrl(baseUrl, cleanPath + "/index") + ".md"
+    : joinUrl(baseUrl, cleanPath) + ".md";
 
   if (!grouped[section]) grouped[section] = [];
 
