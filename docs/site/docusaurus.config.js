@@ -48,7 +48,6 @@ const config = {
   onDuplicateRoutes: 'ignore',
 
   staticDirectories: ["static", "src/open-spec"],
-
   markdown: {
     format: "detect",
     mermaid: true,
@@ -209,6 +208,40 @@ const config = {
             [remarkGlossary, { glossaryFile: path.resolve(__dirname, "static/glossary.json") }],
           ],
           rehypePlugins: [katex],
+        },
+        sitemap: {
+          // Ignore pages in the sitemap that use special /slug frontmatter, as they 
+          // don't pass the llms.txt afdocs test properly.
+          // These docs exist and are surfaced through the llms.txt file.
+          ignorePatterns: [
+            '/code-of-conduct',
+            '/concepts/architecture',
+            '/concepts/architecture/index',
+            '/contribute-to-haneul-repos',
+            '/developer/guides/getting-started',
+            '/exchange-integration-guide',
+            '/guides/developer/accessing-data/custom-indexing-framework',
+            '/guides/developer/coin-index',
+            '/guides/developer/cryptography/zklogin-integration/index',
+            '/guides/developer/currency',
+            '/guides/developer/nautilus/index',
+            '/guides/developer/nft-index',
+            '/guides/developer/nft-rental',
+            '/guides/developer/nft-soulbound',
+            '/guides/developer/object-ownership/index',
+            '/guides/developer/operator',
+            '/guides/developer/packages/index',
+            '/guides/developer/haneulplay0x1',
+            '/guides/developer/transactions/index',
+            '/localize-haneul-docs',
+            '/references/haneul-api/haneul-graphql/beta/reference',
+            '/search',
+            '/style-guide',
+            '/haneul-api-ref',
+            '/haneul-compared',
+            '/haneul-framework-reference',
+            '/haneul-glossary',
+          ],
         },
         theme: {
           customCss: [
