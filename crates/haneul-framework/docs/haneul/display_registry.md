@@ -21,6 +21,7 @@ title: Module `haneul::display_registry`
 -  [Function `system_migration`](#haneul_display_registry_system_migration)
 -  [Function `migrate_v1_to_v2`](#haneul_display_registry_migrate_v1_to_v2)
 -  [Function `destroy_system_migration_cap`](#haneul_display_registry_destroy_system_migration_cap)
+-  [Function `transfer_migration_cap`](#haneul_display_registry_transfer_migration_cap)
 -  [Function `delete_legacy`](#haneul_display_registry_delete_legacy)
 -  [Function `fields`](#haneul_display_registry_fields)
 -  [Function `cap_id`](#haneul_display_registry_cap_id)
@@ -601,6 +602,30 @@ Destroy the <code><a href="../haneul/display_registry.md#haneul_display_registry
 <pre><code><b>entry</b> <b>fun</b> <a href="../haneul/display_registry.md#haneul_display_registry_destroy_system_migration_cap">destroy_system_migration_cap</a>(cap: <a href="../haneul/display_registry.md#haneul_display_registry_SystemMigrationCap">SystemMigrationCap</a>) {
     <b>let</b> <a href="../haneul/display_registry.md#haneul_display_registry_SystemMigrationCap">SystemMigrationCap</a> { id } = cap;
     id.delete();
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_display_registry_transfer_migration_cap"></a>
+
+## Function `transfer_migration_cap`
+
+
+
+<pre><code><b>entry</b> <b>fun</b> <a href="../haneul/display_registry.md#haneul_display_registry_transfer_migration_cap">transfer_migration_cap</a>(cap: <a href="../haneul/display_registry.md#haneul_display_registry_SystemMigrationCap">haneul::display_registry::SystemMigrationCap</a>, recipient: <b>address</b>)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>entry</b> <b>fun</b> <a href="../haneul/display_registry.md#haneul_display_registry_transfer_migration_cap">transfer_migration_cap</a>(cap: <a href="../haneul/display_registry.md#haneul_display_registry_SystemMigrationCap">SystemMigrationCap</a>, recipient: <b>address</b>) {
+    <a href="../haneul/transfer.md#haneul_transfer_transfer">transfer::transfer</a>(cap, recipient);
 }
 </code></pre>
 
