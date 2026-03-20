@@ -64,7 +64,7 @@ const TABLES: &[&str] = &[
     haneul_kvstore::tables::transactions::NAME,
     haneul_kvstore::tables::checkpoints::NAME,
     haneul_kvstore::tables::checkpoints_by_digest::NAME,
-    haneul_kvstore::tables::watermark_alt_legacy::NAME,
+    haneul_kvstore::tables::watermarks::NAME,
     haneul_kvstore::tables::epochs::NAME,
     haneul_kvstore::tables::protocol_configs::NAME,
     haneul_kvstore::tables::packages::NAME,
