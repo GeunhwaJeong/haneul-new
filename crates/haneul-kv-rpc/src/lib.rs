@@ -3,6 +3,7 @@
 
 use prometheus::Registry;
 use std::sync::Arc;
+pub use haneul_kvstore::PoolConfig;
 use haneul_kvstore::{BigTableClient, KeyValueStoreReader};
 use haneul_rpc::proto::haneul::rpc::v2::GetServiceInfoResponse;
 use haneul_rpc_api::ServerVersion;
@@ -33,6 +34,7 @@ impl KvRpcServer {
         server_version: Option<ServerVersion>,
         registry: &Registry,
         credentials_path: Option<String>,
+        pool_config: PoolConfig,
     ) -> anyhow::Result<Self> {
         let mut client = BigTableClient::new_remote_with_credentials(
             instance_id,
@@ -43,7 +45,7 @@ impl KvRpcServer {
             "haneul-kv-rpc".to_string(),
             Some(registry),
             app_profile_id,
-            Some(1),
+            pool_config,
             credentials_path,
         )
         .await?;
