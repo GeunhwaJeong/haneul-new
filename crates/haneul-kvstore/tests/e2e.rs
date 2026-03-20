@@ -33,7 +33,6 @@ use haneul_kvstore::BigTableStore;
 use haneul_kvstore::IndexerConfig;
 use haneul_kvstore::KeyValueStoreReader;
 use haneul_kvstore::PipelineLayer;
-use haneul_kvstore::set_write_legacy_data;
 use haneul_protocol_config::Chain;
 use haneul_rpc::client::Client as GrpcClient;
 use haneul_rpc::field::FieldMaskUtil;
@@ -291,8 +290,6 @@ struct TestHarness {
 impl TestHarness {
     async fn new() -> Result<Self> {
         require_bigtable_emulator();
-        set_write_legacy_data(true);
-
         let emulator_future = async {
             let emulator = tokio::task::spawn_blocking(BigTableEmulator::start)
                 .await
