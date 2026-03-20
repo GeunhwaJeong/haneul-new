@@ -20,6 +20,7 @@ use haneul_rpc::proto::haneul::rpc::v2::TransactionEvents;
 use haneul_rpc::proto::haneul::rpc::v2::get_checkpoint_request::CheckpointId;
 use haneul_sdk_types::Digest;
 use haneul_types::balance_change::derive_balance_changes_2;
+use haneul_types::full_checkpoint_content::ObjectSet as TypesObjectSet;
 
 pub const READ_MASK_DEFAULT: &str = "sequence_number,digest";
 
@@ -151,7 +152,11 @@ pub fn get_checkpoint(
                         {
                             for (message, event) in events.events.iter_mut().zip(&sdk_events.data) {
                                 message.json = service
-                                    .render_json(&event.type_, &event.contents)
+                                    .render_json(
+                                        &event.type_,
+                                        &event.contents,
+                                        &TypesObjectSet::default(),
+                                    )
                                     .map(Box::new);
                             }
                         }

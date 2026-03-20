@@ -21,6 +21,7 @@ use haneul_rpc::proto::haneul::rpc::v2::UserSignature;
 use haneul_rpc::proto::timestamp_ms_to_proto;
 use haneul_sdk_types::Digest;
 use haneul_types::balance_change::derive_balance_changes_2;
+use haneul_types::full_checkpoint_content::ObjectSet;
 
 pub const MAX_BATCH_REQUESTS: usize = 200;
 pub const READ_MASK_DEFAULT: &str = "digest";
@@ -197,11 +198,10 @@ fn render_executed_transaction(
 
     let unchanged_loaded_runtime_objects = unchanged_loaded_runtime_objects.unwrap_or_default();
 
-    let objects: haneul_types::full_checkpoint_content::ObjectSet = if mask
-        .contains(ExecutedTransaction::BALANCE_CHANGES_FIELD)
+    let objects: ObjectSet = if mask.contains(ExecutedTransaction::BALANCE_CHANGES_FIELD)
         || mask.contains(ExecutedTransaction::EFFECTS_FIELD)
     {
-        let mut objects = haneul_types::full_checkpoint_content::ObjectSet::default();
+        let mut objects = ObjectSet::default();
 
         let object_keys = haneul_types::storage::get_transaction_object_set(
             &transaction,
@@ -245,7 +245,10 @@ fn render_executed_transaction(
     }
 
     if let Some(submask) = mask.subtree(ExecutedTransaction::EVENTS_FIELD) {
-        message.events = events.map(|events| service.render_events_to_proto(&events, &submask));
+        // For historical transactions read from the ledger, packages should already be in the
+        // backing store, so we pass an empty ObjectSet for overlay resolution.
+        message.events = events
+            .map(|events| service.render_events_to_proto(&events, &submask, &ObjectSet::default()));
     }
 
     if mask.contains(ExecutedTransaction::CHECKPOINT_FIELD) {

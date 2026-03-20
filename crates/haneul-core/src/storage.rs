@@ -18,6 +18,7 @@ use haneul_types::base_types::TransactionDigest;
 use haneul_types::committee::Committee;
 use haneul_types::committee::EpochId;
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
+use haneul_types::full_checkpoint_content::ObjectSet;
 use haneul_types::messages_checkpoint::CheckpointContentsDigest;
 use haneul_types::messages_checkpoint::CheckpointDigest;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
@@ -37,7 +38,7 @@ use haneul_types::storage::RpcStateReader;
 use haneul_types::storage::WriteStore;
 use haneul_types::storage::error::Error as StorageError;
 use haneul_types::storage::error::Result;
-use haneul_types::storage::{ObjectKey, ReadStore};
+use haneul_types::storage::{ObjectKey, OverlayBackingPackageStore, ReadStore};
 use haneul_types::transaction::VerifiedTransaction;
 use tap::Pipe;
 use tap::TapFallible;
@@ -512,15 +513,18 @@ impl RpcStateReader for RestReadStore {
         Some(self)
     }
 
-    fn get_struct_layout(
+    fn get_struct_layout_with_overlay(
         &self,
         struct_tag: &move_core_types::language_storage::StructTag,
+        overlay: &ObjectSet,
     ) -> Result<Option<move_core_types::annotated_value::MoveTypeLayout>> {
+        let backing_store = self.state.get_backing_package_store();
+        let overlay_store = OverlayBackingPackageStore::new(overlay, backing_store.as_ref());
         self.state
             .load_epoch_store_one_call_per_task()
             .executor()
             // TODO(cache) - must read through cache
-            .type_layout_resolver(Box::new(self.state.get_backing_package_store().as_ref()))
+            .type_layout_resolver(Box::new(overlay_store))
             .get_annotated_layout(struct_tag)
             .map(|layout| layout.into_layout())
             .map(Some)

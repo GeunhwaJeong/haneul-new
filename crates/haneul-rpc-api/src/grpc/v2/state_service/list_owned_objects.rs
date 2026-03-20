@@ -15,6 +15,7 @@ use haneul_rpc::proto::haneul::rpc::v2::ListOwnedObjectsRequest;
 use haneul_rpc::proto::haneul::rpc::v2::ListOwnedObjectsResponse;
 use haneul_rpc::proto::haneul::rpc::v2::Object;
 use haneul_sdk_types::Address;
+use haneul_types::full_checkpoint_content::ObjectSet;
 use haneul_types::storage::OwnedObjectInfo;
 
 const MAX_PAGE_SIZE: usize = 1000;
@@ -108,7 +109,7 @@ pub fn list_owned_objects(
                 continue;
             };
 
-            service.render_object_to_proto(&object, &read_mask)
+            service.render_object_to_proto(&object, &read_mask, &ObjectSet::default())
         } else {
             owned_object_to_proto(object_info, &read_mask)
         };
