@@ -54,7 +54,8 @@ const IGNORE_FILES = new Set([
   "references/haneul-api/haneul-graphql/beta/reference/types/enums/multisig-member-signature-scheme.md",
   "references/haneul-api/haneul-graphql/beta/reference/types/objects/multisig-member-signature.md",
   "references/haneul-framework-reference.md",
-  "release-notes.md",
+  "/references/release-notes.md",
+  "/references/awesome-haneul.md",
 ]);
 
 function walk(dir, results = []) {
