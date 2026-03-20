@@ -336,7 +336,7 @@ bytes = { version = "1.11.1", features = ["serde"] }
 cached = "0.43.0"
 camino = "1.1.1"
 cfg-if = "1.0.0"
-chrono = { version = "0.4.39", features = ["clock", "serde"] }
+chrono = { version = "=0.4.39", features = ["clock", "serde"] }
 clap = { version = "4.4", features = ["derive", "wrap_help"] }
 clap_complete = "4.4"
 codespan-reporting = "0.11.1"
@@ -637,10 +637,10 @@ move-abstract-stack = { path = "external-crates/move/crates/move-abstract-stack"
 move-analyzer = { path = "external-crates/move/crates/move-analyzer" }
 move-trace-format = { path = "external-crates/move/crates/move-trace-format" }
 
-fastcrypto = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "db643fd05a1b1c4cd52de3939766b53e12ce137e" }
-fastcrypto-tbls = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "db643fd05a1b1c4cd52de3939766b53e12ce137e" }
-fastcrypto-zkp = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "db643fd05a1b1c4cd52de3939766b53e12ce137e", package = "fastcrypto-zkp" }
-fastcrypto-vdf = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "db643fd05a1b1c4cd52de3939766b53e12ce137e", features = [
+fastcrypto = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "7ba456d008a3a657e01589de64cb0eeb8aca532b" }
+fastcrypto-tbls = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "7ba456d008a3a657e01589de64cb0eeb8aca532b" }
+fastcrypto-zkp = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "7ba456d008a3a657e01589de64cb0eeb8aca532b", package = "fastcrypto-zkp" }
+fastcrypto-vdf = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "7ba456d008a3a657e01589de64cb0eeb8aca532b", features = [
   "experimental",
 ] }
 passkey-types = { version = "0.4.0" }

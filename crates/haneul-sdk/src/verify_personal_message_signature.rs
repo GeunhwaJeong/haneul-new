@@ -5,8 +5,8 @@ use std::sync::Arc;
 
 use crate::error::Error;
 use shared_crypto::intent::{Intent, IntentMessage, PersonalMessage};
+use haneul_rpc::Client;
 use haneul_rpc::proto::haneul::rpc::v2::{Bcs, UserSignature, VerifySignatureRequest};
-use haneul_rpc_api::Client;
 use haneul_types::{
     base_types::HaneulAddress,
     signature::{AuthenticatorTrait, GenericSignature, VerifyParams},
@@ -35,7 +35,6 @@ pub async fn verify_personal_message_signature(
                     UserSignature::default().with_bcs(Bcs::from(signature.as_ref().to_owned()));
 
                 let res = client
-                    .inner_mut()
                     .signature_verification_client()
                     .verify_signature(
                         VerifySignatureRequest::default()
