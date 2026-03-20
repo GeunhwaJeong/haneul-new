@@ -290,6 +290,10 @@ const guides = [
       id: 'guides/developer/wallets/index',
     },
     items: [
+      `guides/developer/wallets/what-is-a-wallet`,
+      `guides/developer/wallets/slush`,
+      `guides/developer/wallets/self-custody`,
+      `guides/developer/wallets/zk-login-wallets`,
       'guides/developer/wallets/haneullink'
     ],
   },
