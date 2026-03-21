@@ -24,6 +24,7 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::move_ascii_str_layout;
 use haneul_types::base_types::move_utf8_str_layout;
 use haneul_types::base_types::url_layout;
+use haneul_types::derived_object::derive_object_id;
 use haneul_types::dynamic_field::DynamicFieldInfo;
 use haneul_types::dynamic_field::derive_dynamic_field_id;
 use haneul_types::id::ID;
@@ -98,6 +99,7 @@ pub enum Accessor<'s> {
     Index(Value<'s>),
     DFIndex(Value<'s>),
     DOFIndex(Value<'s>),
+    Derived(Value<'s>),
 }
 
 /// Bytes extracted from the serialized representation of a Move value, along with its layout.
@@ -167,6 +169,15 @@ impl Value<'_> {
         let type_ = DynamicFieldInfo::dynamic_object_field_wrapper(self.type_()).into();
 
         Ok(derive_dynamic_field_id(parent, &type_, &bytes)?)
+    }
+
+    /// Treat this value as a derived object key and derive the corresponding object ID under the
+    /// given parent address.
+    pub fn derive_object_id(&self, parent: impl Into<HaneulAddress>) -> Result<ObjectID, FormatError> {
+        let bytes = bcs::to_bytes(self)?;
+        let type_ = self.type_();
+
+        Ok(derive_object_id(parent, &type_, &bytes)?)
     }
 
     /// Write out a formatted representation of this value, transformed by `transform`, to the
@@ -439,7 +450,7 @@ impl<'s> Accessor<'s> {
         match self {
             A::Index(value) => value.as_u64(),
             // All other index types don't represent a numeric index.
-            A::DFIndex(_) | A::DOFIndex(_) | A::Field(_) | A::Positional(_) => None,
+            A::DFIndex(_) | A::DOFIndex(_) | A::Derived(_) | A::Field(_) | A::Positional(_) => None,
         }
     }
 
@@ -449,7 +460,7 @@ impl<'s> Accessor<'s> {
         match self {
             A::Field(f) => Some(Cow::Borrowed(*f)),
             A::Positional(i) => Some(Cow::Owned(format!("pos{i}"))),
-            A::Index(_) | A::DFIndex(_) | A::DOFIndex(_) => None,
+            A::Index(_) | A::DFIndex(_) | A::DOFIndex(_) | A::Derived(_) => None,
         }
     }
 }
@@ -832,6 +843,7 @@ pub(crate) mod tests {
     use haneul_types::MOVE_STDLIB_ADDRESS;
     use haneul_types::base_types::STD_ASCII_MODULE_NAME;
     use haneul_types::base_types::STD_ASCII_STRUCT_NAME;
+    use haneul_types::derived_object::derive_object_id;
     use haneul_types::dynamic_field::DynamicFieldInfo;
     use haneul_types::dynamic_field::Field;
     use haneul_types::dynamic_field::derive_dynamic_field_id;
@@ -947,6 +959,29 @@ pub(crate) mod tests {
 
             self.data.insert(dof_id.into(), field);
             self.data.insert(val_id, value);
+            self
+        }
+
+        /// Add a derived object to the store.
+        pub(crate) fn with_derived_object<N: Serialize, V: Serialize>(
+            mut self,
+            parent: AccountAddress,
+            name: N,
+            name_layout: MoveTypeLayout,
+            value: V,
+            value_layout: MoveTypeLayout,
+        ) -> Self {
+            let name_bytes = bcs::to_bytes(&name).unwrap();
+            let name_type = TypeTag::from(&name_layout);
+            let id = derive_object_id(parent, &name_type, &name_bytes).unwrap();
+
+            self.data.insert(
+                id.into(),
+                OwnedSlice {
+                    layout: value_layout,
+                    bytes: bcs::to_bytes(&value).unwrap(),
+                },
+            );
             self
         }
     }
