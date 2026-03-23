@@ -74,7 +74,6 @@ const concepts = [
 			'concepts/cryptography/system/checkpoint-verification',
 		],
 	},
-	'concepts/coin-mgt',
 	'concepts/haneul-move-concepts',
 	'concepts/gaming',
 	'concepts/research-papers',
