@@ -35,6 +35,7 @@ tracing.workspace = true
 backoff.workspace = true
 haneul-config.workspace = true
 tempfile.workspace = true
+rustls.workspace = true
 
 [dev-dependencies]
 haneul-test-transaction-builder.workspace = true
