@@ -4016,6 +4016,11 @@
       "permanent": true
     },
     {
+      "source": "/guides/developer/nautilus/marlin",
+      "destination": "/guides/developer/nautilus/community-dev-toolsk",
+      "permanent": true
+    },
+    {
       "source": "/haneul-glossary",
       "destination": "/references/haneul-glossary",
       "permanent": true
