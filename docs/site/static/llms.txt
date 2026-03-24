@@ -2,7 +2,6 @@
 
 > Comprehensive reference for Haneul blockchain development, including Move smart contract programming, Haneul framework concepts, frontend integration, and fullstack application architecture. Designed for efficient retrieval and grounding by large language models.
 
-
 ## Move
 
 - [Move Language Reference](https://move-book.com/llms.txt)
@@ -78,6 +77,8 @@
 - [Plinko](https://docs.haneul.io/guides/developer/app-examples/plinko.md)
 - [Reviews Rating](https://docs.haneul.io/guides/developer/app-examples/reviews-rating.md)
 - [Tic Tac Toe](https://docs.haneul.io/guides/developer/app-examples/tic-tac-toe.md)
+- [Trustless Swap
+    Frontend](https://docs.haneul.io/guides/developer/app-examples/trustless-swap-frontend.md)
 - [Trustless Swap](https://docs.haneul.io/guides/developer/app-examples/trustless-swap.md)
 - [Weather Oracle](https://docs.haneul.io/guides/developer/app-examples/weather-oracle.md)
 
@@ -124,9 +125,9 @@
 - [Move Best Practices](https://docs.haneul.io/guides/developer/move-best-practices.md)
 
 ### Guides/Developer/Nautilus
+- [Community Dev Tools](https://docs.haneul.io/guides/developer/nautilus/community-dev-tools.md)
 - [Customize Nautilus](https://docs.haneul.io/guides/developer/nautilus/customize-nautilus.md)
 - [Nautilus Index](https://docs.haneul.io/guides/developer/nautilus/index.md)
-- [Marlin](https://docs.haneul.io/guides/developer/nautilus/marlin.md)
 - [Nautilus Design](https://docs.haneul.io/guides/developer/nautilus/nautilus-design.md)
 - [Nautilus Overview](https://docs.haneul.io/guides/developer/nautilus/nautilus-overview.md)
 - [Seal](https://docs.haneul.io/guides/developer/nautilus/seal.md)
@@ -176,6 +177,7 @@
 - [Packages Index](https://docs.haneul.io/guides/developer/packages/index.md)
 - [Move Package
     Management](https://docs.haneul.io/guides/developer/packages/move-package-management.md)
+- [Openzeppelin](https://docs.haneul.io/guides/developer/packages/openzeppelin.md)
 - [Package Overview](https://docs.haneul.io/guides/developer/packages/package-overview.md)
 - [Upgrade](https://docs.haneul.io/guides/developer/packages/upgrade.md)
 
@@ -940,6 +942,10 @@
 - [Display Preview](https://docs.haneul.io/standards/display/display-preview.md)
 - [Kiosk Apps](https://docs.haneul.io/standards/kiosk-apps.md)
 - [Kiosk](https://docs.haneul.io/standards/kiosk.md)
+- [Integrating Pas](https://docs.haneul.io/standards/pas/integrating-pas.md)
+- [Pas Architecture](https://docs.haneul.io/standards/pas/pas-architecture.md)
+- [Pas Workflows](https://docs.haneul.io/standards/pas/pas-workflows.md)
+- [Querying Assets](https://docs.haneul.io/standards/pas/querying-assets.md)
 - [Payment Kit](https://docs.haneul.io/standards/payment-kit.md)
 - [Sagat](https://docs.haneul.io/standards/sagat.md)
 - [Wallet Standard](https://docs.haneul.io/standards/wallet-standard.md)
