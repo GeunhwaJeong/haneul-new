@@ -20,6 +20,18 @@ use haneul_types::base_types::TransactionDigest;
 pub const MAX_BATCH_REQUESTS: usize = 200;
 pub const READ_MASK_DEFAULT: &str = "digest";
 
+fn validate_read_mask(read_mask: Option<FieldMask>) -> Result<FieldMaskTree, RpcError> {
+    let read_mask = read_mask.unwrap_or_else(|| FieldMask::from_str(READ_MASK_DEFAULT));
+    read_mask
+        .validate::<ExecutedTransaction>()
+        .map_err(|path| {
+            FieldViolation::new("read_mask")
+                .with_description(format!("invalid read_mask path: {path}"))
+                .with_reason(ErrorReason::FieldInvalid)
+        })?;
+    Ok(FieldMaskTree::from(read_mask))
+}
+
 pub async fn get_transaction(
     mut client: BigTableClient,
     request: GetTransactionRequest,
@@ -38,19 +50,7 @@ pub async fn get_transaction(
                 .with_reason(ErrorReason::FieldInvalid)
         })?;
 
-    let read_mask = {
-        let read_mask = request
-            .read_mask
-            .unwrap_or_else(|| FieldMask::from_str(READ_MASK_DEFAULT));
-        read_mask
-            .validate::<ExecutedTransaction>()
-            .map_err(|path| {
-                FieldViolation::new("read_mask")
-                    .with_description(format!("invalid read_mask path: {path}"))
-                    .with_reason(ErrorReason::FieldInvalid)
-            })?;
-        FieldMaskTree::from(read_mask)
-    };
+    let read_mask = validate_read_mask(request.read_mask)?;
 
     let mut response = client.get_transactions(&[transaction_digest]).await?;
     let transaction = response
@@ -68,17 +68,7 @@ pub async fn batch_get_transactions(
         digests, read_mask, ..
     }: BatchGetTransactionsRequest,
 ) -> Result<BatchGetTransactionsResponse, RpcError> {
-    let read_mask = {
-        let read_mask = read_mask.unwrap_or_else(|| FieldMask::from_str(READ_MASK_DEFAULT));
-        read_mask
-            .validate::<ExecutedTransaction>()
-            .map_err(|path| {
-                FieldViolation::new("read_mask")
-                    .with_description(format!("invalid read_mask path: {path}"))
-                    .with_reason(ErrorReason::FieldInvalid)
-            })?;
-        FieldMaskTree::from(read_mask)
-    };
+    let read_mask = validate_read_mask(read_mask)?;
 
     if digests.len() > MAX_BATCH_REQUESTS {
         return Err(RpcError::new(
@@ -143,10 +133,17 @@ fn transaction_to_response(
     }
 
     if let Some(submask) = mask.subtree(ExecutedTransaction::EFFECTS_FIELD.name) {
-        let effects = TransactionEffects::merge_from(
+        let mut effects = TransactionEffects::merge_from(
             &haneul_sdk_types::TransactionEffects::try_from(source.effects)?,
             &submask,
         );
+        if submask.contains(TransactionEffects::UNCHANGED_LOADED_RUNTIME_OBJECTS_FIELD.name) {
+            effects.unchanged_loaded_runtime_objects = source
+                .unchanged_loaded_runtime_objects
+                .iter()
+                .map(Into::into)
+                .collect();
+        }
         // TODO: add support for object_types in the KV store
         message.effects = Some(effects);
     }
@@ -166,6 +163,101 @@ fn transaction_to_response(
     if mask.contains(ExecutedTransaction::TIMESTAMP_FIELD.name) {
         message.timestamp = Some(timestamp_ms_to_proto(source.timestamp));
     }
-    // TODO: add support for balance changes
+
+    if mask.contains(ExecutedTransaction::BALANCE_CHANGES_FIELD.name) {
+        message.balance_changes = source.balance_changes.into_iter().map(Into::into).collect();
+    }
+
     Ok(message)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use haneul_kvstore::TransactionData as KvTransactionData;
+    use haneul_rpc::proto::haneul::rpc::v2::BalanceChange as ProtoBalanceChange;
+    use haneul_rpc::proto::haneul::rpc::v2::ObjectReference;
+    use haneul_types::TypeTag;
+    use haneul_types::balance_change::BalanceChange;
+    use haneul_types::base_types::{ObjectID, HaneulAddress};
+    use haneul_types::effects::TestEffectsBuilder;
+    use haneul_types::object::Object;
+    use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
+    use haneul_types::storage::ObjectKey;
+    use haneul_types::transaction::{
+        SenderSignedData, Transaction, TransactionData as HaneulTransactionData,
+    };
+
+    fn test_transaction() -> Transaction {
+        let sender = HaneulAddress::random_for_testing_only();
+        let gas = Object::immutable_with_id_for_testing(ObjectID::random());
+        let pt = {
+            let mut builder = ProgrammableTransactionBuilder::new();
+            builder.transfer_haneul(HaneulAddress::random_for_testing_only(), None);
+            builder.finish()
+        };
+        let data = HaneulTransactionData::new_programmable(
+            sender,
+            vec![gas.compute_object_reference()],
+            pt,
+            1_000_000,
+            1,
+        );
+        Transaction::new(SenderSignedData::new(data, vec![]))
+    }
+
+    #[test]
+    fn transaction_to_response_returns_balance_changes_when_requested() {
+        let transaction = test_transaction();
+        let effects = TestEffectsBuilder::new(transaction.data()).build();
+        let balance_change = BalanceChange {
+            address: HaneulAddress::random_for_testing_only(),
+            coin_type: TypeTag::U64,
+            amount: 42,
+        };
+        let source = KvTransactionData {
+            transaction,
+            effects,
+            events: None,
+            checkpoint_number: 7,
+            timestamp: 42,
+            balance_changes: vec![balance_change.clone()],
+            unchanged_loaded_runtime_objects: vec![],
+        };
+        let mask = FieldMaskTree::from(FieldMask::from_str("balance_changes"));
+
+        let response = transaction_to_response(source, &mask).expect("render should succeed");
+
+        assert_eq!(
+            response.balance_changes,
+            vec![ProtoBalanceChange::from(balance_change)]
+        );
+    }
+
+    #[test]
+    fn transaction_to_response_returns_unchanged_loaded_runtime_objects_when_requested() {
+        let transaction = test_transaction();
+        let effects = TestEffectsBuilder::new(transaction.data()).build();
+        let obj_key = ObjectKey(ObjectID::random(), 3.into());
+        let source = KvTransactionData {
+            transaction,
+            effects,
+            events: None,
+            checkpoint_number: 7,
+            timestamp: 42,
+            balance_changes: vec![],
+            unchanged_loaded_runtime_objects: vec![obj_key],
+        };
+        let mask = FieldMaskTree::from(FieldMask::from_str(
+            "effects.unchanged_loaded_runtime_objects",
+        ));
+
+        let response = transaction_to_response(source, &mask).expect("render should succeed");
+
+        let effects = response.effects.expect("effects should be present");
+        assert_eq!(
+            effects.unchanged_loaded_runtime_objects,
+            vec![ObjectReference::from(&obj_key)]
+        );
+    }
 }
