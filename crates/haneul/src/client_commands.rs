@@ -1060,10 +1060,12 @@ impl HaneulClientCommands {
             HaneulClientCommands::Object { id, bcs } => {
                 // Fetch the object ref
                 let _ = context.cache_chain_id().await?;
-                let object = context.grpc_client()?.get_object(id).await?;
                 if !bcs {
-                    HaneulClientCommandResult::Object(object)
+                    let (object, json_content) =
+                        context.grpc_client()?.get_object_with_json(id).await?;
+                    HaneulClientCommandResult::Object(object, json_content)
                 } else {
+                    let object = context.grpc_client()?.get_object(id).await?;
                     HaneulClientCommandResult::RawObject(object)
                 }
             }
@@ -2149,8 +2151,8 @@ impl Display for HaneulClientCommandResult {
 
                 write!(f, "{}", table)?
             }
-            HaneulClientCommandResult::Object(object) => {
-                let object = ObjectOutput::from(object);
+            HaneulClientCommandResult::Object(object, json_content) => {
+                let object = ObjectOutput::from_object_with_json(object, json_content.clone());
                 let json_obj = json!(&object);
                 let mut table = json_to_table(&json_obj);
                 table.with(TableStyle::rounded().horizontals([]));
@@ -2576,7 +2578,10 @@ impl Debug for HaneulClientCommandResult {
                     .collect::<Vec<_>>();
                 Ok(serde_json::to_string_pretty(&gas_coins)?)
             }
-            HaneulClientCommandResult::Object(object) => Ok(serde_json::to_string_pretty(&object)?),
+            HaneulClientCommandResult::Object(object, json_content) => {
+                let object = ObjectOutput::from_object_with_json(object, json_content.clone());
+                Ok(serde_json::to_string_pretty(&object)?)
+            }
             HaneulClientCommandResult::RawObject(object) => Ok(serde_json::to_string_pretty(&object)?),
             HaneulClientCommandResult::TransactionBlock(response) => Ok(serde_json::to_string_pretty(
                 &to_legacy_transaction_block_response(response),
@@ -2605,7 +2610,7 @@ impl HaneulClientCommandResult {
     pub fn objects_response(&self) -> Option<Vec<Object>> {
         use HaneulClientCommandResult::*;
         match self {
-            Object(o) | RawObject(o) => Some(vec![o.clone()]),
+            Object(o, _) | RawObject(o) => Some(vec![o.clone()]),
             Objects(o) => Some(o.clone()),
             _ => None,
         }
@@ -2666,16 +2671,17 @@ pub struct ObjectOutput {
     pub owner: Owner,
     pub prev_tx: TransactionDigest,
     pub storage_rebate: u64,
-    pub content: haneul_types::object::Data,
+    pub content: serde_json::Value,
 }
 
-impl From<&Object> for ObjectOutput {
-    fn from(obj: &Object) -> Self {
+impl ObjectOutput {
+    pub fn from_object_with_json(obj: &Object, json_content: Option<serde_json::Value>) -> Self {
         let obj_type = if let Some(struct_tag) = obj.struct_tag() {
             struct_tag.to_canonical_string(true)
         } else {
             "package".to_string()
         };
+        let content = json_content.unwrap_or_else(|| json!(obj.data));
 
         Self {
             object_id: obj.id(),
@@ -2685,7 +2691,7 @@ impl From<&Object> for ObjectOutput {
             owner: obj.owner().clone(),
             prev_tx: obj.previous_transaction,
             storage_rebate: obj.storage_rebate,
-            content: obj.data.clone(),
+            content,
         }
     }
 }
@@ -2754,7 +2760,7 @@ pub enum HaneulClientCommandResult {
     NewAddress(NewAddressOutput),
     NewEnv(HaneulEnv),
     NoOutput,
-    Object(Object),
+    Object(Object, Option<serde_json::Value>),
     Objects(Vec<Object>),
     RawObject(Object),
     RemoveAddress(RemoveAddressOutput),
