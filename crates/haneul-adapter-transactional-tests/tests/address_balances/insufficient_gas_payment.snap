@@ -14,7 +14,7 @@ task 1, lines 10-15:
 //> 2: haneul::balance::send_funds<haneul::haneul::HANEUL>(Result(1), Input(1));
 // create first small coin for testing (0.1 HANEUL)
 mutated: object(0,0)
-accumulators_written: (object(1,0), A, haneul::balance::Balance<haneul::haneul::HANEUL>, Merge)
+accumulators_written: (object(1,0), A, haneul::balance::Balance<haneul::haneul::HANEUL>, Merge, 200000000)
 gas summary: computation_cost: 1000000, storage_cost: 988000,  storage_rebate: 0, non_refundable_storage_fee: 0
 
 task 2, lines 16-20:

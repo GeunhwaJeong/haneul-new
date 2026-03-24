@@ -59,7 +59,7 @@ task 10, lines 44-50:
 //> 4: haneul::coin::into_balance<haneul::haneul::HANEUL>(Result(3));
 //> 5: haneul::balance::send_funds<haneul::haneul::HANEUL>(Result(4), Input(2));
 mutated: object(0,0)
-accumulators_written: (object(10,0), B, haneul::balance::Balance<haneul::haneul::HANEUL>, Merge), (object(10,1), C, haneul::balance::Balance<haneul::haneul::HANEUL>, Merge)
+accumulators_written: (object(10,0), B, haneul::balance::Balance<haneul::haneul::HANEUL>, Merge, 1000), (object(10,1), C, haneul::balance::Balance<haneul::haneul::HANEUL>, Merge, 1000)
 gas summary: computation_cost: 1000000, storage_cost: 988000,  storage_rebate: 978120, non_refundable_storage_fee: 9880
 
 task 11, line 52:

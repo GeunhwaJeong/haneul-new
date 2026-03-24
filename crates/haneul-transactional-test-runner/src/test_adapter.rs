@@ -60,8 +60,9 @@ use haneul_core::authority::test_authority_builder::TestAuthorityBuilder;
 use haneul_framework::DEFAULT_FRAMEWORK_PATH;
 use haneul_json_rpc_api::QUERY_MAX_RESULT_LIMIT;
 use haneul_json_rpc_types::{
-    DevInspectResults, DryRunTransactionBlockResponse, HaneulAccumulatorOperation, HaneulExecutionStatus,
-    HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockEvents,
+    DevInspectResults, DryRunTransactionBlockResponse, HaneulAccumulatorOperation,
+    HaneulAccumulatorValue, HaneulExecutionStatus, HaneulTransactionBlockEffects,
+    HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockEvents,
 };
 use haneul_protocol_config::{
     Chain, ExecutionTimeEstimateParams, PerObjectCongestionControlMode, ProtocolConfig,
@@ -80,7 +81,8 @@ use haneul_types::crypto::{
 };
 use haneul_types::digests::{ChainIdentifier, ConsensusCommitDigest, TransactionDigest};
 use haneul_types::effects::{
-    AccumulatorOperation, TransactionEffects, TransactionEffectsAPI, TransactionEvents,
+    AccumulatorOperation, AccumulatorValue as EffectsAccumulatorValue, TransactionEffects,
+    TransactionEffectsAPI, TransactionEvents,
 };
 use haneul_types::execution_status::ExecutionErrorKind;
 use haneul_types::messages_checkpoint::{
@@ -230,7 +232,13 @@ struct TxnSummary {
     wrapped: Vec<ObjectID>,
     unchanged_shared: Vec<ObjectID>,
     events: Vec<Event>,
-    accumulators_written: Vec<(ObjectID, HaneulAddress, TypeTag, AccumulatorOperation)>,
+    accumulators_written: Vec<(
+        ObjectID,
+        HaneulAddress,
+        TypeTag,
+        AccumulatorOperation,
+        EffectsAccumulatorValue,
+    )>,
     gas_summary: GasCostSummary,
 }
 
@@ -1985,6 +1993,7 @@ impl HaneulTestAdapter {
                     event.write.address.address,
                     event.write.address.ty.clone(),
                     event.write.operation.clone(),
+                    event.write.value.clone(),
                 )
             })
             .collect();
@@ -2001,14 +2010,14 @@ impl HaneulTestAdapter {
         // Use a stable sort before assigning fake ids, so test output remains stable.
         might_need_fake_id.sort_by_key(|id| self.get_object_sorting_key(id));
 
-        accumulators_written.sort_by_key(|(_, address, ty, _)| {
+        accumulators_written.sort_by_key(|(_, address, ty, _, _)| {
             (
                 self.stabilize_str(format!("{}", address)),
                 self.stabilize_str(format!("{}", ty)),
             )
         });
 
-        might_need_fake_id.extend(accumulators_written.iter().map(|(id, _, _, _)| *id));
+        might_need_fake_id.extend(accumulators_written.iter().map(|(id, _, _, _, _)| *id));
 
         for id in might_need_fake_id {
             self.enumerate_fake(id);
@@ -2031,7 +2040,7 @@ impl HaneulTestAdapter {
         unwrapped_then_deleted_ids.sort_by_key(|id| self.real_to_fake_object_id(id));
         wrapped_ids.sort_by_key(|id| self.real_to_fake_object_id(id));
         unchanged_shared_ids.sort_by_key(|id| self.real_to_fake_object_id(id));
-        accumulators_written.sort_by_key(|(id, _, _, _)| self.real_to_fake_object_id(id));
+        accumulators_written.sort_by_key(|(id, _, _, _, _)| self.real_to_fake_object_id(id));
 
         match effects.status() {
             ExecutionStatus::Success => {
@@ -2138,6 +2147,15 @@ impl HaneulTestAdapter {
                     HaneulAccumulatorOperation::Merge => AccumulatorOperation::Merge,
                     HaneulAccumulatorOperation::Split => AccumulatorOperation::Split,
                 };
+                let value = match &event.value {
+                    HaneulAccumulatorValue::Integer(v) => EffectsAccumulatorValue::Integer(*v),
+                    HaneulAccumulatorValue::IntegerTuple(a, b) => {
+                        EffectsAccumulatorValue::IntegerTuple(*a, *b)
+                    }
+                    HaneulAccumulatorValue::EventDigest(digests) => {
+                        EffectsAccumulatorValue::EventDigest(digests.clone())
+                    }
+                };
                 (
                     event.accumulator_obj,
                     event.address,
@@ -2147,6 +2165,7 @@ impl HaneulTestAdapter {
                         .try_into()
                         .expect("Failed to parse accumulator type tag"),
                     operation,
+                    value,
                 )
             })
             .collect();
@@ -2162,14 +2181,18 @@ impl HaneulTestAdapter {
 
         // Use a stable sort before assigning fake ids, so test output remains stable.
         might_need_fake_id.sort_by_key(|id| self.get_object_sorting_key(id));
-        accumulators_written.sort_by_key(|(_, address, ty, _)| {
+        accumulators_written.sort_by_key(|(_, address, ty, _, _)| {
             (
                 self.stabilize_str(format!("{}", address)),
                 self.stabilize_str(format!("{}", ty)),
             )
         });
 
-        might_need_fake_id.extend(accumulators_written.iter().map(|(obj_id, _, _, _)| *obj_id));
+        might_need_fake_id.extend(
+            accumulators_written
+                .iter()
+                .map(|(obj_id, _, _, _, _)| *obj_id),
+        );
 
         for id in might_need_fake_id {
             self.enumerate_fake(id);
@@ -2185,7 +2208,7 @@ impl HaneulTestAdapter {
         deleted_ids.sort_by_key(|id| self.real_to_fake_object_id(id));
         unwrapped_then_deleted_ids.sort_by_key(|id| self.real_to_fake_object_id(id));
         wrapped_ids.sort_by_key(|id| self.real_to_fake_object_id(id));
-        accumulators_written.sort_by_key(|(id, _, _, _)| self.real_to_fake_object_id(id));
+        accumulators_written.sort_by_key(|(id, _, _, _, _)| self.real_to_fake_object_id(id));
 
         let events = events
             .data
@@ -2377,7 +2400,13 @@ impl HaneulTestAdapter {
 
     fn list_accumulator_events(
         &self,
-        accumulators: &[(ObjectID, HaneulAddress, TypeTag, AccumulatorOperation)],
+        accumulators: &[(
+            ObjectID,
+            HaneulAddress,
+            TypeTag,
+            AccumulatorOperation,
+            EffectsAccumulatorValue,
+        )],
         summarize: bool,
     ) -> String {
         if summarize {
@@ -2385,7 +2414,7 @@ impl HaneulTestAdapter {
         }
         accumulators
             .iter()
-            .map(|(obj_id, address, ty, operation)| {
+            .map(|(obj_id, address, ty, operation, value)| {
                 let fake_id_str = self.format_fake_id(obj_id);
                 let address_str = self.stabilize_str(format!("{}", address));
                 let ty_str = self.stabilize_str(format!("{}", ty));
@@ -2393,7 +2422,19 @@ impl HaneulTestAdapter {
                     AccumulatorOperation::Merge => "Merge",
                     AccumulatorOperation::Split => "Split",
                 };
-                format!("({}, {}, {}, {})", fake_id_str, address_str, ty_str, op_str)
+                let value_str = match value {
+                    EffectsAccumulatorValue::Integer(v) => format!("{}", v),
+                    EffectsAccumulatorValue::IntegerTuple(a, b) => format!("({}, {})", a, b),
+                    EffectsAccumulatorValue::EventDigest(digests) => {
+                        let indices: Vec<_> =
+                            digests.iter().map(|(idx, _)| format!("{}", idx)).collect();
+                        format!("event_indices:[{}]", indices.join(", "))
+                    }
+                };
+                format!(
+                    "({}, {}, {}, {}, {})",
+                    fake_id_str, address_str, ty_str, op_str, value_str
+                )
             })
             .collect::<Vec<_>>()
             .join(", ")

@@ -15,7 +15,7 @@ task 1, lines 9-15:
 //> 4: haneul::coin::into_balance<haneul::haneul::HANEUL>(Result(3));
 //> 5: haneul::balance::send_funds<haneul::haneul::HANEUL>(Result(4), Input(2));
 mutated: object(0,0)
-accumulators_written: (object(1,0), B, haneul::balance::Balance<haneul::haneul::HANEUL>, Merge), (object(1,1), C, haneul::balance::Balance<haneul::haneul::HANEUL>, Merge)
+accumulators_written: (object(1,0), B, haneul::balance::Balance<haneul::haneul::HANEUL>, Merge, 1000000000), (object(1,1), C, haneul::balance::Balance<haneul::haneul::HANEUL>, Merge, 1000000000)
 gas summary: computation_cost: 1000000, storage_cost: 988000,  storage_rebate: 0, non_refundable_storage_fee: 0
 
 task 2, line 17:
@@ -44,7 +44,7 @@ Contents: haneul::coin::Coin<haneul::haneul::HANEUL> {
 task 5, line 24:
 //# transfer-object --recipient A --sender B 0,1 --gas-budget 1000000000 --address-balance-gas
 mutated: object(0,1)
-accumulators_written: (object(1,0), B, haneul::balance::Balance<haneul::haneul::HANEUL>, Split)
+accumulators_written: (object(1,0), B, haneul::balance::Balance<haneul::haneul::HANEUL>, Split, 1988000)
 gas summary: computation_cost: 1000000, storage_cost: 988000,  storage_rebate: 0, non_refundable_storage_fee: 0
 
 task 6, line 26:
@@ -59,7 +59,7 @@ task 8, lines 31-33:
 //# programmable --sender B --inputs withdraw<haneul::balance::Balance<haneul::haneul::HANEUL>>(5000000) @C --gas-budget 1000000000 --address-balance-gas
 //> 0: haneul::balance::redeem_funds<haneul::haneul::HANEUL>(Input(0));
 //> 1: haneul::balance::send_funds<haneul::haneul::HANEUL>(Result(0), Input(1));
-accumulators_written: (object(1,0), B, haneul::balance::Balance<haneul::haneul::HANEUL>, Split), (object(1,1), C, haneul::balance::Balance<haneul::haneul::HANEUL>, Merge)
+accumulators_written: (object(1,0), B, haneul::balance::Balance<haneul::haneul::HANEUL>, Split, 6000000), (object(1,1), C, haneul::balance::Balance<haneul::haneul::HANEUL>, Merge, 5000000)
 gas summary: computation_cost: 1000000, storage_cost: 0,  storage_rebate: 0, non_refundable_storage_fee: 0
 
 task 9, line 35:
