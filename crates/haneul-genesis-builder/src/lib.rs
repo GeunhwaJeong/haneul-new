@@ -934,6 +934,7 @@ fn create_genesis_transaction(
                 gas_data,
                 HaneulGasStatus::new_unmetered(),
                 kind,
+                None, // compat_args
                 signer,
                 genesis_digest,
                 &mut None,
