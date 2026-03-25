@@ -25,10 +25,10 @@ fun init(witness: M, ctx: &mut TxContext) {
 //> 3: haneul::party::single_owner(Input(2));
 //> haneul::transfer::public_party_transfer<haneul::coin::Coin<ex::m::M>>(Result(1), Result(3))
 
-//# programmable --sender A --inputs object(2,0) object(2,1) @A
+//# programmable --sender A --inputs object(2,1) object(2,0) @A
 //> MergeCoins(Input(1), [Input(0)])
 
-//# view-object 2,1
+//# view-object 2,0
 
 // Verify AddressOwner coin can be merged into ConsensusAddressOwner coin.
 //# programmable --sender A --inputs object(1,2) 100 @A
