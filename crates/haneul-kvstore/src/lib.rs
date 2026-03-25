@@ -37,7 +37,9 @@ use haneul_types::messages_checkpoint::CheckpointContents;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::messages_checkpoint::CheckpointSummary;
 use haneul_types::object::Object;
+use haneul_types::signature::GenericSignature;
 use haneul_types::storage::ObjectKey;
+use haneul_types::transaction::SenderSignedData;
 use haneul_types::transaction::Transaction;
 
 pub use crate::bigtable::client::BigTableClient;
@@ -128,13 +130,24 @@ pub struct CheckpointData {
 
 #[derive(Clone, Debug)]
 pub struct TransactionData {
-    pub transaction: Transaction,
-    pub effects: TransactionEffects,
+    pub digest: TransactionDigest,
+    pub transaction_data: Option<haneul_types::transaction::TransactionData>,
+    pub signatures: Option<Vec<GenericSignature>>,
+    pub effects: Option<TransactionEffects>,
     pub events: Option<TransactionEvents>,
     pub checkpoint_number: CheckpointSequenceNumber,
     pub timestamp: u64,
     pub balance_changes: Vec<BalanceChange>,
     pub unchanged_loaded_runtime_objects: Vec<ObjectKey>,
+}
+
+impl TransactionData {
+    /// Reconstruct the full Transaction when both data and signatures are present.
+    pub fn transaction(&self) -> Option<Transaction> {
+        let data = self.transaction_data.clone()?;
+        let sigs = self.signatures.clone().unwrap_or_default();
+        Some(Transaction::new(SenderSignedData::new(data, sigs)))
+    }
 }
 
 /// Partial transaction and events for when we only need transaction content for events
