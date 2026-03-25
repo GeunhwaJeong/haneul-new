@@ -2131,6 +2131,20 @@ impl TransactionData {
         })
     }
 
+    pub fn new_with_gas_data_and_expiration(
+        kind: TransactionKind,
+        sender: HaneulAddress,
+        gas_data: GasData,
+        expiration: TransactionExpiration,
+    ) -> Self {
+        TransactionData::V1(TransactionDataV1 {
+            kind,
+            sender,
+            gas_data,
+            expiration,
+        })
+    }
+
     pub fn new_move_call(
         sender: HaneulAddress,
         package: ObjectID,

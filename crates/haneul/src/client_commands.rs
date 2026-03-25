@@ -87,8 +87,9 @@ use haneul_types::{
     signature::GenericSignature,
     haneul_sdk_types_conversions::type_tag_sdk_to_core,
     transaction::{
-        Command, InputObjectKind, ObjectArg, SenderSignedData, SharedObjectMutability, Transaction,
-        TransactionData, TransactionDataAPI, TransactionKind,
+        Argument, Command, FundsWithdrawalArg, GasData, InputObjectKind, ObjectArg,
+        SenderSignedData, SharedObjectMutability, Transaction, TransactionData, TransactionDataAPI,
+        TransactionExpiration, TransactionKind,
     },
 };
 
@@ -369,6 +370,44 @@ pub enum HaneulClientCommands {
         /// The recipient address (or its alias if it's an address in the keystore).
         #[clap(long)]
         recipient: KeyIdentity,
+
+        #[clap(flatten)]
+        gas_data: GasDataArgs,
+
+        #[clap(flatten)]
+        processing: TxProcessingArgs,
+    },
+
+    /// Send funds to an address balance using the `haneul::coin::send_funds` API.
+    /// This sends funds to the recipient's address balance (not as a coin object).
+    #[clap(name = "send-funds")]
+    SendFunds {
+        /// The recipient address (or its alias if it's an address in the keystore).
+        #[clap(long)]
+        to: KeyIdentity,
+
+        /// The amount to send (in GEUNHWA). Required unless --all-coins is specified.
+        #[clap(
+            long,
+            conflicts_with = "all_coins",
+            required_unless_present = "all_coins"
+        )]
+        amount: Option<u64>,
+
+        /// Send all coins of the specified type to the recipient's address balance.
+        /// Conflicts with --amount and --stateless.
+        #[clap(long, conflicts_with_all = ["amount", "stateless"])]
+        all_coins: bool,
+
+        /// The coin type to send (e.g., "0x2::haneul::HANEUL"). Defaults to HANEUL.
+        #[clap(long, value_parser = parse_haneul_type_tag)]
+        coin_type: Option<TypeTag>,
+
+        /// If set, draws all funds (including gas payment) from the sender's address balances.
+        /// This creates a fully stateless transaction with no owned object inputs.
+        /// Conflicts with --all-coins.
+        #[clap(long, conflicts_with = "all_coins")]
+        stateless: bool,
 
         #[clap(flatten)]
         gas_data: GasDataArgs,
@@ -1330,6 +1369,135 @@ impl HaneulClientCommands {
                     processing,
                 )
                 .await?
+            }
+
+            HaneulClientCommands::SendFunds {
+                to,
+                amount,
+                all_coins,
+                coin_type,
+                stateless,
+                gas_data,
+                processing,
+            } => {
+                let recipient = context.get_identity_address(Some(to))?;
+                let signer = context.active_address()?;
+                let _ = context.cache_chain_id().await?;
+                let client = context.grpc_client()?;
+
+                let coin_type_tag = coin_type.unwrap_or_else(|| {
+                    TypeTag::from_str(HANEUL_COIN_TYPE).expect("HANEUL_COIN_TYPE should be valid")
+                });
+
+                let is_haneul = coin_type_tag.to_canonical_string(true) == HANEUL_COIN_TYPE;
+
+                let coin_struct_tag: StructTag = format!(
+                    "0x2::coin::Coin<{}>",
+                    coin_type_tag.to_canonical_string(true)
+                )
+                .parse()
+                .expect("valid struct tag");
+                let balance_info = client.get_balance(signer, &coin_struct_tag).await?;
+                let coin_balance = balance_info.coin_balance();
+                let address_balance = balance_info.address_balance();
+
+                let (amount, use_address_balance) = if all_coins {
+                    // --all-coins uses all coin balance (cannot be combined with --stateless)
+                    ensure!(coin_balance > 0, "No coins available to send");
+                    (coin_balance, false)
+                } else if let Some(amount) = amount {
+                    let use_address_balance = if stateless {
+                        true
+                    } else if coin_balance >= amount {
+                        false
+                    } else if address_balance >= amount {
+                        true
+                    } else {
+                        bail!(
+                            "Insufficient balance to send {} GEUNHWA. \
+                            Coin balance: {}, Address balance: {}",
+                            amount,
+                            coin_balance,
+                            address_balance
+                        );
+                    };
+                    (amount, use_address_balance)
+                } else {
+                    bail!("Either --amount or --all-coins must be specified");
+                };
+
+                let mut builder = ProgrammableTransactionBuilder::new();
+
+                if use_address_balance {
+                    let withdrawal_arg =
+                        FundsWithdrawalArg::balance_from_sender(amount, coin_type_tag.clone());
+                    let withdrawal_input = builder.funds_withdrawal(withdrawal_arg)?;
+
+                    let balance_result = builder.programmable_move_call(
+                        HANEUL_FRAMEWORK_PACKAGE_ID,
+                        Identifier::from_str("balance")?,
+                        Identifier::from_str("redeem_funds")?,
+                        vec![coin_type_tag.clone()],
+                        vec![withdrawal_input],
+                    );
+
+                    let recipient_arg = builder.pure(recipient)?;
+                    builder.programmable_move_call(
+                        HANEUL_FRAMEWORK_PACKAGE_ID,
+                        Identifier::from_str("balance")?,
+                        Identifier::from_str("send_funds")?,
+                        vec![coin_type_tag],
+                        vec![balance_result, recipient_arg],
+                    );
+
+                    let tx_kind = TransactionKind::programmable(builder.finish());
+
+                    if stateless {
+                        dry_run_or_execute_or_serialize_with_address_balance_gas(
+                            signer, tx_kind, context, gas_data, processing,
+                        )
+                        .await?
+                    } else {
+                        dry_run_or_execute_or_serialize(
+                            signer,
+                            tx_kind,
+                            context,
+                            vec![],
+                            gas_data,
+                            processing,
+                        )
+                        .await?
+                    }
+                } else {
+                    ensure!(
+                        is_haneul,
+                        "Non-HANEUL coin transfers using coins require explicit coin selection. \
+                        Use --stateless to transfer from address balance instead."
+                    );
+                    let amount_arg = builder.pure(amount)?;
+                    let coin_arg =
+                        builder.command(Command::SplitCoins(Argument::GasCoin, vec![amount_arg]));
+                    let recipient_arg = builder.pure(recipient)?;
+                    builder.programmable_move_call(
+                        HANEUL_FRAMEWORK_PACKAGE_ID,
+                        Identifier::from_str("coin")?,
+                        Identifier::from_str("send_funds")?,
+                        vec![coin_type_tag],
+                        vec![coin_arg, recipient_arg],
+                    );
+
+                    let tx_kind = TransactionKind::programmable(builder.finish());
+
+                    dry_run_or_execute_or_serialize(
+                        signer,
+                        tx_kind,
+                        context,
+                        vec![],
+                        gas_data,
+                        processing,
+                    )
+                    .await?
+                }
             }
 
             HaneulClientCommands::Objects { address } => {
@@ -3094,6 +3262,51 @@ pub(crate) async fn dry_run_or_execute_or_serialize(
     gas_data: GasDataArgs,
     processing: TxProcessingArgs,
 ) -> Result<HaneulClientCommandResult, anyhow::Error> {
+    dry_run_or_execute_or_serialize_impl(
+        signer,
+        tx_kind,
+        context,
+        gas_payment,
+        gas_data,
+        processing,
+        false,
+    )
+    .await
+}
+
+/// Dry run, execute, or serialize a transaction with address balance gas support.
+///
+/// When `use_address_balance_gas` is true, the transaction uses the sender's address balance
+/// for gas payment instead of selecting a gas coin. This requires adding a ValidDuring
+/// expiration for replay protection.
+pub(crate) async fn dry_run_or_execute_or_serialize_with_address_balance_gas(
+    signer: HaneulAddress,
+    tx_kind: TransactionKind,
+    context: &mut WalletContext,
+    gas_data: GasDataArgs,
+    processing: TxProcessingArgs,
+) -> Result<HaneulClientCommandResult, anyhow::Error> {
+    dry_run_or_execute_or_serialize_impl(
+        signer,
+        tx_kind,
+        context,
+        vec![],
+        gas_data,
+        processing,
+        true,
+    )
+    .await
+}
+
+async fn dry_run_or_execute_or_serialize_impl(
+    signer: HaneulAddress,
+    tx_kind: TransactionKind,
+    context: &mut WalletContext,
+    gas_payment: Vec<ObjectRef>,
+    gas_data: GasDataArgs,
+    processing: TxProcessingArgs,
+    use_address_balance_gas: bool,
+) -> Result<HaneulClientCommandResult, anyhow::Error> {
     let GasDataArgs {
         gas_budget,
         gas_price,
@@ -3169,8 +3382,21 @@ pub(crate) async fn dry_run_or_execute_or_serialize(
         }
     };
 
-    let gas_payment = if !gas_payment.is_empty() {
-        gas_payment
+    let (gas_payment, expiration) = if use_address_balance_gas {
+        let current_epoch = context.get_current_epoch().await?;
+        let chain_id = context.get_chain_identifier().await?;
+
+        let expiration = TransactionExpiration::ValidDuring {
+            min_epoch: Some(current_epoch),
+            max_epoch: Some(current_epoch.saturating_add(1)),
+            min_timestamp: None,
+            max_timestamp: None,
+            chain: chain_id,
+            nonce: rand::random(),
+        };
+        (vec![], expiration)
+    } else if !gas_payment.is_empty() {
+        (gas_payment, TransactionExpiration::None)
     } else {
         let input_objects: Vec<_> = tx_kind
             .input_objects()?
@@ -3192,17 +3418,21 @@ pub(crate) async fn dry_run_or_execute_or_serialize(
             )
             .await?;
 
-        vec![gas_payment]
+        (vec![gas_payment], TransactionExpiration::None)
     };
 
     debug!("Preparing transaction data");
-    let tx_data = TransactionData::new_with_gas_coins_allow_sponsor(
+    let gas_owner = gas_sponsor.unwrap_or(signer);
+    let tx_data = TransactionData::new_with_gas_data_and_expiration(
         tx_kind,
         signer,
-        gas_payment,
-        gas_budget,
-        gas_price,
-        gas_sponsor.unwrap_or(signer),
+        GasData {
+            payment: gas_payment,
+            owner: gas_owner,
+            price: gas_price,
+            budget: gas_budget,
+        },
+        expiration,
     );
     debug!("Finished preparing transaction data");
 
