@@ -10,7 +10,9 @@ use haneul_bridge_indexer_alt::handlers::token_transfer_data_handler::TokenTrans
 use haneul_bridge_indexer_alt::handlers::token_transfer_handler::TokenTransferHandler;
 use haneul_bridge_indexer_alt::metrics::BridgeIndexerMetrics;
 use haneul_bridge_schema::MIGRATIONS;
-use haneul_indexer_alt_framework::ingestion::{ClientArgs, ingestion_client::IngestionClientArgs};
+use haneul_indexer_alt_framework::ingestion::{
+    ClientArgs, ingestion_client::IngestionClientArgs, streaming_client::StreamingClientArgs,
+};
 use haneul_indexer_alt_framework::postgres::DbArgs;
 use haneul_indexer_alt_framework::service::Error;
 use haneul_indexer_alt_framework::{Indexer, IndexerArgs};
@@ -34,6 +36,8 @@ struct Args {
     database_url: Url,
     #[clap(env, long, default_value = "https://checkpoints.mainnet.haneul.io")]
     remote_store_url: Url,
+    #[command(flatten)]
+    streaming: StreamingClientArgs,
 }
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
@@ -47,6 +51,7 @@ async fn main() -> Result<(), anyhow::Error> {
         metrics_address,
         database_url,
         remote_store_url,
+        streaming,
     } = Args::parse();
 
     let is_bounded_job = indexer_args.last_checkpoint.is_some();
@@ -68,7 +73,7 @@ async fn main() -> Result<(), anyhow::Error> {
                 remote_store_url: Some(remote_store_url),
                 ..Default::default()
             },
-            ..Default::default()
+            streaming,
         },
         Default::default(),
         Some(&MIGRATIONS),
