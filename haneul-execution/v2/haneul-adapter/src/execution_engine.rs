@@ -39,7 +39,7 @@ mod checked {
     use haneul_types::committee::EpochId;
     use haneul_types::deny_list_v1::{DENY_LIST_CREATE_FUNC, DENY_LIST_MODULE};
     use haneul_types::effects::TransactionEffects;
-    use haneul_types::error::ExecutionError;
+    use haneul_types::error::{ExecutionError, ExecutionErrorTrait};
     use haneul_types::execution_status::{ExecutionErrorKind, ExecutionStatus};
     use haneul_types::gas::GasCostSummary;
     use haneul_types::gas::HaneulGasStatus;
@@ -142,7 +142,7 @@ mod checked {
                         kind = ?error.kind(),
                         tx_digest = ?transaction_digest,
                         "INVARIANT VIOLATION! Source: {:?}",
-                        error.source(),
+                        error.source_ref(),
                     );
                 }
 
@@ -152,7 +152,7 @@ mod checked {
                         kind = ?error.kind(),
                         tx_digest = ?transaction_digest,
                         "Verification Error. Source: {:?}",
-                        error.source(),
+                        error.source_ref(),
                     );
                 }
 
@@ -162,7 +162,7 @@ mod checked {
                         kind = ?error.kind(),
                         tx_digest = ?transaction_digest,
                         "Publish/Upgrade Error. Source: {:?}",
-                        error.source(),
+                        error.source_ref(),
                     )
                 }
 
