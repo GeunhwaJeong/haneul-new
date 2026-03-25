@@ -34,6 +34,8 @@ zstd.workspace = true
 simulacrum.workspace = true
 haneul-futures.workspace = true
 haneul-indexer-alt.workspace = true
+haneul-kv-rpc.workspace = true
+haneul-kvstore.workspace = true
 haneul-indexer-alt-consistent-api.workspace = true
 haneul-indexer-alt-consistent-store.workspace = true
 haneul-indexer-alt-framework = { workspace = true, features = ["postgres", "cluster"] }
@@ -42,6 +44,7 @@ haneul-indexer-alt-jsonrpc.workspace = true
 haneul-indexer-alt-reader.workspace = true
 haneul-indexer-alt-schema.workspace = true
 haneul-pg-db.workspace = true
+haneul-protocol-config.workspace = true
 haneul-rpc.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
@@ -50,7 +53,6 @@ haneul-move-build.workspace = true
 
 [target.'cfg(msim)'.dependencies]
 msim.workspace = true
-haneul-protocol-config.workspace = true
 haneul-simulator.workspace = true
 tracing.workspace = true
 
