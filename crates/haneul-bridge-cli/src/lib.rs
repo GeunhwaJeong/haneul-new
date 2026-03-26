@@ -931,7 +931,7 @@ async fn claim_on_haneul(
     if dry_run {
         let haneul_client = haneul_bridge_client.grpc_client().clone();
         let resp = haneul_client
-            .simulate_transaction(&tx_data, true)
+            .simulate_transaction(&tx_data, true, true)
             .await
             .map_err(|e| anyhow!("Dry run (simulate) failed: {:?}", e))?;
         println!(
