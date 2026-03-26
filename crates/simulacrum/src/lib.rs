@@ -37,7 +37,7 @@ use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::messages_consensus::ConsensusDeterminedVersionAssignments;
 use haneul_types::object::{Object, Owner};
 use haneul_types::storage::ObjectKey;
-use haneul_types::storage::{ObjectStore, ReadStore, RpcStateReader};
+use haneul_types::storage::{ChildObjectResolver, ObjectStore, ReadStore, RpcStateReader};
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use haneul_types::transaction::TransactionDataAPI;
 use haneul_types::transaction::{EndOfEpochTransactionKind, SenderSignedData};
@@ -45,7 +45,7 @@ use haneul_types::{
     base_types::{EpochId, HaneulAddress},
     committee::Committee,
     effects::TransactionEffects,
-    error::ExecutionError,
+    error::{ExecutionError, HaneulResult},
     gas_coin::GEUNHWA_PER_HANEUL,
     inner_temporary_store::InnerTemporaryStore,
     messages_checkpoint::{EndOfEpochData, VerifiedCheckpoint},
@@ -728,6 +728,33 @@ impl<T, V: store::SimulatorStore> ObjectStore for Simulacrum<T, V> {
 
     fn get_object_by_key(&self, object_id: &ObjectID, version: VersionNumber) -> Option<Object> {
         self.store.get_object_by_key(object_id, version)
+    }
+}
+
+impl<T, V: store::SimulatorStore> ChildObjectResolver for Simulacrum<T, V> {
+    fn read_child_object(
+        &self,
+        parent: &ObjectID,
+        child: &ObjectID,
+        child_version_upper_bound: SequenceNumber,
+    ) -> HaneulResult<Option<Object>> {
+        self.store
+            .read_child_object(parent, child, child_version_upper_bound)
+    }
+
+    fn get_object_received_at_version(
+        &self,
+        owner: &ObjectID,
+        receiving_object_id: &ObjectID,
+        receive_object_at_version: SequenceNumber,
+        epoch_id: EpochId,
+    ) -> HaneulResult<Option<Object>> {
+        self.store.get_object_received_at_version(
+            owner,
+            receiving_object_id,
+            receive_object_at_version,
+            epoch_id,
+        )
     }
 }
 

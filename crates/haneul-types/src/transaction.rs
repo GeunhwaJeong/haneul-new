@@ -2540,10 +2540,10 @@ pub trait TransactionDataAPI {
         &self,
     ) -> UserInputResult<(Vec<ObjectRef>, Vec<ObjectID>, Vec<ObjectRef>)>;
 
-    /// Processes funds withdraws and returns a map from funds account object ID to total
-    /// reserved amount. This method aggregates all withdraw operations for the same account by
-    /// merging their reservations. Each account object ID is derived from the type parameter of
-    /// each withdraw operation.
+    /// Processes funds withdraws and returns a map from funds account object ID to (total
+    /// reserved amount, type tag). This method aggregates all withdraw operations for the same
+    /// account by merging their reservations. Each account object ID is derived from the type
+    /// parameter of each withdraw operation.
     ///
     /// This method is used at signing time, and can reject a transaction if it contains
     /// invalid reservations.
@@ -2551,7 +2551,7 @@ pub trait TransactionDataAPI {
         &self,
         chain_identifier: ChainIdentifier,
         coin_resolver: &dyn CoinReservationResolverTrait,
-    ) -> UserInputResult<BTreeMap<AccumulatorObjId, u64>>;
+    ) -> UserInputResult<BTreeMap<AccumulatorObjId, (u64, TypeTag)>>;
 
     /// Like `process_funds_withdrawals_for_signing`, but must only be called on a certified
     /// transaction, i.e. one that is known to be valid.
@@ -2562,9 +2562,6 @@ pub trait TransactionDataAPI {
 
     // A cheap way to quickly check if the transaction has funds withdraws.
     fn has_funds_withdrawals(&self) -> bool;
-
-    // Get all the funds withdrawals args in the transaction.
-    fn get_funds_withdrawals(&self) -> Vec<FundsWithdrawalArg>;
 
     fn coin_reservation_obj_refs(
         &self,
@@ -2705,8 +2702,8 @@ impl TransactionDataAPI for TransactionDataV1 {
         &self,
         chain_identifier: ChainIdentifier,
         coin_resolver: &dyn CoinReservationResolverTrait,
-    ) -> UserInputResult<BTreeMap<AccumulatorObjId, u64>> {
-        let mut withdraws = self.get_funds_withdrawals();
+    ) -> UserInputResult<BTreeMap<AccumulatorObjId, (u64, TypeTag)>> {
+        let mut withdraws: Vec<_> = self.get_funds_withdrawals().collect();
 
         for withdraw in self.parsed_coin_reservations(chain_identifier) {
             let withdrawal_arg = coin_resolver.resolve_funds_withdrawal(self.sender(), withdraw)?;
@@ -2716,7 +2713,7 @@ impl TransactionDataAPI for TransactionDataV1 {
         withdraws.extend(self.get_funds_withdrawal_for_gas_payment());
 
         // Accumulate all withdraws per account.
-        let mut withdraw_map: BTreeMap<_, u64> = BTreeMap::new();
+        let mut withdraw_map: BTreeMap<AccumulatorObjId, (u64, TypeTag)> = BTreeMap::new();
         for withdraw in withdraws {
             let reserved_amount = match &withdraw.reservation {
                 Reservation::MaxAmountU64(amount) => {
@@ -2726,13 +2723,17 @@ impl TransactionDataAPI for TransactionDataV1 {
             };
 
             let account_address = withdraw.owner_for_withdrawal(self);
+            let type_tag = withdraw.type_arg.to_type_tag();
             let account_id =
-                AccumulatorValue::get_field_id(account_address, &withdraw.type_arg.to_type_tag())
-                    .map_err(|e| UserInputError::InvalidWithdrawReservation {
-                    error: e.to_string(),
+                AccumulatorValue::get_field_id(account_address, &type_tag).map_err(|e| {
+                    UserInputError::InvalidWithdrawReservation {
+                        error: e.to_string(),
+                    }
                 })?;
 
-            let current_amount = withdraw_map.entry(account_id).or_default();
+            let (current_amount, _) = withdraw_map
+                .entry(account_id)
+                .or_insert_with(|| (0, type_tag));
             *current_amount = current_amount.checked_add(reserved_amount).ok_or(
                 UserInputError::InvalidWithdrawReservation {
                     error: "Balance withdraw reservation overflow".to_string(),
@@ -2747,8 +2748,7 @@ impl TransactionDataAPI for TransactionDataV1 {
         &self,
         chain_identifier: ChainIdentifier,
     ) -> BTreeMap<AccumulatorObjId, u64> {
-        let mut withdraws = self.get_funds_withdrawals();
-
+        let mut withdraws: Vec<_> = self.get_funds_withdrawals().collect();
         withdraws.extend(self.get_funds_withdrawal_for_gas_payment());
 
         // Accumulate all withdraws per account.
@@ -2808,10 +2808,6 @@ impl TransactionDataAPI for TransactionDataV1 {
             return true;
         }
         false
-    }
-
-    fn get_funds_withdrawals(&self) -> Vec<FundsWithdrawalArg> {
-        self.kind.get_funds_withdrawals().cloned().collect()
     }
 
     fn coin_reservation_obj_refs(
@@ -2957,6 +2953,13 @@ impl TransactionDataAPI for TransactionDataV1 {
                     }
                     .into());
                 }
+            }
+
+            // Count implicit gas budget as a withdrawal when gas is paid from address balance
+            if config.enable_address_balance_gas_payments()
+                && self.is_gas_paid_from_address_balance()
+            {
+                num_reservations += 1;
             }
 
             fp_ensure!(
@@ -3203,6 +3206,10 @@ impl TransactionDataV1 {
         } else {
             None
         }
+    }
+
+    fn get_funds_withdrawals(&self) -> impl Iterator<Item = FundsWithdrawalArg> + '_ {
+        self.kind.get_funds_withdrawals().cloned()
     }
 
     fn coin_reservation_obj_refs(&self) -> impl Iterator<Item = ObjectRef> {

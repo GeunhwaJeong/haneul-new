@@ -366,13 +366,14 @@ fn select_gas(
     transaction: &mut haneul_types::transaction::TransactionData,
     max_gas_payment_objects: u32,
 ) -> Result<()> {
+    use haneul_types::accumulator_root::AccumulatorValue;
+    use haneul_types::balance::Balance;
+    use haneul_types::coin_reservation::CoinReservationResolver;
     use haneul_types::gas_coin::GAS;
     use haneul_types::gas_coin::GasCoin;
     use haneul_types::transaction::Command;
-    use haneul_types::transaction::Reservation;
     use haneul_types::transaction::TransactionDataAPI;
     use haneul_types::transaction::TransactionExpiration;
-    use haneul_types::transaction::WithdrawalTypeArg;
 
     let reader = &service.reader;
 
@@ -387,27 +388,18 @@ fn select_gas(
         .lookup_address_balance(owner, GAS::type_())
         .map(|balance| {
             // Sum up the total HANEUL reservations for the `owner` so that we can deduct that from the
-            // available address balance for determining if an account as sufficient funds.
+            // available address balance for determining if an account has sufficient funds.
+            let coin_resolver = CoinReservationResolver::new(reader.inner().clone());
+
             let reserved_haneul = transaction
-                .get_funds_withdrawals()
-                .into_iter()
-                .filter_map(|w| {
-                    // Skip if this withdrawal isn't for the gas owner
-                    if w.owner_for_withdrawal(&*transaction) != owner {
-                        return None;
-                    }
-
-                    // Skip if this withdrawal isn't for HANEUL
-                    let WithdrawalTypeArg::Balance(coin_type) = &w.type_arg;
-                    if !GAS::is_gas_type(coin_type) {
-                        return None;
-                    }
-
-                    match w.reservation {
-                        Reservation::MaxAmountU64(value) => Some(value),
-                    }
+                .process_funds_withdrawals_for_signing(service.chain_id, &coin_resolver)
+                .ok()
+                .and_then(|withdrawals| {
+                    let haneul_type = Balance::type_tag(GAS::type_tag());
+                    let haneul_account_id = AccumulatorValue::get_field_id(owner, &haneul_type).ok()?;
+                    withdrawals.get(&haneul_account_id).map(|(amount, _)| *amount)
                 })
-                .sum::<u64>();
+                .unwrap_or(0);
 
             balance.saturating_sub(reserved_haneul)
         });

@@ -13,11 +13,13 @@ use move_core_types::language_storage::StructTag;
 use parking_lot::Mutex;
 use std::sync::Arc;
 use haneul_types::base_types::ObjectID;
+use haneul_types::base_types::SequenceNumber;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::committee::Committee;
 use haneul_types::committee::EpochId;
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
+use haneul_types::error::{HaneulErrorKind, HaneulResult};
 use haneul_types::full_checkpoint_content::ObjectSet;
 use haneul_types::messages_checkpoint::CheckpointContentsDigest;
 use haneul_types::messages_checkpoint::CheckpointDigest;
@@ -27,8 +29,10 @@ use haneul_types::messages_checkpoint::VerifiedCheckpoint;
 use haneul_types::messages_checkpoint::VerifiedCheckpointContents;
 use haneul_types::messages_checkpoint::VersionedFullCheckpointContents;
 use haneul_types::object::Object;
+use haneul_types::object::Owner;
 use haneul_types::storage::BalanceInfo;
 use haneul_types::storage::BalanceIterator;
+use haneul_types::storage::ChildObjectResolver;
 use haneul_types::storage::CoinInfo;
 use haneul_types::storage::DynamicFieldKey;
 use haneul_types::storage::ObjectStore;
@@ -490,6 +494,38 @@ impl ReadStore for RestReadStore {
         digest: &TransactionDigest,
     ) -> Option<CheckpointSequenceNumber> {
         self.rocks.get_transaction_checkpoint(digest)
+    }
+}
+
+impl ChildObjectResolver for RestReadStore {
+    fn read_child_object(
+        &self,
+        parent: &ObjectID,
+        child: &ObjectID,
+        child_version_upper_bound: SequenceNumber,
+    ) -> HaneulResult<Option<Object>> {
+        Ok(self.get_object(child).and_then(|o| {
+            if o.version() <= child_version_upper_bound
+                && o.owner == Owner::ObjectOwner((*parent).into())
+            {
+                Some(o)
+            } else {
+                None
+            }
+        }))
+    }
+
+    fn get_object_received_at_version(
+        &self,
+        _owner: &ObjectID,
+        _receiving_object_id: &ObjectID,
+        _receive_object_at_version: SequenceNumber,
+        _epoch_id: EpochId,
+    ) -> HaneulResult<Option<Object>> {
+        Err(HaneulErrorKind::UnsupportedFeatureError {
+            error: "RestReadStore does not support receiving objects".to_string(),
+        }
+        .into())
     }
 }
 

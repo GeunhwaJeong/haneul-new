@@ -2,7 +2,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::accumulators::coin_reservations::CoinReservationResolver;
+use crate::accumulators::coin_reservations::CachingCoinReservationResolver;
 use crate::accumulators::funds_read::AccountFundsRead;
 use crate::accumulators::object_funds_checker::ObjectFundsChecker;
 use crate::accumulators::object_funds_checker::metrics::ObjectFundsCheckerMetrics;
@@ -892,7 +892,7 @@ pub struct AuthorityState {
     /// The database
     input_loader: TransactionInputLoader,
     execution_cache_trait_pointers: ExecutionCacheTraitPointers,
-    coin_reservation_resolver: Arc<CoinReservationResolver>,
+    coin_reservation_resolver: Arc<CachingCoinReservationResolver>,
 
     epoch_store: ArcSwap<AuthorityPerEpochStore>,
 
@@ -999,7 +999,7 @@ impl AuthorityState {
         tx_signatures: &[GenericSignature],
         input_object_kinds: &[InputObjectKind],
         receiving_objects_refs: &[ObjectRef],
-    ) -> HaneulResult<BTreeMap<AccumulatorObjId, u64>> {
+    ) -> HaneulResult<BTreeMap<AccumulatorObjId, (u64, TypeTag)>> {
         // Note: the deny checks may do redundant package loads but:
         // - they only load packages when there is an active package deny map
         // - the loads are cached anyway
@@ -1076,13 +1076,17 @@ impl AuthorityState {
         receiving_objects: &ReceivingObjects,
         epoch_store: &Arc<AuthorityPerEpochStore>,
     ) -> HaneulResult<()> {
-        let funds_withdraw_types = tx_data
-            .get_funds_withdrawals()
-            .into_iter()
-            .filter_map(|withdraw| {
-                withdraw
-                    .type_arg
-                    .get_balance_type_param()
+        use haneul_types::balance::Balance;
+
+        let declared_withdrawals = tx_data.process_funds_withdrawals_for_signing(
+            self.chain_identifier,
+            self.coin_reservation_resolver.as_ref(),
+        )?;
+
+        let funds_withdraw_types = declared_withdrawals
+            .values()
+            .filter_map(|(_, type_tag)| {
+                Balance::maybe_get_balance_type_param(type_tag)
                     .map(|ty| ty.to_canonical_string(false))
             })
             .collect::<BTreeSet<_>>();
@@ -3790,7 +3794,7 @@ impl AuthorityState {
                 .expect("Failed to initialize fork recovery state")
         });
 
-        let coin_reservation_resolver = Arc::new(CoinReservationResolver::new(
+        let coin_reservation_resolver = Arc::new(CachingCoinReservationResolver::new(
             execution_cache_trait_pointers.child_object_resolver.clone(),
         ));
 
