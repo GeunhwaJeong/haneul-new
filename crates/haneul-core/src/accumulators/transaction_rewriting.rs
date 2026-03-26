@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::{SequenceNumber, HaneulAddress};
 use haneul_types::coin_reservation::{CoinReservationResolverTrait, ParsedObjectRefWithdrawal};
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::transaction::{CallArg, ObjectArg, ProgrammableTransaction, TransactionKind};
@@ -17,6 +17,7 @@ pub fn rewrite_transaction_for_coin_reservations(
     coin_reservation_resolver: &dyn CoinReservationResolverTrait,
     sender: HaneulAddress,
     transaction_kind: &mut TransactionKind,
+    accumulator_version: Option<SequenceNumber>,
 ) -> Option<Vec<bool>> {
     match transaction_kind {
         TransactionKind::ProgrammableTransaction(pt) => {
@@ -25,6 +26,7 @@ pub fn rewrite_transaction_for_coin_reservations(
                 coin_reservation_resolver,
                 sender,
                 pt,
+                accumulator_version,
             )
         }
         _ => None,
@@ -36,6 +38,7 @@ fn rewrite_programmable_transaction_for_coin_reservations(
     coin_reservation_resolver: &dyn CoinReservationResolverTrait,
     sender: HaneulAddress,
     pt: &mut ProgrammableTransaction,
+    accumulator_version: Option<SequenceNumber>,
 ) -> Option<Vec<bool>> {
     if pt.coin_reservation_obj_refs().count() == 0 {
         return None;
@@ -55,7 +58,7 @@ fn rewrite_programmable_transaction_for_coin_reservations(
             //    accumulator were deleted (balance dropped to 0), the reservation would fail and
             //    the transaction would not enter execution.
             let withdraw = coin_reservation_resolver
-                .resolve_funds_withdrawal(sender, parsed)
+                .resolve_funds_withdrawal(sender, parsed, accumulator_version)
                 .unwrap();
             *input = CallArg::FundsWithdrawal(withdraw);
         } else {

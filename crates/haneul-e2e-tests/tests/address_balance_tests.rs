@@ -22,7 +22,7 @@ use haneul_types::{
     HANEUL_FRAMEWORK_PACKAGE_ID, TypeTag,
     accumulator_root::AccumulatorValue,
     balance::Balance,
-    base_types::{ObjectID, ObjectRef, HaneulAddress, dbg_addr},
+    base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, dbg_addr},
     coin_reservation::{CoinReservationResolverTrait, ParsedObjectRefWithdrawal},
     digests::{ChainIdentifier, CheckpointDigest},
     effects::{InputConsensusObject, TransactionEffectsAPI},
@@ -50,6 +50,7 @@ impl CoinReservationResolverTrait for NoOpResolver {
         &self,
         _sender: HaneulAddress,
         _coin_reservation: ParsedObjectRefWithdrawal,
+        _accumulator_version: Option<SequenceNumber>,
     ) -> UserInputResult<FundsWithdrawalArg> {
         panic!("Not used in these tests")
     }

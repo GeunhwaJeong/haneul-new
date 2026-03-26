@@ -51,7 +51,7 @@ use move_core_types::account_address::AccountAddress;
 use move_core_types::identifier::IdentStr;
 use move_core_types::{ident_str, identifier};
 use move_core_types::{identifier::Identifier, language_storage::TypeTag};
-use haneullabs_common::debug_fatal;
+use haneullabs_common::{assert_reachable, debug_fatal};
 use nonempty::{NonEmpty, nonempty};
 use serde::{Deserialize, Serialize};
 use shared_crypto::intent::{Intent, IntentMessage, IntentScope};
@@ -2894,7 +2894,9 @@ impl TransactionDataAPI for TransactionDataV1 {
         let mut withdraws: Vec<_> = self.get_funds_withdrawals().collect();
 
         for withdraw in self.parsed_coin_reservations(chain_identifier) {
-            let withdrawal_arg = coin_resolver.resolve_funds_withdrawal(self.sender(), withdraw)?;
+            // During signing, use latest accumulator version (None).
+            let withdrawal_arg =
+                coin_resolver.resolve_funds_withdrawal(self.sender(), withdraw, None)?;
             withdraws.push(withdrawal_arg);
         }
 
@@ -2965,6 +2967,7 @@ impl TransactionDataAPI for TransactionDataV1 {
         // the accumulator object may not exist any more. This is okay, as the scheduler will simply
         // cancel the transaction if there are no funds available.
         for obj in self.coin_reservation_obj_refs() {
+            assert_reachable!("processing coin reservation withdrawal");
             // unwrap safe because of signing time checks
             let parsed = ParsedObjectRefWithdrawal::parse(&obj, chain_identifier).unwrap();
             let value = withdraw_map

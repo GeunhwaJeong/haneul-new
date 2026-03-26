@@ -1917,6 +1917,7 @@ impl AuthorityState {
         mut kind: TransactionKind,
         signer: HaneulAddress,
         tx_digest: TransactionDigest,
+        accumulator_version: Option<SequenceNumber>,
     ) -> (
         InnerTemporaryStore,
         HaneulGasStatus,
@@ -1929,6 +1930,7 @@ impl AuthorityState {
             &*self.coin_reservation_resolver,
             sender,
             &mut kind,
+            accumulator_version,
         );
 
         let (inner_temp_store, gas_status, effects, timings, execution_error) = executor
@@ -2052,6 +2054,7 @@ impl AuthorityState {
                 kind,
                 signer,
                 tx_digest,
+                execution_env.assigned_versions.accumulator_version,
             );
 
         let object_funds_checker = self.object_funds_checker.load();
@@ -2383,6 +2386,8 @@ impl AuthorityState {
                 kind,
                 signer,
                 transaction_digest,
+                // Use latest accumulator version for dry run/dev inspect
+                None,
             );
 
         let tx_digest = *effects.transaction_digest();
