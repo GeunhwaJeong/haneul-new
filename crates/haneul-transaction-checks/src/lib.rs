@@ -61,6 +61,8 @@ mod checked {
         if transaction.kind().is_system_tx() {
             Ok(HaneulGasStatus::new_unmetered())
         } else {
+            let is_gasless =
+                protocol_config.enable_gasless() && transaction.is_gasless_transaction();
             check_gas(
                 objects,
                 protocol_config,
@@ -68,6 +70,7 @@ mod checked {
                 gas,
                 transaction,
                 gas_ownership_checks,
+                is_gasless,
             )
         }
     }
@@ -392,13 +395,20 @@ mod checked {
         gas: &[ObjectRef],
         transaction: &TransactionData,
         gas_ownership_checks: bool,
+        is_gasless: bool,
     ) -> HaneulResult<HaneulGasStatus> {
         let gas_budget = transaction.gas_budget();
         let gas_price = transaction.gas_price();
         let gas_paid_from_address_balance = transaction.is_gas_paid_from_address_balance();
 
-        let gas_status =
-            HaneulGasStatus::new(gas_budget, gas_price, reference_gas_price, protocol_config)?;
+        let gas_status = if is_gasless {
+            debug_assert_ne!(reference_gas_price, 0);
+            let rgp = reference_gas_price.max(1);
+            let compute_cap = protocol_config.gasless_max_computation_units() * rgp;
+            HaneulGasStatus::new(compute_cap, rgp, reference_gas_price, protocol_config)?
+        } else {
+            HaneulGasStatus::new(gas_budget, gas_price, reference_gas_price, protocol_config)?
+        };
 
         // check balance and coins consistency
         // load all gas coins (skip coin reservations - they're not loaded as input objects)
@@ -429,10 +439,16 @@ mod checked {
             (gas_objects, available_address_balance_gas)
         };
 
-        if gas_ownership_checks {
-            gas_status.check_gas_objects(&gas_objects)?;
+        if !is_gasless {
+            if gas_ownership_checks {
+                gas_status.check_gas_objects(&gas_objects)?;
+            }
+            gas_status.check_gas_balance(
+                &gas_objects,
+                gas_budget,
+                available_address_balance_gas,
+            )?;
         }
-        gas_status.check_gas_balance(&gas_objects, gas_budget, available_address_balance_gas)?;
         Ok(gas_status)
     }
 

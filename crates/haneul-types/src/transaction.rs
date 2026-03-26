@@ -5,7 +5,10 @@
 use super::{HANEUL_BRIDGE_OBJECT_ID, base_types::*, error::*};
 use crate::accumulator_root::{AccumulatorObjId, AccumulatorValue};
 use crate::authenticator_state::ActiveJwk;
-use crate::balance::Balance;
+use crate::balance::{
+    BALANCE_MODULE_NAME, BALANCE_REDEEM_FUNDS_FUNCTION_NAME, BALANCE_SEND_FUNDS_FUNCTION_NAME,
+    Balance,
+};
 use crate::coin_reservation::{
     CoinReservationResolverTrait, ParsedDigest, ParsedObjectRefWithdrawal,
 };
@@ -18,6 +21,7 @@ use crate::crypto::{
 use crate::digests::{AdditionalConsensusStateDigest, CertificateDigest, SenderSignedDataDigest};
 use crate::digests::{ChainIdentifier, ConsensusCommitDigest, ZKLoginInputsDigest};
 use crate::execution::{ExecutionTimeObservationKey, SharedInput};
+use crate::funds_accumulator::{FUNDS_ACCUMULATOR_MODULE_NAME, WITHDRAWAL_SPLIT_FUNC_NAME};
 use crate::gas_coin::GAS;
 use crate::gas_model::gas_predicates::check_for_gas_price_too_high;
 use crate::gas_model::gas_v2::HaneulCostTable;
@@ -36,14 +40,18 @@ use crate::signature_verification::{
 use crate::type_input::TypeInput;
 use crate::{
     HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID,
-    HANEUL_CLOCK_OBJECT_SHARED_VERSION, HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID,
-    HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+    HANEUL_CLOCK_OBJECT_SHARED_VERSION, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID,
+    HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
+    HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
 };
 use enum_dispatch::enum_dispatch;
 use fastcrypto::{encoding::Base64, hash::HashFunction};
 use itertools::{Either, Itertools};
+use move_core_types::account_address::AccountAddress;
+use move_core_types::identifier::IdentStr;
 use move_core_types::{ident_str, identifier};
 use move_core_types::{identifier::Identifier, language_storage::TypeTag};
+use haneullabs_common::debug_fatal;
 use nonempty::{NonEmpty, nonempty};
 use serde::{Deserialize, Serialize};
 use shared_crypto::intent::{Intent, IntentMessage, IntentScope};
@@ -51,6 +59,8 @@ use std::fmt::Write;
 use std::fmt::{Debug, Display, Formatter};
 use std::iter::once;
 use std::sync::Arc;
+#[cfg(debug_assertions)]
+use std::sync::RwLock;
 use std::time::Duration;
 use std::{
     collections::{BTreeMap, BTreeSet, HashSet},
@@ -958,11 +968,84 @@ pub struct ProgrammableTransaction {
     pub commands: Vec<Command>,
 }
 
+#[cfg(debug_assertions)]
+static GASLESS_TOKENS_FOR_TESTING: RwLock<Vec<String>> = RwLock::new(Vec::new());
+
+#[cfg(debug_assertions)]
+pub fn add_gasless_token_for_testing(type_string: String) {
+    GASLESS_TOKENS_FOR_TESTING
+        .write()
+        .unwrap()
+        .push(type_string);
+}
+
+#[cfg(debug_assertions)]
+pub fn clear_gasless_tokens_for_testing() {
+    GASLESS_TOKENS_FOR_TESTING.write().unwrap().clear();
+}
+
 impl ProgrammableTransaction {
     pub fn has_shared_inputs(&self) -> bool {
         self.inputs
             .iter()
             .any(|input| matches!(input, CallArg::Object(ObjectArg::SharedObject { .. })))
+    }
+
+    pub fn validate_gasless_transaction(&self, config: &ProtocolConfig) -> UserInputResult {
+        fp_ensure!(
+            !self.commands.is_empty(),
+            UserInputError::Unsupported(
+                "Gasless transactions must have at least one command".to_string()
+            )
+        );
+
+        for (idx, input) in self.inputs.iter().enumerate() {
+            match input {
+                CallArg::Pure(_) | CallArg::FundsWithdrawal(_) => {}
+                _ => {
+                    return Err(UserInputError::Unsupported(format!(
+                        "Gasless transactions only support pure and withdrawal inputs (input {idx})"
+                    )));
+                }
+            }
+        }
+
+        fn parse_gasless_allowed_token_types(config: &ProtocolConfig) -> Vec<TypeTag> {
+            let mut types: Vec<TypeTag> = config
+                .gasless_allowed_token_types()
+                .iter()
+                .filter_map(|(s, min_transfer_size)| {
+                    debug_assert_eq!(
+                        *min_transfer_size, 0,
+                        "min_transfer_size not yet implemented"
+                    );
+                    match s.parse() {
+                        Ok(tag) => Some(tag),
+                        Err(e) => {
+                            debug_fatal!("invalid gasless token type {s:?}: {e}");
+                            None
+                        }
+                    }
+                })
+                .collect();
+            #[cfg(debug_assertions)]
+            for s in GASLESS_TOKENS_FOR_TESTING.read().unwrap().iter() {
+                match s.parse() {
+                    Ok(tag) => types.push(tag),
+                    Err(e) => {
+                        debug_fatal!("invalid gasless token override {s:?}: {e}");
+                    }
+                }
+            }
+            types
+        }
+
+        let allowed_token_types = parse_gasless_allowed_token_types(config);
+
+        for command in &self.commands {
+            command.validate_gasless_transaction(&allowed_token_types)?;
+        }
+        Ok(())
     }
 }
 
@@ -1078,6 +1161,96 @@ impl ProgrammableMoveCall {
                 UserInputError::InvalidIdentifier {
                     error: self.module.clone()
                 }
+            );
+        }
+        Ok(())
+    }
+
+    fn validate_gasless_transaction(&self, allowed_token_types: &[TypeTag]) -> UserInputResult {
+        type FunctionIdent = (AccountAddress, &'static IdentStr, &'static IdentStr);
+
+        enum TypeArgConstraint {
+            /// Type arg is the fund type directly (e.g. `send_funds<USDC>`).
+            FundType,
+            /// Type arg is `Balance<T>`; extract `T` as the fund type.
+            BalanceType,
+        }
+        use TypeArgConstraint::*;
+
+        const HANEUL_BALANCE_SEND_FUNDS: FunctionIdent = (
+            HANEUL_FRAMEWORK_ADDRESS,
+            BALANCE_MODULE_NAME,
+            BALANCE_SEND_FUNDS_FUNCTION_NAME,
+        );
+        const HANEUL_BALANCE_REDEEM_FUNDS: FunctionIdent = (
+            HANEUL_FRAMEWORK_ADDRESS,
+            BALANCE_MODULE_NAME,
+            BALANCE_REDEEM_FUNDS_FUNCTION_NAME,
+        );
+        const HANEUL_FUNDS_ACCUMULATOR_WITHDRAWAL_SPLIT: FunctionIdent = (
+            HANEUL_FRAMEWORK_ADDRESS,
+            FUNDS_ACCUMULATOR_MODULE_NAME,
+            WITHDRAWAL_SPLIT_FUNC_NAME,
+        );
+
+        const GASLESS_FUNCTIONS: &[(FunctionIdent, &[Option<TypeArgConstraint>])] = &[
+            (HANEUL_BALANCE_SEND_FUNDS, &[Some(FundType)]),
+            (HANEUL_BALANCE_REDEEM_FUNDS, &[Some(FundType)]),
+            (HANEUL_FUNDS_ACCUMULATOR_WITHDRAWAL_SPLIT, &[Some(BalanceType)]),
+        ];
+
+        let Some((_, type_arg_constraints)) =
+            GASLESS_FUNCTIONS
+                .iter()
+                .find(|((addr, module, function), _)| {
+                    *addr == AccountAddress::from(self.package)
+                        && module.as_str() == self.module
+                        && function.as_str() == self.function
+                })
+        else {
+            return Err(UserInputError::Unsupported(format!(
+                "Function {}::{}::{} is not supported in gasless transactions",
+                self.package, self.module, self.function
+            )));
+        };
+
+        fp_ensure!(
+            type_arg_constraints.len() == self.type_arguments.len(),
+            UserInputError::Unsupported(format!(
+                "Function {}::{}::{} requires {} type arguments, but {} were provided",
+                self.package,
+                self.module,
+                self.function,
+                type_arg_constraints.len(),
+                self.type_arguments.len()
+            ))
+        );
+
+        for (type_arg_constraint, type_input) in
+            type_arg_constraints.iter().zip(&self.type_arguments)
+        {
+            let Some(type_arg_constraint) = type_arg_constraint else {
+                continue;
+            };
+            let type_arg = type_input.to_type_tag().map_err(|e| {
+                UserInputError::Unsupported(format!(
+                    "Failed to parse type argument {type_input} as a type tag: {e}"
+                ))
+            })?;
+            let fund_type = match type_arg_constraint {
+                TypeArgConstraint::FundType => type_arg,
+                TypeArgConstraint::BalanceType => Balance::maybe_get_balance_type_param(&type_arg)
+                    .ok_or_else(|| {
+                        UserInputError::Unsupported(format!(
+                            "Expected a type Balance<_> but got {type_input}",
+                        ))
+                    })?,
+            };
+            fp_ensure!(
+                allowed_token_types.contains(&fund_type),
+                UserInputError::Unsupported(format!(
+                    "Fund type {fund_type} is not currently allowed in gasless transactions"
+                ))
             );
         }
         Ok(())
@@ -1205,6 +1378,15 @@ impl Command {
             }
         };
         Ok(())
+    }
+
+    fn validate_gasless_transaction(&self, allowed_token_types: &[TypeTag]) -> UserInputResult {
+        match self {
+            Command::MoveCall(call) => call.validate_gasless_transaction(allowed_token_types),
+            _ => Err(UserInputError::Unsupported(
+                "Gasless transactions only support MoveCall commands".to_string(),
+            )),
+        }
     }
 
     fn is_input_arg_used(&self, input_arg: u16) -> bool {
@@ -1979,6 +2161,10 @@ pub fn is_gas_paid_from_address_balance(
         )
 }
 
+pub fn is_gasless_transaction(gas_data: &GasData, transaction_kind: &TransactionKind) -> bool {
+    is_gas_paid_from_address_balance(gas_data, transaction_kind) && gas_data.price == 0
+}
+
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
 pub enum TransactionExpiration {
     /// The transaction has no expiration
@@ -2589,6 +2775,8 @@ pub trait TransactionDataAPI {
 
     fn is_gas_paid_from_address_balance(&self) -> bool;
 
+    fn is_gasless_transaction(&self) -> bool;
+
     fn sender_mut_for_testing(&mut self) -> &mut HaneulAddress;
 
     fn gas_data_mut(&mut self) -> &mut GasData;
@@ -2794,7 +2982,7 @@ impl TransactionDataAPI for TransactionDataV1 {
     }
 
     fn has_funds_withdrawals(&self) -> bool {
-        if self.is_gas_paid_from_address_balance() {
+        if self.is_gas_paid_from_address_balance() && self.gas_data().budget > 0 {
             return true;
         }
         if let TransactionKind::ProgrammableTransaction(pt) = &self.kind {
@@ -2990,7 +3178,8 @@ impl TransactionDataAPI for TransactionDataV1 {
                 );
             }
 
-            if config.address_balance_gas_check_rgp_at_signing() {
+            let is_gasless = config.enable_gasless() && self.is_gasless_transaction();
+            if config.address_balance_gas_check_rgp_at_signing() && !is_gasless {
                 fp_ensure!(
                     self.gas_data.price >= context.reference_gas_price,
                     UserInputError::GasPriceUnderRGP {
@@ -3105,14 +3294,25 @@ impl TransactionDataAPI for TransactionDataV1 {
                 }
                 .into()
             );
-            fp_ensure!(
-                self.gas_data.budget >= cost_table.min_transaction_cost,
-                UserInputError::GasBudgetTooLow {
-                    gas_budget: self.gas_data.budget,
-                    min_budget: cost_table.min_transaction_cost,
-                }
-                .into()
-            );
+            let is_gasless = config.enable_gasless() && self.is_gasless_transaction();
+            if is_gasless {
+                fp_ensure!(
+                    self.gas_data.budget == 0,
+                    UserInputError::Unsupported(
+                        "gas_budget must be 0 for gasless transactions".to_string()
+                    )
+                    .into()
+                );
+            } else {
+                fp_ensure!(
+                    self.gas_data.budget >= cost_table.min_transaction_cost,
+                    UserInputError::GasBudgetTooLow {
+                        gas_budget: self.gas_data.budget,
+                        min_budget: cost_table.min_transaction_cost,
+                    }
+                    .into()
+                );
+            }
         }
 
         self.validity_check_no_gas_check(config)?;
@@ -3123,6 +3323,17 @@ impl TransactionDataAPI for TransactionDataV1 {
     // may not be provided and created "on the fly"
     fn validity_check_no_gas_check(&self, config: &ProtocolConfig) -> UserInputResult {
         self.kind().validity_check(config)?;
+
+        if config.enable_gasless() && self.is_gasless_transaction() {
+            let TransactionKind::ProgrammableTransaction(pt) = &self.kind else {
+                debug_fatal!("gasless transaction is not a ProgrammableTransaction");
+                return Err(UserInputError::Unsupported(
+                    "Gasless transactions must be programmable transactions".to_string(),
+                ));
+            };
+            pt.validate_gasless_transaction(config)?;
+        }
+
         self.check_sponsorship()
     }
 
@@ -3136,6 +3347,10 @@ impl TransactionDataAPI for TransactionDataV1 {
     // it indicates use of the first-class API for address balance gas payments, not the legacy API.
     fn is_gas_paid_from_address_balance(&self) -> bool {
         is_gas_paid_from_address_balance(&self.gas_data, &self.kind)
+    }
+
+    fn is_gasless_transaction(&self) -> bool {
+        is_gasless_transaction(&self.gas_data, &self.kind)
     }
 
     /// Check if the transaction is compliant with sponsorship.
@@ -3197,7 +3412,7 @@ impl TransactionDataAPI for TransactionDataV1 {
 
 impl TransactionDataV1 {
     fn get_funds_withdrawal_for_gas_payment(&self) -> Option<FundsWithdrawalArg> {
-        if self.is_gas_paid_from_address_balance() {
+        if self.is_gas_paid_from_address_balance() && self.gas_data().budget > 0 {
             Some(if self.sender() != self.gas_owner() {
                 FundsWithdrawalArg::balance_from_sponsor(self.gas_data().budget, GAS::type_tag())
             } else {

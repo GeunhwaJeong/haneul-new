@@ -26,6 +26,9 @@ use tracing::{info, warn};
 const MIN_PROTOCOL_VERSION: u64 = 1;
 const MAX_PROTOCOL_VERSION: u64 = 119;
 
+const TESTNET_USDC: &str =
+    "0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC";
+
 // Record history of protocol version allocations here:
 //
 // Version 1: Original version.
@@ -1034,6 +1037,9 @@ struct FeatureFlags {
     // If true, use coin party owner information.
     #[serde(skip_serializing_if = "is_false")]
     use_coin_party_owner: bool,
+
+    #[serde(skip_serializing_if = "is_false")]
+    enable_gasless: bool,
 }
 
 fn is_false(b: &bool) -> bool {
@@ -1901,6 +1907,12 @@ pub struct ProtocolConfig {
 
     /// The maximum number of updates per settlement transaction.
     max_updates_per_settlement_txn: Option<u32>,
+
+    /// Maximum computation units allowed for a gasless transaction.
+    gasless_max_computation_units: Option<u64>,
+
+    /// Allowed token types for gasless transactions, with minimum transfer sizes per token.
+    gasless_allowed_token_types: Option<Vec<(String, u64)>>,
 }
 
 /// An aliased address.
@@ -2683,6 +2695,15 @@ impl ProtocolConfig {
     pub fn use_coin_party_owner(&self) -> bool {
         self.feature_flags.use_coin_party_owner
     }
+
+    pub fn enable_gasless(&self) -> bool {
+        self.feature_flags.enable_gasless
+    }
+
+    pub fn gasless_allowed_token_types(&self) -> &[(String, u64)] {
+        debug_assert!(self.gasless_allowed_token_types.is_some());
+        self.gasless_allowed_token_types.as_deref().unwrap_or(&[])
+    }
 }
 
 #[cfg(not(msim))]
@@ -3269,6 +3290,9 @@ impl ProtocolConfig {
             translation_per_linkage_entry_charge: None,
 
             max_updates_per_settlement_txn: None,
+
+            gasless_max_computation_units: None,
+            gasless_allowed_token_types: None,
             // When adding a new constant, set it to None in the earliest version, like this:
             // new_constant: None,
         };
@@ -4705,6 +4729,14 @@ impl ProtocolConfig {
                     cfg.execution_version = Some(4);
                     cfg.feature_flags.address_balance_gas_reject_gas_coin_arg = false;
                     cfg.feature_flags.merge_randomness_into_checkpoint = true;
+                    if chain != Chain::Mainnet {
+                        cfg.feature_flags.enable_gasless = true;
+                        cfg.gasless_max_computation_units = Some(50_000);
+                        cfg.gasless_allowed_token_types = Some(vec![]);
+                    }
+                    if chain == Chain::Testnet {
+                        cfg.gasless_allowed_token_types = Some(vec![(TESTNET_USDC.to_string(), 0)]);
+                    }
                 }
                 // Use this template when making changes:
                 //
@@ -5049,6 +5081,23 @@ impl ProtocolConfig {
 
     pub fn disable_address_balance_gas_payments_for_testing(&mut self) {
         self.feature_flags.enable_address_balance_gas_payments = false;
+    }
+
+    pub fn enable_gasless_for_testing(&mut self) {
+        self.enable_address_balance_gas_payments_for_testing();
+        self.feature_flags.enable_gasless = true;
+        self.gasless_max_computation_units = Some(50_000);
+        self.gasless_allowed_token_types = Some(vec![]);
+    }
+
+    pub fn disable_gasless_for_testing(&mut self) {
+        self.feature_flags.enable_gasless = false;
+        self.gasless_max_computation_units = None;
+        self.gasless_allowed_token_types = None;
+    }
+
+    pub fn set_gasless_allowed_token_types_for_testing(&mut self, types: Vec<(String, u64)>) {
+        self.gasless_allowed_token_types = Some(types);
     }
 
     pub fn enable_multi_epoch_transaction_expiration_for_testing(&mut self) {

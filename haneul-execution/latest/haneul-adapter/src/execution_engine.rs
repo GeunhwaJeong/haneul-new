@@ -76,7 +76,7 @@ mod checked {
         Argument, AuthenticatorStateExpire, AuthenticatorStateUpdate, CallArg, ChangeEpoch,
         Command, EndOfEpochTransactionKind, GasData, GenesisTransaction, ObjectArg,
         ProgrammableTransaction, StoredExecutionTimeObservations, TransactionKind,
-        WriteAccumulatorStorageCost,
+        WriteAccumulatorStorageCost, is_gasless_transaction,
     };
     use haneul_types::transaction::{CheckedInputObjects, RandomnessStateUpdate};
     use haneul_types::{
@@ -87,9 +87,17 @@ mod checked {
         haneul_system_state::{ADVANCE_EPOCH_FUNCTION_NAME, HANEUL_SYSTEM_MODULE_NAME},
     };
 
-    fn payment_kind(gas_data: &GasData, transaction_kind: &TransactionKind) -> PaymentKind {
+    fn payment_kind(
+        gas_data: &GasData,
+        transaction_kind: &TransactionKind,
+        protocol_config: &ProtocolConfig,
+    ) -> PaymentKind {
         if gas_data.is_unmetered() || transaction_kind.is_system_tx() {
             PaymentKind::unmetered()
+        } else if protocol_config.enable_gasless()
+            && is_gasless_transaction(gas_data, transaction_kind)
+        {
+            PaymentKind::gasless()
         } else if gas_data.payment.is_empty() {
             PaymentKind::smash(vec![PaymentMethod::AddressBalance(
                 gas_data.owner,
@@ -173,7 +181,7 @@ mod checked {
 
         let mut gas_charger = GasCharger::new(
             transaction_digest,
-            payment_kind(&gas_data, &transaction_kind),
+            payment_kind(&gas_data, &transaction_kind, protocol_config),
             gas_status,
             &mut temporary_store,
             protocol_config,
@@ -192,6 +200,8 @@ mod checked {
         );
         let tx_ctx = Rc::new(RefCell::new(tx_ctx));
 
+        let is_gasless = protocol_config.enable_gasless()
+            && is_gasless_transaction(&gas_data, &transaction_kind);
         let is_epoch_change = transaction_kind.is_end_of_epoch_tx();
 
         let (gas_cost_summary, execution_result, timings) = execute_transaction::<Mode>(
@@ -207,6 +217,7 @@ mod checked {
             enable_expensive_checks,
             execution_params,
             trace_builder_opt,
+            is_gasless,
         );
 
         let status = if let Err(error) = &execution_result {
@@ -346,6 +357,7 @@ mod checked {
         enable_expensive_checks: bool,
         execution_params: ExecutionOrEarlyError,
         trace_builder_opt: &mut Option<MoveTraceBuilder>,
+        is_gasless: bool,
     ) -> (
         GasCostSummary,
         Result<Mode::ExecutionResults, Mode::Error>,
@@ -420,6 +432,9 @@ mod checked {
             Ok((r, t)) => (Ok(r), t),
             Err((e, t)) => (Err(e), t),
         };
+        if is_gasless && result.is_ok() && temporary_store.has_non_accumulator_writes() {
+            result = Err(ExecutionError::from(ExecutionErrorKind::InsufficientGas).into());
+        }
 
         let cost_summary = gas_charger.charge_gas(temporary_store, &mut result);
         // For advance epoch transaction, we need to provide epoch rewards and rebates as extra

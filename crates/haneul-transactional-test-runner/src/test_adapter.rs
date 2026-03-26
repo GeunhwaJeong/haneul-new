@@ -269,6 +269,7 @@ impl AdapterInitConfig {
             enable_address_balance_gas_payments,
             enable_coin_reservations,
             file_format_version,
+            enable_gasless,
         } = haneul_args;
 
         let map = verify_and_create_named_address_mapping(named_addresses).unwrap();
@@ -312,6 +313,9 @@ impl AdapterInitConfig {
         }
         if enable_coin_reservations {
             protocol_config.enable_coin_reservation_for_testing();
+        }
+        if enable_gasless {
+            protocol_config.enable_gasless_for_testing();
         }
         // Older protocol versions use deprecated congestion control modes. Override to use
         // ExecutionTimeEstimate mode which is the only supported mode.
@@ -477,6 +481,8 @@ impl MoveTestAdapter<'_> for HaneulTestAdapter {
         };
 
         let object_ids = objects.iter().map(|obj| obj.id()).collect::<Vec<_>>();
+
+        haneul_types::transaction::clear_gasless_tokens_for_testing();
 
         let mut test_adapter = Self {
             is_simulator,
@@ -825,6 +831,16 @@ impl MoveTestAdapter<'_> for HaneulTestAdapter {
 
                 write!(&mut output, "Response: {}", resp.response_body).unwrap();
                 Ok(Some(output))
+            }
+            HaneulSubcommand::GaslessAllowToken(GaslessAllowTokenCommand { token_type }) => {
+                let state = self.compiled_state();
+                let type_tag = token_type
+                    .into_type_tag(&|s| Some(state.resolve_named_address(s)))
+                    .map_err(|e| anyhow::anyhow!("invalid gasless token type: {e}"))?;
+                haneul_types::transaction::add_gasless_token_for_testing(
+                    type_tag.to_canonical_string(true),
+                );
+                Ok(None)
             }
             HaneulSubcommand::ViewCheckpoint => {
                 let latest_chk = self.executor.get_latest_checkpoint_sequence_number()?;

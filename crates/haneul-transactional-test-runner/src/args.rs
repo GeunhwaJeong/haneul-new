@@ -105,6 +105,9 @@ pub struct HaneulInitArgs {
     /// Override the file format version used when serializing compiled modules
     #[clap(long = "file-format")]
     pub file_format_version: Option<u32>,
+    /// Enable gasless feature for testing
+    #[clap(long = "enable-gasless")]
+    pub enable_gasless: bool,
 }
 
 #[derive(Debug, clap::Parser)]
@@ -302,6 +305,12 @@ pub struct AuthenticatorStateUpdateCommand {
     pub authenticator_obj_initial_shared_version: Option<u64>,
 }
 
+#[derive(Debug, clap::Parser)]
+pub struct GaslessAllowTokenCommand {
+    #[clap(value_parser = ParsedType::parse)]
+    pub token_type: ParsedType,
+}
+
 #[derive(Debug)]
 pub enum HaneulSubcommand<ExtraValueArgs: ParsableValue, ExtraRunArgs: Parser> {
     ViewObject(ViewObjectCommand),
@@ -317,6 +326,7 @@ pub enum HaneulSubcommand<ExtraValueArgs: ParsableValue, ExtraRunArgs: Parser> {
     AdvanceClock(AdvanceClockCommand),
     SetRandomState(SetRandomStateCommand),
     AuthenticatorStateUpdate(AuthenticatorStateUpdateCommand),
+    GaslessAllowToken(GaslessAllowTokenCommand),
     ViewCheckpoint,
     RunGraphql(RunGraphqlCommand),
     RunJsonRpc(RunJsonRpcCommand),
@@ -369,6 +379,9 @@ impl<ExtraValueArgs: ParsableValue, ExtraRunArgs: Parser> clap::FromArgMatches
                     AuthenticatorStateUpdateCommand::from_arg_matches(matches)?,
                 )
             }
+            Some(("gasless-allow-token", matches)) => HaneulSubcommand::GaslessAllowToken(
+                GaslessAllowTokenCommand::from_arg_matches(matches)?,
+            ),
             Some(("view-checkpoint", _)) => HaneulSubcommand::ViewCheckpoint,
             Some(("run-graphql", matches)) => {
                 HaneulSubcommand::RunGraphql(RunGraphqlCommand::from_arg_matches(matches)?)
@@ -415,6 +428,7 @@ impl<ExtraValueArgs: ParsableValue, ExtraRunArgs: Parser> clap::CommandFactory
             .subcommand(
                 AuthenticatorStateUpdateCommand::command().name("authenticator-state-update"),
             )
+            .subcommand(GaslessAllowTokenCommand::command().name("gasless-allow-token"))
             .subcommand(clap::Command::new("view-checkpoint"))
             .subcommand(RunGraphqlCommand::command().name("run-graphql"))
             .subcommand(RunJsonRpcCommand::command().name("run-jsonrpc"))
