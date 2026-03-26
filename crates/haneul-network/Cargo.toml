@@ -35,7 +35,12 @@ haneul-config.workspace = true
 haneul-swarm-config.workspace = true
 haneul-simulator.workspace = true
 haneul-protocol-config.workspace = true
-haneul-data-ingestion-core.workspace = true
+object_store.workspace = true
+url.workspace = true
+backoff.workspace = true
+prost.workspace = true
+zstd.workspace = true
+haneul-rpc.workspace = true
 
 arc-swap.workspace = true
 bcs.workspace = true
