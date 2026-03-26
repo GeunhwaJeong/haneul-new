@@ -1140,13 +1140,16 @@ impl MoveTestAdapter<'_> for HaneulTestAdapter {
                     let sponsor_acc = sponsor
                         .clone()
                         .map_or(sender_acc, |a| self.get_sender(Some(a)));
-                    let payment_refs = self.resolve_gas_payments(sponsor_acc, gas_payment)?;
+                    let payment_refs = if address_balance_gas {
+                        vec![]
+                    } else {
+                        self.resolve_gas_payments(sponsor_acc, gas_payment)?
+                    };
                     let transaction = self.sign_sponsor_txn(
                         sender,
                         sponsor,
                         payment_refs,
                         |sender, sponsor, gas| {
-                            let gas = if address_balance_gas { vec![] } else { gas };
                             let mut tx_data = TransactionData::new_programmable_allow_sponsor(
                                 sender,
                                 gas,

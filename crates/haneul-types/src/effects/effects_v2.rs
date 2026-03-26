@@ -444,7 +444,19 @@ impl TransactionEffectsAPI for TransactionEffectsV2 {
                 ObjectOut::ObjectWrite((digest, owner)) => {
                     ((entry.0, self.lamport_version, *digest), owner.clone())
                 }
-                _ => panic!("Gas object must be an ObjectWrite in changed_objects"),
+                ObjectOut::NotExist => {
+                    // Gas coin was deleted. Preserve the ID but return the marker digest and a
+                    // dummy owner.
+                    (
+                        (
+                            entry.0,
+                            self.lamport_version,
+                            ObjectDigest::OBJECT_DIGEST_DELETED,
+                        ),
+                        Owner::AddressOwner(HaneulAddress::default()),
+                    )
+                }
+                _ => panic!("Gas object must be an ObjectWrite or Deleted in changed_objects"),
             }
         } else {
             (
