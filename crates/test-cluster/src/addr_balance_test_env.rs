@@ -423,50 +423,59 @@ impl TestEnv {
         (package_id, vault_id)
     }
 
-    /// Publishes the trusted_coin package and mints coins to the sender's address balance.
-    /// Returns the package ID and the coin type tag.
-    pub async fn publish_and_mint_trusted_coin(
+    /// Publish the trusted_coin package and return (package_id, coin_type, treasury_cap).
+    pub async fn publish_trusted_coin(
         &mut self,
         sender: HaneulAddress,
-        amount: u64,
-    ) -> (ObjectID, TypeTag) {
-        let test_tx_builder = self.tx_builder(sender);
-
+    ) -> (ObjectID, TypeTag, ObjectRef) {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        path.pop(); // go up from test-cluster to crates
+        path.pop();
         path.extend(["haneul-e2e-tests", "tests", "rpc", "data", "trusted_coin"]);
-        let coin_publish = test_tx_builder.publish_async(path).await.build();
 
-        let (_, effects) = self.exec_tx_directly(coin_publish).await.unwrap();
+        let tx = self.tx_builder(sender).publish_async(path).await.build();
+        let (_, effects) = self.exec_tx_directly(tx).await.unwrap();
 
-        // Find the treasury cap object
-        let treasury_cap = {
-            let mut treasury_cap = None;
-            for (obj_ref, owner) in effects.created() {
-                if owner.is_address_owned() {
-                    let object = self
-                        .cluster
-                        .fullnode_handle
-                        .haneul_node
-                        .with_async(|node| async move {
-                            node.state().get_object(&obj_ref.0).await.unwrap()
-                        })
-                        .await;
-                    if object.type_().unwrap().name().as_str() == "TreasuryCap" {
-                        treasury_cap = Some(obj_ref);
-                        break;
-                    }
+        let package_id = effects.published_packages().into_iter().next().unwrap();
+        let coin_type: TypeTag = format!("{}::trusted_coin::TRUSTED_COIN", package_id)
+            .parse()
+            .unwrap();
+
+        // Find the treasury cap by checking object type
+        let mut treasury_cap = None;
+        for (obj_ref, owner) in effects.created() {
+            if owner.is_address_owned() {
+                let object = self
+                    .cluster
+                    .fullnode_handle
+                    .haneul_node
+                    .with_async(
+                        |node| async move { node.state().get_object(&obj_ref.0).await.unwrap() },
+                    )
+                    .await;
+                if object.type_().unwrap().name().as_str() == "TreasuryCap" {
+                    treasury_cap = Some(obj_ref);
+                    break;
                 }
             }
-            treasury_cap.expect("Treasury cap not found")
-        };
+        }
 
-        // extract the newly published package id.
-        let package_id = effects.published_packages().into_iter().next().unwrap();
+        (
+            package_id,
+            coin_type,
+            treasury_cap.expect("Treasury cap not found"),
+        )
+    }
 
-        // call trusted_coin::mint to mint coins
-        let test_tx_builder = self.tx_builder(sender);
-        let mint_tx = test_tx_builder
+    /// Mint a trusted coin. Returns (coin_ref, updated_treasury_cap).
+    pub async fn mint_trusted_coin(
+        &mut self,
+        sender: HaneulAddress,
+        package_id: ObjectID,
+        treasury_cap: ObjectRef,
+        amount: u64,
+    ) -> (ObjectRef, ObjectRef) {
+        let tx = self
+            .tx_builder(sender)
             .move_call(
                 package_id,
                 "trusted_coin",
@@ -477,38 +486,120 @@ impl TestEnv {
                 ],
             )
             .build();
-        let (_, mint_effects) = self.exec_tx_directly(mint_tx).await.unwrap();
+        let (_, effects) = self.exec_tx_directly(tx).await.unwrap();
 
-        // the trusted coin is the only address-owned object created.
-        let trusted_coin_ref = mint_effects
+        let coin_ref = effects
             .created()
             .iter()
             .find(|(_, owner)| owner.is_address_owned())
             .unwrap()
             .0;
 
-        let coin_type: TypeTag = format!("{}::trusted_coin::TRUSTED_COIN", package_id)
-            .parse()
+        let new_treasury_cap = effects
+            .mutated()
+            .iter()
+            .find(|(obj_ref, _)| obj_ref.0 == treasury_cap.0)
+            .map(|(obj_ref, _)| *obj_ref)
             .unwrap();
 
-        // Transfer the coins to the sender's address balance
-        let send_tx = self
+        (coin_ref, new_treasury_cap)
+    }
+
+    /// Transfer a coin to recipient.
+    pub async fn transfer_coin(
+        &mut self,
+        sender: HaneulAddress,
+        coin: ObjectRef,
+        recipient: HaneulAddress,
+    ) {
+        let tx = self
             .tx_builder(sender)
-            .transfer_funds_to_address_balance(
-                FundSource::Coin(trusted_coin_ref),
-                vec![(amount, sender)],
-                coin_type.clone(),
-            )
+            .transfer(FullObjectRef::from_fastpath_ref(coin), recipient)
             .build();
-        let (_, send_effects) = self.exec_tx_directly(send_tx).await.unwrap();
-        assert!(
-            send_effects.status().is_ok(),
-            "Transaction should succeed, got: {:?}",
-            send_effects.status()
-        );
+        self.exec_tx_directly(tx).await.unwrap();
+    }
+
+    /// Transfer HANEUL from sender's gas to recipient.
+    pub async fn transfer_haneul(&mut self, sender: HaneulAddress, recipient: HaneulAddress, amount: u64) {
+        let tx = self
+            .tx_builder(sender)
+            .transfer_haneul(Some(amount), recipient)
+            .build();
+        self.exec_tx_directly(tx).await.unwrap();
+    }
+
+    /// Transfer HANEUL from sender's gas to recipient's address balance.
+    pub async fn transfer_haneul_to_address_balance(
+        &mut self,
+        sender: HaneulAddress,
+        recipient: HaneulAddress,
+        amount: u64,
+    ) {
+        let gas = self.gas_objects[&sender][0];
+        let tx = TestTransactionBuilder::new(sender, gas, self.rgp)
+            .transfer_haneul_to_address_balance(FundSource::coin(gas), vec![(amount, recipient)])
+            .build();
+        self.exec_tx_directly(tx).await.unwrap();
+    }
+
+    /// Convenience: publish trusted_coin and set up coins for recipient per config.
+    pub async fn publish_trusted_coin_and_setup(
+        &mut self,
+        funder: HaneulAddress,
+        recipient: HaneulAddress,
+        config: &CoinTypeConfig,
+        coin_amount: u64,
+    ) -> (ObjectID, TypeTag) {
+        let (package_id, coin_type, mut treasury_cap) = self.publish_trusted_coin(funder).await;
+
+        for _ in 0..config.real_coins {
+            let (coin, new_cap) = self
+                .mint_trusted_coin(funder, package_id, treasury_cap, coin_amount)
+                .await;
+            treasury_cap = new_cap;
+            self.transfer_coin(funder, coin, recipient).await;
+        }
+
+        if config.has_address_balance {
+            let (coin, _) = self
+                .mint_trusted_coin(funder, package_id, treasury_cap, coin_amount)
+                .await;
+            let tx = self
+                .tx_builder(funder)
+                .transfer_funds_to_address_balance(
+                    FundSource::Coin(coin),
+                    vec![(coin_amount, recipient)],
+                    coin_type.clone(),
+                )
+                .build();
+            self.exec_tx_directly(tx).await.unwrap();
+        }
 
         (package_id, coin_type)
     }
+
+    /// Legacy: publish trusted_coin with one real coin and address balance for sender.
+    pub async fn publish_and_mint_trusted_coin(
+        &mut self,
+        sender: HaneulAddress,
+        amount: u64,
+    ) -> (ObjectID, TypeTag) {
+        let config = CoinTypeConfig {
+            real_coins: 1,
+            has_address_balance: true,
+        };
+        self.publish_trusted_coin_and_setup(sender, sender, &config, amount)
+            .await
+    }
+}
+
+/// Configuration for a single coin type in a test scenario.
+#[derive(Clone, Debug)]
+pub struct CoinTypeConfig {
+    /// Number of real coins to create for this type.
+    pub real_coins: usize,
+    /// Whether to create an address balance (fake coin) for this type.
+    pub has_address_balance: bool,
 }
 
 pub fn get_haneul_accumulator_object_id(sender: HaneulAddress) -> ObjectID {
