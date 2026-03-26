@@ -15,9 +15,9 @@ To properly upgrade the <code>HaneulSystemStateInner</code> type, we need to shi
 1. Define a new <code>HaneulSystemStateInner</code>type (e.g. <code>HaneulSystemStateInnerV2</code>).
 2. Define a data migration function that migrates the old <code>HaneulSystemStateInner</code> to the new one (i.e. HaneulSystemStateInnerV2).
 3. Replace all uses of <code>HaneulSystemStateInner</code> with <code>HaneulSystemStateInnerV2</code> in both haneul_system.move and haneul_system_state_inner.move,
-with the exception of the <code><a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_create">haneul_system_state_inner::create</a></code> function, which should always return the genesis type.
+   with the exception of the <code><a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_create">haneul_system_state_inner::create</a></code> function, which should always return the genesis type.
 4. Inside <code><a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_inner_maybe_upgrade">load_inner_maybe_upgrade</a></code> function, check the current version in the wrapper, and if it's not the latest version,
-call the data migration function to upgrade the inner object. Make sure to also update the version in the wrapper.
+  call the data migration function to upgrade the inner object. Make sure to also update the version in the wrapper.
 A detailed example can be found in haneul/tests/framework_upgrades/mock_haneul_systems/shallow_upgrade.
 Along with the Move change, we also need to update the Rust code to support the new type. This includes:
 1. Define a new <code>HaneulSystemStateInner</code> struct type that matches the new Move type, and implement the HaneulSystemStateTrait.
@@ -32,7 +32,7 @@ To upgrade Validator type, besides everything above, we also need to:
 2. Define a data migration function that migrates the old Validator to the new one (i.e. ValidatorV2).
 3. Replace all uses of Validator with ValidatorV2 except the genesis creation function.
 4. In validator_wrapper::upgrade_to_latest, check the current version in the wrapper, and if it's not the latest version,
-call the data migration function to upgrade it.
+ call the data migration function to upgrade it.
 In Rust, we also need to add a new case in <code>get_validator_from_table</code>.
 Note that it is possible to upgrade HaneulSystemStateInner without upgrading Validator, but not the other way around.
 And when we only upgrade HaneulSystemStateInner, the version of Validator in the wrapper will not be updated, and hence may become
@@ -1556,7 +1556,7 @@ This function should be called at the end of an epoch, and advances the system t
 It does the following things:
 1. Add storage charge to the storage fund.
 2. Burn the storage rebates from the storage fund. These are already refunded to transaction sender's
-gas coins.
+   gas coins.
 3. Distribute computation charge to validator stake.
 4. Update all validators.
 

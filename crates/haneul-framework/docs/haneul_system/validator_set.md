@@ -1001,9 +1001,9 @@ Aborts in case the staking amount is smaller than MIN_STAKING_THRESHOLD
 Called by <code><a href="../haneul_system/haneul_system.md#haneul_system_haneul_system">haneul_system</a></code>, to withdraw some share of a stake from the validator. The share to withdraw
 is denoted by <code>principal_withdraw_amount</code>. One of two things occurs in this function:
 1. If the <code>staked_haneul</code> is staked with an active validator, the request is added to the validator's
-staking pool's pending stake withdraw entries, processed at the end of the epoch.
+   staking pool's pending stake withdraw entries, processed at the end of the epoch.
 2. If the <code>staked_haneul</code> was staked with a validator that is no longer active,
-the stake and any rewards corresponding to it will be immediately processed.
+   the stake and any rewards corresponding to it will be immediately processed.
 
 
 <pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set_request_withdraw_stake">request_withdraw_stake</a>(self: &<b>mut</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set_ValidatorSet">haneul_system::validator_set::ValidatorSet</a>, staked_haneul: <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakedHaneul">haneul_system::staking_pool::StakedHaneul</a>, ctx: &<a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>): <a href="../haneul/balance.md#haneul_balance_Balance">haneul::balance::Balance</a>&lt;<a href="../haneul/haneul.md#haneul_haneul_HANEUL">haneul::haneul::HANEUL</a>&gt;
@@ -1120,11 +1120,11 @@ the stake and any rewards corresponding to it will be immediately processed.
 
 Update the validator set at the end of epoch.
 It does the following things:
-1. Distribute stake award.
-2. Process pending stake deposits and withdraws for each validator (<code>adjust_stake</code>).
-3. Process pending stake deposits, and withdraws.
-4. Process pending validator application and withdraws.
-5. At the end, we calculate the total stake for the new epoch.
+  1. Distribute stake award.
+  2. Process pending stake deposits and withdraws for each validator (<code>adjust_stake</code>).
+  3. Process pending stake deposits, and withdraws.
+  4. Process pending validator application and withdraws.
+  5. At the end, we calculate the total stake for the new epoch.
 
 
 <pre><code><b>public</b>(package) <b>fun</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set_advance_epoch">advance_epoch</a>(self: &<b>mut</b> <a href="../haneul_system/validator_set.md#haneul_system_validator_set_ValidatorSet">haneul_system::validator_set::ValidatorSet</a>, computation_reward: &<b>mut</b> <a href="../haneul/balance.md#haneul_balance_Balance">haneul::balance::Balance</a>&lt;<a href="../haneul/haneul.md#haneul_haneul_HANEUL">haneul::haneul::HANEUL</a>&gt;, storage_fund_reward: &<b>mut</b> <a href="../haneul/balance.md#haneul_balance_Balance">haneul::balance::Balance</a>&lt;<a href="../haneul/haneul.md#haneul_haneul_HANEUL">haneul::haneul::HANEUL</a>&gt;, validator_report_records: &<b>mut</b> <a href="../haneul/vec_map.md#haneul_vec_map_VecMap">haneul::vec_map::VecMap</a>&lt;<b>address</b>, <a href="../haneul/vec_set.md#haneul_vec_set_VecSet">haneul::vec_set::VecSet</a>&lt;<b>address</b>&gt;&gt;, reward_slashing_rate: u64, low_stake_grace_period: u64, ctx: &<b>mut</b> <a href="../haneul/tx_context.md#haneul_tx_context_TxContext">haneul::tx_context::TxContext</a>)
@@ -1245,9 +1245,9 @@ It does the following things:
 This function does the following:
 - removes validators from <code>at_risk</code> group if their voting power is above the LOW threshold
 - increments the number of epochs a validator has been below the LOW threshold but above the
-VERY LOW threshold
+    VERY LOW threshold
 - removes validators from the active set if they have been below the LOW threshold for more than
-<code>low_stake_grace_period</code> epochs
+    <code>low_stake_grace_period</code> epochs
 - removes validators from the active set immediately if they are below the VERY LOW threshold
 - activates pending validators if they have sufficient voting power
 

@@ -1099,12 +1099,12 @@ Called at epoch boundaries to process the pending stake.
 ## Function `withdraw_rewards`
 
 This function does the following:
-1. Calculates the total amount of HANEUL (including principal and rewards) that the provided pool tokens represent
-at the current exchange rate.
-2. Using the above number and the given <code>principal_withdraw_amount</code>, calculates the rewards portion of the
-stake we should withdraw.
-3. Withdraws the rewards portion from the rewards pool at the current exchange rate. We only withdraw the rewards
-portion because the principal portion was already taken out of the staker's self custodied StakedHaneul.
+    1. Calculates the total amount of HANEUL (including principal and rewards) that the provided pool tokens represent
+       at the current exchange rate.
+    2. Using the above number and the given <code>principal_withdraw_amount</code>, calculates the rewards portion of the
+       stake we should withdraw.
+    3. Withdraws the rewards portion from the rewards pool at the current exchange rate. We only withdraw the rewards
+       portion because the principal portion was already taken out of the staker's self custodied StakedHaneul.
 
 
 <pre><code><b>fun</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_withdraw_rewards">withdraw_rewards</a>(pool: &<b>mut</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_StakingPool">haneul_system::staking_pool::StakingPool</a>, principal_withdraw_amount: u64, pool_token_withdraw_amount: u64, epoch: u64): <a href="../haneul/balance.md#haneul_balance_Balance">haneul::balance::Balance</a>&lt;<a href="../haneul/haneul.md#haneul_haneul_HANEUL">haneul::haneul::HANEUL</a>&gt;
