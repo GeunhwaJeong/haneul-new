@@ -7,7 +7,11 @@ use crate::accumulator_root::{AccumulatorObjId, AccumulatorValue};
 use crate::authenticator_state::ActiveJwk;
 use crate::balance::{
     BALANCE_MODULE_NAME, BALANCE_REDEEM_FUNDS_FUNCTION_NAME, BALANCE_SEND_FUNDS_FUNCTION_NAME,
-    Balance,
+    BALANCE_SPLIT_FUNCTION_NAME, BALANCE_ZERO_FUNCTION_NAME, Balance,
+};
+use crate::coin::{
+    COIN_MODULE_NAME, INTO_BALANCE_FUNC_NAME, PUT_FUNC_NAME, REDEEM_FUNDS_FUNC_NAME,
+    SEND_FUNDS_FUNC_NAME,
 };
 use crate::coin_reservation::{
     CoinReservationResolverTrait, ParsedDigest, ParsedObjectRefWithdrawal,
@@ -999,45 +1003,18 @@ impl ProgrammableTransaction {
             )
         );
 
-        for (idx, input) in self.inputs.iter().enumerate() {
+        for input in &self.inputs {
             match input {
                 CallArg::Pure(_) | CallArg::FundsWithdrawal(_) => {}
-                _ => {
-                    return Err(UserInputError::Unsupported(format!(
-                        "Gasless transactions only support pure and withdrawal inputs (input {idx})"
-                    )));
+                CallArg::Object(
+                    ObjectArg::ImmOrOwnedObject(_) | ObjectArg::SharedObject { .. },
+                ) => {}
+                CallArg::Object(ObjectArg::Receiving(_)) => {
+                    return Err(UserInputError::Unsupported(
+                        "Gasless transactions do not support Receiving object inputs".to_string(),
+                    ));
                 }
             }
-        }
-
-        fn parse_gasless_allowed_token_types(config: &ProtocolConfig) -> Vec<TypeTag> {
-            let mut types: Vec<TypeTag> = config
-                .gasless_allowed_token_types()
-                .iter()
-                .filter_map(|(s, min_transfer_size)| {
-                    debug_assert_eq!(
-                        *min_transfer_size, 0,
-                        "min_transfer_size not yet implemented"
-                    );
-                    match s.parse() {
-                        Ok(tag) => Some(tag),
-                        Err(e) => {
-                            debug_fatal!("invalid gasless token type {s:?}: {e}");
-                            None
-                        }
-                    }
-                })
-                .collect();
-            #[cfg(debug_assertions)]
-            for s in GASLESS_TOKENS_FOR_TESTING.read().unwrap().iter() {
-                match s.parse() {
-                    Ok(tag) => types.push(tag),
-                    Err(e) => {
-                        debug_fatal!("invalid gasless token override {s:?}: {e}");
-                    }
-                }
-            }
-            types
         }
 
         let allowed_token_types = parse_gasless_allowed_token_types(config);
@@ -1047,6 +1024,36 @@ impl ProgrammableTransaction {
         }
         Ok(())
     }
+}
+
+pub fn parse_gasless_allowed_token_types(config: &ProtocolConfig) -> Vec<TypeTag> {
+    let mut types: Vec<TypeTag> = config
+        .gasless_allowed_token_types()
+        .iter()
+        .filter_map(|(s, min_transfer_size)| {
+            debug_assert_eq!(
+                *min_transfer_size, 0,
+                "min_transfer_size not yet implemented"
+            );
+            match s.parse() {
+                Ok(tag) => Some(tag),
+                Err(e) => {
+                    debug_fatal!("invalid gasless token type {s:?}: {e}");
+                    None
+                }
+            }
+        })
+        .collect();
+    #[cfg(debug_assertions)]
+    for s in GASLESS_TOKENS_FOR_TESTING.read().unwrap().iter() {
+        match s.parse() {
+            Ok(tag) => types.push(tag),
+            Err(e) => {
+                debug_fatal!("invalid gasless token override {s:?}: {e}");
+            }
+        }
+    }
+    types
 }
 
 /// A single command in a programmable transaction.
@@ -1187,16 +1194,49 @@ impl ProgrammableMoveCall {
             BALANCE_MODULE_NAME,
             BALANCE_REDEEM_FUNDS_FUNCTION_NAME,
         );
+        const HANEUL_BALANCE_SPLIT: FunctionIdent = (
+            HANEUL_FRAMEWORK_ADDRESS,
+            BALANCE_MODULE_NAME,
+            BALANCE_SPLIT_FUNCTION_NAME,
+        );
+        const HANEUL_BALANCE_ZERO: FunctionIdent = (
+            HANEUL_FRAMEWORK_ADDRESS,
+            BALANCE_MODULE_NAME,
+            BALANCE_ZERO_FUNCTION_NAME,
+        );
         const HANEUL_FUNDS_ACCUMULATOR_WITHDRAWAL_SPLIT: FunctionIdent = (
             HANEUL_FRAMEWORK_ADDRESS,
             FUNDS_ACCUMULATOR_MODULE_NAME,
             WITHDRAWAL_SPLIT_FUNC_NAME,
         );
+        const HANEUL_COIN_INTO_BALANCE: FunctionIdent = (
+            HANEUL_FRAMEWORK_ADDRESS,
+            COIN_MODULE_NAME,
+            INTO_BALANCE_FUNC_NAME,
+        );
+        const HANEUL_COIN_REDEEM_FUNDS: FunctionIdent = (
+            HANEUL_FRAMEWORK_ADDRESS,
+            COIN_MODULE_NAME,
+            REDEEM_FUNDS_FUNC_NAME,
+        );
+        const HANEUL_COIN_SEND_FUNDS: FunctionIdent = (
+            HANEUL_FRAMEWORK_ADDRESS,
+            COIN_MODULE_NAME,
+            SEND_FUNDS_FUNC_NAME,
+        );
+        const HANEUL_COIN_PUT: FunctionIdent =
+            (HANEUL_FRAMEWORK_ADDRESS, COIN_MODULE_NAME, PUT_FUNC_NAME);
 
         const GASLESS_FUNCTIONS: &[(FunctionIdent, &[Option<TypeArgConstraint>])] = &[
             (HANEUL_BALANCE_SEND_FUNDS, &[Some(FundType)]),
             (HANEUL_BALANCE_REDEEM_FUNDS, &[Some(FundType)]),
+            (HANEUL_BALANCE_SPLIT, &[Some(FundType)]),
+            (HANEUL_BALANCE_ZERO, &[Some(FundType)]),
             (HANEUL_FUNDS_ACCUMULATOR_WITHDRAWAL_SPLIT, &[Some(BalanceType)]),
+            (HANEUL_COIN_INTO_BALANCE, &[Some(FundType)]),
+            (HANEUL_COIN_REDEEM_FUNDS, &[Some(FundType)]),
+            (HANEUL_COIN_SEND_FUNDS, &[Some(FundType)]),
+            (HANEUL_COIN_PUT, &[Some(FundType)]),
         ];
 
         let Some((_, type_arg_constraints)) =
@@ -1383,8 +1423,10 @@ impl Command {
     fn validate_gasless_transaction(&self, allowed_token_types: &[TypeTag]) -> UserInputResult {
         match self {
             Command::MoveCall(call) => call.validate_gasless_transaction(allowed_token_types),
+            Command::MergeCoins(_, _) | Command::SplitCoins(_, _) => Ok(()),
             _ => Err(UserInputError::Unsupported(
-                "Gasless transactions only support MoveCall commands".to_string(),
+                "Gasless transactions only support MoveCall, MergeCoins, and SplitCoins commands"
+                    .to_string(),
             )),
         }
     }
