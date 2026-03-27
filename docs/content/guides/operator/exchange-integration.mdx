@@ -23,7 +23,7 @@ You can set up and configure a [Haneul full node](./haneul-full-node.mdx) using 
 
 ## Set up Haneul addresses
 
-Haneul addresses do not require on-chain initialization, you can spend from an address if it corresponds to your private key. You can derive a 32-byte Haneul address by hashing the signature scheme flag byte concatenated with public key bytes `flag || pubkey` using the [BLAKE2b](https://www.blake2.net/) (256 bits output) hashing function.
+Haneul addresses do not require onchain initialization, you can spend from an address if it corresponds to your private key. You can derive a 32-byte Haneul address by hashing the signature scheme flag byte concatenated with public key bytes `flag || pubkey` using the [BLAKE2b](https://www.blake2.net/) (256 bits output) hashing function.
 
 Currently, Haneul address supports these signature schemes: pure Ed25519, Secp256k1, Secp256r1 and multisig. The corresponding flag bytes are 0x00, 0x01, 0x02, 0x03 respectively.
 
@@ -152,7 +152,7 @@ Haneul supports the following API operations related to transferring HANEUL betw
 
  - [`haneul_payAllHaneul`](/haneul-api-ref#haneul_payAllHaneul): This method accepts an array of HANEUL token IDs. It merges all existing tokens into one, deducts the gas fee, then sends the merged token to the recipient address.
 
-   The method is especially useful if you want to transfer all HANEUL from an address. To merge together all coins for an address, set the recipient as the same address. This is a native Haneul method and does not produce additional on-chain transaction objects for the internal merge operation.
+   The method is especially useful if you want to transfer all HANEUL from an address. To merge together all coins for an address, set the recipient as the same address. This is a native Haneul method and does not produce additional onchain transaction objects for the internal merge operation.
 
  - [`haneul_payHaneul`](/haneul-api-ref#haneul_payHaneul): This operation accepts an array of HANEUL token IDs, an array of amounts, and an array of recipient addresses.
 
