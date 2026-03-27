@@ -24,7 +24,7 @@ use tracing::{info, warn};
 
 /// The minimum and maximum protocol versions supported by this build.
 const MIN_PROTOCOL_VERSION: u64 = 1;
-const MAX_PROTOCOL_VERSION: u64 = 119;
+const MAX_PROTOCOL_VERSION: u64 = 120;
 
 const TESTNET_USDC: &str =
     "0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC";
@@ -4768,6 +4768,7 @@ impl ProtocolConfig {
                     cfg.transfer_receive_object_cost_per_byte = Some(1);
                     cfg.transfer_receive_object_type_cost_per_byte = Some(2);
                 }
+                120 => {}
                 // Use this template when making changes:
                 //
                 //     // modify an existing constant.
