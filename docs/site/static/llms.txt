@@ -12,10 +12,13 @@
       contracts, object creation and transfer, capability patterns, witness patterns, and hot
       potato patterns. Essential reference for all Move smart contract development on Haneul.
 
+## Top Level Navigation
+
+- [Tooling — Tooling](https://docs.haneul.io/tooling.md)
+
 ## Concepts
 
 - [Concepts](https://docs.haneul.io/concepts.md)
-- [Coin Mgt](https://docs.haneul.io/concepts/coin-mgt.md)
 - [Cryptography Index](https://docs.haneul.io/concepts/cryptography/index.md)
 - [Passkeys](https://docs.haneul.io/concepts/cryptography/passkeys.md)
 - [Checkpoint
