@@ -1072,10 +1072,20 @@ impl TryFrom<TransactionEffects> for HaneulTransactionBlockEffects {
                 deleted: to_haneul_object_ref(effect.deleted().to_vec()),
                 unwrapped_then_deleted: to_haneul_object_ref(effect.unwrapped_then_deleted().to_vec()),
                 wrapped: to_haneul_object_ref(effect.wrapped().to_vec()),
-                gas_object: OwnedObjectRef {
-                    owner: effect.gas_object().1,
-                    reference: effect.gas_object().0.into(),
-                },
+                gas_object: effect.gas_object().map_or_else(
+                    || OwnedObjectRef {
+                        owner: Owner::AddressOwner(HaneulAddress::default()),
+                        reference: HaneulObjectRef {
+                            object_id: ObjectID::ZERO,
+                            version: SequenceNumber::default(),
+                            digest: ObjectDigest::MIN,
+                        },
+                    },
+                    |(obj_ref, owner)| OwnedObjectRef {
+                        owner,
+                        reference: obj_ref.into(),
+                    },
+                ),
                 events_digest: effect.events_digest().copied(),
                 dependencies: effect.dependencies().to_vec(),
                 abort_error: effect

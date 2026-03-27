@@ -8,11 +8,13 @@ use std::sync::Arc;
 use anyhow::Result;
 use async_trait::async_trait;
 use haneul_indexer_alt_framework::pipeline::Processor;
-use haneul_types::base_types::EpochId;
+use haneul_types::base_types::{EpochId, ObjectID, SequenceNumber, HaneulAddress};
+use haneul_types::digests::ObjectDigest;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::full_checkpoint_content::Checkpoint;
 use haneul_types::messages_checkpoint::CheckpointContents;
+use haneul_types::object::Owner;
 use haneul_types::transaction::Command;
 use haneul_types::transaction::TransactionDataAPI;
 use haneul_types::transaction::TransactionKind;
@@ -51,7 +53,10 @@ impl Processor for TransactionProcessor {
         for executed_transaction in &checkpoint.transactions {
             let effects = &executed_transaction.effects;
             let txn_data = &executed_transaction.transaction;
-            let gas_object = effects.gas_object();
+            let gas_object = effects.gas_object().unwrap_or((
+                (ObjectID::ZERO, SequenceNumber::default(), ObjectDigest::MIN),
+                Owner::AddressOwner(HaneulAddress::default()),
+            ));
             let gas_summary = effects.gas_cost_summary();
             let move_calls_vec = txn_data.move_calls();
             let packages: BTreeSet<_> = move_calls_vec
