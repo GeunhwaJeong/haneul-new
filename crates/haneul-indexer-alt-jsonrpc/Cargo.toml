@@ -53,6 +53,7 @@ move-core-types.workspace = true
 haneul-default-config.workspace = true
 haneul-display.workspace = true
 haneul-futures.workspace = true
+haneul-indexer-alt-consistent-store.workspace = true
 haneul-indexer-alt-metrics.workspace = true
 haneul-indexer-alt-reader.workspace = true
 haneul-indexer-alt-schema.workspace = true

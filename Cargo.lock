@@ -15546,6 +15546,7 @@ dependencies = [
  "haneul-default-config",
  "haneul-display",
  "haneul-futures",
+ "haneul-indexer-alt-consistent-store",
  "haneul-indexer-alt-metrics",
  "haneul-indexer-alt-reader",
  "haneul-indexer-alt-schema",
