@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_default_config::DefaultConfig;
+use haneul_indexer_alt_framework as framework;
 use haneul_indexer_alt_framework::pipeline::CommitterConfig;
-use haneul_indexer_alt_framework::{self as framework};
 
 use crate::DbConfig;
 use crate::rpc::pagination::PaginationConfig;
