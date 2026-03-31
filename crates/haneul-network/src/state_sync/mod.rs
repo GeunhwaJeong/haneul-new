@@ -84,7 +84,7 @@ mod tests;
 mod worker;
 
 use self::{metrics::Metrics, server::CheckpointContentsDownloadLimitLayer};
-use crate::state_sync::worker::{build_object_store, fetch_checkpoint, process_archive_checkpoint};
+use crate::state_sync::worker::process_archive_checkpoint;
 pub use builder::{Builder, UnstartedStateSync};
 pub use generated::{
     state_sync_client::StateSyncClient,
@@ -93,6 +93,7 @@ pub use generated::{
 pub use server::GetCheckpointAvailabilityResponse;
 pub use server::GetCheckpointSummaryRequest;
 use haneul_config::node::ArchiveReaderConfig;
+use haneul_storage::object_store::util::{build_object_store, fetch_checkpoint};
 use haneul_storage::verify_checkpoint;
 
 /// A handle to the StateSync subsystem.

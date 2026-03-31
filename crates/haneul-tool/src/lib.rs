@@ -18,7 +18,6 @@ use std::{fs, io};
 use haneul_config::{NodeConfig, genesis::Genesis};
 use haneul_core::authority_client::{AuthorityAPI, NetworkAuthorityClient};
 use haneul_core::execution_cache::build_execution_cache_from_env;
-use haneul_data_ingestion_core::{CheckpointReader, create_remote_store_client, end_of_epoch_data};
 use haneul_network::default_haneullabs_network_config;
 use haneul_protocol_config::Chain;
 use haneul_rpc_api::Client;
@@ -26,6 +25,7 @@ use haneul_storage::object_store::http::HttpDownloaderBuilder;
 use haneul_storage::object_store::util::MANIFEST_FILENAME;
 use haneul_storage::object_store::util::Manifest;
 use haneul_storage::object_store::util::PerEpochManifest;
+use haneul_storage::object_store::util::{build_object_store, end_of_epoch_data, fetch_checkpoint};
 use haneul_types::committee::QUORUM_THRESHOLD;
 use haneul_types::crypto::AuthorityPublicKeyBytes;
 use haneul_types::global_state_hash::GlobalStateHash;
@@ -64,43 +64,12 @@ use haneul_types::messages_grpc::{
 use crate::formal_snapshot_util::read_summaries_for_list_no_verify;
 use haneul_core::authority::authority_store_pruner::PrunerWatermarks;
 use haneul_types::storage::ReadStore;
-use tracing::{info, warn};
+use tracing::info;
 use typed_store::DBMetrics;
 
 pub mod commands;
 pub mod db_tool;
 mod formal_snapshot_util;
-
-async fn fetch_checkpoint_with_retry(
-    client: &dyn object_store::ObjectStore,
-    checkpoint_number: u64,
-    max_retries: usize,
-) -> Result<(Arc<CheckpointData>, usize)> {
-    let mut attempts = 0;
-    let max_attempts = max_retries + 1;
-    loop {
-        attempts += 1;
-        match CheckpointReader::fetch_from_object_store(client, checkpoint_number).await {
-            Ok(result) => return Ok(result),
-            Err(e) => {
-                if attempts >= max_attempts {
-                    return Err(anyhow!(
-                        "Failed to fetch checkpoint {} after {} attempts: {}",
-                        checkpoint_number,
-                        attempts,
-                        e
-                    ));
-                }
-                let backoff_ms = 1000 * attempts as u64;
-                warn!(
-                    "Failed to fetch checkpoint {} (attempt {}/{}): {}, retrying in {}ms",
-                    checkpoint_number, attempts, max_attempts, e, backoff_ms
-                );
-                tokio::time::sleep(Duration::from_millis(backoff_ms)).await;
-            }
-        }
-    }
-}
 
 #[derive(
     Clone, Serialize, Deserialize, Debug, PartialEq, Copy, PartialOrd, Ord, Eq, ValueEnum, Default,
@@ -856,12 +825,11 @@ pub async fn download_formal_snapshot(
         Arc::new(PrunerWatermarks::default()),
     );
 
-    let end_of_epoch_checkpoint_seq_nums: Vec<_> =
-        end_of_epoch_data(ingestion_url.to_string(), vec![], 5)
-            .await?
-            .into_iter()
-            .take((epoch + 1) as usize)
-            .collect();
+    let end_of_epoch_checkpoint_seq_nums: Vec<_> = end_of_epoch_data(ingestion_url, vec![])
+        .await?
+        .into_iter()
+        .take((epoch + 1) as usize)
+        .collect();
 
     let summaries_handle = start_summary_sync(
         perpetual_db.clone(),
@@ -889,7 +857,6 @@ pub async fn download_formal_snapshot(
                 num_parallel_downloads,
                 m,
                 end_of_epoch_checkpoint_seq_nums,
-                max_retries,
             )
             .await
         })
@@ -1080,7 +1047,6 @@ async fn backfill_epoch_transaction_digests(
     concurrency: usize,
     m: MultiProgress,
     end_of_epoch_checkpoint_seq_nums: Vec<u64>,
-    max_retries: usize,
 ) -> Result<()> {
     if epoch == 0 {
         return Ok(());
@@ -1122,7 +1088,7 @@ async fn backfill_epoch_transaction_digests(
         ),
     );
 
-    let client = Arc::new(create_remote_store_client(ingestion_url, vec![], 60)?);
+    let client = build_object_store(&ingestion_url, vec![]);
     let checkpoint_counter = Arc::new(AtomicU64::new(0));
     let tx_counter = Arc::new(AtomicU64::new(0));
     let cloned_checkpoint_counter = checkpoint_counter.clone();
@@ -1150,14 +1116,18 @@ async fn backfill_epoch_transaction_digests(
     futures::stream::iter(checkpoints_to_fetch)
         .map(|sq| {
             let client = client.clone();
-            async move { fetch_checkpoint_with_retry(&**client, sq, max_retries).await }
+            async move {
+                fetch_checkpoint(&client, sq)
+                    .await
+                    .map(|c| Arc::new(CheckpointData::from(c)))
+            }
         })
         .buffer_unordered(concurrency)
         .try_for_each(|checkpoint| {
             let perpetual_db = perpetual_db.clone();
             let tx_counter = tx_counter.clone();
             let checkpoint_counter = checkpoint_counter.clone();
-            let checkpoint_data = checkpoint.0;
+            let checkpoint_data = checkpoint;
 
             async move {
                 let tx_digests: Vec<_> = checkpoint_data

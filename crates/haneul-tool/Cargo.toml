@@ -40,7 +40,6 @@ fastcrypto.workspace = true
 
 haneul-config.workspace = true
 haneul-core.workspace = true
-haneul-data-ingestion-core.workspace = true
 haneul-network.workspace = true
 haneul-snapshot.workspace = true
 haneul-protocol-config.workspace = true
