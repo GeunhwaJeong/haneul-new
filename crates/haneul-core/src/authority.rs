@@ -138,7 +138,7 @@ use haneul_types::effects::{
     TransactionEvents, VerifiedSignedTransactionEffects,
 };
 use haneul_types::error::{ExecutionError, ExecutionErrorTrait, HaneulErrorKind, UserInputError};
-use haneul_types::event::{Event, EventID};
+use haneul_types::event::EventID;
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::execution_status::ExecutionErrorKind;
 use haneul_types::gas::{GasCostSummary, HaneulGasStatus};
