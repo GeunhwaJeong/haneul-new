@@ -2,7 +2,7 @@
 source: crates/haneul-protocol-config/src/lib.rs
 expression: "ProtocolConfig::get_for_version(cur, *chain_id)"
 ---
-version: 120
+version: 121
 feature_flags:
   package_upgrades: true
   commit_root_state_digest: true
@@ -48,6 +48,8 @@ feature_flags:
   enable_poseidon: true
   enable_coin_deny_list: true
   enable_group_ops_native_functions: true
+  enable_group_ops_native_function_msm: true
+  enable_ristretto255_group_ops: true
   enable_nitro_attestation: true
   enable_nitro_attestation_upgraded_parsing: true
   enable_nitro_attestation_all_nonzero_pcrs_parsing: true
@@ -72,6 +74,7 @@ feature_flags:
   reshare_at_same_initial_version: true
   resolve_abort_locations_to_package_id: true
   mysticeti_use_committed_subdag_digest: true
+  enable_vdf: true
   record_consensus_determined_version_assignments_in_prologue: true
   record_consensus_determined_version_assignments_in_prologue_v2: true
   fresh_vm_on_framework_upgrade: true
@@ -155,6 +158,7 @@ feature_flags:
   split_checkpoints_in_consensus_handler: true
   consensus_always_accept_system_transactions: true
   validator_metadata_verify_v2: true
+  defer_unpaid_amplification: true
   randomize_checkpoint_tx_limit_in_tests: true
   gasless_transaction_drop_safety: true
   merge_randomness_into_checkpoint: true
@@ -412,6 +416,8 @@ hmac_hmac_sha3_256_input_cost_per_byte: 2
 hmac_hmac_sha3_256_input_cost_per_block: 2
 check_zklogin_id_cost_base: 200
 check_zklogin_issuer_cost_base: 200
+vdf_verify_vdf_cost: 1500
+vdf_hash_to_input_cost: 100
 nitro_attestation_parse_base_cost: 2650
 nitro_attestation_parse_cost_per_byte: 50
 nitro_attestation_verify_base_cost: 2481600
@@ -483,8 +489,6 @@ translation_per_reference_node_charge: 1
 translation_per_linkage_entry_charge: 10
 max_updates_per_settlement_txn: 100
 gasless_max_computation_units: 50000
-gasless_allowed_token_types:
-  - - "0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC"
-    - 0
+gasless_allowed_token_types: []
 gasless_max_unused_inputs: 1
 gasless_max_pure_input_bytes: 32
