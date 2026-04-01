@@ -449,6 +449,44 @@ async fn test_query_transaction_blocks() -> Result<(), anyhow::Error> {
 }
 
 #[sim_test]
+async fn test_query_transaction_blocks_to_address() -> Result<(), anyhow::Error> {
+    let cluster = TestClusterBuilder::new().build().await;
+    let http_client = cluster.rpc_client();
+
+    let recipient = HaneulAddress::random_for_testing_only();
+
+    // Send HANEUL to the recipient so the address appears in the index.
+    let tx = haneul_test_transaction_builder::make_transfer_haneul_address_balance_transaction(
+        &cluster.wallet,
+        Some(recipient),
+        1000,
+    )
+    .await;
+    let (tx_bytes, signatures) = tx.to_tx_bytes_and_signatures();
+
+    let response = http_client
+        .execute_transaction_block(
+            tx_bytes,
+            signatures,
+            Some(HaneulTransactionBlockResponseOptions::new()),
+            Some(ExecuteTransactionRequestType::WaitForLocalExecution),
+        )
+        .await?;
+
+    // Query transactions where the recipient received funds.
+    let query =
+        HaneulTransactionBlockResponseQuery::new_with_filter(TransactionFilter::ToAddress(recipient));
+    let result = http_client
+        .query_transaction_blocks(query, None, Some(10), Some(false))
+        .await?;
+
+    assert_eq!(1, result.data.len());
+    assert_eq!(response.digest, result.data[0].digest);
+
+    Ok(())
+}
+
+#[sim_test]
 async fn test_display_transaction_block_with_empty_balance_changes() {
     let cluster = TestClusterBuilder::new()
         .with_epoch_duration_ms(10_000)
