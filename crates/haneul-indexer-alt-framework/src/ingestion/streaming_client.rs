@@ -8,12 +8,12 @@ use anyhow::anyhow;
 use async_trait::async_trait;
 use futures::StreamExt;
 use futures::stream::BoxStream;
-use futures::stream::Peekable;
 use haneul_rpc::headers::X_HANEUL_CHAIN_ID;
 use haneul_rpc::proto::haneul::rpc::v2::SubscribeCheckpointsRequest;
 use haneul_rpc::proto::haneul::rpc::v2::subscription_service_client::SubscriptionServiceClient;
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::messages_checkpoint::CheckpointDigest;
+use tokio_stream::adapters::Peekable;
 use tonic::Status;
 use tonic::transport::Endpoint;
 use tonic::transport::Uri;
@@ -109,15 +109,15 @@ fn wrap_stream(
     stream: impl futures::Stream<Item = Result<Checkpoint>> + Send + 'static,
     statement_timeout: Duration,
 ) -> Peekable<BoxStream<'static, Result<Checkpoint>>> {
-    tokio_stream::StreamExt::timeout(stream, statement_timeout)
+    let stream = tokio_stream::StreamExt::timeout(stream, statement_timeout)
         .map(move |result| match result {
             Err(_elapsed) => Err(Error::StreamingError(anyhow!(
                 "Statement timeout after {statement_timeout:?}"
             ))),
             Ok(result) => result,
         })
-        .boxed()
-        .peekable()
+        .boxed();
+    tokio_stream::StreamExt::peekable(stream)
 }
 
 #[cfg(test)]
