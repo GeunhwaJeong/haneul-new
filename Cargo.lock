@@ -15973,7 +15973,6 @@ dependencies = [
  "serde_json",
  "serde_yaml 0.8.26",
  "haneul-config",
- "haneul-data-ingestion-core",
  "haneul-package-resolver",
  "haneul-rpc",
  "haneul-rpc-api",
