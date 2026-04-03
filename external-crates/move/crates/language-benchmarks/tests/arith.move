@@ -1,4 +1,4 @@
-module 0x1::bench {
+module 0x2::bench {
     const COUNT: u64 = 10_000u64;
     const MAX_U64: u64 = 18446744073709551615;
 
@@ -59,7 +59,7 @@ module 0x1::bench {
             7 + 5;
             let x = 1;
             let y = x + 3;
-            check(x + y == 5, 10);
+            assert!(x + y == 5);
             i = i + 1;
         }
     }
