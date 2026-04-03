@@ -140,7 +140,6 @@ See <code><a href="../haneul/transfer_policy.md#haneul_transfer_policy">transfer
 -  [Function `is_listed_exclusively`](#haneul_kiosk_is_listed_exclusively)
 -  [Function `has_access`](#haneul_kiosk_has_access)
 -  [Function `uid_mut_as_owner`](#haneul_kiosk_uid_mut_as_owner)
--  [Function `set_allow_extensions`](#haneul_kiosk_set_allow_extensions)
 -  [Function `uid`](#haneul_kiosk_uid)
 -  [Function `uid_mut`](#haneul_kiosk_uid_mut)
 -  [Function `owner`](#haneul_kiosk_owner)
@@ -155,6 +154,7 @@ See <code><a href="../haneul/transfer_policy.md#haneul_transfer_policy">transfer
 -  [Function `purchase_cap_kiosk`](#haneul_kiosk_purchase_cap_kiosk)
 -  [Function `purchase_cap_item`](#haneul_kiosk_purchase_cap_item)
 -  [Function `purchase_cap_min_price`](#haneul_kiosk_purchase_cap_min_price)
+-  [Function `set_allow_extensions`](#haneul_kiosk_set_allow_extensions)
 
 
 <pre><code><b>use</b> <a href="../std/address.md#std_address">std::address</a>;
@@ -736,8 +736,8 @@ Creates a new Kiosk in a default configuration: sender receives the
 
 <pre><code><b>entry</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_default">default</a>(ctx: &<b>mut</b> TxContext) {
     <b>let</b> (<a href="../haneul/kiosk.md#haneul_kiosk">kiosk</a>, cap) = <a href="../haneul/kiosk.md#haneul_kiosk_new">new</a>(ctx);
-    <a href="../haneul/transfer.md#haneul_transfer_transfer">haneul::transfer::transfer</a>(cap, ctx.sender());
-    <a href="../haneul/transfer.md#haneul_transfer_share_object">haneul::transfer::share_object</a>(<a href="../haneul/kiosk.md#haneul_kiosk">kiosk</a>);
+    <a href="../haneul/transfer.md#haneul_transfer_transfer">transfer::transfer</a>(cap, ctx.sender());
+    <a href="../haneul/transfer.md#haneul_transfer_share_object">transfer::share_object</a>(<a href="../haneul/kiosk.md#haneul_kiosk">kiosk</a>);
 }
 </code></pre>
 
@@ -1505,34 +1505,6 @@ Access the <code>UID</code> using the <code><a href="../haneul/kiosk.md#haneul_k
 
 </details>
 
-<a name="haneul_kiosk_set_allow_extensions"></a>
-
-## Function `set_allow_extensions`
-
-[DEPRECATED]
-Allow or disallow <code><a href="../haneul/kiosk.md#haneul_kiosk_uid">uid</a></code> and <code><a href="../haneul/kiosk.md#haneul_kiosk_uid_mut">uid_mut</a></code> access via the <code>allow_extensions</code>
-setting.
-
-
-<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_set_allow_extensions">set_allow_extensions</a>(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, allow_extensions: bool)
-</code></pre>
-
-
-
-<details>
-<summary>Implementation</summary>
-
-
-<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_set_allow_extensions">set_allow_extensions</a>(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">KioskOwnerCap</a>, allow_extensions: bool) {
-    <b>assert</b>!(self.<a href="../haneul/kiosk.md#haneul_kiosk_has_access">has_access</a>(cap), <a href="../haneul/kiosk.md#haneul_kiosk_ENotOwner">ENotOwner</a>);
-    self.allow_extensions = allow_extensions;
-}
-</code></pre>
-
-
-
-</details>
-
 <a name="haneul_kiosk_uid"></a>
 
 ## Function `uid`
@@ -1898,6 +1870,32 @@ Get the <code>min_price</code> from the <code><a href="../haneul/kiosk.md#haneul
 
 <pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_purchase_cap_min_price">purchase_cap_min_price</a>&lt;T: key + store&gt;(self: &<a href="../haneul/kiosk.md#haneul_kiosk_PurchaseCap">PurchaseCap</a>&lt;T&gt;): u64 {
     self.min_price
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_kiosk_set_allow_extensions"></a>
+
+## Function `set_allow_extensions`
+
+Allow or disallow <code><a href="../haneul/kiosk.md#haneul_kiosk_uid">uid</a></code> and <code><a href="../haneul/kiosk.md#haneul_kiosk_uid_mut">uid_mut</a></code> access via the <code>allow_extensions</code> setting.
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_set_allow_extensions">set_allow_extensions</a>(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">haneul::kiosk::Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">haneul::kiosk::KioskOwnerCap</a>, allow_extensions: bool)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/kiosk.md#haneul_kiosk_set_allow_extensions">set_allow_extensions</a>(self: &<b>mut</b> <a href="../haneul/kiosk.md#haneul_kiosk_Kiosk">Kiosk</a>, cap: &<a href="../haneul/kiosk.md#haneul_kiosk_KioskOwnerCap">KioskOwnerCap</a>, allow_extensions: bool) {
+    <b>assert</b>!(self.<a href="../haneul/kiosk.md#haneul_kiosk_has_access">has_access</a>(cap), <a href="../haneul/kiosk.md#haneul_kiosk_ENotOwner">ENotOwner</a>);
+    self.allow_extensions = allow_extensions;
 }
 </code></pre>
 
