@@ -53,7 +53,7 @@ haneul-storage.workspace = true
 haneullabs-metrics.workspace = true
 haneul-tool.workspace = true
 haneul-protocol-config.workspace = true
-haneul-types.workspace = true
+haneul-types = { workspace = true, features = ["testing"] }
 haneul-move-build.workspace = true
 haneul-swarm-config.workspace = true
 haneul-swarm.workspace = true
