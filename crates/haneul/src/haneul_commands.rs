@@ -59,7 +59,7 @@ use haneul_indexer_alt_reader::{
 };
 use haneul_keys::key_derive::generate_new_key;
 use haneul_keys::keypair_file::read_key;
-use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
+use haneul_keys::keystore::{AccountKeystore, External, FileBasedKeystore, Keystore};
 use haneul_move::summary::PackageSummaryMetadata;
 use haneul_move::{self, execute_move_command};
 use haneul_move_build::BuildConfig as HaneulBuildConfig;
@@ -523,7 +523,10 @@ impl HaneulCommand {
                 cmd,
             } => {
                 let client_path = haneul_config_dir()?.join(HANEUL_CLIENT_CONFIG);
-                let mut config = PersistedConfig::<HaneulClientConfig>::read(&client_path)?;
+                prompt_if_no_config(&client_path, false).await?;
+                let config: HaneulClientConfig = PersistedConfig::read(&client_path)?;
+                let mut config = config.persisted(&client_path);
+                ensure_external_keystore_config(&mut config, &client_path)?;
 
                 cmd.execute(config.external_keys.as_mut())
                     .await?
@@ -1575,6 +1578,9 @@ async fn prompt_if_no_config(
     let config_dir = wallet_conf_file
         .parent()
         .ok_or_else(|| anyhow!("Error: {wallet_conf_file:?} is an invalid file path"))?;
+    let external_keystore = Keystore::External(External::load_or_create(
+        &default_external_keystore_path(wallet_conf_file),
+    )?);
 
     let (keystore, address) =
         create_default_keystore(&config_dir.join(HANEUL_KEYSTORE_FILENAME)).await?;
@@ -1590,7 +1596,7 @@ async fn prompt_if_no_config(
             HaneulEnv::devnet(),
             HaneulEnv::localnet(),
         ],
-        external_keys: None,
+        external_keys: Some(external_keystore),
         active_address: Some(address),
         active_env: Some(default_env_name.clone()),
     }
@@ -1599,6 +1605,23 @@ async fn prompt_if_no_config(
     println!("Created {wallet_conf_file:?}");
     println!("Set active environment to {default_env_name}");
 
+    Ok(())
+}
+
+fn default_external_keystore_path(client_path: &Path) -> PathBuf {
+    client_path.with_file_name("external.keystore")
+}
+
+fn ensure_external_keystore_config(
+    config: &mut PersistedConfig<HaneulClientConfig>,
+    client_path: &Path,
+) -> Result<(), anyhow::Error> {
+    if config.external_keys.is_none() {
+        config.external_keys = Some(Keystore::External(External::load_or_create(
+            &default_external_keystore_path(client_path),
+        )?));
+        config.save()?;
+    }
     Ok(())
 }
 
