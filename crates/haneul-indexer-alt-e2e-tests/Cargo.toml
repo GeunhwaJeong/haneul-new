@@ -72,6 +72,6 @@ haneul-macros.workspace = true
 haneul-sdk.workspace = true
 haneul-swarm-config.workspace = true
 haneul-test-transaction-builder.workspace = true
-haneul-transactional-test-runner.workspace = true
+haneul-transactional-test-runner = { workspace = true, features = ["testing"] }
 test-cluster.workspace = true
 tracing.workspace = true

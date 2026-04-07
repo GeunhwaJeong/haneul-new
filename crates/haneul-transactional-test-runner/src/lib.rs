@@ -3,55 +3,71 @@
 
 //! This module contains the transactional test runner instantiation for the Haneul adapter
 
+#[cfg(feature = "testing")]
 pub mod args;
+#[cfg(feature = "testing")]
 pub mod cursor;
+#[cfg(feature = "testing")]
 pub mod offchain_state;
+#[cfg(feature = "testing")]
 pub mod programmable_transaction_test_parser;
+#[cfg(feature = "testing")]
 mod simulator_persisted_store;
+#[cfg(feature = "testing")]
 pub mod test_adapter;
 
+#[cfg(feature = "testing")]
 pub use move_transactional_test_runner::framework::{
     create_adapter, run_tasks_with_adapter, run_test_impl,
 };
-use rand::rngs::StdRng;
-use simulacrum::AdvanceEpochConfig;
-use simulacrum::Simulacrum;
-use simulacrum::SimulatorStore;
-use simulator_persisted_store::PersistedStore;
-use std::path::Path;
-use std::sync::Arc;
-use haneul_core::authority::AuthorityState;
-use haneul_core::authority::authority_per_epoch_store::CertLockGuard;
-use haneul_core::authority::authority_test_utils::submit_and_execute_with_error;
-use haneul_core::authority::shared_object_version_manager::AssignedVersions;
-use haneul_json_rpc::authority_state::StateRead;
-use haneul_json_rpc_types::EventFilter;
-use haneul_json_rpc_types::{DevInspectResults, DryRunTransactionBlockResponse};
-use haneul_storage::key_value_store::TransactionKeyValueStore;
-use haneul_types::base_types::ObjectID;
-use haneul_types::base_types::HaneulAddress;
-use haneul_types::base_types::VersionNumber;
-use haneul_types::committee::EpochId;
-use haneul_types::digests::TransactionDigest;
-use haneul_types::effects::TransactionEffects;
-use haneul_types::effects::TransactionEvents;
-use haneul_types::error::ExecutionError;
-use haneul_types::error::HaneulErrorKind;
-use haneul_types::error::HaneulResult;
-use haneul_types::event::Event;
-use haneul_types::executable_transaction::{ExecutableTransaction, VerifiedExecutableTransaction};
-use haneul_types::messages_checkpoint::CheckpointContentsDigest;
-use haneul_types::messages_checkpoint::VerifiedCheckpoint;
-use haneul_types::object::Object;
-use haneul_types::storage::ObjectStore;
-use haneul_types::storage::ReadStore;
-use haneul_types::haneul_system_state::HaneulSystemStateTrait;
-use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
-use haneul_types::transaction::Transaction;
-use haneul_types::transaction::TransactionKind;
-use haneul_types::transaction::{InputObjects, TransactionData};
-use test_adapter::{PRE_COMPILED, HaneulTestAdapter};
 
+#[cfg(feature = "testing")]
+mod testing_imports {
+    pub use super::simulator_persisted_store::PersistedStore;
+    pub use super::test_adapter::{PRE_COMPILED, HaneulTestAdapter};
+    pub use rand::rngs::StdRng;
+    pub use simulacrum::AdvanceEpochConfig;
+    pub use simulacrum::Simulacrum;
+    pub use simulacrum::SimulatorStore;
+    pub use std::path::Path;
+    pub use std::sync::Arc;
+    pub use haneul_core::authority::AuthorityState;
+    pub use haneul_core::authority::authority_per_epoch_store::CertLockGuard;
+    pub use haneul_core::authority::authority_test_utils::submit_and_execute_with_error;
+    pub use haneul_core::authority::shared_object_version_manager::AssignedVersions;
+    pub use haneul_json_rpc::authority_state::StateRead;
+    pub use haneul_json_rpc_types::EventFilter;
+    pub use haneul_json_rpc_types::{DevInspectResults, DryRunTransactionBlockResponse};
+    pub use haneul_storage::key_value_store::TransactionKeyValueStore;
+    pub use haneul_types::base_types::ObjectID;
+    pub use haneul_types::base_types::HaneulAddress;
+    pub use haneul_types::base_types::VersionNumber;
+    pub use haneul_types::committee::EpochId;
+    pub use haneul_types::digests::TransactionDigest;
+    pub use haneul_types::effects::TransactionEffects;
+    pub use haneul_types::effects::TransactionEvents;
+    pub use haneul_types::error::ExecutionError;
+    pub use haneul_types::error::HaneulErrorKind;
+    pub use haneul_types::error::HaneulResult;
+    pub use haneul_types::event::Event;
+    pub use haneul_types::executable_transaction::{
+        ExecutableTransaction, VerifiedExecutableTransaction,
+    };
+    pub use haneul_types::messages_checkpoint::CheckpointContentsDigest;
+    pub use haneul_types::messages_checkpoint::VerifiedCheckpoint;
+    pub use haneul_types::object::Object;
+    pub use haneul_types::storage::ObjectStore;
+    pub use haneul_types::storage::ReadStore;
+    pub use haneul_types::haneul_system_state::HaneulSystemStateTrait;
+    pub use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
+    pub use haneul_types::transaction::Transaction;
+    pub use haneul_types::transaction::TransactionKind;
+    pub use haneul_types::transaction::{InputObjects, TransactionData};
+}
+#[cfg(feature = "testing")]
+use testing_imports::*;
+
+#[cfg(feature = "testing")]
 #[cfg_attr(not(msim), tokio::main)]
 #[cfg_attr(msim, msim::main)]
 pub async fn run_test(path: &Path) -> Result<(), Box<dyn std::error::Error>> {
@@ -63,6 +79,7 @@ pub async fn run_test(path: &Path) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+#[cfg(feature = "testing")]
 pub struct ValidatorWithFullnode {
     pub validator: Arc<AuthorityState>,
     pub fullnode: Arc<AuthorityState>,
@@ -71,6 +88,7 @@ pub struct ValidatorWithFullnode {
     next_checkpoint_seq: u64,
 }
 
+#[cfg(feature = "testing")]
 #[allow(unused_variables)]
 /// TODO: better name?
 #[async_trait::async_trait]
@@ -131,6 +149,7 @@ pub trait TransactionalAdapter: Send + Sync + ReadStore {
     fn get_object(&self, object_id: &ObjectID) -> Option<Object>;
 }
 
+#[cfg(feature = "testing")]
 #[async_trait::async_trait]
 impl TransactionalAdapter for ValidatorWithFullnode {
     async fn execute_txn(
@@ -302,6 +321,7 @@ impl TransactionalAdapter for ValidatorWithFullnode {
     }
 }
 
+#[cfg(feature = "testing")]
 impl ReadStore for ValidatorWithFullnode {
     fn get_committee(
         &self,
@@ -428,6 +448,7 @@ impl ReadStore for ValidatorWithFullnode {
     }
 }
 
+#[cfg(feature = "testing")]
 impl ObjectStore for ValidatorWithFullnode {
     fn get_object(&self, object_id: &ObjectID) -> Option<Object> {
         self.validator.get_object_store().get_object(object_id)
@@ -440,6 +461,7 @@ impl ObjectStore for ValidatorWithFullnode {
     }
 }
 
+#[cfg(feature = "testing")]
 #[async_trait::async_trait]
 impl TransactionalAdapter for Simulacrum<StdRng, PersistedStore> {
     async fn execute_txn(

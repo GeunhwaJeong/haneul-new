@@ -61,5 +61,12 @@ haneul-framework-snapshot.workspace = true
 haneul-storage.workspace = true
 typed-store.workspace = true
 
+[[bin]]
+name = "haneul-transactional-test-runner"
+required-features = ["testing"]
+
+[features]
+testing = ["haneul-types/testing"]
+
 [target.'cfg(msim)'.dependencies]
 msim.workspace = true
