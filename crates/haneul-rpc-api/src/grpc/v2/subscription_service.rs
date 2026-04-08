@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::RpcService;
+use haneullabs_common::ZipDebugEqIteratorExt;
 use haneul_rpc::field::FieldMaskTree;
 use haneul_rpc::merge::Merge;
 use haneul_rpc::proto::haneul::rpc::v2::Checkpoint;
@@ -40,7 +41,7 @@ impl SubscriptionService for RpcService {
                 );
 
                 if read_mask.contains("transactions.balance_changes") {
-                    for (txn, effects) in checkpoint_message.transactions_mut().iter_mut().zip(
+                    for (txn, effects) in checkpoint_message.transactions_mut().iter_mut().zip_debug_eq(
                         checkpoint
                             .transactions
                             .iter()

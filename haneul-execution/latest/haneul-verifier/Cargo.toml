@@ -17,5 +17,6 @@ move-abstract-stack.workspace = true
 
 move-bytecode-verifier = { path = "../../../external-crates/move/crates/move-bytecode-verifier" }
 
+haneullabs-common.workspace = true
 haneul-types.workspace = true
 haneul-protocol-config.workspace = true

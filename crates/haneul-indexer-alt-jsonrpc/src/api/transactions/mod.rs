@@ -4,6 +4,7 @@
 use futures::future;
 use jsonrpsee::core::RpcResult;
 use jsonrpsee::proc_macros::rpc;
+use haneullabs_common::ZipDebugEqIteratorExt;
 use haneul_json_rpc_types::Page;
 use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
@@ -145,7 +146,7 @@ impl QueryTransactionsApiServer for QueryTransactions {
         let data = future::join_all(tx_futures)
             .await
             .into_iter()
-            .zip(digests)
+            .zip_debug_eq(digests)
             .map(|(r, d)| {
                 if let Err(RpcError::InvalidParams(e @ Error::NotFound(_))) = r {
                     rpc_bail!(e)

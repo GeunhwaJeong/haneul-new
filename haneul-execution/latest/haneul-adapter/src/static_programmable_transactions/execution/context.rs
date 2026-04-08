@@ -47,6 +47,7 @@ use move_vm_runtime::{
     },
     validation::verification::ast::Package as VerifiedPackage,
 };
+use haneullabs_common::ZipDebugEqIteratorExt;
 use haneullabs_common::debug_fatal;
 use nonempty::nonempty;
 use quick_cache::unsync::Cache as QCache;
@@ -1495,7 +1496,7 @@ impl<'env, 'pc, 'vm, 'state, 'linkage, 'gas, 'extension>
         );
         results
             .iter()
-            .zip(result_tys)
+            .zip_debug_eq(result_tys)
             .map(|(v, ty)| self.tracked_result(&v.0, ty.clone()))
             .collect()
     }
@@ -2541,7 +2542,10 @@ fn assert_expected_move_object_type(
         "Actual type arg length does not match expected. \
        actual: {actual:?} vs expected: {expected:?}",
     );
-    for (actual_ty, expected_ty) in actual_type_arguments.iter().zip(&expected_type_arguments) {
+    for (actual_ty, expected_ty) in actual_type_arguments
+        .iter()
+        .zip_debug_eq(&expected_type_arguments)
+    {
         assert_expected_type(actual_ty, expected_ty)?;
     }
     Ok(())
@@ -2597,7 +2601,10 @@ fn assert_expected_data_type(
         "Actual type arg length does not match expected. \
        actual: {actual:?} vs expected: {expected:?}",
     );
-    for (actual_ty, expected_ty) in actual_type_arguments.iter().zip(expected_type_arguments) {
+    for (actual_ty, expected_ty) in actual_type_arguments
+        .iter()
+        .zip_debug_eq(expected_type_arguments)
+    {
         assert_expected_type(actual_ty, expected_ty)?;
     }
     Ok(())

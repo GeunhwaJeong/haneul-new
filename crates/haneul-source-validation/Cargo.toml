@@ -26,6 +26,7 @@ tracing.workspace = true
 ureq.workspace = true
 tonic.workspace = true
 
+haneullabs-common.workspace = true
 haneul-move-build.workspace = true
 haneul-package-management.workspace = true
 haneul-package-alt.workspace = true

@@ -19,6 +19,7 @@ haneul-sdk-types.workspace = true
 shared-crypto.workspace = true
 fastcrypto.workspace = true
 move-core-types.workspace = true
+haneullabs-common.workspace = true
 anyhow.workspace = true
 clap.workspace = true
 tokio.workspace = true

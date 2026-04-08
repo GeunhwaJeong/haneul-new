@@ -6,6 +6,7 @@ use crate::committee::extract_new_committee_info;
 use crate::config::Config;
 use crate::object_store::HaneulObjectStore;
 use anyhow::{Result, anyhow};
+use haneullabs_common::ZipDebugEqIteratorExt;
 use haneul_config::genesis::Genesis;
 use haneul_rpc_api::Client;
 use haneul_types::base_types::{ObjectID, TransactionDigest};
@@ -33,7 +34,7 @@ pub fn extract_verified_effects_and_events(
     let (matching_tx, _) = checkpoint
         .transactions
         .iter()
-        .zip(contents.iter())
+        .zip_debug_eq(contents.iter())
         // Note that we get the digest of the effects to ensure this is
         // indeed the correct effects that are authenticated in the contents.
         .find(|(tx, digest)| {

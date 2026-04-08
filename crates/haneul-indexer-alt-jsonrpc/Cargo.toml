@@ -49,6 +49,7 @@ url.workspace = true
 
 move-binary-format.workspace = true
 move-core-types.workspace = true
+haneullabs-common.workspace = true
 
 haneul-default-config.workspace = true
 haneul-display.workspace = true

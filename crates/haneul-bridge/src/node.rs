@@ -28,6 +28,7 @@ use crate::utils::{
 };
 use alloy::primitives::Address as EthAddress;
 use arc_swap::ArcSwap;
+use haneullabs_common::ZipDebugEqIteratorExt;
 use haneullabs_metrics::spawn_logged_monitored_task;
 use std::collections::{BTreeMap, HashMap};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
@@ -448,7 +449,7 @@ fn get_haneul_modules_to_watch(
     let mut haneul_modules_to_watch = HashMap::new();
     for (module_identifier, cursor) in haneul_bridge_modules
         .iter()
-        .zip(haneul_bridge_module_stored_cursor)
+        .zip_debug_eq(haneul_bridge_module_stored_cursor)
     {
         if cursor.is_none() {
             info!(
@@ -471,7 +472,7 @@ fn get_eth_contracts_to_watch(
         .get_eth_event_cursors(eth_contracts)
         .expect("Failed to get eth event cursors from storage");
     let mut eth_contracts_to_watch = HashMap::new();
-    for (contract, stored_cursor) in eth_contracts.iter().zip(stored_eth_cursors) {
+    for (contract, stored_cursor) in eth_contracts.iter().zip_debug_eq(stored_eth_cursors) {
         // start block precedence:
         // eth_contracts_start_block_override > stored cursor > eth_contracts_start_block_fallback
         match (eth_contracts_start_block_override, stored_cursor) {

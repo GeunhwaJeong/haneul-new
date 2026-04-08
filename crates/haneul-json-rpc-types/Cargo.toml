@@ -32,6 +32,7 @@ move-bytecode-utils.workspace = true
 move-disassembler.workspace = true
 move-ir-types.workspace = true
 
+haneullabs-common.workspace = true
 haneullabs-metrics.workspace = true
 haneul-types.workspace = true
 haneul-json.workspace = true

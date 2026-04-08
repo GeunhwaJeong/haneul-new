@@ -15,6 +15,7 @@ clap.workspace = true
 prost-types.workspace = true
 prometheus.workspace = true
 rustls.workspace = true
+haneullabs-common.workspace = true
 haneullabs-metrics.workspace = true
 haneullabs-network.workspace = true
 haneul-kvstore.workspace = true

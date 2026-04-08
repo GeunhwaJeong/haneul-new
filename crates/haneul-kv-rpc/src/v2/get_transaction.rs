@@ -1,6 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneullabs_common::ZipDebugEqIteratorExt;
 use std::collections::{BTreeSet, HashMap};
 use std::str::FromStr;
 use haneul_kvstore::tables::transactions::col;
@@ -214,7 +215,9 @@ async fn transaction_to_response(
             && event_mask.contains(Event::JSON_FIELD.name)
             && let Some(proto_events) = message.events.as_mut()
         {
-            for (proto_event, haneul_event) in proto_events.events.iter_mut().zip(&events.data) {
+            for (proto_event, haneul_event) in
+                proto_events.events.iter_mut().zip_debug_eq(&events.data)
+            {
                 proto_event.json = render_json(resolver, &haneul_event.type_, &haneul_event.contents)
                     .await
                     .map(Box::new);

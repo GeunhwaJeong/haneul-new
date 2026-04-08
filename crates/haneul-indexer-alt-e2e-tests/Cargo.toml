@@ -19,6 +19,7 @@ bcs.workspace = true
 diesel = { workspace = true, features = ["chrono"] }
 diesel-async = { workspace = true, features = ["bb8", "postgres", "async-connection-wrapper"] }
 fastcrypto.workspace = true
+itertools.workspace = true
 prost.workspace = true
 prometheus.workspace = true
 rand.workspace = true
@@ -31,6 +32,7 @@ tokio.workspace = true
 url.workspace = true
 zstd.workspace = true
 
+haneullabs-common.workspace = true
 simulacrum.workspace = true
 haneul-futures.workspace = true
 haneul-indexer-alt.workspace = true

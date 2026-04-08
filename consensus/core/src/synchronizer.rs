@@ -11,7 +11,7 @@ use consensus_config::AuthorityIndex;
 use consensus_types::block::{BlockRef, Round};
 use futures::{StreamExt as _, stream::FuturesUnordered};
 use itertools::Itertools as _;
-use haneullabs_common::debug_fatal;
+use haneullabs_common::{ZipDebugEqIteratorExt, debug_fatal};
 use haneullabs_metrics::{
     monitored_future,
     monitored_mpsc::{Receiver, Sender, channel},
@@ -1202,7 +1202,7 @@ where
         }
         for (missing, (_, authority)) in missing_blocks_per_authority
             .into_iter()
-            .zip(context.committee.authorities())
+            .zip_debug_eq(context.committee.authorities())
         {
             context
                 .metrics

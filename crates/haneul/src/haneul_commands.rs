@@ -20,7 +20,7 @@ use move_analyzer::analyzer;
 use move_command_line_common::files::MOVE_COMPILED_EXTENSION;
 use move_compiler::editions::Flavor;
 use move_package_alt_compilation::build_config::BuildConfig;
-use haneullabs_common::tempdir;
+use haneullabs_common::{ZipDebugEqIteratorExt, tempdir};
 use prometheus::Registry;
 use rand::rngs::OsRng;
 use serde_json::json;
@@ -754,7 +754,7 @@ impl HaneulCommand {
                 for (node_config, (port, key_path)) in network_config
                     .validator_configs()
                     .iter()
-                    .zip(bridge_committee_config.bridge_authority_port_and_key_path)
+                    .zip_debug_eq(bridge_committee_config.bridge_authority_port_and_key_path)
                 {
                     let account_kp = node_config.account_key_pair.keypair();
                     let haneul_address = HaneulAddress::from(&account_kp.public());
