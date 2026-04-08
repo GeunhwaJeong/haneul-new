@@ -121,6 +121,7 @@ members = [
     "crates/haneul-faucet",
     "crates/haneul-field-count",
     "crates/haneul-field-count-derive",
+    "crates/haneul-forking",
     "crates/haneul-framework",
     "crates/haneul-framework-snapshot",
     "crates/haneul-framework-tests",

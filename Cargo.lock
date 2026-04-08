@@ -15128,6 +15128,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-forking"
+version = "1.70.0"
+dependencies = [
+ "anyhow",
+ "bin-version",
+ "tokio",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "haneul-framework"
 version = "0.1.0"
 dependencies = [
