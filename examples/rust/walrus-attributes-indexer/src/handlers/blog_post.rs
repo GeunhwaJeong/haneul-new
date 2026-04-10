@@ -5,14 +5,13 @@ use std::collections::btree_map::Entry;
 use std::collections::{BTreeMap, HashSet};
 use std::sync::Arc;
 
-use anyhow::{self, Context, bail};
+use anyhow::{self, Context, Result, bail};
 use diesel::ExpressionMethods;
 use diesel::query_dsl::methods::FilterDsl;
 use diesel::upsert::excluded;
 use diesel_async::RunQueryDsl;
 use move_core_types::language_storage::StructTag;
 use haneul_indexer_alt_framework::FieldCount;
-use haneul_indexer_alt_framework::Result;
 use haneul_indexer_alt_framework::pipeline::{Processor, sequential::Handler};
 use haneul_indexer_alt_framework::postgres;
 use haneul_indexer_alt_framework::types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
