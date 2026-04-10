@@ -45,7 +45,7 @@ module test::regulated_coin {
 }
 
 // Transfer away the newly minted coin works normally.
-//# run haneul::pay::split_and_transfer --args object(1,1) 1 @B --type-args test::regulated_coin::REGULATED_COIN --sender A
+//# run haneul::pay::split_and_transfer --args object(1,5) 1 @B --type-args test::regulated_coin::REGULATED_COIN --sender A
 
 // Deny account B.
 //# run haneul::coin::deny_list_v2_add --args object(0x403) object(1,3) @B --type-args test::regulated_coin::REGULATED_COIN --sender A
