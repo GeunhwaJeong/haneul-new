@@ -692,7 +692,7 @@ mod test {
     use haneul_types::execution_params::ExecutionOrEarlyError;
     use haneul_types::gas::HaneulGasStatus;
     use haneul_types::in_memory_storage::InMemoryStorage;
-    use haneul_types::metrics::LimitsMetrics;
+    use haneul_types::metrics::ExecutionMetrics;
     use haneul_types::haneul_system_state::HaneulSystemStateTrait;
     use haneul_types::transaction::CheckedInputObjects;
 
@@ -727,7 +727,7 @@ mod test {
 
         // Use a throwaway metrics registry for genesis transaction execution.
         let registry = prometheus::Registry::new();
-        let metrics = Arc::new(LimitsMetrics::new(&registry));
+        let metrics = Arc::new(ExecutionMetrics::new(&registry));
         let expensive_checks = false;
         let epoch = EpochData::new_test();
         let transaction_data = &genesis_transaction.data().intent_message().value;
