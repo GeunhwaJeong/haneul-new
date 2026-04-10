@@ -26,7 +26,6 @@ use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::digests::ObjectDigest;
 use haneul_types::digests::TransactionDigest;
-use haneul_types::effects::IDOperation;
 use haneul_types::effects::ObjectChange;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::effects::TransactionEffectsAPI;
@@ -37,6 +36,7 @@ use haneul_types::transaction::TransactionData;
 use haneul_types::transaction::TransactionDataAPI;
 use tokio::join;
 
+use crate::api::to_haneul_object_change;
 use crate::api::transactions::error::Error;
 use crate::context::Context;
 use crate::error::RpcError;
@@ -263,94 +263,14 @@ async fn object_changes(
         let input = fetch_object(object_id, input_version, input_digest)?;
         let output = fetch_object(object_id, output_version, output_digest)?;
 
-        use IDOperation as ID;
-        changes.push(match (id_operation, input, output) {
-            (ID::Created, Some((i, _)), _) => rpc_bail!(
-                "Unexpected input version {} for object {object_id} created by transaction {digest}",
-                i.version().value(),
-            ),
-
-            (ID::Deleted, _, Some((o, _))) => rpc_bail!(
-                "Unexpected output version {} for object {object_id} deleted by transaction {digest}",
-                o.version().value(),
-            ),
-
-            // The following cases don't end up in the output: created and wrapped objects,
-            // unwrapped objects (and by extension, unwrapped and deleted objects), system package
-            // upgrades (which happen in place).
-            (ID::Created, _, None) => continue,
-            (ID::None, None, _) => continue,
-            (ID::None, _, Some((o, _))) if o.is_package() => continue,
-            (ID::Deleted, None, _) => continue,
-
-            (ID::Created, _, Some((o, d))) if o.is_package() => HaneulObjectChange::Published {
-                package_id: object_id,
-                version: o.version(),
-                digest: d,
-                modules: o
-                    .data
-                    .try_as_package()
-                    .unwrap() // SAFETY: Match guard checks that the object is a package.
-                    .serialized_module_map()
-                    .keys()
-                    .cloned()
-                    .collect(),
-            },
-
-            (ID::Created, _, Some((o, d))) => HaneulObjectChange::Created {
-                sender: tx_data.sender(),
-                owner: o.owner().clone(),
-                object_type: o
-                    .struct_tag()
-                    .with_context(|| format!("No type for object {object_id}"))?,
-                object_id,
-                version: o.version(),
-                digest: d,
-            },
-
-            (ID::None, Some((i, _)), Some((o, od))) if i.owner() != o.owner() => {
-                HaneulObjectChange::Transferred {
-                    sender: tx_data.sender(),
-                    recipient: o.owner().clone(),
-                    object_type: o
-                        .struct_tag()
-                        .with_context(|| format!("No type for object {object_id}"))?,
-                    object_id,
-                    version: o.version(),
-                    digest: od,
-                }
-            }
-
-            (ID::None, Some((i, _)), Some((o, od))) => HaneulObjectChange::Mutated {
-                sender: tx_data.sender(),
-                owner: o.owner().clone(),
-                object_type: o
-                    .struct_tag()
-                    .with_context(|| format!("No type for object {object_id}"))?,
-                object_id,
-                version: o.version(),
-                previous_version: i.version(),
-                digest: od,
-            },
-
-            (ID::None, Some((i, _)), None) => HaneulObjectChange::Wrapped {
-                sender: tx_data.sender(),
-                object_type: i
-                    .struct_tag()
-                    .with_context(|| format!("No type for object {object_id}"))?,
-                object_id,
-                version: effects.lamport_version(),
-            },
-
-            (ID::Deleted, Some((i, _)), None) => HaneulObjectChange::Deleted {
-                sender: tx_data.sender(),
-                object_type: i
-                    .struct_tag()
-                    .with_context(|| format!("No type for object {object_id}"))?,
-                object_id,
-                version: effects.lamport_version(),
-            },
-        })
+        changes.extend(to_haneul_object_change(
+            tx_data.sender(),
+            object_id,
+            id_operation,
+            input,
+            output,
+            effects.lamport_version(),
+        )?);
     }
 
     Ok(changes)
