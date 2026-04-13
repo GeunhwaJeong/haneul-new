@@ -16,6 +16,12 @@ for external tools. The difference is otherwise not observable from within Move.
 -  [Function `exists_`](#haneul_dynamic_object_field_exists_)
 -  [Function `exists_with_type`](#haneul_dynamic_object_field_exists_with_type)
 -  [Function `id`](#haneul_dynamic_object_field_id)
+-  [Macro function `borrow_or_add`](#haneul_dynamic_object_field_borrow_or_add)
+-  [Macro function `borrow_mut_or_add`](#haneul_dynamic_object_field_borrow_mut_or_add)
+-  [Macro function `get_do`](#haneul_dynamic_object_field_get_do)
+-  [Macro function `get_mut_do`](#haneul_dynamic_object_field_get_mut_do)
+-  [Macro function `get_fold`](#haneul_dynamic_object_field_get_fold)
+-  [Macro function `get_mut_fold`](#haneul_dynamic_object_field_get_mut_fold)
 -  [Function `internal_add`](#haneul_dynamic_object_field_internal_add)
 -  [Function `internal_borrow`](#haneul_dynamic_object_field_internal_borrow)
 -  [Function `internal_borrow_mut`](#haneul_dynamic_object_field_internal_borrow_mut)
@@ -268,6 +274,204 @@ Returns none otherwise
     <b>if</b> (!field::exists_with_type&lt;<a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_Wrapper">Wrapper</a>&lt;Name&gt;, ID&gt;(<a href="../haneul/object.md#haneul_object">object</a>, key)) <b>return</b> option::none();
     <b>let</b> (_field, value_addr) = field::field_info&lt;<a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_Wrapper">Wrapper</a>&lt;Name&gt;&gt;(<a href="../haneul/object.md#haneul_object">object</a>, key);
     option::some(value_addr.to_id())
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_dynamic_object_field_borrow_or_add"></a>
+
+## Macro function `borrow_or_add`
+
+Immutably borrows the field value, adding it with <code>$default</code> if it doesn't exist.
+Note that <code>$default</code> is evaluated only if the field does not already exist.
+
+
+<pre><code><b>public</b> <b>macro</b> <b>fun</b> <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_borrow_or_add">borrow_or_add</a>&lt;$Name: <b>copy</b>, drop, store, $Value: key, store&gt;($<a href="../haneul/object.md#haneul_object">object</a>: &<b>mut</b> <a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>, $name: $Name, $default: $Value): &$Value
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>macro</b> <b>fun</b> <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_borrow_or_add">borrow_or_add</a>&lt;$Name: <b>copy</b> + drop + store, $Value: key + store&gt;(
+    $<a href="../haneul/object.md#haneul_object">object</a>: &<b>mut</b> UID,
+    $name: $Name,
+    $default: $Value,
+): &$Value {
+    <b>let</b> o = $<a href="../haneul/object.md#haneul_object">object</a>;
+    <b>let</b> name = $name;
+    <b>if</b> (!<a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_exists_">exists_</a>&lt;$Name&gt;(o, name)) <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_add">add</a>(o, name, $default);
+    <a href="../haneul/borrow.md#haneul_borrow">borrow</a>(o, name)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_dynamic_object_field_borrow_mut_or_add"></a>
+
+## Macro function `borrow_mut_or_add`
+
+Mutably borrows the field value, adding it with <code>$default</code> if it doesn't exist.
+Note that <code>$default</code> is evaluated only if the field does not already exist.
+
+
+<pre><code><b>public</b> <b>macro</b> <b>fun</b> <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_borrow_mut_or_add">borrow_mut_or_add</a>&lt;$Name: <b>copy</b>, drop, store, $Value: key, store&gt;($<a href="../haneul/object.md#haneul_object">object</a>: &<b>mut</b> <a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>, $name: $Name, $default: $Value): &<b>mut</b> $Value
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>macro</b> <b>fun</b> <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_borrow_mut_or_add">borrow_mut_or_add</a>&lt;$Name: <b>copy</b> + drop + store, $Value: key + store&gt;(
+    $<a href="../haneul/object.md#haneul_object">object</a>: &<b>mut</b> UID,
+    $name: $Name,
+    $default: $Value,
+): &<b>mut</b> $Value {
+    <b>let</b> o = $<a href="../haneul/object.md#haneul_object">object</a>;
+    <b>let</b> name = $name;
+    <b>if</b> (!<a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_exists_">exists_</a>&lt;$Name&gt;(o, name)) <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_add">add</a>(o, name, $default);
+    <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_borrow_mut">borrow_mut</a>(o, name)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_dynamic_object_field_get_do"></a>
+
+## Macro function `get_do`
+
+If the field exists, calls <code>$f</code> on an immutable reference to the value; otherwise, does nothing.
+This is like getting an <code>Option&lt;&Value&gt;</code> then calling <code><a href="../std/option.md#std_option_do">std::option::do</a></code>.
+
+
+<pre><code><b>public</b> <b>macro</b> <b>fun</b> <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_get_do">get_do</a>&lt;$Name: <b>copy</b>, drop, store, $Value: key, store, $R: drop&gt;($<a href="../haneul/object.md#haneul_object">object</a>: &<a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>, $name: $Name, $f: |&$Value| -&gt; $R)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>macro</b> <b>fun</b> <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_get_do">get_do</a>&lt;$Name: <b>copy</b> + drop + store, $Value: key + store, $R: drop&gt;(
+    $<a href="../haneul/object.md#haneul_object">object</a>: &UID,
+    $name: $Name,
+    $f: |&$Value| -&gt; $R,
+) {
+    <b>let</b> o = $<a href="../haneul/object.md#haneul_object">object</a>;
+    <b>let</b> name = $name;
+    <b>if</b> (<a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_exists_with_type">exists_with_type</a>&lt;$Name, $Value&gt;(o, name)) { $f(<a href="../haneul/borrow.md#haneul_borrow">borrow</a>(o, name)); }
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_dynamic_object_field_get_mut_do"></a>
+
+## Macro function `get_mut_do`
+
+If the field exists, calls <code>$f</code> on a mutable reference to the value; otherwise, does nothing.
+This is like getting an <code>Option&lt;&<b>mut</b> Value&gt;</code> then calling <code><a href="../std/option.md#std_option_do">std::option::do</a></code>.
+
+
+<pre><code><b>public</b> <b>macro</b> <b>fun</b> <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_get_mut_do">get_mut_do</a>&lt;$Name: <b>copy</b>, drop, store, $Value: key, store, $R: drop&gt;($<a href="../haneul/object.md#haneul_object">object</a>: &<b>mut</b> <a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>, $name: $Name, $f: |&<b>mut</b> $Value| -&gt; $R)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>macro</b> <b>fun</b> <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_get_mut_do">get_mut_do</a>&lt;$Name: <b>copy</b> + drop + store, $Value: key + store, $R: drop&gt;(
+    $<a href="../haneul/object.md#haneul_object">object</a>: &<b>mut</b> UID,
+    $name: $Name,
+    $f: |&<b>mut</b> $Value| -&gt; $R,
+) {
+    <b>let</b> o = $<a href="../haneul/object.md#haneul_object">object</a>;
+    <b>let</b> name = $name;
+    <b>if</b> (<a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_exists_with_type">exists_with_type</a>&lt;$Name, $Value&gt;(o, name)) { $f(<a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_borrow_mut">borrow_mut</a>(o, name)); }
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_dynamic_object_field_get_fold"></a>
+
+## Macro function `get_fold`
+
+If the field exists, applies <code>$some</code> to an immutable reference to the value; otherwise, returns
+<code>$none</code>.
+This is like getting an <code>Option&lt;&Value&gt;</code> then calling <code><a href="../std/option.md#std_option_fold">std::option::fold</a></code>.
+
+
+<pre><code><b>public</b> <b>macro</b> <b>fun</b> <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_get_fold">get_fold</a>&lt;$Name: <b>copy</b>, drop, store, $Value: key, store, $R&gt;($<a href="../haneul/object.md#haneul_object">object</a>: &<a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>, $name: $Name, $none: $R, $some: |&$Value| -&gt; $R): $R
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>macro</b> <b>fun</b> <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_get_fold">get_fold</a>&lt;$Name: <b>copy</b> + drop + store, $Value: key + store, $R&gt;(
+    $<a href="../haneul/object.md#haneul_object">object</a>: &UID,
+    $name: $Name,
+    $none: $R,
+    $some: |&$Value| -&gt; $R,
+): $R {
+    <b>let</b> o = $<a href="../haneul/object.md#haneul_object">object</a>;
+    <b>let</b> name = $name;
+    <b>if</b> (<a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_exists_with_type">exists_with_type</a>&lt;$Name, $Value&gt;(o, name)) $some(<a href="../haneul/borrow.md#haneul_borrow">borrow</a>(o, name)) <b>else</b> $none
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_dynamic_object_field_get_mut_fold"></a>
+
+## Macro function `get_mut_fold`
+
+If the field exists, applies <code>$some</code> to a mutable reference to the value; otherwise, returns
+<code>$none</code>.
+This is like getting an <code>Option&lt;&<b>mut</b> Value&gt;</code> then calling <code><a href="../std/option.md#std_option_fold">std::option::fold</a></code>.
+
+
+<pre><code><b>public</b> <b>macro</b> <b>fun</b> <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_get_mut_fold">get_mut_fold</a>&lt;$Name: <b>copy</b>, drop, store, $Value: key, store, $R&gt;($<a href="../haneul/object.md#haneul_object">object</a>: &<b>mut</b> <a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>, $name: $Name, $none: $R, $some: |&<b>mut</b> $Value| -&gt; $R): $R
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>macro</b> <b>fun</b> <a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_get_mut_fold">get_mut_fold</a>&lt;$Name: <b>copy</b> + drop + store, $Value: key + store, $R&gt;(
+    $<a href="../haneul/object.md#haneul_object">object</a>: &<b>mut</b> UID,
+    $name: $Name,
+    $none: $R,
+    $some: |&<b>mut</b> $Value| -&gt; $R,
+): $R {
+    <b>let</b> o = $<a href="../haneul/object.md#haneul_object">object</a>;
+    <b>let</b> name = $name;
+    <b>if</b> (<a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_exists_with_type">exists_with_type</a>&lt;$Name, $Value&gt;(o, name)) $some(<a href="../haneul/dynamic_object_field.md#haneul_dynamic_object_field_borrow_mut">borrow_mut</a>(o, name)) <b>else</b> $none
 }
 </code></pre>
 
