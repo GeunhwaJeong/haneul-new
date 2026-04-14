@@ -244,7 +244,7 @@ Returns true if there is a value associated with the key <code>k: K</code> in ta
 
 
 <pre><code><b>public</b> <b>fun</b> <a href="../haneul/object_table.md#haneul_object_table_contains">contains</a>&lt;K: <b>copy</b> + drop + store, V: key + store&gt;(<a href="../haneul/table.md#haneul_table">table</a>: &<a href="../haneul/object_table.md#haneul_object_table_ObjectTable">ObjectTable</a>&lt;K, V&gt;, k: K): bool {
-    ofield::exists_&lt;K&gt;(&<a href="../haneul/table.md#haneul_table">table</a>.id, k)
+    ofield::exists&lt;K&gt;(&<a href="../haneul/table.md#haneul_table">table</a>.id, k)
 }
 </code></pre>
 

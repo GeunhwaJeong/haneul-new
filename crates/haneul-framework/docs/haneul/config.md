@@ -259,7 +259,7 @@ title: Module `haneul::config`
     ctx: &<b>mut</b> TxContext,
 ): Option&lt;Value&gt; {
     <b>let</b> epoch = ctx.epoch();
-    <b>if</b> (!field::exists_(&<a href="../haneul/config.md#haneul_config">config</a>.id, name)) {
+    <b>if</b> (!field::exists(&<a href="../haneul/config.md#haneul_config">config</a>.id, name)) {
         <b>let</b> sobj = <a href="../haneul/config.md#haneul_config_Setting">Setting</a> {
             data: option::some(<a href="../haneul/config.md#haneul_config_SettingData">SettingData</a> {
                 newer_value_epoch: epoch,
@@ -328,7 +328,7 @@ title: Module `haneul::config`
     ctx: &<b>mut</b> TxContext,
 ): Option&lt;Value&gt; {
     <b>let</b> epoch = ctx.epoch();
-    <b>if</b> (!field::exists_(&<a href="../haneul/config.md#haneul_config">config</a>.id, name)) <b>return</b> option::none();
+    <b>if</b> (!field::exists(&<a href="../haneul/config.md#haneul_config">config</a>.id, name)) <b>return</b> option::none();
     <b>let</b> sobj: &<b>mut</b> <a href="../haneul/config.md#haneul_config_Setting">Setting</a>&lt;Value&gt; = field::borrow_mut(&<b>mut</b> <a href="../haneul/config.md#haneul_config">config</a>.id, name);
     <b>let</b> <a href="../haneul/config.md#haneul_config_SettingData">SettingData</a> {
         newer_value_epoch,

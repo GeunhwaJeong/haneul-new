@@ -16,8 +16,8 @@ building block for core collection types
 -  [Function `borrow`](#haneul_dynamic_field_borrow)
 -  [Function `borrow_mut`](#haneul_dynamic_field_borrow_mut)
 -  [Function `remove`](#haneul_dynamic_field_remove)
--  [Function `exists_`](#haneul_dynamic_field_exists_)
--  [Function `remove_if_exists`](#haneul_dynamic_field_remove_if_exists)
+-  [Function `exists`](#haneul_dynamic_field_exists)
+-  [Function `remove_opt`](#haneul_dynamic_field_remove_opt)
 -  [Function `exists_with_type`](#haneul_dynamic_field_exists_with_type)
 -  [Macro function `borrow_or_add`](#haneul_dynamic_field_borrow_or_add)
 -  [Macro function `borrow_mut_or_add`](#haneul_dynamic_field_borrow_mut_or_add)
@@ -25,6 +25,8 @@ building block for core collection types
 -  [Macro function `get_mut_do`](#haneul_dynamic_field_get_mut_do)
 -  [Macro function `get_fold`](#haneul_dynamic_field_get_fold)
 -  [Macro function `get_mut_fold`](#haneul_dynamic_field_get_mut_fold)
+-  [Function `exists_`](#haneul_dynamic_field_exists_)
+-  [Function `remove_if_exists`](#haneul_dynamic_field_remove_if_exists)
 -  [Function `field_info`](#haneul_dynamic_field_field_info)
 -  [Function `field_info_mut`](#haneul_dynamic_field_field_info_mut)
 -  [Function `hash_type_and_key`](#haneul_dynamic_field_hash_type_and_key)
@@ -283,15 +285,15 @@ type.
 
 </details>
 
-<a name="haneul_dynamic_field_exists_"></a>
+<a name="haneul_dynamic_field_exists"></a>
 
-## Function `exists_`
+## Function `exists`
 
 Returns true if and only if the <code><a href="../haneul/object.md#haneul_object">object</a></code> has a dynamic field with the name specified by
 <code>name: Name</code> but without specifying the <code>Value</code> type
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field_exists_">exists_</a>&lt;Name: <b>copy</b>, drop, store&gt;(<a href="../haneul/object.md#haneul_object">object</a>: &<a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>, name: Name): bool
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field_exists">exists</a>&lt;Name: <b>copy</b>, drop, store&gt;(<a href="../haneul/object.md#haneul_object">object</a>: &<a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>, name: Name): bool
 </code></pre>
 
 
@@ -300,7 +302,7 @@ Returns true if and only if the <code><a href="../haneul/object.md#haneul_object
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field_exists_">exists_</a>&lt;Name: <b>copy</b> + drop + store&gt;(<a href="../haneul/object.md#haneul_object">object</a>: &UID, name: Name): bool {
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field_exists">exists</a>&lt;Name: <b>copy</b> + drop + store&gt;(<a href="../haneul/object.md#haneul_object">object</a>: &UID, name: Name): bool {
     <b>let</b> object_addr = <a href="../haneul/object.md#haneul_object">object</a>.to_address();
     <b>let</b> <a href="../haneul/hash.md#haneul_hash">hash</a> = <a href="../haneul/dynamic_field.md#haneul_dynamic_field_hash_type_and_key">hash_type_and_key</a>(object_addr, name);
     <a href="../haneul/dynamic_field.md#haneul_dynamic_field_has_child_object">has_child_object</a>(object_addr, <a href="../haneul/hash.md#haneul_hash">hash</a>)
@@ -311,14 +313,14 @@ Returns true if and only if the <code><a href="../haneul/object.md#haneul_object
 
 </details>
 
-<a name="haneul_dynamic_field_remove_if_exists"></a>
+<a name="haneul_dynamic_field_remove_opt"></a>
 
-## Function `remove_if_exists`
+## Function `remove_opt`
 
-Removes the dynamic field if it exists. Returns the <code>some(Value)</code> if it exists or none otherwise.
+Removes the dynamic field if it exists. Returns <code>some(Value)</code> if it exists or <code>none</code> otherwise.
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field_remove_if_exists">remove_if_exists</a>&lt;Name: <b>copy</b>, drop, store, Value: store&gt;(<a href="../haneul/object.md#haneul_object">object</a>: &<b>mut</b> <a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>, name: Name): <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;Value&gt;
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field_remove_opt">remove_opt</a>&lt;Name: <b>copy</b>, drop, store, Value: store&gt;(<a href="../haneul/object.md#haneul_object">object</a>: &<b>mut</b> <a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>, name: Name): <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;Value&gt;
 </code></pre>
 
 
@@ -327,11 +329,11 @@ Removes the dynamic field if it exists. Returns the <code>some(Value)</code> if 
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field_remove_if_exists">remove_if_exists</a>&lt;Name: <b>copy</b> + drop + store, Value: store&gt;(
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field_remove_opt">remove_opt</a>&lt;Name: <b>copy</b> + drop + store, Value: store&gt;(
     <a href="../haneul/object.md#haneul_object">object</a>: &<b>mut</b> UID,
     name: Name,
 ): Option&lt;Value&gt; {
-    <b>if</b> (<a href="../haneul/dynamic_field.md#haneul_dynamic_field_exists_">exists_</a>&lt;Name&gt;(<a href="../haneul/object.md#haneul_object">object</a>, name)) {
+    <b>if</b> (<a href="../haneul/dynamic_field.md#haneul_dynamic_field_exists">exists</a>&lt;Name&gt;(<a href="../haneul/object.md#haneul_object">object</a>, name)) {
         option::some(<a href="../haneul/dynamic_field.md#haneul_dynamic_field_remove">remove</a>(<a href="../haneul/object.md#haneul_object">object</a>, name))
     } <b>else</b> {
         option::none()
@@ -398,7 +400,7 @@ Note that <code>$default</code> is evaluated only if the field does not already 
 ): &$Value {
     <b>let</b> o = $<a href="../haneul/object.md#haneul_object">object</a>;
     <b>let</b> name = $name;
-    <b>if</b> (!<a href="../haneul/dynamic_field.md#haneul_dynamic_field_exists_">exists_</a>&lt;$Name&gt;(o, name)) <a href="../haneul/dynamic_field.md#haneul_dynamic_field_add">add</a>(o, name, $default);
+    <b>if</b> (!<a href="../haneul/dynamic_field.md#haneul_dynamic_field_exists">exists</a>&lt;$Name&gt;(o, name)) <a href="../haneul/dynamic_field.md#haneul_dynamic_field_add">add</a>(o, name, $default);
     <a href="../haneul/borrow.md#haneul_borrow">borrow</a>(o, name)
 }
 </code></pre>
@@ -431,7 +433,7 @@ Note that <code>$default</code> is evaluated only if the field does not already 
 ): &<b>mut</b> $Value {
     <b>let</b> o = $<a href="../haneul/object.md#haneul_object">object</a>;
     <b>let</b> name = $name;
-    <b>if</b> (!<a href="../haneul/dynamic_field.md#haneul_dynamic_field_exists_">exists_</a>&lt;$Name&gt;(o, name)) <a href="../haneul/dynamic_field.md#haneul_dynamic_field_add">add</a>(o, name, $default);
+    <b>if</b> (!<a href="../haneul/dynamic_field.md#haneul_dynamic_field_exists">exists</a>&lt;$Name&gt;(o, name)) <a href="../haneul/dynamic_field.md#haneul_dynamic_field_add">add</a>(o, name, $default);
     <a href="../haneul/dynamic_field.md#haneul_dynamic_field_borrow_mut">borrow_mut</a>(o, name)
 }
 </code></pre>
@@ -565,6 +567,57 @@ This is like getting an <code>Option&lt;&<b>mut</b> Value&gt;</code> then callin
     <b>let</b> o = $<a href="../haneul/object.md#haneul_object">object</a>;
     <b>let</b> name = $name;
     <b>if</b> (<a href="../haneul/dynamic_field.md#haneul_dynamic_field_exists_with_type">exists_with_type</a>&lt;$Name, $Value&gt;(o, name)) $some(<a href="../haneul/dynamic_field.md#haneul_dynamic_field_borrow_mut">borrow_mut</a>(o, name)) <b>else</b> $none
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_dynamic_field_exists_"></a>
+
+## Function `exists_`
+
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field_exists_">exists_</a>&lt;Name: <b>copy</b>, drop, store&gt;(<a href="../haneul/object.md#haneul_object">object</a>: &<a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>, name: Name): bool
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field_exists_">exists_</a>&lt;Name: <b>copy</b> + drop + store&gt;(<a href="../haneul/object.md#haneul_object">object</a>: &UID, name: Name): bool {
+    <a href="../haneul/dynamic_field.md#haneul_dynamic_field_exists">exists</a>(<a href="../haneul/object.md#haneul_object">object</a>, name)
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_dynamic_field_remove_if_exists"></a>
+
+## Function `remove_if_exists`
+
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field_remove_if_exists">remove_if_exists</a>&lt;Name: <b>copy</b>, drop, store, Value: store&gt;(<a href="../haneul/object.md#haneul_object">object</a>: &<b>mut</b> <a href="../haneul/object.md#haneul_object_UID">haneul::object::UID</a>, name: Name): <a href="../std/option.md#std_option_Option">std::option::Option</a>&lt;Value&gt;
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul/dynamic_field.md#haneul_dynamic_field_remove_if_exists">remove_if_exists</a>&lt;Name: <b>copy</b> + drop + store, Value: store&gt;(
+    <a href="../haneul/object.md#haneul_object">object</a>: &<b>mut</b> UID,
+    name: Name,
+): Option&lt;Value&gt; {
+    <a href="../haneul/dynamic_field.md#haneul_dynamic_field_remove_opt">remove_opt</a>(<a href="../haneul/object.md#haneul_object">object</a>, name)
 }
 </code></pre>
 
