@@ -1,11 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use std::collections::BTreeSet;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::net::SocketAddr;
 use std::time::Duration;
 
+use fastcrypto::encoding::Base58;
+use fastcrypto::encoding::Encoding;
 use futures::SinkExt;
 use prometheus::Registry;
 use serde_json::Value;
@@ -21,6 +24,7 @@ use haneul_indexer_alt_reader::fullnode_client::FullnodeArgs;
 use haneul_indexer_alt_reader::system_package_task::SystemPackageTaskArgs;
 use haneul_pg_db::DbArgs;
 use haneul_pg_db::temp::get_available_port;
+use haneul_test_transaction_builder::TestTransactionBuilder;
 use tokio_stream::StreamExt;
 use tokio_tungstenite::connect_async;
 use tokio_tungstenite::tungstenite::Message;
@@ -139,4 +143,70 @@ impl SubscriptionTestCluster {
             msg["payload"].clone()
         }))
     }
+}
+
+/// Execute HANEUL transfers as a soft bundle and return Base58-encoded digests.
+pub async fn transfer_coins(
+    cluster: &mut test_cluster::TestCluster,
+    amounts: &[u64],
+) -> Vec<String> {
+    let sender = cluster.wallet.active_address().unwrap();
+    let recipient = haneul_types::base_types::HaneulAddress::ZERO;
+    let mut excluded = BTreeSet::new();
+    let mut txns = Vec::with_capacity(amounts.len());
+
+    for &amount in amounts {
+        let gas = cluster
+            .wallet
+            .gas_for_owner_budget(sender, 5000, excluded.clone())
+            .await
+            .unwrap()
+            .1
+            .compute_object_reference();
+        excluded.insert(gas.0);
+        txns.push(
+            TestTransactionBuilder::new(sender, gas, 1000)
+                .transfer_haneul(Some(amount), recipient)
+                .build(),
+        );
+    }
+
+    cluster
+        .sign_and_execute_txns_in_soft_bundle(&txns)
+        .await
+        .unwrap()
+        .into_iter()
+        .map(|(digest, _)| Base58::encode(digest))
+        .collect()
+}
+
+/// Wait for a stream item where `find_digests` extracts digests and any match the expected ones.
+pub async fn wait_for_matching_item(
+    stream: &mut (impl tokio_stream::Stream<Item = Value> + Unpin),
+    digests: &[String],
+    find_digests: impl Fn(&Value) -> Vec<&str>,
+) -> Value {
+    tokio::time::timeout(Duration::from_secs(60), async {
+        loop {
+            let item = stream.next().await.expect("Stream ended");
+            let found = find_digests(&item);
+            if found
+                .iter()
+                .any(|d| digests.iter().any(|expected| expected == d))
+            {
+                return item;
+            }
+        }
+    })
+    .await
+    .expect("Timed out waiting for matching item")
+}
+
+/// Extract digests from a checkpoint subscription response.
+/// Path: data.checkpoints.transactions.nodes[].digest
+pub fn checkpoint_tx_digests(item: &Value) -> Vec<&str> {
+    item["data"]["checkpoints"]["transactions"]["nodes"]
+        .as_array()
+        .map(|nodes| nodes.iter().filter_map(|n| n["digest"].as_str()).collect())
+        .unwrap_or_default()
 }
