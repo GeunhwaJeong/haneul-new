@@ -313,7 +313,7 @@ Called by the settlement transaction to track conservation of HANEUL.
 
 
 <pre><code><b>fun</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_new_stream_head">new_stream_head</a>(new_root: u256, event_count_delta: u64, checkpoint_seq: u64): <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_EventStreamHead">EventStreamHead</a> {
-    <b>let</b> <b>mut</b> initial_mmr = vector::empty();
+    <b>let</b> <b>mut</b> initial_mmr = vector[];
     <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_add_to_mmr">add_to_mmr</a>(new_root, &<b>mut</b> initial_mmr);
     <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement_EventStreamHead">EventStreamHead</a> {
         mmr: initial_mmr,

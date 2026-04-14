@@ -70,7 +70,7 @@ module haneul_system::haneul_system {
     }
 
     public fun active_validator_addresses(wrapper: &mut HaneulSystemState): vector<address> {
-        vector::empty()
+        vector[]
     }
 
     fun load_system_state_mut(self: &mut HaneulSystemState): &mut HaneulSystemStateInner {
