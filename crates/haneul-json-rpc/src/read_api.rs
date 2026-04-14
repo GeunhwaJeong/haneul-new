@@ -163,10 +163,10 @@ impl<'s> DisplayStore<'s> {
 
 #[async_trait]
 impl haneul_display::v2::Store for DisplayStore<'_> {
-    async fn object(
+    async fn latest(
         &self,
         id: AccountAddress,
-    ) -> anyhow::Result<Option<haneul_display::v2::OwnedSlice>> {
+    ) -> anyhow::Result<Option<(MoveTypeLayout, Vec<u8>)>> {
         let read = self.state.get_object_read(&id.into())?;
         let ObjectRead::Exists(_, object, Some(layout)) = read else {
             return Ok(None);
@@ -176,10 +176,10 @@ impl haneul_display::v2::Store for DisplayStore<'_> {
             return Ok(None);
         };
 
-        Ok(Some(haneul_display::v2::OwnedSlice {
-            bytes: move_object.contents().to_vec(),
-            layout: MoveTypeLayout::Struct(Box::new(layout)),
-        }))
+        Ok(Some((
+            MoveTypeLayout::Struct(Box::new(layout)),
+            move_object.contents().to_vec(),
+        )))
     }
 }
 
@@ -1354,11 +1354,7 @@ async fn get_display_fields(
 
     let display: Vec<(String, Result<Json, anyhow::Error>)> =
         if let Some(display_object) = get_display_object_v2_by_type(fullnode_api, type_)? {
-            let root = haneul_display::v2::OwnedSlice {
-                bytes: move_object.contents().to_owned(),
-                layout,
-            };
-
+            let root = haneul_display::v2::OwnedSlice::new(layout, move_object.contents().to_owned());
             let store = DisplayStore::new(fullnode_api.state.as_ref());
             let interpreter = haneul_display::v2::Interpreter::new(root, store);
             let limits = haneul_display::v2::Limits {
