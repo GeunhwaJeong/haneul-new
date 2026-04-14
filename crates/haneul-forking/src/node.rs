@@ -28,7 +28,7 @@ pub(crate) const DEVNET_RPC_URL: &str = "https://fullnode.devnet.haneul.io:443";
 ///
 /// Used to specify which network the data store should connect to.
 #[derive(Clone, Debug)]
-pub(crate) enum Node {
+pub enum Node {
     /// Haneul mainnet
     Mainnet,
     /// Haneul testnet
@@ -41,7 +41,7 @@ pub(crate) enum Node {
 
 impl Node {
     /// Returns the [`Chain`] identifier for this node.
-    pub(crate) fn chain(&self) -> Chain {
+    pub fn chain(&self) -> Chain {
         match self {
             Node::Mainnet => Chain::Mainnet,
             Node::Testnet => Chain::Testnet,

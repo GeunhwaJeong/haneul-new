@@ -16,11 +16,17 @@ reqwest = { workspace = true, features = ["json"] }
 roaring.workspace = true
 serde.workspace = true
 tokio = { workspace = true, features = ["full"] }
+tracing.workspace = true
 tracing-subscriber.workspace = true
 url.workspace = true
 
 bcs.workspace = true
 bin-version.workspace = true
+rand.workspace = true
+simulacrum = { path = "../simulacrum" }
+haneul-config.workspace = true
+haneul-protocol-config.workspace = true
+haneul-swarm-config.workspace = true
 haneul-types.workspace = true
 
 [build-dependencies]

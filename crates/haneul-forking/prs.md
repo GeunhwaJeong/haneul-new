@@ -15,7 +15,8 @@
 - set up some testing infrastructure for it
 
 ## Forking PR3 -> implement store in haneul-forking crate with support for checkpoint and object data
-- implement a store in haneul-forking crate that has APIs for fetching remote data through forking-data-store, and local data through a filesystem API.
+- implement a store in haneul-forking crate that has APIs for fetching data from RPC, and local data through a filesystem API.
+- migrate forking-data-store into haneul-forking crate, and remove the old crate
 
 ## Forking PR4 -> forked network startup
 - instantiate the store and wire it up to simulacrum
