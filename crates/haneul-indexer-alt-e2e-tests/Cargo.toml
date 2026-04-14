@@ -6,6 +6,9 @@ license = "Apache-2.0"
 publish = false
 edition = "2024"
 
+[features]
+staging = ["haneul-indexer-alt-graphql/staging"]
+
 [lints]
 workspace = true
 
@@ -65,7 +68,10 @@ datatest-stable.workspace = true
 insta.workspace = true
 jsonrpsee.workspace = true
 telemetry-subscribers.workspace = true
+tokio-stream.workspace = true
+tokio-tungstenite = { workspace = true, features = ["rustls-tls-webpki-roots"] }
 tonic.workspace = true
+futures.workspace = true
 
 haneul-field-count.workspace = true
 haneul-framework.workspace = true
