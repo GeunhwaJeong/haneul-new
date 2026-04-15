@@ -18,11 +18,12 @@ use url::Url;
 use crate::metrics::GrpcMetricsLayer;
 use crate::metrics::GrpcMetricsService;
 
-#[derive(clap::Args, Debug, Clone)]
+#[derive(clap::Args, Debug, Clone, Default)]
 pub struct FullnodeArgs {
     /// gRPC URL for full node operations such as executeTransaction and simulateTransaction.
+    /// `Option` so the flag stays optional when flattened into a parent args struct.
     #[clap(long)]
-    pub fullnode_rpc_url: Url,
+    pub(crate) fullnode_rpc_url: Option<Url>,
 }
 
 /// A client for executing and simulating transactions via the full node gRPC service.
@@ -40,16 +41,28 @@ pub enum Error {
     GrpcExecutionError(#[from] tonic::Status),
 }
 
+impl FullnodeArgs {
+    pub fn new(url: Url) -> Self {
+        Self {
+            fullnode_rpc_url: Some(url),
+        }
+    }
+}
+
 impl FullnodeClient {
     pub async fn new(
         prefix: Option<&str>,
         args: FullnodeArgs,
         registry: &Registry,
-    ) -> Result<Self, Error> {
-        let mut endpoint = Channel::from_shared(args.fullnode_rpc_url.to_string())
+    ) -> Result<Option<Self>, Error> {
+        let Some(url) = args.fullnode_rpc_url else {
+            return Ok(None);
+        };
+
+        let mut endpoint = Channel::from_shared(url.to_string())
             .context("Failed to create channel for gRPC endpoint")?;
 
-        if args.fullnode_rpc_url.scheme() == "https" {
+        if url.scheme() == "https" {
             endpoint = endpoint
                 .tls_config(ClientTlsConfig::new().with_native_roots())
                 .context("Failed to configure TLS for gRPC endpoint")?;
@@ -61,7 +74,7 @@ impl FullnodeClient {
 
         let execution_client = TransactionExecutionServiceClient::new(layered);
 
-        Ok(Self { execution_client })
+        Ok(Some(Self { execution_client }))
     }
 
     /// Execute a transaction on the Haneul network via gRPC.
@@ -143,22 +156,37 @@ impl FullnodeClient {
 mod tests {
     use super::*;
 
-    async fn fn_client(url: &str) -> Result<FullnodeClient, Error> {
-        let url = Url::parse(url).unwrap();
+    async fn fn_client(url: Option<&str>) -> Result<Option<FullnodeClient>, Error> {
         let registry = Registry::new();
         let args = FullnodeArgs {
-            fullnode_rpc_url: url,
+            fullnode_rpc_url: url.map(|u| Url::parse(u).unwrap()),
         };
         FullnodeClient::new(None, args, &registry).await
     }
 
     #[tokio::test]
+    async fn no_url_means_not_configured() {
+        let client = fn_client(None).await.unwrap();
+        assert!(client.is_none());
+    }
+
+    #[tokio::test]
     async fn http_url_creates_client() {
-        fn_client("http://localhost:9000").await.unwrap();
+        assert!(
+            fn_client(Some("http://localhost:9000"))
+                .await
+                .unwrap()
+                .is_some()
+        );
     }
 
     #[tokio::test]
     async fn https_url_creates_client() {
-        fn_client("https://fn.example.com").await.unwrap();
+        assert!(
+            fn_client(Some("https://fn.example.com"))
+                .await
+                .unwrap()
+                .is_some()
+        );
     }
 }
