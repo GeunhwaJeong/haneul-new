@@ -15,12 +15,12 @@ use serde_json::Value;
 use serde_json::json;
 use haneul_futures::service::Service;
 use haneul_indexer_alt_graphql::RpcArgs as GraphQlArgs;
-use haneul_indexer_alt_graphql::args::KvArgs as GraphQlKvArgs;
 use haneul_indexer_alt_graphql::args::SubscriptionArgs;
 use haneul_indexer_alt_graphql::config::RpcConfig as GraphQlConfig;
 use haneul_indexer_alt_graphql::start_rpc as start_graphql;
 use haneul_indexer_alt_reader::consistent_reader::ConsistentReaderArgs;
 use haneul_indexer_alt_reader::fullnode_client::FullnodeArgs;
+use haneul_indexer_alt_reader::kv_loader::KvArgs;
 use haneul_indexer_alt_reader::system_package_task::SystemPackageTaskArgs;
 use haneul_pg_db::DbArgs;
 use haneul_pg_db::temp::get_available_port;
@@ -50,7 +50,7 @@ impl SubscriptionTestCluster {
                 fullnode_rpc_url: Some(rpc_url.parse().unwrap()),
             },
             DbArgs::default(),
-            GraphQlKvArgs::default(),
+            KvArgs::default(),
             ConsistentReaderArgs::default(),
             GraphQlArgs {
                 rpc_listen_address: graphql_listen_address,

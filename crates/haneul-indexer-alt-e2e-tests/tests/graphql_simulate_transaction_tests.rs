@@ -21,12 +21,12 @@ use haneul_indexer_alt_framework::IndexerArgs;
 use haneul_indexer_alt_framework::ingestion::ClientArgs;
 use haneul_indexer_alt_framework::ingestion::ingestion_client::IngestionClientArgs;
 use haneul_indexer_alt_graphql::RpcArgs as GraphQlArgs;
-use haneul_indexer_alt_graphql::args::KvArgs as GraphQlKvArgs;
 use haneul_indexer_alt_graphql::args::SubscriptionArgs;
 use haneul_indexer_alt_graphql::config::RpcConfig as GraphQlConfig;
 use haneul_indexer_alt_graphql::start_rpc as start_graphql;
 use haneul_indexer_alt_reader::consistent_reader::ConsistentReaderArgs;
 use haneul_indexer_alt_reader::fullnode_client::FullnodeArgs;
+use haneul_indexer_alt_reader::kv_loader::KvArgs;
 use haneul_indexer_alt_reader::system_package_task::SystemPackageTaskArgs;
 use haneul_pg_db::DbArgs;
 use haneul_pg_db::temp::TempDb;
@@ -192,7 +192,7 @@ impl GraphQlTestCluster {
             Some(database_url),
             fullnode_args,
             DbArgs::default(),
-            GraphQlKvArgs::default(),
+            KvArgs::default(),
             ConsistentReaderArgs::default(),
             GraphQlArgs {
                 rpc_listen_address: graphql_listen_address,

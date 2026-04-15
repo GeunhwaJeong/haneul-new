@@ -36,7 +36,6 @@ use haneul_indexer_alt_framework::ingestion::ingestion_client::IngestionClientAr
 use haneul_indexer_alt_framework::pipeline::CommitterConfig;
 use haneul_indexer_alt_framework::postgres::schema::watermarks;
 use haneul_indexer_alt_graphql::RpcArgs as GraphQlArgs;
-use haneul_indexer_alt_graphql::args::KvArgs as GraphQlKvArgs;
 use haneul_indexer_alt_graphql::args::SubscriptionArgs;
 use haneul_indexer_alt_graphql::config::RpcConfig as GraphQlConfig;
 use haneul_indexer_alt_graphql::start_rpc as start_graphql;
@@ -44,9 +43,9 @@ use haneul_indexer_alt_jsonrpc::NodeArgs as JsonRpcNodeArgs;
 use haneul_indexer_alt_jsonrpc::RpcArgs as JsonRpcArgs;
 use haneul_indexer_alt_jsonrpc::config::RpcConfig as JsonRpcConfig;
 use haneul_indexer_alt_jsonrpc::start_rpc as start_jsonrpc;
-use haneul_indexer_alt_reader::bigtable_reader::BigtableArgs;
 use haneul_indexer_alt_reader::consistent_reader::ConsistentReaderArgs;
 use haneul_indexer_alt_reader::fullnode_client::FullnodeArgs;
+use haneul_indexer_alt_reader::kv_loader::KvArgs;
 use haneul_indexer_alt_reader::system_package_task::SystemPackageTaskArgs;
 use haneul_kv_rpc::KvRpcServer;
 use haneul_kvstore::BigTableClient;
@@ -417,7 +416,7 @@ impl OffchainCluster {
         let (bigtable_client, bigtable_emulator, archival_service) =
             start_archival(client_args.clone(), kv_rpc_address, registry).await?;
 
-        let graphql_kv_args = GraphQlKvArgs {
+        let kv_args = KvArgs {
             ledger_grpc_url: Some(
                 format!("http://{kv_rpc_address}")
                     .parse()
@@ -428,9 +427,8 @@ impl OffchainCluster {
 
         let jsonrpc = start_jsonrpc(
             Some(database_url.clone()),
-            None,
             DbArgs::default(),
-            BigtableArgs::default(),
+            kv_args.clone(),
             consistent_reader_args.clone(),
             jsonrpc_args,
             JsonRpcNodeArgs::default(),
@@ -445,7 +443,7 @@ impl OffchainCluster {
             Some(database_url.clone()),
             fullnode_args,
             DbArgs::default(),
-            graphql_kv_args,
+            kv_args,
             consistent_reader_args,
             graphql_args,
             SystemPackageTaskArgs::default(),

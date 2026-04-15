@@ -16,8 +16,8 @@ use haneul_indexer_alt_jsonrpc::RpcArgs;
 use haneul_indexer_alt_jsonrpc::args::SystemPackageTaskArgs;
 use haneul_indexer_alt_jsonrpc::config::RpcConfig;
 use haneul_indexer_alt_jsonrpc::start_rpc;
-use haneul_indexer_alt_reader::bigtable_reader::BigtableArgs;
 use haneul_indexer_alt_reader::consistent_reader::ConsistentReaderArgs;
+use haneul_indexer_alt_reader::kv_loader::KvArgs;
 use haneul_macros::sim_test;
 use haneul_pg_db::DbArgs;
 use haneul_pg_db::temp::get_available_port;
@@ -72,9 +72,8 @@ impl FnDelegationTestCluster {
 
         let service = start_rpc(
             None,
-            None,
             DbArgs::default(),
-            BigtableArgs::default(),
+            KvArgs::default(),
             ConsistentReaderArgs::default(),
             rpc_args,
             NodeArgs {
