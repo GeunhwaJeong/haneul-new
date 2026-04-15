@@ -14,7 +14,7 @@ use haneul_kvstore::CheckpointData;
 use haneul_kvstore::KeyValueStoreReader;
 use haneul_kvstore::TransactionData;
 use haneul_kvstore::TransactionEventsData;
-use haneul_kvstore::Watermark;
+use haneul_kvstore::WatermarkV1;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::object::Object;
@@ -95,7 +95,7 @@ impl BigtableReader {
     }
 
     /// Get the watermark representing the minimum across all pipeline watermarks.
-    pub async fn watermark(&self) -> anyhow::Result<Option<Watermark>> {
+    pub async fn watermark(&self) -> anyhow::Result<Option<WatermarkV1>> {
         measure("watermark", &(), self.0.clone().get_watermark()).await
     }
 
@@ -103,7 +103,7 @@ impl BigtableReader {
     pub async fn watermark_for_pipeline(
         &self,
         pipelines: &[&str],
-    ) -> anyhow::Result<Option<Watermark>> {
+    ) -> anyhow::Result<Option<WatermarkV1>> {
         measure(
             "watermark",
             &(),
