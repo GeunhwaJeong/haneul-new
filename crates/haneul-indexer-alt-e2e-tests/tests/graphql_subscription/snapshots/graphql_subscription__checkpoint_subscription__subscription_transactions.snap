@@ -23,7 +23,7 @@ expression: item
                   {
                     "amount": "1000",
                     "coinType": {
-                      "repr": "0x0000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL"
+                      "repr": "[pkg]::haneul::HANEUL"
                     },
                     "owner": {
                       "address": "[address]"
@@ -32,7 +32,7 @@ expression: item
                   {
                     "amount": "-2977000",
                     "coinType": {
-                      "repr": "0x0000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL"
+                      "repr": "[pkg]::haneul::HANEUL"
                     },
                     "owner": {
                       "address": "[address]"

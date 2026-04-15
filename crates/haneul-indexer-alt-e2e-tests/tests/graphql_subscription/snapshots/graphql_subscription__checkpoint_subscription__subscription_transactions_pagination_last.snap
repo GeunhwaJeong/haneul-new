@@ -17,13 +17,13 @@ expression: item
                   {
                     "amount": "100",
                     "coinType": {
-                      "repr": "0x0000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL"
+                      "repr": "[pkg]::haneul::HANEUL"
                     }
                   },
                   {
                     "amount": "-2976100",
                     "coinType": {
-                      "repr": "0x0000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL"
+                      "repr": "[pkg]::haneul::HANEUL"
                     }
                   }
                 ]
