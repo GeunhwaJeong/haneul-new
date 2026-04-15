@@ -55,104 +55,81 @@ export default function Home() {
             </div>
           </div>
           <div className="flex flex-row flex-wrap justify-center gap-2 max-w-[1066px] mx-auto pb-16 py-4">
-            <HomeCard title="Developers">
+            <HomeCard title="Getting Started">
               <Link
                 className={`${styles.cardLink} plausible-event-name=homepage+start+button`}
-                to="./guides/developer/getting-started/haneul-install"
+                to="/getting-started/onboarding"
               >
-                Getting Started
+                Hello, World!
               </Link>
-              <Link className={styles.cardLink} to="/guides">
-                Haneul Developer Basics
+              <Link className={styles.cardLink} to="/getting-started/tooling">
+                Developer Tools
               </Link>
-              <Link
-                className={styles.cardLink}
-                to="./concepts/haneul-move-concepts"
-              >
-                Move
+              <Link className={styles.cardLink} to="/getting-started/dev-cheat-sheet">
+                Developer Cheat Sheet
               </Link>
             </HomeCard>
-            <HomeCard title="Validators and Node operators">
-              <Link
-                className={styles.cardLink}
-                to="./guides/operator/validator/validator-config"
-              >
-                Validator Configuration
+            <HomeCard title="Develop">
+              <Link className={styles.cardLink} to="/develop/write-move">
+                Writing Move Packages
               </Link>
-              <Link
-                className={styles.cardLink}
-                to="./guides/operator/haneul-full-node"
-              >
-                Run a Haneul Full Node
-                <span className="block bg-auto bg-[url(../static/img/index/right-arrow.svg)]"></span>
+              <Link className={styles.cardLink} to="/develop/objects">
+                Using Objects
               </Link>
-              <Link
-                className={styles.cardLink}
-                to="./guides/operator/bridge-node-configuration"
-              >
-                Haneul Bridge Node Configuration
+              <Link className={styles.cardLink} to="/develop/accessing-data">
+                Accessing Data
               </Link>
             </HomeCard>
-            <HomeCard title="About Haneul">
-              <Link className={styles.cardLink} to="./concepts/tokenomics">
-                Tokenomics
+            <HomeCard title="Onchain Finance">
+              <Link className={styles.cardLink} to="/onchain-finance/fungible-tokens">
+                Fungible Tokens
               </Link>
-              <Link className={styles.cardLink} to="./concepts/cryptography">
-                Cryptography
+              <Link className={styles.cardLink} to="/onchain-finance/tokenized-assets">
+                Tokenized Assets
               </Link>
-              <Link className={styles.cardLink} to="standards">
-                Standards
+              <Link className={styles.cardLink} to="/onchain-finance/deepbookv3/deepbook">
+                DeepBookV3
               </Link>
             </HomeCard>
-            <HomeCard title="References" aux>
-              <Link
-                className={styles.cardLink}
-                to="https://sdk.haneul-labs.com/dapp-kit?ref=blog.haneul.io"
-              >
-                Haneul dApp Kit
+            <HomeCard title="Haneul Stack">
+              <Link className={styles.cardLink} to="/haneul-stack/nautilus">
+                Nautilus
+              </Link>
+              <Link className={styles.cardLink} to="/haneul-stack/zklogin-integration">
+                zkLogin
+              </Link>
+              <Link className={styles.cardLink} to="/haneul-stack/sagat">
+                Sagat
+              </Link>
+            </HomeCard>
+            <HomeCard title="References">
+              <Link className={styles.cardLink} to="/references/cli">
+                Haneul CLI
               </Link>
               <Link className={styles.cardLink} to="/references/haneul-api">
                 Haneul API
               </Link>
-              <Link
-                className={styles.cardLink}
-                to="https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-framework/docs"
-              >
-                Haneul Framework
-              </Link>
-              <Link
-                className={styles.cardLink}
-                to="https://github.com/GeunhwaJeong/haneul/tree/main/crates/haneul-sdk"
-              >
-                Rust SDK
+              <Link className={styles.cardLink} to="/references/framework">
+                Move Framework
               </Link>
             </HomeCard>
-            <HomeCard title="Resources" aux>
-              <Link
-                className={styles.cardLink}
-                to="https://haneul.directory/?_project_type=api%2Cdeveloper-tools%2Cinfrastructure%2Csdk"
-              >
-                Haneul Ecosystem
+            <HomeCard title="Node Operators">
+              <Link className={styles.cardLink} to="/operators/full-node/haneul-full-node">
+                Run a Haneul Full Node
               </Link>
-              <Link className={styles.cardLink} to="/references/awesome-haneul">
-                Awesome Haneul
+              <Link className={styles.cardLink} to="/operators/validator">
+                Validators
               </Link>
-              <Link className={styles.cardLink} to="https://blog.haneul.io/">
-                Haneul blog
-              </Link>
-              <Link
-                className={styles.cardLink}
-                to="guides/developer/dev-cheat-sheet"
-              >
-                Haneul Developer Cheat Sheet
+              <Link className={styles.cardLink} to="/operators/bridge-node-configuration">
+                Bridge Node Configuration
               </Link>
             </HomeCard>
             <HomeCardCTA>
               <Link
                 className={styles.cardCTALink}
-                to="/guides/developer/getting-started/hello-world"
+                to="/getting-started/onboarding/hello-world"
               >
-                <span>Build your dApp on Haneul</span>
+                <span>Build your first app on Haneul</span>
                 <svg
                   width="11"
                   height="11"

@@ -10,7 +10,7 @@ export default function GetStartedLink() {
   return (
     <>
       {location.pathname === "/" && (
-        <Link to="/guides#get-started-developing-on-haneul" className="button-cta">
+        <Link to="/getting-started/onboarding" className="button-cta">
           Get started
         </Link>
       )}
