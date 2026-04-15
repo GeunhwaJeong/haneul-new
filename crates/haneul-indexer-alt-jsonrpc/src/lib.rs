@@ -312,15 +312,12 @@ pub async fn start_rpc(
         warn!("No fullnode rpc url provided, DelegationGovernance module will not be added.");
     }
 
-    if node_args.fullnode_grpc_url.is_some() {
+    if let Some(fullnode_grpc_url) = node_args.fullnode_grpc_url.as_deref() {
+        let fullnode_rpc_url =
+            Url::parse(fullnode_grpc_url).context("Invalid fullnode gRPC URL")?;
         let fullnode_client = FullnodeClient::new(
             Some("jsonrpc_alt_fullnode"),
-            FullnodeArgs {
-                fullnode_rpc_url: node_args
-                    .fullnode_grpc_url
-                    .as_deref()
-                    .map(|u| Url::parse(u).expect("Invalid fullnode gRPC URL")),
-            },
+            FullnodeArgs { fullnode_rpc_url },
             registry,
         )
         .await

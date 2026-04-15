@@ -18,17 +18,17 @@ use url::Url;
 
 use crate::metrics::FullnodeClientMetrics;
 
-#[derive(clap::Args, Debug, Clone, Default)]
+#[derive(clap::Args, Debug, Clone)]
 pub struct FullnodeArgs {
     /// gRPC URL for full node operations such as executeTransaction and simulateTransaction.
     #[clap(long)]
-    pub fullnode_rpc_url: Option<Url>,
+    pub fullnode_rpc_url: Url,
 }
 
 /// A client for executing and simulating transactions via the full node gRPC service.
 #[derive(Clone)]
 pub struct FullnodeClient {
-    execution_client: Option<TransactionExecutionServiceClient<Channel>>,
+    execution_client: TransactionExecutionServiceClient<Channel>,
     metrics: Arc<FullnodeClientMetrics>,
 }
 
@@ -36,9 +36,6 @@ pub struct FullnodeClient {
 pub enum Error {
     #[error(transparent)]
     Internal(#[from] anyhow::Error),
-
-    #[error("Full node client not configured")]
-    NotConfigured,
 
     #[error(transparent)]
     GrpcExecutionError(#[from] tonic::Status),
@@ -50,22 +47,17 @@ impl FullnodeClient {
         args: FullnodeArgs,
         registry: &Registry,
     ) -> Result<Self, Error> {
-        let execution_client = if let Some(url) = &args.fullnode_rpc_url {
-            let mut endpoint = Channel::from_shared(url.to_string())
-                .context("Failed to create channel for gRPC endpoint")?;
+        let mut endpoint = Channel::from_shared(args.fullnode_rpc_url.to_string())
+            .context("Failed to create channel for gRPC endpoint")?;
 
-            if url.scheme() == "https" {
-                endpoint = endpoint
-                    .tls_config(ClientTlsConfig::new().with_native_roots())
-                    .context("Failed to configure TLS for gRPC endpoint")?;
-            }
+        if args.fullnode_rpc_url.scheme() == "https" {
+            endpoint = endpoint
+                .tls_config(ClientTlsConfig::new().with_native_roots())
+                .context("Failed to configure TLS for gRPC endpoint")?;
+        }
 
-            let channel = endpoint.connect_lazy();
-            Some(TransactionExecutionServiceClient::new(channel))
-        } else {
-            None
-        };
-
+        let channel = endpoint.connect_lazy();
+        let execution_client = TransactionExecutionServiceClient::new(channel);
         let metrics = FullnodeClientMetrics::new(prefix, registry);
 
         Ok(Self {
@@ -106,11 +98,9 @@ impl FullnodeClient {
         .with_signatures(signatures)
         .with_read_mask(read_mask);
 
-        self.request(
-            "execute_transaction",
-            self.execution_client.clone(),
-            |mut client| async move { client.execute_transaction(request).await },
-        )
+        self.request("execute_transaction", |mut client| async move {
+            client.execute_transaction(request).await
+        })
         .await
     }
 
@@ -140,28 +130,17 @@ impl FullnodeClient {
             .with_checks(checks)
             .with_do_gas_selection(do_gas_selection);
 
-        self.request(
-            "simulate_transaction",
-            self.execution_client.clone(),
-            |mut client| async move { client.simulate_transaction(request).await },
-        )
+        self.request("simulate_transaction", |mut client| async move {
+            client.simulate_transaction(request).await
+        })
         .await
     }
 
-    async fn request<C, F, Fut, R>(
-        &self,
-        method: &str,
-        client: Option<C>,
-        response: F,
-    ) -> Result<R, Error>
+    async fn request<F, Fut, R>(&self, method: &str, response: F) -> Result<R, Error>
     where
-        F: FnOnce(C) -> Fut,
+        F: FnOnce(TransactionExecutionServiceClient<Channel>) -> Fut,
         Fut: std::future::Future<Output = Result<tonic::Response<R>, tonic::Status>>,
     {
-        let Some(client) = client else {
-            return Err(Error::NotConfigured);
-        };
-
         self.metrics
             .requests_received
             .with_label_values(&[method])
@@ -173,7 +152,7 @@ impl FullnodeClient {
             .with_label_values(&[method])
             .start_timer();
 
-        let response = response(client)
+        let response = response(self.execution_client.clone())
             .await
             .map(|r| r.into_inner())
             .map_err(Into::into);
@@ -198,39 +177,22 @@ impl FullnodeClient {
 mod tests {
     use super::*;
 
-    async fn fn_client(url: Option<&str>) -> Result<FullnodeClient, Error> {
-        let args = FullnodeArgs {
-            fullnode_rpc_url: url.map(|u| Url::parse(u).unwrap()),
-        };
+    async fn fn_client(url: &str) -> Result<FullnodeClient, Error> {
+        let url = Url::parse(url).unwrap();
         let registry = Registry::new();
+        let args = FullnodeArgs {
+            fullnode_rpc_url: url,
+        };
         FullnodeClient::new(None, args, &registry).await
     }
 
     #[tokio::test]
-    async fn no_url_means_not_configured() {
-        let client = fn_client(None).await.unwrap();
-        assert!(client.execution_client.is_none());
-    }
-
-    #[tokio::test]
     async fn http_url_creates_client() {
-        assert!(
-            fn_client(Some("http://localhost:9000"))
-                .await
-                .unwrap()
-                .execution_client
-                .is_some()
-        );
+        fn_client("http://localhost:9000").await.unwrap();
     }
 
     #[tokio::test]
     async fn https_url_creates_client() {
-        assert!(
-            fn_client(Some("https://fn.example.com"))
-                .await
-                .unwrap()
-                .execution_client
-                .is_some()
-        );
+        fn_client("https://fn.example.com").await.unwrap();
     }
 }
