@@ -16859,6 +16859,7 @@ dependencies = [
  "haneul-rpc",
  "haneul-sdk-types",
  "haneul-transaction-builder",
+ "haneul-transaction-checks",
  "haneul-types",
  "tap",
  "thiserror 1.0.69",

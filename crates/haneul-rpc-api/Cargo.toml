@@ -44,6 +44,7 @@ haneul-package-resolver.workspace = true
 move-binary-format.workspace = true
 move-core-types.workspace = true
 haneul-transaction-builder.workspace = true
+haneul-transaction-checks.workspace = true
 haneul-display.workspace = true
 
 # dependencies for the protobuf definitions
