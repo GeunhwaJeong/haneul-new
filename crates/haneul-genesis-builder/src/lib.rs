@@ -5,7 +5,6 @@ use anyhow::{Context, bail};
 use camino::Utf8Path;
 use fastcrypto::hash::HashFunction;
 use fastcrypto::traits::KeyPair;
-use move_binary_format::CompiledModule;
 use move_core_types::ident_str;
 use haneullabs_common::ZipDebugEqIteratorExt;
 use shared_crypto::intent::{Intent, IntentMessage, IntentScope};
@@ -48,9 +47,7 @@ use haneul_types::metrics::ExecutionMetrics;
 use haneul_types::object::{Object, Owner};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::{HaneulSystemState, HaneulSystemStateTrait, get_haneul_system_state};
-use haneul_types::transaction::{
-    CallArg, CheckedInputObjects, Command, InputObjectKind, ObjectReadResult, Transaction,
-};
+use haneul_types::transaction::{CallArg, CheckedInputObjects, Transaction};
 use haneul_types::{BRIDGE_ADDRESS, HANEUL_BRIDGE_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS};
 use tracing::trace;
 use validator_info::{GenesisValidatorInfo, GenesisValidatorMetadata, ValidatorInfo};
@@ -979,17 +976,7 @@ fn create_genesis_objects(
         .expect("Creating an executor should not fail here");
 
     for system_package in system_packages.into_iter() {
-        process_package(
-            &mut store,
-            executor.as_ref(),
-            epoch_data,
-            genesis_digest,
-            &system_package.modules(),
-            system_package.dependencies,
-            &protocol_config,
-            metrics.clone(),
-        )
-        .unwrap();
+        process_package(&mut store, system_package).unwrap();
     }
 
     {
@@ -1015,26 +1002,18 @@ fn create_genesis_objects(
 
 fn process_package(
     store: &mut InMemoryStorage,
-    executor: &dyn Executor,
-    epoch_data: &EpochData,
-    genesis_digest: &TransactionDigest,
-    modules: &[CompiledModule],
-    dependencies: Vec<ObjectID>,
-    protocol_config: &ProtocolConfig,
-    metrics: Arc<ExecutionMetrics>,
+    system_package: SystemPackage,
 ) -> anyhow::Result<()> {
-    let dependency_objects = store.get_objects(&dependencies);
-    // When publishing genesis packages, since the std framework packages all have
-    // non-zero addresses, [`Transaction::input_objects_in_compiled_modules`] will consider
-    // them as dependencies even though they are not. Hence input_objects contain objects
-    // that don't exist on-chain because they are yet to be published.
     #[cfg(debug_assertions)]
     {
         use move_core_types::account_address::AccountAddress;
-        let to_be_published_addresses: std::collections::HashSet<_> = modules
+        let to_be_published_addresses: std::collections::HashSet<_> = system_package
+            .modules()
             .iter()
             .map(|module| *module.self_id().address())
             .collect();
+        let dependencies = &system_package.dependencies;
+        let dependency_objects = store.get_objects(dependencies);
         assert!(
             // An object either exists on-chain, or is one of the packages to be published.
             dependencies
@@ -1044,43 +1023,8 @@ fn process_package(
                     || to_be_published_addresses.contains(&AccountAddress::from(*dependency)))
         );
     }
-    let loaded_dependencies: Vec<_> = dependencies
-        .iter()
-        .zip_debug_eq(dependency_objects)
-        .filter_map(|(dependency, object)| {
-            Some(ObjectReadResult::new(
-                InputObjectKind::MovePackage(*dependency),
-                object?.clone().into(),
-            ))
-        })
-        .collect();
-
-    let module_bytes = modules
-        .iter()
-        .map(|m| {
-            let mut buf = vec![];
-            m.serialize_with_version(m.version, &mut buf).unwrap();
-            buf
-        })
-        .collect();
-    let pt = {
-        let mut builder = ProgrammableTransactionBuilder::new();
-        // executing in Genesis mode does not create an `UpgradeCap`.
-        builder.command(Command::Publish(module_bytes, dependencies));
-        builder.finish()
-    };
-    let InnerTemporaryStore { written, .. } = executor.update_genesis_state(
-        &*store,
-        protocol_config,
-        metrics,
-        epoch_data.epoch_id(),
-        epoch_data.epoch_start_timestamp(),
-        genesis_digest,
-        CheckedInputObjects::new_for_genesis(loaded_dependencies),
-        pt,
-    )?;
-
-    store.finish(written);
+    // This is genesis, so insert the system package objects directly without going through Move.
+    store.insert_object(system_package.genesis_object());
 
     Ok(())
 }
