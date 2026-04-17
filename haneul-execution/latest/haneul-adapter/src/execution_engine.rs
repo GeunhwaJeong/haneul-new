@@ -63,7 +63,7 @@ mod checked {
     use haneul_types::effects::TransactionEffects;
     use haneul_types::error::{ExecutionError, ExecutionErrorTrait};
     use haneul_types::execution::{ExecutionTiming, ResultWithTimings};
-    use haneul_types::execution_status::{ExecutionErrorKind, ExecutionFailure, ExecutionStatus};
+    use haneul_types::execution_status::{ExecutionErrorKind, ExecutionStatus};
     use haneul_types::gas::GasCostSummary;
     use haneul_types::gas::HaneulGasStatus;
     use haneul_types::id::UID;
@@ -255,8 +255,7 @@ mod checked {
                 _ => (),
             };
 
-            let ExecutionFailure { error, command } = error.to_execution_failure();
-            ExecutionStatus::new_failure(error, command)
+            ExecutionStatus::new_failure(error.to_execution_failure())
         } else {
             ExecutionStatus::Success
         };

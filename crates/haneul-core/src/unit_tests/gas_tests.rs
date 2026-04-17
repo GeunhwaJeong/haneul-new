@@ -13,7 +13,7 @@ use once_cell::sync::Lazy;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::crypto::AccountKeyPair;
 use haneul_types::effects::SignedTransactionEffects;
-use haneul_types::execution_status::{ExecutionErrorKind, ExecutionStatus};
+use haneul_types::execution_status::{ExecutionErrorKind, ExecutionFailure, ExecutionStatus};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::GAS_VALUE_FOR_TESTING;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
@@ -582,7 +582,10 @@ async fn test_transfer_haneul_insufficient_gas() {
     // We expect this to fail due to insufficient gas.
     assert_eq!(
         *effects.status(),
-        ExecutionStatus::new_failure(ExecutionErrorKind::InsufficientGas, None)
+        ExecutionStatus::new_failure(ExecutionFailure::new(
+            ExecutionErrorKind::InsufficientGas,
+            None
+        ))
     );
     // Ensure that the owner of the object did not change if the transfer failed.
     assert_eq!(
