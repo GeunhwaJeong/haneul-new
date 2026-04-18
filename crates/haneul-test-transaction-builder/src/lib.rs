@@ -303,6 +303,18 @@ impl TestTransactionBuilder {
         )
     }
 
+    pub fn call_unstaking(self, staked_haneul: ObjectRef) -> Self {
+        self.move_call(
+            HANEUL_SYSTEM_PACKAGE_ID,
+            HANEUL_SYSTEM_MODULE_NAME.as_str(),
+            "request_withdraw_stake",
+            vec![
+                CallArg::HANEUL_SYSTEM_MUT,
+                CallArg::Object(ObjectArg::ImmOrOwnedObject(staked_haneul)),
+            ],
+        )
+    }
+
     pub fn call_emit_random(
         self,
         package_id: ObjectID,
