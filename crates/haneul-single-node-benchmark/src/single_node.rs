@@ -14,9 +14,7 @@ use haneul_core::authority::test_authority_builder::TestAuthorityBuilder;
 use haneul_core::authority::{AuthorityState, ExecutionEnv};
 use haneul_core::authority_server::{ValidatorService, ValidatorServiceMetrics};
 use haneul_core::checkpoints::checkpoint_executor::CheckpointExecutor;
-use haneul_core::consensus_adapter::{
-    ConnectionMonitorStatusForTests, ConsensusAdapter, ConsensusAdapterMetrics,
-};
+use haneul_core::consensus_adapter::{ConsensusAdapter, ConsensusAdapterMetrics};
 use haneul_core::global_state_hasher::GlobalStateHasher;
 use haneul_core::mock_checkpoint_builder::{MockCheckpointBuilder, ValidatorKeypairProvider};
 use haneul_core::mock_consensus::{ConsensusMode, MockConsensusClient};
@@ -60,13 +58,9 @@ impl SingleValidator {
             )),
             validator.checkpoint_store.clone(),
             validator.name,
-            Arc::new(ConnectionMonitorStatusForTests {}),
             100_000,
             100_000,
-            None,
-            None,
             ConsensusAdapterMetrics::new_test(),
-            epoch_store.protocol_config().clone(),
         ));
         // TODO: for validator benchmarking purposes, we should allow for traffic control
         // to be configurable and introduce traffic control benchmarks to test

@@ -16,6 +16,7 @@ use move_core_types::{account_address::AccountAddress, ident_str};
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng, thread_rng};
 use haneul_macros::sim_test;
+use haneul_protocol_config::ProtocolConfig;
 use haneul_types::HANEUL_FRAMEWORK_PACKAGE_ID;
 use haneul_types::crypto::{AccountKeyPair, deterministic_random_account_key};
 use haneul_types::gas::GasCostSummary;
