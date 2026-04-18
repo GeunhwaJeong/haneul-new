@@ -53,7 +53,9 @@ mod test {
     use haneul_simulator::{SimConfig, configs::*};
     use haneul_surfer::surf_strategy::SurfStrategy;
     use haneul_swarm_config::network_config_builder::ConfigBuilder;
-    use haneul_types::base_types::{AuthorityName, ConciseableName, ObjectID, SequenceNumber};
+    use haneul_types::base_types::{
+        AuthorityName, ConciseableName, ObjectID, SequenceNumber, HaneulAddress,
+    };
     use haneul_types::committee::CommitteeTrait;
     use haneul_types::digests::TransactionDigest;
     use haneul_types::messages_checkpoint::VerifiedCheckpoint;
@@ -1262,6 +1264,8 @@ mod test {
             in_flight_ratio,
             duration,
             composite_config: config.composite_config,
+            deposit_target_addresses: vec![],
+            deposit_seed_haneul: 0,
         };
 
         let workloads_builders = WorkloadConfiguration::create_workload_builders(
@@ -1725,6 +1729,149 @@ mod test {
 
         assert!(shared_plus_randomness_txns > 0);
         assert!(shared_plus_randomness_cancellations > 0);
+    }
+
+    #[sim_test(config = "test_config()")]
+    async fn test_addr_bal_deposit_workload() {
+        haneul_protocol_config::ProtocolConfig::poison_get_for_min_version();
+        let test_cluster = build_test_cluster(4, 10000, 1).await;
+
+        let protocol_config = haneul_protocol_config::ProtocolConfig::get_for_version(
+            haneul_protocol_config::ProtocolVersion::max(),
+            test_cluster.get_chain_identifier().chain(),
+        );
+        if !protocol_config.enable_address_balance_gas_payments() {
+            info!("Address balance gas payments not enabled, skipping test");
+            return;
+        }
+
+        let targets: Vec<HaneulAddress> = (0..4)
+            .map(|_| HaneulAddress::random_for_testing_only())
+            .collect();
+        let metrics = Arc::new(Mutex::new(
+            haneul_benchmark::workloads::addr_bal_deposit::AddrBalDepositMetrics::default(),
+        ));
+        let config = haneul_benchmark::workloads::addr_bal_deposit::AddrBalDepositConfig {
+            target_addresses: targets.clone(),
+            deposit_amount: 1000,
+            seed_amount: 100_000 * haneul_types::gas_coin::GEUNHWA_PER_HANEUL,
+            metrics: Some(metrics.clone()),
+        };
+
+        let sender = test_cluster.get_address_0();
+        let keystore_path = test_cluster.swarm.dir().join(HANEUL_KEYSTORE_FILENAME);
+        let genesis = test_cluster.swarm.config().genesis.clone();
+        let primary_gas = test_cluster
+            .wallet
+            .get_one_gas_object_owned_by_address(sender)
+            .await
+            .unwrap()
+            .unwrap();
+        let ed25519_keypair =
+            Arc::new(get_ed25519_keypair_from_keystore(keystore_path, &sender).unwrap());
+        let primary_coin = (primary_gas, sender, ed25519_keypair);
+
+        let registry = prometheus::Registry::new();
+        let proxy_metrics = BenchmarkProxyMetrics::new(&registry);
+        let fullnode_proxy: Arc<dyn ValidatorProxy + Send + Sync> = Arc::new(
+            FullNodeProxy::from_url(
+                &test_cluster.fullnode_handle.rpc_url,
+                &genesis.committee(),
+                &proxy_metrics,
+            )
+            .await
+            .unwrap(),
+        );
+
+        let bank = BenchmarkBank::new(
+            fullnode_proxy.clone(),
+            vec![fullnode_proxy.clone()],
+            primary_coin,
+        );
+        let system_state_observer = {
+            let mut observer = SystemStateObserver::new_from_test_cluster(&test_cluster);
+            let _ = observer.state.changed().await;
+            Arc::new(observer)
+        };
+
+        let target_qps = 20u64;
+        let num_workers = 10u64;
+        let in_flight_ratio = 2u64;
+
+        let builder_info =
+            haneul_benchmark::workloads::addr_bal_deposit::AddrBalDepositWorkloadBuilder::build_info(
+                config,
+                target_qps,
+                num_workers,
+                in_flight_ratio,
+                Interval::from_str("unbounded").unwrap(),
+                0,
+            )
+            .expect("builder should be created");
+
+        let workloads = WorkloadConfiguration::build(
+            vec![Some(builder_info)],
+            bank,
+            system_state_observer.clone(),
+            100,
+        )
+        .await
+        .unwrap();
+
+        let query_proxy = fullnode_proxy.clone();
+        let test_duration = Duration::from_secs(60);
+        let bench_task = tokio::spawn(async move {
+            let driver = BenchDriver::new(5, false);
+            let interval = Interval::Time(test_duration);
+            let (benchmark_stats, _) = driver
+                .run(
+                    vec![fullnode_proxy],
+                    vec![],
+                    workloads,
+                    system_state_observer,
+                    &registry,
+                    false,
+                    interval,
+                )
+                .await
+                .unwrap();
+            tracing::info!("end of test {:?}", benchmark_stats);
+            assert!(benchmark_stats.num_error_txes < 100);
+
+            // Verify all target addresses received deposits.
+            for (i, target) in targets.iter().enumerate() {
+                let target_balance = query_proxy
+                    .get_haneul_address_balance(*target)
+                    .await
+                    .unwrap_or(0);
+                tracing::info!("target address {i} balance: {target_balance} GEUNHWA",);
+                assert!(
+                    target_balance > 0,
+                    "target address {i} should have received deposits, but balance is 0",
+                );
+            }
+        });
+
+        bench_task.await.unwrap();
+
+        let m = metrics.lock().unwrap();
+        info!(
+            "addr_bal_deposit metrics: sent={}, success={}, abort={}, permanent_failure={}, retriable={}, unknown={}",
+            m.sent,
+            m.success,
+            m.abort,
+            m.permanent_failure,
+            m.retriable_failure,
+            m.unknown_rejection,
+        );
+
+        assert!(
+            m.success > 100,
+            "expected >100 successes, got {}",
+            m.success
+        );
+        assert_eq!(m.abort, 0, "no transactions should abort");
+        assert_eq!(m.permanent_failure, 0, "no permanent failures expected");
     }
 
     /// Tests that async post-processing produces consistent indexes even when
