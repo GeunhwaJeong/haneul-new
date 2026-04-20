@@ -3,6 +3,8 @@
 
 //! Transaction execution logic for the forked network.
 
+use tracing::info;
+
 use haneul_types::base_types::ObjectID;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::effects::TransactionEffectsAPI;
@@ -10,7 +12,6 @@ use haneul_types::error::ExecutionError;
 use haneul_types::transaction::InputObjectKind;
 use haneul_types::transaction::TransactionData;
 use haneul_types::transaction::TransactionDataAPI;
-use tracing::info;
 
 use crate::context::Context;
 
