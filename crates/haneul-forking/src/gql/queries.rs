@@ -14,7 +14,7 @@
 
 use anyhow::{Context, Error, anyhow};
 use cynic::QueryBuilder;
-use fastcrypto::encoding::{Base64 as CryptoBase64, Encoding};
+use fastcrypto::encoding::{Base64 as FastCryptoBase64, Encoding};
 use itertools::Itertools;
 
 use crate::gql::client::GraphQLClient;
@@ -29,7 +29,13 @@ mod schema {
 
 pub(crate) mod txn_query {
     use super::*;
-    use haneul_types::transaction::TransactionData;
+    use fastcrypto::traits::ToFromBytes;
+    use haneul_types::signature::GenericSignature;
+    use haneul_types::transaction::{
+        Transaction as HaneulTransaction, TransactionData, VerifiedTransaction,
+    };
+
+    use crate::TransactionInfo;
 
     #[derive(cynic::Scalar, Debug, Clone)]
     #[cynic(graphql_type = "Base64")]
@@ -50,7 +56,13 @@ pub(crate) mod txn_query {
     #[derive(cynic::QueryFragment)]
     pub(crate) struct Transaction {
         transaction_bcs: Option<Base64>,
+        signatures: Vec<UserSignature>,
         effects: Option<TransactionEffects>,
+    }
+
+    #[derive(cynic::QueryFragment)]
+    pub(crate) struct UserSignature {
+        signature_bytes: Option<Base64>,
     }
 
     #[derive(cynic::QueryFragment)]
@@ -67,7 +79,7 @@ pub(crate) mod txn_query {
     pub(crate) async fn query(
         digest: String,
         client: &GraphQLClient,
-    ) -> Result<Option<(TransactionData, haneul_types::effects::TransactionEffects, u64)>, Error> {
+    ) -> Result<Option<TransactionInfo>, Error> {
         let query = Query::build(TransactionDataArgs {
             digest: digest.clone(),
         });
@@ -81,7 +93,7 @@ pub(crate) mod txn_query {
         };
 
         let txn_data: TransactionData = bcs::from_bytes(
-            &CryptoBase64::decode(
+            &FastCryptoBase64::decode(
                 &transaction
                     .transaction_bcs
                     .ok_or_else(|| {
@@ -102,11 +114,28 @@ pub(crate) mod txn_query {
             digest
         ))?;
 
+        let signatures: Vec<GenericSignature> = transaction
+            .signatures
+            .into_iter()
+            .map(|sig| {
+                let encoded = sig
+                    .signature_bytes
+                    .ok_or_else(|| anyhow!("Missing signatureBytes for transaction {}", digest))?;
+                let bytes = FastCryptoBase64::decode(&encoded.0).context(format!(
+                    "User signature does not decode for digest: {}",
+                    digest
+                ))?;
+                GenericSignature::from_bytes(&bytes).map_err(|e| {
+                    anyhow!("User signature parse failed for digest {}: {}", digest, e)
+                })
+            })
+            .collect::<Result<_, _>>()?;
+
         let effect_frag = transaction
             .effects
             .ok_or_else(|| anyhow!("Missing effects in transaction data response"))?;
         let effects: haneul_types::effects::TransactionEffects = bcs::from_bytes(
-            &CryptoBase64::decode(
+            &FastCryptoBase64::decode(
                 &effect_frag
                     .effects_bcs
                     .ok_or_else(|| anyhow!("Missing effects bcs in transaction data response"))?
@@ -124,10 +153,18 @@ pub(crate) mod txn_query {
 
         let checkpoint = effect_frag
             .checkpoint
-            .ok_or_else(|| anyhow!("Missing checkpoint in transaction query response"))?
+            .ok_or_else(|| anyhow!("Missing checkpoint in transaction data response"))?
             .sequence_number;
 
-        Ok(Some((txn_data, effects, checkpoint)))
+        let transaction = VerifiedTransaction::new_unchecked(
+            HaneulTransaction::from_generic_sig_data(txn_data, signatures),
+        );
+
+        Ok(Some(TransactionInfo {
+            transaction,
+            effects,
+            checkpoint,
+        }))
     }
 }
 
@@ -318,7 +355,7 @@ pub(crate) mod object_query {
                     .object_bcs
                     .ok_or_else(|| anyhow!("Object bcs is None for object"))?
                     .0;
-                let bytes = CryptoBase64::decode(&b64)?;
+                let bytes = FastCryptoBase64::decode(&b64)?;
                 let obj: Object = bcs::from_bytes(&bytes)?;
                 let version = frag
                     .version
@@ -508,7 +545,7 @@ pub(crate) mod checkpoint_query {
             ));
         };
 
-        let signature_bytes = CryptoBase64::decode(
+        let signature_bytes = FastCryptoBase64::decode(
             &validator_signatures
                 .signature
                 .ok_or_else(|| anyhow!("Missing aggregated checkpoint signature"))?
@@ -551,7 +588,7 @@ pub(crate) mod checkpoint_query {
     where
         T: serde::de::DeserializeOwned,
     {
-        let bytes = CryptoBase64::decode(
+        let bytes = FastCryptoBase64::decode(
             &field
                 .ok_or_else(|| anyhow!("Missing {} in checkpoint response", label))?
                 .0,
