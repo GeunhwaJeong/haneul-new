@@ -2,9 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::collections::BTreeMap;
+use std::sync::Arc;
 
 use anyhow::anyhow;
+use tracing::info;
 
+use move_core_types::annotated_value::MoveTypeLayout;
+use move_core_types::language_storage::StructTag;
 use simulacrum::store::SimulatorStore;
 use haneul_protocol_config::Chain;
 use haneul_types::base_types::ObjectID;
@@ -14,17 +18,22 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::clock::Clock;
 use haneul_types::committee::Committee;
 use haneul_types::committee::EpochId;
+use haneul_types::digests::ChainIdentifier;
 use haneul_types::digests::CheckpointContentsDigest;
 use haneul_types::digests::CheckpointDigest;
 use haneul_types::digests::ObjectDigest;
 use haneul_types::digests::TransactionDigest;
+use haneul_types::digests::get_mainnet_chain_identifier;
+use haneul_types::digests::get_testnet_chain_identifier;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::effects::TransactionEvents;
 use haneul_types::error::HaneulResult;
+use haneul_types::full_checkpoint_content::ObjectSet;
 use haneul_types::messages_checkpoint::CheckpointContents;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::messages_checkpoint::VerifiedCheckpoint;
+use haneul_types::messages_checkpoint::VersionedFullCheckpointContents;
 use haneul_types::object::Object;
 use haneul_types::storage::BackingPackageStore;
 use haneul_types::storage::BackingStore;
@@ -32,6 +41,10 @@ use haneul_types::storage::ChildObjectResolver;
 use haneul_types::storage::ObjectStore;
 use haneul_types::storage::PackageObject;
 use haneul_types::storage::ParentSync;
+use haneul_types::storage::ReadStore;
+use haneul_types::storage::RpcStateReader;
+use haneul_types::storage::error::Error as StorageError;
+use haneul_types::storage::error::Result as StorageResult;
 use haneul_types::storage::load_package_object_from_object_store;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::transaction::VerifiedTransaction;
@@ -52,7 +65,8 @@ use crate::filesystem::FilesystemStore;
 ///
 /// Implements [`SimulatorStore`] so it can be passed directly into
 /// [`simulacrum::Simulacrum::new_from_custom_state`].
-pub(crate) struct DataStore {
+#[derive(Clone)]
+pub struct DataStore {
     forked_at_checkpoint: CheckpointSequenceNumber,
     gql: GraphQLClient,
     local: FilesystemStore,
@@ -62,9 +76,9 @@ impl DataStore {
     /// Create a new `DataStore` for the given network, anchored at `forked_at_checkpoint`.
     ///
     /// The local filesystem cache is rooted under a per-network, per-checkpoint directory
-    /// (see [`FilesystemStore`]). The GraphQL client is constructed eagerly but no remote
+    /// (see `FilesystemStore`). The GraphQL client is constructed eagerly but no remote
     /// requests are made until reads happen.
-    pub(crate) async fn new(
+    pub async fn new(
         node: Node,
         forked_at_checkpoint: CheckpointSequenceNumber,
         version: &str,
@@ -79,12 +93,12 @@ impl DataStore {
         })
     }
 
-    fn forked_at_checkpoint(&self) -> CheckpointSequenceNumber {
+    pub fn forked_at_checkpoint(&self) -> CheckpointSequenceNumber {
         self.forked_at_checkpoint
     }
 
     /// Return the chain (mainnet/testnet/devnet/unknown) this store is connected to.
-    pub fn get_chain_identifier(&self) -> Chain {
+    pub fn chain(&self) -> Chain {
         self.gql.chain()
     }
 
@@ -96,9 +110,14 @@ impl DataStore {
         sequence: CheckpointSequenceNumber,
     ) -> anyhow::Result<Option<VerifiedCheckpoint>> {
         if let Some(checkpoint) = self.local.get_checkpoint_by_sequence_number(sequence)? {
+            info!("Found checkpoint {sequence} in local filesystem");
             return Ok(Some(checkpoint));
         }
         if sequence > self.forked_at_checkpoint {
+            info!(
+                "Checkpoint requested for sequence {sequence} > forked_at_checkpoint {}, returning None",
+                self.forked_at_checkpoint
+            );
             return Ok(None);
         }
         Ok(self
@@ -173,13 +192,29 @@ impl DataStore {
         self.local.get_highest_checkpoint_sequence_number()
     }
 
+    /// Query the remote GraphQL endpoint to determine the lowest checkpoint for
+    /// which both checkpoint and transaction data are available.
+    pub(crate) fn get_lowest_available_checkpoint(
+        &self,
+    ) -> anyhow::Result<CheckpointSequenceNumber> {
+        self.gql.get_lowest_available_checkpoint()
+    }
+
+    /// Query the remote GraphQL endpoint to determine the lowest checkpoint for
+    /// which object data is available.
+    pub(crate) fn get_lowest_available_checkpoint_objects(
+        &self,
+    ) -> anyhow::Result<CheckpointSequenceNumber> {
+        self.gql.get_lowest_available_checkpoint_objects()
+    }
+
     /// Fetch checkpoint summary and contents from the remote GraphQL endpoint and persist them to
     /// disk. Shared by the sequence-keyed cache-aware getters.
     fn fetch_and_cache_checkpoint(
         &self,
         sequence: CheckpointSequenceNumber,
     ) -> anyhow::Result<Option<(VerifiedCheckpoint, CheckpointContents)>> {
-        let Some((checkpoint, contents)) = self.gql.get_verified_checkpoint(Some(sequence))? else {
+        let Some((checkpoint, contents)) = self.gql.get_checkpoint(Some(sequence))? else {
             return Ok(None);
         };
         // Write contents first: they're content-addressed (idempotent), so
@@ -288,6 +323,24 @@ impl DataStore {
             .map(|info| info.transaction))
     }
 
+    /// Get the checkpoint that finalized a transaction. Local-only: the checkpoint
+    /// file is written alongside the transaction by both the remote-fetch path
+    /// and the post-fork executor path.
+    pub(crate) fn get_transaction_checkpoint(
+        &self,
+        digest: &TransactionDigest,
+    ) -> anyhow::Result<Option<CheckpointSequenceNumber>> {
+        if let Some(seq) = self.local.get_transaction_checkpoint(digest)? {
+            return Ok(Some(seq));
+        }
+        // If the checkpoint file is missing but the transaction itself hasn't
+        // been fetched yet, try fetching it — that will also write the
+        // checkpoint file as a side-effect.
+        Ok(self
+            .fetch_and_cache_transaction(digest)?
+            .map(|info| info.checkpoint))
+    }
+
     /// Get transaction effects by digest, with the same local-first remote-fallback
     /// policy as [`Self::get_transaction`].
     pub(crate) fn get_transaction_effects(
@@ -327,7 +380,43 @@ impl DataStore {
         self.local.write_transaction(digest, &info.transaction)?;
         self.local
             .write_transaction_effects(digest, &info.effects)?;
+        self.local
+            .write_transaction_checkpoint(digest, info.checkpoint)?;
+
+        // Fetch and persist events separately — they require paginated queries.
+        // Best-effort: if the events fetch fails we still want the transaction
+        // and effects cached, so log the error and fall back to empty events.
+        let events = match self.gql.get_transaction_events(&digest.base58_encode()) {
+            Ok(Some(events)) => events,
+            Ok(None) => TransactionEvents::default(),
+            Err(err) => {
+                tracing::warn!(
+                    %digest,
+                    "failed to fetch transaction events, storing empty: {err:#}",
+                );
+                TransactionEvents::default()
+            }
+        };
+        self.local.write_transaction_events(digest, &events)?;
+
         Ok(Some(info))
+    }
+
+    /// Look up the checkpoint sequence number that references the given contents
+    /// digest by scanning the highest persisted checkpoint. Called from
+    /// `insert_checkpoint_contents` to build the tx→checkpoint reverse mapping.
+    fn checkpoint_sequence_for_contents(
+        &self,
+        contents_digest: &CheckpointContentsDigest,
+    ) -> Option<CheckpointSequenceNumber> {
+        // The summary persisted by the immediately preceding `insert_checkpoint`
+        // call is typically the highest checkpoint. Read it back and verify the
+        // content_digest matches.
+        let checkpoint = self.local.get_highest_verified_checkpoint().ok()??;
+        if checkpoint.data().content_digest == *contents_digest {
+            return Some(checkpoint.data().sequence_number);
+        }
+        None
     }
 
     /// Construct a `DataStore` for tests, backed by an explicit local root and a fake (unused)
@@ -570,6 +659,23 @@ impl SimulatorStore for DataStore {
                 "failed to persist checkpoint contents: {err:?}",
             );
         }
+
+        // Build the tx_digest → checkpoint reverse mapping. The summary
+        // (persisted by the preceding `insert_checkpoint` call) carries the
+        // sequence number we need.
+        if let Some(sequence) = self.checkpoint_sequence_for_contents(&digest) {
+            for exec_digest in contents.iter() {
+                if let Err(err) = self
+                    .local
+                    .write_transaction_checkpoint(&exec_digest.transaction, sequence)
+                {
+                    tracing::error!(
+                        tx_digest = %exec_digest.transaction,
+                        "failed to persist transaction checkpoint: {err:?}",
+                    );
+                }
+            }
+        }
     }
 
     fn insert_committee(&mut self, _committee: Committee) {
@@ -625,6 +731,160 @@ impl SimulatorStore for DataStore {
 
     fn backing_store(&self) -> &dyn BackingStore {
         self
+    }
+}
+
+// ============================================================================
+// ReadStore / RpcStateReader
+// ============================================================================
+
+impl ReadStore for DataStore {
+    fn get_committee(&self, _epoch: haneul_types::committee::EpochId) -> Option<Arc<Committee>> {
+        todo!("ReadStore::get_committee on forked DataStore")
+    }
+
+    fn get_latest_checkpoint(&self) -> StorageResult<VerifiedCheckpoint> {
+        self.get_highest_verified_checkpoint()
+            .map_err(|e| StorageError::custom(e.to_string()))?
+            .ok_or_else(|| StorageError::missing("no checkpoint persisted yet"))
+    }
+
+    fn get_highest_verified_checkpoint(&self) -> StorageResult<VerifiedCheckpoint> {
+        DataStore::get_highest_verified_checkpoint(self)
+            .map_err(|e| StorageError::custom(e.to_string()))?
+            .ok_or_else(|| StorageError::missing("no checkpoint persisted yet"))
+    }
+
+    fn get_highest_synced_checkpoint(&self) -> StorageResult<VerifiedCheckpoint> {
+        // A fork has no concept of an "unsynced" checkpoint — anything we hold
+        // locally was either pre-fetched at startup or produced by the local
+        // executor, so highest-synced collapses to highest-verified.
+        DataStore::get_highest_verified_checkpoint(self)
+            .map_err(|e| StorageError::custom(e.to_string()))?
+            .ok_or_else(|| {
+                StorageError::missing(
+                    "no checkpoint persisted yet — cannot determine highest synced checkpoint",
+                )
+            })
+    }
+
+    /// This will be called for most requests to correctly fetch the earliest checkpoint at which
+    /// transactions and checkpoint data are available. The GraphQL endpoint is the source of truth
+    /// for this.
+    fn get_lowest_available_checkpoint(&self) -> StorageResult<CheckpointSequenceNumber> {
+        DataStore::get_lowest_available_checkpoint(self)
+            .map_err(|e| StorageError::custom(e.to_string()))
+    }
+
+    fn get_checkpoint_by_digest(&self, digest: &CheckpointDigest) -> Option<VerifiedCheckpoint> {
+        DataStore::get_checkpoint_by_digest(self, digest)
+            .ok()
+            .flatten()
+    }
+
+    fn get_checkpoint_by_sequence_number(
+        &self,
+        sequence_number: CheckpointSequenceNumber,
+    ) -> Option<VerifiedCheckpoint> {
+        info!("Requested checkpoint {} through gRPC", sequence_number);
+        DataStore::get_checkpoint_by_sequence_number(self, sequence_number)
+            .ok()
+            .flatten()
+    }
+
+    fn get_checkpoint_contents_by_digest(
+        &self,
+        digest: &CheckpointContentsDigest,
+    ) -> Option<CheckpointContents> {
+        DataStore::get_checkpoint_contents_by_digest(self, digest)
+            .ok()
+            .flatten()
+    }
+
+    fn get_checkpoint_contents_by_sequence_number(
+        &self,
+        sequence_number: CheckpointSequenceNumber,
+    ) -> Option<CheckpointContents> {
+        DataStore::get_checkpoint_contents_by_sequence_number(self, sequence_number)
+            .ok()
+            .flatten()
+    }
+
+    fn get_transaction(&self, tx_digest: &TransactionDigest) -> Option<Arc<VerifiedTransaction>> {
+        SimulatorStore::get_transaction(self, tx_digest).map(Arc::new)
+    }
+
+    fn get_transaction_effects(&self, tx_digest: &TransactionDigest) -> Option<TransactionEffects> {
+        SimulatorStore::get_transaction_effects(self, tx_digest)
+    }
+
+    fn get_events(&self, tx_digest: &TransactionDigest) -> Option<TransactionEvents> {
+        SimulatorStore::get_transaction_events(self, tx_digest)
+    }
+
+    fn get_unchanged_loaded_runtime_objects(
+        &self,
+        _digest: &TransactionDigest,
+    ) -> Option<Vec<haneul_types::storage::ObjectKey>> {
+        None
+    }
+
+    fn get_transaction_checkpoint(
+        &self,
+        digest: &TransactionDigest,
+    ) -> Option<CheckpointSequenceNumber> {
+        DataStore::get_transaction_checkpoint(self, digest)
+            .ok()
+            .flatten()
+    }
+
+    fn get_full_checkpoint_contents(
+        &self,
+        _sequence_number: Option<CheckpointSequenceNumber>,
+        _digest: &CheckpointContentsDigest,
+    ) -> Option<VersionedFullCheckpointContents> {
+        todo!("ReadStore::get_full_checkpoint_contents on forked DataStore")
+    }
+}
+
+impl RpcStateReader for DataStore {
+    fn get_lowest_available_checkpoint_objects(&self) -> StorageResult<CheckpointSequenceNumber> {
+        DataStore::get_lowest_available_checkpoint_objects(self)
+            .map_err(|e| StorageError::custom(e.to_string()))
+    }
+
+    fn get_chain_identifier(&self) -> StorageResult<ChainIdentifier> {
+        // Map concrete `Chain` enum onto the canonical chain identifier so
+        // clients see this fork as the network it's based on. Devnet/custom
+        // forks fall back to the forked checkpoint's digest because those
+        // chains don't have a stable on-disk identifier.
+        let id = match self.chain() {
+            Chain::Mainnet => get_mainnet_chain_identifier(),
+            Chain::Testnet => get_testnet_chain_identifier(),
+            Chain::Unknown => {
+                let checkpoint =
+                    ReadStore::get_checkpoint_by_sequence_number(self, self.forked_at_checkpoint())
+                        .ok_or_else(|| {
+                            StorageError::missing(
+                                "forked checkpoint missing — cannot derive chain identifier",
+                            )
+                        })?;
+                ChainIdentifier::from(*checkpoint.digest())
+            }
+        };
+        Ok(id)
+    }
+
+    fn indexes(&self) -> Option<&dyn haneul_types::storage::RpcIndexes> {
+        None
+    }
+
+    fn get_struct_layout_with_overlay(
+        &self,
+        _struct_tag: &StructTag,
+        _overlay: &ObjectSet,
+    ) -> StorageResult<Option<MoveTypeLayout>> {
+        Ok(None)
     }
 }
 

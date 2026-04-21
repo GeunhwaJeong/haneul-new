@@ -13,6 +13,7 @@ chrono.workspace = true
 cynic.workspace = true
 fastcrypto.workspace = true
 itertools.workspace = true
+move-core-types.workspace = true
 prometheus.workspace = true
 rand.workspace = true
 reqwest = { workspace = true, features = ["json"] }
@@ -25,6 +26,7 @@ tracing-subscriber.workspace = true
 bin-version.workspace = true
 simulacrum.workspace = true
 haneul-protocol-config.workspace = true
+haneul-rpc-api.workspace = true
 haneul-swarm-config.workspace = true
 haneul-types.workspace = true
 
