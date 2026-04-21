@@ -17,7 +17,6 @@ lru.workspace = true
 haneullabs-common.workspace = true
 reqwest = { workspace = true, features = ["json"] }
 serde.workspace = true
-haneul-config.workspace = true
 haneul-types.workspace = true
 tokio = { workspace = true, features = ["full"] }
 tracing.workspace = true

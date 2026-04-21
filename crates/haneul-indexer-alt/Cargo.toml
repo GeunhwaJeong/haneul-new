@@ -22,12 +22,9 @@ bcs.workspace = true
 bin-version.workspace = true
 clap.workspace = true
 const-str.workspace = true
-dashmap.workspace = true
 diesel = { workspace = true, features = ["chrono"] }
 diesel-async = { workspace = true, features = ["bb8", "postgres", "async-connection-wrapper"] }
-diesel_migrations.workspace = true
 futures.workspace = true
-hex.workspace = true
 itertools.workspace = true
 prometheus.workspace = true
 serde.workspace = true
@@ -41,9 +38,7 @@ haneul-default-config.workspace = true
 haneul-indexer-alt-framework = { workspace = true, features = ["postgres"] }
 haneul-indexer-alt-metrics.workspace = true
 haneul-indexer-alt-schema.workspace = true
-haneul-pg-db.workspace = true
 haneul-protocol-config.workspace = true
-haneul-sql-macro.workspace = true
 haneul-types.workspace = true
 haneul-synthetic-ingestion = { workspace = true, optional = true }
 

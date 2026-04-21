@@ -7,7 +7,6 @@ publish = false
 edition = "2024"
 
 [dependencies]
-async-trait.workspace = true
 anyhow.workspace = true
 bcs.workspace = true
 fastcrypto.workspace = true
@@ -15,25 +14,16 @@ move-binary-format.workspace = true
 prost.workspace = true
 zstd.workspace = true
 move-core-types.workspace = true
-once_cell.workspace = true
 rand.workspace = true
-serde.workspace = true
-tracing.workspace = true
 prometheus.workspace = true
-futures.workspace = true
 haneul-core.workspace = true
 
 move-bytecode-utils.workspace = true
-shared-crypto.workspace = true
 haneul-config.workspace = true
-haneul-framework.workspace = true
 haneul-framework-snapshot.workspace = true
-haneul-keys.workspace = true
 haneul-protocol-config.workspace = true
 haneul-rpc.workspace = true
-haneul-storage.workspace = true
 haneul-types.workspace = true
-haneul-genesis-builder.workspace = true
 haneul-execution.workspace = true
 haneul-swarm-config.workspace = true
 haneul-transaction-checks.workspace = true

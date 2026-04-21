@@ -37,7 +37,6 @@ haneul-simulator.workspace = true
 haneul-protocol-config.workspace = true
 object_store.workspace = true
 url.workspace = true
-backoff.workspace = true
 prost.workspace = true
 zstd.workspace = true
 haneul-rpc.workspace = true

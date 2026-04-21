@@ -15,7 +15,6 @@ schemars.workspace = true
 
 haneul-types.workspace = true
 
-haneullabs-common.workspace = true
 move-binary-format.workspace = true
 move-bytecode-utils.workspace = true
 move-core-types.workspace = true

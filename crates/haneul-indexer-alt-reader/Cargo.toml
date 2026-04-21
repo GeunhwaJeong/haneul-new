@@ -21,7 +21,6 @@ futures.workspace = true
 http.workspace = true
 prost-types.workspace = true
 prometheus.workspace = true
-serde_json.workspace = true
 thiserror.workspace = true
 tokio.workspace = true
 tonic = { workspace = true, features = ["tls-native-roots"] }
@@ -40,7 +39,6 @@ haneul-kvstore.workspace = true
 haneul-package-resolver.workspace = true
 haneul-pg-db.workspace = true
 haneul-rpc.workspace = true
-haneul-rpc-api.workspace = true
 haneul-sdk-types.workspace = true
 haneul-sql-macro.workspace = true
 haneul-types.workspace = true

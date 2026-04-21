@@ -30,7 +30,6 @@ haneul-storage.workspace = true
 haneul-protocol-config.workspace = true
 fastcrypto = { workspace = true, features = ["copy_key"] }
 tokio = { workspace = true, features = ["full"] }
-serde_json.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true

@@ -11,7 +11,6 @@ anyhow.workspace = true
 async-trait.workspace = true
 axum.workspace = true
 backoff.workspace = true
-bb8 = "0.8.5"
 bytes.workspace = true
 chrono.workspace = true
 clap = { workspace = true, features = ["env"] }
@@ -42,9 +41,6 @@ haneul-futures.workspace = true
 haneul-indexer-alt-framework-store-traits.workspace = true
 haneul-indexer-alt-metrics.workspace = true
 haneul-rpc.workspace = true
-haneul-sdk-types.workspace = true
-haneul-rpc-api.workspace = true
-haneul-storage.workspace = true
 haneul-types.workspace = true
 prost.workspace = true
 prost-types.workspace = true

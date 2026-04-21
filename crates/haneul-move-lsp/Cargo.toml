@@ -12,8 +12,6 @@ bin-version.workspace = true
 move-analyzer.workspace = true
 move-compiler.workspace = true
 haneul-package-alt.workspace = true
-haneul-move-build.workspace = true
-haneul-package-management.workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
 tikv-jemalloc-ctl.workspace = true
