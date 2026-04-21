@@ -175,10 +175,10 @@ fn verify_signature(
     };
 
     let mut zklogin_verifier = match service.chain_id().chain() {
-        haneul_protocol_config::Chain::Mainnet => haneul_crypto::zklogin::ZkloginVerifier::new_mainnet(),
-        haneul_protocol_config::Chain::Testnet | haneul_protocol_config::Chain::Unknown => {
-            haneul_crypto::zklogin::ZkloginVerifier::new_dev()
+        haneul_protocol_config::Chain::Mainnet | haneul_protocol_config::Chain::Testnet => {
+            haneul_crypto::zklogin::ZkloginVerifier::new_mainnet()
         }
+        haneul_protocol_config::Chain::Unknown => haneul_crypto::zklogin::ZkloginVerifier::new_dev(),
     };
     *zklogin_verifier.jwks_mut() = jwks;
     let mut verifier = haneul_crypto::UserSignatureVerifier::new();
