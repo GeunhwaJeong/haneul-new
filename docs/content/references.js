@@ -67,7 +67,14 @@ const references = [
 				label: 'JSON-RPC',
 				href: '/haneul-api-ref',
 			},
-			'references/fullnode-protocol',
+			{
+				type: 'category',
+				label: 'gRPC',
+				items: [
+					'references/fullnode-protocol',
+					'references/fullnode-protocol-types',
+				],
+			},
 			'references/haneul-api/rpc-best-practices',
 		],
 	},
