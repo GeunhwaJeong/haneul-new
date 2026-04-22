@@ -430,6 +430,11 @@ pub enum HaneulErrorKind {
     TooManyTransactionsPendingConsensus,
 
     #[error(
+        "Transaction was outbid by higher-gas-price transactions in the admission queue (current minimum gas price required: {min_gas_price})"
+    )]
+    TransactionRejectedDueToOutbiddingDuringCongestion { min_gas_price: u64 },
+
+    #[error(
         "Input {object_id} already has {queue_len} transactions pending, above threshold of {threshold}"
     )]
     TooManyTransactionsPendingOnObject {
@@ -1036,6 +1041,7 @@ impl HaneulErrorKind {
             HaneulErrorKind::TooManyTransactionsPendingOnObject { .. } => true,
             HaneulErrorKind::TooOldTransactionPendingOnObject { .. } => true,
             HaneulErrorKind::TooManyTransactionsPendingConsensus => true,
+            HaneulErrorKind::TransactionRejectedDueToOutbiddingDuringCongestion { .. } => true,
             HaneulErrorKind::ValidatorOverloadedRetryAfter { .. } => true,
 
             // Non retryable error
@@ -1078,6 +1084,7 @@ impl HaneulErrorKind {
                 | HaneulErrorKind::TooManyTransactionsPendingOnObject { .. }
                 | HaneulErrorKind::TooOldTransactionPendingOnObject { .. }
                 | HaneulErrorKind::TooManyTransactionsPendingConsensus
+                | HaneulErrorKind::TransactionRejectedDueToOutbiddingDuringCongestion { .. }
         )
     }
 
@@ -1127,6 +1134,7 @@ impl HaneulErrorKind {
             | HaneulErrorKind::TooManyTransactionsPendingOnObject { .. }
             | HaneulErrorKind::TooOldTransactionPendingOnObject { .. }
             | HaneulErrorKind::TooManyTransactionsPendingConsensus
+            | HaneulErrorKind::TransactionRejectedDueToOutbiddingDuringCongestion { .. }
             | HaneulErrorKind::ValidatorOverloadedRetryAfter { .. } => {
                 ErrorCategory::ValidatorOverloaded
             }
