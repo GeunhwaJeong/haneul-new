@@ -557,6 +557,11 @@ public fun active_validator_voting_powers(wrapper: &HaneulSystemState): VecMap<a
     wrapper.load_system_state_ref().active_validator_voting_powers()
 }
 
+/// Getter returns the total stake amount of a given validator.
+public fun active_validator_stake_amount(wrapper: &HaneulSystemState, validator_addr: address): u64 {
+    wrapper.load_system_state_ref().validator_stake_amount(validator_addr)
+}
+
 /// Calculate the rewards for a given staked HANEUL object.
 /// Used in the package, and can be dev-inspected.
 public(package) fun calculate_rewards(

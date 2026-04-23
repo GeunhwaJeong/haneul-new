@@ -85,6 +85,7 @@ the HaneulSystemStateInner version, or vice versa.
 -  [Function `active_validator_addresses`](#haneul_system_haneul_system_active_validator_addresses)
 -  [Function `active_validator_addresses_ref`](#haneul_system_haneul_system_active_validator_addresses_ref)
 -  [Function `active_validator_voting_powers`](#haneul_system_haneul_system_active_validator_voting_powers)
+-  [Function `active_validator_stake_amount`](#haneul_system_haneul_system_active_validator_stake_amount)
 -  [Function `calculate_rewards`](#haneul_system_haneul_system_calculate_rewards)
 -  [Function `advance_epoch`](#haneul_system_haneul_system_advance_epoch)
 -  [Function `load_system_state`](#haneul_system_haneul_system_load_system_state)
@@ -1506,6 +1507,31 @@ Getter returns the voting power of the active validators, values are voting powe
 
 <pre><code><b>public</b> <b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_active_validator_voting_powers">active_validator_voting_powers</a>(wrapper: &<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">HaneulSystemState</a>): VecMap&lt;<b>address</b>, u64&gt; {
     wrapper.<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_system_state_ref">load_system_state_ref</a>().<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_active_validator_voting_powers">active_validator_voting_powers</a>()
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="haneul_system_haneul_system_active_validator_stake_amount"></a>
+
+## Function `active_validator_stake_amount`
+
+Getter returns the total stake amount of a given validator.
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_active_validator_stake_amount">active_validator_stake_amount</a>(wrapper: &<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">haneul_system::haneul_system::HaneulSystemState</a>, validator_addr: <b>address</b>): u64
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_active_validator_stake_amount">active_validator_stake_amount</a>(wrapper: &<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_HaneulSystemState">HaneulSystemState</a>, validator_addr: <b>address</b>): u64 {
+    wrapper.<a href="../haneul_system/haneul_system.md#haneul_system_haneul_system_load_system_state_ref">load_system_state_ref</a>().validator_stake_amount(validator_addr)
 }
 </code></pre>
 
