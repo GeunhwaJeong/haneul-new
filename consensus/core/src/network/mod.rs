@@ -28,6 +28,7 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use consensus_config::{AuthorityIndex, NetworkKeyPair, NetworkPublicKey};
 use consensus_types::block::{BlockRef, Round};
+use fastcrypto::encoding::{Encoding, Hex};
 use futures::Stream;
 use haneullabs_network::{Multiaddr, multiaddr::Protocol};
 
@@ -39,24 +40,55 @@ use crate::{
 };
 
 /// Identifies an observer node by its network public key.
-#[allow(unused)]
 pub(crate) type NodeId = NetworkPublicKey;
 
 /// Identifies a peer in the network, which can be either a validator or an observer.
+/// The Observer variant is boxed to keep the enum small, since `NodeId` (32 bytes) is
+/// much larger than `AuthorityIndex` (4 bytes).
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) enum PeerId {
     /// A validator node identified by its authority index.
     Validator(AuthorityIndex),
     /// An observer node identified by its network public key.
     #[allow(dead_code)]
-    Observer(NodeId),
+    Observer(Box<NodeId>),
 }
 
 impl Display for PeerId {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             PeerId::Validator(authority) => write!(f, "[{}]", authority),
-            PeerId::Observer(node_id) => write!(f, "[{:?}]", node_id),
+            PeerId::Observer(node_id) => {
+                let bytes = node_id.to_bytes();
+                let s = Hex::encode(bytes.get(0..4).ok_or(std::fmt::Error)?);
+                write!(f, "o#{}..", s)
+            }
+        }
+    }
+}
+
+impl PeerId {
+    /// Returns a human-readable name suitable for logging. For observers, prints
+    /// the first 8 hex digits of the public key.
+    pub(crate) fn hostname(&self, context: &Context) -> String {
+        match self {
+            PeerId::Validator(index) => context.committee.authority(*index).hostname.to_string(),
+            PeerId::Observer(node_id) => {
+                let bytes = node_id.to_bytes();
+                format!(
+                    "[Observer]{:02x}{:02x}{:02x}{:02x}",
+                    bytes[0], bytes[1], bytes[2], bytes[3]
+                )
+            }
+        }
+    }
+
+    /// Returns a short label suitable for use in metrics. Does not include
+    /// full public keys to avoid high-cardinality metric labels.
+    pub(crate) fn labelname(&self, context: &Context) -> String {
+        match self {
+            PeerId::Validator(index) => context.committee.authority(*index).hostname.to_string(),
+            PeerId::Observer(_) => "observer".to_string(),
         }
     }
 }

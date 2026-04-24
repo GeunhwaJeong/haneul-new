@@ -308,7 +308,10 @@ impl<C: CoreThreadDispatcher> ValidatorNetworkService for AuthorityService<C> {
                 // It only waits for synchronizer to queue the request to a peer.
                 // When this fails, it usually means the queue is full.
                 // The fetch will retry from other peers via live and periodic syncs.
-                if let Err(err) = synchronizer.fetch_blocks(missing_ancestors, peer).await {
+                if let Err(err) = synchronizer
+                    .fetch_blocks(missing_ancestors, PeerId::Validator(peer))
+                    .await
+                {
                     debug!("Failed to fetch missing ancestors via synchronizer: {err}");
                 }
             });
@@ -331,7 +334,7 @@ impl<C: CoreThreadDispatcher> ValidatorNetworkService for AuthorityService<C> {
             let synchronizer = self.synchronizer.clone();
             spawn_monitored_task!(async move {
                 if let Err(err) = synchronizer
-                    .fetch_blocks(missing_excluded_ancestors, peer)
+                    .fetch_blocks(missing_excluded_ancestors, PeerId::Validator(peer))
                     .await
                 {
                     debug!("Failed to fetch excluded ancestors via synchronizer: {err}");
@@ -936,6 +939,7 @@ mod tests {
             BlockStream, ExtendedSerializedBlock, ObserverNetworkClient, SynchronizerClient,
             ValidatorNetworkClient, ValidatorNetworkService,
         },
+        peers_pool::PeersPool,
         round_tracker::RoundTracker,
         storage::mem_store::MemStore,
         synchronizer::Synchronizer,
@@ -1110,6 +1114,7 @@ mod tests {
         let transaction_vote_tracker =
             TransactionVoteTracker::new(context.clone(), block_verifier.clone(), dag_state.clone());
         let round_tracker = Arc::new(RwLock::new(RoundTracker::new(context.clone(), vec![])));
+        let peers_pool = Arc::new(PeersPool::new(context.clone()));
         let synchronizer = Synchronizer::start(
             network_client,
             context.clone(),
@@ -1119,6 +1124,7 @@ mod tests {
             transaction_vote_tracker.clone(),
             round_tracker.clone(),
             dag_state.clone(),
+            peers_pool.clone(),
             false,
         );
         let authority_service = Arc::new(AuthorityService::new(
@@ -1229,6 +1235,7 @@ mod tests {
         let transaction_vote_tracker =
             TransactionVoteTracker::new(context.clone(), block_verifier.clone(), dag_state.clone());
         let round_tracker = Arc::new(RwLock::new(RoundTracker::new(context.clone(), vec![])));
+        let peers_pool = Arc::new(PeersPool::new(context.clone()));
         let synchronizer = Synchronizer::start(
             network_client,
             context.clone(),
@@ -1238,6 +1245,7 @@ mod tests {
             transaction_vote_tracker.clone(),
             round_tracker.clone(),
             dag_state.clone(),
+            peers_pool.clone(),
             false,
         );
         let authority_service = Arc::new(AuthorityService::new(
@@ -1438,6 +1446,7 @@ mod tests {
         let transaction_vote_tracker =
             TransactionVoteTracker::new(context.clone(), block_verifier.clone(), dag_state.clone());
         let round_tracker = Arc::new(RwLock::new(RoundTracker::new(context.clone(), vec![])));
+        let peers_pool = Arc::new(PeersPool::new(context.clone()));
         let synchronizer = Synchronizer::start(
             network_client,
             context.clone(),
@@ -1447,6 +1456,7 @@ mod tests {
             transaction_vote_tracker.clone(),
             round_tracker.clone(),
             dag_state.clone(),
+            peers_pool.clone(),
             true,
         );
         let authority_service = Arc::new(AuthorityService::new(
@@ -1510,6 +1520,7 @@ mod tests {
         let transaction_vote_tracker =
             TransactionVoteTracker::new(context.clone(), block_verifier.clone(), dag_state.clone());
         let round_tracker = Arc::new(RwLock::new(RoundTracker::new(context.clone(), vec![])));
+        let peers_pool = Arc::new(PeersPool::new(context.clone()));
         let synchronizer = Synchronizer::start(
             network_client,
             context.clone(),
@@ -1519,6 +1530,7 @@ mod tests {
             transaction_vote_tracker.clone(),
             round_tracker.clone(),
             dag_state.clone(),
+            peers_pool.clone(),
             false,
         );
 
@@ -1599,6 +1611,7 @@ mod tests {
         let transaction_vote_tracker =
             TransactionVoteTracker::new(context.clone(), block_verifier.clone(), dag_state.clone());
         let round_tracker = Arc::new(RwLock::new(RoundTracker::new(context.clone(), vec![])));
+        let peers_pool = Arc::new(PeersPool::new(context.clone()));
         let synchronizer = Synchronizer::start(
             network_client,
             context.clone(),
@@ -1608,6 +1621,7 @@ mod tests {
             transaction_vote_tracker.clone(),
             round_tracker.clone(),
             dag_state.clone(),
+            peers_pool.clone(),
             false,
         );
 

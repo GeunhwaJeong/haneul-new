@@ -34,6 +34,7 @@ use crate::{
     },
     observer_service::ObserverService,
     observer_subscriber::ObserverSubscriber,
+    peers_pool::PeersPool,
     round_prober::{RoundProber, RoundProberHandle},
     round_tracker::RoundTracker,
     storage::rocksdb_store::RocksDBStore,
@@ -358,6 +359,9 @@ where
 
         let commit_vote_monitor = Arc::new(CommitVoteMonitor::new(context.clone()));
 
+        // Create the PeersPool
+        let peers_pool = Arc::new(PeersPool::new(context.clone()));
+
         let synchronizer = Synchronizer::start(
             synchronizer_client.clone(),
             context.clone(),
@@ -367,6 +371,7 @@ where
             transaction_vote_tracker.clone(),
             round_tracker.clone(),
             dag_state.clone(),
+            peers_pool.clone(),
             sync_last_known_own_block,
         );
 
@@ -437,6 +442,7 @@ where
                     block_verifier,
                     commit_vote_monitor.clone(),
                     transaction_vote_tracker.clone(),
+                    synchronizer.clone(),
                 ));
                 network_manager
                     .start_observer_server(observer_service)
@@ -455,6 +461,7 @@ where
                 block_verifier,
                 commit_vote_monitor.clone(),
                 transaction_vote_tracker.clone(),
+                synchronizer.clone(),
             ));
 
             let observer_subscriber = ObserverSubscriber::new(
@@ -479,7 +486,7 @@ where
                 {
                     PeerId::Validator(index)
                 } else {
-                    PeerId::Observer(peer_record.public_key.clone())
+                    PeerId::Observer(Box::new(peer_record.public_key.clone()))
                 };
 
                 info!("Observer subscribing to peer: {:?}", peer_id);
