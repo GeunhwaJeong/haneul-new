@@ -1387,19 +1387,16 @@ impl HaneulClientCommands {
                 let _ = context.cache_chain_id().await?;
                 let client = context.grpc_client()?;
 
-                let coin_type_tag = coin_type.unwrap_or_else(|| {
-                    TypeTag::from_str(HANEUL_COIN_TYPE).expect("HANEUL_COIN_TYPE should be valid")
-                });
+                let haneul_type_tag =
+                    TypeTag::from_str(HANEUL_COIN_TYPE).expect("HANEUL_COIN_TYPE should be valid");
+                let coin_type_tag = coin_type.unwrap_or_else(|| haneul_type_tag.clone());
 
-                let is_haneul = coin_type_tag.to_canonical_string(true) == HANEUL_COIN_TYPE;
+                let is_haneul = coin_type_tag == haneul_type_tag;
 
-                let coin_struct_tag: StructTag = format!(
-                    "0x2::coin::Coin<{}>",
-                    coin_type_tag.to_canonical_string(true)
-                )
-                .parse()
-                .expect("valid struct tag");
-                let balance_info = client.get_balance(signer, &coin_struct_tag).await?;
+                let TypeTag::Struct(coin_struct_tag) = &coin_type_tag else {
+                    bail!("coin type must be a struct type, got {coin_type_tag}");
+                };
+                let balance_info = client.get_balance(signer, coin_struct_tag).await?;
                 let coin_balance = balance_info.coin_balance();
                 let address_balance = balance_info.address_balance();
 
