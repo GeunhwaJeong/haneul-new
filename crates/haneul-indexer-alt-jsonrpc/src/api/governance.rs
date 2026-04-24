@@ -2,26 +2,28 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::collections::BTreeMap;
+use std::collections::HashMap;
 use std::convert::Infallible;
+use std::num::NonZeroUsize;
+use std::sync::Mutex;
 
 use anyhow::Context as _;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
 use futures::future;
-
 use jsonrpsee::core::RpcResult;
-use jsonrpsee::http_client::HttpClient;
 use jsonrpsee::proc_macros::rpc;
+use lru::LruCache;
 use move_core_types::language_storage::StructTag;
-
 use haneul_indexer_alt_reader::consistent_reader::proto::owner::OwnerKind;
 use haneul_indexer_alt_reader::governance::RewardsKey;
 use haneul_indexer_alt_reader::governance::ValidatorAddressKey;
+use haneul_indexer_alt_schema::epochs::StoredEpochStart;
 use haneul_indexer_alt_schema::schema::kv_epoch_starts;
-use haneul_json_rpc_api::GovernanceReadApiClient;
 use haneul_json_rpc_types::DelegatedStake;
 use haneul_json_rpc_types::Stake;
 use haneul_json_rpc_types::StakeStatus;
+use haneul_json_rpc_types::ValidatorApy;
 use haneul_json_rpc_types::ValidatorApys;
 use haneul_open_rpc::Module;
 use haneul_open_rpc_macros::open_rpc;
@@ -36,6 +38,8 @@ use haneul_types::governance::STAKED_HANEUL_STRUCT_NAME;
 use haneul_types::governance::STAKING_POOL_MODULE_NAME;
 use haneul_types::governance::StakedHaneul;
 use haneul_types::haneul_serde::BigInt;
+use haneul_types::haneul_system_state::PoolTokenExchangeRate;
+use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemStateWrapper;
 use haneul_types::haneul_system_state::haneul_system_state_inner_v1::HaneulSystemStateInnerV1;
@@ -49,8 +53,10 @@ use crate::data::latest_epoch;
 use crate::data::load_live;
 use crate::data::load_live_deserialized;
 use crate::error::RpcError;
-use crate::error::client_error_to_error_object;
 use crate::error::rpc_bail;
+
+/// Number of most recent epochs to load from `kv_epoch_starts` when computing validator APYs.
+const APY_EPOCH_WINDOW: i64 = 31;
 
 #[open_rpc(namespace = "haneulx", tag = "Governance API")]
 #[rpc(server, namespace = "haneulx")]
@@ -73,45 +79,47 @@ trait GovernanceApi {
     /// Return all [DelegatedStake].
     #[method(name = "getStakes")]
     async fn get_stakes(&self, owner: HaneulAddress) -> RpcResult<Vec<DelegatedStake>>;
-}
 
-#[open_rpc(namespace = "haneulx", tag = "Delegation Governance API")]
-#[rpc(server, namespace = "haneulx")]
-trait DelegationGovernanceApi {
     /// Return the validator APY
     #[method(name = "getValidatorsApy")]
     async fn get_validators_apy(&self) -> RpcResult<ValidatorApys>;
 }
 
-pub(crate) struct Governance(pub Context);
+pub(crate) struct Governance {
+    ctx: Context,
+    /// Caches the most recent `getValidatorsApy` response, keyed by epoch. APY inputs are fixed for
+    /// the duration of an epoch, so a capacity-1 cache evicts automatically on epoch advance.
+    apy_cache: Mutex<LruCache<u64, ValidatorApys>>,
+}
 
-pub(crate) struct DelegationGovernance(HttpClient);
-
-impl DelegationGovernance {
-    pub(crate) fn new(client: HttpClient) -> Self {
-        Self(client)
+impl Governance {
+    pub fn new(ctx: Context) -> Self {
+        Self {
+            ctx,
+            apy_cache: Mutex::new(LruCache::new(NonZeroUsize::new(1).unwrap())),
+        }
     }
 }
 
 #[async_trait::async_trait]
 impl GovernanceApiServer for Governance {
     async fn get_reference_gas_price(&self) -> RpcResult<BigInt<u64>> {
-        Ok(rgp_response(&self.0).await?)
+        Ok(rgp_response(&self.ctx).await?)
     }
 
     async fn get_latest_haneul_system_state(&self) -> RpcResult<HaneulSystemStateSummary> {
-        Ok(latest_haneul_system_state_response(&self.0).await?)
+        Ok(latest_haneul_system_state_response(&self.ctx).await?)
     }
 
     async fn get_stakes_by_ids(
         &self,
         staked_haneul_ids: Vec<ObjectID>,
     ) -> RpcResult<Vec<DelegatedStake>> {
-        Ok(delegated_stakes_response(&self.0, staked_haneul_ids).await?)
+        Ok(delegated_stakes_response(&self.ctx, staked_haneul_ids).await?)
     }
 
     async fn get_stakes(&self, owner: HaneulAddress) -> RpcResult<Vec<DelegatedStake>> {
-        let Self(ctx) = self;
+        let ctx = &self.ctx;
         let config = &ctx.config().objects;
 
         let tag = StructTag {
@@ -150,35 +158,29 @@ impl GovernanceApiServer for Governance {
             }
         }
 
-        Ok(delegated_stakes_response(&self.0, all_stake_ids).await?)
+        Ok(delegated_stakes_response(ctx, all_stake_ids).await?)
     }
-}
 
-#[async_trait::async_trait]
-impl DelegationGovernanceApiServer for DelegationGovernance {
     async fn get_validators_apy(&self) -> RpcResult<ValidatorApys> {
-        let Self(client) = self;
-
-        client
-            .get_validators_apy()
+        let ctx = &self.ctx;
+        let epoch = latest_epoch(ctx)
             .await
-            .map_err(client_error_to_error_object)
+            .context("Failed to fetch latest epoch for APY cache lookup")
+            .map_err(RpcError::<Infallible>::from)?;
+
+        if let Some(hit) = self.apy_cache.lock().unwrap().get(&epoch).cloned() {
+            return Ok(hit);
+        }
+
+        let apys = validators_apy_response(ctx).await?;
+        self.apy_cache.lock().unwrap().put(epoch, apys.clone());
+        Ok(apys)
     }
 }
 
 impl RpcModule for Governance {
     fn schema(&self) -> Module {
         GovernanceApiOpenRpc::module_doc()
-    }
-
-    fn into_impl(self) -> jsonrpsee::RpcModule<Self> {
-        self.into_rpc()
-    }
-}
-
-impl RpcModule for DelegationGovernance {
-    fn schema(&self) -> Module {
-        DelegationGovernanceApiOpenRpc::module_doc()
     }
 
     fn into_impl(self) -> jsonrpsee::RpcModule<Self> {
@@ -338,4 +340,101 @@ async fn delegated_stakes_response(
             },
         )
         .collect())
+}
+
+/// Load data and generate response for `getValidatorsApy`.
+///
+/// Rates are derived from `staking_pool_haneul_balance` and `pool_token_balance` of each active
+/// validator in the latest `APY_EPOCH_WINDOW` rows of `kv_epoch_starts`. These are the same numbers
+/// that `advance_epoch` writes into each staking pool's `exchange_rates` table. APYs are calculated
+/// from adjacent pairs of rates, and then filtered and averaged to produce each validator's APY.
+/// This mirrors the legacy fullnode jsonrpc's `backfill_rates` implementation.
+///
+/// In safe mode, a pool's haneul and token balance carry over unchanged, which produces 0% APY and
+/// also gets filtered out.
+async fn validators_apy_response(ctx: &Context) -> Result<ValidatorApys, RpcError> {
+    use kv_epoch_starts::dsl as e;
+
+    let mut conn = ctx
+        .pg_reader()
+        .connect()
+        .await
+        .context("Failed to connect to the database")?;
+
+    let rows: Vec<StoredEpochStart> = conn
+        .results(
+            e::kv_epoch_starts
+                .order(e::epoch.desc())
+                .limit(APY_EPOCH_WINDOW),
+        )
+        .await
+        .context("Failed to fetch epoch starts for APY calculation")?;
+
+    let latest = rows
+        .first()
+        .context("No epoch start rows available for APY calculation")?;
+
+    let latest_summary = decode_summary(&latest.system_state)?;
+    let current_epoch = latest_summary.epoch;
+    let stake_subsidy_start_epoch = latest_summary.stake_subsidy_start_epoch;
+
+    // Map pool to exchange rates history (newest to oldest)
+    let mut by_pool: HashMap<ObjectID, Vec<PoolTokenExchangeRate>> = HashMap::new();
+    for row in &rows {
+        if (row.epoch as u64) < stake_subsidy_start_epoch {
+            continue;
+        }
+        let summary = decode_summary(&row.system_state)?;
+        for v in summary.active_validators {
+            by_pool
+                .entry(v.staking_pool_id)
+                .or_default()
+                .push(PoolTokenExchangeRate::new(
+                    v.staking_pool_haneul_balance,
+                    v.pool_token_balance,
+                ));
+        }
+    }
+
+    let apys = latest_summary
+        .active_validators
+        .into_iter()
+        .map(|v| ValidatorApy {
+            address: v.haneul_address,
+            apy: by_pool
+                .get(&v.staking_pool_id)
+                .map_or(0.0, |rates| compute_apy(rates)),
+        })
+        .collect();
+
+    Ok(ValidatorApys {
+        apys,
+        epoch: current_epoch,
+    })
+}
+
+fn decode_summary(bytes: &[u8]) -> Result<HaneulSystemStateSummary, RpcError> {
+    Ok(bcs::from_bytes::<HaneulSystemState>(bytes)
+        .context("Failed to deserialize HaneulSystemState from kv_epoch_starts")?
+        .into_haneul_system_state_summary())
+}
+
+/// Compute the average APY from a descending-epoch list of exchange rates.
+///
+/// Iterates adjacent pairs (newer, older), converts each pair into an annualized return
+/// `(older / newer) ^ 365 - 1`, discards outliers outside `(0.0, 0.1)`, and averages up to 30 of
+/// the remaining samples. This mirrors the legacy `calculate_apys` logic.
+fn compute_apy(rates: &[PoolTokenExchangeRate]) -> f64 {
+    let samples: Vec<f64> = rates
+        .windows(2)
+        .map(|w| (w[1].rate() / w[0].rate()).powf(365.0) - 1.0)
+        .filter(|apy| *apy > 0.0 && *apy < 0.1)
+        .take(30)
+        .collect();
+
+    if samples.is_empty() {
+        0.0
+    } else {
+        samples.iter().sum::<f64>() / samples.len() as f64
+    }
 }
