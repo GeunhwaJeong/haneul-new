@@ -1354,7 +1354,7 @@ impl Workload<dyn Payload> for CompositeWorkload {
             .publish_async(path)
             .await
             .build_and_sign(head.2.as_ref());
-        let (_, execution_result) = execution_proxy.execute_transaction_block(transaction).await;
+        let execution_result = execution_proxy.execute_transaction_block(transaction).await;
         let effects = execution_result.expect("Package publish should succeed");
 
         let mut treasury_cap_ref = None;
@@ -1390,7 +1390,7 @@ impl Workload<dyn Payload> for CompositeWorkload {
                 .build_and_sign(keypair.as_ref());
             let proxy_ref = execution_proxy.clone();
             futures.push(async move {
-                let (_, execution_result) = proxy_ref.execute_transaction_block(transaction).await;
+                let execution_result = proxy_ref.execute_transaction_block(transaction).await;
                 let (obj_ref, owner) = execution_result.unwrap().created()[0].clone();
                 let initial_shared_version = match owner {
                     Owner::Shared {
@@ -1485,7 +1485,7 @@ impl Workload<dyn Payload> for CompositeWorkload {
 
                 let proxy_ref = execution_proxy.clone();
                 futures.push(async move {
-                    let (_, execution_result) = proxy_ref.execute_transaction_block(tx).await;
+                    let execution_result = proxy_ref.execute_transaction_block(tx).await;
                     let effects = execution_result.expect("Seed deposit should succeed");
                     (idx, effects)
                 });
@@ -1506,7 +1506,7 @@ impl Workload<dyn Payload> for CompositeWorkload {
                 .move_call(self.package_id.unwrap(), "balance_pool", "create", vec![])
                 .build_and_sign(keypair.as_ref());
 
-            let (_, execution_result) = execution_proxy.execute_transaction_block(tx).await;
+            let execution_result = execution_proxy.execute_transaction_block(tx).await;
             let effects = execution_result.expect("Balance pool creation should succeed");
 
             update_gas!(gas, effects);
@@ -1563,7 +1563,7 @@ impl Workload<dyn Payload> for CompositeWorkload {
             }
             let tx = tx_builder.build_and_sign(keypair.as_ref());
 
-            let (_, execution_result) = execution_proxy.execute_transaction_block(tx).await;
+            let execution_result = execution_proxy.execute_transaction_block(tx).await;
             let effects = execution_result.expect("Balance pool seed should succeed");
             update_gas!(gas, effects);
             info!("Seeded balance pool");
@@ -1582,7 +1582,7 @@ impl Workload<dyn Payload> for CompositeWorkload {
                     )
                     .build_and_sign(keypair.as_ref());
 
-                let (_, execution_result) = execution_proxy.execute_transaction_block(tx).await;
+                let execution_result = execution_proxy.execute_transaction_block(tx).await;
                 let effects = execution_result.expect("TestCoinCap creation should succeed");
 
                 self.init_gas[0].0 = effects.gas_object().0;
@@ -1621,7 +1621,7 @@ impl Workload<dyn Payload> for CompositeWorkload {
             }
             let tx = tx_builder.build_and_sign(keypair.as_ref());
 
-            let (_, execution_result) = execution_proxy.execute_transaction_block(tx).await;
+            let execution_result = execution_proxy.execute_transaction_block(tx).await;
             let effects = execution_result.expect("Immutable object creation should succeed");
             update_gas!(gas, effects);
 
@@ -1685,7 +1685,7 @@ impl Workload<dyn Payload> for CompositeWorkload {
                     }
                     let tx = tx_builder.build_and_sign(keypair.as_ref());
 
-                    let (_, execution_result) = execution_proxy.execute_transaction_block(tx).await;
+                    let execution_result = execution_proxy.execute_transaction_block(tx).await;
                     let effects = execution_result.expect("TEST_COIN seed deposit should succeed");
                     update_gas!(gas, effects);
                 }
@@ -1737,8 +1737,7 @@ impl Workload<dyn Payload> for CompositeWorkload {
                     )
                     .build_and_sign(keypair.as_ref());
 
-                let (_, execution_result) =
-                    execution_proxy.execute_transaction_block(enable_tx).await;
+                let execution_result = execution_proxy.execute_transaction_block(enable_tx).await;
                 let effects = execution_result.expect("Address alias enable should succeed");
                 update_gas!(gas, effects);
 
@@ -1799,7 +1798,7 @@ impl Workload<dyn Payload> for CompositeWorkload {
                 let tx = tx_builder.build_and_sign(keypair.as_ref());
                 let proxy_ref = execution_proxy.clone();
                 futures.push(async move {
-                    let (_, execution_result) = proxy_ref.execute_transaction_block(tx).await;
+                    let execution_result = proxy_ref.execute_transaction_block(tx).await;
                     let effects = execution_result.expect("Seed deposit should succeed");
                     (idx, effects)
                 });
