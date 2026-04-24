@@ -145,14 +145,22 @@ pub struct OperationSetStats {
     pub insufficient_funds_count: u64,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct CompositionMetrics {
     stats: HashMap<OperationSet, OperationSetStats>,
 }
 
+impl Default for CompositionMetrics {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CompositionMetrics {
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            stats: HashMap::new(),
+        }
     }
 
     pub fn sum_all(&self) -> OperationSetStats {
@@ -414,6 +422,7 @@ pub struct CompositePayload {
     metrics: Arc<Mutex<CompositionMetrics>>,
     nonce_counter: AtomicU32,
     alias_state: Option<AliasState>,
+    partner_address: HaneulAddress,
 }
 
 /// Tracks the lifecycle of an alias revoke-and-re-add cycle for a single payload.
@@ -569,6 +578,7 @@ impl CompositePayload {
                             ResourceRequest::AddressBalance
                                 | ResourceRequest::ObjectBalance
                                 | ResourceRequest::AccumulatorRoot
+                                | ResourceRequest::CoinReservation
                         )
                     })
                 });
@@ -918,8 +928,13 @@ impl Payload for CompositePayload {
         self.current_batch_num_conflicting_transactions = 0;
         let mut transactions = Vec::with_capacity(batch_size + 1);
 
-        let account_state =
-            AccountState::new(sender, &self.fullnode_proxies, self.pool.balance_pool).await;
+        let account_state = AccountState::new(
+            sender,
+            &self.fullnode_proxies,
+            self.pool.balance_pool,
+            self.partner_address,
+        )
+        .await;
 
         let mut used_gas = vec![];
 
@@ -1082,6 +1097,7 @@ impl Payload for CompositePayload {
                 >= self.current_batch_num_conflicting_transactions + expected_alias_failure_count,
             "failure count should sometimes be greater than or equal to the number of conflicting transactions"
         );
+
         self.current_batch_txs.clear();
     }
 }
@@ -1090,6 +1106,7 @@ pub struct AccountState {
     pub sender: HaneulAddress,
     pub haneul_balance: u64,
     pub pool_balance: u64,
+    pub partner_address: HaneulAddress,
 }
 
 impl AccountState {
@@ -1097,6 +1114,7 @@ impl AccountState {
         sender: HaneulAddress,
         fullnode_proxies: &Vec<Arc<dyn ValidatorProxy + Sync + Send>>,
         balance_pool: Option<(ObjectID, SequenceNumber)>,
+        partner_address: HaneulAddress,
     ) -> Self {
         let mut retries = 0;
         while retries < 3 {
@@ -1121,12 +1139,14 @@ impl AccountState {
                 sender,
                 haneul_balance,
                 pool_balance,
+                partner_address,
             };
         }
         Self {
             sender,
             haneul_balance: 0,
             pool_balance: 0,
+            partner_address,
         }
     }
 }
@@ -1848,6 +1868,27 @@ impl Workload<dyn Payload> for CompositeWorkload {
             panic!("Address balance gas probability is set to 0 but address balance amount is 0");
         }
 
+        // Collect all payload addresses for pairing
+        let payload_addresses: Vec<HaneulAddress> = self
+            .payload_gas
+            .iter()
+            .map(|(_, sender, _)| *sender)
+            .collect();
+
+        // Pair payloads: 0↔1, 2↔3, etc. If odd number, last one pairs with first.
+        let get_partner_address = |i: usize| -> HaneulAddress {
+            let partner_idx = if i.is_multiple_of(2) {
+                if i + 1 < payload_addresses.len() {
+                    i + 1
+                } else {
+                    0
+                }
+            } else {
+                i - 1
+            };
+            payload_addresses[partner_idx]
+        };
+
         let mut payloads: Vec<Box<dyn Payload>> = vec![];
         for i in 0..self.num_payloads {
             let gas = self.payload_gas[i as usize].clone();
@@ -1864,6 +1905,7 @@ impl Workload<dyn Payload> for CompositeWorkload {
                         cycle_state: AliasRevokeCycleState::NeedAdd,
                     },
                 );
+            let partner_address = get_partner_address(i as usize);
             payloads.push(Box::new(CompositePayload {
                 config: config.clone(),
                 fullnode_proxies: fullnode_proxies.clone(),
@@ -1875,6 +1917,7 @@ impl Workload<dyn Payload> for CompositeWorkload {
                 metrics: self.metrics.clone(),
                 nonce_counter: AtomicU32::new(0),
                 alias_state,
+                partner_address,
             }));
         }
 
