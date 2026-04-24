@@ -2,8 +2,6 @@
 
 > Comprehensive reference for Haneul blockchain development, including Move smart contract programming, Haneul framework concepts, frontend integration, and fullstack application architecture. Designed for efficient retrieval and grounding by large language models.
 
-> For the complete, unabridged page index see [llms-full.txt](https://docs.haneul.io/llms-full.txt).
-
 ## Move
 
 - [Move Language Reference](https://move-book.com/llms.txt)
@@ -108,6 +106,47 @@
 - [Epochs](https://docs.haneul.io/develop/haneul-architecture/epochs.md)
 - [Haneul Architecture Index](https://docs.haneul.io/develop/haneul-architecture/index.md)
 - [Networks](https://docs.haneul.io/develop/haneul-architecture/networks.md)
+- [Object Model](https://docs.haneul.io/develop/haneul-architecture/object-model.md)
+- [Protocol Upgrades](https://docs.haneul.io/develop/haneul-architecture/protocol-upgrades.md)
+- [Haneul Security](https://docs.haneul.io/develop/haneul-architecture/haneul-security.md)
+- [Haneul Storage](https://docs.haneul.io/develop/haneul-architecture/haneul-storage.md)
+- [Tokenomics Overview](https://docs.haneul.io/develop/haneul-architecture/tokenomics-overview.md)
+
+### Develop/Testing Debugging
+- [Common Errors](https://docs.haneul.io/develop/testing-debugging/common-errors.md)
+- [Testing Debugging Index](https://docs.haneul.io/develop/testing-debugging/index.md)
+
+### Develop/Transaction Payment
+- [Gas In Haneul](https://docs.haneul.io/develop/transaction-payment/gas-in-haneul.md)
+- [Gas Smashing](https://docs.haneul.io/develop/transaction-payment/gas-smashing.md)
+- [Transaction Payment Index](https://docs.haneul.io/develop/transaction-payment/index.md)
+- [Local Fee Markets](https://docs.haneul.io/develop/transaction-payment/local-fee-markets.md)
+- [Sponsor Txn](https://docs.haneul.io/develop/transaction-payment/sponsor-txn.md)
+
+### Develop/Transactions
+- [Transactions Index](https://docs.haneul.io/develop/transactions/index.md)
+- [Transaction Lifecycle](https://docs.haneul.io/develop/transactions/transaction-lifecycle.md)
+- [Txn Overview](https://docs.haneul.io/develop/transactions/txn-overview.md)
+
+### Develop/Transactions/Ptbs
+- [Building Ptb](https://docs.haneul.io/develop/transactions/ptbs/building-ptb.md)
+- [Ptbs Index](https://docs.haneul.io/develop/transactions/ptbs/index.md)
+- [Inputs And Results](https://docs.haneul.io/develop/transactions/ptbs/inputs-and-results.md)
+- [Prog Txn Blocks](https://docs.haneul.io/develop/transactions/ptbs/prog-txn-blocks.md)
+
+### Develop/Transactions/Transaction Auth
+- [Address Aliases](https://docs.haneul.io/develop/transactions/transaction-auth/address-aliases.md)
+- [Auth Overview](https://docs.haneul.io/develop/transactions/transaction-auth/auth-overview.md)
+- [Transaction Auth Index](https://docs.haneul.io/develop/transactions/transaction-auth/index.md)
+- [Intent Signing](https://docs.haneul.io/develop/transactions/transaction-auth/intent-signing.md)
+- [Multisig](https://docs.haneul.io/develop/transactions/transaction-auth/multisig.md)
+- [Offline Signing](https://docs.haneul.io/develop/transactions/transaction-auth/offline-signing.md)
+
+### Develop/Write Move
+- [Write Move Index](https://docs.haneul.io/develop/write-move/index.md)
+- [Move Best Practices](https://docs.haneul.io/develop/write-move/move-best-practices.md)
+- [Package Overview](https://docs.haneul.io/develop/write-move/package-overview.md)
+- [Haneul Move Concepts](https://docs.haneul.io/develop/write-move/haneul-move-concepts.md)
 
 ## Getting Started
 
@@ -123,6 +162,12 @@
 - [Onboarding Index](https://docs.haneul.io/getting-started/onboarding/index.md)
 - [Install Binaries](https://docs.haneul.io/getting-started/onboarding/install-binaries.md)
 - [Install Source](https://docs.haneul.io/getting-started/onboarding/install-source.md)
+- [Local Network](https://docs.haneul.io/getting-started/onboarding/local-network.md)
+- [Next Steps](https://docs.haneul.io/getting-started/onboarding/next-steps.md)
+- [Haneul Install](https://docs.haneul.io/getting-started/onboarding/haneul-install.md)
+- [Haneul For Ethereum](https://docs.haneul.io/getting-started/haneul-for-ethereum.md)
+- [Haneul For Solana](https://docs.haneul.io/getting-started/haneul-for-solana.md)
+- [Tooling](https://docs.haneul.io/getting-started/tooling.md)
 
 ## Onchain Finance
 
@@ -215,6 +260,46 @@
 ### Onchain Finance/Examples Patterns
 - [Fixed Supply](https://docs.haneul.io/onchain-finance/examples-patterns/fixed-supply.md)
 - [In Game Currency](https://docs.haneul.io/onchain-finance/examples-patterns/in-game-currency.md)
+- [Examples Patterns Index](https://docs.haneul.io/onchain-finance/examples-patterns/index.md)
+- [Kiosk](https://docs.haneul.io/onchain-finance/examples-patterns/kiosk.md)
+- [Loyalty Tokens](https://docs.haneul.io/onchain-finance/examples-patterns/loyalty-tokens.md)
+- [Nft Rental](https://docs.haneul.io/onchain-finance/examples-patterns/nft-rental.md)
+- [Soulbound Tokens](https://docs.haneul.io/onchain-finance/examples-patterns/soulbound-tokens.md)
+- [Wasm Template](https://docs.haneul.io/onchain-finance/examples-patterns/wasm-template.md)
+
+### Onchain Finance/Fungible Tokens
+- [Coin](https://docs.haneul.io/onchain-finance/fungible-tokens/coin.md)
+- [Create A Fungible Token
+    Coin](https://docs.haneul.io/onchain-finance/fungible-tokens/create-a-fungible-token-coin.md)
+- [Create A Fungible
+    Token](https://docs.haneul.io/onchain-finance/fungible-tokens/create-a-fungible-token.md)
+- [Currency](https://docs.haneul.io/onchain-finance/fungible-tokens/currency.md)
+- [Fungible Tokens Index](https://docs.haneul.io/onchain-finance/fungible-tokens/index.md)
+- [Regulated Tokens](https://docs.haneul.io/onchain-finance/fungible-tokens/regulated-tokens.md)
+- [Haneul Bridging](https://docs.haneul.io/onchain-finance/fungible-tokens/haneul-bridging.md)
+- [Token Vesting
+    Strategies](https://docs.haneul.io/onchain-finance/fungible-tokens/token-vesting-strategies.md)
+
+### Onchain Finance/Kiosk
+- [Kiosk Index](https://docs.haneul.io/onchain-finance/kiosk/index.md)
+- [Kiosk Apps](https://docs.haneul.io/onchain-finance/kiosk/kiosk-apps.md)
+- [Kiosk Example](https://docs.haneul.io/onchain-finance/kiosk/kiosk-example.md)
+
+### Onchain Finance/Pas
+- [Pas Index](https://docs.haneul.io/onchain-finance/pas/index.md)
+- [Integrating Pas](https://docs.haneul.io/onchain-finance/pas/integrating-pas.md)
+- [Pas Architecture](https://docs.haneul.io/onchain-finance/pas/pas-architecture.md)
+- [Pas Workflows](https://docs.haneul.io/onchain-finance/pas/pas-workflows.md)
+- [Querying Assets](https://docs.haneul.io/onchain-finance/pas/querying-assets.md)
+- [Payment Kit](https://docs.haneul.io/onchain-finance/payment-kit.md)
+
+### Onchain Finance/Tokenized Assets
+- [Asset Tokenization](https://docs.haneul.io/onchain-finance/tokenized-assets/asset-tokenization.md)
+- [Create Nft](https://docs.haneul.io/onchain-finance/tokenized-assets/create-nft.md)
+- [Deploy Tokenized
+    Asset](https://docs.haneul.io/onchain-finance/tokenized-assets/deploy-tokenized-asset.md)
+- [Tokenized Assets Index](https://docs.haneul.io/onchain-finance/tokenized-assets/index.md)
+- [Types Of Assets](https://docs.haneul.io/onchain-finance/types-of-assets.md)
 
 ## Operators
 
@@ -236,6 +321,16 @@
 - [Haneul Full Node](https://docs.haneul.io/operators/full-node/haneul-full-node.md)
 - [Updates](https://docs.haneul.io/operators/full-node/updates.md)
 - [Genesis](https://docs.haneul.io/operators/genesis.md)
+- [Operators Index](https://docs.haneul.io/operators/index.md)
+- [Snapshots](https://docs.haneul.io/operators/snapshots.md)
+
+### Operators/Validator
+- [Alerts](https://docs.haneul.io/operators/validator/alerts.md)
+- [Validator Index](https://docs.haneul.io/operators/validator/index.md)
+- [Node Tools](https://docs.haneul.io/operators/validator/node-tools.md)
+- [Validator Config](https://docs.haneul.io/operators/validator/validator-config.md)
+- [Validator Rewards](https://docs.haneul.io/operators/validator/validator-rewards.md)
+- [Validator Tasks](https://docs.haneul.io/operators/validator/validator-tasks.md)
 
 ## References
 
@@ -667,6 +762,260 @@
     Input](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/gas-input.md)
 - [Genesis
     Transaction](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/genesis-transaction.md)
+-
+    [Immutable](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/immutable.md)
+- [Input](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/input.md)
+-
+    [Linkage](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/linkage.md)
+- [Make Move Vec
+    Command](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/make-move-vec-command.md)
+- [Merge Coins
+    Command](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/merge-coins-command.md)
+- [Move Call
+    Command](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-call-command.md)
+- [Move Datatype
+    Connection](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-datatype-connection.md)
+- [Move Datatype
+    Edge](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-datatype-edge.md)
+- [Move Datatype Type
+    Parameter](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-datatype-type-parameter.md)
+- [Move
+    Datatype](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-datatype.md)
+- [Move Enum
+    Connection](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-enum-connection.md)
+- [Move Enum
+    Edge](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-enum-edge.md)
+- [Move Enum
+    Variant](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-enum-variant.md)
+- [Move
+    Enum](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-enum.md)
+- [Move
+    Field](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-field.md)
+- [Move Function
+    Connection](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-function-connection.md)
+- [Move Function
+    Edge](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-function-edge.md)
+- [Move Function Type
+    Parameter](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-function-type-parameter.md)
+- [Move
+    Function](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-function.md)
+- [Move Module
+    Connection](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-module-connection.md)
+- [Move Module
+    Edge](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-module-edge.md)
+- [Move
+    Module](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-module.md)
+- [Move Object
+    Connection](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-object-connection.md)
+- [Move Object
+    Edge](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-object-edge.md)
+- [Move
+    Object](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-object.md)
+- [Move Package
+    Connection](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-package-connection.md)
+- [Move Package
+    Edge](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-package-edge.md)
+- [Move
+    Package](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-package.md)
+- [Move Struct
+    Connection](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-struct-connection.md)
+- [Move Struct
+    Edge](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-struct-edge.md)
+- [Move
+    Struct](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-struct.md)
+- [Move
+    Type](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-type.md)
+- [Move Value
+    Connection](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-value-connection.md)
+- [Move Value
+    Edge](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-value-edge.md)
+- [Move
+    Value](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/move-value.md)
+- [Multisig
+    Committee](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/multisig-committee.md)
+- [Multisig
+    Member](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/multisig-member.md)
+- [Multisig
+    Signature](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/multisig-signature.md)
+- [Mutate Consensus Stream
+    Ended](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/mutate-consensus-stream-ended.md)
+- [Name
+    Record](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/name-record.md)
+- [Object Change
+    Connection](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/object-change-connection.md)
+- [Object Change
+    Edge](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/object-change-edge.md)
+- [Object
+    Change](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/object-change.md)
+- [Object
+    Connection](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/object-connection.md)
+- [Object
+    Edge](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/object-edge.md)
+- [Object
+    Owner](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/object-owner.md)
+-
+    [Object](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/object.md)
+- [Open Move
+    Type](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/open-move-type.md)
+- [Other
+    Command](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/other-command.md)
+- [Owned Or
+    Immutable](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/owned-or-immutable.md)
+- [Page
+    Info](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/page-info.md)
+- [Passkey Public
+    Key](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/passkey-public-key.md)
+- [Passkey
+    Signature](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/passkey-signature.md)
+- [Per Epoch
+    Config](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/per-epoch-config.md)
+- [Programmable System
+    Transaction](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/programmable-system-transaction.md)
+- [Programmable
+    Transaction](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/programmable-transaction.md)
+- [Protocol
+    Config](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/protocol-config.md)
+- [Protocol
+    Configs](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/protocol-configs.md)
+- [Publish
+    Command](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/publish-command.md)
+- [Pure](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/pure.md)
+- [Randomness State Create
+    Transaction](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/randomness-state-create-transaction.md)
+- [Randomness State Update
+    Transaction](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/randomness-state-update-transaction.md)
+- [Read Consensus Stream
+    Ended](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/read-consensus-stream-ended.md)
+-
+    [Receiving](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/receiving.md)
+- [Secp 256 K1 Public
+    Key](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/secp-256-k1-public-key.md)
+- [Secp 256 K1
+    Signature](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/secp-256-k1-signature.md)
+- [Secp 256 R1 Public
+    Key](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/secp-256-r1-public-key.md)
+- [Secp 256 R1
+    Signature](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/secp-256-r1-signature.md)
+- [Service
+    Config](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/service-config.md)
+- [Shared
+    Input](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/shared-input.md)
+-
+    [Shared](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/shared.md)
+- [Signature Verify
+    Result](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/signature-verify-result.md)
+- [Simulation
+    Result](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/simulation-result.md)
+- [Split Coins
+    Command](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/split-coins-command.md)
+- [Store Execution Time Observations
+    Transaction](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/store-execution-time-observations-transaction.md)
+- [Transaction
+    Connection](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/transaction-connection.md)
+- [Transaction
+    Edge](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/transaction-edge.md)
+- [Transaction
+    Effects](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/transaction-effects.md)
+- [Transaction Input
+    Connection](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/transaction-input-connection.md)
+- [Transaction Input
+    Edge](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/transaction-input-edge.md)
+-
+    [Transaction](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/transaction.md)
+- [Transfer Objects
+    Command](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/transfer-objects-command.md)
+- [Tx
+    Result](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/tx-result.md)
+- [Type
+    Origin](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/type-origin.md)
+- [Unchanged Consensus Object
+    Connection](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/unchanged-consensus-object-connection.md)
+- [Unchanged Consensus Object
+    Edge](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/unchanged-consensus-object-edge.md)
+- [Upgrade
+    Command](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/upgrade-command.md)
+- [User
+    Signature](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/user-signature.md)
+- [Validator Aggregated
+    Signature](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/validator-aggregated-signature.md)
+- [Validator
+    Connection](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/validator-connection.md)
+- [Validator
+    Edge](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/validator-edge.md)
+- [Validator
+    Set](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/validator-set.md)
+-
+    [Validator](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/validator.md)
+- [Withdraw Max Amount
+    U64](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/withdraw-max-amount-u64.md)
+- [Write Accumulator Storage Cost
+    Transaction](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/write-accumulator-storage-cost-transaction.md)
+- [Zk Login
+    Claim](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/zk-login-claim.md)
+- [Zk Login
+    Inputs](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/zk-login-inputs.md)
+- [Zk Login Jwk
+    Id](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/zk-login-jwk-id.md)
+- [Zk Login
+    Proof](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/zk-login-proof.md)
+- [Zk Login Public
+    Identifier](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/zk-login-public-identifier.md)
+- [Zk Login
+    Signature](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/zk-login-signature.md)
+- [Zk Login Verify
+    Result](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/objects/zk-login-verify-result.md)
+
+### References/Haneul Api/Haneul Graphql/Beta/Reference/Types/Scalars
+- [Base
+    64](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/scalars/base-64.md)
+- [Big
+    Int](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/scalars/big-int.md)
+-
+    [Boolean](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/scalars/boolean.md)
+- [Date
+    Time](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/scalars/date-time.md)
+- [Id](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/scalars/id.md)
+- [Int](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/scalars/int.md)
+- [Json](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/scalars/json.md)
+- [Move Type
+    Layout](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/scalars/move-type-layout.md)
+- [Move Type
+    Signature](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/scalars/move-type-signature.md)
+- [Open Move Type
+    Signature](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/scalars/open-move-type-signature.md)
+-
+    [String](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/scalars/string.md)
+- [Haneul
+    Address](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/scalars/haneul-address.md)
+- [Uint
+    53](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/scalars/uint-53.md)
+
+### References/Haneul Api/Haneul Graphql/Beta/Reference/Types/Unions
+-
+    [Command](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/unions/command.md)
+- [Dynamic Field
+    Value](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/unions/dynamic-field-value.md)
+- [End Of Epoch Transaction
+    Kind](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/unions/end-of-epoch-transaction-kind.md)
+- [Multisig Member Public
+    Key](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/unions/multisig-member-public-key.md)
+- [Owner](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/unions/owner.md)
+- [Signature
+    Scheme](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/unions/signature-scheme.md)
+- [Transaction
+    Argument](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/unions/transaction-argument.md)
+- [Transaction
+    Input](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/unions/transaction-input.md)
+- [Transaction
+    Kind](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/unions/transaction-kind.md)
+- [Unchanged Consensus
+    Object](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/unions/unchanged-consensus-object.md)
+- [Withdrawal
+    Reservation](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/types/unions/withdrawal-reservation.md)
+- [Haneul Glossary](https://docs.haneul.io/references/haneul-glossary.md)
+- [Haneul Graphql](https://docs.haneul.io/references/haneul-graphql.md)
+- [Haneul Move](https://docs.haneul.io/references/haneul-move.md)
+- [Haneul Sdks](https://docs.haneul.io/references/haneul-sdks.md)
 
 ## Haneul Stack
 
@@ -690,3 +1039,13 @@
 
 ### Haneul Stack/Haneulplay0x1
 - [Best Practices](https://docs.haneul.io/haneul-stack/haneulplay0x1/best-practices.md)
+- [Haneulplay0x1 Index](https://docs.haneul.io/haneul-stack/haneulplay0x1/index.md)
+- [Integration](https://docs.haneul.io/haneul-stack/haneulplay0x1/integration.md)
+- [Migration Strategies](https://docs.haneul.io/haneul-stack/haneulplay0x1/migration-strategies.md)
+- [Wallet Integration](https://docs.haneul.io/haneul-stack/haneulplay0x1/wallet-integration.md)
+
+### Haneul Stack/Zklogin Integration
+- [Developer Account](https://docs.haneul.io/haneul-stack/zklogin-integration/developer-account.md)
+- [Zklogin Integration Index](https://docs.haneul.io/haneul-stack/zklogin-integration/index.md)
+- [Zklogin Example](https://docs.haneul.io/haneul-stack/zklogin-integration/zklogin-example.md)
+- [Zklogin](https://docs.haneul.io/haneul-stack/zklogin-integration/zklogin.md)
