@@ -23,6 +23,9 @@ thiserror.workspace = true
 tokio.workspace = true
 lru.workspace = true
 
+[features]
+testing = []
+
 [dev-dependencies]
 hyper.workspace = true
 insta.workspace = true

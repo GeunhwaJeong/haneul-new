@@ -7,8 +7,10 @@ use std::time::Duration;
 
 use anyhow::Context as _;
 use futures::StreamExt;
+use move_core_types::account_address::AccountAddress;
 use haneul_futures::service::Service;
 use haneul_indexer_alt_reader::kv_loader::TransactionContents as NativeTransactionContents;
+use haneul_package_resolver::Package;
 use haneul_rpc::field::FieldMask;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::Checkpoint as ProtoCheckpoint;
@@ -31,6 +33,7 @@ use haneul_types::object::Object as NativeObject;
 use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::TransactionData;
 use tokio::sync::broadcast;
+use tokio::sync::mpsc::UnboundedSender;
 use tonic::Streaming;
 use tonic::transport::Endpoint;
 use tonic::transport::Uri;
@@ -39,6 +42,8 @@ use tracing::info;
 use crate::config::SubscriptionConfig;
 use crate::scope::ExecutionObjectMap;
 
+use super::StreamingPackageStore;
+use super::SubscriptionReadiness;
 use super::processed_checkpoint::ProcessedCheckpoint;
 use super::processed_checkpoint::ProcessedTransaction;
 
@@ -97,15 +102,27 @@ pub(crate) struct CheckpointStreamTask {
     uri: Uri,
     sender: broadcast::Sender<Arc<ProcessedCheckpoint>>,
     broadcaster: CheckpointBroadcaster,
+    streaming_packages: Arc<StreamingPackageStore>,
+    package_eviction_tx: UnboundedSender<(u64, Vec<AccountAddress>)>,
+    readiness: Arc<SubscriptionReadiness>,
 }
 
 impl CheckpointStreamTask {
-    pub(crate) fn new(uri: Uri, config: &SubscriptionConfig) -> Self {
+    pub(crate) fn new(
+        uri: Uri,
+        config: &SubscriptionConfig,
+        streaming_packages: Arc<StreamingPackageStore>,
+        package_eviction_tx: UnboundedSender<(u64, Vec<AccountAddress>)>,
+        readiness: Arc<SubscriptionReadiness>,
+    ) -> Self {
         let (sender, broadcaster) = broadcast::channel(config.broadcast_buffer);
         Self {
             uri,
             sender,
             broadcaster,
+            streaming_packages,
+            package_eviction_tx,
+            readiness,
         }
     }
 
@@ -142,9 +159,26 @@ impl CheckpointStreamTask {
             let mut stream = self.connect().await?;
             info!("Connected to checkpoint stream at {}", self.uri);
 
+            let mut first_checkpoint_recorded = false;
             while let Some(result) = stream.next().await {
                 let response = result.context("Checkpoint stream error")?;
                 if let Some(checkpoint) = response.checkpoint {
+                    let sequence_number = checkpoint
+                        .sequence_number
+                        .context("Checkpoint without sequence_number")?;
+                    if !first_checkpoint_recorded {
+                        self.readiness.record_first_checkpoint(sequence_number);
+                        first_checkpoint_recorded = true;
+                    }
+                    let packages = extract_packages(&checkpoint);
+                    if !packages.is_empty() {
+                        self.streaming_packages
+                            .index_packages(sequence_number, &packages);
+                        let ids = packages.iter().map(|p| p.storage_id()).collect();
+                        // Send errors only if the eviction task has exited — at that
+                        // point nothing will drain the store, but we keep serving.
+                        let _ = self.package_eviction_tx.send((sequence_number, ids));
+                    }
                     let processed = process_checkpoint(checkpoint)?;
                     // Ignore send errors — no active subscribers is a normal state
                     // (e.g., no clients have connected yet). The checkpoint is simply dropped.
@@ -288,6 +322,29 @@ fn process_transaction(
         contents,
         execution_objects,
     })
+}
+
+/// Extract package objects from a streamed checkpoint. Returned packages will be
+/// inserted into the streaming index and queued for eventual eviction.
+fn extract_packages(checkpoint: &ProtoCheckpoint) -> Vec<Arc<Package>> {
+    let Some(object_set) = &checkpoint.objects else {
+        return Vec::new();
+    };
+    let mut packages = Vec::new();
+    for obj in &object_set.objects {
+        let Some(bcs) = &obj.bcs else { continue };
+        let Ok(native_obj) = bcs.deserialize::<NativeObject>() else {
+            continue;
+        };
+        let Some(move_package) = native_obj.data.try_as_package() else {
+            continue;
+        };
+        let Ok(package) = Package::read_from_package(move_package) else {
+            continue;
+        };
+        packages.push(Arc::new(package));
+    }
+    packages
 }
 
 /// Deserialize all objects from the checkpoint-level ObjectSet.

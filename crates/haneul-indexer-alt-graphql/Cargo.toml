@@ -28,6 +28,7 @@ bcs.workspace = true
 chrono.workspace = true
 clap.workspace = true
 const-str.workspace = true
+dashmap.workspace = true
 diesel.workspace = true
 fastcrypto.workspace = true
 fastcrypto-zkp.workspace = true
@@ -46,6 +47,7 @@ telemetry-subscribers.workspace = true
 thiserror.workspace = true
 timeout-tracing.workspace = true
 tokio.workspace = true
+tokio-stream.workspace = true
 toml.workspace = true
 tonic.workspace = true
 tower-http.workspace = true
@@ -78,6 +80,7 @@ haneul-types.workspace = true
 insta.workspace = true
 reqwest.workspace = true
 regex.workspace = true
+haneul-package-resolver = { workspace = true, features = ["testing"] }
 
 [features]
 staging = []

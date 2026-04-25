@@ -4,7 +4,6 @@
 use std::sync::Arc;
 
 use async_graphql::Context;
-use haneul_indexer_alt_reader::package_resolver::PackageCache;
 use tokio::sync::broadcast;
 use tracing::warn;
 
@@ -13,6 +12,7 @@ use crate::config::Limits;
 use crate::error::RpcError;
 use crate::scope::Scope;
 use crate::task::streaming::CheckpointBroadcaster;
+use crate::task::streaming::StreamingPackageStore;
 
 #[derive(Default)]
 pub struct Subscription;
@@ -26,7 +26,7 @@ impl Subscription {
         &self,
         ctx: &Context<'_>,
     ) -> Result<impl futures::Stream<Item = Result<Checkpoint, RpcError>>, RpcError> {
-        let package_store = ctx.data::<Arc<PackageCache>>()?.clone();
+        let package_store = ctx.data::<Arc<StreamingPackageStore>>()?.clone();
         let limits: &Limits = ctx.data()?;
         let resolver_limits = limits.package_resolver();
         let broadcaster: &CheckpointBroadcaster = ctx.data()?;

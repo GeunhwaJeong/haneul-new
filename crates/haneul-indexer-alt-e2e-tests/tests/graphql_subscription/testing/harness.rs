@@ -23,8 +23,11 @@ use haneul_indexer_alt_reader::fullnode_client::FullnodeArgs;
 use haneul_indexer_alt_reader::kv_loader::KvArgs;
 use haneul_indexer_alt_reader::system_package_task::SystemPackageTaskArgs;
 use haneul_pg_db::DbArgs;
+use haneul_pg_db::temp::TempDb;
 use haneul_pg_db::temp::get_available_port;
 use haneul_test_transaction_builder::TestTransactionBuilder;
+use test_cluster::TestCluster;
+use test_cluster::TestClusterBuilder;
 use tokio_stream::StreamExt;
 use tokio_tungstenite::connect_async;
 use tokio_tungstenite::tungstenite::Message;
@@ -33,19 +36,68 @@ use tokio_tungstenite::tungstenite::http::Request;
 const SUBSCRIPTION_TIMEOUT: Duration = Duration::from_secs(30);
 
 pub struct SubscriptionTestCluster {
+    pub validator: TestCluster,
+    #[allow(unused)]
+    pub db: TempDb,
     pub subscription_url: String,
     #[allow(unused)]
     service: Service,
+    #[allow(unused)]
+    indexer: Service,
+    #[allow(unused)]
+    ingestion_dir: tempfile::TempDir,
 }
 
 impl SubscriptionTestCluster {
-    pub async fn new(validator_cluster: &test_cluster::TestCluster) -> Self {
+    /// Set up a full streaming subscription test environment:
+    /// validator + postgres DB + kv_packages indexer + GraphQL service.
+    /// Waits for kv_packages to index the genesis checkpoint so subscriptions are ready.
+    pub async fn new() -> Self {
+        let ingestion_dir = tempfile::tempdir().expect("Failed to create ingestion dir");
+        let validator = TestClusterBuilder::new()
+            .with_num_validators(1)
+            .with_data_ingestion_dir(ingestion_dir.path().to_owned())
+            .build()
+            .await;
+
+        let db = TempDb::new().expect("Failed to create TempDb");
+        let database_url = db.database().url().clone();
+        let writer = haneul_pg_db::Db::for_write(database_url.clone(), DbArgs::default())
+            .await
+            .expect("Failed to connect writer");
+        writer
+            .run_migrations(None)
+            .await
+            .expect("Failed to run migrations");
+
+        let indexer = haneul_indexer_alt::setup_indexer(
+            database_url.clone(),
+            DbArgs::default(),
+            haneul_indexer_alt_framework::IndexerArgs::default(),
+            haneul_indexer_alt_framework::ingestion::ClientArgs {
+                ingestion:
+                    haneul_indexer_alt_framework::ingestion::ingestion_client::IngestionClientArgs {
+                        local_ingestion_path: Some(ingestion_dir.path().to_owned()),
+                        ..Default::default()
+                    },
+                ..Default::default()
+            },
+            haneul_indexer_alt::config::IndexerConfig::for_test(),
+            None,
+            &Registry::new(),
+        )
+        .await
+        .expect("Failed to create indexer");
+        let indexer = indexer.run().await.expect("Failed to start indexer");
+
+        wait_for_kv_packages(&db, 0).await;
+
         let graphql_port = get_available_port();
         let graphql_listen_address = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), graphql_port);
-        let rpc_url = validator_cluster.rpc_url();
+        let rpc_url = validator.rpc_url();
 
         let service = start_graphql(
-            None,
+            Some(database_url),
             FullnodeArgs::new(rpc_url.parse().unwrap()),
             DbArgs::default(),
             KvArgs::default(),
@@ -60,15 +112,19 @@ impl SubscriptionTestCluster {
             },
             "0.0.0",
             GraphQlConfig::default(),
-            vec![],
+            vec!["kv_packages".to_string()],
             &Registry::new(),
         )
         .await
         .expect("Failed to start GraphQL server");
 
         Self {
+            validator,
+            db,
             subscription_url: format!("ws://{}/graphql", graphql_listen_address),
             service,
+            indexer,
+            ingestion_dir,
         }
     }
 
@@ -263,4 +319,43 @@ pub fn graphql_redactions() -> insta::Settings {
         value
     });
     settings
+}
+
+/// Poll the kv_packages watermark until it reaches `target_checkpoint`.
+pub async fn wait_for_kv_packages(db: &haneul_pg_db::temp::TempDb, target_checkpoint: u64) {
+    use diesel::ExpressionMethods;
+    use diesel::QueryDsl;
+    use haneul_indexer_alt_schema::schema::watermarks::dsl as w;
+
+    let reader = haneul_indexer_alt_reader::pg_reader::PgReader::new(
+        Some("wait_for_kv_packages"),
+        Some(db.database().url().clone()),
+        DbArgs::default(),
+        &Registry::new(),
+    )
+    .await
+    .expect("Failed to create PgReader");
+
+    tokio::time::timeout(Duration::from_secs(30), async {
+        loop {
+            if let Ok(mut conn) = reader.connect().await
+                && let Ok(hi) = conn
+                    .results(
+                        w::watermarks
+                            .select(w::checkpoint_hi_inclusive)
+                            .filter(w::pipeline.eq("kv_packages")),
+                    )
+                    .await
+                && hi
+                    .first()
+                    .is_some_and(|&cp: &i64| cp as u64 >= target_checkpoint)
+            {
+                return;
+            }
+
+            tokio::time::sleep(Duration::from_millis(100)).await;
+        }
+    })
+    .await
+    .expect("Timed out waiting for kv_packages indexer");
 }
