@@ -1792,7 +1792,11 @@ mod test {
     #[sim_test(config = "test_config()")]
     async fn test_addr_bal_deposit_workload() {
         haneul_protocol_config::ProtocolConfig::poison_get_for_min_version();
-        let test_cluster = build_test_cluster(4, 10000, 1).await;
+        // Use an epoch duration longer than the 60s workload so that the test
+        // does not span an epoch change (in-flight txs at an epoch boundary
+        // surface as `permanent_failure` due to a retry gap in the bench
+        // driver's soft-bundle helper).
+        let test_cluster = build_test_cluster(4, 120_000, 1).await;
 
         let protocol_config = haneul_protocol_config::ProtocolConfig::get_for_version(
             haneul_protocol_config::ProtocolVersion::max(),
