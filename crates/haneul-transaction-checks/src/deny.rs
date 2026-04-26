@@ -7,7 +7,7 @@ use haneul_config::{
     transaction_deny_config::TransactionDenyConfig,
 };
 use haneul_types::{
-    base_types::ObjectRef,
+    base_types::{ObjectRef, HaneulAddress},
     error::{HaneulError, HaneulErrorKind, HaneulResult, UserInputError},
     signature::GenericSignature,
     storage::BackingPackageStore,
@@ -38,7 +38,7 @@ pub fn check_transaction_for_signing(
 ) -> HaneulResult {
     check_disabled_features(filter_config, tx_data, tx_signatures)?;
 
-    check_signers(filter_config, tx_data)?;
+    check_signers(filter_config, tx_data, tx_signatures)?;
 
     check_input_objects(filter_config, input_object_kinds)?;
 
@@ -169,11 +169,16 @@ fn check_disabled_features(
     Ok(())
 }
 
-fn check_signers(filter_config: &TransactionDenyConfig, tx_data: &TransactionData) -> HaneulResult {
+fn check_signers(
+    filter_config: &TransactionDenyConfig,
+    tx_data: &TransactionData,
+    tx_signatures: &[GenericSignature],
+) -> HaneulResult {
     let deny_map = filter_config.get_address_deny_set();
     if deny_map.is_empty() {
         return Ok(());
     }
+    // Check declared sender and sponsor addresses.
     for signer in tx_data.required_signers() {
         deny_if_true!(
             deny_map.contains(&signer),
@@ -182,6 +187,19 @@ fn check_signers(filter_config: &TransactionDenyConfig, tx_data: &TransactionDat
                 signer
             )
         );
+    }
+    // Also check the actual signing addresses derived from the transaction signatures.
+    // With address aliases, the actual signer may differ from the declared sender/sponsor.
+    for sig in tx_signatures {
+        if let Ok(addr) = HaneulAddress::try_from(sig) {
+            deny_if_true!(
+                deny_map.contains(&addr),
+                format!(
+                    "Access to account address {:?} is temporarily disabled",
+                    addr
+                )
+            );
+        }
     }
     Ok(())
 }
