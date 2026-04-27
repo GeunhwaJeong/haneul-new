@@ -1,0 +1,42 @@
+---
+source: crates/haneul-indexer-alt-e2e-tests/tests/graphql_subscription/transaction_subscription.rs
+expression: item
+---
+{
+  "data": {
+    "transactions": {
+      "digest": "[digest]",
+      "sender": {
+        "address": "[address]"
+      },
+      "gasInput": {
+        "gasBudget": "5000000000"
+      },
+      "effects": {
+        "status": "SUCCESS",
+        "balanceChanges": {
+          "nodes": [
+            {
+              "amount": "1000",
+              "coinType": {
+                "repr": "[pkg]::haneul::HANEUL"
+              },
+              "owner": {
+                "address": "[address]"
+              }
+            },
+            {
+              "amount": "-2977000",
+              "coinType": {
+                "repr": "[pkg]::haneul::HANEUL"
+              },
+              "owner": {
+                "address": "[address]"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
