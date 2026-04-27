@@ -11,6 +11,7 @@ anyhow.workspace = true
 async-trait.workspace = true
 bcs.workspace = true
 chrono.workspace = true
+clap = { workspace = true, features = ["derive", "env"] }
 cynic.workspace = true
 fastcrypto.workspace = true
 itertools.workspace = true
@@ -21,6 +22,7 @@ rand.workspace = true
 reqwest = { workspace = true, features = ["json"] }
 roaring.workspace = true
 serde.workspace = true
+serde_json.workspace = true
 tokio = { workspace = true, features = ["full"] }
 tonic.workspace = true
 tonic-prost.workspace = true
@@ -35,7 +37,6 @@ haneul-swarm-config.workspace = true
 haneul-types.workspace = true
 
 [dev-dependencies]
-serde_json.workspace = true
 tempfile.workspace = true
 wiremock.workspace = true
 
