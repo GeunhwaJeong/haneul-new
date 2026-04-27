@@ -9011,6 +9011,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "append-only-vec",
+ "async-trait",
  "bimap",
  "clap",
  "codespan-reporting",
@@ -16153,6 +16154,7 @@ name = "haneul-package-alt"
 version = "1.72.0"
 dependencies = [
  "anyhow",
+ "async-trait",
  "indexmap 2.8.0",
  "move-compiler",
  "move-package-alt",

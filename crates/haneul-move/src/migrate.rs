@@ -16,6 +16,6 @@ pub struct Migrate {
 
 impl Migrate {
     pub async fn execute(self, path: Option<&Path>, config: BuildConfig) -> anyhow::Result<()> {
-        self.migrate.execute::<HaneulFlavor>(path, config).await
+        self.migrate.execute(path, config, HaneulFlavor::new()).await
     }
 }

@@ -33,7 +33,7 @@ pub async fn find_environment(
     wallet: &WalletContext,
     for_publication: bool,
 ) -> anyhow::Result<Environment> {
-    let manifest_envs = RootPackage::<HaneulFlavor>::environments(package_path)?;
+    let manifest_envs = RootPackage::<HaneulFlavor>::environments(package_path, &HaneulFlavor::new())?;
     let finder = EnvFinder {
         explicit_env,
         wallet,

@@ -119,6 +119,7 @@ pub async fn run_move_unit_tests(
             report_stacktrace_on_abort: true,
             ..config
         },
+        haneul_package_alt::HaneulFlavor::new(),
         HaneulVMTestSetup::new(),
         compute_coverage,
         save_disassembly,

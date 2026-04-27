@@ -55,7 +55,7 @@ impl Disassemble {
                 debug: self.debug,
                 bytecode_map: self.bytecode_map,
             }
-            .execute::<HaneulFlavor>(package_path, build_config)
+            .execute(package_path, build_config, HaneulFlavor::new())
             .await?;
             return Ok(());
         }

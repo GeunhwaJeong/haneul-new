@@ -94,10 +94,11 @@ mod compatibility_tests {
                     .join("../..")
                     .join(&package.path);
 
-                let root_pkg = PackageLoader::new(&package_path, testnet_environment())
-                    .load::<HaneulFlavor>()
-                    .await
-                    .expect("can load system packages");
+                let root_pkg =
+                    PackageLoader::new(&package_path, testnet_environment(), HaneulFlavor::new())
+                        .load()
+                        .await
+                        .expect("can load system packages");
 
                 assert_eq!(root_pkg.package_info().display_name(), package.name);
                 assert_eq!(

@@ -21,7 +21,7 @@ impl Coverage {
         build_config: BuildConfig,
     ) -> anyhow::Result<()> {
         self.coverage
-            .execute::<HaneulFlavor>(path, build_config)
+            .execute(path, build_config, HaneulFlavor::new())
             .await?;
         Ok(())
     }

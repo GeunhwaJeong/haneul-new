@@ -37,7 +37,7 @@ impl CachePackage {
             name: self.environment_name.clone(),
             id: self.environment_id.clone(),
         };
-        let info = cache_package::<HaneulFlavor>(&env, &dep.dep).await?;
+        let info = cache_package(&env, &dep.dep, HaneulFlavor::new()).await?;
         println!("{}", serde_json::to_string(&info)?);
 
         Ok(())

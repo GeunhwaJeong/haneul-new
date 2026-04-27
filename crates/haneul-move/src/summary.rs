@@ -52,7 +52,12 @@ impl Summary {
         haneul_package_metadata: PackageSummaryMetadata,
     ) -> anyhow::Result<()> {
         self.summary
-            .execute::<HaneulFlavor, _>(path, build_config, Some(&haneul_package_metadata))
+            .execute(
+                path,
+                build_config,
+                HaneulFlavor::new(),
+                Some(&haneul_package_metadata),
+            )
             .await
     }
 }

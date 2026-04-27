@@ -786,7 +786,7 @@ impl HaneulCommand {
             }
             HaneulCommand::FireDrill { fire_drill } => run_fire_drill(fire_drill).await,
             HaneulCommand::Analyzer => {
-                analyzer::run::<HaneulFlavor>(Some(Flavor::Haneul));
+                analyzer::run::<HaneulFlavor>(Arc::new(HaneulFlavor::new()), Some(Flavor::Haneul));
                 Ok(())
             }
             HaneulCommand::AnalyzeTrace {

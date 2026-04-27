@@ -55,5 +55,5 @@ struct App {}
 fn main() {
     App::parse();
     alloc_utils::maybe_enable_jemalloc();
-    analyzer::run::<HaneulFlavor>(Some(Flavor::Haneul));
+    analyzer::run::<HaneulFlavor>(std::sync::Arc::new(HaneulFlavor::new()), Some(Flavor::Haneul));
 }
