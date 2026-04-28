@@ -224,7 +224,7 @@ jobs:
           swap-size-gb: 256
       - name: cargo test (haneul-graphql staging)
         run: |
-          cargo nextest run --profile ci --cargo-quiet --features staging -E 'package(haneul-indexer-alt-graphql)'
+          cargo nextest run --profile ci --cargo-quiet --features staging -E 'package(haneul-indexer-alt-graphql) or (package(haneul-indexer-alt-e2e-tests) and binary(graphql_subscription))'
       - name: doctests
         run: |
           cargo test --doc
