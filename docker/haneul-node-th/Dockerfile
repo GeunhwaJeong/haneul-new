@@ -16,7 +16,9 @@ COPY haneul-execution haneul-execution
 COPY external-crates external-crates
 
 ENV USE_TIDEHUNTER=1
-RUN cargo build --profile ${PROFILE} --features typed-store/tidehunter --bin haneul-node --target-dir target/tidehunter
+RUN cargo build --profile ${PROFILE} --features typed-store/tidehunter \
+    --bin haneul-node --bin haneul --bin haneul-tool --bin stress \
+    --target-dir target/tidehunter
 
 # Production Image
 FROM debian:bullseye-slim AS runtime
@@ -24,17 +26,13 @@ FROM debian:bullseye-slim AS runtime
 RUN apt-get update && apt-get install -y ca-certificates curl
 ARG PROFILE=release
 WORKDIR "$WORKDIR/haneul"
-# Only ship the tidehunter binary at a suffixed path. Intentionally no
-# /opt/haneul/bin/haneul-node or /usr/local/bin/haneul-node aliases — the binary
-# uses the tidehunter storage backend, which is incompatible with rocksdb,
-# and silently swapping at the canonical paths would let callers run it
-# as plain haneul-node and corrupt unrelated databases. K8s pod entrypoints
-# must call /opt/haneul/bin/haneul-node-th explicitly. mp3's binary_upload_config
-# extracts this path to s3://haneul-releases/{sha}/haneul-node-th via {basename}
-# substitution; that S3 location is the contract for ansible bare-metal
-# nodes (the build_with_tidehunter selector in
-# haneul-operations/ansible/playbook/haneul/roles/haneul-node-{internal,external}).
+# Tidehunter-feature binaries ship at suffixed paths only — no canonical
+# aliases, since the storage backend is incompatible with rocksdb and a
+# silent swap at /opt/haneul/bin/haneul-node could corrupt unrelated databases.
 COPY --from=builder /haneul/target/tidehunter/release/haneul-node /opt/haneul/bin/haneul-node-th
+COPY --from=builder /haneul/target/tidehunter/release/haneul      /opt/haneul/bin/haneul-th
+COPY --from=builder /haneul/target/tidehunter/release/haneul-tool /opt/haneul/bin/haneul-tool-th
+COPY --from=builder /haneul/target/tidehunter/release/stress   /opt/haneul/bin/stress-th
 
 ARG BUILD_DATE
 ARG GIT_REVISION
