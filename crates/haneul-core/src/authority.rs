@@ -1180,7 +1180,6 @@ impl AuthorityState {
             .get_transaction_cache_reader()
             .transaction_executed_in_last_epoch(transaction.digest(), epoch_store.epoch())
         {
-            assert_reachable!("transaction executed in last epoch");
             return Err(HaneulErrorKind::TransactionAlreadyExecuted {
                 digest: (*transaction.digest()),
             }
@@ -1577,9 +1576,6 @@ impl AuthorityState {
             }
         }
 
-        // TODO: We should also settle address funds during execution,
-        // instead of from checkpoint builder. It will improve performance
-        // since we will be settling as soon as we can.
         if certificate
             .transaction_data()
             .kind()
