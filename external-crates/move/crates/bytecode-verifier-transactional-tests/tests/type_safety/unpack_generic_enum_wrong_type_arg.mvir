@@ -2,7 +2,7 @@
 module 0x2::ByValue {
     enum Foo<T> { V { x: T } }
 
-    foo(y: Self::Foo<u64>) {
+    fun foo(y: Self::Foo<u64>) {
         let x: u64;
     label b0:
         // invalid
@@ -15,7 +15,7 @@ module 0x2::ByValue {
 module 0x2::ByImmRef {
     enum Foo<T> { V { x: T } }
 
-    foo(y: Self::Foo<u64>) {
+    fun foo(y: Self::Foo<u64>) {
         let x: u64;
     label b0:
         // invalid
@@ -28,7 +28,7 @@ module 0x2::ByImmRef {
 module 0x2::ByMutRef {
     enum Foo<T> { V { x: T } }
 
-    foo(y: Self::Foo<u64>) {
+    fun foo(y: Self::Foo<u64>) {
         let x: u64;
     label b0:
         // invalid
@@ -41,7 +41,7 @@ module 0x2::ByMutRef {
 module 0x2::ByValue {
     enum Foo<T> { V { x: T } }
 
-    foo(y: &Self::Foo<u64>) {
+    fun foo(y: &Self::Foo<u64>) {
         let x: u64;
     label b0:
         // invalid
@@ -54,7 +54,7 @@ module 0x2::ByValue {
 module 0x2::ByImmRef {
     enum Foo<T> { V { x: T } }
 
-    foo(y: &Self::Foo<u64>) {
+    fun foo(y: &Self::Foo<u64>) {
         let x: u64;
     label b0:
         // invalid
@@ -67,7 +67,7 @@ module 0x2::ByImmRef {
 module 0x2::ByMutRef {
     enum Foo<T> { V { x: T } }
 
-    foo(y: &Self::Foo<u64>) {
+    fun foo(y: &Self::Foo<u64>) {
         let x: u64;
     label b0:
         // invalid
@@ -80,7 +80,7 @@ module 0x2::ByMutRef {
 module 0x2::ByValue {
     enum Foo<T> { V { x: T } }
 
-    foo(y: &mut Self::Foo<u64>) {
+    fun foo(y: &mut Self::Foo<u64>) {
         let x: u64;
     label b0:
         // invalid
@@ -93,7 +93,7 @@ module 0x2::ByValue {
 module 0x2::ByImmRef {
     enum Foo<T> { V { x: T } }
 
-    foo(y: &mut Self::Foo<u64>) {
+    fun foo(y: &mut Self::Foo<u64>) {
         let x: u64;
     label b0:
         // invalid
@@ -106,7 +106,7 @@ module 0x2::ByImmRef {
 module 0x2::ByMutRef {
     enum Foo<T> { V { x: T } }
 
-    foo(y: &mut Self::Foo<u64>) {
+    fun foo(y: &mut Self::Foo<u64>) {
         let x: u64;
     label b0:
         // invalid

@@ -1,7 +1,7 @@
 //# run
 module 0x42::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     (3);
     to_u8(());
@@ -12,7 +12,7 @@ label b0:
 //# run
 module 0x43::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     (3);
     to_u16(());
@@ -23,7 +23,7 @@ label b0:
 //# run
 module 0x44::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     (3);
     to_u32(());
@@ -34,7 +34,7 @@ label b0:
 //# run
 module 0x45::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     (3);
     to_u64(());
@@ -45,7 +45,7 @@ label b0:
 //# run
 module 0x46::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     (3);
     to_u128(());
@@ -56,7 +56,7 @@ label b0:
 //# run
 module 0x47::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     (3);
     to_u256(());

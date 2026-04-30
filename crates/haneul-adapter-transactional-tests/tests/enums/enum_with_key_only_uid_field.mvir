@@ -13,7 +13,7 @@ module 0x0::f {
         A { id: object::UID }
     }
 
-    public transfer(ctx: &mut tx_context::TxContext) {
+    public fun transfer(ctx: &mut tx_context::TxContext) {
         let x: Self::X;
         let id: object::UID;
         label  l0:
@@ -23,7 +23,7 @@ module 0x0::f {
         return;
     }
 
-    public share(ctx: &mut tx_context::TxContext) {
+    public fun share(ctx: &mut tx_context::TxContext) {
         let x: Self::X;
         let id: object::UID;
         label  l0:
@@ -33,7 +33,7 @@ module 0x0::f {
         return;
     }
 
-    public freezer(ctx: &mut tx_context::TxContext) {
+    public fun freezer(ctx: &mut tx_context::TxContext) {
         let x: Self::X;
         let id: object::UID;
         label  l0:

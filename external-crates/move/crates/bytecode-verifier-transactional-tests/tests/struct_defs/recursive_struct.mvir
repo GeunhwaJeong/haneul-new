@@ -1,7 +1,7 @@
 //# publish
 module 0x1::Cup {
     struct Cup<T> { f: T }
-    public cup<T>(f: T): Self::Cup<T> {
+    public fun cup<T>(f: T): Self::Cup<T> {
     label b0:
         return Cup<T> { f: move(f) };
     }
@@ -20,7 +20,7 @@ module 0x1::M1 {
     struct Foo { f: Cup::Cup<Self::Foo> }
 
     // would blow up the stack
-    public foo(): Self::Foo {
+    public fun foo(): Self::Foo {
     label b0:
         return Foo { f: Cup::cup<Self::Foo>(Self::foo()) };
     }

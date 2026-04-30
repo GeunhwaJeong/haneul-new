@@ -17,7 +17,7 @@ module 0x0::M1 {
     }
 
     // value param invalid
-    public init(ctx: &mut tx_context::TxContext, value: u64) {
+    public fun init(ctx: &mut tx_context::TxContext, value: u64) {
         label l0:
         (Object { id: object::new(copy(ctx)), value: 42 });
         (tx_context::sender(freeze(move(ctx))));

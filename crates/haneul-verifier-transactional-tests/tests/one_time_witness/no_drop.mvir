@@ -9,7 +9,7 @@ module 0x0::m {
 
     struct M { dummy: bool }
 
-    init(otw: Self::M, _ctx: &mut tx_context::TxContext) {
+    fun init(otw: Self::M, _ctx: &mut tx_context::TxContext) {
         label l0:
         M {} = move(otw);
         _ = ();

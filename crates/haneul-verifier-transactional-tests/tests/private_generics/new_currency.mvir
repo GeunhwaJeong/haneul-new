@@ -12,7 +12,7 @@ module 0x0::t {
     import 0x2::tx_context;
 
     // This should fail - trying to call new_currency with external type
-    test(registry: &mut coin_registry::CoinRegistry, ctx: &mut tx_context::TxContext) {
+    fun test(registry: &mut coin_registry::CoinRegistry, ctx: &mut tx_context::TxContext) {
         let builder: coin_registry::CurrencyInitializer<coin::Coin<u64>>;
         let treasury: coin::TreasuryCap<coin::Coin<u64>>;
         
@@ -45,7 +45,7 @@ module 0x0::t {
         id: object::UID
     }
 
-    test(registry: &mut coin_registry::CoinRegistry, ctx: &mut tx_context::TxContext) {
+    fun test(registry: &mut coin_registry::CoinRegistry, ctx: &mut tx_context::TxContext) {
         let builder: coin_registry::CurrencyInitializer<Self::LP<string::String>>;
         let treasury: coin::TreasuryCap<Self::LP<string::String>>;
         
@@ -77,7 +77,7 @@ module 0x0::t {
         id: object::UID
     }
 
-    test(registry: &mut coin_registry::CoinRegistry, ctx: &mut tx_context::TxContext) {
+    fun test(registry: &mut coin_registry::CoinRegistry, ctx: &mut tx_context::TxContext) {
         let builder: coin_registry::CurrencyInitializer<Self::Foo>;
         let treasury: coin::TreasuryCap<Self::Foo>;
         

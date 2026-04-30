@@ -13,7 +13,7 @@ module 0x0::m {
         id: object::UID
     }
 
-    no_leak(parent: &mut object::UID, ctx: &mut tx_context::TxContext) {
+    fun no_leak(parent: &mut object::UID, ctx: &mut tx_context::TxContext) {
         let id: object::UID;
         label l0:
         id = derived_object::claim<u64>(move(parent), 0u64);

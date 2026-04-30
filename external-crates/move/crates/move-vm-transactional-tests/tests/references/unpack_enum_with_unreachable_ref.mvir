@@ -7,7 +7,7 @@ enum Wrapper has drop {
     Val { x: u64 },
 }
 
-entry foo() {
+entry fun foo() {
     let e: Self::Wrapper;
     let e_ref: &Self::Wrapper;
     let x_ref: &u64;

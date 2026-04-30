@@ -2,7 +2,7 @@
 module 0x6::MonoTooMany {
     enum Foo{ V { x: u64 } }
 
-    bar(x: u64, y: u64): Self::Foo {
+    fun bar(x: u64, y: u64): Self::Foo {
         let t: Self::Foo;
     label b0:
         t = Foo::V { x: move(x), y: move(y) };
@@ -14,7 +14,7 @@ module 0x6::MonoTooMany {
 module 0x7::MonoTooFew {
     enum Foo{ V { x: u64 } }
 
-    bar(x: u64, y: u64): Self::Foo {
+    fun bar(x: u64, y: u64): Self::Foo {
         let t: Self::Foo;
     label b0:
         t = Foo::V { };
@@ -26,7 +26,7 @@ module 0x7::MonoTooFew {
 module 0x8::PolyTooMany {
     enum Foo<T>{ V { x: T } }
 
-    bar(x: u64, y: u64): Self::Foo<u64> {
+    fun bar(x: u64, y: u64): Self::Foo<u64> {
         let t: Self::Foo<u64>;
     label b0:
         t = Foo::V<u64> { x: move(x), y: move(y) };
@@ -38,7 +38,7 @@ module 0x8::PolyTooMany {
 module 0x9::PolyTooFew {
     enum Foo<T>{ V { x: T } }
 
-    bar(x: u64, y: u64): Self::Foo<u64> {
+    fun bar(x: u64, y: u64): Self::Foo<u64> {
         let t: Self::Foo<u64>;
     label b0:
         t = Foo::V<u64> { };

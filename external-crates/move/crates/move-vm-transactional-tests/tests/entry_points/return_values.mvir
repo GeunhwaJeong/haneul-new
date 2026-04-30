@@ -5,7 +5,7 @@
 module 0x42::M {
     struct S { f: u64 }
 
-    public t(
+    public fun t(
         x: u64,
         a: signer,
         s: Self::S,

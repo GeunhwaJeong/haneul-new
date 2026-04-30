@@ -9,7 +9,7 @@ module 0x0::mod {
 
     struct Mod has drop { dummy: bool }
 
-    init(_mod: Self::Mod, ctx: &mut tx_context::TxContext) {
+    fun init(_mod: Self::Mod, ctx: &mut tx_context::TxContext) {
         label l0:
         return;
     }

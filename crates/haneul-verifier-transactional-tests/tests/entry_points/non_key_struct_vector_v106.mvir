@@ -11,7 +11,7 @@ module 0x0::m {
 
     struct S has copy, drop, store { value: u64 }
 
-    public entry no(s: vector<Self::S>, ctx: &mut tx_context::TxContext) {
+    public entry fun no(s: vector<Self::S>, ctx: &mut tx_context::TxContext) {
         label l0:
         abort 0;
     }

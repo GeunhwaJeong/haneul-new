@@ -5,7 +5,7 @@ module 0x1::PolymorphicEnums {
         Two { x: T }
     }
 
-    public f<T>(t: T, e: T): T {
+    public fun f<T>(t: T, e: T): T {
         let x: Self::EnumWithTwoVariants<T>;
         let y: T;
         label b0:
@@ -31,7 +31,7 @@ module 0x2::MonomorphicEnums {
         Two { x: u64 }
     }
 
-    public f(): u64 {
+    public fun f(): u64 {
         let x: Self::EnumWithTwoVariants;
         let y: u64;
         label b0:

@@ -10,7 +10,7 @@ module 0x0::m {
     import 0x2::event;
     import 0x2::coin;
 
-    t(s: coin::CurrencyCreated<u64>) {
+    fun t(s: coin::CurrencyCreated<u64>) {
         label l0:
         event::emit<coin::CurrencyCreated<u64>>(move(s));
         return;
@@ -21,7 +21,7 @@ module 0x0::m {
 module 0x0::m {
     import 0x2::event;
 
-    t<T: copy + drop>(x: T) {
+    fun t<T: copy + drop>(x: T) {
         label l0:
         event::emit<T>(move(x));
         return;
@@ -32,7 +32,7 @@ module 0x0::m {
 module 0x0::m {
     import 0x2::event;
 
-    t(x: u64) {
+    fun t(x: u64) {
         label l0:
         event::emit<u64>(move(x));
         return;
@@ -47,7 +47,7 @@ module 0x0::m {
         dummy: bool,
     }
 
-    t(x: vector<Self::X>) {
+    fun t(x: vector<Self::X>) {
         label l0:
         event::emit<vector<Self::X>>(move(x));
         return;
@@ -62,7 +62,7 @@ module 0x0::m {
         V { }
     }
 
-    t(x: vector<Self::X>) {
+    fun t(x: vector<Self::X>) {
         label l0:
         event::emit<vector<Self::X>>(move(x));
         return;
@@ -87,7 +87,7 @@ module 0x0::t {
     import test::m;
     import 0x2::event;
 
-    t(x: m::X) {
+    fun t(x: m::X) {
         label l0:
         event::emit<m::X>(move(x));
         return;
@@ -99,7 +99,7 @@ module 0x0::t {
     import test::m;
     import 0x2::event;
 
-    t(x: m::Y) {
+    fun t(x: m::Y) {
         label l0:
         event::emit<m::Y>(move(x));
         return;
@@ -111,7 +111,7 @@ module 0x0::m {
     import 0x2::event;
     import 0x2::coin;
 
-    t(s: coin::CurrencyCreated<u64>) {
+    fun t(s: coin::CurrencyCreated<u64>) {
         label l0:
         event::emit_authenticated<coin::CurrencyCreated<u64>>(move(s));
         return;
@@ -122,7 +122,7 @@ module 0x0::m {
 module 0x0::m {
     import 0x2::event;
 
-    t<T: copy + drop>(x: T) {
+    fun t<T: copy + drop>(x: T) {
         label l0:
         event::emit_authenticated<T>(move(x));
         return;
@@ -133,7 +133,7 @@ module 0x0::m {
 module 0x0::m {
     import 0x2::event;
 
-    t(x: u64) {
+    fun t(x: u64) {
         label l0:
         event::emit_authenticated<u64>(move(x));
         return;
@@ -148,7 +148,7 @@ module 0x0::m {
         dummy: bool,
     }
 
-    t(x: vector<Self::X>) {
+    fun t(x: vector<Self::X>) {
         label l0:
         event::emit_authenticated<vector<Self::X>>(move(x));
         return;
@@ -163,7 +163,7 @@ module 0x0::m {
         V { }
     }
 
-    t(x: vector<Self::X>) {
+    fun t(x: vector<Self::X>) {
         label l0:
         event::emit_authenticated<vector<Self::X>>(move(x));
         return;
@@ -175,7 +175,7 @@ module 0x0::t {
     import test::m;
     import 0x2::event;
 
-    t(x: m::X) {
+    fun t(x: m::X) {
         label l0:
         event::emit_authenticated<m::X>(move(x));
         return;
@@ -187,7 +187,7 @@ module 0x0::t {
     import test::m;
     import 0x2::event;
 
-    t(x: m::Y) {
+    fun t(x: m::Y) {
         label l0:
         event::emit_authenticated<m::Y>(move(x));
         return;

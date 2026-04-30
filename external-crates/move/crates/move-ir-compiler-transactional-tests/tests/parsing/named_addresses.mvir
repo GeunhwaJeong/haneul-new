@@ -2,12 +2,12 @@
 
 //# publish
 module A::T {
-    f() {
+    fun f() {
         label l0:
         return;
     }
 
-    g(a: address): address {
+    fun g(a: address): address {
         label l0:
         return move(a);
     }
@@ -16,18 +16,18 @@ module A::T {
 //# print-bytecode 
 module A::M {
     import A::T;
-    f(): address {
+    fun f(): address {
         label l0:
             T::f();
             return @A;
     }
 
-    h(): address {
+    fun h(): address {
         label l0:
             return T::g(@A);
     }
 
-    l(): address {
+    fun l(): address {
         let t: address;
         label l0:
             t = @A;

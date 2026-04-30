@@ -43,7 +43,7 @@ module 0x6::m {
 
 module 0x7::m {
 import 0x42::N;
-entry foo(v: u64) {
+entry fun foo(v: u64) {
 label b0:
     _ = N::take(N::make(move(v)));
     return;

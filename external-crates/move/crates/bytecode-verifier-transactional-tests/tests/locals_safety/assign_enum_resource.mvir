@@ -5,12 +5,12 @@ module 0x1::M {
         Coin { value: u64 }
     }
 
-    nothing(): Self::EnumValue {
+    fun nothing(): Self::EnumValue {
     label b0:
         return EnumValue::Nothing { };
     }
 
-    zero(): Self::EnumValue {
+    fun zero(): Self::EnumValue {
     label b0:
         return EnumValue::Coin { value: 0 };
     }
@@ -20,7 +20,7 @@ module 0x1::M {
 module 0x2::m {
 import 0x1::M;
 
-entry foo() {
+entry fun foo() {
     let z: M::EnumValue;
     let x: u64;
 label b0:
@@ -35,7 +35,7 @@ label b0:
 module 0x3::m {
 import 0x1::M;
 
-entry foo() {
+entry fun foo() {
     let z: M::EnumValue;
 label b0:
     z = M::zero();

@@ -2,7 +2,7 @@
 module 0x2::O {
     enum Foo<T> { V { x: T } }
 
-    foo(x: &mut Self::Foo<u64>) {
+    fun foo(x: &mut Self::Foo<u64>) {
     label b0:
         // mut ref is not allowed
         variant_switch Foo move(x) {
@@ -17,7 +17,7 @@ module 0x2::O {
 module 0x2::O {
     enum Foo<T> { V { x: T } }
 
-    foo(x: Self::Foo<u64>) {
+    fun foo(x: Self::Foo<u64>) {
     label b0:
         // by value is not allowed
         variant_switch Foo move(x) {
@@ -32,7 +32,7 @@ module 0x2::O {
 module 0x2::O {
     enum Foo<T> { V { x: T } }
 
-    foo(x: u64) {
+    fun foo(x: u64) {
     label b0:
         // non-enum is not allowed
         variant_switch Foo move(x) {
@@ -47,7 +47,7 @@ module 0x2::O {
 module 0x2::O {
     enum Foo<T> { V { x: T } }
 
-    foo(x: &u64) {
+    fun foo(x: &u64) {
     label b0:
         // non-enum is not allowed
         variant_switch Foo move(x) {
@@ -62,7 +62,7 @@ module 0x2::O {
 module 0x2::O {
     enum Foo<T> { V { x: T } }
 
-    foo(x: &mut u64) {
+    fun foo(x: &mut u64) {
     label b0:
         // non-enum is not allowed
         variant_switch Foo move(x) {
@@ -80,7 +80,7 @@ module 0x2::O {
 
     enum Foo<T> { V { x: T } }
 
-    foo(x: &Self::Bar) {
+    fun foo(x: &Self::Bar) {
     label b0:
         // type mismatch
         variant_switch Foo move(x) {
@@ -97,7 +97,7 @@ module 0x2::O {
 
     enum Foo<T> { V { x: T } }
 
-    foo(x: &mut Self::Bar) {
+    fun foo(x: &mut Self::Bar) {
     label b0:
         // type mismatch and invalid operand
         variant_switch Foo move(x) {
@@ -113,7 +113,7 @@ module 0x2::P {
     enum Foo<T> { V { x: T } }
     enum Bar<T> { V { x: T } }
 
-    foo(x: &Self::Bar<u64>) {
+    fun foo(x: &Self::Bar<u64>) {
     label b0:
         // valid
         variant_switch Bar move(x) {
@@ -129,7 +129,7 @@ module 0x2::P {
     enum Foo<T> { V { x: T } }
     enum Bar<T> { V { x: T } }
 
-    foo(x: &Self::Foo<u64>) {
+    fun foo(x: &Self::Foo<u64>) {
     label b0:
         // type mismatch
         variant_switch Bar move(x) {
@@ -145,7 +145,7 @@ module 0x2::P {
     enum Foo<T> { V { x: T } }
     enum Bar { V { x: u64 } }
 
-    foo(x: &Self::Foo<u64>) {
+    fun foo(x: &Self::Foo<u64>) {
     label b0:
         // type mismatch
         variant_switch Bar move(x) {
@@ -161,7 +161,7 @@ module 0x2::P {
     enum Foo<T> { V { x: T } }
     enum Bar { V { x: u64 } }
 
-    foo(x: &Self::Bar) {
+    fun foo(x: &Self::Bar) {
     label b0:
         // type mismatch
         variant_switch Foo move(x) {

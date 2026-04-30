@@ -2,7 +2,7 @@
 module 0x1::O {
     struct Foo<T1: copy + drop, T2> { x: T1, y: T2 }
 
-    foo() {
+    fun foo() {
         let x: u64;
         let y: bool;
     label b0:
@@ -16,7 +16,7 @@ module 0x1::O {
 module 0x2::O {
     enum Foo<T1: copy + drop, T2> { V { x: T1, y: T2 } }
 
-    foo() {
+    fun foo() {
         let x: u64;
         let y: bool;
     label b0:

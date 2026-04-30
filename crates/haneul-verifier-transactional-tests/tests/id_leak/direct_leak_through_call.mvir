@@ -10,12 +10,12 @@ module 0x0::m {
         id: object::UID,
     }
 
-    transfer(id: object::UID) {
+    fun transfer(id: object::UID) {
         label l0:
         abort 0;
     }
 
-    foo(f: Self::Foo, v: &mut vector<object::UID>) {
+    fun foo(f: Self::Foo, v: &mut vector<object::UID>) {
         let id: object::UID;
         label l0:
         Foo { id } = move(f);

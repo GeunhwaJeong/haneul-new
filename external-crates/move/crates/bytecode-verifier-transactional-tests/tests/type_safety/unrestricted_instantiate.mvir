@@ -2,12 +2,12 @@
 module 0x42::Test {
     struct T has drop {fint: u64, fv: bool}
 
-    public t1(fint: u64, fv: bool): Self::T {
+    public fun t1(fint: u64, fv: bool): Self::T {
     label b0:
         return T{fint: move(fint), fv: move(fv)};
     }
 
-    public t2(fint: u64): Self::T {
+    public fun t2(fint: u64): Self::T {
     label b0:
         return T{fint:  move(fint), fv: false};
     }
@@ -18,7 +18,7 @@ module 0x42::Test {
 module 0x43::m {
 import 0x42::Test;
 
-entry foo() {
+entry fun foo() {
     let t1: Test::T;
     let t2: Test::T;
 label b0:
@@ -32,12 +32,12 @@ label b0:
 module 0x44::Test {
     enum T has drop {V {fint: u64, fv: bool} }
 
-    public t1(fint: u64, fv: bool): Self::T {
+    public fun t1(fint: u64, fv: bool): Self::T {
     label b0:
         return T::V{fint: move(fint), fv: move(fv)};
     }
 
-    public t2(fint: u64): Self::T {
+    public fun t2(fint: u64): Self::T {
     label b0:
         return T::V{fint:  move(fint), fv: false};
     }
@@ -47,7 +47,7 @@ module 0x44::Test {
 module 0x45::m {
 import 0x44::Test;
 
-entry foo() {
+entry fun foo() {
     let t1: Test::T;
     let t2: Test::T;
 label b0:

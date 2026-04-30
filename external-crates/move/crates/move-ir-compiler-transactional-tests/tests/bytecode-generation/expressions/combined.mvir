@@ -1,6 +1,6 @@
 //# print-bytecode
 module 0x6::m {
-entry foo() {
+entry fun foo() {
     let x: u64;
     let y: u64;
     let z: u64;

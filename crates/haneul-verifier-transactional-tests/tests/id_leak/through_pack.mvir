@@ -20,7 +20,7 @@ module 0x0::test {
         id: object::UID
     }
 
-    public entry test(x: Self::A) {
+    public entry fun test(x: Self::A) {
         let id: object::UID;
         let b: Self::B;
         let c: Self::C;
@@ -50,7 +50,7 @@ module 0x0::m {
         v: u64,
     }
 
-    foo(f: Self::Foo) {
+    fun foo(f: Self::Foo) {
         let id: object::UID;
         let b: Self::Bar;
         label l0:

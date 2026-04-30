@@ -5,7 +5,7 @@ module 0x0::m2 {
     import 0x2::transfer;
     import 0x2::object;
 
-    receive_bad<T>(m: &mut object::UID, r: transfer::Receiving<T>): T {
+    fun receive_bad<T>(m: &mut object::UID, r: transfer::Receiving<T>): T {
         let x: T;
         label l0:
         x = transfer::receive<T>(move(m), move(r));
@@ -21,7 +21,7 @@ module 0x0::m2 {
     import 0x2::transfer;
     import 0x2::object;
 
-    receive_good<T: key>(m: &mut object::UID, r: transfer::Receiving<T>): T {
+    fun receive_good<T: key>(m: &mut object::UID, r: transfer::Receiving<T>): T {
         let x: T;
         label l0:
         x = transfer::receive<T>(move(m), move(r));

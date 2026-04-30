@@ -6,7 +6,7 @@ import 0x1::vector;
 
 struct S has copy, drop { f: u64 }
 
-entry foo() {
+entry fun foo() {
     let s: Self::S;
     let v: vector<Self::S>;
     let er: &Self::S;

@@ -14,7 +14,7 @@ module 0x6::MonomorphicEnums {
         Two { x: u64 }
     }
 
-    public f(): u64 {
+    public fun f(): u64 {
         let x: Self::EnumWithTwoVariants;
         let y: u64;
         label b0:
@@ -48,7 +48,7 @@ module 0x6::MonomorphicEnums {
         Two { x: u64 }
     }
 
-    public f(): u64 {
+    public fun f(): u64 {
         let x: Self::EnumWithTwoVariants;
         let y: u64;
         label b0:
@@ -69,7 +69,7 @@ module 0x6::MonomorphicEnums {
 //# run
 module 0x7::m {
 import 0x6::MonomorphicEnums;
-entry foo() {
+entry fun foo() {
     let x: u64;
     label b0:
         x = MonomorphicEnums::f();

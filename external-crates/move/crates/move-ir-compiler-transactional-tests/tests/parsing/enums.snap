@@ -5,4 +5,4 @@ processed 1 task
 
 task 0, lines 1-6:
 //# print-bytecode
-Error: ParserError: Invalid Token: expected Tok::NameValue
+Error: ParserError: Invalid Token: expected 'fun' before function name

@@ -4,7 +4,7 @@ module 0x42::M {
         f: T,
     }
 
-    t(s: signer) {
+    fun t(s: signer) {
         let x: Self::S<signer>;
     label b0:
         x = S<signer> { f: move(s) };

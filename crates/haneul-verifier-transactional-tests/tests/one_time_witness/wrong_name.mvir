@@ -9,7 +9,7 @@ module 0x0::m {
 
     struct OneTimeWitness has drop { dummy: bool }
 
-    init(_otw: Self::OneTimeWitness, _ctx: &mut tx_context::TxContext) {
+    fun init(_otw: Self::OneTimeWitness, _ctx: &mut tx_context::TxContext) {
         label l0:
         return;
     }

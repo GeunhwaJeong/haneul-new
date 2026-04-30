@@ -6,14 +6,14 @@ module 0x6::Enums {
         Three { } 
     }
 
-    public call_success<T>(t: T): T {
+    public fun call_success<T>(t: T): T {
         let x: Self::EnumWithThreeVariants<T>;
         label b0:
             x = EnumWithThreeVariants::Two<T> { x: move(t) };
             return Self::f<T>(move(x));
     }
 
-    public call_fail_1<T>(): T {
+    public fun call_fail_1<T>(): T {
         let x: Self::EnumWithThreeVariants<T>;
         label b0:
             x = EnumWithThreeVariants::One<T> { };
@@ -21,14 +21,14 @@ module 0x6::Enums {
     }
 
 
-    public call_fail_3<T>(): T {
+    public fun call_fail_3<T>(): T {
         let x: Self::EnumWithThreeVariants<T>;
         label b0:
             x = EnumWithThreeVariants::Three<T> { };
             return Self::f<T>(move(x));
     }
 
-    f<T>(x: Self::EnumWithThreeVariants<T>): T {
+    fun f<T>(x: Self::EnumWithThreeVariants<T>): T {
         let y: T;
         label b0:
             variant_switch EnumWithThreeVariants (&x) {
@@ -50,14 +50,14 @@ module 0x6::Enums {
         Three { } 
     }
 
-    public call_success<T>(t: T): T {
+    public fun call_success<T>(t: T): T {
         let x: Self::EnumWithThreeVariants<T>;
         label b0:
             x = EnumWithThreeVariants::Two<T> { x: move(t) };
             return Self::f<T>(move(x));
     }
 
-    public call_fail_1<T>(): T {
+    public fun call_fail_1<T>(): T {
         let x: Self::EnumWithThreeVariants<T>;
         label b0:
             x = EnumWithThreeVariants::One<T> { };
@@ -65,14 +65,14 @@ module 0x6::Enums {
     }
 
 
-    public call_fail_3<T>(): T {
+    public fun call_fail_3<T>(): T {
         let x: Self::EnumWithThreeVariants<T>;
         label b0:
             x = EnumWithThreeVariants::Three<T> { };
             return Self::f<T>(move(x));
     }
 
-    f<T>(x: Self::EnumWithThreeVariants<T>): T {
+    fun f<T>(x: Self::EnumWithThreeVariants<T>): T {
         let y: T;
         label b0:
             variant_switch EnumWithThreeVariants (&x) {
@@ -89,7 +89,7 @@ module 0x6::Enums {
 //# run
 module 0x7::m {
 import 0x6::Enums;
-entry foo() {
+entry fun foo() {
     let x: u64;
     label b0:
         x = Enums::call_success<u64>(42);

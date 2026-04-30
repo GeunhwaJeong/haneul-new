@@ -1,7 +1,7 @@
 //# run
 module 0x6::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     assert(0u8 + 0u8 == 0u8, 1000);
     assert(0u8 + 1u8 == 1u8, 1001);
@@ -20,7 +20,7 @@ label b0:
 //# run
 module 0x7::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 1u8 + 255u8;
     return;
@@ -30,7 +30,7 @@ label b0:
 //# run
 module 0x8::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 215u8 + 156u8;
     return;
@@ -42,7 +42,7 @@ label b0:
 //# run
 module 0x9::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     assert(0u8 - 0u8 == 0u8, 2000);
     assert(1u8 - 0u8 == 1u8, 2001);
@@ -60,7 +60,7 @@ label b0:
 //# run
 module 0xa::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 0u8 - 1u8;
     return;
@@ -70,7 +70,7 @@ label b0:
 //# run
 module 0x42::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 54u8 - 100u8;
     return;
@@ -81,7 +81,7 @@ label b0:
 //# run
 module 0xb::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     assert(0u8 * 0u8 == 0u8, 3000);
     assert(1u8 * 0u8 == 0u8, 3001);
@@ -98,7 +98,7 @@ label b0:
 //# run
 module 0xc::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 16u8 * 16u8;
     return;
@@ -108,7 +108,7 @@ label b0:
 //# run
 module 0xd::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 128u8 * 2u8;
     return;
@@ -120,7 +120,7 @@ label b0:
 //# run
 module 0xe::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     assert(0u8 / 1u8 == 0u8, 4000);
     assert(1u8 / 1u8 == 1u8, 4001);
@@ -138,7 +138,7 @@ label b0:
 //# run
 module 0x15::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 0u8 / 0u8;
     return;
@@ -148,7 +148,7 @@ label b0:
 //# run
 module 0x16::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 1u8 / 0u8;
     return;
@@ -158,7 +158,7 @@ label b0:
 //# run
 module 0x17::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 255u8 / 0u8;
     return;
@@ -170,7 +170,7 @@ label b0:
 //# run
 module 0x18::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     assert(0u8 % 1u8 == 0u8, 5000);
     assert(1u8 % 1u8 == 0u8, 5001);
@@ -188,7 +188,7 @@ label b0:
 //# run
 module 0x19::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 0u8 % 0u8;
     return;
@@ -198,7 +198,7 @@ label b0:
 //# run
 module 0x1a::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 1u8 % 0u8;
     return;
@@ -208,7 +208,7 @@ label b0:
 //# run
 module 0x1b::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 255u8 % 0u8;
     return;

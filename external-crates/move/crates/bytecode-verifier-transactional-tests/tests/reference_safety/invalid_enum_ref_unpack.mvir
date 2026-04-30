@@ -5,7 +5,7 @@ module 0x1::o {
         Two { x: u64, y: u64},
     }
 
-    i(e: &mut Self::X) {
+    fun i(e: &mut Self::X) {
         let x: &mut u64;
         let y: &mut u64;
         label b0:
@@ -26,7 +26,7 @@ module 0x1::o {
         Two { x: u64, y: u64},
     }
 
-    i(e: &mut Self::X) {
+    fun i(e: &mut Self::X) {
         let x: &mut u64;
         let y: &mut u64;
         label b0:
@@ -39,7 +39,7 @@ module 0x1::o {
             return;
     }
 
-    overwrite(e: &mut Self::X) {
+    fun overwrite(e: &mut Self::X) {
         label b0:
             *move(e) = X::One { x: 0 }; 
             return;
@@ -53,7 +53,7 @@ module 0x1::o {
         Two { x: u64, y: u64},
     }
 
-    j(e: &mut Self::X) {
+    fun j(e: &mut Self::X) {
         let x: &mut u64;
         let y: &mut u64;
         label b0:
@@ -74,7 +74,7 @@ module 0x1::o {
         Two { x: u64, y: u64},
     }
 
-    j(e: &mut Self::X) {
+    fun j(e: &mut Self::X) {
         let x: &mut u64;
         let y: &mut u64;
         label b0:
@@ -87,7 +87,7 @@ module 0x1::o {
             return;
     }
 
-    overwrite(e: &mut Self::X) {
+    fun overwrite(e: &mut Self::X) {
         label b0:
             *move(e) = X::One { x: 0 }; 
             return;
@@ -101,7 +101,7 @@ module 0x1::o {
         Two { x: u64, y: u64},
     }
 
-    k(e: &mut Self::X) {
+    fun k(e: &mut Self::X) {
         let x: &mut u64;
         let y: &mut u64;
         label b0:
@@ -120,7 +120,7 @@ module 0x1::o {
         Two { x: u64, y: u64},
     }
 
-    k(e: &mut Self::X) {
+    fun k(e: &mut Self::X) {
         let x: &u64;
         let y: &u64;
         let t: u64;
@@ -140,7 +140,7 @@ module 0x1::o {
         Two { x: u64, y: u64},
     }
 
-    k(e: &mut Self::X) {
+    fun k(e: &mut Self::X) {
         let x: &u64;
         let y: &u64;
         let t: u64;
@@ -152,7 +152,7 @@ module 0x1::o {
             abort move(t);
     }
 
-    overwrite(e: &mut Self::X) {
+    fun overwrite(e: &mut Self::X) {
         label b0:
             *move(e) = X::One { x: 0 }; 
             return;

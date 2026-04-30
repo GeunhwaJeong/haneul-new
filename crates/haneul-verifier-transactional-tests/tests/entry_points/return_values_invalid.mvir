@@ -6,7 +6,7 @@
 //# publish
 module 0x0::m {
     import 0x2::tx_context;
-    public entry foo(ctx: &mut tx_context::TxContext): &u8 {
+    public entry fun foo(ctx: &mut tx_context::TxContext): &u8 {
         label l0:
         abort 0;
     }
@@ -15,7 +15,7 @@ module 0x0::m {
 //# publish
 module 0x0::m {
     import 0x2::tx_context;
-    public entry foo(ctx: &mut tx_context::TxContext): &mut u8 {
+    public entry fun foo(ctx: &mut tx_context::TxContext): &mut u8 {
         label l0:
         abort 0;
     }
@@ -24,7 +24,7 @@ module 0x0::m {
 //# publish
 module 0x0::m {
     import 0x2::tx_context;
-    public entry foo(ctx: &mut tx_context::TxContext): u64 * &u8 * u8 {
+    public entry fun foo(ctx: &mut tx_context::TxContext): u64 * &u8 * u8 {
         label l0:
         abort 0;
     }
@@ -34,7 +34,7 @@ module 0x0::m {
 module 0x0::m {
     import 0x2::tx_context;
     struct Copyable has copy { flag: bool }
-    public entry foo(ctx: &mut tx_context::TxContext): Self::Copyable {
+    public entry fun foo(ctx: &mut tx_context::TxContext): Self::Copyable {
         label l0:
         abort 0;
     }
@@ -45,7 +45,7 @@ module 0x0::m {
     import 0x2::tx_context;
     import 0x2::object;
     struct Obj has key, store { id: object::UID }
-    public entry foo(ctx: &mut tx_context::TxContext): Self::Obj {
+    public entry fun foo(ctx: &mut tx_context::TxContext): Self::Obj {
         label l0:
         abort 0;
     }
@@ -56,7 +56,7 @@ module 0x0::m {
     import 0x2::tx_context;
     import 0x2::object;
     struct Obj has key, store { id: object::UID }
-    public entry foo(ctx: &mut tx_context::TxContext): vector<Self::Obj> {
+    public entry fun foo(ctx: &mut tx_context::TxContext): vector<Self::Obj> {
         label l0:
         abort 0;
     }

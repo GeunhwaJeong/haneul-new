@@ -6,7 +6,7 @@
 module 0x6::M {
     enum S<T> { V{ x: T } }
 
-    f<T1, T2>(a: T1, b: T2) {
+    fun f<T1, T2>(a: T1, b: T2) {
     label b0:
         Self::f<Self::S<T2>, T1>(S::V<T2> { x: move(b) }, move(a));
         return;

@@ -37,8 +37,8 @@ module 0x3::M3 {
 module 0x4::M4 {
     import 0x1::M1;
 
-    f1<T: drop + copy + store + key>() { label b0: return; }
-    f2() {
+    fun f1<T: drop + copy + store + key>() { label b0: return; }
+    fun f2() {
     label b0:
         Self::f1<M1::HasAbilities<M1::NoAbilities, M1::NoAbilities>>();
         return;
@@ -62,8 +62,8 @@ module 0x6::M5 {
     import 0x1::M1;
     import 0x5::M3Valid;
 
-    f1<T1: drop, T2: copy, T3: store, T4: key>() { label b0: return; }
-    f2() {
+    fun f1<T1: drop, T2: copy, T3: store, T4: key>() { label b0: return; }
+    fun f2() {
     label b0:
         Self::f1< M3Valid::HasDrop<M1::NoAbilities, M1::NoAbilities>,
                  M3Valid::HasCopy<M1::NoAbilities, M1::NoAbilities>,
@@ -115,8 +115,8 @@ module 0x9::M3 {
 module 0x10::M4 {
     import 0x7::M1;
 
-    f1<T: drop + copy + store + key>() { label b0: return; }
-    f2() {
+    fun f1<T: drop + copy + store + key>() { label b0: return; }
+    fun f2() {
     label b0:
         Self::f1<M1::HasAbilities<M1::NoAbilities, M1::NoAbilities>>();
         return;
@@ -140,8 +140,8 @@ module 0x12::M5 {
     import 0x7::M1;
     import 0x5::M3Valid;
 
-    f1<T1: drop, T2: copy, T3: store, T4: key>() { label b0: return; }
-    f2() {
+    fun f1<T1: drop, T2: copy, T3: store, T4: key>() { label b0: return; }
+    fun f2() {
     label b0:
         Self::f1< M3Valid::HasDrop<M1::NoAbilities, M1::NoAbilities>,
                  M3Valid::HasCopy<M1::NoAbilities, M1::NoAbilities>,

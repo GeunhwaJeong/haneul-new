@@ -9,7 +9,7 @@ module 0x0::t {
 
     struct Internal { dummy_field: bool }
 
-    test_success() {
+    fun test_success() {
         let permit: internal::Permit<Self::Internal>;
         label l0:
         permit = internal::permit<Self::Internal>();
@@ -22,7 +22,7 @@ module 0x0::t {
     import 0x1::internal;
     import 0x1::string;
 
-    test_fail_foreign_type() {
+    fun test_fail_foreign_type() {
         let permit: internal::Permit<string::String>;
         label l0:
         permit = internal::permit<string::String>();
@@ -36,7 +36,7 @@ module 0x0::t {
 
     struct Internal { dummy_field: bool }
 
-    test_fail_permit_type() {
+    fun test_fail_permit_type() {
         let permit: internal::Permit<internal::Permit<Self::Internal>>;
         label l0:
         permit = internal::permit<internal::Permit<Self::Internal>>();
@@ -50,7 +50,7 @@ module 0x0::t {
 
     struct Internal { dummy_field: bool }
 
-    test_fail_permit_type() {
+    fun test_fail_permit_type() {
         let permit: internal::Permit<vector<Self::Internal>>;
         label l0:
         permit = internal::permit<vector<Self::Internal>>();

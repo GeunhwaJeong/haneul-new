@@ -6,13 +6,13 @@
 module 0x42::M {
     struct S { f: u64 }
 
-    public set_f(s: &mut Self::S, f: u64) {
+    public fun set_f(s: &mut Self::S, f: u64) {
         label l0:
         *(&mut move(s).S::f) = move(f);
         return;
     }
 
-    public t(
+    public fun t(
         u: &mut u64,
         s: &mut Self::S,
         v: &mut vector<u8>,
@@ -28,7 +28,7 @@ module 0x42::M {
 //# run --args 0 1 b"xyz"
 module 0x5::m {
 import 0x42::M;
-entry foo(
+entry fun foo(
     u: &mut u64,
     s: &mut M::S,
     v: &mut vector<u8>,

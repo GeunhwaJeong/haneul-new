@@ -6,7 +6,7 @@ module 0x2::extension_after_join {
 
 struct S has copy, drop, store { f: u64 }
 
-t(cond: bool, a: &mut Self::S, b: &mut Self::S): &mut Self::S {
+fun t(cond: bool, a: &mut Self::S, b: &mut Self::S): &mut Self::S {
     let x: &mut Self::S;
     let y: &mut Self::S;
     let f: &mut u64;

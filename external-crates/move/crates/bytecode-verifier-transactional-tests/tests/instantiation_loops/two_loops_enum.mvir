@@ -6,13 +6,13 @@
 module 0x6::M {
     enum S<T> { V { b: bool } }
 
-    f<T>() {
+    fun f<T>() {
     label b0:
         Self::f<Self::S<T>>();
         return;
     }
 
-    g<T>() {
+    fun g<T>() {
     label b0:
         Self::g<Self::S<T>>();
         return;

@@ -2,7 +2,7 @@
 module 0x6::M {
     struct S { b: bool }
 
-    foo() {
+    fun foo() {
         // type arg mismatch
         let x: Self::S<u64>;
     label b0:

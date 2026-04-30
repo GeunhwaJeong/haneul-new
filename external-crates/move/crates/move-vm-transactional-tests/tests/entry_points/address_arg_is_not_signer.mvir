@@ -1,7 +1,7 @@
 //# run --args @0x1
 module 0x5::m {
 
-entry foo(s: signer) {
+entry fun foo(s: signer) {
 label b0:
     return;
 }
@@ -11,7 +11,7 @@ label b0:
 //# run --args @0x0 @0x2
 module 0x6::m {
 
-entry foo(s: signer, s2: signer) {
+entry fun foo(s: signer, s2: signer) {
 label b0:
     return;
 }

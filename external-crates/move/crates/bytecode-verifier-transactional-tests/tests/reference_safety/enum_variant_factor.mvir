@@ -5,7 +5,7 @@ module 0x1::o1 {
         One { x: u64, y: u64 },
     }
 
-    f(e: &mut Self::X) {
+    fun f(e: &mut Self::X) {
         let a1: &mut Self::X;
         let a2: &mut Self::X;
         label b0:
@@ -23,7 +23,7 @@ module 0x1::o2 {
         Two { x: u64, y: u64},
     }
 
-    c(e: &mut Self::X) {
+    fun c(e: &mut Self::X) {
         let x: &mut u64;
         let y: &mut u64;
         let a1: &mut Self::X;
@@ -42,7 +42,7 @@ module 0x1::o3 {
         Two { x: u64, y: u64},
     }
 
-    c(e: &mut Self::X) {
+    fun c(e: &mut Self::X) {
         let x: &mut u64;
         let y: &mut u64;
         let a1: &mut Self::X;
@@ -60,7 +60,7 @@ module 0x1::o4 {
         Two { x: u64, y: u64},
     }
 
-    c(e: &mut Self::X) {
+    fun c(e: &mut Self::X) {
         let x: &mut u64;
         let y: &mut u64;
         let a1: &mut Self::X;
@@ -80,7 +80,7 @@ module 0x1::o5 {
         Two { x: u64, y: u64},
     }
 
-    c(e: &mut Self::X) {
+    fun c(e: &mut Self::X) {
         let x: &mut u64;
         let y: &mut u64;
         let a1: &mut Self::X;
@@ -100,7 +100,7 @@ module 0x1::invalid {
         Two { x: u64, y: u64},
     }
 
-    h(e: &mut Self::X) {
+    fun h(e: &mut Self::X) {
         let x: &mut u64;
         let y: &mut u64;
         let counter: &mut u64;
@@ -124,7 +124,7 @@ module 0x1::invalid2 {
         Two { x: u64, y: u64},
     }
 
-    h(e: &mut Self::X) {
+    fun h(e: &mut Self::X) {
         let x: &mut u64;
         let y: &mut u64;
         let counter: &mut u64;

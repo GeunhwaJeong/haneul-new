@@ -9,7 +9,7 @@ module 0x0::m {
 
     struct M has drop { some_field: bool }
 
-    init(_otw: Self::M, _ctx: &mut tx_context::TxContext) {
+    fun init(_otw: Self::M, _ctx: &mut tx_context::TxContext) {
         label l0:
         return;
     }

@@ -9,12 +9,12 @@ module 0x0::m {
 
     struct M has store, drop { value: u64 }
 
-    init(_ctx: &mut tx_context::TxContext) {
+    fun init(_ctx: &mut tx_context::TxContext) {
         label l0:
         return;
     }
 
-    foo() {
+    fun foo() {
         label l0:
         _ = M { value: 7 };
         _ = M { value: 42 };
@@ -29,12 +29,12 @@ module 0x0::m {
     struct Other has drop { value: bool }
     struct M has drop { value: Self::Other }
 
-    init(_ctx: &mut tx_context::TxContext) {
+    fun init(_ctx: &mut tx_context::TxContext) {
         label l0:
         return;
     }
 
-    foo() {
+    fun foo() {
         label l0:
         _ = M { value: Other { value: false } };
         _ = M { value: Other { value: false } };

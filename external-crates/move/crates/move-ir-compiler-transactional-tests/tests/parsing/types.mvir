@@ -1,7 +1,7 @@
 //# print-bytecode
 module 0x6::m {
 // Struct field specifiers in immutable borrows must not be qualified.
-entry foo() {
+entry fun foo() {
 label b0:
     _ = &(&mut t).M::T::f;
 }
@@ -10,7 +10,7 @@ label b0:
 //# print-bytecode
 module 0x7::m {
 // Struct field specifiers in mutable borrows must not be qualified.
-entry foo() {
+entry fun foo() {
 label b0:
     _ = &mut (&mut t).M::T::f;
 }

@@ -1,7 +1,7 @@
 //# run
 module 0x6::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     assert(0u32 + 0u32 == 0u32, 1000);
     assert(0u32 + 1u32 == 1u32, 1001);
@@ -20,7 +20,7 @@ label b0:
 //# run
 module 0x7::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 1u32 + 4294967295u32;
     return;
@@ -30,7 +30,7 @@ label b0:
 //# run
 module 0x8::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 4294000000u32 + 4294000000u32;
     return;
@@ -42,7 +42,7 @@ label b0:
 //# run
 module 0x9::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     assert(0u32 - 0u32 == 0u32, 2000);
     assert(1u32 - 0u32 == 1u32, 2001);
@@ -60,7 +60,7 @@ label b0:
 //# run
 module 0xa::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 0u32 - 1u32;
     return;
@@ -70,7 +70,7 @@ label b0:
 //# run
 module 0x42::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 54u32 - 100u32;
     return;
@@ -81,7 +81,7 @@ label b0:
 //# run
 module 0xb::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     assert(0u32 * 0u32 == 0u32, 3000);
     assert(1u32 * 0u32 == 0u32, 3001);
@@ -98,7 +98,7 @@ label b0:
 //# run
 module 0xc::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 429496u32 * 429496u32;
     return;
@@ -108,7 +108,7 @@ label b0:
 //# run
 module 0xd::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 2147483648u32 * 2u32;
     return;
@@ -120,7 +120,7 @@ label b0:
 //# run
 module 0xe::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     assert(0u32 / 1u32 == 0u32, 4000);
     assert(1u32 / 1u32 == 1u32, 4001);
@@ -138,7 +138,7 @@ label b0:
 //# run
 module 0x15::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 0u32 / 0u32;
     return;
@@ -148,7 +148,7 @@ label b0:
 //# run
 module 0x16::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 1u32 / 0u32;
     return;
@@ -158,7 +158,7 @@ label b0:
 //# run
 module 0x17::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 4294967295u32 / 0u32;
     return;
@@ -169,7 +169,7 @@ label b0:
 //# run
 module 0x18::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     assert(0u32 % 1u32 == 0u32, 5000);
     assert(1u32 % 1u32 == 0u32, 5001);
@@ -187,7 +187,7 @@ label b0:
 //# run
 module 0x19::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 0u32 % 0u32;
     return;
@@ -197,7 +197,7 @@ label b0:
 //# run
 module 0x1a::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 1u32 % 0u32;
     return;
@@ -207,7 +207,7 @@ label b0:
 //# run
 module 0x1b::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 4294967295u32 % 0u32;
     return;

@@ -8,7 +8,7 @@ enum E has drop {
     B {}
 }
 
-public test(owned_enum: Self::E, test: bool) {
+public fun test(owned_enum: Self::E, test: bool) {
     let a: &u64;
     let b: &u64;
     let c: &u64;

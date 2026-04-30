@@ -8,12 +8,12 @@
 //# publish --sender A --upgradeable
 module 0x0::m {
     import 0x2::tx_context;
-    entry init(ctx: &mut tx_context::TxContext) {
+    entry fun init(ctx: &mut tx_context::TxContext) {
         label l0:
         return;
     }
 
-    public foo() {
+    public fun foo() {
         label l0:
         return;
     }

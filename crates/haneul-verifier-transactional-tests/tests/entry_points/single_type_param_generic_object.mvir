@@ -8,7 +8,7 @@ module 0x0::m {
     struct Obj<T> has key {
         id: object::UID,
     }
-    public entry foo<T: store>(l: Self::Obj<T>, ctx: &mut tx_context::TxContext) {
+    public entry fun foo<T: store>(l: Self::Obj<T>, ctx: &mut tx_context::TxContext) {
         label l0:
         abort 0;
     }

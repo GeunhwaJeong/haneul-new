@@ -2,7 +2,7 @@
 module 0x6::M {
     enum S<T> { V { b: bool }, R { } }
 
-    foo<T>() {
+    fun foo<T>() {
     label b0:
         // loop
         Self::foo<Self::S<Self::S<T>>>();

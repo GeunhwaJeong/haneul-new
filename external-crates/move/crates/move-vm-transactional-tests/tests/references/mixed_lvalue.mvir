@@ -3,12 +3,12 @@ module 0x6::A {
 
     struct S { f: u64 }
 
-    four(): u64 * u64 * u64 * u64 {
+    fun four(): u64 * u64 * u64 * u64 {
     label b0:
         return 0, 1, 2, 3;
     }
 
-    public mixed() {
+    public fun mixed() {
         let x: u64;
         let r: u64;
         let r_ref: &mut u64;
@@ -49,7 +49,7 @@ module 0x6::A {
 module 0x42::m {
 import 0x6::A;
 
-entry foo() {
+entry fun foo() {
 label b0:
     A::mixed();
     return;

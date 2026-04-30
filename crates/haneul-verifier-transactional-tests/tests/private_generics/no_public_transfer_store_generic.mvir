@@ -11,7 +11,7 @@
 module 0x0::m {
     import 0x2::transfer;
 
-    t<T: key + store>(s: T) {
+    fun t<T: key + store>(s: T) {
         label l0:
         transfer::transfer<T>(move(s), 0x100);
         return;
@@ -22,7 +22,7 @@ module 0x0::m {
 module 0x0::m {
     import 0x2::transfer;
 
-    t<T: key + store>(s: T) {
+    fun t<T: key + store>(s: T) {
         label l0:
         transfer::freeze_object<T>(move(s));
         return;
@@ -33,7 +33,7 @@ module 0x0::m {
 module 0x0::m {
     import 0x2::transfer;
 
-    t<T: key + store>(s: T) {
+    fun t<T: key + store>(s: T) {
         label l0:
         transfer::share_object<T>(move(s));
         return;
@@ -45,7 +45,7 @@ module 0x0::m {
     import 0x2::transfer;
     import 0x2::object;
 
-    t<T: key + store>(uid: &mut object::UID, coin: transfer::Receiving<T>): T {
+    fun t<T: key + store>(uid: &mut object::UID, coin: transfer::Receiving<T>): T {
         let c: T;
         label l0:
         c = transfer::receive<T>(move(uid), move(coin));
@@ -58,7 +58,7 @@ module 0x0::m {
     import 0x2::transfer;
     import 0x2::party;
 
-    t<T: key + store>(s: T, p: party::Party) {
+    fun t<T: key + store>(s: T, p: party::Party) {
         label l0:
         transfer::party_transfer<T>(move(s), move(p));
         return;

@@ -12,7 +12,7 @@ module 0x0::m {
         id: object::UID,
     }
 
-    public entry loop_forever(ctx: &mut tx_context::TxContext) {
+    public entry fun loop_forever(ctx: &mut tx_context::TxContext) {
         let tmp: object::UID;
         let uid: object::UID;
         let obj: Self::Obj;
@@ -36,7 +36,7 @@ module 0x0::m {
         id: object::UID,
     }
 
-    public entry loop_forever(ctx: &mut tx_context::TxContext) {
+    public entry fun loop_forever(ctx: &mut tx_context::TxContext) {
         let tmp: object::UID;
         let uid: object::UID;
         let obj: Self::Obj;

@@ -4,17 +4,17 @@
 //# publish
 module 0x2::valid {
 
-    id_mut(r: &mut u64): &mut u64 {
+    fun id_mut(r: &mut u64): &mut u64 {
     label b0:
         return move(r);
     }
 
-    id(r: &u64): &u64 {
+    fun id(r: &u64): &u64 {
     label b0:
         return move(r);
     }
 
-    t() {
+    fun t() {
         let a: u64;
         let r: &mut u64;
         let mut1: &mut u64;
@@ -40,17 +40,17 @@ module 0x2::valid {
 //# publish
 module 0x2::invalid {
 
-    id_mut(r: &mut u64): &mut u64 {
+    fun id_mut(r: &mut u64): &mut u64 {
     label b0:
         return move(r);
     }
 
-    id(r: &u64): &u64 {
+    fun id(r: &u64): &u64 {
     label b0:
         return move(r);
     }
 
-    t() {
+    fun t() {
         let a: u64;
         let r: &mut u64;
         let mut1: &mut u64;

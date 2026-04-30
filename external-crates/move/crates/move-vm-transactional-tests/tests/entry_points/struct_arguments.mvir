@@ -5,12 +5,12 @@
 module 0x42::M {
     struct S has drop { f: u64 }
 
-    public entry foo(s: Self::S, i: &Self::S, m: &mut Self::S) {
+    public entry fun foo(s: Self::S, i: &Self::S, m: &mut Self::S) {
         label l0:
         return;
     }
 
-    public entry foo_gen<T: drop>(s:T, i: &T, m: &mut T) {
+    public entry fun foo_gen<T: drop>(s:T, i: &T, m: &mut T) {
         label l0:
         return;
     }
@@ -19,7 +19,7 @@ module 0x42::M {
 //# run --args 0 0 0
 module 0x5::m {
 import 0x42::M;
-entry foo(s: M::S, i: &M::S, m: &mut M::S) {
+entry fun foo(s: M::S, i: &M::S, m: &mut M::S) {
     label l0:
     return;
 }
@@ -27,7 +27,7 @@ entry foo(s: M::S, i: &M::S, m: &mut M::S) {
 
 //# run --type-args 0x42::M::S --args 0 0 0
 module 0x6::m {
-entry foo<T:drop>(s: T, i: &T, m: &mut T) {
+entry fun foo<T:drop>(s: T, i: &T, m: &mut T) {
     label l0:
     return;
 }

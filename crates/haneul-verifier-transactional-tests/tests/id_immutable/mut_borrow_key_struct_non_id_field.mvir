@@ -10,7 +10,7 @@ module 0x0::m {
         other: object::UID,
     }
 
-    foo(f: Self::Foo) {
+    fun foo(f: Self::Foo) {
         label l0:
         _ = &mut (&mut f).Foo::other;
         abort 0;

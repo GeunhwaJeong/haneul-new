@@ -1,7 +1,7 @@
 //# run
 module 0x42::m {
 // tests bad casts/integer conversions
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u8(true);
     return;
@@ -11,7 +11,7 @@ label b0:
 //# run
 module 0x42::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u64(true);
     return;
@@ -21,7 +21,7 @@ label b0:
 //# run
 module 0x42::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u128(true);
     return;
@@ -31,7 +31,7 @@ label b0:
 //# run
 module 0x42::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u16(true);
     return;
@@ -41,7 +41,7 @@ label b0:
 //# run
 module 0x42::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u32(true);
     return;
@@ -51,7 +51,7 @@ label b0:
 //# run
 module 0x42::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u256(true);
     return;
@@ -62,7 +62,7 @@ label b0:
 //# run
 module 0x42::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u8(0x0);
     return;
@@ -72,7 +72,7 @@ label b0:
 //# run
 module 0x42::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u64(0x0);
     return;
@@ -82,7 +82,7 @@ label b0:
 //# run
 module 0x42::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u128(0x0);
     return;
@@ -92,7 +92,7 @@ label b0:
 //# run
 module 0x42::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u16(0x0);
     return;
@@ -102,7 +102,7 @@ label b0:
 //# run
 module 0x42::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u32(0x0);
     return;
@@ -112,7 +112,7 @@ label b0:
 //# run
 module 0x42::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u256(0x0);
     return;
@@ -123,7 +123,7 @@ label b0:
 //# publish
 module 0x42::M {
     struct S { x: bool }
-    f() {
+    fun f() {
     label b0:
         _ = to_u8(S { x: true });
         return;
@@ -133,7 +133,7 @@ module 0x42::M {
 //# publish
 module 0x42::M {
     struct S { x: bool }
-    g() {
+    fun g() {
     label b0:
         _ = to_u64(S { x: true });
         return;
@@ -143,7 +143,7 @@ module 0x42::M {
 //# publish
 module 0x42::M {
     struct S { x: bool }
-    h() {
+    fun h() {
     label b0:
         _ = to_u128(S { x: true });
         return;
@@ -153,7 +153,7 @@ module 0x42::M {
 //# publish
 module 0x42::M {
     struct S { x: bool }
-    f() {
+    fun f() {
     label b0:
         _ = to_u16(S { x: true });
         return;
@@ -163,7 +163,7 @@ module 0x42::M {
 //# publish
 module 0x42::M {
     struct S { x: bool }
-    g() {
+    fun g() {
     label b0:
         _ = to_u32(S { x: true });
         return;
@@ -173,7 +173,7 @@ module 0x42::M {
 //# publish
 module 0x42::M {
     struct S { x: bool }
-    h() {
+    fun h() {
     label b0:
         _ = to_u256(S { x: true });
         return;

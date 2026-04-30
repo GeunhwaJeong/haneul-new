@@ -1,6 +1,6 @@
 //# publish
 module 0x42::M {
-    public num(): u64 {
+    public fun num(): u64 {
         label b0:
             return 42;
     }
@@ -8,7 +8,7 @@ module 0x42::M {
 
 //# publish
 unpublishable module 0x42::N {
-    public num(): u64 {
+    public fun num(): u64 {
         label b0:
             return 42;
     }
@@ -17,7 +17,7 @@ unpublishable module 0x42::N {
 //# run
 module 0x43::m {
 import 0x42::M;
-    entry foo() {
+    entry fun foo() {
         let a: u64;
     label b0:
         a = M::num();

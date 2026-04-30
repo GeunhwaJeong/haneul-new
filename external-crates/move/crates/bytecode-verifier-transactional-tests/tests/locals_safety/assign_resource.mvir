@@ -1,7 +1,7 @@
 //# publish
 module 0x1::M {
     struct Coin { value: u64 }
-    zero(): Self::Coin {
+    fun zero(): Self::Coin {
     label b0:
         return Coin { value: 0 };
     }
@@ -11,7 +11,7 @@ module 0x1::M {
 module 0x42::m {
 import 0x1::M;
 
-entry foo() {
+entry fun foo() {
     let z: M::Coin;
 label b0:
     z = M::zero();

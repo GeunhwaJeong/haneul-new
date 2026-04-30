@@ -5,7 +5,7 @@ module 0x42::M {
         b: u64,
     }
 
-    public create_mutable_field_addresses(addr: &mut Self::Foo) {
+    public fun create_mutable_field_addresses(addr: &mut Self::Foo) {
         let a_ref: &mut u64;
         let b_ref: &mut u64;
     label b0:

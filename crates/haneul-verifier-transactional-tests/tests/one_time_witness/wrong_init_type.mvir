@@ -10,7 +10,7 @@ module 0x0::m {
     struct M has drop { dummy: bool }
     struct N has drop { dummy: bool }
 
-    init(_otw: Self::N, _ctx: &mut tx_context::TxContext) {
+    fun init(_otw: Self::N, _ctx: &mut tx_context::TxContext) {
         label l0:
         return;
     }

@@ -43,7 +43,7 @@ module 0x0::u {
     import test::m;
     import 0x2::transfer;
 
-    f(x: m::KeyStruct) {
+    fun f(x: m::KeyStruct) {
         label l0:
         transfer::transfer<m::KeyStruct>(move(x), 0x0);
         return;
@@ -55,7 +55,7 @@ module 0x0::u {
     import test::m;
     import 0x2::transfer;
 
-    f(x: m::KeyStruct) {
+    fun f(x: m::KeyStruct) {
         label l0:
         transfer::freeze_object<m::KeyStruct>(move(x));
         return;
@@ -67,7 +67,7 @@ module 0x0::u {
     import test::m;
     import 0x2::transfer;
 
-    f(x: m::KeyStruct) {
+    fun f(x: m::KeyStruct) {
         label l0:
         transfer::share_object<m::KeyStruct>(move(x));
         return;
@@ -80,7 +80,7 @@ module 0x0::u {
     import 0x2::transfer;
     import 0x2::object;
 
-    f(uid: &mut object::UID, x: transfer::Receiving<m::KeyStruct>): m::KeyStruct {
+    fun f(uid: &mut object::UID, x: transfer::Receiving<m::KeyStruct>): m::KeyStruct {
         let c: m::KeyStruct;
         label l0:
         c = transfer::receive<m::KeyStruct>(move(uid), move(x));
@@ -94,7 +94,7 @@ module 0x0::u {
     import 0x2::transfer;
     import 0x2::party;
 
-    f(x: m::KeyStruct, p: party::Party) {
+    fun f(x: m::KeyStruct, p: party::Party) {
         label l0:
         transfer::party_transfer<m::KeyStruct>(move(x), move(p));
         return;
@@ -108,7 +108,7 @@ module 0x0::u {
     import test::m;
     import 0x2::transfer;
 
-    f(x: m::KeyStoreStruct) {
+    fun f(x: m::KeyStoreStruct) {
         label l0:
         transfer::transfer<m::KeyStoreStruct>(move(x), 0x0);
         return;
@@ -120,7 +120,7 @@ module 0x0::u {
     import test::m;
     import 0x2::transfer;
 
-    f(x: m::KeyStoreStruct) {
+    fun f(x: m::KeyStoreStruct) {
         label l0:
         transfer::freeze_object<m::KeyStoreStruct>(move(x));
         return;
@@ -132,7 +132,7 @@ module 0x0::u {
     import test::m;
     import 0x2::transfer;
 
-    f(x: m::KeyStoreStruct) {
+    fun f(x: m::KeyStoreStruct) {
         label l0:
         transfer::share_object<m::KeyStoreStruct>(move(x));
         return;
@@ -145,7 +145,7 @@ module 0x0::u {
     import 0x2::transfer;
     import 0x2::object;
 
-    f(uid: &mut object::UID, x: transfer::Receiving<m::KeyStoreStruct>): m::KeyStoreStruct {
+    fun f(uid: &mut object::UID, x: transfer::Receiving<m::KeyStoreStruct>): m::KeyStoreStruct {
         let c: m::KeyStoreStruct;
         label l0:
         c = transfer::receive<m::KeyStoreStruct>(move(uid), move(x));
@@ -159,7 +159,7 @@ module 0x0::u {
     import 0x2::transfer;
     import 0x2::party;
 
-    f(x: m::KeyStoreStruct, p: party::Party) {
+    fun f(x: m::KeyStoreStruct, p: party::Party) {
         label l0:
         transfer::party_transfer<m::KeyStoreStruct>(move(x), move(p));
         return;
@@ -173,7 +173,7 @@ module 0x0::u {
     import test::m;
     import 0x2::transfer;
 
-    f(x: m::StoreEnum) {
+    fun f(x: m::StoreEnum) {
         label l0:
         transfer::transfer<m::StoreEnum>(move(x), 0x0);
         return;
@@ -185,7 +185,7 @@ module 0x0::u {
     import test::m;
     import 0x2::transfer;
 
-    f(x: m::StoreEnum) {
+    fun f(x: m::StoreEnum) {
         label l0:
         transfer::freeze_object<m::StoreEnum>(move(x));
         return;
@@ -197,7 +197,7 @@ module 0x0::u {
     import test::m;
     import 0x2::transfer;
 
-    f(x: m::StoreEnum) {
+    fun f(x: m::StoreEnum) {
         label l0:
         transfer::share_object<m::StoreEnum>(move(x));
         return;
@@ -210,7 +210,7 @@ module 0x0::u {
     import 0x2::transfer;
     import 0x2::object;
 
-    f(uid: &mut object::UID, x: transfer::Receiving<m::StoreEnum>): m::StoreEnum {
+    fun f(uid: &mut object::UID, x: transfer::Receiving<m::StoreEnum>): m::StoreEnum {
         let c: m::StoreEnum;
         label l0:
         c = transfer::receive<m::StoreEnum>(move(uid), move(x));
@@ -224,7 +224,7 @@ module 0x0::u {
     import 0x2::transfer;
     import 0x2::party;
 
-    f(x: m::StoreEnum, p: party::Party) {
+    fun f(x: m::StoreEnum, p: party::Party) {
         label l0:
         transfer::party_transfer<m::StoreEnum>(move(x), move(p));
         return;

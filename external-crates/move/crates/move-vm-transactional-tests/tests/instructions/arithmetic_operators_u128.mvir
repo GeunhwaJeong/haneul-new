@@ -1,7 +1,7 @@
 //# run
 module 0x6::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     assert(0u128 + 0u128 == 0u128, 1000);
     assert(0u128 + 1u128 == 1u128, 1001);
@@ -20,7 +20,7 @@ label b0:
 //# run
 module 0x7::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 1u128 + 340282366920938463463374607431768211455u128;
     return;
@@ -30,7 +30,7 @@ label b0:
 //# run
 module 0x8::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 264235234643575437864589745863652363451u128 + 98731747836156137656137643716471364731u128;
     return;
@@ -42,7 +42,7 @@ label b0:
 //# run
 module 0x9::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     assert(0u128 - 0u128 == 0u128, 2000);
     assert(1u128 - 0u128 == 1u128, 2001);
@@ -60,7 +60,7 @@ label b0:
 //# run
 module 0xa::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 0u128 - 1u128;
     return;
@@ -70,7 +70,7 @@ label b0:
 //# run
 module 0x47::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 54u128 - 100u128;
     return;
@@ -82,7 +82,7 @@ label b0:
 //# run
 module 0xb::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     assert(0u128 * 0u128 == 0u128, 3000);
     assert(1u128 * 0u128 == 0u128, 3001);
@@ -99,7 +99,7 @@ label b0:
 //# run
 module 0xc::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 18446744073709551616u128 * 18446744073709551616u128;
     return;
@@ -109,7 +109,7 @@ label b0:
 //# run
 module 0xd::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 170141183460469231731687303715884105728u128 * 2u128;
     return;
@@ -121,7 +121,7 @@ label b0:
 //# run
 module 0xe::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     assert(0u128 / 1u128 == 0u128, 4000);
     assert(1u128 / 1u128 == 1u128, 4001);
@@ -139,7 +139,7 @@ label b0:
 //# run
 module 0x15::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 0u128 / 0u128;
     return;
@@ -149,7 +149,7 @@ label b0:
 //# run
 module 0x16::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 1u128 / 0u128;
     return;
@@ -161,7 +161,7 @@ label b0:
 //# run
 module 0x17::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 340282366920938463463374607431768211455u128 / 0u128;
     return;
@@ -172,7 +172,7 @@ label b0:
 //# run
 module 0x18::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     assert(0u128 % 1u128 == 0u128, 5000);
     assert(1u128 % 1u128 == 0u128, 5001);
@@ -190,7 +190,7 @@ label b0:
 //# run
 module 0x19::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 0u128 % 0u128;
     return;
@@ -200,7 +200,7 @@ label b0:
 //# run
 module 0x1a::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 1u128 % 0u128;
     return;
@@ -210,7 +210,7 @@ label b0:
 //# run
 module 0x1b::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = 340282366920938463463374607431768211455u128 % 0u128;
     return;

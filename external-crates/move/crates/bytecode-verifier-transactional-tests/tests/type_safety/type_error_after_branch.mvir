@@ -2,7 +2,7 @@
 module 0x42::m {
 
 
-entry foo(b: bool) {
+entry fun foo(b: bool) {
   let x: u64;
 label b0:
   jump_if (move(b)) b2;

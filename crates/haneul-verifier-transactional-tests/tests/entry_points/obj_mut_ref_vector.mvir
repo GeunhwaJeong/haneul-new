@@ -10,7 +10,7 @@ module 0x0::m {
 
     struct S has key { id: object::UID }
 
-    public entry no(s: &mut vector<Self::S>, ctx: &mut tx_context::TxContext) {
+    public entry fun no(s: &mut vector<Self::S>, ctx: &mut tx_context::TxContext) {
         label l0:
         abort 0;
     }

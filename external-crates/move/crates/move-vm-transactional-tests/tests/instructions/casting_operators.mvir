@@ -2,7 +2,7 @@
 module 0x6::m {
 
 // Casting to u8.
-entry foo() {
+entry fun foo() {
 label b0:
     // 0 remains unchanged.
     assert(to_u8(0u8) == 0u8, 1000);
@@ -37,7 +37,7 @@ label b0:
 //# run
 module 0x7::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     // 0 remains unchanged.
     assert(to_u16(0u8) == 0u16, 1000);
@@ -72,7 +72,7 @@ label b0:
 //# run
 module 0x8::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     // 0 remains unchanged.
     assert(to_u32(0u8) == 0u32, 1000);
@@ -107,7 +107,7 @@ label b0:
 //# run
 module 0x9::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     // 0 remains unchanged.
     assert(to_u64(0u8) == 0u64, 2000);
@@ -132,7 +132,7 @@ label b0:
 //# run
 module 0xa::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     // 0 remains unchanged.
     assert(to_u128(0u8) == 0u128, 3000);
@@ -158,7 +158,7 @@ label b0:
 //# run
 module 0xb::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     // 0 remains unchanged.
     assert(to_u256(0u8) == 0u256, 1000);
@@ -193,7 +193,7 @@ label b0:
 //# run
 module 0xc::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u8(256u64);
     return;
@@ -204,7 +204,7 @@ label b0:
 //# run
 module 0xd::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u8(303u64);
     return;
@@ -215,7 +215,7 @@ label b0:
 //# run
 module 0xe::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u8(256u128);
     return;
@@ -226,7 +226,7 @@ label b0:
 //# run
 module 0x15::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u8(56432u128);
     return;
@@ -237,7 +237,7 @@ label b0:
 //# run
 module 0x16::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u8(256u16);
     return;
@@ -248,7 +248,7 @@ label b0:
 //# run
 module 0x17::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u8(303u16);
     return;
@@ -259,7 +259,7 @@ label b0:
 //# run
 module 0x18::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u8(256u32);
     return;
@@ -270,7 +270,7 @@ label b0:
 //# run
 module 0x19::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u8(303u32);
     return;
@@ -281,7 +281,7 @@ label b0:
 //# run
 module 0x1a::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u8(18446744073709551615u64);
     return;
@@ -292,7 +292,7 @@ label b0:
 //# run
 module 0x1b::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u8(340282366920938463463374607431768211455u128);
     return;
@@ -303,7 +303,7 @@ label b0:
 //# run
 module 0x1c::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u8(65535u16);
     return;
@@ -314,7 +314,7 @@ label b0:
 //# run
 module 0x1d::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u8(4294967295u32);
     return;
@@ -326,7 +326,7 @@ label b0:
 //# run
 module 0x1e::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u64(18446744073709551616u128);
     return;
@@ -337,7 +337,7 @@ label b0:
 //# run
 module 0x25::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u64(18446744073709551647u128);
     return;
@@ -348,7 +348,7 @@ label b0:
 //# run
 module 0x26::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u64(340282366920938463463374607431768211455u128);
     return;
@@ -359,7 +359,7 @@ label b0:
 //# run
 module 0x27::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u64(18446744073709551647u256);
     return;
@@ -370,7 +370,7 @@ label b0:
 //# run
 module 0x28::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u64(18446744073709551647u128);
     return;
@@ -381,7 +381,7 @@ label b0:
 //# run
 module 0x29::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u64(57896044618658097711785492504343953926634992332820282019728792003956564819967u256);
     return;
@@ -393,7 +393,7 @@ label b0:
 //# run
 module 0x2a::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u16(18446744073709551616u128);
     return;
@@ -404,7 +404,7 @@ label b0:
 //# run
 module 0x2b::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u16(18446744073709551647u128);
     return;
@@ -415,7 +415,7 @@ label b0:
 //# run
 module 0x2c::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u16(340282366920938463463374607431768211455u128);
     return;
@@ -426,7 +426,7 @@ label b0:
 //# run
 module 0x2d::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u16(18446744073709551647u256);
     return;
@@ -437,7 +437,7 @@ label b0:
 //# run
 module 0x2e::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u16(18446744073709551647u128);
     return;
@@ -448,7 +448,7 @@ label b0:
 //# run
 module 0x35::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u16(57896044618658097711785492504343953926634992332820282019728792003956564819967u256);
     return;
@@ -459,7 +459,7 @@ label b0:
 //# run
 module 0x36::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u16(2561233u32);
     return;
@@ -470,7 +470,7 @@ label b0:
 //# run
 module 0x37::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u16(4294967295u32);
     return;
@@ -482,7 +482,7 @@ label b0:
 //# run
 module 0x38::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u32(18446744073709551616u128);
     return;
@@ -493,7 +493,7 @@ label b0:
 //# run
 module 0x39::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u32(18446744073709551647u128);
     return;
@@ -504,7 +504,7 @@ label b0:
 //# run
 module 0x3a::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u32(340282366920938463463374607431768211455u128);
     return;
@@ -515,7 +515,7 @@ label b0:
 //# run
 module 0x3b::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u32(18446744073709551647u256);
     return;
@@ -526,7 +526,7 @@ label b0:
 //# run
 module 0x3c::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u32(18446744073709551647u128);
     return;
@@ -537,7 +537,7 @@ label b0:
 //# run
 module 0x3d::m {
 
-entry foo() {
+entry fun foo() {
 label b0:
     _ = to_u32(57896044618658097711785492504343953926634992332820282019728792003956564819967u256);
     return;

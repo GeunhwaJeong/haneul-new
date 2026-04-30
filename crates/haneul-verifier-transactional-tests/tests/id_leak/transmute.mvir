@@ -15,7 +15,7 @@ module 0x0::m {
         id: object::UID,
     }
 
-    public entry transmute(cat: Self::Cat, ctx: &mut tx_context::TxContext) {
+    public entry fun transmute(cat: Self::Cat, ctx: &mut tx_context::TxContext) {
         let cat_id: object::UID;
         let dog: Self::Dog;
         label l0:

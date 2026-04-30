@@ -1595,14 +1595,16 @@ fn parse_function_visibility(
 // }
 
 // MoveFunctionDecl : (FunctionName, Function) = {
-//     <v: FunctionVisibility> <name_and_type_parameters: NameAndTypeFormals>
+//     <v: FunctionVisibility> <entry: "entry"?> "fun"
+//     <name_and_type_parameters: NameAndTypeFormals>
 //     "(" <args: (ArgDecl)*> ")" <ret: ReturnType?>
 //         <acquires: AcquireList?>
 //         <locals_body: FunctionBlock> =>? { ... }
 // }
 
 // NativeFunctionDecl: (FunctionName, Function) = {
-//     <nat: NativeTag> <v: FunctionVisibility> <name_and_type_parameters: NameAndTypeFormals>
+//     <nat: NativeTag> <v: FunctionVisibility> <entry: "entry"?> "fun"
+//     <name_and_type_parameters: NameAndTypeFormals>
 //     "(" <args: Comma<ArgDecl>> ")" <ret: ReturnType?>
 //         <acquires: AcquireList?>
 //         ";" =>? { ... }
@@ -1627,6 +1629,14 @@ fn parse_function_decl(
     } else {
         false
     };
+
+    if tokens.peek() != Tok::NameValue || tokens.content() != "fun" {
+        return Err(ParseError::InvalidToken {
+            location: current_token_loc(tokens),
+            message: "expected 'fun' before function name".to_string(),
+        });
+    }
+    tokens.advance()?;
 
     let (name, type_parameters) = parse_name_and_type_parameters(tokens, parse_type_parameter)?;
     consume_token(tokens, Tok::LParen)?;

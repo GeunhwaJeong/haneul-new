@@ -11,12 +11,12 @@ module 0x0::m {
 
     struct Object has key { id: object::UID }
 
-    new(id: object::UID): Self::Object {
+    fun new(id: object::UID): Self::Object {
         label l0:
         return Object { id: move(id) };
     }
 
-    entry bad(obj: Self::Object) {
+    entry fun bad(obj: Self::Object) {
         let id: object::UID;
         let s: Self::S;
         let new: Self::Object;

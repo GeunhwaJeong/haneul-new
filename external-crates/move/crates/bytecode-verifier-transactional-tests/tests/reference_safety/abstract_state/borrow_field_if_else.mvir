@@ -9,7 +9,7 @@ struct S has copy, drop {
     g: u64,
 }
 
-t(cond: bool, s: &mut Self::S) {
+fun t(cond: bool, s: &mut Self::S) {
     let x: &mut u64;
 label l0:
     jump_if_false (move(cond)) l2;

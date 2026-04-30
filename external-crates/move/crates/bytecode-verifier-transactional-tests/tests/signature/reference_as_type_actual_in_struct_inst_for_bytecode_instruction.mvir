@@ -4,8 +4,8 @@ module 0x1::M {
 
     struct Some<T> has key { item: T }
 
-    id<T>(x: T): T { label b0: abort(0); }
-    foo() {
+    fun id<T>(x: T): T { label b0: abort(0); }
+    fun foo() {
     label b0:
         Self::id<Self::Some<&u64>>();
         return;
@@ -16,7 +16,7 @@ module 0x1::M {
 module 0x1::M {
     struct Some<T> { item: T }
 
-    foo() {
+    fun foo() {
         let x: u64;
         let y: &u64;
         let v: Self::Some<u64>;
@@ -32,7 +32,7 @@ module 0x1::M {
 module 0x1::M {
     struct Some<T> { item: T }
 
-    foo() {
+    fun foo() {
         let x: &u64;
         let v: Self::Some<u64>;
     label b0:
@@ -47,7 +47,7 @@ module 0x1::M {
     struct S<T> { v: T }
 
     // cannot use refs in generics
-    foo(s: Self::S<&u64>): u64 {
+    fun foo(s: Self::S<&u64>): u64 {
     label b0:
         return *(*(&(&s).S::v));
     }
@@ -58,7 +58,7 @@ module 0x1::M {
     struct S<T> { v: T }
 
     // cannot use refs in generics
-    foo(s: Self::S<&u64>): u64 {
+    fun foo(s: Self::S<&u64>): u64 {
     label b0:
         return *(*(&mut (&mut s).S::v));
     }

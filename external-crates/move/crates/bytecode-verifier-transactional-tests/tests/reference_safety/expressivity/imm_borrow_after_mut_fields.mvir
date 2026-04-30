@@ -5,7 +5,7 @@ module 0x2::field {
 
     struct S has copy, drop { f: u64 }
 
-    t(s: Self::S) {
+    fun t(s: Self::S) {
         let s_imm: &Self::S;
         let s_mut: &mut Self::S;
         let f_imm: &u64;
@@ -22,7 +22,7 @@ module 0x3::field {
 
     struct S has copy, drop { f: u64 }
 
-    t(s: Self::S) {
+    fun t(s: Self::S) {
         let s_imm: &Self::S;
         let s_mut: &mut Self::S;
         let f_imm: &u64;
@@ -40,7 +40,7 @@ module 0x4::invalid_write {
 
     struct S has copy, drop { f: u64 }
 
-    t(s: Self::S) {
+    fun t(s: Self::S) {
         let s_imm: &Self::S;
         let s_mut: &mut Self::S;
         let f_imm: &u64;
