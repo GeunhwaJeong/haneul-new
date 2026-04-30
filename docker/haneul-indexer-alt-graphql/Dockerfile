@@ -7,6 +7,7 @@ ARG PROFILE=release-unwind
 FROM rust:1.92-bullseye AS builder
 ARG PROFILE
 ARG GIT_REVISION
+ARG FEATURES=""
 ENV GIT_REVISION=$GIT_REVISION
 WORKDIR "$WORKDIR/haneul"
 
@@ -21,7 +22,11 @@ COPY crates crates
 COPY haneul-execution haneul-execution
 COPY external-crates external-crates
 
-RUN cargo build --profile ${PROFILE} --bin haneul-indexer-alt-graphql
+RUN if [ -n "$FEATURES" ]; then \
+        cargo build --profile ${PROFILE} --bin haneul-indexer-alt-graphql --features "$FEATURES"; \
+    else \
+        cargo build --profile ${PROFILE} --bin haneul-indexer-alt-graphql; \
+    fi
 
 # Production Image
 # debian:bullseye-slim
