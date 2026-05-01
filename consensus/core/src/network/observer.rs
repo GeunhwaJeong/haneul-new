@@ -7,11 +7,11 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use consensus_config::{NetworkKeyPair, NetworkPublicKey};
 use consensus_types::block::{BlockRef, Round};
-use futures::{Stream, StreamExt as _, stream};
+use futures::{Stream, StreamExt as _};
 use haneullabs_network::{Multiaddr, callback::CallbackLayer};
 use parking_lot::RwLock;
 use tokio_stream::Iter;
-use tonic::{Request, Response, Streaming};
+use tonic::{Request, Response};
 use tower_http::trace::{DefaultMakeSpan, DefaultOnFailure, TraceLayer};
 use tracing::{debug, info, trace, warn};
 
@@ -21,7 +21,6 @@ use crate::{
     network::{
         ObserverBlockStream, ObserverNetworkClient, PeerId,
         metrics_layer::MetricsCallbackMaker,
-        observer::block_stream_request::Command,
         to_host_port_str,
         tonic_network::{Channel, MAX_FETCH_RESPONSE_BYTES, chunk_blocks},
         tonic_tls::certificate_server_name,
@@ -33,36 +32,14 @@ use super::{ObserverNetworkService, tonic_gen::observer_service_server::Observer
 // Observer block streaming messages
 #[derive(Clone, prost::Message)]
 pub(crate) struct BlockStreamRequest {
-    #[prost(oneof = "block_stream_request::Command", tags = "1, 2")]
-    pub(crate) command: Option<block_stream_request::Command>,
-}
-
-pub(crate) mod block_stream_request {
-    #[derive(Clone, PartialEq, prost::Oneof)]
-    pub(crate) enum Command {
-        #[prost(message, tag = "1")]
-        Start(super::StartBlockStream),
-        #[prost(message, tag = "2")]
-        Stop(super::StopBlockStream),
-    }
-}
-
-#[derive(Clone, PartialEq, prost::Message)]
-pub(crate) struct StartBlockStream {
     #[prost(uint64, repeated, tag = "1")]
     pub(crate) highest_round_per_authority: Vec<u64>,
 }
 
-#[derive(Clone, PartialEq, prost::Message)]
-pub(crate) struct StopBlockStream {}
-
 #[derive(Clone, prost::Message)]
 pub(crate) struct BlockStreamResponse {
-    #[prost(bytes = "bytes", tag = "1")]
-    pub(crate) block: Bytes,
-    // The highest commit index produced by this node. This is not guaranteed to be a finalized or stored commit.
-    #[prost(uint64, tag = "2")]
-    pub(crate) highest_commit_index: u64,
+    #[prost(bytes = "bytes", repeated, tag = "1")]
+    pub(crate) blocks: Vec<Bytes>,
 }
 
 // Observer fetch messages
@@ -274,13 +251,9 @@ impl ObserverNetworkClient for TonicObserverClient {
     ) -> ConsensusResult<ObserverBlockStream> {
         let mut client = self.get_client(peer.clone(), timeout).await?;
 
-        let request = Request::new(stream::once(async move {
-            BlockStreamRequest {
-                command: Some(Command::Start(StartBlockStream {
-                    highest_round_per_authority,
-                })),
-            }
-        }));
+        let request = Request::new(BlockStreamRequest {
+            highest_round_per_authority,
+        });
         let response = client
             .stream_blocks(request)
             .await
@@ -292,10 +265,7 @@ impl ObserverNetworkClient for TonicObserverClient {
                 let peer_cloned = peer.clone();
                 async move {
                     match b {
-                        Ok(response) => Some(super::ObserverBlockStreamItem {
-                            block: response.block,
-                            highest_commit_index: response.highest_commit_index,
-                        }),
+                        Ok(response) => Some(response.blocks),
                         Err(e) => {
                             debug!("Network error received from {:?}: {e:?}", peer_cloned);
                             None
@@ -428,23 +398,9 @@ impl<S: ObserverNetworkService> ObserverService for ObserverServiceProxy<S> {
     type StreamBlocksStream =
         Pin<Box<dyn Stream<Item = Result<BlockStreamResponse, tonic::Status>> + Send>>;
 
-    /// Handles block streaming requests from observers.
-    ///
-    /// # Authentication
-    /// This method requires TLS client certificate authentication. The observer's
-    /// public key must be present in the request extensions as `ObserverPeerInfo`.
-    /// If authentication fails, returns `Status::Unauthenticated`.
-    ///
-    /// # Arguments
-    /// * `request` - The streaming request containing observer commands
-    ///
-    /// # Returns
-    /// A stream of blocks matching the observer's request, or an error if:
-    /// - The observer is not authenticated (missing peer info)
-    /// - The underlying service returns an error
     async fn stream_blocks(
         &self,
-        request: Request<Streaming<BlockStreamRequest>>,
+        request: Request<BlockStreamRequest>,
     ) -> Result<Response<Self::StreamBlocksStream>, tonic::Status> {
         let peer_id = request
             .extensions()
@@ -456,26 +412,7 @@ impl<S: ObserverNetworkService> ObserverService for ObserverServiceProxy<S> {
                 )
             })?;
 
-        let mut request_stream = request.into_inner();
-        let first_request = match request_stream.next().await {
-            Some(Ok(r)) => r,
-            Some(Err(e)) => {
-                debug!("stream_blocks() request from {:?} failed: {e:?}", peer_id);
-                return Err(tonic::Status::invalid_argument("Request error"));
-            }
-            None => {
-                return Err(tonic::Status::invalid_argument("Missing request"));
-            }
-        };
-
-        let highest_round_per_authority = match first_request.command {
-            Some(block_stream_request::Command::Start(start)) => start.highest_round_per_authority,
-            _ => {
-                return Err(tonic::Status::invalid_argument(
-                    "First request must be a Start command",
-                ));
-            }
-        };
+        let highest_round_per_authority = request.into_inner().highest_round_per_authority;
 
         let block_stream = self
             .service
@@ -483,12 +420,7 @@ impl<S: ObserverNetworkService> ObserverService for ObserverServiceProxy<S> {
             .await
             .map_err(|e| tonic::Status::internal(format!("{e:?}")))?;
 
-        let response_stream = block_stream.map(|item| {
-            Ok(BlockStreamResponse {
-                block: item.block,
-                highest_commit_index: item.highest_commit_index,
-            })
-        });
+        let response_stream = block_stream.map(|blocks| Ok(BlockStreamResponse { blocks }));
 
         Ok(Response::new(Box::pin(response_stream)))
     }
@@ -583,10 +515,9 @@ mod tests {
     use bytes::Bytes;
     use consensus_config::PeerRecord;
     use consensus_types::block::Round;
-    use futures::StreamExt as _;
+    use futures::{StreamExt as _, stream};
     use parking_lot::Mutex;
 
-    use super::block_stream_request::Command;
     use crate::{
         context::Context,
         network::{ExtendedSerializedBlock, ObserverNetworkService, test_network::TestService},
@@ -610,7 +541,6 @@ mod tests {
                 .map(|i| block_for_round(i as Round))
                 .collect::<Vec<_>>();
             s.add_own_blocks(own_blocks);
-            s.set_highest_commit_index(42);
         }
 
         let observer_peer_id = keys[0].0.public().clone();
@@ -620,24 +550,14 @@ mod tests {
             .await
             .unwrap();
 
-        let blocks: Vec<_> = block_stream.collect().await;
+        let blocks: Vec<Bytes> = block_stream.flat_map(stream::iter).collect().await;
 
         assert_eq!(blocks.len(), 100);
-        assert_eq!(blocks[0].block, Bytes::from(vec![1u8; 16]));
-        assert_eq!(blocks[0].highest_commit_index, 42);
-        assert_eq!(blocks[99].block, Bytes::from(vec![100u8; 16]));
-        assert_eq!(blocks[99].highest_commit_index, 42);
-
-        for block_item in &blocks {
-            assert_eq!(block_item.highest_commit_index, 42);
-        }
+        assert_eq!(blocks[0], Bytes::from(vec![1u8; 16]));
+        assert_eq!(blocks[99], Bytes::from(vec![100u8; 16]));
 
         assert_eq!(service.lock().handle_stream_blocks.len(), 1);
         assert_eq!(service.lock().handle_stream_blocks[0], observer_peer_id);
-
-        let commands = service.lock().stream_commands_received.lock().clone();
-        assert_eq!(commands.len(), 1);
-        assert!(matches!(commands[0], Command::Start(_)));
     }
 
     #[tokio::test]
@@ -651,7 +571,6 @@ mod tests {
                 .map(|i| block_for_round(i as Round))
                 .collect::<Vec<_>>();
             s.add_own_blocks(own_blocks);
-            s.set_highest_commit_index(50);
         }
 
         let observer_peer_id = keys[0].0.public().clone();
@@ -663,13 +582,11 @@ mod tests {
             .await
             .unwrap();
 
-        let blocks: Vec<_> = block_stream.collect().await;
+        let blocks: Vec<Bytes> = block_stream.flat_map(stream::iter).collect().await;
 
         assert_eq!(blocks.len(), 50);
-        assert_eq!(blocks[0].block, Bytes::from(vec![51u8; 16]));
-        assert_eq!(blocks[0].highest_commit_index, 50);
-        assert_eq!(blocks[49].block, Bytes::from(vec![100u8; 16]));
-        assert_eq!(blocks[49].highest_commit_index, 50);
+        assert_eq!(blocks[0], Bytes::from(vec![51u8; 16]));
+        assert_eq!(blocks[49], Bytes::from(vec![100u8; 16]));
     }
 
     /// End-to-end test using TonicManager to set up a proper observer server and client.
@@ -712,7 +629,6 @@ mod tests {
                 .map(|i| block_for_round(i as Round))
                 .collect::<Vec<_>>();
             s.add_own_blocks(own_blocks);
-            s.set_highest_commit_index(25);
         }
 
         // Start the observer server
@@ -732,13 +648,17 @@ mod tests {
         // If it fails, it's likely due to authentication/allowlist configuration
         let mut stream = result.unwrap();
         let mut count = 0;
-        while let Some(item) = stream.next().await {
-            // Verify the blocks are in the expected range (rounds 11-50)
-            assert!(item.block.len() == 16);
-            assert_eq!(item.highest_commit_index, 25);
-            count += 1;
+        while let Some(batch) = stream.next().await {
+            for block in batch {
+                // Verify the blocks are in the expected range (rounds 11-50)
+                assert!(block.len() == 16);
+                count += 1;
+                if count >= 40 {
+                    break; // We expect 40 blocks (rounds 11-50)
+                }
+            }
             if count >= 40 {
-                break; // We expect 40 blocks (rounds 11-50)
+                break;
             }
         }
         assert_eq!(count, 40);

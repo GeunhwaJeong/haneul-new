@@ -239,21 +239,8 @@ pub(crate) trait ValidatorNetworkService: Send + Sync + 'static {
     ) -> ConsensusResult<(Vec<Round>, Vec<Round>)>;
 }
 
-/// A stream item for observer block streaming that includes both the block and highest commit index.
-#[derive(Clone)]
-pub(crate) struct ObserverBlockStreamItem {
-    pub(crate) block: Bytes,
-    pub(crate) highest_commit_index: u64,
-}
-
 /// Observer block stream type.
-pub(crate) type ObserverBlockStream =
-    Pin<Box<dyn Stream<Item = ObserverBlockStreamItem> + Send + 'static>>;
-
-/// Observer block request stream type for bidirectional streaming.
-#[allow(dead_code)]
-pub(crate) type BlockRequestStream =
-    Pin<Box<dyn Stream<Item = crate::network::observer::BlockStreamRequest> + Send + 'static>>;
+pub(crate) type ObserverBlockStream = Pin<Box<dyn Stream<Item = Vec<Bytes>> + Send + 'static>>;
 
 /// Observer network service for handling requests from observer nodes.
 /// Unlike ValidatorNetworkService which uses AuthorityIndex, this uses NodeId (NetworkPublicKey)
@@ -263,11 +250,7 @@ pub(crate) type BlockRequestStream =
 pub(crate) trait ObserverNetworkService: Send + Sync + 'static {
     /// Handles a block received from a peer subscription. Used by ObserverSubscriber to process
     /// blocks streamed from validators or other observers.
-    async fn handle_block(
-        &self,
-        peer: PeerId,
-        item: ObserverBlockStreamItem,
-    ) -> ConsensusResult<()>;
+    async fn handle_block(&self, peer: PeerId, block: Bytes) -> ConsensusResult<()>;
 
     /// Handles the block streaming request from an observer peer.
     /// Returns a stream of blocks with the highest commit index for each block.

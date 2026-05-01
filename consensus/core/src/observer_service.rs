@@ -17,15 +17,13 @@ use crate::{
     authority_service::{BroadcastStream, SubscriptionCounter},
     block::{BlockAPI as _, SignedBlock, VerifiedBlock},
     block_sync_service::BlockSyncService,
-    commit::{CommitIndex, CommitRange, TrustedCommit},
+    commit::{CommitRange, TrustedCommit},
     commit_vote_monitor::CommitVoteMonitor,
     context::Context,
     core_thread::CoreThreadDispatcher,
     dag_state::DagState,
     error::{ConsensusError, ConsensusResult},
-    network::{
-        NodeId, ObserverBlockStream, ObserverBlockStreamItem, ObserverNetworkService, PeerId,
-    },
+    network::{NodeId, ObserverBlockStream, ObserverNetworkService, PeerId},
     synchronizer::SynchronizerHandle,
 };
 
@@ -39,7 +37,7 @@ pub(crate) struct ObserverService {
     context: Arc<Context>,
     core_dispatcher: Arc<dyn CoreThreadDispatcher>,
     dag_state: Arc<RwLock<DagState>>,
-    rx_accepted_block_broadcast: broadcast::Receiver<(VerifiedBlock, CommitIndex)>,
+    rx_accepted_block_broadcast: broadcast::Receiver<VerifiedBlock>,
     subscription_counter: Arc<SubscriptionCounter>,
     block_verifier: Arc<dyn BlockVerifier>,
     commit_vote_monitor: Arc<CommitVoteMonitor>,
@@ -53,7 +51,7 @@ impl ObserverService {
         context: Arc<Context>,
         core_dispatcher: Arc<dyn CoreThreadDispatcher>,
         dag_state: Arc<RwLock<DagState>>,
-        rx_accepted_block_broadcast: broadcast::Receiver<(VerifiedBlock, CommitIndex)>,
+        rx_accepted_block_broadcast: broadcast::Receiver<VerifiedBlock>,
         block_verifier: Arc<dyn BlockVerifier>,
         commit_vote_monitor: Arc<CommitVoteMonitor>,
         transaction_vote_tracker: TransactionVoteTracker,
@@ -78,16 +76,12 @@ impl ObserverService {
 
 #[async_trait]
 impl ObserverNetworkService for ObserverService {
-    async fn handle_block(
-        &self,
-        peer: PeerId,
-        item: ObserverBlockStreamItem,
-    ) -> ConsensusResult<()> {
+    async fn handle_block(&self, peer: PeerId, block: Bytes) -> ConsensusResult<()> {
         fail_point_async!("consensus-rpc-response");
 
         // TODO: dedup block verifications, here and with fetched blocks.
         let signed_block: SignedBlock =
-            bcs::from_bytes(&item.block).map_err(ConsensusError::MalformedBlock)?;
+            bcs::from_bytes(&block).map_err(ConsensusError::MalformedBlock)?;
 
         // Create owned strings for observer peer names to avoid borrowing issues
         let observer_name;
@@ -108,7 +102,7 @@ impl ObserverNetworkService for ObserverService {
         // Of Observer nodes we don't care about the transaction votes.
         let (verified_block, _reject_txn_votes) = self
             .block_verifier
-            .verify_and_vote(signed_block, item.block)
+            .verify_and_vote(signed_block, block)
             .tap_err(|e| {
                 self.context
                     .metrics
@@ -237,9 +231,8 @@ impl ObserverNetworkService for ObserverService {
 
         // Collect all accepted blocks from DagState that the observer hasn't yet seen,
         // sorted by round for consistent ordering.
-        let (past_blocks, current_commit_index) = {
+        let past_blocks = {
             let dag_state = self.dag_state.read();
-            let current_commit_index = dag_state.last_commit_index();
             let mut past_blocks = Vec::new();
 
             for (authority, _) in self.context.committee.authorities() {
@@ -248,27 +241,27 @@ impl ObserverNetworkService for ObserverService {
             }
 
             past_blocks.sort_unstable_by_key(|b| b.round());
-            (past_blocks, current_commit_index)
+            past_blocks
         };
 
-        let past_stream =
-            stream::iter(
-                past_blocks
-                    .into_iter()
-                    .map(move |block| ObserverBlockStreamItem {
-                        block: block.serialized().clone(),
-                        highest_commit_index: current_commit_index as u64,
-                    }),
-            );
+        let past_stream = stream::iter(
+            past_blocks
+                .into_iter()
+                .map(move |block| vec![block.serialized().clone()]),
+        );
 
-        let live_stream = BroadcastStream::<(VerifiedBlock, CommitIndex)>::new(
+        const MAX_BLOCKS_PER_POLL: usize = 20;
+        let live_stream = BroadcastStream::<VerifiedBlock>::new(
             PeerId::Observer(Box::new(peer)),
             self.rx_accepted_block_broadcast.resubscribe(),
+            MAX_BLOCKS_PER_POLL,
             self.subscription_counter.clone(),
         )
-        .map(|(block, commit_index)| ObserverBlockStreamItem {
-            block: block.serialized().clone(),
-            highest_commit_index: commit_index as u64,
+        .map(|blocks| {
+            blocks
+                .into_iter()
+                .map(|block| block.serialized().clone())
+                .collect()
         });
 
         Ok(Box::pin(past_stream.chain(live_stream)))
@@ -333,8 +326,7 @@ mod tests {
         let store = Arc::new(MemStore::new());
         let dag_state = Arc::new(RwLock::new(DagState::new(context.clone(), store.clone())));
 
-        let (tx_accepted_block, rx_accepted_block) =
-            broadcast::channel::<(VerifiedBlock, CommitIndex)>(100);
+        let (tx_accepted_block, rx_accepted_block) = broadcast::channel::<VerifiedBlock>(100);
 
         // Create mock dependencies
         let core_dispatcher = Arc::new(MockCoreThreadDispatcher::default());
@@ -374,31 +366,26 @@ mod tests {
         let block2 = VerifiedBlock::new_for_test(TestBlock::new(10, 1).build());
         let block3 = VerifiedBlock::new_for_test(TestBlock::new(15, 2).build());
 
-        tx_accepted_block.send((block1.clone(), 1)).unwrap();
-        tx_accepted_block.send((block2.clone(), 2)).unwrap();
-        tx_accepted_block.send((block3.clone(), 3)).unwrap();
+        tx_accepted_block.send(block1.clone()).unwrap();
+        tx_accepted_block.send(block2.clone()).unwrap();
+        tx_accepted_block.send(block3.clone()).unwrap();
 
-        // Verify observer receives all three blocks in order
-        let item1 = stream.next().await.unwrap();
-        let signed1 = bcs::from_bytes(&item1.block).unwrap();
-        let received1 = VerifiedBlock::new_verified(signed1, item1.block.clone());
-        assert_eq!(received1.round(), 5);
-        assert_eq!(received1.author().value(), 0);
-        assert_eq!(item1.highest_commit_index, 1);
-
-        let item2 = stream.next().await.unwrap();
-        let signed2 = bcs::from_bytes(&item2.block).unwrap();
-        let received2 = VerifiedBlock::new_verified(signed2, item2.block.clone());
-        assert_eq!(received2.round(), 10);
-        assert_eq!(received2.author().value(), 1);
-        assert_eq!(item2.highest_commit_index, 2);
-
-        let item3 = stream.next().await.unwrap();
-        let signed3 = bcs::from_bytes(&item3.block).unwrap();
-        let received3 = VerifiedBlock::new_verified(signed3, item3.block.clone());
-        assert_eq!(received3.round(), 15);
-        assert_eq!(received3.author().value(), 2);
-        assert_eq!(item3.highest_commit_index, 3);
+        // Verify observer receives all three blocks in order.
+        // Collect all blocks from the batched stream.
+        let mut received_blocks = Vec::new();
+        while received_blocks.len() < 3 {
+            let batch = stream.next().await.unwrap();
+            for block_bytes in batch {
+                let signed: SignedBlock = bcs::from_bytes(&block_bytes).unwrap();
+                received_blocks.push(VerifiedBlock::new_verified(signed, block_bytes));
+            }
+        }
+        assert_eq!(received_blocks[0].round(), 5);
+        assert_eq!(received_blocks[0].author().value(), 0);
+        assert_eq!(received_blocks[1].round(), 10);
+        assert_eq!(received_blocks[1].author().value(), 1);
+        assert_eq!(received_blocks[2].round(), 15);
+        assert_eq!(received_blocks[2].author().value(), 2);
     }
 
     #[tokio::test]
@@ -410,8 +397,7 @@ mod tests {
         let store = Arc::new(MemStore::new());
         let dag_state = Arc::new(RwLock::new(DagState::new(context.clone(), store.clone())));
 
-        let (_tx_accepted_block, rx_accepted_block) =
-            broadcast::channel::<(VerifiedBlock, CommitIndex)>(100);
+        let (_tx_accepted_block, rx_accepted_block) = broadcast::channel::<VerifiedBlock>(100);
 
         // Create mock dependencies
         let core_dispatcher = Arc::new(MockCoreThreadDispatcher::default());
