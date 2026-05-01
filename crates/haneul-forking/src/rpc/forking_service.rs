@@ -47,12 +47,23 @@ impl ForkingService for ForkingServiceImpl {
             .duration_ms
             .unwrap_or(DEFAULT_ADVANCE_CLOCK_MS);
 
-        let mut sim = self.context.simulacrum().write().await;
-        let effects = sim.advance_clock(Duration::from_millis(duration_ms));
-        let tx_digest = *effects.transaction_digest();
-        let timestamp_ms = sim.store().get_clock().timestamp_ms;
+        let ((tx_digest, timestamp_ms), checkpoint_metadata) = self
+            .context
+            .run_with_new_checkpoint(|sim| {
+                let effects = sim.advance_clock(Duration::from_millis(duration_ms));
+                let tx_digest = *effects.transaction_digest();
+                let timestamp_ms = sim.store().get_clock().timestamp_ms;
+                (tx_digest, timestamp_ms)
+            })
+            .await;
 
-        info!(%tx_digest, duration_ms, timestamp_ms, "clock advanced");
+        info!(
+            %tx_digest,
+            duration_ms,
+            timestamp_ms,
+            checkpoint_sequence_number = checkpoint_metadata.sequence_number,
+            "clock advanced"
+        );
 
         Ok(Response::new(AdvanceClockResponse {
             timestamp_ms,
@@ -64,19 +75,17 @@ impl ForkingService for ForkingServiceImpl {
         &self,
         _request: Request<AdvanceCheckpointRequest>,
     ) -> Result<Response<AdvanceCheckpointResponse>, Status> {
-        let mut sim = self.context.simulacrum().write().await;
-        let checkpoint = sim.create_checkpoint();
-        let checkpoint_sequence_number = checkpoint.data().sequence_number;
-        let timestamp_ms = checkpoint.data().timestamp_ms;
+        let (_, checkpoint_metadata) = self.context.run_with_new_checkpoint(|_| ()).await;
 
         info!(
-            checkpoint_sequence_number,
-            timestamp_ms, "checkpoint created"
+            checkpoint_sequence_number = checkpoint_metadata.sequence_number,
+            timestamp_ms = checkpoint_metadata.timestamp_ms,
+            "checkpoint created"
         );
 
         Ok(Response::new(AdvanceCheckpointResponse {
-            checkpoint_sequence_number,
-            timestamp_ms,
+            checkpoint_sequence_number: checkpoint_metadata.sequence_number,
+            timestamp_ms: checkpoint_metadata.timestamp_ms,
         }))
     }
 
