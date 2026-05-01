@@ -18,6 +18,7 @@ use crate::{
     BlockAPI as _, CommitConsumerArgs,
     authority_service::AuthorityService,
     block_manager::BlockManager,
+    block_sync_service::BlockSyncService,
     block_verifier::SignedBlockVerifier,
     commit_observer::CommitObserver,
     commit_syncer::{CommitSyncer, CommitSyncerHandle},
@@ -385,8 +386,16 @@ where
             round_tracker.clone(),
             commit_syncer_client.clone(),
             dag_state.clone(),
+            peers_pool.clone(),
         )
         .start();
+
+        // Create BlockSyncService that will be shared by both AuthorityService and ObserverService
+        let block_sync_service = Arc::new(BlockSyncService::new(
+            context.clone(),
+            dag_state.clone(),
+            store.clone(),
+        ));
 
         let (subscriber, round_prober_handle) = if context.is_validator() {
             let authority_service = Arc::new(AuthorityService::new(
@@ -399,7 +408,7 @@ where
                 signals_receivers.block_broadcast_receiver(),
                 transaction_vote_tracker.clone(),
                 dag_state.clone(),
-                store.clone(),
+                block_sync_service.clone(),
             ));
 
             // Start the validator server if this is a validator node.
@@ -443,6 +452,7 @@ where
                     commit_vote_monitor.clone(),
                     transaction_vote_tracker.clone(),
                     synchronizer.clone(),
+                    block_sync_service.clone(),
                 ));
                 network_manager
                     .start_observer_server(observer_service)
@@ -462,6 +472,7 @@ where
                 commit_vote_monitor.clone(),
                 transaction_vote_tracker.clone(),
                 synchronizer.clone(),
+                block_sync_service.clone(),
             ));
 
             let observer_subscriber = ObserverSubscriber::new(
@@ -795,7 +806,7 @@ mod tests {
             ..Default::default()
         };
 
-        let (observer_commit_consumer, _observer_commit_receiver) = CommitConsumerArgs::new(0, 0);
+        let (observer_commit_consumer, observer_commit_receiver) = CommitConsumerArgs::new(0, 0);
         let observer = ConsensusAuthority::start(
             network_type,
             0,
@@ -811,6 +822,9 @@ mod tests {
             0,
         )
         .await;
+        // The relevant endpoints are now implemented for the synchronizer and commit_syncer components, so the Observer node should be able to catch up and
+        // fetch blocks beyond the latest ones that are fetched from the stream.
+        commit_receivers.push(observer_commit_receiver);
 
         // Give Observer more time to connect and sync
         sleep(Duration::from_secs(5)).await;
