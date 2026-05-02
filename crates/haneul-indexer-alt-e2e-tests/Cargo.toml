@@ -50,9 +50,11 @@ haneul-indexer-alt-schema.workspace = true
 haneul-pg-db.workspace = true
 haneul-protocol-config.workspace = true
 haneul-rpc.workspace = true
+haneul-test-transaction-builder.workspace = true
 haneul-types.workspace = true
 move-core-types.workspace = true
 haneul-move-build.workspace = true
+test-cluster.workspace = true
 
 [target.'cfg(msim)'.dependencies]
 msim.workspace = true
@@ -82,7 +84,5 @@ haneul-json-rpc-types.workspace = true
 haneul-macros.workspace = true
 haneul-sdk.workspace = true
 haneul-swarm-config.workspace = true
-haneul-test-transaction-builder.workspace = true
 haneul-transactional-test-runner = { workspace = true, features = ["testing"] }
-test-cluster.workspace = true
 tracing.workspace = true

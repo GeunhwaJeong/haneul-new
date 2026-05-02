@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::str::FromStr;
+use std::sync::Arc;
 
 use anyhow::Context as _;
 use futures::future::OptionFuture;
@@ -29,7 +30,6 @@ use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::ObjectChange;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::event::Event;
 use haneul_types::object::Object;
 use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::TransactionData;
@@ -141,7 +141,7 @@ async fn events(
     digest: TransactionDigest,
     tx: &TransactionContents,
 ) -> Result<HaneulTransactionBlockEvents, RpcError<Error>> {
-    let events: Vec<Event> = tx.events()?;
+    let events = tx.events()?;
     let mut haneul_events = Vec::with_capacity(events.len());
 
     for (ix, event) in events.into_iter().enumerate() {
@@ -163,8 +163,14 @@ async fn events(
             ),
         };
 
-        let haneul_event = HaneulEvent::try_from(event, digest, ix as u64, tx.timestamp_ms(), layout)
-            .with_context(|| format!("Failed to convert Event {ix} into response"))?;
+        let haneul_event = HaneulEvent::try_from(
+            Arc::unwrap_or_clone(event),
+            digest,
+            ix as u64,
+            tx.timestamp_ms(),
+            layout,
+        )
+        .with_context(|| format!("Failed to convert Event {ix} into response"))?;
 
         haneul_events.push(haneul_event)
     }
