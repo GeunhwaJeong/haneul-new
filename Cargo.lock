@@ -15615,6 +15615,7 @@ dependencies = [
  "slip10_ed25519",
  "haneul-types",
  "tempfile",
+ "thiserror 1.0.69",
  "tiny-bip39",
  "tokio",
 ]
