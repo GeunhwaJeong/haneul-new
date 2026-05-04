@@ -21,6 +21,7 @@ use haneul_indexer_alt_framework::ingestion::ingestion_client::IngestionClientAr
 use haneul_indexer_alt_framework::ingestion::streaming_client::StreamingClientArgs;
 use haneul_indexer_alt_framework::pipeline::CommitterConfig;
 use haneul_keys::keystore::AccountKeystore;
+use haneul_kvstore::ALL_PIPELINE_NAMES;
 use haneul_kvstore::BigTableClient;
 use haneul_kvstore::BigTableIndexer;
 use haneul_kvstore::BigTableStore;
@@ -229,13 +230,17 @@ impl TestHarness {
             let mut interval = interval(Duration::from_millis(100));
             loop {
                 interval.tick().await;
-                let ok = self.client.get_watermark().await.is_ok_and(|wm| {
-                    wm.is_some_and(|wm| {
-                        wm.checkpoint_hi_inclusive
-                            .is_some_and(|cp| cp >= checkpoint)
-                            && wm.epoch_hi_inclusive >= epoch
-                    })
-                });
+                let ok = self
+                    .client
+                    .get_watermark_for_pipelines(&ALL_PIPELINE_NAMES)
+                    .await
+                    .is_ok_and(|wm| {
+                        wm.is_some_and(|wm| {
+                            wm.checkpoint_hi_inclusive
+                                .is_some_and(|cp| cp >= checkpoint)
+                                && wm.epoch_hi_inclusive >= epoch
+                        })
+                    });
                 if ok {
                     break;
                 }
