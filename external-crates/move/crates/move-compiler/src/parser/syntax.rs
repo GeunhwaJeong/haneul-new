@@ -11,9 +11,8 @@ use std::{cell::RefCell, rc::Rc};
 use crate::{
     diag,
     diagnostics::{
-        Diagnostic, DiagnosticReporter, Diagnostics,
-        codes::Category,
-        warning_filters::{WarningFiltersBuilder, WarningFiltersTable},
+        Diagnostic, DiagnosticReporter, Diagnostics, codes::Category,
+        filter::dependency_drop_filter_scope,
     },
     editions::{Edition, FeatureGate, UPGRADE_NOTE},
     parser::{ast::*, attributes::to_known_attributes, format_one_of, lexer::*, token_set::*},
@@ -4851,10 +4850,10 @@ fn consume_spec_string(context: &mut Context) -> Result<Spanned<String>, Box<Dia
 fn parse_file(context: &mut Context) -> Vec<Definition> {
     // If this is a dependency, do not report warnings in it.
     let config = context.env.package_config(context.current_package);
-    let mut table = WarningFiltersTable::new();
     if config.is_dependency {
-        let all_filters_all = table.add(WarningFiltersBuilder::new_all_filter_alls(context.env));
-        context.reporter.push_warning_filter_scope(all_filters_all);
+        context
+            .reporter
+            .push_warning_filter_scope(dependency_drop_filter_scope());
     }
 
     let mut defs = vec![];
