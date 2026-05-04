@@ -40,6 +40,7 @@ tracing.workspace = true
 [dev-dependencies]
 haneullabs-common.workspace = true
 haneul-indexer-alt-framework = { workspace = true, features = ["cluster"] }
+haneul-indexer-alt-framework-store-traits = { workspace = true, features = ["testing"] }
 haneul-keys.workspace = true
 haneul-rpc.workspace = true
 haneul-test-transaction-builder.workspace = true
