@@ -12,15 +12,24 @@ use std::time::Duration;
 use rand::rngs::OsRng;
 
 use simulacrum::Simulacrum;
+use simulacrum::store::SimulatorStore;
 use simulacrum::store::in_mem_store::KeyStore;
 use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_swarm_config::network_config_builder::ConfigBuilder;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::KeypairTraits;
+use haneul_types::digests::ObjectDigest;
+use haneul_types::digests::TransactionDigest;
+use haneul_types::effects::TransactionEffects;
 use haneul_types::effects::TransactionEffectsAPI;
+use haneul_types::execution_status::ExecutionStatus;
+use haneul_types::gas::GasCostSummary;
 use haneul_types::gas_coin::GasCoin;
+use haneul_types::object::MoveObject;
+use haneul_types::object::ObjectInner;
 use haneul_types::object::Owner;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
+use haneul_types::storage::RpcIndexes;
 use haneul_types::transaction::{GasData, Transaction, TransactionData, TransactionKind};
 
 use super::*;
@@ -75,6 +84,23 @@ fn find_gas_coin(config: &NetworkConfig, owner: HaneulAddress) -> Object {
         .find(|obj| obj.owner == Owner::AddressOwner(owner) && obj.is_gas_coin())
         .expect("owner should have a gas coin in genesis")
         .clone()
+}
+
+fn test_data_store() -> (tempfile::TempDir, DataStore) {
+    let temp = tempfile::tempdir().expect("failed to create tempdir");
+    let data_store = DataStore::new_for_testing(temp.path().to_path_buf());
+    (temp, data_store)
+}
+
+fn make_gas_object(id: ObjectID, version: u64, owner: Owner) -> Object {
+    let move_obj = MoveObject::new_gas_coin(SequenceNumber::from_u64(version), id, 1_000_000);
+    ObjectInner {
+        owner,
+        data: haneul_types::object::Data::Move(move_obj),
+        previous_transaction: TransactionDigest::genesis_marker(),
+        storage_rebate: 0,
+    }
+    .into()
 }
 
 #[test]
@@ -195,4 +221,312 @@ fn test_transfer_haneul_executes_and_persists() {
     let net_gas = effects.gas_cost_summary().net_gas_usage();
     let expected = (initial_balance as i64 - transfer_amount as i64 - net_gas) as u64;
     assert_eq!(updated_gas.value(), expected);
+}
+
+#[test]
+fn test_owned_objects_tracks_address_owner_transfers() {
+    let (_temp, mut store) = test_data_store();
+    let owner = HaneulAddress::random_for_testing_only();
+    let recipient = HaneulAddress::random_for_testing_only();
+    let object_id = ObjectID::random();
+    let object = make_gas_object(object_id, 1, Owner::AddressOwner(owner));
+
+    store.update_objects(BTreeMap::from([(object_id, object)]), vec![]);
+    let owner_objects: Vec<_> = SimulatorStore::owned_objects(&store, owner).collect();
+    assert_eq!(owner_objects.len(), 1);
+    assert_eq!(owner_objects[0].id(), object_id);
+
+    let transferred = make_gas_object(object_id, 2, Owner::AddressOwner(recipient));
+    store.update_objects(BTreeMap::from([(object_id, transferred)]), vec![]);
+
+    assert_eq!(
+        SimulatorStore::owned_objects(&store, owner).count(),
+        0,
+        "object should leave the previous owner's index",
+    );
+    let recipient_objects: Vec<_> = SimulatorStore::owned_objects(&store, recipient).collect();
+    assert_eq!(recipient_objects.len(), 1);
+    assert_eq!(recipient_objects[0].id(), object_id);
+    assert_eq!(recipient_objects[0].version(), SequenceNumber::from_u64(2));
+}
+
+#[test]
+fn test_owned_objects_removes_non_address_owned_transitions() {
+    let (_temp, mut store) = test_data_store();
+    let owner = HaneulAddress::random_for_testing_only();
+    let object_id = ObjectID::random();
+    let object = make_gas_object(object_id, 1, Owner::AddressOwner(owner));
+
+    store.update_objects(BTreeMap::from([(object_id, object)]), vec![]);
+    assert_eq!(SimulatorStore::owned_objects(&store, owner).count(), 1);
+
+    let immutable = make_gas_object(object_id, 2, Owner::Immutable);
+    store.update_objects(BTreeMap::from([(object_id, immutable)]), vec![]);
+    assert_eq!(SimulatorStore::owned_objects(&store, owner).count(), 0);
+}
+
+#[test]
+fn test_local_deletion_removes_owned_object_and_blocks_remote_resurrection() {
+    let (_temp, mut store) = test_data_store();
+    let owner = HaneulAddress::random_for_testing_only();
+    let object_id = ObjectID::random();
+    let object = make_gas_object(object_id, 1, Owner::AddressOwner(owner));
+
+    store.update_objects(BTreeMap::from([(object_id, object.clone())]), vec![]);
+    store.update_objects(
+        BTreeMap::new(),
+        vec![(
+            object_id,
+            SequenceNumber::from_u64(2),
+            ObjectDigest::OBJECT_DIGEST_DELETED,
+        )],
+    );
+
+    assert_eq!(SimulatorStore::owned_objects(&store, owner).count(), 0);
+    assert!(
+        DataStore::get_object(&store, &object_id)
+            .expect("current object read should not error")
+            .is_none(),
+        "current object lookup must not fall back to the remote after local deletion",
+    );
+    assert_eq!(
+        DataStore::get_object_at_version(&store, &object_id, 1)
+            .expect("exact version read should not error")
+            .unwrap(),
+        object,
+    );
+    assert!(
+        haneul_types::storage::ObjectStore::get_object_by_key(
+            &store,
+            &object_id,
+            SequenceNumber::from_u64(1),
+        )
+        .is_none(),
+        "execution-facing exact-version lookup must reject locally deleted objects",
+    );
+}
+
+#[test]
+fn test_local_wrap_removes_owned_object_and_blocks_direct_current_reads() {
+    let (_temp, mut store) = test_data_store();
+    let owner = HaneulAddress::random_for_testing_only();
+    let object_id = ObjectID::random();
+    let object = make_gas_object(object_id, 1, Owner::AddressOwner(owner));
+
+    store.update_objects(BTreeMap::from([(object_id, object.clone())]), vec![]);
+    store.apply_object_updates(
+        BTreeMap::new(),
+        vec![RemovedObject {
+            object_ref: (
+                object_id,
+                SequenceNumber::from_u64(2),
+                ObjectDigest::OBJECT_DIGEST_WRAPPED,
+            ),
+            kind: RemovedObjectKind::Wrapped,
+        }],
+    );
+
+    assert_eq!(SimulatorStore::owned_objects(&store, owner).count(), 0);
+    assert!(
+        DataStore::get_object(&store, &object_id)
+            .expect("current object read should not error")
+            .is_none(),
+        "current object lookup must not fall back to the remote after local wrapping",
+    );
+    assert_eq!(
+        DataStore::get_object_at_version(&store, &object_id, 1)
+            .expect("exact version read should not error")
+            .unwrap(),
+        object,
+    );
+    assert!(
+        haneul_types::storage::ObjectStore::get_object_by_key(
+            &store,
+            &object_id,
+            SequenceNumber::from_u64(1),
+        )
+        .is_none(),
+        "execution-facing exact-version lookup must reject locally wrapped objects",
+    );
+}
+
+#[test]
+fn test_unwrapped_write_clears_wrapped_marker_and_reindexes_owner() {
+    let (_temp, mut store) = test_data_store();
+    let owner = HaneulAddress::random_for_testing_only();
+    let recipient = HaneulAddress::random_for_testing_only();
+    let object_id = ObjectID::random();
+    let object = make_gas_object(object_id, 1, Owner::AddressOwner(owner));
+
+    store.update_objects(BTreeMap::from([(object_id, object)]), vec![]);
+    store.apply_object_updates(
+        BTreeMap::new(),
+        vec![RemovedObject {
+            object_ref: (
+                object_id,
+                SequenceNumber::from_u64(2),
+                ObjectDigest::OBJECT_DIGEST_WRAPPED,
+            ),
+            kind: RemovedObjectKind::Wrapped,
+        }],
+    );
+
+    let unwrapped = make_gas_object(object_id, 3, Owner::AddressOwner(recipient));
+    store.apply_object_updates(BTreeMap::from([(object_id, unwrapped.clone())]), vec![]);
+
+    assert!(!store.local().is_object_wrapped(&object_id).unwrap());
+    assert_eq!(
+        DataStore::get_object(&store, &object_id)
+            .expect("current object read should not error")
+            .unwrap(),
+        unwrapped,
+    );
+    assert_eq!(SimulatorStore::owned_objects(&store, owner).count(), 0);
+    let recipient_objects: Vec<_> = SimulatorStore::owned_objects(&store, recipient).collect();
+    assert_eq!(recipient_objects.len(), 1);
+    assert_eq!(recipient_objects[0].id(), object_id);
+}
+
+#[test]
+fn test_terminal_deleted_marker_prevents_reindexing_written_object() {
+    let (_temp, mut store) = test_data_store();
+    let owner = HaneulAddress::random_for_testing_only();
+    let object_id = ObjectID::random();
+    let object = make_gas_object(object_id, 1, Owner::AddressOwner(owner));
+    let written_again = make_gas_object(object_id, 3, Owner::AddressOwner(owner));
+
+    store.update_objects(BTreeMap::from([(object_id, object)]), vec![]);
+    store.apply_object_updates(
+        BTreeMap::from([(object_id, written_again)]),
+        vec![RemovedObject {
+            object_ref: (
+                object_id,
+                SequenceNumber::from_u64(2),
+                ObjectDigest::OBJECT_DIGEST_DELETED,
+            ),
+            kind: RemovedObjectKind::Deleted,
+        }],
+    );
+
+    assert_eq!(SimulatorStore::owned_objects(&store, owner).count(), 0);
+    assert!(
+        DataStore::get_object(&store, &object_id)
+            .expect("current object read should not error")
+            .is_none(),
+    );
+}
+
+#[test]
+fn test_removed_objects_from_effects_marks_unwrapped_then_deleted_as_deleted() {
+    let owner = HaneulAddress::random_for_testing_only();
+    let object_id = ObjectID::random();
+    let object_ref = (
+        object_id,
+        SequenceNumber::from_u64(2),
+        ObjectDigest::OBJECT_DIGEST_DELETED,
+    );
+    let gas_ref = (
+        ObjectID::random(),
+        SequenceNumber::from_u64(1),
+        ObjectDigest::random(),
+    );
+    let effects = TransactionEffects::new_from_execution_v1(
+        ExecutionStatus::Success,
+        0,
+        GasCostSummary::default(),
+        vec![],
+        vec![],
+        TransactionDigest::random(),
+        vec![],
+        vec![],
+        vec![],
+        vec![],
+        vec![object_ref],
+        vec![],
+        (gas_ref, Owner::AddressOwner(owner)),
+        None,
+        vec![],
+    );
+
+    assert_eq!(
+        removed_objects_from_effects(&effects),
+        vec![RemovedObject {
+            object_ref,
+            kind: RemovedObjectKind::Deleted,
+        }],
+    );
+}
+
+#[test]
+fn test_rpc_owned_objects_iter_filters_and_pages_by_object_id() {
+    let (_temp, mut store) = test_data_store();
+    let owner = HaneulAddress::random_for_testing_only();
+    let other_owner = HaneulAddress::random_for_testing_only();
+    let first_id = ObjectID::random();
+    let second_id = ObjectID::random();
+    let other_id = ObjectID::random();
+    let first = make_gas_object(first_id, 1, Owner::AddressOwner(owner));
+    let second = make_gas_object(second_id, 1, Owner::AddressOwner(owner));
+    let other = make_gas_object(other_id, 1, Owner::AddressOwner(other_owner));
+
+    store.update_objects(
+        BTreeMap::from([(first_id, first), (second_id, second), (other_id, other)]),
+        vec![],
+    );
+
+    let infos: Vec<_> = RpcIndexes::owned_objects_iter(&store, owner, Some(GasCoin::type_()), None)
+        .expect("owned-object iterator should build")
+        .map(|result| result.expect("owned-object entry should decode"))
+        .collect();
+    assert_eq!(infos.len(), 2);
+    assert!(infos[0].object_id < infos[1].object_id);
+    assert!(infos.iter().all(|info| info.owner == owner));
+    assert!(infos.iter().all(|info| info.balance == Some(1_000_000)));
+
+    let wrong_type = "0x2::clock::Clock".parse::<StructTag>().unwrap();
+    assert_eq!(
+        RpcIndexes::owned_objects_iter(&store, owner, Some(wrong_type), None)
+            .expect("owned-object iterator should build")
+            .count(),
+        0,
+    );
+
+    let page_from_cursor: Vec<_> = RpcIndexes::owned_objects_iter(
+        &store,
+        owner,
+        Some(GasCoin::type_()),
+        Some(infos[1].clone()),
+    )
+    .expect("owned-object iterator should build")
+    .map(|result| result.expect("owned-object entry should decode"))
+    .collect();
+    assert_eq!(page_from_cursor.len(), 1);
+    assert_eq!(page_from_cursor[0].object_id, infos[1].object_id);
+}
+
+#[test]
+fn test_cloned_store_shares_owned_object_snapshot_guard() {
+    let (_temp, mut store) = test_data_store();
+    let owner = HaneulAddress::random_for_testing_only();
+    let object_id = ObjectID::random();
+    let object = make_gas_object(object_id, 1, Owner::AddressOwner(owner));
+    store.update_objects(BTreeMap::from([(object_id, object)]), vec![]);
+
+    let reader = store.clone();
+    let local_snapshot_guard = store
+        .write_local_snapshot()
+        .expect("snapshot lock should not be poisoned");
+    assert!(
+        reader.inner.local_snapshot_lock.try_read().is_err(),
+        "cloned stores should share the same snapshot guard",
+    );
+    drop(local_snapshot_guard);
+
+    let infos: Vec<_> =
+        RpcIndexes::owned_objects_iter(&reader, owner, Some(GasCoin::type_()), None)
+            .expect("owned-object iterator should build")
+            .map(|result| result.expect("owned-object entry should decode"))
+            .collect();
+    assert_eq!(infos.len(), 1);
+    assert_eq!(infos[0].object_id, object_id);
 }

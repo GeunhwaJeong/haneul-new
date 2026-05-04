@@ -14861,6 +14861,7 @@ dependencies = [
  "tonic-prost",
  "tracing",
  "tracing-subscriber",
+ "typed-store-error",
  "wiremock",
 ]
 
