@@ -24,7 +24,7 @@ use haneul_move_natives::{
     NativesCostTable, object_runtime::ObjectRuntime, test_scenario::InMemoryTestStore,
     transaction_context::TransactionContext,
 };
-use haneul_package_alt::find_environment;
+use haneul_package_alt::{HaneulFlavor, find_environment};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::{
@@ -56,6 +56,7 @@ impl Test {
         path: Option<&Path>,
         mut build_config: BuildConfig,
         wallet: &WalletContext,
+        flavor: HaneulFlavor,
     ) -> anyhow::Result<UnitTestResult> {
         let compute_coverage = self.test.compute_coverage;
         if !cfg!(feature = "tracing") && compute_coverage {
@@ -94,6 +95,7 @@ impl Test {
             Some(unit_test_config),
             compute_coverage,
             save_disassembly,
+            flavor,
         )
         .await
     }
@@ -107,19 +109,20 @@ pub async fn run_move_unit_tests(
     config: Option<UnitTestingConfig>,
     compute_coverage: bool,
     save_disassembly: bool,
+    flavor: HaneulFlavor,
 ) -> anyhow::Result<UnitTestResult> {
     let config = config.unwrap_or_else(|| {
         UnitTestingConfig::default_with_bound(Some(*MAX_UNIT_TEST_INSTRUCTIONS))
     });
 
-    let result = move_cli::base::test::run_move_unit_tests::<haneul_package_alt::HaneulFlavor, _, _>(
+    let result = move_cli::base::test::run_move_unit_tests(
         path,
         build_config,
         UnitTestingConfig {
             report_stacktrace_on_abort: true,
             ..config
         },
-        haneul_package_alt::HaneulFlavor::new(),
+        flavor,
         HaneulVMTestSetup::new(),
         compute_coverage,
         save_disassembly,

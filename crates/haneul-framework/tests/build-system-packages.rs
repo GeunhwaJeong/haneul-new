@@ -14,7 +14,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use haneul_move_build::BuildConfig;
-use haneul_package_alt::mainnet_environment;
+use haneul_package_alt::{HaneulFlavor, mainnet_environment};
 
 const CRATE_ROOT: &str = env!("CARGO_MANIFEST_DIR");
 const COMPILED_PACKAGES_DIR: &str = "packages_compiled";
@@ -156,6 +156,7 @@ async fn build_packages_with_move_config(
         run_bytecode_verifier: true,
         print_diags_to_stderr: false,
         environment: mainnet_environment(), // Framework pkg addr is agnostic to chain, resolves from Move.toml
+        flavor: HaneulFlavor::new(),
     }
     .build_async(stdlib_path)
     .await
@@ -165,6 +166,7 @@ async fn build_packages_with_move_config(
         run_bytecode_verifier: true,
         print_diags_to_stderr: false,
         environment: mainnet_environment(), // Framework pkg addr is agnostic to chain, resolves from Move.toml
+        flavor: HaneulFlavor::new(),
     }
     .build_async(haneul_framework_path)
     .await
@@ -174,6 +176,7 @@ async fn build_packages_with_move_config(
         run_bytecode_verifier: true,
         print_diags_to_stderr: false,
         environment: mainnet_environment(), // Framework pkg addr is agnostic to chain, resolves from Move.toml
+        flavor: HaneulFlavor::new(),
     }
     .build_async(haneul_system_path)
     .await
@@ -183,6 +186,7 @@ async fn build_packages_with_move_config(
         run_bytecode_verifier: true,
         print_diags_to_stderr: false,
         environment: mainnet_environment(), // Framework pkg addr is agnostic to chain, resolves from Move.toml
+        flavor: HaneulFlavor::new(),
     }
     .build_async(deepbook_path)
     .await
@@ -192,6 +196,7 @@ async fn build_packages_with_move_config(
         run_bytecode_verifier: true,
         print_diags_to_stderr: false,
         environment: mainnet_environment(), // Framework pkg addr is agnostic to chain, resolves from Move.toml
+        flavor: HaneulFlavor::new(),
     }
     .build_async(bridge_path)
     .await

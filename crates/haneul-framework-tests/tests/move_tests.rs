@@ -9,6 +9,7 @@ use move_unit_test::UnitTestingConfig;
 use haneul_framework_tests::setup_examples;
 use haneul_move::unit_test::{MAX_UNIT_TEST_INSTRUCTIONS, run_move_unit_tests};
 use haneul_move_build::BuildConfig;
+use haneul_package_alt::HaneulFlavor;
 
 pub(crate) const EXAMPLES: &str = "../../examples";
 pub(crate) const FRAMEWORK: &str = "../haneul-framework/packages";
@@ -81,9 +82,16 @@ pub(crate) async fn tests(path: &Path) -> datatest_stable::Result<()> {
     testing_config.filter = std::env::var("FILTER").ok().map(|s| s.to_string());
 
     assert_eq!(
-        run_move_unit_tests(path, move_config, Some(testing_config), false, false)
-            .await
-            .unwrap(),
+        run_move_unit_tests(
+            path,
+            move_config,
+            Some(testing_config),
+            false,
+            false,
+            HaneulFlavor::new()
+        )
+        .await
+        .unwrap(),
         UnitTestResult::Success
     );
 

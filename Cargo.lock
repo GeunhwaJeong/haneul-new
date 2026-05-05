@@ -14923,6 +14923,7 @@ dependencies = [
  "haneul-framework",
  "haneul-move",
  "haneul-move-build",
+ "haneul-package-alt",
  "haneul-protocol-config",
  "haneul-types",
  "haneul-verifier-latest",
@@ -16168,9 +16169,12 @@ dependencies = [
  "move-package-alt",
  "serde",
  "haneul-package-management",
+ "haneul-protocol-config",
+ "haneul-rpc-api",
  "haneul-sdk",
  "tempfile",
- "toml 0.7.4",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]

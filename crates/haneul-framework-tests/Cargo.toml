@@ -21,6 +21,7 @@ prometheus.workspace = true
 haneul-framework.workspace = true
 haneul-move.workspace = true
 haneul-move-build.workspace = true
+haneul-package-alt.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
 

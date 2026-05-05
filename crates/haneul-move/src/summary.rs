@@ -49,15 +49,11 @@ impl Summary {
         self,
         path: Option<&Path>,
         build_config: BuildConfig,
+        flavor: HaneulFlavor,
         haneul_package_metadata: PackageSummaryMetadata,
     ) -> anyhow::Result<()> {
         self.summary
-            .execute(
-                path,
-                build_config,
-                HaneulFlavor::new(),
-                Some(&haneul_package_metadata),
-            )
+            .execute(path, build_config, flavor, Some(&haneul_package_metadata))
             .await
     }
 }

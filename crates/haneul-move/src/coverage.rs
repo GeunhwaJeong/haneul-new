@@ -19,10 +19,9 @@ impl Coverage {
         self,
         path: Option<&Path>,
         build_config: BuildConfig,
+        flavor: HaneulFlavor,
     ) -> anyhow::Result<()> {
-        self.coverage
-            .execute(path, build_config, HaneulFlavor::new())
-            .await?;
+        self.coverage.execute(path, build_config, flavor).await?;
         Ok(())
     }
 }
