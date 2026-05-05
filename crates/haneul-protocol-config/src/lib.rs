@@ -325,6 +325,7 @@ const TESTNET_USDC: &str =
 //              Enable defer_unpaid_amplification on mainnet.
 // Version 123: Add timestamp_based_epoch_close feature flag and enable in tests.
 //              Fix native call double-pop in gas meter stack height tracking (gas_model v12).
+//              Limit public inputs in groth16::prepare_verifying_key.
 
 #[derive(Copy, Clone, Debug, Hash, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ProtocolVersion(u64);
@@ -1076,6 +1077,11 @@ struct FeatureFlags {
     // fallback for manual epoch close.
     #[serde(skip_serializing_if = "is_false")]
     timestamp_based_epoch_close: bool,
+
+    // If true, groth16::prepare_verifying_key checks that the verifying key has no more than
+    // MAX_PUBLIC_INPUTS public inputs.
+    #[serde(skip_serializing_if = "is_false")]
+    limit_groth16_pvk_inputs: bool,
 }
 
 fn is_false(b: &bool) -> bool {
@@ -2802,6 +2808,10 @@ impl ProtocolConfig {
 
     pub fn timestamp_based_epoch_close(&self) -> bool {
         self.feature_flags.timestamp_based_epoch_close
+    }
+
+    pub fn limit_groth16_pvk_inputs(&self) -> bool {
+        self.feature_flags.limit_groth16_pvk_inputs
     }
 }
 
@@ -4882,6 +4892,7 @@ impl ProtocolConfig {
                         cfg.feature_flags.timestamp_based_epoch_close = true;
                     }
                     cfg.gas_model_version = Some(12);
+                    cfg.feature_flags.limit_groth16_pvk_inputs = true;
                 }
                 // Use this template when making changes:
                 //
