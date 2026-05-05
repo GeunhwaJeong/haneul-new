@@ -143,11 +143,6 @@ impl DataStore {
         self.inner.gql.chain()
     }
 
-    #[cfg(test)]
-    pub(crate) fn local(&self) -> &FilesystemStore {
-        &self.inner.local
-    }
-
     fn read_local_snapshot(&self) -> StorageResult<RwLockReadGuard<'_, ()>> {
         self.inner
             .local_snapshot_lock
@@ -160,6 +155,14 @@ impl DataStore {
             .local_snapshot_lock
             .write()
             .map_err(|_| anyhow!("local snapshot lock poisoned"))
+    }
+
+    pub(crate) fn gql(&self) -> &GraphQLClient {
+        &self.inner.gql
+    }
+
+    pub(crate) fn local(&self) -> &FilesystemStore {
+        &self.inner.local
     }
 
     /// Get a checkpoint summary by sequence number. Tries the local filesystem first. If it's a
@@ -628,26 +631,23 @@ impl DataStore {
     /// local store, and if so convert it to `OwnedObjectInfo`. This guards against stale index
     /// entries that point to objects that have been deleted or wrapped by later transactions.
     fn valid_owned_object_info(&self, entry: OwnedObjectEntry) -> Option<OwnedObjectInfo> {
-        let object = self
-            .inner
-            .local
-            .get_latest_object(&entry.object_id)
-            .ok()??;
-        if object.version() != entry.version {
-            return None;
-        }
-        if object.owner != haneul_types::object::Owner::AddressOwner(entry.owner) {
-            return None;
-        }
-        let object_type = object.struct_tag()?;
-        if object_type != entry.object_type {
-            return None;
+        if let Some(object) = self.local().get_latest_object(&entry.object_id).ok()? {
+            if object.version() != entry.version {
+                return None;
+            }
+            if object.owner != haneul_types::object::Owner::AddressOwner(entry.owner) {
+                return None;
+            }
+            let object_type = object.struct_tag()?;
+            if object_type != entry.object_type {
+                return None;
+            }
         }
 
         Some(OwnedObjectInfo {
             owner: entry.owner,
-            object_type,
-            balance: object.as_coin_maybe().map(|coin| coin.value()),
+            object_type: entry.object_type,
+            balance: entry.balance,
             object_id: entry.object_id,
             version: entry.version,
         })
@@ -1173,7 +1173,8 @@ impl RpcStateReader for DataStore {
 
 impl RpcIndexes for DataStore {
     fn get_epoch_info(&self, _epoch: EpochId) -> StorageResult<Option<EpochInfo>> {
-        todo!("not supported yet")
+        // TODO: For now, we don't really need it. To be added later
+        StorageResult::Ok(None)
     }
 
     fn owned_objects_iter(

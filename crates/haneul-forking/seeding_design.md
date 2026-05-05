@@ -39,6 +39,8 @@ the checkpoint must be within the last 1h.
 When restarting a fork with the same `--data-dir` and `--checkpoint`, the existing
 seeding information that is stored on disk will be reused. If `--address` or `--object` is
 provided, the tool will error with a message indicating that a seed manifest already exists.
+The durable owned-object index and local deleted markers remain authoritative over the manifest
+after the fork has executed local transactions.
 
 ## Generated files
 
@@ -56,7 +58,8 @@ One file is written to `{data_dir}/{network}/forked_at_{checkpoint}/`:
             "version": 42,
             "digest": "...",
             "owner": "0x...",
-            "object_type": "0x2::coin::Coin<0x2::haneul::HANEUL>"
+            "object_type": "0x2::coin::Coin<0x2::haneul::HANEUL>",
+            "balance": 1000000
         }
     ]
 }
@@ -76,7 +79,11 @@ Seed resolution:
 
 ## GraphQL queries
 
-### Address-owned objects query (new)
+### Address-owned objects query
+
+`src/gql/queries.rs` owns the checkpoint-scoped address query. The seed module
+calls `GraphQLClient::get_address_owned_objects_at_checkpoint()` and does not
+construct raw GraphQL requests.
 
 Uses `Checkpoint.query` scoping (same pattern as `VersionAtCheckpointQuery`):
 
@@ -92,9 +99,11 @@ query($sequenceNumber: UInt53, $address: HaneulAddress!, $first: Int, $after: St
             digest
             owner {
               ... on AddressOwner { address { address } }
-              ... on ConsensusAddressOwner { address { address } }
             }
-            contents { type { repr } }
+            contents {
+              type { repr }
+              json
+            }
           }
           pageInfo { hasNextPage endCursor }
         }
@@ -106,7 +115,9 @@ query($sequenceNumber: UInt53, $address: HaneulAddress!, $first: Int, $after: St
 
 - Page size: 50
 - Paginate with cursor loop (same pattern as `events_query`)
-- Only collect `AddressOwner` and `ConsensusAddressOwner` entries -- not really sure about ConsensusAddressOwner, probably we don't need it.
+- Only collect `AddressOwner` entries. Other owner variants are handled by the
+  query fallback and skipped; they are not usable as address-owned gas/input
+  objects for the initial index.
 
 ### Individual objects (reuse existing)
 
@@ -123,10 +134,11 @@ digest) from the deserialized `Object` for the `SeedEntry`.
 #[derive(Serialize, Deserialize)]
 struct SeedEntry {
     object_id: ObjectID,
-    version: u64,
-    digest: String,
+    version: SequenceNumber,
+    digest: ObjectDigest,
     owner: HaneulAddress,
-    object_type: String,
+    object_type: StructTag,
+    balance: Option<u64>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -159,24 +171,31 @@ async fn resolve_seeds(
 4. Merge, dedup by `object_id`
 5. Return `SeedManifest`
 
-## Composition with owned_objects_design.md (Option B)
+## Composition with owned_objects_design.md
 
-The seed manifest is the "virtual live set" for pre-fork objects.
-Post-fork mutations are tracked via `live` markers + BCS files.
+The seed manifest is the immutable pre-fork baseline. The durable
+`indices/owned_objects` file and object tombstones are the current local state
+once the fork has started executing.
 
 **Index rebuild on startup** (two sources):
-1. `seed_manifest.json` entries → baseline owner index entries
-2. `objects/*/live` markers → post-fork mutations that override/extend seed state
+1. If `indices/owned_objects` exists, use it as-is and do not rewrite it from the manifest.
+2. If the index is missing and the fork has not advanced past the fork checkpoint, initialize it
+   from `seed_manifest.json`.
+3. If the index is missing but local checkpoints are newer than the fork checkpoint, fail closed
+   instead of rebuilding stale seed state over local mutations.
 
 **When a seeded object is first accessed** (e.g., as tx input):
 - `get_object_from_remote()` fetches full BCS, writes to disk
-- `update_objects()` creates `live` marker + updates index in-place
+- the owned index entry can already satisfy default owned-object listing, while object-loading
+  read masks fetch BCS lazily
 
 **When a seeded object is deleted/mutated post-fork**:
-- `update_objects()` removes old index entry (from seed), adds new one or removes `live` marker
+- `update_objects()` removes the old index entry, adds the new address-owned entry, or removes the
+  entry for wrapped/shared/immutable/object-owned transitions
+- local deleted markers prevent current-object reads from falling back to the remote endpoint
 
-**Key invariant**: Seed manifest is immutable after creation. Post-fork state
-tracked entirely through `live` markers.
+**Key invariant**: Seed manifest is immutable after creation. Post-fork state is tracked entirely
+through the durable owned-object index, object BCS files, and deleted markers.
 
 ## Edge cases
 
@@ -191,8 +210,8 @@ tracked entirely through `live` markers.
 
 | File | Action |
 |------|--------|
-| `src/seed.rs` | New — types, resolution logic, file I/O |
-| `src/gql/queries.rs` | Modify — new `address_objects_query` module |
+| `src/seed.rs` | New — types, seed policy, manifest/index initialization |
+| `src/gql/queries.rs` | Modify — new `address_owned_objects_query` module |
 | `src/cli.rs` | Modify — three new CLI args on Start |
 | `src/startup.rs` | Modify — wire seeding into initialize() |
 | `src/filesystem.rs` | Modify — seed manifest read/write |
