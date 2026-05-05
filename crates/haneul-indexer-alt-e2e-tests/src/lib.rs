@@ -49,6 +49,7 @@ use haneul_indexer_alt_reader::kv_loader::KvArgs;
 use haneul_indexer_alt_reader::system_package_task::SystemPackageTaskArgs;
 use haneul_kv_rpc::KvRpcServer;
 use haneul_kvstore::ALL_PIPELINE_NAMES;
+use haneul_kvstore::ALPHA_PIPELINE_NAMES;
 use haneul_kvstore::BigTableClient;
 use haneul_kvstore::BigTableIndexer;
 use haneul_kvstore::BigTableStore;
@@ -848,6 +849,7 @@ async fn start_archival(
         BtIndexerConfig::default(),
         PipelineLayer::default(),
         Chain::Unknown,
+        &ALPHA_PIPELINE_NAMES,
         registry,
     )
     .await
