@@ -4,7 +4,7 @@
 use anyhow::Result;
 use clap::Parser;
 
-use haneul_forking::cli::Cli;
+use haneul_fork::cli::Cli;
 
 bin_version::bin_version!();
 

@@ -10,9 +10,10 @@ use clap::Parser;
 use clap::Subcommand;
 use reqwest::Url;
 use serde::Serialize;
+use tracing::info;
+
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
-use tracing::info;
 
 use crate::AdvanceCheckpointRequest;
 use crate::AdvanceClockRequest;
@@ -26,7 +27,7 @@ use crate::seed::SeedInput;
 pub const DEFAULT_RPC_ADDR: &str = "127.0.0.1:9000";
 
 #[derive(Parser)]
-#[command(name = "haneul-forking", about = "Fork and interact with a Haneul network")]
+#[command(name = "haneul-fork", about = "Fork and interact with a Haneul network")]
 pub struct Cli {
     /// Output results as JSON
     #[arg(long = "json", global = true)]
@@ -351,7 +352,7 @@ mod tests {
     #[test]
     fn client_commands_accept_default_rpc_addr() {
         for command in ["advance-clock", "advance-checkpoint", "status"] {
-            let cli = Cli::try_parse_from(["haneul-forking", command]).unwrap();
+            let cli = Cli::try_parse_from(["haneul-fork", command]).unwrap();
             let rpc_addr = match cli.command {
                 Command::AdvanceClock { rpc_addr, .. }
                 | Command::AdvanceCheckpoint { rpc_addr }

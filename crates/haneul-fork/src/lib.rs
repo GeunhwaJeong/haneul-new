@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-//! Building blocks for the experimental `haneul-forking` tool.
+//! Building blocks for the experimental `haneul-fork` tool.
 
 #![allow(unused)]
 

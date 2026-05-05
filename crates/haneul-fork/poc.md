@@ -1,6 +1,6 @@
 # Forking Tool Design, Implementation, & PR execution - POC
 
-`haneul-forking` allows developers to start a local network in lock-step mode and execute transactions against some initial state derived from the live Haneul network. This enables you to:
+`haneul-fork` allows developers to start a local network in lock-step mode and execute transactions against some initial state derived from the live Haneul network. This enables you to:
 
 - Depend on existing on-chain packages and data
 - Test contracts that interact with real deployed packages
@@ -39,7 +39,8 @@ Under the hood, the tool uses `simulacrum` to manage the state of the network an
 
 When a transaction execution request comes in from gRPC, it will be routed by the gRPC API and passed to the `simulacrum`. Before executing the transaction, there are a few more steps needed to successfully execute the transaction:
 - fetch any missing input objects (this delegates fetching data to the data-layer)
-- sign the transaction with a dummy private key (allows for impersonating senders)
+- if the transaction has an empty signature list, execute it through the explicit sender
+  impersonation path
 - execute the transaction and get back the effects
 - create a checkpoint
 - notifies subscription service subscribers (needed for Haneul CLI integration)
@@ -119,7 +120,7 @@ The `network` identifier is defined as `mainnet`, `testnet`, or a custom one `cu
 Start a local forked network at the latest checkpoint:
 
 ```bash
-haneul-forking start --network testnet
+haneul-fork start --network testnet
 ```
 
 This command:
@@ -141,12 +142,12 @@ The command accepts a checkpoint to fork from. This must not larger than the lat
 
 ### POC CLI
 
-The forking tool provides a CLI to interact with the forking-server for various actions. In addition to the `haneul-forking start` command explained previously, there are a few other commands available:
+The forking tool provides a CLI to interact with the forking-server for various actions. In addition to the `haneul-fork start` command explained previously, there are a few other commands available:
 
 **Advance Checkpoint**
 
 ```bash
-haneul-forking advance-checkpoint
+haneul-fork advance-checkpoint
 ```
 
 Advances the checkpoint of the local network by 1.
@@ -154,7 +155,7 @@ Advances the checkpoint of the local network by 1.
 **Advance Clock**
 
 ```bash
-haneul-forking advance-clock [--milliseconds <ms>]
+haneul-fork advance-clock [--milliseconds <ms>]
 ```
 
 Advances the clock of the local network by 1 millisecond, or by the specified amount of milliseconds if the `--milliseconds` flag is provided.
@@ -162,7 +163,7 @@ Advances the clock of the local network by 1 millisecond, or by the specified am
 **Check Status**
 
 ```bash
-haneul-forking status
+haneul-fork status
 ```
 
 Shows the current checkpoint, epoch, and timestamp.

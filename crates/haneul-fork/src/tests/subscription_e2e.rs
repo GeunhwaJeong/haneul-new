@@ -84,7 +84,7 @@ impl ServerHarness {
 
         let reader: Arc<dyn RpcStateReader> = Arc::new(data_store);
         let mut service = RpcService::new(reader);
-        service.with_server_version(ServerVersion::new("haneul-forking", "test"));
+        service.with_server_version(ServerVersion::new("haneul-fork", "test"));
         service.with_subscription_service(subscription_handle);
         service.with_executor(Arc::new(ForkedTransactionExecutor::new(context.clone())));
         service.with_custom_service(ForkingServiceServer::new(ForkingServiceImpl::new(

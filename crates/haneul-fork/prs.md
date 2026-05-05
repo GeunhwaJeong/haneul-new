@@ -2,7 +2,7 @@
 
 ## Forking PR1
 
-- this should have the minimal `haneul-forking` crate
+- this should have the minimal `haneul-fork` crate
 - Cargo.toml
 - main.rs
 - [README.md](http://README.md) file
@@ -14,16 +14,16 @@
 - implement fetching verified checkpoint data from graphql
 - set up some testing infrastructure for it
 
-## Forking PR3 -> implement store in haneul-forking crate with support for checkpoint and object data
-- implement a store in haneul-forking crate that has APIs for fetching data from RPC, and local data through a filesystem API.
-- migrate forking-data-store into haneul-forking crate, and remove the old crate
+## Forking PR3 -> implement store in haneul-fork crate with support for checkpoint and object data
+- implement a store in haneul-fork crate that has APIs for fetching data from RPC, and local data through a filesystem API.
+- migrate forking-data-store into haneul-fork crate, and remove the old crate
 
 ## Forking PR4 -> forked network startup
 - instantiate the store and wire it up to simulacrum
 - start up the forked network service
 
 ## Forking PR5 -> implement transaction execution
-- implement transaction execution logic in haneul-forking & related gRPC APIs
+- implement transaction execution logic in haneul-fork & related gRPC APIs
 
 Future PRs: TBD (probably a PR per line below)
 - implement simulate transaction API

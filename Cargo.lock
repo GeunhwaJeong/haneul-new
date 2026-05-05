@@ -14829,7 +14829,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "haneul-forking"
+name = "haneul-fork"
 version = "1.72.0"
 dependencies = [
  "anyhow",

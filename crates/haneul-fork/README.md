@@ -10,7 +10,7 @@ A development tool that enables testing and developing against a local Haneul ne
 
 ## Overview
 
-`haneul-forking` allows developers to start a local network in lock-step mode and execute transactions against some initial state derived from the live Haneul network. This enables you to:
+`haneul-fork` allows developers to start a local network in lock-step mode and execute transactions against some initial state derived from the live Haneul network. This enables you to:
 
 - Depend on existing on-chain packages and data
 - Test contracts that interact with real deployed packages
@@ -21,11 +21,21 @@ A development tool that enables testing and developing against a local Haneul ne
 Unlike a standard local Haneul network with validators, the forking tool runs in lock-step mode where each transaction is executed sequentially and creates a checkpoint.
 That means that you have full control over the advancement of checkpoints, time, and epochs to simulate different scenarios.
 
+## Impersonating Senders
+
+The Haneul CLI supports `--forking-mode` on transaction commands such as
+`haneul client upgrade`. This flag is only intended for local forked networks. It
+submits the transaction with an empty signature list, which tells the forked
+network to execute the transaction as the declared sender without requiring that
+sender's private key.
+
+Transactions with non-empty signatures still use normal signature verification.
+
 ## Forked Network vs Haneul CLI Local Network
 
 The table below summarizes when to use each option:
 
-| Topic | Local forked network (`haneul-forking`) | Haneul CLI local network |
+| Topic | Local forked network (`haneul-fork`) | Haneul CLI local network |
 | --- | --- | --- |
 | Initial state | Starts from real chain state (mainnet/testnet/devnet) at a chosen checkpoint | Starts from a fresh genesis state (or from an existing one on disk) |
 | Existing on-chain packages and objects | Available from the fork point (fetched/cached on demand) | Not available unless you deploy/create them locally |
@@ -41,7 +51,7 @@ The table below summarizes when to use each option:
 Owned-object enumeration can be seeded when starting the fork:
 
 ```bash
-haneul-forking start --checkpoint 12345678 --address 0x... --object 0x...
+haneul-fork start --checkpoint 12345678 --address 0x... --object 0x...
 ```
 
 - `--address` is repeatable and seeds metadata for every object owned by that
