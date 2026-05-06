@@ -41,12 +41,18 @@ if [ -z "$INSTA_UPDATE" ]; then
     export INSTA_UPDATE
 fi
 
-UPDATE=1 cargo test -p haneul-framework --test build-system-packages
-cd "$ROOT/crates/haneul-protocol-config" && cargo insta test
-cd "$ROOT/crates/haneul-swarm-config" && cargo insta test
-cd "$ROOT/crates/haneul-open-rpc" && cargo insta test
-cd "$ROOT/crates/haneul-core" && cargo insta test -- snapshot_tests
-cd "$ROOT/crates/haneul-types" && cargo insta test
-cd "$ROOT/crates/haneul-indexer-alt-graphql" && cargo insta test -- test_schema_sdl_export
-cd "$ROOT/crates/haneul-indexer-alt-graphql" && cargo insta test --features staging -- test_schema_sdl_export
+# This technically should be pulling from `.config/insta.yaml`, but we set the test runner again
+# here to be safe and explicit.
+INSTA=(cargo insta test --test-runner nextest --no-test-runner-fallback)
+
+cd "$ROOT"
+UPDATE=1 cargo nextest run -p haneul-framework --test build-system-packages
+"${INSTA[@]}" \
+    -p haneul-protocol-config \
+    -p haneul-swarm-config \
+    -p haneul-open-rpc \
+    -p haneul-types
+"${INSTA[@]}" -p haneul-core -- snapshot_tests
+"${INSTA[@]}" -p haneul-indexer-alt-graphql -- test_schema_sdl_export
+"${INSTA[@]}" --features staging -p haneul-indexer-alt-graphql -- test_schema_sdl_export
 exit 0
