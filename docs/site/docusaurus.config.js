@@ -451,7 +451,7 @@ const config = {
               { type: "doc", docId: "haneul-stack/on-chain-primitives/randomness-onchain", label: "Onchain Randomness" },
               { type: "doc", docId: "haneul-stack/on-chain-primitives/access-time", label: "Onchain Time" },
               { type: "doc", docId: "haneul-stack/sagat", label: "Sagat" },
-              { type: "doc", docId: "haneul-stack/indexer-walrus", label: "Walrus" },
+              { type: "doc", docId: "haneul-stack/walrus-seal/index", label: "Walrus and Seal" },
               { type: "doc", docId: "haneul-stack/nautilus/index", label: "Nautilus" },
               { type: "doc", docId: "haneul-stack/zklogin-integration/index", label: "zkLogin" },
               { type: "doc", docId: "haneul-stack/haneulplay0x1/index", label: "HaneulPlay0X1" },

@@ -479,7 +479,16 @@ export default {
     'haneul-stack/on-chain-primitives/access-time',
     'haneul-stack/on-chain-primitives/randomness-onchain',
     'haneul-stack/sagat',
-    'haneul-stack/indexer-walrus',
+    {
+      type: 'category',
+      label: 'Walrus and Seal',
+      link: { type: 'doc', id: 'haneul-stack/walrus-seal/index' },
+      items: [
+        'haneul-stack/walrus-seal/haneul-stack-walrus',
+        'haneul-stack/walrus-seal/haneul-stack-seal',
+        'haneul-stack/walrus-seal/indexer-walrus',
+      ],
+    },
     {
       type: 'category',
       label: 'Nautilus',
