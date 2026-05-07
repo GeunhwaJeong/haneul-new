@@ -46,6 +46,12 @@ https://github.com/GeunhwaJeong/ts-sdks/blob/main/packages/deepbook-v3/src/utils
 
 To work with DeepBook Margin, use the client extension to add DeepBook functionality to a Haneul client. The [Haneul TypeScript SDK](https://sdk.haneul-labs.com/typescript) provides the `HaneulGrpcClient` and key functionality necessary to process transactions. The following example imports those libraries, as well.
 
+:::info
+
+The code examples in this section use Haneul Foundation-managed RPC endpoints for illustration purposes. For production use, replace the `baseUrl` value with your own RPC provider endpoint.
+
+:::
+
 ```tsx
 import { deepbook, type DeepBookClient } from '@haneullabs/deepbook-v3';
 import type { ClientWithExtensions } from '@haneullabs/haneul/client';

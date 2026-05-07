@@ -1,6 +1,6 @@
-```sh
 Client for interacting with the Haneul network
 
+```sh
 Usage: haneul client [OPTIONS] [COMMAND]
 
 Commands:
@@ -36,6 +36,9 @@ Commands:
   pay-all-haneul                 Pay all residual HANEUL coins to the recipient with input coins,
                                   after deducting the gas cost. The input coins also include the
                                   coin for gas payment, so no extra gas coin is required
+  send-funds                  Send funds to an address balance using the haneul::coin::send_funds
+                                  API. This sends funds to the recipient's address balance (not as a
+                                  coin object)
   pay-haneul                     Pay HANEUL coins to recipients following specified amounts, with
                                   input coins. Length of recipients must be the same as that of
                                   amounts. The input coins also include the coin for gas payment, so
