@@ -327,6 +327,12 @@ const TESTNET_USDC: &str =
 // Version 124: Add timestamp_based_epoch_close feature flag and enable in tests.
 //              Fix native call double-pop in gas meter stack height tracking (gas_model v14).
 //              Limit public inputs in groth16::prepare_verifying_key.
+//              Enable address balances, free tier (gasless), and coin reservations on mainnet.
+//              Enables enable_accumulators, enable_address_balance_gas_payments,
+//              enable_authenticated_event_streams, enable_coin_reservation_obj_refs,
+//              enable_object_funds_withdraw, convert_withdrawal_compatibility_ptb_arguments,
+//              split_checkpoints_in_consensus_handler, include_checkpoint_artifacts_digest_in_summary,
+//              and enable_gasless on mainnet to bring it in line with testnet.
 
 #[derive(Copy, Clone, Debug, Hash, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ProtocolVersion(u64);
@@ -4897,6 +4903,30 @@ impl ProtocolConfig {
                     }
                     cfg.gas_model_version = Some(14);
                     cfg.feature_flags.limit_groth16_pvk_inputs = true;
+
+                    // Bring mainnet in line with testnet: enable address balances, the
+                    // gasless "free tier", coin reservations, and the rest of the
+                    // accumulator/withdraw stack. These are all already enabled on
+                    // testnet and devnet, so setting them unconditionally is a no-op
+                    // there.
+                    cfg.feature_flags.enable_accumulators = true;
+                    cfg.feature_flags.enable_address_balance_gas_payments = true;
+                    cfg.feature_flags.enable_authenticated_event_streams = true;
+                    cfg.feature_flags.enable_coin_reservation_obj_refs = true;
+                    cfg.feature_flags.enable_object_funds_withdraw = true;
+                    cfg.feature_flags
+                        .convert_withdrawal_compatibility_ptb_arguments = true;
+                    cfg.feature_flags.split_checkpoints_in_consensus_handler = true;
+                    cfg.feature_flags
+                        .include_checkpoint_artifacts_digest_in_summary = true;
+                    cfg.feature_flags.enable_gasless = true;
+
+                    // Initialize the mainnet allow-list to empty. Testnet already has
+                    // its USDC entry from v119, so only set this on mainnet to avoid
+                    // clobbering the testnet value.
+                    if chain == Chain::Mainnet {
+                        cfg.gasless_allowed_token_types = Some(vec![]);
+                    }
                 }
                 // Use this template when making changes:
                 //
