@@ -119,6 +119,8 @@
 ### Develop/Transaction Payment
 - [Gas In Haneul](https://docs.haneul.io/develop/transaction-payment/gas-in-haneul.md)
 - [Gas Smashing](https://docs.haneul.io/develop/transaction-payment/gas-smashing.md)
+- [Gasless Stablecoin
+    Transfers](https://docs.haneul.io/develop/transaction-payment/gasless-stablecoin-transfers.md)
 - [Transaction Payment Index](https://docs.haneul.io/develop/transaction-payment/index.md)
 - [Local Fee Markets](https://docs.haneul.io/develop/transaction-payment/local-fee-markets.md)
 - [Sponsor Txn](https://docs.haneul.io/develop/transaction-payment/sponsor-txn.md)
@@ -153,6 +155,19 @@
 - [Getting Started](https://docs.haneul.io/getting-started.md)
 - [Dev Cheat Sheet](https://docs.haneul.io/getting-started/dev-cheat-sheet.md)
 
+### Getting Started/Examples
+- [Capability Pattern](https://docs.haneul.io/getting-started/examples/capability-pattern.md)
+- [Dapp Kit Frontend](https://docs.haneul.io/getting-started/examples/dapp-kit-frontend.md)
+- [Derived Objects](https://docs.haneul.io/getting-started/examples/derived-objects.md)
+- [Event Indexer](https://docs.haneul.io/getting-started/examples/event-indexer.md)
+- [First Dapp](https://docs.haneul.io/getting-started/examples/first-dapp.md)
+- [Examples Index](https://docs.haneul.io/getting-started/examples/index.md)
+- [Lootbox Ctf](https://docs.haneul.io/getting-started/examples/lootbox-ctf.md)
+- [Merchant Ctf](https://docs.haneul.io/getting-started/examples/merchant-ctf.md)
+- [Plinko](https://docs.haneul.io/getting-started/examples/plinko.md)
+- [Scenario Testing](https://docs.haneul.io/getting-started/examples/scenario-testing.md)
+- [Staking Ctf](https://docs.haneul.io/getting-started/examples/staking-ctf.md)
+
 ### Getting Started/Onboarding
 - [App Frontends](https://docs.haneul.io/getting-started/onboarding/app-frontends.md)
 - [Configure Haneul Client](https://docs.haneul.io/getting-started/onboarding/configure-haneul-client.md)
@@ -173,9 +188,13 @@
 
 - [Onchain Finance](https://docs.haneul.io/onchain-finance.md)
 
-### Onchain Finance/Asset Custody
-- [Address Balance
-    Migration](https://docs.haneul.io/onchain-finance/asset-custody/address-balance-migration.md)
+### Onchain Finance/Asset Custody/Address Balances
+- [Address Balances
+    Index](https://docs.haneul.io/onchain-finance/asset-custody/address-balances/index.md)
+- [Migrate Address
+    Balances](https://docs.haneul.io/onchain-finance/asset-custody/address-balances/migrate-address-balances.md)
+- [Using Address
+    Balances](https://docs.haneul.io/onchain-finance/asset-custody/address-balances/using-address-balances.md)
 - [Asset Custody Index](https://docs.haneul.io/onchain-finance/asset-custody/index.md)
 
 ### Onchain Finance/Asset Custody/Wallets
@@ -226,6 +245,22 @@
 - [Supply
     Referral](https://docs.haneul.io/onchain-finance/deepbook-margin/contract-information/supply-referral.md)
 - [Tpsl](https://docs.haneul.io/onchain-finance/deepbook-margin/contract-information/tpsl.md)
+
+### Onchain Finance/Deepbook Predict
+- [Contract
+    Information](https://docs.haneul.io/onchain-finance/deepbook-predict/contract-information.md)
+- [Design](https://docs.haneul.io/onchain-finance/deepbook-predict/design.md)
+- [Deepbook Predict Index](https://docs.haneul.io/onchain-finance/deepbook-predict/index.md)
+
+### Onchain Finance/Deepbook Predict/Contract Information
+- [Market
+    Keys](https://docs.haneul.io/onchain-finance/deepbook-predict/contract-information/market-keys.md)
+- [Oracle](https://docs.haneul.io/onchain-finance/deepbook-predict/contract-information/oracle.md)
+- [Predict
+    Manager](https://docs.haneul.io/onchain-finance/deepbook-predict/contract-information/predict-manager.md)
+- [Predict](https://docs.haneul.io/onchain-finance/deepbook-predict/contract-information/predict.md)
+- [Registry](https://docs.haneul.io/onchain-finance/deepbook-predict/contract-information/registry.md)
+- [Vault](https://docs.haneul.io/onchain-finance/deepbook-predict/contract-information/vault.md)
 
 ### Onchain Finance/Deepbookv3
 - [Contract Information](https://docs.haneul.io/onchain-finance/deepbookv3/contract-information.md)
@@ -291,7 +326,9 @@
 - [Pas Architecture](https://docs.haneul.io/onchain-finance/pas/pas-architecture.md)
 - [Pas Workflows](https://docs.haneul.io/onchain-finance/pas/pas-workflows.md)
 - [Querying Assets](https://docs.haneul.io/onchain-finance/pas/querying-assets.md)
+- [Payment Intents](https://docs.haneul.io/onchain-finance/payment-intents.md)
 - [Payment Kit](https://docs.haneul.io/onchain-finance/payment-kit.md)
+- [Payments](https://docs.haneul.io/onchain-finance/payments.md)
 
 ### Onchain Finance/Tokenized Assets
 - [Asset Tokenization](https://docs.haneul.io/onchain-finance/tokenized-assets/asset-tokenization.md)
@@ -322,6 +359,7 @@
 - [Updates](https://docs.haneul.io/operators/full-node/updates.md)
 - [Genesis](https://docs.haneul.io/operators/genesis.md)
 - [Operators Index](https://docs.haneul.io/operators/index.md)
+- [Observability](https://docs.haneul.io/operators/observability.md)
 - [Snapshots](https://docs.haneul.io/operators/snapshots.md)
 
 ### Operators/Validator
@@ -497,6 +535,7 @@
 - [Rust Sdk](https://docs.haneul.io/references/rust-sdk.md)
 - [Haneul Api](https://docs.haneul.io/references/haneul-api.md)
 - [Rpc Best Practices](https://docs.haneul.io/references/haneul-api/rpc-best-practices.md)
+- [Generated](https://docs.haneul.io/references/haneul-api/haneul-graphql/beta/reference/generated.md)
 
 ### References/Haneul Api/Haneul Graphql/Beta/Reference/Operations/Directives
 -
@@ -1020,7 +1059,10 @@
 ## Haneul Stack
 
 - [Haneul Stack](https://docs.haneul.io/haneul-stack.md)
-- [Indexer Walrus](https://docs.haneul.io/haneul-stack/indexer-walrus.md)
+
+### Haneul Stack/Enoki
+- [Solitaire](https://docs.haneul.io/haneul-stack/enoki/solitaire.md)
+- [Ticketing Poc](https://docs.haneul.io/haneul-stack/enoki/ticketing-poc.md)
 
 ### Haneul Stack/Nautilus
 - [Community Dev Tools](https://docs.haneul.io/haneul-stack/nautilus/community-dev-tools.md)
@@ -1028,6 +1070,7 @@
 - [Nautilus Index](https://docs.haneul.io/haneul-stack/nautilus/index.md)
 - [Nautilus Design](https://docs.haneul.io/haneul-stack/nautilus/nautilus-design.md)
 - [Nautilus Overview](https://docs.haneul.io/haneul-stack/nautilus/nautilus-overview.md)
+- [Nautilus Weather Oracle](https://docs.haneul.io/haneul-stack/nautilus/nautilus-weather-oracle.md)
 - [Seal](https://docs.haneul.io/haneul-stack/nautilus/seal.md)
 - [Using Nautilus](https://docs.haneul.io/haneul-stack/nautilus/using-nautilus.md)
 
@@ -1037,6 +1080,11 @@
 - [Randomness Onchain](https://docs.haneul.io/haneul-stack/on-chain-primitives/randomness-onchain.md)
 - [Sagat](https://docs.haneul.io/haneul-stack/sagat.md)
 
+### Haneul Stack/Seal
+- [Seal Index](https://docs.haneul.io/haneul-stack/seal/index.md)
+- [Haneul Chat App](https://docs.haneul.io/haneul-stack/seal/haneul-chat-app.md)
+- [Haneul Stack Seal](https://docs.haneul.io/haneul-stack/seal/haneul-stack-seal.md)
+
 ### Haneul Stack/Haneulplay0x1
 - [Best Practices](https://docs.haneul.io/haneul-stack/haneulplay0x1/best-practices.md)
 - [Haneulplay0x1 Index](https://docs.haneul.io/haneul-stack/haneulplay0x1/index.md)
@@ -1044,8 +1092,15 @@
 - [Migration Strategies](https://docs.haneul.io/haneul-stack/haneulplay0x1/migration-strategies.md)
 - [Wallet Integration](https://docs.haneul.io/haneul-stack/haneulplay0x1/wallet-integration.md)
 
+### Haneul Stack/Walrus
+- [Walrus Index](https://docs.haneul.io/haneul-stack/walrus/index.md)
+- [Indexer Walrus](https://docs.haneul.io/haneul-stack/walrus/indexer-walrus.md)
+- [Only Fins](https://docs.haneul.io/haneul-stack/walrus/only-fins.md)
+- [Haneul Stack Walrus](https://docs.haneul.io/haneul-stack/walrus/haneul-stack-walrus.md)
+
 ### Haneul Stack/Zklogin Integration
 - [Developer Account](https://docs.haneul.io/haneul-stack/zklogin-integration/developer-account.md)
 - [Zklogin Integration Index](https://docs.haneul.io/haneul-stack/zklogin-integration/index.md)
+- [Zklogin Demo](https://docs.haneul.io/haneul-stack/zklogin-integration/zklogin-demo.md)
 - [Zklogin Example](https://docs.haneul.io/haneul-stack/zklogin-integration/zklogin-example.md)
 - [Zklogin](https://docs.haneul.io/haneul-stack/zklogin-integration/zklogin.md)

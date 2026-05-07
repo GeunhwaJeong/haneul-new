@@ -254,6 +254,23 @@ export default {
         'getting-started/onboarding/next-steps',
       ],
     },
+    {
+      type: 'category',
+      label: 'Example Apps',
+      link: { type: 'doc', id: 'getting-started/examples/index'},
+      items: [
+          'getting-started/examples/capability-pattern',
+          'getting-started/examples/dapp-kit-frontend',
+          'getting-started/examples/derived-objects',
+          'getting-started/examples/event-indexer',
+          'getting-started/examples/first-dapp',
+          'getting-started/examples/lootbox-ctf',
+          'getting-started/examples/merchant-ctf',
+          'getting-started/examples/plinko',
+          'getting-started/examples/scenario-testing',
+          'getting-started/examples/staking-ctf',
+      ]
+    },
     'getting-started/tooling',
     'getting-started/dev-cheat-sheet',
     'getting-started/haneul-for-ethereum',
@@ -474,19 +491,41 @@ export default {
 	'onchain-finance/payment-intents',
   ],
 
-  haneulStackSidebar: [
+haneulStackSidebar: [
     'haneul-stack',
     'haneul-stack/on-chain-primitives/access-time',
     'haneul-stack/on-chain-primitives/randomness-onchain',
     'haneul-stack/sagat',
     {
       type: 'category',
-      label: 'Walrus and Seal',
-      link: { type: 'doc', id: 'haneul-stack/walrus-seal/index' },
+      label: 'Walrus',
+      link: { type: 'doc', id: 'haneul-stack/walrus/index' },
       items: [
-        'haneul-stack/walrus-seal/haneul-stack-walrus',
-        'haneul-stack/walrus-seal/haneul-stack-seal',
-        'haneul-stack/walrus-seal/indexer-walrus',
+        'haneul-stack/walrus/haneul-stack-walrus',
+        'haneul-stack/walrus/indexer-walrus',
+        'haneul-stack/walrus/only-fins',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Seal',
+      link: { type: 'doc', id: 'haneul-stack/seal/index' },
+      items: [
+        'haneul-stack/seal/haneul-stack-seal',
+        'haneul-stack/seal/haneul-chat-app',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Enoki',
+      items: [
+        {
+          type: 'link',
+          label: 'Enoki Docs',
+          href: 'https://docs.enoki.haneul-labs.com/',
+        },
+        'haneul-stack/enoki/solitaire',
+        'haneul-stack/enoki/ticketing-poc',
       ],
     },
     {
@@ -498,8 +537,17 @@ export default {
         'haneul-stack/nautilus/nautilus-design',
         'haneul-stack/nautilus/using-nautilus',
         'haneul-stack/nautilus/customize-nautilus',
+        'haneul-stack/nautilus/nautilus-weather-oracle',
         'haneul-stack/nautilus/seal',
         'haneul-stack/nautilus/community-dev-tools',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'DeepBook',
+      items: [
+        'onchain-finance/deepbookv3/deepbook',
+        'onchain-finance/deepbook-margin/deepbook-margin',
       ],
     },
     {
@@ -509,7 +557,7 @@ export default {
       items: [
         'haneul-stack/zklogin-integration/zklogin',
         'haneul-stack/zklogin-integration/developer-account',
-        'haneul-stack/zklogin-integration/zklogin-example',
+        'haneul-stack/zklogin-integration/zklogin-demo',
       ],
     },
     {

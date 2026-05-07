@@ -1817,12 +1817,12 @@
     },
     {
       "source": "/guides/developer/accessing-data/custom-indexer/indexer-walrus",
-      "destination": "/haneul-stack/walrus-seal/indexer-walrus",
+      "destination": "/haneul-stack/walrus/indexer-walrus",
       "permanent": true
     },
     {
       "source": "/haneul-stack/indexer-walrus",
-      "destination": "/haneul-stack/walrus-seal/indexer-walrus",
+      "destination": "/haneul-stack/walrus/indexer-walrus",
       "permanent": true
     },
     {
