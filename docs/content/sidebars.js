@@ -259,16 +259,34 @@ export default {
       label: 'Example Apps',
       link: { type: 'doc', id: 'getting-started/examples/index'},
       items: [
-          'getting-started/examples/capability-pattern',
-          'getting-started/examples/dapp-kit-frontend',
-          'getting-started/examples/derived-objects',
-          'getting-started/examples/event-indexer',
-          'getting-started/examples/first-dapp',
-          'getting-started/examples/lootbox-ctf',
-          'getting-started/examples/merchant-ctf',
-          'getting-started/examples/plinko',
-          'getting-started/examples/scenario-testing',
-          'getting-started/examples/staking-ctf',
+        {
+          type: 'category',
+          label: 'Move Patterns',
+          items: [
+            'getting-started/examples/capability-pattern',
+            'getting-started/examples/derived-objects',
+            'getting-started/examples/scenario-testing',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Frontend Apps',
+          items: [
+            'getting-started/examples/dapp-kit-frontend',
+            'getting-started/examples/nft-app',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Digital Assets',
+          items: [
+            'getting-started/examples/lootbox-ctf',
+            'getting-started/examples/merchant-ctf',
+            'getting-started/examples/staking-ctf',
+          ],
+        },
+        'getting-started/examples/event-indexer',
+        'getting-started/examples/plinko',
       ]
     },
     'getting-started/tooling',
@@ -501,6 +519,11 @@ haneulStackSidebar: [
       label: 'Walrus',
       link: { type: 'doc', id: 'haneul-stack/walrus/index' },
       items: [
+        {
+          type: 'link',
+          label: 'Walrus Docs',
+          href: 'https://docs.wal.app',
+        },
         'haneul-stack/walrus/haneul-stack-walrus',
         'haneul-stack/walrus/indexer-walrus',
         'haneul-stack/walrus/only-fins',
@@ -511,6 +534,11 @@ haneulStackSidebar: [
       label: 'Seal',
       link: { type: 'doc', id: 'haneul-stack/seal/index' },
       items: [
+        {
+          type: 'link',
+          label: 'Seal Docs',
+          href: 'https://seal-docs.wal.app',
+        },
         'haneul-stack/seal/haneul-stack-seal',
         'haneul-stack/seal/haneul-chat-app',
       ],
