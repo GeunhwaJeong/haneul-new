@@ -20,6 +20,7 @@ use haneul_indexer_alt_schema::transactions::BalanceChange as StoredBalanceChang
 use haneul_rpc::proto::haneul::rpc::v2::BalanceChange as GrpcBalanceChange;
 use haneul_rpc::proto::haneul::rpc::v2::ExecutedTransaction;
 use haneul_types::digests::TransactionDigest;
+use haneul_types::effects::TransactionEffects as NativeTransactionEffects;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::execution_status::ExecutionStatus as NativeExecutionStatus;
 use haneul_types::signature::GenericSignature;
@@ -119,6 +120,21 @@ impl EffectsContents {
                 .map(|effects| match effects.status() {
                     NativeExecutionStatus::Success => ExecutionStatus::Success,
                     NativeExecutionStatus::Failure(_) => ExecutionStatus::Failure,
+                })
+                .map_err(RpcError::from),
+        )
+    }
+
+    /// The schema version of the effects struct.
+    async fn version(&self) -> Option<Result<i32, RpcError>> {
+        let content = self.contents.as_ref()?;
+
+        Some(
+            content
+                .effects()
+                .map(|effects| match effects {
+                    NativeTransactionEffects::V1(_) => 1i32,
+                    NativeTransactionEffects::V2(_) => 2,
                 })
                 .map_err(RpcError::from),
         )
