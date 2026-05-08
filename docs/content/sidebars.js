@@ -473,27 +473,6 @@ export default {
           ],
         },
         'onchain-finance/deepbook-margin/deepbook-margin-indexer',
-		  {
-      type: 'category',
-      label: 'DeepBook Predict',
-      link: { type: 'doc', id: 'onchain-finance/deepbook-predict/deepbook-predict' },
-      items: [
-        'onchain-finance/deepbook-predict/design',
-        {
-          type: 'category',
-          label: 'Contract Information',
-          link: { type: 'doc', id: 'onchain-finance/deepbook-predict/contract-information' },
-          items: [
-            'onchain-finance/deepbook-predict/contract-information/predict',
-            'onchain-finance/deepbook-predict/contract-information/predict-manager',
-            'onchain-finance/deepbook-predict/contract-information/market-keys',
-            'onchain-finance/deepbook-predict/contract-information/oracle',
-            'onchain-finance/deepbook-predict/contract-information/vault',
-            'onchain-finance/deepbook-predict/contract-information/registry',
-          ],
-        },
-      ],
-    },
       ],
     },
     {
@@ -548,6 +527,7 @@ haneulStackSidebar: [
         'haneul-stack/walrus/haneul-stack-walrus',
         'haneul-stack/walrus/indexer-walrus',
         'haneul-stack/walrus/only-fins',
+        'haneul-stack/walrus/haneul-stack-walrus-sites',
       ],
     },
     {
@@ -562,6 +542,19 @@ haneulStackSidebar: [
         },
         'haneul-stack/seal/haneul-stack-seal',
         'haneul-stack/seal/haneul-chat-app',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'HaneulNS',
+      link: { type: 'doc', id: 'haneul-stack/haneulns/index' },
+      items: [
+        {
+          type: 'link',
+          label: 'HaneulNS Docs',
+          href: 'https://docs.haneulns.io',
+        },
+        'haneul-stack/haneulns/haneul-stack-haneulns',
       ],
     },
     {
@@ -594,9 +587,22 @@ haneulStackSidebar: [
     {
       type: 'category',
       label: 'DeepBook',
-      items: [
-        'onchain-finance/deepbookv3/deepbook',
-        'onchain-finance/deepbook-margin/deepbook-margin',
+	  items: [
+		{
+          type: 'link',
+          label: 'DeepBookV3',
+          href: 'https://docs.haneul.io/onchain-finance/deepbookv3/deepbook',
+        },
+		{
+          type: 'link',
+          label: 'DeepBook Margin',
+          href: 'https://docs.haneul.io/onchain-finance/deepbook-margin/deepbook-margin',
+        },
+		{
+          type: 'link',
+          label: 'DeepBook Predict',
+          href: 'https://docs.haneul.io/onchain-finance/deepbook-predict/deepbook-predict',
+        },
       ],
     },
     {
