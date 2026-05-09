@@ -15429,6 +15429,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "haneul-inverted-index"
+version = "1.73.0"
+dependencies = [
+ "bcs",
+ "move-core-types",
+ "haneul-types",
+]
+
+[[package]]
 name = "haneul-json"
 version = "0.0.0"
 dependencies = [

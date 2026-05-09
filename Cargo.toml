@@ -139,6 +139,7 @@ members = [
     "crates/haneul-indexer-alt-object-store",
     "crates/haneul-indexer-alt-reader",
     "crates/haneul-indexer-alt-schema",
+    "crates/haneul-inverted-index",
     "crates/haneul-json",
     "crates/haneul-json-rpc",
     "crates/haneul-json-rpc-api",
@@ -697,6 +698,7 @@ haneul-json-rpc = { path = "crates/haneul-json-rpc" }
 haneul-json-rpc-api = { path = "crates/haneul-json-rpc-api" }
 haneul-json-rpc-types = { path = "crates/haneul-json-rpc-types" }
 haneul-keys = { path = "crates/haneul-keys" }
+haneul-inverted-index = { path = "crates/haneul-inverted-index" }
 haneul-kvstore = { path = "crates/haneul-kvstore" }
 haneul-kv-rpc = { path = "crates/haneul-kv-rpc" }
 haneul-light-client = { path = "crates/haneul-light-client" }
@@ -776,4 +778,3 @@ tonic-reflection = { git = "https://github.com/hyperium/tonic.git", rev = "d6ce6
 async-graphql = { git = "https://github.com/amnn/async-graphql", branch = "v7.0.1-react-18-graphiql-4" }
 async-graphql-axum = { git = "https://github.com/amnn/async-graphql", branch = "v7.0.1-react-18-graphiql-4" }
 async-graphql-value = { git = "https://github.com/amnn/async-graphql", branch = "v7.0.1-react-18-graphiql-4" }
-
