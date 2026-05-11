@@ -24,6 +24,7 @@ use haneul_config::{
 use haneul_protocol_config::Chain;
 use haneul_types::crypto::{AuthorityKeyPair, AuthorityPublicKeyBytes, NetworkKeyPair, HaneulKeyPair};
 use haneul_types::multiaddr::Multiaddr;
+use haneul_types::node_role::FullNodeSyncMode;
 use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 use haneul_types::traffic_control::{PolicyConfig, RemoteFirewallConfig};
 
@@ -213,6 +214,7 @@ impl ValidatorConfigBuilder {
                 .to_socket_addr()
                 .unwrap(),
             consensus_config: Some(consensus_config),
+            fullnode_sync_mode: None,
             remove_deprecated_tables: false,
             enable_index_processing: default_enable_index_processing(),
             sync_post_process_one_tx: false,
@@ -558,6 +560,7 @@ impl FullnodeConfigBuilder {
                 .unwrap_or(local_ip_utils::get_available_port(&localhost)),
             json_rpc_address: self.json_rpc_address.unwrap_or(json_rpc_address),
             consensus_config: None,
+            fullnode_sync_mode: Some(FullNodeSyncMode::StateSyncOnly),
             remove_deprecated_tables: false,
             enable_index_processing: default_enable_index_processing(),
             sync_post_process_one_tx: self.sync_post_process_one_tx,

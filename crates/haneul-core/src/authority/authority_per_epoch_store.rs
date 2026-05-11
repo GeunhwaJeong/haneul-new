@@ -64,6 +64,7 @@ use haneul_types::messages_consensus::{
     ConsensusTransaction, ConsensusTransactionKey, ConsensusTransactionKind, TimestampMs,
     VersionedDkgConfirmation, check_total_jwk_size,
 };
+use haneul_types::node_role::{FullNodeSyncMode, NodeRole};
 use haneul_types::signature::GenericSignature;
 use haneul_types::storage::{BackingPackageStore, InputKey, ObjectStore};
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::{
@@ -472,6 +473,10 @@ pub struct AuthorityPerEpochStore {
     /// Waiters for barrier transactions. Used by execution scheduler to wait for
     /// barrier transaction (keyed by the same AccumulatorSettlement key as settlements).
     barrier_registrations: Arc<Mutex<HashMap<TransactionKey, BarrierRegistration>>>,
+
+    /// The node's role for this epoch, derived from committee membership and
+    /// the configured sync mode. Computed once at construction.
+    node_role: NodeRole,
 }
 enum SettlementRegistration {
     Ready(Vec<VerifiedExecutableTransaction>),
@@ -1072,6 +1077,7 @@ impl AuthorityPerEpochStore {
         highest_executed_checkpoint: CheckpointSequenceNumber,
         previous_epoch_last_checkpoint: CheckpointSequenceNumber,
         submitted_transaction_cache_metrics: Arc<SubmittedTransactionCacheMetrics>,
+        fullnode_sync_mode: Option<FullNodeSyncMode>,
     ) -> HaneulResult<Arc<Self>> {
         let current_time = Instant::now();
         let epoch_id = committee.epoch;
@@ -1278,6 +1284,7 @@ impl AuthorityPerEpochStore {
             finalized_transactions_cache,
             settlement_registrations: Default::default(),
             barrier_registrations: Default::default(),
+            node_role: NodeRole::from_committee(&committee, &name, fullnode_sync_mode),
         });
 
         s.update_buffer_stake_metric();
@@ -1446,6 +1453,7 @@ impl AuthorityPerEpochStore {
         object_store: Arc<dyn ObjectStore + Send + Sync>,
         expensive_safety_check_config: &ExpensiveSafetyCheckConfig,
         epoch_last_checkpoint: CheckpointSequenceNumber,
+        fullnode_sync_mode: Option<FullNodeSyncMode>,
     ) -> HaneulResult<Arc<Self>> {
         assert_eq!(self.epoch() + 1, new_committee.epoch);
         self.record_reconfig_halt_duration_metric();
@@ -1468,6 +1476,7 @@ impl AuthorityPerEpochStore {
             epoch_last_checkpoint,
             epoch_last_checkpoint,
             self.submitted_transaction_cache.metrics(),
+            fullnode_sync_mode,
         )
     }
 
@@ -1492,6 +1501,7 @@ impl AuthorityPerEpochStore {
             object_store,
             expensive_safety_check_config,
             epoch_last_checkpoint,
+            None,
         )
         .expect("failed to create new authority per epoch store")
     }
@@ -3842,9 +3852,14 @@ impl AuthorityPerEpochStore {
             .get_observations()
     }
 
+    /// Returns the role of this node for the current epoch.
+    pub fn node_role(&self) -> NodeRole {
+        self.node_role
+    }
+
     /// Whether this node is a validator in this epoch.
     pub fn is_validator(&self) -> bool {
-        self.committee.authority_exists(&self.name)
+        self.node_role().is_validator()
     }
 }
 

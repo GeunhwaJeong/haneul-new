@@ -84,6 +84,7 @@ use haneul_types::inner_temporary_store::PackageStoreWithFallback;
 use haneul_types::layout_resolver::LayoutResolver;
 use haneul_types::layout_resolver::into_struct_layout;
 use haneul_types::messages_consensus::AuthorityCapabilitiesV2;
+use haneul_types::node_role::NodeRole;
 use haneul_types::object::bounded_visitor::BoundedVisitor;
 use haneul_types::storage::ChildObjectResolver;
 use haneul_types::storage::InputKey;
@@ -971,12 +972,16 @@ pub struct AuthorityState {
 ///
 /// Repeating valid commands should produce no changes and return no error.
 impl AuthorityState {
+    pub fn node_role(&self, epoch_store: &AuthorityPerEpochStore) -> NodeRole {
+        epoch_store.node_role()
+    }
+
     pub fn is_validator(&self, epoch_store: &AuthorityPerEpochStore) -> bool {
-        epoch_store.committee().authority_exists(&self.name)
+        epoch_store.node_role().is_validator()
     }
 
     pub fn is_fullnode(&self, epoch_store: &AuthorityPerEpochStore) -> bool {
-        !self.is_validator(epoch_store)
+        epoch_store.node_role().is_fullnode()
     }
 
     pub fn committee_store(&self) -> &Arc<CommitteeStore> {
@@ -6587,6 +6592,7 @@ impl AuthorityState {
             self.get_object_store().clone(),
             expensive_safety_check_config,
             epoch_last_checkpoint,
+            self.config.fullnode_sync_mode,
         )?;
         self.epoch_store.store(new_epoch_store.clone());
         Ok(new_epoch_store)
