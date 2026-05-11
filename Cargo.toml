@@ -580,6 +580,7 @@ webpki = { version = "0.103.10", package = "rustls-webpki", features = [
   "std",
   "ring",
 ] }
+which = "8.0.2"
 winnow = "0.7"
 wiremock = "0.5"
 x509-parser = { version = "0.17.0", features = ["verify"] }
