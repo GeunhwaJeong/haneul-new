@@ -6,6 +6,7 @@
         "haneul-faucet",
         "haneul-bridge",
         "haneul-bridge-cli",
+        "haneul-fork",
         "haneul-test-validator",
         "move-analyzer"
     ],
