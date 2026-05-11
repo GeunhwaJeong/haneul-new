@@ -29,7 +29,8 @@ RUN cargo build --locked --profile ${PROFILE} \
     --bin haneul-bridge-cli \
     --bin haneul \
     --bin haneul-cluster-test \
-    --bin haneul-tool
+    --bin haneul-tool \
+    --bin move-analyzer
 
 # Production Image
 FROM debian:bullseye-slim AS runtime
@@ -49,6 +50,7 @@ COPY --from=builder /haneul/target/release/haneul-bridge-cli   /usr/local/bin/ha
 COPY --from=builder /haneul/target/release/haneul              /usr/local/bin/haneul
 COPY --from=builder /haneul/target/release/haneul-cluster-test /usr/local/bin/haneul-cluster-test
 COPY --from=builder /haneul/target/release/haneul-tool         /usr/local/bin/haneul-tool
+COPY --from=builder /haneul/target/release/move-analyzer    /usr/local/bin/move-analyzer
 
 ARG BUILD_DATE
 ARG GIT_REVISION
