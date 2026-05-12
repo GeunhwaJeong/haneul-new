@@ -23,13 +23,13 @@ use haneul_indexer_alt_framework::ingestion::streaming_client::StreamingClientAr
 use haneul_indexer_alt_framework::pipeline::CommitterConfig;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_kvstore::ALL_PIPELINE_NAMES;
+use haneul_kvstore::ALPHA_PIPELINE_NAMES;
 use haneul_kvstore::BigTableClient;
 use haneul_kvstore::BigTableIndexer;
 use haneul_kvstore::BigTableStore;
 use haneul_kvstore::IndexerConfig;
 use haneul_kvstore::KeyValueStoreReader;
 use haneul_kvstore::PipelineLayer;
-use haneul_kvstore::TX_SEQ_DIGEST_PIPELINE;
 use haneul_kvstore::tables::{checkpoints, epochs, transactions};
 use haneul_kvstore::testing::BigTableEmulator;
 use haneul_kvstore::testing::INSTANCE_ID;
@@ -176,14 +176,13 @@ impl TestHarness {
             IndexerConfig::default(),
             PipelineLayer::default(),
             Chain::Unknown,
-            &[TX_SEQ_DIGEST_PIPELINE],
+            &ALPHA_PIPELINE_NAMES,
             &registry,
         )
         .await
         .context("Failed to create BigTableIndexer")?;
 
         let mut service = bigtable_indexer
-            .indexer
             .run()
             .await
             .context("Failed to run indexer")?;
