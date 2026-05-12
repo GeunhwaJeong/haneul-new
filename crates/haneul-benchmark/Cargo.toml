@@ -53,6 +53,7 @@ haneullabs-common.workspace = true
 haneul-move-build.workspace = true
 
 [target.'cfg(msim)'.dependencies]
+consensus-config.workspace = true
 prost.workspace = true
 haneul-framework.workspace = true
 haneul-framework-snapshot.workspace = true
