@@ -310,11 +310,37 @@ fn exp(context: &Context, exp: &Exp) -> Doc {
                     .concat_space(D::parens(recur(context, subject)))
                     .concat_space(braces_block(arms_doc))
             }
+            Exp::Match(subject, (_mid, _enum_), arms) => {
+                let arms_doc = Doc::intersperse(
+                    arms.iter().map(|(variant, fields, body)| {
+                        let mut pat = D::text(variant.as_str());
+                        if !fields.is_empty() {
+                            let field_doc = Doc::intersperse(
+                                fields
+                                    .iter()
+                                    .map(|(sym, name)| D::text(format!("{sym}: {name}"))),
+                                D::text(", "),
+                            );
+                            pat = pat
+                                .concat_space(D::text("{"))
+                                .concat_space(field_doc)
+                                .concat_space(D::text("}"));
+                        }
+                        pat.concat_space(D::text("=>"))
+                            .concat_space(e_block(context, body))
+                    }),
+                    D::text(",").concat(D::line()),
+                );
+                D::text("match")
+                    .concat_space(D::parens(recur(context, subject)))
+                    .concat_space(braces_block(arms_doc))
+            }
             Exp::Primitive { op, args } => primitive_op_doc(context, op, args),
             Exp::Data { op, args } => data_op_doc(context, op, args),
             Exp::Unpack((mod_, struct_), items, exp) => {
                 let items_doc = fields(items);
-                D::text(format!("{mod_}::{struct_}"))
+                D::text("let")
+                    .concat_space(D::text(format!("{mod_}::{struct_}")))
                     .concat_space(items_doc)
                     .concat_space(D::text("="))
                     .concat_space(recur(context, exp))
@@ -328,12 +354,19 @@ fn exp(context: &Context, exp: &Exp) -> Doc {
                         .concat(D::text(" */"))
                 }
             }
-            Exp::UnpackVariant(_unpack_kind, (mod_, enum_, variant), items, exp) => {
+            Exp::UnpackVariant(unpack_kind, (mod_, enum_, variant), items, exp) => {
                 let items_doc = fields(items);
-                D::text(format!("{mod_}::{enum_}::{variant}"))
+                let rhs_prefix = match unpack_kind {
+                    ast::UnpackKind::Value => "",
+                    ast::UnpackKind::ImmRef => "&",
+                    ast::UnpackKind::MutRef => "&mut ",
+                };
+                let rhs = D::text(rhs_prefix).concat(recur(context, exp));
+                D::text("let")
+                    .concat_space(D::text(format!("{mod_}::{enum_}::{variant}")))
                     .concat_space(items_doc)
                     .concat_space(D::text("="))
-                    .concat_space(recur(context, exp))
+                    .concat_space(rhs)
             }
             Exp::Unstructured(nodes) => {
                 D::text("unstructured").concat_space(unstructured_block(context, nodes))
