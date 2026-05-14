@@ -4,6 +4,7 @@
 pub(crate) mod ast;
 pub(crate) mod dom_tree;
 pub(crate) mod graph;
+pub(crate) mod hoist_declarations;
 pub(crate) mod term_reconstruction;
 
 use crate::{

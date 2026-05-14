@@ -18,17 +18,17 @@ public enum Color has copy, drop {
 public fun is_blue(l0: enums::colors::Color): bool {
     let l3 = l0;
     let l2 = &l3;
-    match (l2) {
+    let l1 = match (l2) {
         Color::Red => {
-            let l1 = false;
+            false
         },
         Color::Green => {
-            l1 = false;
+            false
         },
         Color::Blue => {
             0x0::colors::Color::Blue {} = l2;
             0x0::colors::Color::Blue {} = l3;
-            l1 = true;
+            true
         }
     };
     return l1
@@ -37,17 +37,17 @@ public fun is_blue(l0: enums::colors::Color): bool {
 public fun is_green(l0: enums::colors::Color): bool {
     let l3 = l0;
     let l2 = &l3;
-    match (l2) {
+    let l1 = match (l2) {
         Color::Red => {
-            let l1 = false;
+            false
         },
         Color::Green => {
             0x0::colors::Color::Green {} = l2;
             0x0::colors::Color::Green {} = l3;
-            l1 = true;
+            true
         },
         Color::Blue => {
-            l1 = false;
+            false
         }
     };
     return l1
@@ -56,17 +56,17 @@ public fun is_green(l0: enums::colors::Color): bool {
 public fun is_red(l0: enums::colors::Color): bool {
     let l3 = l0;
     let l2 = &l3;
-    match (l2) {
+    let l1 = match (l2) {
         Color::Red => {
             0x0::colors::Color::Red {} = l2;
             0x0::colors::Color::Red {} = l3;
-            let l1 = true;
+            true
         },
         Color::Green => {
-            l1 = false;
+            false
         },
         Color::Blue => {
-            l1 = false;
+            false
         }
     };
     return l1

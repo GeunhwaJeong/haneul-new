@@ -11,7 +11,10 @@ use crate::{
 };
 
 use crate::ast::Exp;
-use move_model_2::{model::Model, source_kind::SourceKind};
+use move_model_2::{
+    model::{Model, Module as MModule},
+    source_kind::SourceKind,
+};
 use move_stackless_bytecode_2::ast as SB;
 use move_symbol_pool::Symbol;
 use std::collections::{BTreeMap, HashSet};
@@ -51,16 +54,18 @@ fn packages<S: SourceKind>(
         .collect()
 }
 
-fn package<S: SourceKind>(config: &Config, _model: &Model<S>, sb_pkg: SB::Package) -> Out::Package {
+fn package<S: SourceKind>(config: &Config, model: &Model<S>, sb_pkg: SB::Package) -> Out::Package {
     let SB::Package {
         name,
         address,
         modules,
     } = sb_pkg;
+    let pkg = model.package(&address);
     let modules = modules
         .into_iter()
         .map(|(module_name, m)| {
-            let decompiled_module = module(config, m);
+            let resolved = pkg.module(module_name);
+            let decompiled_module = module(config, resolved, m);
             (module_name, decompiled_module)
         })
         .collect();
@@ -75,12 +80,16 @@ fn package<S: SourceKind>(config: &Config, _model: &Model<S>, sb_pkg: SB::Packag
 // Module
 // -------------------------------------------------------------------------------------------------
 
-pub fn module(config: &Config, module: SB::Module) -> Out::Module {
-    let SB::Module { name, functions } = module;
+pub fn module<S: SourceKind>(
+    config: &Config,
+    resolved: MModule<'_, S>,
+    sb_module: SB::Module,
+) -> Out::Module {
+    let SB::Module { name, functions } = sb_module;
 
     let functions = functions
         .into_iter()
-        .map(|(name, fun)| (name, function(config, fun)))
+        .map(|(name, fun)| (name, function(config, resolved, fun)))
         .collect();
 
     Out::Module { name, functions }
@@ -90,7 +99,11 @@ pub fn module(config: &Config, module: SB::Module) -> Out::Module {
 // Function
 // -------------------------------------------------------------------------------------------------
 
-fn function(config: &Config, fun: SB::Function) -> Out::Function {
+fn function<S: SourceKind>(
+    config: &Config,
+    resolved_module: MModule<'_, S>,
+    fun: SB::Function,
+) -> Out::Function {
     if config.debug_print.print_function_heading() {
         println!("DECOMPILING FUNCTION {}", fun.name);
     }
@@ -100,6 +113,16 @@ fn function(config: &Config, fun: SB::Function) -> Out::Function {
             println!("Block {}:\n{blk}", lbl);
         }
     }
+    // Look up the compiled function so we can name its parameters. The first `parameters.len()`
+    // local indices are the parameters; the rest are body locals introduced by the bytecode.
+    // term_reconstruction renders local id `i` as `l{i}`, so the parameter names are
+    // `l0..l{param_count-1}`.
+    let param_count = resolved_module
+        .function(fun.name)
+        .maybe_compiled()
+        .map(|f| f.parameters.len())
+        .unwrap_or(0);
+    let params: Vec<String> = (0..param_count).map(|i| format!("l{i}")).collect();
     let (name, terms, input, entry) = make_input(fun);
     if config.debug_print.input {
         print_heading("input");
@@ -111,6 +134,7 @@ fn function(config: &Config, fun: SB::Function) -> Out::Function {
         println!("{}", structured.to_test_string());
     }
     let mut code = generate_output(terms, structured);
+    crate::structuring::hoist_declarations::hoist_declarations(&mut code, params);
     crate::refinement::refine(&mut code);
     if config.debug_print.decompiled_code {
         print_heading("refined code");
@@ -138,7 +162,6 @@ fn make_input(
 
     let blocks_iter = basic_blocks.iter();
     let mut next_blocks_iter = basic_blocks.iter().skip(1);
-    let mut let_binds = HashSet::new();
 
     for (lbl, block) in blocks_iter {
         let label = lbl;
@@ -152,11 +175,12 @@ fn make_input(
         } else {
             None
         };
-        // Extract terms and input for the block
+        // Per-block: the block's first StoreLoc of each local emits `let X = e`, the rest
+        // `X = e`. Cross-block coordination — hoisting `let X;` out of arm scopes when X is
+        // shared with siblings or seen by later items — happens later in `hoist_declarations`.
+        let mut let_binds: HashSet<SB::RegId> = HashSet::new();
         let blk_terms = generate_term_block(block, &mut let_binds);
         let blk_input = extract_input(block, next_block_label);
-
-        // Insert into the maps
 
         terms.insert((*label as u32).into(), blk_terms);
         input.insert((*label as u32).into(), blk_input);
@@ -254,11 +278,11 @@ fn generate_output(mut terms: BTreeMap<D::Label, Out::Exp>, structured: D::Struc
             Box::new(generate_output(terms, *body)),
         ),
         D::Structured::Seq(seq) => {
-            let seq = seq
+            let items = seq
                 .into_iter()
                 .map(|s| generate_output(terms.clone(), s))
                 .collect();
-            Out::Exp::Seq(seq)
+            Out::Exp::Seq(items)
         }
         D::Structured::IfElse(lbl, conseq, alt) => {
             let term = terms.remove(&(lbl as u32).into()).unwrap();
