@@ -13,71 +13,101 @@ A development tool that enables testing and developing against a local Haneul ne
 `haneul-fork` allows developers to start a local network in lock-step mode and execute transactions against some initial state derived from the live Haneul network. This enables you to:
 
 - Depend on existing on-chain packages and data
-- Test contracts that interact with real deployed packages
-- Develop locally while maintaining consistency with production state
-- Run integration tests against forked network state and using packages deployed on the real live network
+- Develop locally and test contracts that interact with real deployed packages
+- Have full control over checkpoint and time progression to simulate different scenarios
 
-**Important Note**
-Unlike a standard local Haneul network with validators, the forking tool runs in lock-step mode where each transaction is executed sequentially and creates a checkpoint.
-That means that you have full control over the advancement of checkpoints, time, and epochs to simulate different scenarios.
+> [!NOTE]
+> Unlike a standard local Haneul network with validators, the forking tool runs in lock-step mode where each transaction is executed sequentially and creates a checkpoint.
+> That means that you have full control over the advancement of checkpoints, time, (and soon epochs too) to simulate different scenarios.
 
 ## Quick Start
-1. Build or install `haneul-fork`.
 
-    From the Haneul workspace root:
+#### 1. Build or install `haneul-fork`
 
-    ```bash
-    cargo build -p haneul-fork
-    ```
+From the Haneul workspace root:
 
-    The examples below assume `haneul-fork` is on your `PATH`. If you are using the
-    workspace build directly, replace `haneul-fork` with
-    `./target/debug/haneul-fork`.
+```bash
+cargo build -p haneul-fork
+```
 
-2. In terminal 1, start a forked network:
+> [!NOTE]
+> The examples below assume `haneul-fork` is on your `PATH`. If you are using the
+> workspace build directly, replace `haneul-fork` with
+> `./target/debug/haneul-fork`.
 
-    ```bash
-    haneul-fork start --network testnet --checkpoint 12345678 --data-dir /tmp/haneul-fork-demo
-    ```
+#### 2. Start the fork
 
-    Replace `12345678` with the checkpoint you want to pin. Use a recent
-    checkpoint unless you also seed the owned objects your test needs. Running
-    `haneul-fork start` with no flags forks from mainnet at the latest checkpoint.
-    The fork serves Haneul gRPC on `127.0.0.1:9000` by default.
+In a terminal, run `haneul-fork start` with the desired flags.
 
-    In this example, local resume state is stored directly under
-    `/tmp/haneul-fork-demo`. When you restart the same fork, reuse the same fork
-    data directory and omit seed flags.
+**From latest checkpoint on mainnet**
 
-3. In terminal 2, confirm the fork is reachable:
+```bash
+haneul-fork start
+```
 
-    ```bash
-    haneul-fork status
-    ```
+> [!TIP]
+> By default, if no flags are specified, the fork starts from mainnet at the latest known checkpoint.
+> The fork serves Haneul gRPC on `127.0.0.1:9000` by default.
 
-4. Add the fork as a Haneul CLI environment:
+**From latest checkpoint on testnet**
 
-    ```bash
-    haneul client new-env --alias local-fork --rpc http://127.0.0.1:9000
-    haneul client switch --env local-fork
-    ```
+```bash
+haneul-fork start --network testnet
+```
 
-    You can now use Haneul CLI commands such as `haneul client ptb`,
-    `haneul client publish`, or `haneul client upgrade` against the forked network.
-    Use `--forking-mode` on transaction commands when you need to impersonate a
-    sender on the local fork. Note that this is not available yet for `haneul client ptb`.
+> [!TIP]
+> Supported networks are `mainnet`, `testnet`, and `devnet`. The default is `mainnet`.
 
-5. Control checkpoint and time progression:
+**From a specific checkpoint on mainnet**
 
-    ```bash
-    haneul-fork advance-checkpoint
-    haneul-fork advance-clock --duration-ms 1000
-    haneul-fork status
-    ```
+```bash
+haneul-fork start --checkpoint 12345678
+```
 
-    If your test depends on address-owned objects at startup, add repeatable
-    `--address 0x...` or `--object 0x...` flags to `haneul-fork start`. This is
-    especially important when forking from older checkpoints.
+**From a specific checkpoint on testnet with custom data directory**
+
+```bash
+haneul-fork start --network testnet --checkpoint 12345678 --data-dir /tmp/haneul-fork-demo
+```
+
+> [!NOTE]
+> Local resume state is stored under
+> `{data-dir}/{network}/forked_at_{checkpoint}`. When you restart the same
+> fork, reuse the same `--data-dir`, `--network`, and `--checkpoint`.
+
+#### 3. Confirm the fork is reachable
+
+In another terminal, check the fork status:
+
+```bash
+haneul-fork status
+```
+
+#### 4. Add the fork as a Haneul CLI environment
+
+```bash
+haneul client new-env --alias local-fork --rpc http://127.0.0.1:9000
+haneul client switch --env local-fork
+```
+
+You can now use Haneul CLI commands such as `haneul client ptb`,
+`haneul client publish`, `haneul client upgrade`, or other read/write commands against the forked network.
+
+> [!NOTE]
+> Use `--forking-mode` on transaction commands when you need to impersonate a
+> sender on the local fork. Note that this is not available yet for `haneul client ptb`, only for regular write commands.
+
+#### 5. Control checkpoint and time progression
+
+```bash
+haneul-fork advance-checkpoint
+haneul-fork advance-clock --duration-ms 1000
+haneul-fork status
+```
+
+> [!TIP]
+> If your test depends on address-owned objects at startup, add repeatable
+> `--address 0x...` or `--object 0x...` flags to `haneul-fork start`.
 
 ## Impersonating Senders
 
@@ -123,7 +153,7 @@ haneul-fork start --checkpoint 12345678 --address 0x... --object 0x...
 - On Windows, the default `{base_path}` is `%APPDATA%/haneul_fork_data`.
 - `--address` is repeatable and seeds metadata for every object owned by that
   address at the fork checkpoint. Address seeding requires a checkpoint in the
-  GraphQL object enumeration range.
+  GraphQL object enumeration range, which is usually a range within the last hour.
 - `--object` is repeatable and fetches that object at the fork checkpoint. If
   the object is address-owned, it is added to the initial owned-object index.
 - Fork metadata is written once to `seed_manifest.json` under the fork
@@ -140,6 +170,7 @@ authoritative over the manifest seed entries.
 
 ## Limitations
 - Sequential execution: Transactions are executed one at a time, no parallelism.
+- Simulating transactions is currently not supported, so automatic gas estimation is not available via CLI or SDKs. All transactions require explicit gas budget.
 - Staking and related operations are not supported.
 - Single validator, single authority network.
 - Object fetching overhead: First access to objects requires network download.
