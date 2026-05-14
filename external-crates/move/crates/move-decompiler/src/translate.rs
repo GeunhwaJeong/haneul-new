@@ -29,7 +29,9 @@ pub fn model_with_config<S: SourceKind>(
     config: &Config,
     model: Model<S>,
 ) -> anyhow::Result<Out::Decompiled<S>> {
-    let stackless = move_stackless_bytecode_2::from_model(&model, /* optimize */ true)?;
+    // Don't optimize the stackless bytecode: we want to faithfully decompile what the
+    // bytecode actually contains.
+    let stackless = move_stackless_bytecode_2::from_model(&model, /* optimize */ false)?;
     let packages = packages(config, &model, stackless);
     Ok(Out::Decompiled { model, packages })
 }
@@ -183,12 +185,27 @@ fn extract_input(block: &SB::BasicBlock, next_block_label: Option<SB::Label>) ->
                 condition: _,
                 then_label,
                 else_label,
-            } => DI::Condition(
-                (block.label as u32).into(),
-                (block.label as u32).into(),
-                (*then_label as u32).into(),
-                (*else_label as u32).into(),
-            ),
+            } => {
+                // A degenerate JumpIf whose two arms target the same label is just an
+                // unconditional jump with a dead condition. The compiler can leave these
+                // around when an arm body is empty (`if (c) {}`) and the optimizer forwards
+                // the empty arm to the join. Lower it as `Code` so structuring isn't asked
+                // to handle a Condition whose successors aren't dominated by it.
+                if then_label == else_label {
+                    DI::Code(
+                        (block.label as u32).into(),
+                        (block.label as u32).into(),
+                        Some((*then_label as u32).into()),
+                    )
+                } else {
+                    DI::Condition(
+                        (block.label as u32).into(),
+                        (block.label as u32).into(),
+                        (*then_label as u32).into(),
+                        (*else_label as u32).into(),
+                    )
+                }
+            }
             SI::VariantSwitch {
                 condition: _,
                 enum_,
