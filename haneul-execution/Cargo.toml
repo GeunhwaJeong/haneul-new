@@ -7,9 +7,15 @@ license = "Apache-2.0"
 publish = false
 edition = "2024"
 
+[lints]
+workspace = true
+
 [dependencies]
+haneullabs-common.workspace = true
+haneullabs-metrics.workspace = true
 haneul-protocol-config.workspace = true
 haneul-types.workspace = true
+tracing.workspace = true
 
 move-binary-format.workspace = true
 move-bytecode-verifier-meter.workspace = true

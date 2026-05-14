@@ -139,7 +139,7 @@ use haneul_types::effects::{
     InputConsensusObject, SignedTransactionEffects, TransactionEffects, TransactionEffectsAPI,
     TransactionEvents, VerifiedSignedTransactionEffects,
 };
-use haneul_types::error::{ExecutionError, ExecutionErrorTrait, HaneulErrorKind, UserInputError};
+use haneul_types::error::{ExecutionError, HaneulErrorKind, UserInputError};
 use haneul_types::event::EventID;
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::execution_status::ExecutionErrorKind;
@@ -2457,7 +2457,7 @@ impl AuthorityState {
         let execution_error_source = execution_error
             .as_ref()
             .err()
-            .and_then(|e| e.source_ref().as_ref().map(|e| e.to_string()));
+            .and_then(|e| e.source().as_ref().map(|e| e.to_string()));
 
         Ok((
             DryRunTransactionBlockResponse {

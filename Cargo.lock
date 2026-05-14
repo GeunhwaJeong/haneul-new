@@ -14787,6 +14787,8 @@ dependencies = [
  "move-vm-types-v1",
  "move-vm-types-v2",
  "move-vm-types-v3",
+ "haneullabs-common",
+ "haneullabs-metrics",
  "petgraph 0.5.1",
  "haneul-adapter-latest",
  "haneul-adapter-v0",
@@ -14805,6 +14807,7 @@ dependencies = [
  "haneul-verifier-v1",
  "haneul-verifier-v2",
  "haneul-verifier-v3",
+ "tracing",
 ]
 
 [[package]]
