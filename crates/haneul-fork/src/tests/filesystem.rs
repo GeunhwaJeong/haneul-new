@@ -6,7 +6,9 @@
 //! lives under `src/tests/` but remains a child of the `filesystem` module
 //! and has full `super::*` access to crate-private items.
 
+use std::ffi::OsString;
 use std::fs;
+use std::path::PathBuf;
 
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::SequenceNumber;
@@ -30,6 +32,73 @@ fn test_store() -> (tempfile::TempDir, FilesystemStore) {
     let dir = tempfile::tempdir().expect("failed to create tempdir");
     let store = FilesystemStore::new_with_root(dir.path().to_path_buf());
     (dir, store)
+}
+
+#[test]
+fn explicit_data_dir_is_used_as_store_root() {
+    let dir = tempfile::tempdir().expect("failed to create tempdir");
+    let root = dir.path().join("fork-root");
+
+    let store = FilesystemStore::new(&crate::Node::Mainnet, 42, Some(root.clone())).unwrap();
+
+    assert_eq!(store.root, root);
+    assert_eq!(store.objects_dir(), root.join(OBJECTS_DIR));
+    assert_eq!(store.checkpoints_dir(), root.join(CHECKPOINTS_DIR));
+    assert_eq!(store.transactions_dir(), root.join(TRANSACTIONS_DIR));
+    assert_eq!(store.seed_manifest_path(), root.join(SEED_MANIFEST_FILE));
+}
+
+#[test]
+fn default_root_appends_network_and_checkpoint_to_base_path() {
+    let dir = tempfile::tempdir().expect("failed to create tempdir");
+    let base = dir.path().join(DATA_DIR);
+
+    let root = FilesystemStore::root_from_base(base.clone(), &crate::Node::Testnet, 99);
+
+    assert_eq!(root, base.join("testnet").join("forked_at_99"));
+}
+
+#[cfg(unix)]
+fn env_value(vars: &[(&str, &str)], key: &str) -> Option<OsString> {
+    vars.iter()
+        .find_map(|(name, value)| (*name == key).then(|| OsString::from(*value)))
+}
+
+#[cfg(unix)]
+#[test]
+fn haneul_fork_data_env_takes_precedence_over_xdg_and_home() {
+    let vars = [
+        (HANEUL_FORK_DATA_ENV, "/tmp/custom-fork-base"),
+        ("XDG_DATA_HOME", "/tmp/xdg-data"),
+        ("HOME", "/tmp/home"),
+    ];
+
+    let base = FilesystemStore::base_path_from_env(|key| env_value(&vars, key)).unwrap();
+
+    assert_eq!(base, PathBuf::from("/tmp/custom-fork-base"));
+}
+
+#[cfg(unix)]
+#[test]
+fn xdg_data_home_env_takes_precedence_over_home() {
+    let vars = [("XDG_DATA_HOME", "/tmp/xdg-data"), ("HOME", "/tmp/home")];
+
+    let base = FilesystemStore::base_path_from_env(|key| env_value(&vars, key)).unwrap();
+
+    assert_eq!(base, PathBuf::from("/tmp/xdg-data").join(DATA_DIR));
+}
+
+#[cfg(unix)]
+#[test]
+fn home_env_is_used_when_no_override_or_xdg_data_home() {
+    let vars = [("HOME", "/tmp/home")];
+
+    let base = FilesystemStore::base_path_from_env(|key| env_value(&vars, key)).unwrap();
+
+    assert_eq!(
+        base,
+        PathBuf::from("/tmp/home").join(format!(".{}", DATA_DIR))
+    );
 }
 
 fn make_object(id: ObjectID, version: u64) -> Object {
@@ -281,6 +350,20 @@ fn test_seed_manifest_round_trips_and_is_immutable() {
     assert!(store.seed_manifest_exists());
     assert_eq!(store.read_seed_manifest().unwrap(), manifest);
     assert!(store.write_seed_manifest(&manifest).is_err());
+}
+
+#[test]
+fn test_empty_seed_manifest_round_trips() {
+    let (_dir, store) = test_store();
+    let manifest = SeedManifest {
+        network: "mainnet".to_owned(),
+        checkpoint: 42,
+        entries: Vec::new(),
+    };
+
+    store.write_seed_manifest(&manifest).unwrap();
+
+    assert_eq!(store.read_seed_manifest().unwrap(), manifest);
 }
 
 #[test]

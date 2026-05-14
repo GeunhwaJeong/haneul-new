@@ -2,7 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 //! Folder structure:
+//! With an explicit `--data-dir`, the store is rooted directly at:
+//! {data_dir}/
+//!
+//! Without an explicit `--data-dir`, the store is rooted at:
 //! {base_path}/{network_name}/forked_at_{checkpoint}/
+//!
+//! Under either root:
 //!     - objects/
 //!         - {object_id}/
 //!            - latest                  (text: latest persisted version number)
@@ -22,8 +28,10 @@
 //!             - data                   (BCS-encoded Transaction envelope)
 //!             - effects                (BCS-encoded TransactionEffects)
 //!             - events                 (BCS-encoded TransactionEvents)
-//!     - seed_manifest.json             (JSON seed metadata for initial owned-object index)
+//!     - seed_manifest.json             (JSON fork metadata and optional seed metadata)
 
+use std::env;
+use std::ffi::OsString;
 use std::fs;
 use std::io::ErrorKind;
 use std::io::Write as _;
@@ -58,8 +66,11 @@ use haneul_types::transaction::VerifiedTransaction;
 use crate::Node;
 use crate::seed::SeedManifest;
 
-/// Directory name appended to the configured filesystem store root.
-const DATA_STORE_DIR: &str = ".forking_data_store";
+/// Environment variable name for an explicit fork data directory.
+const HANEUL_FORK_DATA_ENV: &str = "HANEUL_FORK_DATA";
+/// Directory name appended to XDG_DATA_HOME or $HOME on Unix, or %APPDATA% on Windows, when an
+/// explicit data directory is not provided.
+const DATA_DIR: &str = "haneul_fork_data";
 /// Per-chain object storage directory.
 const OBJECTS_DIR: &str = "objects";
 /// Per-chain secondary indices directory.
@@ -88,7 +99,7 @@ const CHECKPOINT_CONTENTS_DIR: &str = "contents";
 const CHECKPOINT_DIGEST_INDEX_FILE: &str = "digest_index";
 /// Marker file for the latest checkpoint sequence known to the store.
 const LATEST_FILE: &str = "latest";
-/// JSON file containing immutable pre-fork seed metadata.
+/// JSON file containing immutable fork metadata and optional pre-fork seed metadata.
 const SEED_MANIFEST_FILE: &str = "seed_manifest.json";
 
 /// Current-state removal kind for an object affected by local execution.
@@ -147,41 +158,88 @@ pub(crate) struct FilesystemStore {
 }
 
 impl FilesystemStore {
-    /// Create a new filesystem store rooted at
-    /// `{base_path}/{network_name}/forked_at_{checkpoint}`.
+    /// Create a new filesystem store. Explicit data directories are used as the exact root;
+    /// otherwise the root is `{base_path}/{network_name}/forked_at_{checkpoint}`.
     pub(crate) fn new(
         node: &Node,
         forked_at_checkpoint: CheckpointSequenceNumber,
         data_dir: Option<PathBuf>,
     ) -> Result<Self, Error> {
-        let base = match data_dir {
+        let root = match data_dir {
             Some(dir) => dir,
-            None => Self::base_path()?,
+            None => Self::default_root(node, forked_at_checkpoint)?,
         };
-        let root = base
-            .join(node.network_name())
-            .join(format!("forked_at_{}", forked_at_checkpoint));
         Ok(Self { root })
     }
 
     /// Create a filesystem store with an explicit root directory.
-    #[cfg(test)]
     pub(crate) fn new_with_root(root: PathBuf) -> Self {
         Self { root }
     }
 
     /// Resolve the default base path for on-disk storage.
     pub(crate) fn base_path() -> Result<PathBuf, Error> {
-        let home_dir = std::env::var("FORKING_DATA_STORE")
-            .or_else(|_| std::env::var("HANEUL_CONFIG_DIR"))
-            .or_else(|_| std::env::var("HOME"))
-            .or_else(|_| std::env::var("USERPROFILE"))
-            .map_err(|_| {
-                anyhow!(
-                    "Cannot determine home directory. Define a FORKING_DATA_STORE environment variable"
-                )
-            })?;
-        Ok(PathBuf::from(home_dir).join(DATA_STORE_DIR))
+        Self::base_path_from_env(|key| env::var_os(key))
+    }
+
+    /// Resolve the default base path for on-disk storage, using the provided `get_env` function to
+    /// access environment variables. This indirection allows tests to inject custom environment
+    /// values without modifying the actual process environment.
+    ///
+    /// The resolution logic is as follows:
+    /// 1. If `HANEUL_FORK_DATA` is set, use its value as the base path.
+    /// 2. On Unix, if `XDG_DATA_HOME` is set, append the default data directory name.
+    /// 3. Otherwise, fall back to the platform's home data directory.
+    fn base_path_from_env(
+        mut get_env: impl FnMut(&str) -> Option<OsString>,
+    ) -> Result<PathBuf, Error> {
+        if let Some(dir) = get_env(HANEUL_FORK_DATA_ENV) {
+            return Ok(PathBuf::from(dir));
+        }
+
+        Self::default_data_root_from_env(get_env)
+    }
+
+    #[cfg(unix)]
+    fn default_data_root_from_env(
+        mut get_env: impl FnMut(&str) -> Option<OsString>,
+    ) -> anyhow::Result<PathBuf> {
+        if let Some(data_dir) = get_env("XDG_DATA_HOME") {
+            return Ok(PathBuf::from(data_dir).join(DATA_DIR));
+        }
+
+        let home = get_env("HOME").context("could not find $HOME directory")?;
+        Ok(PathBuf::from(home).join(format!(".{}", DATA_DIR)))
+    }
+
+    #[cfg(windows)]
+    fn default_data_root_from_env(
+        mut get_env: impl FnMut(&str) -> Option<OsString>,
+    ) -> anyhow::Result<PathBuf> {
+        let app_data = get_env("APPDATA").context("could not find %APPDATA% directory")?;
+        Ok(PathBuf::from(app_data).join(DATA_DIR))
+    }
+
+    /// Construct the default root directory for a given node and fork checkpoint.
+    fn default_root(
+        node: &Node,
+        forked_at_checkpoint: CheckpointSequenceNumber,
+    ) -> Result<PathBuf, Error> {
+        Ok(Self::root_from_base(
+            Self::base_path()?,
+            node,
+            forked_at_checkpoint,
+        ))
+    }
+
+    /// Construct the path from base path joined with `{network_name}/forked_at_{checkpoint}`.
+    fn root_from_base(
+        base: PathBuf,
+        node: &Node,
+        forked_at_checkpoint: CheckpointSequenceNumber,
+    ) -> PathBuf {
+        base.join(node.network_name())
+            .join(format!("forked_at_{}", forked_at_checkpoint))
     }
 
     /// Return the directory path for storing objects data.
@@ -639,6 +697,19 @@ impl FilesystemStore {
         );
 
         self.read_latest_file(&checkpoint_dir)
+    }
+
+    /// Get the highest checkpoint sequence number available on disk, returning `None` when
+    /// checkpoint state has not been initialized yet.
+    pub(crate) fn get_highest_checkpoint_sequence_number_if_exists(
+        &self,
+    ) -> anyhow::Result<Option<CheckpointSequenceNumber>> {
+        let checkpoint_dir = self.checkpoints_dir();
+        if !checkpoint_dir.exists() || !checkpoint_dir.join(LATEST_FILE).exists() {
+            return Ok(None);
+        }
+
+        self.read_latest_file(&checkpoint_dir).map(Some)
     }
 
     /// Path to the per-sequence directory holding `summary`.
