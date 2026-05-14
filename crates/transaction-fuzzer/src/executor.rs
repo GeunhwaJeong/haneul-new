@@ -12,7 +12,6 @@ use haneul_core::authority::test_authority_builder::TestAuthorityBuilder;
 use haneul_move_build::BuildConfig;
 use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
 use haneul_types::crypto::get_authority_key_pair;
-use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::error::HaneulError;
 use haneul_types::execution_status::{ExecutionErrorKind, ExecutionFailure, ExecutionStatus};
@@ -167,9 +166,8 @@ impl Executor {
     }
 
     pub fn dry_run_transaction(&self, tx_data: TransactionData) -> Result<(), HaneulError> {
-        let digest = TransactionDigest::random();
         self.rt
-            .block_on(self.state.dry_exec_transaction(tx_data, digest))
+            .block_on(self.state.dry_exec_transaction(tx_data))
             .map(|_| ())
     }
 

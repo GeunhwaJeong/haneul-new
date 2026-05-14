@@ -16,7 +16,6 @@ use crate::{
     ObjectProviderCache, HaneulRpcModule, get_balance_changes_from_effect, get_object_changes,
     with_tracing,
 };
-use shared_crypto::intent::{AppId, Intent, IntentMessage, IntentScope, IntentVersion};
 use haneul_core::authority::AuthorityState;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::transaction_orchestrator::TransactionOrchestrator;
@@ -27,7 +26,6 @@ use haneul_json_rpc_types::{
 };
 use haneul_open_rpc::Module;
 use haneul_types::base_types::HaneulAddress;
-use haneul_types::crypto::default_hash;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::signature::GenericSignature;
@@ -269,32 +267,20 @@ impl TransactionExecutionApi {
     pub fn prepare_dry_run_transaction_block(
         &self,
         tx_bytes: Base64,
-    ) -> Result<(TransactionData, TransactionDigest, Vec<InputObjectKind>), HaneulRpcInputError> {
+    ) -> Result<(TransactionData, Vec<InputObjectKind>), HaneulRpcInputError> {
         let tx_data: TransactionData = self.convert_bytes(tx_bytes)?;
         let input_objs = tx_data.input_objects()?;
-        let intent_msg = IntentMessage::new(
-            Intent {
-                version: IntentVersion::V0,
-                scope: IntentScope::TransactionData,
-                app_id: AppId::Haneul,
-            },
-            tx_data,
-        );
-        let txn_digest = TransactionDigest::new(default_hash(&intent_msg.value));
-        Ok((intent_msg.value, txn_digest, input_objs))
+        Ok((tx_data, input_objs))
     }
 
     async fn dry_run_transaction_block(
         &self,
         tx_bytes: Base64,
     ) -> Result<DryRunTransactionBlockResponse, Error> {
-        let (txn_data, txn_digest, input_objs) =
-            self.prepare_dry_run_transaction_block(tx_bytes)?;
+        let (txn_data, input_objs) = self.prepare_dry_run_transaction_block(tx_bytes)?;
         let sender = txn_data.sender();
-        let (resp, written_objects, transaction_effects, mock_gas) = self
-            .state
-            .dry_exec_transaction(txn_data.clone(), txn_digest)
-            .await?;
+        let (resp, written_objects, transaction_effects, mock_gas) =
+            self.state.dry_exec_transaction(txn_data.clone()).await?;
         let object_cache = ObjectProviderCache::new_with_cache(self.state.clone(), written_objects);
         let balance_changes = get_balance_changes_from_effect(
             &object_cache,
