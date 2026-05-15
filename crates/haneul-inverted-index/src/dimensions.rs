@@ -51,6 +51,19 @@ impl IndexDimension {
     pub fn tag_byte(self) -> u8 {
         self as u8
     }
+
+    pub fn from_tag_byte(tag: u8) -> Option<Self> {
+        match tag {
+            tag if tag == Self::Sender.tag_byte() => Some(Self::Sender),
+            tag if tag == Self::AffectedAddress.tag_byte() => Some(Self::AffectedAddress),
+            tag if tag == Self::AffectedObject.tag_byte() => Some(Self::AffectedObject),
+            tag if tag == Self::MoveCall.tag_byte() => Some(Self::MoveCall),
+            tag if tag == Self::EmitModule.tag_byte() => Some(Self::EmitModule),
+            tag if tag == Self::EventType.tag_byte() => Some(Self::EventType),
+            tag if tag == Self::EventStreamHead.tag_byte() => Some(Self::EventStreamHead),
+            _ => None,
+        }
+    }
 }
 
 const COMPOUND_VALUE_SEPARATOR: u8 = 0x00;
@@ -139,10 +152,13 @@ pub fn for_each_event_dimension(
     mut f: impl FnMut(u32, IndexDimension, &[u8]),
 ) {
     let mut scratch = Vec::new();
+    let sender = tx.transaction.sender();
     let event_count = tx.events.as_ref().map(|e| e.data.len()).unwrap_or(0);
 
     for (idx, ev) in tx.events.iter().flat_map(|evs| evs.data.iter()).enumerate() {
         let event_idx = u32::try_from(idx).expect("event index exceeds u32::MAX");
+
+        f(event_idx, IndexDimension::Sender, sender.as_ref());
 
         let pkg = ev.package_id.as_ref();
         let type_addr = ev.type_.address.as_ref();
@@ -387,7 +403,7 @@ mod tests {
     }
 
     #[test]
-    fn event_visitor_emits_event_dimensions_per_event() {
+    fn event_visitor_emits_supported_dimensions_per_event() {
         let sender = TestCheckpointBuilder::derive_address(1);
         let affected = TestCheckpointBuilder::derive_object_id(10);
         let package = ObjectID::ZERO;
@@ -413,6 +429,7 @@ mod tests {
         });
 
         for expected in [
+            encode_dimension_key(IndexDimension::Sender, sender.as_ref()),
             encode_dimension_key(
                 IndexDimension::EmitModule,
                 &emit_module_value(package.as_ref(), Some("emit_mod")),
@@ -434,13 +451,11 @@ mod tests {
             IndexDimension::MoveCall,
             &move_call_value(package.as_ref(), Some("coin"), Some("transfer")),
         );
-        let sender_key = encode_dimension_key(IndexDimension::Sender, sender.as_ref());
         let affected_object_key =
             encode_dimension_key(IndexDimension::AffectedObject, affected.as_ref());
 
-        assert!(!keys.iter().any(|(_, k)| k == &sender_key));
-        assert!(!keys.iter().any(|(_, k)| k == &affected_object_key));
         assert!(!keys.iter().any(|(_, k)| k == &move_call_key));
+        assert!(!keys.iter().any(|(_, k)| k == &affected_object_key));
     }
 
     #[test]
