@@ -33,7 +33,7 @@ use haneul_types::{
 };
 
 /// This example walks through the Rust SDK use case described in
-/// https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/guides/developer/haneul-101/sign-and-send-txn.mdx
+/// https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/develop/transactions/transaction-auth/auth-overview.mdx
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
     // set up haneul client for the desired network.
