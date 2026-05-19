@@ -20,6 +20,7 @@ use haneul_rpc::proto::haneul::rpc::v2::TransactionExpiration as ProtoTransactio
 use haneul_rpc::proto::haneul::rpc::v2::TransactionKind;
 use haneul_rpc::proto::haneul::rpc::v2::TransferObjects;
 use haneul_rpc::proto::haneul::rpc::v2::UserSignature;
+use haneul_rpc::proto::haneul::rpc::v2::simulate_transaction_request::TransactionChecks as ProtoTransactionChecks;
 use haneul_rpc::proto::haneul::rpc::v2::transaction_execution_service_client::TransactionExecutionServiceClient;
 use haneul_rpc::proto::haneul::rpc::v2::transaction_expiration::TransactionExpirationKind;
 use haneul_rpc_api::Client;
@@ -120,6 +121,57 @@ async fn resolve_transaction_simple_transfer() {
 
     assert!(effects.status().is_ok());
     assert_eq!(effects_from_simulation, effects);
+}
+
+#[sim_test]
+async fn simulate_transaction_read_mask_selects_command_outputs_without_transaction() {
+    let test_cluster = TestClusterBuilder::new()
+        .with_num_validators(1)
+        .build()
+        .await;
+
+    let mut alpha_client =
+        TransactionExecutionServiceClient::connect(test_cluster.rpc_url().to_owned())
+            .await
+            .unwrap();
+    let (sender, mut gas) = test_cluster.wallet.get_one_account().await.unwrap();
+    gas.sort_by_key(|object_ref| object_ref.0);
+
+    let mut builder = ProgrammableTransactionBuilder::new();
+    builder
+        .pay_haneul(vec![HaneulAddress::random_for_testing_only()], vec![500])
+        .unwrap();
+    let transaction_data = TransactionData::new_programmable(
+        sender,
+        vec![gas[0]],
+        builder.finish(),
+        50_000_000,
+        test_cluster.wallet.get_reference_gas_price().await.unwrap(),
+    );
+
+    let mut transaction = Transaction::default();
+    transaction.bcs = Some(Bcs::serialize(&transaction_data).unwrap());
+
+    let mut request = SimulateTransactionRequest::new(transaction);
+    request.set_checks(ProtoTransactionChecks::Enabled);
+    request.read_mask = Some(FieldMask {
+        paths: vec!["command_outputs".to_owned()],
+    });
+
+    let response = alpha_client
+        .simulate_transaction(request)
+        .await
+        .unwrap()
+        .into_inner();
+
+    // This mask is intentionally narrow. The command outputs require VM execution data, but the
+    // executed transaction wrapper is expensive and should stay absent unless explicitly requested.
+    assert!(response.transaction.is_none());
+    assert_eq!(response.command_outputs.len(), 2);
+    assert!(!response.command_outputs[0].mutated_by_ref.is_empty());
+    assert!(!response.command_outputs[0].return_values.is_empty());
+    assert!(response.command_outputs[1].mutated_by_ref.is_empty());
+    assert!(response.command_outputs[1].return_values.is_empty());
 }
 
 #[sim_test]
