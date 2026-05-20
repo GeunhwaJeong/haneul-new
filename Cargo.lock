@@ -14709,6 +14709,7 @@ dependencies = [
  "move-core-types",
  "haneullabs-common",
  "haneullabs-metrics",
+ "haneullabs-network",
  "p256",
  "passkey-authenticator",
  "passkey-client",

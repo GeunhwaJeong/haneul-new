@@ -40,6 +40,7 @@ fastcrypto-zkp.workspace = true
 move-core-types.workspace = true
 
 haneullabs-common.workspace = true
+haneullabs-network.workspace = true
 haneul-core.workspace = true
 haneul-framework-snapshot.workspace = true
 haneul-framework.workspace = true
