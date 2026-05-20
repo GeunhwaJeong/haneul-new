@@ -167,7 +167,20 @@ jobs:
         if: ${{ env.s3_existing_archive == '' }}
         shell: bash
         run: |
-          [ -f ~/.cargo/env ] && source ~/.cargo/env ; cargo build --release && cargo build --release --features tracing --bin haneul && cargo build --profile=dev --bin haneul --features tracing
+          [ -f ~/.cargo/env ] && source ~/.cargo/env
+          # Build only the binaries we actually package (the release_binaries in
+          # binary-build-list.json — the same list the rename step below moves),
+          # not the whole workspace. `haneul` is built separately, once, with the
+          # tracing feature: a plain `cargo build --release` compiled `haneul` without
+          # tracing and the next step overwrote it, wasting a compile+link of `haneul`
+          # on every platform.
+          haneul_bins=""
+          for b in $(jq -r '.release_binaries[] | select(. != "haneul")' "${{ env.BINARY_LIST_FILE }}"); do
+            haneul_bins="$haneul_bins --bin $(echo "$b" | tr -d $'\r')"
+          done
+          cargo build --release $haneul_bins
+          cargo build --release --features tracing --bin haneul
+          cargo build --profile=dev --bin haneul --features tracing
 
       - name: Rename binaries for ${{ matrix.os }}
         if: ${{ env.s3_existing_archive == '' }}
