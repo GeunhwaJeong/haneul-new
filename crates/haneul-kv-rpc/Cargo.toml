@@ -37,6 +37,7 @@ haneul-sdk-types.workspace = true
 haneul-storage.workspace = true
 haneul-types.workspace = true
 telemetry-subscribers.workspace = true
+thiserror.workspace = true
 tokio.workspace = true
 tonic.workspace = true
 tonic-prost.workspace = true
