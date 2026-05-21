@@ -14,7 +14,7 @@ use haneul_rpc_api::{
 use haneul_storage::object_store::util::{build_object_store, fetch_checkpoint};
 use haneul_types::digests::CheckpointDigest;
 
-pub const READ_MASK_DEFAULT: &str = "sequence_number,digest";
+pub const READ_MASK_DEFAULT: &str = haneul_rpc_api::read_mask_defaults::CHECKPOINT;
 
 pub async fn get_checkpoint(
     mut client: BigTableClient,
