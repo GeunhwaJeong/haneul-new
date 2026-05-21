@@ -49,6 +49,9 @@ use haneul_types::storage::ChildObjectResolver;
 use haneul_types::storage::CoinInfo;
 use haneul_types::storage::DynamicFieldIteratorItem;
 use haneul_types::storage::EpochInfo;
+use haneul_types::storage::LedgerBitmapBucketIterator;
+use haneul_types::storage::LedgerTxSeqDigest;
+use haneul_types::storage::LedgerTxSeqDigestIterator;
 use haneul_types::storage::ObjectStore;
 use haneul_types::storage::OwnedObjectInfo;
 use haneul_types::storage::PackageObject;
@@ -1358,6 +1361,47 @@ impl RpcIndexes for DataStore {
         &self,
     ) -> StorageResult<Option<CheckpointSequenceNumber>> {
         Ok(self.get_highest_checkpoint().ok())
+    }
+
+    fn ledger_tx_seq_digest(&self, _tx_seq: u64) -> StorageResult<Option<LedgerTxSeqDigest>> {
+        Err(StorageError::custom(
+            "ledger history indexes are not supported by fork store",
+        ))
+    }
+
+    fn ledger_tx_seq_digest_iter(
+        &self,
+        _start: u64,
+        _end_exclusive: u64,
+        _descending: bool,
+    ) -> StorageResult<LedgerTxSeqDigestIterator<'_>> {
+        Err(StorageError::custom(
+            "ledger history indexes are not supported by fork store",
+        ))
+    }
+
+    fn transaction_bitmap_bucket_iter(
+        &self,
+        _dimension_key: Vec<u8>,
+        _start_bucket: u64,
+        _end_bucket_exclusive: u64,
+        _descending: bool,
+    ) -> StorageResult<LedgerBitmapBucketIterator<'_>> {
+        Err(StorageError::custom(
+            "ledger history indexes are not supported by fork store",
+        ))
+    }
+
+    fn event_bitmap_bucket_iter(
+        &self,
+        _dimension_key: Vec<u8>,
+        _start_bucket: u64,
+        _end_bucket_exclusive: u64,
+        _descending: bool,
+    ) -> StorageResult<LedgerBitmapBucketIterator<'_>> {
+        Err(StorageError::custom(
+            "ledger history indexes are not supported by fork store",
+        ))
     }
 
     fn authenticated_event_iter(
