@@ -249,11 +249,15 @@ impl SurferState {
                     }
                 }
                 Owner::ObjectOwner(_) => (),
+                // TODO(Party WIP) Implement full support for Party objects in haneul-surfer.
                 Owner::Shared {
                     initial_shared_version,
                 }
-                // TODO: Implement full support for ConsensusAddressOwner objects in haneul-surfer.
                 | Owner::ConsensusAddressOwner {
+                    start_version: initial_shared_version,
+                    ..
+                }
+                | Owner::Party {
                     start_version: initial_shared_version,
                     ..
                 } => {
