@@ -21,7 +21,7 @@ use super::{
     simulate_transaction, withdraw_coin_from_address_balance,
 };
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct PayHaneul {
     pub sender: HaneulAddress,
     pub recipients: Vec<HaneulAddress>,
