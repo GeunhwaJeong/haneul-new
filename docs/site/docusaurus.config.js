@@ -357,6 +357,7 @@ const config = {
       "data-mcp-enabled": "true",
       "data-mcp-server-url": "https://haneul.mcp.kapa.ai",
       "data-mcp-button-text": "Use Haneul MCP Server",
+      "data-chat-disclaimer": "**New:** Install [Haneul Agent Skills](https://docs.haneul.io/skills) to supercharge your AI coding agent with Haneul expertise.",
       async: true,
     },
   ],
@@ -381,6 +382,12 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      announcementBar: {
+        id: "skills_launch",
+        content:
+          'New: <a href="/skills">Haneul Agent Skills</a> — drop pre-built skills into Claude Code, Cursor, Codex, and other AI coding agents.',
+        isCloseable: true,
+      },
       image: "img/haneul-doc-og.png",
       mermaid: {
         theme: {
