@@ -29,6 +29,7 @@ use haneul_storage::object_store::util::PerEpochManifest;
 use haneul_storage::object_store::util::{build_object_store, end_of_epoch_data, fetch_checkpoint};
 use haneul_types::committee::QUORUM_THRESHOLD;
 use haneul_types::crypto::AuthorityPublicKeyBytes;
+use haneul_types::digests::ChainIdentifier;
 use haneul_types::global_state_hash::GlobalStateHash;
 use haneul_types::messages_grpc::LayoutGenerationOption;
 use haneul_types::multiaddr::Multiaddr;
@@ -819,7 +820,16 @@ pub async fn download_formal_snapshot(
         None,
         None,
     ));
-    let genesis = Genesis::load(genesis).unwrap();
+    let genesis = Genesis::load(genesis)?;
+    let genesis_chain = ChainIdentifier::from(*genesis.checkpoint().digest()).chain();
+    if genesis_chain != network {
+        return Err(anyhow!(
+            "Genesis file is for chain {}, but formal snapshot download is configured for --network {}. \
+            Use the matching genesis.blob or pass the correct --network flag.",
+            genesis_chain.as_str(),
+            network.as_str(),
+        ));
+    }
     let genesis_committee = genesis.committee();
     let committee_store = Arc::new(CommitteeStore::new(
         path.join("epochs"),
