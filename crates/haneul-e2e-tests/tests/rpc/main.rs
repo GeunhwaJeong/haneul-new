@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 mod client;
+mod rpc_index_restore;
 mod v2;
 
 async fn transfer_coin(context: &haneul_sdk::wallet_context::WalletContext) -> haneul_sdk_types::Digest {
