@@ -1,11 +1,14 @@
 # CLAUDE.md
 
-## Crate-specific CLAUDE.md files
-When a sub-crate's CLAUDE.md conflicts with this file, the sub-crate's instructions win.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this directory.
 
-## Individual Preferences
-Individual preferences supersede and extend project preferences:
-- @CLAUDE.local.md if present.
+## Crate-specific CLAUDE.md files
+Always consult CLAUDE.md files in sub-crates. Instructions in local CLAUDE.md files override instructions
+in this file when they are in conflict.
+
+# Individual Preferences
+Individual preferences supercede and extend project preferences:
+- @CLAUDE.local.md
 
 ## Essential Development Commands
 
@@ -39,8 +42,7 @@ HANEUL_SKIP_SIMTESTS=1 cargo nextest run
 **Important Notes for Testing:**
 - When compiling or running tests in this repository, set timeout limits to at least 10 minutes due to the large codebase size
 - For faster iteration, use -p to select only the most relevant packages for testing. Use multiple `-p` flags if necessary, e.g. `cargo nextest run -p haneul-types -p haneul-core`
-- Use `cargo nextest run --lib` to run only library tests and skip integration tests for faster feedback
-- Use a scoped `cargo insta test` for the relevant package when snapshots are affected. Inspect the generated snapshot diffs. If they match the intended changes, update them with `cargo insta accept`. Do not accept unrelated snapshot changes.
+- Use `cargo nextest --lib` to run only library tests and skip integration tests for faster feedback
 - Consult crate-specific CLAUDE.md files for instructions on which tests to run, when changing files in those crates
 
 ### Linting and Formatting
@@ -75,28 +77,31 @@ haneul/
 │   ├── haneul-indexer-alt-graphql/        # GraphQL API server
 │   └── haneul-indexer-alt/                # Blockchain data indexer
 ├── consensus/                          # Consensus mechanism (Mysticeti)
-├── haneul-execution/                      # Move execution layer with versions
-├── dapps/                              # Frontend applications
+├── haneul-execution/                      # Move execution layer with versions (v0, v1, v2 and latest)
+├── apps/                               # Frontend applications
 └── external-crates/                    # Move compiler and VM
 ```
 
 ### Key Architectural Patterns
 
-1. **Authority System**: Haneul uses a set of validators (authorities) that process transactions in parallel. Each authority maintains its own state and participates in Mysticeti consensus.
+1. **Authority System**: Haneul uses a set of validators (authorities) that process transactions in parallel. Each authority maintains its own state and participates in Byzantine consensus.
 
-2. **Data Model**: Haneul supports an object data model where each object has a unique ID and version. Accounts can also own balances.
+2. **Object Model**: Unlike account-based blockchains, Haneul uses an object-centric model where:
+   - Each object has a unique ID and version
+   - Objects can be owned, shared, or immutable
 
 3. **Transaction Flow**:
-   - User → Fullnode → Validators
-   - All user transactions require consensus voting and commit before execution.
-   - Pre and post-consensus fastpath executions have been removed. Surviving mentions of "fastpath" either refer to consensus transaction-voting logic, or should be removed. There is no longer a separate execution path called fastpath.
+   - Client → Transaction Driver → Authority Client → Validator
+   - Transactions affecting only owned objects can start execution before consensus
+   - Shared object transactions require consensus ordering before execution
 
 4. **Storage Layer**:
    - Uses RocksDB for persistent storage
-   - Separate stores for permanent, per-epoch, checkpoint, consensus and indexing data
+   - Separate stores for objects, transactions, and effects
+   - Checkpointing system for state synchronization
 
 5. **Execution Pipeline**:
-   - Consensus output → Execution → Effects commitment
+   - Transaction validation → Certificate creation → Execution → Effects commitment
    - Move VM executes smart contracts with gas metering
    - Parallel execution for non-conflicting transactions
 
@@ -116,7 +121,7 @@ Use `#[cfg(test)]` for test-only code used within the same crate. Use `#[cfg(fea
    - **NEVER use `#[allow(dead_code)]`, `#[allow(unused)]`, or any other linting suppressions** - fix the underlying issues instead
    - **All unit tests must work properly** - use `#[tokio::test]` for async tests, not `#[test]`
 
-### Comment Writing Guidelines
+### **Comment Writing Guidelines**
 
 **Do NOT comment the obvious** - comments should not simply repeat what the code does.
 **When to comment**:

@@ -1,15 +1,6 @@
 name: Release Notes
 
 on:
-  push:
-    branches:
-      - 'main'
-      - 'devnet'
-      - 'testnet'
-      - 'mainnet'
-      - 'releases/haneul-*-release'
-  pull_request:
-    types: [ opened, synchronize, reopened, edited, ready_for_review ]
   workflow_dispatch:
     inputs:
       haneul_repo_ref:

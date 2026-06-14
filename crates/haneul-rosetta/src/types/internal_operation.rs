@@ -6,15 +6,15 @@ use std::str::FromStr;
 use anyhow::anyhow;
 use async_trait::async_trait;
 use enum_dispatch::enum_dispatch;
+use haneul_rpc::client::Client;
+use haneul_rpc::proto::haneul::rpc::v2::{
+    BatchGetObjectsRequest, GetObjectRequest, Object, get_object_result,
+};
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::TypeTag;
 use prost_types::FieldMask;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use haneul_rpc::client::Client;
-use haneul_rpc::proto::haneul::rpc::v2::{
-    BatchGetObjectsRequest, GetObjectRequest, Object, get_object_result,
-};
 
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::{
@@ -23,26 +23,27 @@ use haneul_rpc::proto::haneul::rpc::v2::{
     simulate_transaction_request::TransactionChecks, transaction_kind,
 };
 use haneul_types::HANEUL_FRAMEWORK_PACKAGE_ID;
-use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID, ObjectRef, SequenceNumber};
 use haneul_types::digests::{ChainIdentifier, CheckpointDigest};
 use haneul_types::transaction::{
     Argument, CallArg, Command, FundsWithdrawalArg, ProgrammableTransaction, TransactionData,
 };
 
 use crate::errors::Error;
-use crate::types::{AuxData, ConstructionMetadata};
+use crate::types::ConstructionMetadata;
 pub use consolidate_to_fungible::ConsolidateAllStakedHaneulToFungible;
 pub(crate) use consolidate_to_fungible::consolidate_to_fungible_pt;
+pub(crate) use consolidate_to_fungible::get_validator_pool_id;
 pub use merge_and_redeem::MergeAndRedeemFungibleStakedHaneul;
 pub(crate) use merge_and_redeem::merge_and_redeem_fss_pt;
 pub use pay_coin::PayCoin;
-pub(crate) use pay_coin::{pay_coin_gasless_pt, pay_coin_pt};
+pub(crate) use pay_coin::pay_coin_pt;
 pub use pay_haneul::PayHaneul;
-pub(crate) use pay_haneul::{pay_haneul_pt_ab_gas, pay_haneul_pt_coin_gas};
+use pay_haneul::{pay_haneul_pt_ab_gas, pay_haneul_pt_coin_gas};
 pub use stake::Stake;
-pub(crate) use stake::{stake_pt_ab_gas, stake_pt_coin_gas};
+use stake::{stake_pt_ab_gas, stake_pt_coin_gas};
 pub use withdraw_stake::WithdrawStake;
-pub(crate) use withdraw_stake::withdraw_stake_pt;
+use withdraw_stake::withdraw_stake_pt;
 
 mod consolidate_to_fungible;
 mod merge_and_redeem;
@@ -65,9 +66,6 @@ pub struct TransactionObjectData {
     /// Refers to the sum of the `Coin<HANEUL>` balance of the coins participating in the transaction;
     /// either as gas or as objects.
     pub total_haneul_balance: i128,
-    /// Gas budget. The PayCoin free-tier ("gasless") path sets this to `0` (with empty `gas_coins`)
-    /// as the sentinel that the node confirmed free-tier eligibility — no priced path produces a
-    /// zero budget. See [`TransactionObjectData::is_gasless`].
     pub budget: u64,
     /// Amount to withdraw from address balance for payment
     pub address_balance_withdrawal: u64,
@@ -76,29 +74,7 @@ pub struct TransactionObjectData {
     pub fss_object_count: Option<u64>,
     /// Pool tokens to redeem. None = redeem all.
     /// Used by MergeAndRedeemFungibleStakedHaneul.
-    ///
-    /// Forward-compat-only field: surfaced in metadata responses for older
-    /// clients, but new code reads `redeem_plan` exclusively when building
-    /// the payload. See `ConstructionMetadata::redeem_token_amount`.
     pub redeem_token_amount: Option<u64>,
-    /// Mode-aware redeem plan (used by `MergeAndRedeemFungibleStakedHaneul`).
-    /// `None` for other operations.
-    pub redeem_plan: Option<crate::types::RedeemPlan>,
-    /// Quote-time epoch to bind the transaction to (used by amount-sensitive
-    /// `MergeAndRedeemFungibleStakedHaneul` modes). `None` for other operations.
-    pub bind_epoch: Option<u64>,
-}
-
-impl TransactionObjectData {
-    /// Free-tier ("gasless") sentinel. The PayCoin gasless path sets `budget == 0` with no gas
-    /// coins after the node confirms free-tier eligibility during simulation (see
-    /// `pay_coin::PayCoin::try_fetch_needed_objects`). No priced path ever produces a zero budget,
-    /// so this uniquely identifies a gasless transaction without needing a dedicated field. Callers
-    /// use it to zero the gas price, which is what makes the on-chain tx recognized as gasless
-    /// (`price == 0`).
-    pub fn is_gasless(&self) -> bool {
-        self.gas_coins.is_empty() && self.budget == 0
-    }
 }
 
 #[async_trait]
@@ -113,7 +89,7 @@ pub trait TryConstructTransaction {
 }
 
 #[enum_dispatch(TryConstructTransaction)]
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum InternalOperation {
     PayHaneul(PayHaneul),
     PayCoin(PayCoin),
@@ -139,37 +115,9 @@ impl InternalOperation {
         }
     }
 
-    /// Derive the out-of-band `AuxData` for this operation: the
-    /// handful of Rosetta-level labels `/parse` cannot reconstruct from the PTB
-    /// (PayCoin currency, FSS validator, FSS redeem mode + cap). `/metadata`
-    /// calls this to populate the wrapper.
-    pub fn aux(&self) -> AuxData {
-        match self {
-            InternalOperation::PayCoin(p) => AuxData::PayCoin {
-                currency: p.currency.clone(),
-            },
-            InternalOperation::ConsolidateAllStakedHaneulToFungible(c) => AuxData::Consolidate {
-                validator: c.validator,
-            },
-            InternalOperation::MergeAndRedeemFungibleStakedHaneul(m) => AuxData::MergeAndRedeem {
-                validator: m.validator,
-                redeem_mode: m.redeem_mode.clone(),
-                amount: m.amount,
-            },
-            // Fully reconstructable from the PTB — no aux data needed.
-            InternalOperation::PayHaneul(_)
-            | InternalOperation::Stake(_)
-            | InternalOperation::WithdrawStake(_) => AuxData::None,
-        }
-    }
-
     /// Combine with ConstructionMetadata to form the TransactionData
     pub fn try_into_data(self, metadata: ConstructionMetadata) -> Result<TransactionData, Error> {
         let use_addr_balance_gas = metadata.gas_coins.is_empty();
-        // Gasless ("free tier"): no gas coins and a zeroed gas price. `metadata` zeroes the gas
-        // price for the gasless case, so this uniquely distinguishes it from priced address-balance
-        // gas (which keeps `gas_price > 0`). Only PayCoin produces this shape.
-        let is_gasless = use_addr_balance_gas && metadata.gas_price == 0;
         let withdrawal = metadata.address_balance_withdrawal;
         let pt = match self {
             Self::PayHaneul(PayHaneul {
@@ -210,27 +158,15 @@ impl InternalOperation {
                 let currency = &metadata
                     .currency
                     .ok_or(anyhow!("metadata.coin_type is needed to PayCoin"))?;
-                if is_gasless {
-                    pay_coin_gasless_pt(
-                        sender,
-                        recipients,
-                        amounts,
-                        &metadata.objects,
-                        &metadata.party_objects,
-                        withdrawal,
-                        currency,
-                    )?
-                } else {
-                    pay_coin_pt(
-                        sender,
-                        recipients,
-                        amounts,
-                        &metadata.objects,
-                        &metadata.party_objects,
-                        withdrawal,
-                        currency,
-                    )?
-                }
+                pay_coin_pt(
+                    sender,
+                    recipients,
+                    amounts,
+                    &metadata.objects,
+                    &metadata.party_objects,
+                    withdrawal,
+                    currency,
+                )?
             }
             InternalOperation::Stake(Stake {
                 sender,
@@ -291,15 +227,8 @@ impl InternalOperation {
             }
             InternalOperation::MergeAndRedeemFungibleStakedHaneul(
                 MergeAndRedeemFungibleStakedHaneul { sender, .. },
-            ) => {
-                let plan = metadata.redeem_plan.as_ref().ok_or(anyhow!(
-                    "redeem_plan required for MergeAndRedeemFungibleStakedHaneul"
-                ))?;
-                merge_and_redeem_fss_pt(sender, metadata.objects, plan)?
-            }
+            ) => merge_and_redeem_fss_pt(sender, metadata.objects, metadata.redeem_token_amount)?,
         };
-
-        let bind_epoch = metadata.bind_epoch;
 
         if metadata.gas_coins.is_empty() {
             let chain_id_str = metadata
@@ -313,20 +242,7 @@ impl InternalOperation {
                 .ok_or(anyhow!("epoch required for address-balance gas"))?;
             let nonce = rand::thread_rng().r#gen::<u32>();
 
-            // For amount-sensitive plans, verify the metadata epoch matches
-            // the rate-quote epoch — otherwise the rate the off-chain quote
-            // used has rolled over since metadata fetch.
-            if let Some(want) = bind_epoch
-                && want != epoch
-            {
-                return Err(anyhow!(
-                    "redeem plan was quoted for epoch {want} but signing in epoch {epoch}; \
-                     re-fetch /construction/metadata"
-                )
-                .into());
-            }
-
-            let mut data = TransactionData::new_programmable_with_address_balance_gas(
+            Ok(TransactionData::new_programmable_with_address_balance_gas(
                 metadata.sender,
                 pt,
                 metadata.budget,
@@ -334,50 +250,15 @@ impl InternalOperation {
                 chain_id,
                 epoch,
                 nonce,
-            );
-
-            // The default `new_programmable_with_address_balance_gas` sets
-            // `ValidDuring { min_epoch: epoch, max_epoch: epoch + 1 }`, so the
-            // tx can still execute in `epoch + 1` against a different exchange
-            // rate. Tighten to `min == max == bind_epoch` for amount-sensitive
-            // plans. This stays replay-protected (a one-epoch range satisfies
-            // `TransactionExpiration::is_replay_protected`, see
-            // `haneul-types/src/transaction.rs::is_replay_protected`).
-            if let Some(want) = bind_epoch {
-                use haneul_types::transaction::{TransactionDataAPI, TransactionExpiration};
-                if let TransactionExpiration::ValidDuring {
-                    chain,
-                    nonce,
-                    min_timestamp,
-                    max_timestamp,
-                    ..
-                } = *data.expiration()
-                {
-                    *data.expiration_mut() = TransactionExpiration::ValidDuring {
-                        min_epoch: Some(want),
-                        max_epoch: Some(want),
-                        min_timestamp,
-                        max_timestamp,
-                        chain,
-                        nonce,
-                    };
-                }
-            }
-
-            Ok(data)
+            ))
         } else {
-            let mut data = TransactionData::new_programmable(
+            Ok(TransactionData::new_programmable(
                 metadata.sender,
                 metadata.gas_coins,
                 pt,
                 metadata.budget,
                 metadata.gas_price,
-            );
-            if let Some(epoch) = bind_epoch {
-                use haneul_types::transaction::{TransactionDataAPI, TransactionExpiration};
-                *data.expiration_mut() = TransactionExpiration::Epoch(epoch);
-            }
-            Ok(data)
+            ))
         }
     }
 }

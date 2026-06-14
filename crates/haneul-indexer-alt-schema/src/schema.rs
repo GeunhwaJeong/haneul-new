@@ -18,13 +18,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    cp_digests (cp_sequence_number) {
-        cp_sequence_number -> Int8,
-        cp_digest -> Bytea,
-    }
-}
-
-diesel::table! {
     cp_sequence_numbers (cp_sequence_number) {
         cp_sequence_number -> Int8,
         tx_lo -> Int8,
@@ -228,7 +221,6 @@ diesel::table! {
 diesel::allow_tables_to_appear_in_same_query!(
     cp_bloom_blocks,
     cp_blooms,
-    cp_digests,
     cp_sequence_numbers,
     ev_emit_mod,
     ev_struct_inst,

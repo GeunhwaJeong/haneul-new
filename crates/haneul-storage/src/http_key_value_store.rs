@@ -4,15 +4,6 @@
 use async_trait::async_trait;
 use bytes::Bytes;
 use futures::stream::{self, StreamExt};
-use moka::sync::{Cache as MokaCache, CacheBuilder as MokaCacheBuilder};
-use haneullabs_common::ZipDebugEqIteratorExt;
-use reqwest::Client;
-use reqwest::Url;
-use reqwest::header::{CONTENT_LENGTH, HeaderValue};
-use serde::{Deserialize, Serialize};
-use std::str::FromStr;
-use std::sync::Arc;
-use std::time::Duration;
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::object::Object;
 use haneul_types::storage::ObjectKey;
@@ -25,6 +16,15 @@ use haneul_types::{
     },
     transaction::Transaction,
 };
+use haneullabs_common::ZipDebugEqIteratorExt;
+use moka::sync::{Cache as MokaCache, CacheBuilder as MokaCacheBuilder};
+use reqwest::Client;
+use reqwest::Url;
+use reqwest::header::{CONTENT_LENGTH, HeaderValue};
+use serde::{Deserialize, Serialize};
+use std::str::FromStr;
+use std::sync::Arc;
+use std::time::Duration;
 use tap::{TapFallible, TapOptional};
 use tracing::{error, info, instrument, trace, warn};
 
@@ -494,7 +494,10 @@ impl TransactionKeyValueStoreTrait for HttpKVStore {
     }
 
     #[instrument(level = "trace", skip_all)]
-    async fn multi_get_objects(&self, object_keys: &[ObjectKey]) -> HaneulResult<Vec<Option<Object>>> {
+    async fn multi_get_objects(
+        &self,
+        object_keys: &[ObjectKey],
+    ) -> HaneulResult<Vec<Option<Object>>> {
         let keys = object_keys
             .iter()
             .map(|key| Key::ObjectKey(*key))

@@ -3,7 +3,6 @@
 
 use anyhow::Context;
 use clap::Parser;
-use prometheus::Registry;
 use haneul_futures::service::Error;
 use haneul_indexer_alt_graphql::args::Args;
 use haneul_indexer_alt_graphql::args::Command;
@@ -12,6 +11,7 @@ use haneul_indexer_alt_graphql::config::RpcLayer;
 use haneul_indexer_alt_graphql::start_rpc;
 use haneul_indexer_alt_metrics::MetricsService;
 use haneul_indexer_alt_metrics::uptime;
+use prometheus::Registry;
 use telemetry_subscribers::TelemetryConfig;
 use tokio::fs;
 

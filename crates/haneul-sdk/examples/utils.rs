@@ -6,7 +6,7 @@ use std::{str::FromStr, time::Duration};
 use anyhow::bail;
 use futures::{future, stream::StreamExt};
 use haneul_config::{
-    Config, PersistedConfig, HANEUL_CLIENT_CONFIG, HANEUL_KEYSTORE_FILENAME, haneul_config_dir,
+    Config, HANEUL_CLIENT_CONFIG, HANEUL_KEYSTORE_FILENAME, PersistedConfig, haneul_config_dir,
 };
 use haneul_json_rpc_types::{Coin, HaneulObjectDataOptions};
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, GenerateOptions};
@@ -16,18 +16,20 @@ use haneul_sdk::{
 };
 use tracing::info;
 
-use reqwest::Client;
-use serde_json::json;
-use shared_crypto::intent::Intent;
 use haneul_sdk::types::{
-    base_types::{ObjectID, HaneulAddress},
+    base_types::{HaneulAddress, ObjectID},
     digests::TransactionDigest,
     programmable_transaction_builder::ProgrammableTransactionBuilder,
     transaction::{Argument, Command, Transaction, TransactionData},
     transaction_driver_types::ExecuteTransactionRequestType,
 };
+use reqwest::Client;
+use serde_json::json;
+use shared_crypto::intent::Intent;
 
-use haneul_sdk::{HaneulClient, HaneulClientBuilder, rpc_types::HaneulTransactionBlockResponseOptions};
+use haneul_sdk::{
+    HaneulClient, HaneulClientBuilder, rpc_types::HaneulTransactionBlockResponseOptions,
+};
 
 #[derive(serde::Deserialize)]
 struct FaucetResponse {
@@ -48,7 +50,8 @@ pub const HANEUL_FAUCET: &str = "https://faucet.testnet.haneul.io/v2/gas"; // te
 /// By default, this function will set up a wallet locally if there isn't any, or reuse the
 /// existing one and its active address. This function should be used when two addresses are needed,
 /// e.g., transferring objects from one address to another.
-pub async fn setup_for_write() -> Result<(HaneulClient, HaneulAddress, HaneulAddress), anyhow::Error> {
+pub async fn setup_for_write() -> Result<(HaneulClient, HaneulAddress, HaneulAddress), anyhow::Error>
+{
     let (client, active_address) = setup_for_read().await?;
     // make sure we have some HANEUL (5_000_000 GEUNHWA) on this address
     let coin = fetch_coin(&client, &active_address).await?;

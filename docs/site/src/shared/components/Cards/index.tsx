@@ -26,7 +26,7 @@ export function Card({ title, href, className, children }: CardProps) {
     return;
   }, [url]);
 
-  const { descriptions } = usePluginData("haneul-description-plugin");
+  const { descriptions } = usePluginData("sui-description-plugin");
   let h = href;
   if (!h.match(/^\//)) {
     h = `/${h}`;

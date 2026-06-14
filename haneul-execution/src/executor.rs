@@ -1,8 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_trace_format::format::MoveTraceBuilder;
-use std::sync::Arc;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::execution::ExecutionTiming;
 use haneul_types::execution_params::ExecutionOrEarlyError;
@@ -22,6 +20,8 @@ use haneul_types::{
     metrics::ExecutionMetrics,
     transaction::{CheckedInputObjects, ProgrammableTransaction, TransactionKind},
 };
+use move_trace_format::format::MoveTraceBuilder;
+use std::sync::Arc;
 
 /// Abstracts over access to the VM across versions of the execution layer.
 pub trait Executor {

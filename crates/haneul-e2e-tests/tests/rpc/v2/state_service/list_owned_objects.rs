@@ -1,8 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use prost_types::FieldMask;
-use std::path::PathBuf;
 use haneul_macros::sim_test;
 use haneul_move_build::BuildConfig;
 use haneul_rpc::Client;
@@ -15,6 +13,8 @@ use haneul_sdk_types::TypeTag;
 use haneul_types::Identifier;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{CallArg, ObjectArg, TransactionData, TransactionKind};
+use prost_types::FieldMask;
+use std::path::PathBuf;
 use test_cluster::TestClusterBuilder;
 
 #[sim_test]
@@ -367,9 +367,10 @@ async fn test_filter_by_type() {
         .parse::<TypeTag>()
         .unwrap()
         .to_string();
-    let treasury_cap_type =
-        haneul_types::coin::TreasuryCap::type_(haneul_types::parse_haneul_struct_tag(&trusted).unwrap())
-            .to_canonical_string(true);
+    let treasury_cap_type = haneul_types::coin::TreasuryCap::type_(
+        haneul_types::parse_haneul_struct_tag(&trusted).unwrap(),
+    )
+    .to_canonical_string(true);
 
     let treasury_cap = effects
         .changed_objects
@@ -530,7 +531,10 @@ async fn test_filter_by_type() {
             .count(),
         1
     );
-    assert_eq!(objects.iter().filter(|o| o.object_type() == haneul).count(), 5);
+    assert_eq!(
+        objects.iter().filter(|o| o.object_type() == haneul).count(),
+        5
+    );
 }
 
 #[sim_test]

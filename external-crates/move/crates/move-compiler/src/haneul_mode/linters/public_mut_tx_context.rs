@@ -10,9 +10,9 @@ use crate::{
     diag,
     diagnostics::codes::{DiagnosticInfo, Severity, custom},
     expansion::ast::{ModuleIdent, Visibility},
+    haneul_mode::{HANEUL_ADDR_VALUE, TX_CONTEXT_MODULE_NAME, TX_CONTEXT_TYPE_NAME},
     naming::ast::TypeInner,
     parser::ast::FunctionName,
-    haneul_mode::{HANEUL_ADDR_VALUE, TX_CONTEXT_MODULE_NAME, TX_CONTEXT_TYPE_NAME},
     typing::{ast as T, visitor::simple_visitor},
 };
 use move_ir_types::location::Loc;

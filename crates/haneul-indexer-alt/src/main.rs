@@ -7,7 +7,6 @@ use anyhow::Context;
 use anyhow::Result;
 use anyhow::bail;
 use clap::Parser;
-use prometheus::Registry;
 use haneul_indexer_alt::args::Args;
 use haneul_indexer_alt::args::Command;
 use haneul_indexer_alt::config::IndexerConfig;
@@ -19,6 +18,7 @@ use haneul_indexer_alt_framework::service::terminate;
 use haneul_indexer_alt_metrics::MetricsService;
 use haneul_indexer_alt_metrics::uptime;
 use haneul_indexer_alt_schema::MIGRATIONS;
+use prometheus::Registry;
 use tokio::fs;
 use tracing::info;
 

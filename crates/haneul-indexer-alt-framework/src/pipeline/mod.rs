@@ -186,8 +186,8 @@ impl Default for CommitterConfig {
 mod tests {
     use super::*;
     use async_trait::async_trait;
-    use std::sync::Arc;
     use haneul_types::full_checkpoint_content::Checkpoint;
+    use std::sync::Arc;
 
     // Test implementation of Processor
     struct TestProcessor;

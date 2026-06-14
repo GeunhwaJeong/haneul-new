@@ -1,15 +1,15 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
+use haneul_types::base_types::VEC_MAP_ENTRY_STRUCT_NAME;
+use haneul_types::base_types::VEC_MAP_MODULE_NAME;
+use haneul_types::base_types::VEC_MAP_STRUCT_NAME;
 use move_core_types::account_address::AccountAddress;
 use move_core_types::annotated_visitor as AV;
 use move_core_types::language_storage::StructTag;
 use move_core_types::u256::U256;
 use move_core_types::visitor_default;
-use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
-use haneul_types::base_types::VEC_MAP_ENTRY_STRUCT_NAME;
-use haneul_types::base_types::VEC_MAP_MODULE_NAME;
-use haneul_types::base_types::VEC_MAP_STRUCT_NAME;
 
 use crate::v2::error::FormatError;
 use crate::v2::value::Accessor;

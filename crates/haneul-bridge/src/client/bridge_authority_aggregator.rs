@@ -13,16 +13,18 @@ use crate::types::{
     BridgeAction, BridgeCommittee, CertifiedBridgeAction, VerifiedCertifiedBridgeAction,
     VerifiedSignedBridgeAction,
 };
+use haneul_authority_aggregation::ReduceOutput;
+use haneul_authority_aggregation::{
+    SigRequestPrefs, quorum_map_then_reduce_with_timeout_and_prefs,
+};
+use haneul_types::base_types::ConciseableName;
+use haneul_types::committee::StakeUnit;
+use haneul_types::committee::TOTAL_VOTING_POWER;
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 use std::collections::btree_map::Entry;
 use std::sync::Arc;
 use std::time::Duration;
-use haneul_authority_aggregation::ReduceOutput;
-use haneul_authority_aggregation::{SigRequestPrefs, quorum_map_then_reduce_with_timeout_and_prefs};
-use haneul_types::base_types::ConciseableName;
-use haneul_types::committee::StakeUnit;
-use haneul_types::committee::TOTAL_VOTING_POWER;
 use tracing::{error, info, warn};
 
 const TOTAL_TIMEOUT_MS: u64 = 5_000;
@@ -235,7 +237,9 @@ async fn request_sign_bridge_action_into_certification(
             ordering_pref: BTreeSet::new(),
             prefetch_timeout,
         }),
-        BridgeAction::EthToHaneulBridgeAction(_) | BridgeAction::EthToHaneulTokenTransferV2(_) => None,
+        BridgeAction::EthToHaneulBridgeAction(_) | BridgeAction::EthToHaneulTokenTransferV2(_) => {
+            None
+        }
         _ => {
             if action.chain_id().is_haneul_chain() {
                 None

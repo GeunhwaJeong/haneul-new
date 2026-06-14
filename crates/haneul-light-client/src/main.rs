@@ -10,11 +10,11 @@ use haneul_types::{
 use haneul_package_resolver::Resolver;
 
 use clap::{Parser, Subcommand};
-use std::{fs, path::PathBuf, str::FromStr};
 use haneul_light_client::checkpoint::check_and_sync_checkpoints;
 use haneul_light_client::config::Config;
 use haneul_light_client::package_store::RemotePackageStore;
 use haneul_light_client::verifier::{get_verified_effects_and_events, get_verified_object};
+use std::{fs, path::PathBuf, str::FromStr};
 
 use tracing::info;
 

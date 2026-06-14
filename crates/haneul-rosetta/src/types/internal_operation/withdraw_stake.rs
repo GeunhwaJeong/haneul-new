@@ -2,26 +2,26 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use async_trait::async_trait;
+use haneul_rpc::client::Client;
 use prost_types::FieldMask;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
-use haneul_rpc::client::Client;
 
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::{GetObjectRequest, ListOwnedObjectsRequest};
 use haneul_types::HANEUL_SYSTEM_PACKAGE_ID;
-use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID, ObjectRef};
 use haneul_types::governance::WITHDRAW_STAKE_FUN_NAME;
+use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::rpc_proto_conversions::ObjectReferenceExt;
-use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::transaction::{CallArg, Command, ObjectArg, ProgrammableTransaction};
 
 use crate::errors::Error;
 
 use super::{TransactionObjectData, TryConstructTransaction, simulate_transaction};
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct WithdrawStake {
     pub sender: HaneulAddress,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -125,8 +125,6 @@ impl TryConstructTransaction for WithdrawStake {
             address_balance_withdrawal: 0,
             fss_object_count: None,
             redeem_token_amount: None,
-            redeem_plan: None,
-            bind_epoch: None,
         })
     }
 }

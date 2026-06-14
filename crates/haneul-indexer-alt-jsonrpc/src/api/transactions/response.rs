@@ -6,15 +6,12 @@ use std::sync::Arc;
 
 use anyhow::Context as _;
 use futures::future::OptionFuture;
-use move_core_types::annotated_value::MoveDatatypeLayout;
-use move_core_types::annotated_value::MoveTypeLayout;
 use haneul_indexer_alt_reader::kv_loader::TransactionContents;
 use haneul_indexer_alt_reader::objects::VersionedObjectKey;
 use haneul_indexer_alt_reader::tx_balance_changes::TxBalanceChangeKey;
 use haneul_indexer_alt_schema::transactions::BalanceChange;
 use haneul_indexer_alt_schema::transactions::StoredTxBalanceChange;
 use haneul_json_rpc_types::BalanceChange as HaneulBalanceChange;
-use haneul_json_rpc_types::ObjectChange as HaneulObjectChange;
 use haneul_json_rpc_types::HaneulEvent;
 use haneul_json_rpc_types::HaneulTransactionBlock;
 use haneul_json_rpc_types::HaneulTransactionBlockData;
@@ -22,6 +19,7 @@ use haneul_json_rpc_types::HaneulTransactionBlockEffects;
 use haneul_json_rpc_types::HaneulTransactionBlockEvents;
 use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
+use haneul_json_rpc_types::ObjectChange as HaneulObjectChange;
 use haneul_types::TypeTag;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::SequenceNumber;
@@ -34,6 +32,8 @@ use haneul_types::object::Object;
 use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::TransactionData;
 use haneul_types::transaction::TransactionDataAPI;
+use move_core_types::annotated_value::MoveDatatypeLayout;
+use move_core_types::annotated_value::MoveTypeLayout;
 use tokio::join;
 
 use crate::api::to_haneul_object_change;
@@ -120,9 +120,12 @@ async fn input(
     let tx_signatures: Vec<GenericSignature> = tx.signatures()?;
 
     Ok(HaneulTransactionBlock {
-        data: HaneulTransactionBlockData::try_from_with_package_resolver(data, ctx.package_resolver())
-            .await
-            .context("Failed to resolve types in transaction data")?,
+        data: HaneulTransactionBlockData::try_from_with_package_resolver(
+            data,
+            ctx.package_resolver(),
+        )
+        .await
+        .context("Failed to resolve types in transaction data")?,
         tx_signatures,
     })
 }
@@ -175,7 +178,9 @@ async fn events(
         haneul_events.push(haneul_event)
     }
 
-    Ok(HaneulTransactionBlockEvents { data: haneul_events })
+    Ok(HaneulTransactionBlockEvents {
+        data: haneul_events,
+    })
 }
 
 /// Extract the transaction's balance changes from their stored form.

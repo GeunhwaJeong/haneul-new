@@ -488,7 +488,7 @@ pkg_b = { local = "../pkg_b" }"#,
 
         for name in names {
             let pkg_path = root_path.join("packages").join(name);
-            let package = PackageLoader::new(&pkg_path, env.clone(), Vanilla::new())
+            let package = PackageLoader::new(&pkg_path, env.clone(), Vanilla)
                 .load()
                 .await
                 .unwrap();
@@ -508,13 +508,13 @@ pkg_b = { local = "../pkg_b" }"#,
 
         // Test environment operations
         assert!(
-            RootPackage::<Vanilla>::environments(&pkg_path, &Vanilla::new())
+            RootPackage::<Vanilla>::environments(&pkg_path, &Vanilla)
                 .unwrap()
                 .contains_key(DEFAULT_ENV_NAME)
         );
 
         // Test loading root package with check for environment existing in manifest
-        let root = PackageLoader::new(&pkg_path, env, Vanilla::new())
+        let root = PackageLoader::new(&pkg_path, env, Vanilla)
             .load()
             .await
             .unwrap();
@@ -539,7 +539,7 @@ pkg_b = { local = "../pkg_b" }"#,
         let environment =
             Environment::new(DEFAULT_ENV_NAME.to_string(), DEFAULT_ENV_ID.to_string());
 
-        let load_err = PackageLoader::new(&project.root(), environment, Vanilla::new())
+        let load_err = PackageLoader::new(&project.root(), environment, Vanilla)
             .load()
             .await
             .unwrap_err();
@@ -564,7 +564,7 @@ pkg_b = { local = "../pkg_b" }"#,
             PackageLoader::new(
                 &path,
                 Environment::new("devnet".to_string(), "abcd1234".to_string()),
-                Vanilla::new(),
+                Vanilla,
             )
             .load()
             .await
@@ -587,7 +587,7 @@ pkg_b = { local = "../pkg_b" }"#,
         PackageLoader::new(
             scenario.path_for("a"),
             Vanilla::default_environment(),
-            Vanilla::new(),
+            Vanilla,
         )
         .load()
         .await
@@ -602,7 +602,7 @@ pkg_b = { local = "../pkg_b" }"#,
             .build();
 
         let env = Vanilla::default_environment();
-        let mut root = PackageLoader::new(scenario.path_for("example"), env, Vanilla::new())
+        let mut root = PackageLoader::new(scenario.path_for("example"), env, Vanilla)
             .load()
             .await
             .unwrap();
@@ -665,11 +665,10 @@ pkg_b = { local = "../pkg_b" }"#,
             .add_git_dep("root", &repo, "a", "branch-name", |dep| dep)
             .build();
 
-        let mut root_pkg =
-            PackageLoader::new(project.path_for("root"), env.clone(), Vanilla::new())
-                .load()
-                .await
-                .unwrap();
+        let mut root_pkg = PackageLoader::new(project.path_for("root"), env.clone(), Vanilla)
+            .load()
+            .await
+            .unwrap();
 
         root_pkg.save_lockfile_to_disk().unwrap();
 
@@ -688,11 +687,10 @@ pkg_b = { local = "../pkg_b" }"#,
             .add_git_dep("root", &repo, "a", commit.short_sha(), |dep| dep)
             .build();
 
-        let mut root_pkg =
-            PackageLoader::new(project.path_for("root"), env.clone(), Vanilla::new())
-                .load()
-                .await
-                .unwrap();
+        let mut root_pkg = PackageLoader::new(project.path_for("root"), env.clone(), Vanilla)
+            .load()
+            .await
+            .unwrap();
 
         root_pkg.save_lockfile_to_disk().unwrap();
 
@@ -714,11 +712,10 @@ pkg_b = { local = "../pkg_b" }"#,
             .build();
 
         // load the root package and save the lockfile
-        let mut root_pkg =
-            PackageLoader::new(project.path_for("root"), env.clone(), Vanilla::new())
-                .load()
-                .await
-                .unwrap();
+        let mut root_pkg = PackageLoader::new(project.path_for("root"), env.clone(), Vanilla)
+            .load()
+            .await
+            .unwrap();
         root_pkg.save_lockfile_to_disk().unwrap();
         drop(root_pkg); // release the fs lock
 
@@ -729,11 +726,10 @@ pkg_b = { local = "../pkg_b" }"#,
         commit2.branch("branch-name").await;
 
         // reload the root package and save the lockfile again
-        let mut root_pkg =
-            PackageLoader::new(project.path_for("root"), env.clone(), Vanilla::new())
-                .load()
-                .await
-                .unwrap();
+        let mut root_pkg = PackageLoader::new(project.path_for("root"), env.clone(), Vanilla)
+            .load()
+            .await
+            .unwrap();
         root_pkg.save_lockfile_to_disk().unwrap();
 
         // sha should still be for commit 1
@@ -755,11 +751,10 @@ pkg_b = { local = "../pkg_b" }"#,
             .build();
 
         // load the root package and save the lockfile
-        let mut root_pkg =
-            PackageLoader::new(project.path_for("root"), env.clone(), Vanilla::new())
-                .load()
-                .await
-                .unwrap();
+        let mut root_pkg = PackageLoader::new(project.path_for("root"), env.clone(), Vanilla)
+            .load()
+            .await
+            .unwrap();
         root_pkg.save_lockfile_to_disk().unwrap();
         drop(root_pkg); // release FS lock
 
@@ -770,12 +765,11 @@ pkg_b = { local = "../pkg_b" }"#,
         commit2.branch("branch-name").await;
 
         // reload the root package with force repinning and save the lockfile again
-        let mut root_pkg =
-            PackageLoader::new(project.path_for("root"), env.clone(), Vanilla::new())
-                .force_repin(true)
-                .load()
-                .await
-                .unwrap();
+        let mut root_pkg = PackageLoader::new(project.path_for("root"), env.clone(), Vanilla)
+            .force_repin(true)
+            .load()
+            .await
+            .unwrap();
         root_pkg.save_lockfile_to_disk().unwrap();
 
         // since we repinned, sha should be for commit 2
@@ -798,11 +792,10 @@ pkg_b = { local = "../pkg_b" }"#,
             .build();
 
         // load the root package and save the lockfile
-        let mut root_pkg =
-            PackageLoader::new(project.path_for("root"), env.clone(), Vanilla::new())
-                .load()
-                .await
-                .unwrap();
+        let mut root_pkg = PackageLoader::new(project.path_for("root"), env.clone(), Vanilla)
+            .load()
+            .await
+            .unwrap();
         root_pkg.save_lockfile_to_disk().unwrap();
         drop(root_pkg); // release FS lock
 
@@ -814,12 +807,11 @@ pkg_b = { local = "../pkg_b" }"#,
 
         // modify the manifest and then reload
         project.extend_file("root/Move.toml", "\n# extra stuff\n");
-        let mut root_pkg =
-            PackageLoader::new(project.path_for("root"), env.clone(), Vanilla::new())
-                .force_repin(true)
-                .load()
-                .await
-                .unwrap();
+        let mut root_pkg = PackageLoader::new(project.path_for("root"), env.clone(), Vanilla)
+            .force_repin(true)
+            .load()
+            .await
+            .unwrap();
         root_pkg.save_lockfile_to_disk().unwrap();
 
         // since the manifest changed, we should have repinned, so the sha should be for commit 2
@@ -848,11 +840,10 @@ pkg_b = { local = "../pkg_b" }"#,
             .build();
 
         // load the root package and save the lockfile
-        let mut root_pkg =
-            PackageLoader::new(project.path_for("root"), env.clone(), Vanilla::new())
-                .load()
-                .await
-                .unwrap();
+        let mut root_pkg = PackageLoader::new(project.path_for("root"), env.clone(), Vanilla)
+            .load()
+            .await
+            .unwrap();
         root_pkg.save_lockfile_to_disk().unwrap();
         drop(root_pkg); // release package lock
 
@@ -864,12 +855,11 @@ pkg_b = { local = "../pkg_b" }"#,
 
         // modify the manifest for `dirty` and then reload
         project.extend_file("dirty/Move.toml", "\n# extra stuff\n");
-        let mut root_pkg =
-            PackageLoader::new(project.path_for("root"), env.clone(), Vanilla::new())
-                .force_repin(true)
-                .load()
-                .await
-                .unwrap();
+        let mut root_pkg = PackageLoader::new(project.path_for("root"), env.clone(), Vanilla)
+            .force_repin(true)
+            .load()
+            .await
+            .unwrap();
         root_pkg.save_lockfile_to_disk().unwrap();
 
         // since the dependency's manifest changed, we should have repinned, so the sha should be
@@ -996,7 +986,7 @@ pkg_b = { local = "../pkg_b" }"#,
             None,
             "localnet".into(),
             ephemeral.path(),
-            Vanilla::new(),
+            Vanilla,
         )
         .load()
         .await
@@ -1048,7 +1038,7 @@ pkg_b = { local = "../pkg_b" }"#,
             None,
             "localnet".into(),
             ephemeral.path(),
-            Vanilla::new(),
+            Vanilla,
         )
         .load()
         .await
@@ -1107,7 +1097,7 @@ pkg_b = { local = "../pkg_b" }"#,
             None,
             "localnet".into(),
             ephemeral.path(),
-            Vanilla::new(),
+            Vanilla,
         )
         .load()
         .await
@@ -1144,7 +1134,7 @@ pkg_b = { local = "../pkg_b" }"#,
             None,
             "localnet".into(),
             ephemeral.path(),
-            Vanilla::new(),
+            Vanilla,
         )
         .load()
         .await
@@ -1192,7 +1182,7 @@ pkg_b = { local = "../pkg_b" }"#,
             None,
             "localnet".into(),
             ephemeral.path(),
-            Vanilla::new(),
+            Vanilla,
         )
         .load()
         .await
@@ -1237,7 +1227,7 @@ pkg_b = { local = "../pkg_b" }"#,
             None,
             "localnet".into(),
             ephemeral.path(),
-            Vanilla::new(),
+            Vanilla,
         )
         .load()
         .await
@@ -1295,7 +1285,7 @@ pkg_b = { local = "../pkg_b" }"#,
             None,
             "localnet".into(),
             ephemeral.path(),
-            Vanilla::new(),
+            Vanilla,
         )
         .load()
         .await
@@ -1339,7 +1329,7 @@ pkg_b = { local = "../pkg_b" }"#,
             None,
             "localnet".into(),
             ephemeral.path(),
-            Vanilla::new(),
+            Vanilla,
         )
         .load()
         .await;
@@ -1376,7 +1366,7 @@ pkg_b = { local = "../pkg_b" }"#,
             Some(DEFAULT_ENV_NAME.to_string()),
             "localnet".into(),
             ephemeral.as_path(),
-            Vanilla::new(),
+            Vanilla,
         )
         .load()
         .await
@@ -1418,7 +1408,7 @@ pkg_b = { local = "../pkg_b" }"#,
             None,
             "localnet".into(),
             ephemeral.path(),
-            Vanilla::new(),
+            Vanilla,
         )
         .load()
         .await
@@ -1492,7 +1482,7 @@ pkg_b = { local = "../pkg_b" }"#,
             None,
             "localnet".into(),
             ephemeral.path(),
-            Vanilla::new(),
+            Vanilla,
         )
         .load()
         .await;
@@ -1527,7 +1517,7 @@ pkg_b = { local = "../pkg_b" }"#,
             Some(DEFAULT_ENV_NAME.to_string()),
             "localnet".into(),
             ephemeral.path(),
-            Vanilla::new(),
+            Vanilla,
         )
         .load()
         .await;
@@ -1555,7 +1545,7 @@ pkg_b = { local = "../pkg_b" }"#,
             None,
             "localnet".into(),
             ephemeral.join("nonexistent.toml"),
-            Vanilla::new(),
+            Vanilla,
         )
         .load()
         .await;
@@ -1583,7 +1573,7 @@ pkg_b = { local = "../pkg_b" }"#,
             Some("unknown environment".into()),
             "localnet".into(),
             ephemeral.clone(),
-            Vanilla::new(),
+            Vanilla,
         )
         .load()
         .await;
@@ -1618,7 +1608,7 @@ pkg_b = { local = "../pkg_b" }"#,
         let root = PackageLoader::new(
             scenario.path_for("root"),
             Vanilla::default_environment(),
-            Vanilla::new(),
+            Vanilla,
         )
         .load()
         .await
@@ -1655,7 +1645,7 @@ pkg_b = { local = "../pkg_b" }"#,
         let root = PackageLoader::new(
             scenario.path_for("root"),
             Vanilla::default_environment(),
-            Vanilla::new(),
+            Vanilla,
         )
         .modes(vec!["test".to_string()])
         .load()

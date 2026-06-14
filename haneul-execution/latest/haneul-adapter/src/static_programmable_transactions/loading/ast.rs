@@ -7,6 +7,10 @@ use crate::{
         ExecutableLinkage, ResolvedLinkage,
     },
 };
+use haneul_types::{
+    Identifier, TypeTag,
+    base_types::{ObjectID, ObjectRef, RESOLVED_TX_CONTEXT, SequenceNumber, TxContextKind},
+};
 use indexmap::IndexSet;
 use move_binary_format::file_format::{
     AbilitySet, CodeOffset, FunctionDefinitionIndex, Visibility,
@@ -18,11 +22,6 @@ use move_core_types::{
     u256::U256,
 };
 use std::rc::Rc;
-use haneul_types::{
-    Identifier, TypeTag,
-    base_types::{ObjectID, ObjectRef, RESOLVED_TX_CONTEXT, SequenceNumber, TxContextKind},
-    object::ObjectPermissions,
-};
 
 //**************************************************************************************************
 // AST Nodes
@@ -51,25 +50,30 @@ pub enum InputArg {
     FundsWithdrawal(FundsWithdrawalArg),
 }
 
-#[derive(Debug)]
-#[cfg_attr(debug_assertions, derive(Clone))]
-pub enum ObjectArgKind {
-    ImmObject(ObjectRef),
-    OwnedObject(ObjectRef),
-    ConsensusObject {
-        id: ObjectID,
-        initial_shared_version: SequenceNumber,
-    },
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SharedObjectKind {
+    Legacy,
+    Party,
 }
 
 #[derive(Debug)]
 #[cfg_attr(debug_assertions, derive(Clone))]
-pub struct ObjectArg {
-    pub kind: ObjectArgKind,
-    /// Permissions, potentially refined/limited based on the input argument. For example if a
-    /// shared object is used but marked as read-only, the permissions would be refined to being
-    /// _only_ immutable usage.
-    pub refined_permissions: ObjectPermissions,
+pub enum ObjectArg {
+    ImmObject(ObjectRef),
+    OwnedObject(ObjectRef),
+    SharedObject {
+        id: ObjectID,
+        initial_shared_version: SequenceNumber,
+        mutability: ObjectMutability,
+        kind: SharedObjectKind,
+    },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ObjectMutability {
+    Mutable,
+    Immutable,
+    NonExclusiveWrite,
 }
 
 #[derive(Debug)]
@@ -172,15 +176,17 @@ pub use haneul_types::transaction::Argument;
 
 impl ObjectArg {
     pub fn id(&self) -> ObjectID {
-        self.kind.id()
-    }
-}
-
-impl ObjectArgKind {
-    pub fn id(&self) -> ObjectID {
         match self {
-            Self::ImmObject(oref) | Self::OwnedObject(oref) => oref.0,
-            Self::ConsensusObject { id, .. } => *id,
+            ObjectArg::ImmObject(oref) | ObjectArg::OwnedObject(oref) => oref.0,
+            ObjectArg::SharedObject { id, .. } => *id,
+        }
+    }
+
+    pub fn mutability(&self) -> ObjectMutability {
+        match self {
+            ObjectArg::ImmObject(_) => ObjectMutability::Immutable,
+            ObjectArg::OwnedObject(_) => ObjectMutability::Mutable,
+            ObjectArg::SharedObject { mutability, .. } => *mutability,
         }
     }
 }

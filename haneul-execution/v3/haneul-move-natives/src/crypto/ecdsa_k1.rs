@@ -13,6 +13,7 @@ use fastcrypto::{
     },
     traits::{RecoverableSignature, ToFromBytes},
 };
+use haneul_types::crypto::KeypairTraits;
 use move_binary_format::errors::PartialVMResult;
 use move_core_types::gas_algebra::InternalGas;
 use move_vm_runtime::{native_charge_gas_early_exit, native_functions::NativeContext};
@@ -26,7 +27,6 @@ use rand::SeedableRng;
 use rand::rngs::StdRng;
 use smallvec::smallvec;
 use std::collections::VecDeque;
-use haneul_types::crypto::KeypairTraits;
 
 pub const FAIL_TO_RECOVER_PUBKEY: u64 = 0;
 pub const INVALID_SIGNATURE: u64 = 1;

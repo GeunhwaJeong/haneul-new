@@ -1,9 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use prost_types::FieldMask;
-use std::path::PathBuf;
-use std::str::FromStr;
 use haneul_macros::sim_test;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::GetCoinInfoRequest;
@@ -12,13 +9,16 @@ use haneul_rpc::proto::haneul::rpc::v2::coin_metadata::MetadataCapState;
 use haneul_rpc::proto::haneul::rpc::v2::coin_treasury::SupplyState;
 use haneul_rpc::proto::haneul::rpc::v2::regulated_coin_metadata::CoinRegulatedState;
 use haneul_rpc::proto::haneul::rpc::v2::state_service_client::StateServiceClient;
-use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID};
 use haneul_types::coin_registry::Currency;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::SharedObjectMutability;
 use haneul_types::transaction::{ObjectArg, TransactionData};
 use haneul_types::{HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_FRAMEWORK_PACKAGE_ID, TypeTag};
+use prost_types::FieldMask;
+use std::path::PathBuf;
+use std::str::FromStr;
 use test_cluster::TestClusterBuilder;
 
 // HANEUL doesn't use the CoinRegistry - it was created before the CoinRegistry system existed and has

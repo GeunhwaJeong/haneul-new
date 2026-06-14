@@ -4,12 +4,12 @@
 use super::cluster::{Cluster, new_wallet_context_from_cluster};
 use async_trait::async_trait;
 use fastcrypto::encoding::{Encoding, Hex};
-use std::collections::HashMap;
-use std::env;
-use std::sync::Arc;
 use haneul_faucet::{FaucetConfig, FaucetResponse, LocalFaucet, RequestStatus};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::KeypairTraits;
+use std::collections::HashMap;
+use std::env;
+use std::sync::Arc;
 use tracing::{Instrument, debug, info, info_span};
 
 pub struct FaucetClientFactory;

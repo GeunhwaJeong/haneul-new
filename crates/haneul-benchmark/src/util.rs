@@ -4,8 +4,6 @@
 use crate::ValidatorProxy;
 use crate::workloads::Gas;
 use anyhow::Result;
-use std::path::PathBuf;
-use std::sync::Arc;
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore};
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::ObjectRef;
@@ -14,6 +12,8 @@ use haneul_types::object::Owner;
 use haneul_types::transaction::{TEST_ONLY_GAS_UNIT_FOR_TRANSFER, Transaction, TransactionData};
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{base_types::HaneulAddress, crypto::HaneulKeyPair};
+use std::path::PathBuf;
+use std::sync::Arc;
 
 // This is the maximum gas we will transfer from primary coin into any gas coin
 // for running the benchmark
@@ -66,7 +66,6 @@ pub async fn publish_basics_package(
         let transaction = TestTransactionBuilder::new(sender, current_gas, gas_price)
             .publish_examples("basics")
             .await
-            .ensure_unique()
             .build_and_sign(keypair);
         tracing::info!(
             "Publishing basics package with tx digest {:?} (attempt {})",

@@ -22,7 +22,10 @@ async fn main() -> Result<(), anyhow::Error> {
 
     // local Haneul network, like the above one but using the dedicated function
     let haneul_local = HaneulClientBuilder::default().build_localnet().await?;
-    println!("Haneul local network version: {}", haneul_local.api_version());
+    println!(
+        "Haneul local network version: {}",
+        haneul_local.api_version()
+    );
 
     // Haneul devnet -- https://fullnode.devnet.haneul.io:443
     let haneul_devnet = HaneulClientBuilder::default().build_devnet().await?;

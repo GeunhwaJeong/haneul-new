@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use futures::future::join_all;
-use itertools::Itertools;
-use std::collections::HashSet;
-use std::fmt::Debug;
 use haneul_json_rpc_types::{
     HaneulObjectDataOptions, HaneulObjectResponse, HaneulTransactionBlockEffectsAPI,
     HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
 };
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::{ObjectID, TransactionDigest};
+use itertools::Itertools;
+use std::collections::HashSet;
+use std::fmt::Debug;
 use tracing::error;
 use tracing::log::warn;
 
@@ -161,39 +161,40 @@ pub(crate) async fn multi_get_object(
     clients: &[HaneulClient],
     object_ids: &[ObjectID],
 ) -> Vec<Vec<HaneulObjectResponse>> {
-    let objects: Vec<Vec<HaneulObjectResponse>> = join_all(clients.iter().map(|client| async move {
-        let object_ids = if object_ids.len() > LOADGEN_QUERY_MAX_RESULT_LIMIT {
-            warn!(
-                "The input size for multi_get_object_with_options has exceed the query limit\
+    let objects: Vec<Vec<HaneulObjectResponse>> =
+        join_all(clients.iter().map(|client| async move {
+            let object_ids = if object_ids.len() > LOADGEN_QUERY_MAX_RESULT_LIMIT {
+                warn!(
+                    "The input size for multi_get_object_with_options has exceed the query limit\
          {LOADGEN_QUERY_MAX_RESULT_LIMIT}: {}, time to implement chunking",
-                object_ids.len()
-            );
-            &object_ids[0..LOADGEN_QUERY_MAX_RESULT_LIMIT]
-        } else {
-            object_ids
-        };
+                    object_ids.len()
+                );
+                &object_ids[0..LOADGEN_QUERY_MAX_RESULT_LIMIT]
+            } else {
+                object_ids
+            };
 
-        client
-            .read_api()
-            .multi_get_object_with_options(
-                object_ids.to_vec(),
-                HaneulObjectDataOptions::full_content(), // todo(Will) support options for this
-            )
-            .await
-    }))
-    .await
-    .into_iter()
-    .enumerate()
-    .filter_map(|(i, result)| match result {
-        Ok(obj_vec) => Some(obj_vec),
-        Err(err) => {
-            error!(
-                "Failed to fetch objects for vec {i}: {:?}. Logging objectIDs, {:?}",
-                err, object_ids
-            );
-            None
-        }
-    })
-    .collect();
+            client
+                .read_api()
+                .multi_get_object_with_options(
+                    object_ids.to_vec(),
+                    HaneulObjectDataOptions::full_content(), // todo(Will) support options for this
+                )
+                .await
+        }))
+        .await
+        .into_iter()
+        .enumerate()
+        .filter_map(|(i, result)| match result {
+            Ok(obj_vec) => Some(obj_vec),
+            Err(err) => {
+                error!(
+                    "Failed to fetch objects for vec {i}: {:?}. Logging objectIDs, {:?}",
+                    err, object_ids
+                );
+                None
+            }
+        })
+        .collect();
     objects
 }

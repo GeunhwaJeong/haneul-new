@@ -5,7 +5,6 @@ use anyhow::Result;
 use camino::Utf8PathBuf;
 use clap::Parser;
 use fastcrypto::encoding::{Encoding, Hex};
-use std::path::PathBuf;
 use haneul_config::{HANEUL_GENESIS_FILENAME, genesis::UnsignedGenesis};
 use haneul_genesis_builder::Builder;
 use haneul_types::multiaddr::Multiaddr;
@@ -13,10 +12,12 @@ use haneul_types::{
     base_types::HaneulAddress,
     committee::ProtocolVersion,
     crypto::{
-        AuthorityKeyPair, KeypairTraits, NetworkKeyPair, HaneulKeyPair, generate_proof_of_possession,
+        AuthorityKeyPair, HaneulKeyPair, KeypairTraits, NetworkKeyPair,
+        generate_proof_of_possession,
     },
     message_envelope::Message,
 };
+use std::path::PathBuf;
 
 use haneul_keys::keypair_file::{
     read_authority_keypair_from_file, read_keypair_from_file, read_network_keypair_from_file,
@@ -268,7 +269,9 @@ mod test {
     use haneul_genesis_builder::validator_info::ValidatorInfo;
     use haneul_keys::keypair_file::{write_authority_keypair_to_file, write_keypair_to_file};
     use haneul_macros::nondeterministic;
-    use haneul_types::crypto::{AccountKeyPair, AuthorityKeyPair, HaneulKeyPair, get_key_pair_from_rng};
+    use haneul_types::crypto::{
+        AccountKeyPair, AuthorityKeyPair, HaneulKeyPair, get_key_pair_from_rng,
+    };
 
     #[test]
     #[cfg_attr(msim, ignore)]

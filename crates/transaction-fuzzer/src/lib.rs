@@ -9,17 +9,17 @@ pub mod transaction_data_gen;
 pub mod type_arg_fuzzer;
 
 use executor::Executor;
-use proptest::collection::vec;
-use proptest::test_runner::TestRunner;
-use rand::Rng;
-use std::fmt::Debug;
 use haneul_protocol_config::ProtocolConfig;
-use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID};
 use haneul_types::crypto::AccountKeyPair;
 use haneul_types::crypto::get_key_pair;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::object::{MoveObject, OBJECT_START_VERSION, Object, Owner};
 use haneul_types::{gas_coin::TOTAL_SUPPLY_GEUNHWA, transaction::GasData};
+use proptest::collection::vec;
+use proptest::test_runner::TestRunner;
+use rand::Rng;
+use std::fmt::Debug;
 
 use proptest::prelude::*;
 use rand::{SeedableRng, rngs::StdRng};

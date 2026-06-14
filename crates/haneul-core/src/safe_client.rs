@@ -4,17 +4,10 @@
 
 use crate::authority_client::AuthorityAPI;
 use crate::epoch::committee_store::CommitteeStore;
-use prometheus::core::GenericCounter;
-use prometheus::{
-    Histogram, HistogramVec, IntCounterVec, Registry, register_histogram_vec_with_registry,
-    register_int_counter_vec_with_registry,
-};
-use std::collections::HashMap;
-use std::net::SocketAddr;
-use std::sync::Arc;
 use haneul_types::crypto::AuthorityPublicKeyBytes;
 use haneul_types::digests::TransactionEventsDigest;
 use haneul_types::effects::{SignedTransactionEffects, TransactionEffectsAPI, TransactionEvents};
+use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointRequest, CheckpointResponse, CheckpointSequenceNumber,
 };
@@ -26,12 +19,19 @@ use haneul_types::messages_grpc::{
 };
 use haneul_types::messages_safe_client::PlainTransactionInfoResponse;
 use haneul_types::object::Object;
-use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::{base_types::*, committee::*, fp_ensure};
 use haneul_types::{
     error::{HaneulError, HaneulErrorKind, HaneulResult},
     transaction::*,
 };
+use prometheus::core::GenericCounter;
+use prometheus::{
+    Histogram, HistogramVec, IntCounterVec, Registry, register_histogram_vec_with_registry,
+    register_int_counter_vec_with_registry,
+};
+use std::collections::HashMap;
+use std::net::SocketAddr;
+use std::sync::Arc;
 use tap::TapFallible;
 use tracing::{error, instrument};
 
@@ -244,15 +244,33 @@ impl<C: Clone> SafeClient<C> {
                     SignedTransaction::new_from_data_and_sig(transaction.into_data(), signed),
                 ))
             }
-            TransactionStatus::Executed(_cert_opt, effects, events) => {
-                // `cert_opt` is permanently None: validators no longer aggregate or persist
-                // per-transaction quorum signatures.
+            TransactionStatus::Executed(cert_opt, effects, events) => {
                 let signed_effects = self.check_signed_effects_plain(digest, effects, None)?;
-                Ok(PlainTransactionInfoResponse::Executed(
-                    transaction,
-                    signed_effects,
-                    events,
-                ))
+                match cert_opt {
+                    Some(cert) => {
+                        let committee = self.get_committee(&cert.epoch)?;
+                        let ct = CertifiedTransaction::new_from_data_and_sig(
+                            transaction.into_data(),
+                            cert,
+                        );
+                        ct.verify_committee_sigs_only(&committee).map_err(|e| {
+                            HaneulErrorKind::FailedToVerifyTxCertWithExecutedEffects {
+                                validator_name: self.address,
+                                error: e.to_string(),
+                            }
+                        })?;
+                        Ok(PlainTransactionInfoResponse::ExecutedWithCert(
+                            ct,
+                            signed_effects,
+                            events,
+                        ))
+                    }
+                    None => Ok(PlainTransactionInfoResponse::ExecutedWithoutCert(
+                        transaction,
+                        signed_effects,
+                        events,
+                    )),
+                }
             }
         }
     }

@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use serde::{Deserialize, Serialize};
 use haneul_types::base_types::MoveObjectType;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::coin::Coin;
@@ -9,6 +8,7 @@ use haneul_types::error::{HaneulError, HaneulErrorKind};
 use haneul_types::move_package::MovePackage;
 use haneul_types::object::{Data, MoveObject, Object, ObjectInner, Owner};
 use haneul_types::storage::ObjectKey;
+use serde::{Deserialize, Serialize};
 
 // Versioning process:
 //

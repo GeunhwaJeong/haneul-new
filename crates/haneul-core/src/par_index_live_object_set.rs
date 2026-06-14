@@ -3,10 +3,10 @@
 
 use crate::authority::AuthorityStore;
 use crate::authority::authority_store_tables::LiveObject;
-use std::time::Instant;
 use haneul_types::base_types::ObjectID;
 use haneul_types::object::Object;
 use haneul_types::storage::error::Error as StorageError;
+use std::time::Instant;
 use tracing::info;
 
 /// Make `LiveObjectIndexer`s for parallel indexing of the live object set

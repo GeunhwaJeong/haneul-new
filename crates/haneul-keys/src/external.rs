@@ -13,6 +13,10 @@ use base64;
 use base64::{Engine as _, engine::general_purpose};
 use bcs;
 use fastcrypto::traits::{EncodeDecodeBase64, VerifyingKey};
+use haneul_types::base_types::HaneulAddress;
+use haneul_types::crypto::{
+    HaneulKeyPair, HaneulSignature, HaneulSignatureInner, PublicKey, Signature,
+};
 use jsonrpc::client::{Endpoint, JsonRpcError};
 use jsonrpc::types::RemoteError;
 use mockall::{automock, predicate::*};
@@ -23,16 +27,11 @@ use std::collections::{BTreeMap, HashSet};
 use std::fmt::Debug;
 use std::path::PathBuf;
 use std::process::Stdio;
-use haneul_types::base_types::HaneulAddress;
-use haneul_types::crypto::{PublicKey, Signature, HaneulKeyPair, HaneulSignature, HaneulSignatureInner};
 use tokio::process::Command;
 
-// TODO: Remove this legacy Ledger fallback after supported ledger-signer versions return
-// CREATE_KEY_UNSUPPORTED_USE_EXISTING_ERROR_CODE for create_key.
-/// Legacy Ledger signers returned method-not-found when asked to create keys.
+// TODO create specific error code or some metadata method to improve on this.
+/// Ledgers do not support key generation, so we use the JSON RPC method not found error code to identify when create is not supported by the signer.
 const JSON_RPC_METHOD_NOT_FOUND_ERROR_CODE: i32 = -32601;
-/// Signers return this when asked to create a key, so generate can fall back to indexing an existing key.
-const CREATE_KEY_UNSUPPORTED_USE_EXISTING_ERROR_CODE: i32 = -32013;
 
 #[derive(Debug, thiserror::Error)]
 pub enum ExternalExecError {
@@ -339,7 +338,8 @@ impl External {
     }
 
     pub fn is_indexed(&self, key: &StoredKey) -> bool {
-        self.keys.contains_key(&HaneulAddress::from(&key.public_key))
+        self.keys
+            .contains_key(&HaneulAddress::from(&key.public_key))
     }
 
     pub async fn save_aliases(&self) -> Result<(), Error> {
@@ -453,15 +453,14 @@ impl AccountKeystore for External {
                 })
                 .map_err(|e| anyhow!("Failed to parse key response from external signer: {}", e))?,
             Err(create_error) => {
-                let should_use_existing_key = matches!(
+                let create_not_supported = matches!(
                     &create_error,
                     ExternalExecError::JsonRpc(JsonRpcError::RemoteError(error))
-                        if error.code == CREATE_KEY_UNSUPPORTED_USE_EXISTING_ERROR_CODE
-                            || error.code == JSON_RPC_METHOD_NOT_FOUND_ERROR_CODE
+                        if error.code == JSON_RPC_METHOD_NOT_FOUND_ERROR_CODE
                 );
 
-                // Ledger signers cannot generate keys, so fall back to adding an existing key.
-                if !should_use_existing_key {
+                // return here if we failed to create a key for a reason other than the method not being found, otherwise attempt to fallback to adding an existing key.
+                if !create_not_supported {
                     return Err(anyhow!(
                         "Failed to create a new key on the external signer: {create_error}"
                     ));
@@ -500,7 +499,11 @@ impl AccountKeystore for External {
     }
 
     /// Import a keypair into the keystore.
-    async fn import(&mut self, _alias: Option<String>, _keypair: HaneulKeyPair) -> Result<(), Error> {
+    async fn import(
+        &mut self,
+        _alias: Option<String>,
+        _keypair: HaneulKeyPair,
+    ) -> Result<(), Error> {
         Err(anyhow!("Import not supported for external keys."))
     }
 
@@ -755,16 +758,16 @@ impl AccountKeystore for External {
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        CREATE_KEY_UNSUPPORTED_USE_EXISTING_ERROR_CODE, External, ExternalExecError,
-        JSON_RPC_METHOD_NOT_FOUND_ERROR_CODE, MockCommandRunner, StdCommandRunner, StoredKey,
-    };
+    use super::{External, ExternalExecError, MockCommandRunner, StdCommandRunner, StoredKey};
     use crate::external::ProvisionMode;
     use crate::key_identity::KeyIdentity;
     use crate::keystore::{ALIASES_FILE_EXTENSION, AccountKeystore, GenerateOptions, GeneratedKey};
     use fastcrypto::ed25519::Ed25519KeyPair;
     use fastcrypto::secp256k1::Secp256k1KeyPair;
     use fastcrypto::traits::{EncodeDecodeBase64, KeyPair, ToFromBytes};
+    use haneul_types::base_types::HaneulAddress;
+    use haneul_types::crypto::SignatureScheme::{ED25519, Secp256k1};
+    use haneul_types::crypto::{HaneulKeyPair, PublicKey, Signature};
     use jsonrpc::client::JsonRpcError;
     use jsonrpc::types::RemoteError;
     use mockall::predicate::eq;
@@ -776,9 +779,6 @@ mod tests {
     use std::collections::BTreeMap;
     use std::path::PathBuf;
     use std::str::FromStr;
-    use haneul_types::base_types::HaneulAddress;
-    use haneul_types::crypto::SignatureScheme::{ED25519, Secp256k1};
-    use haneul_types::crypto::{PublicKey, Signature, HaneulKeyPair};
     use tempfile::TempDir;
 
     const PUBLIC_KEY: &str = "ALJ0GaLcBTTwTTh5dvyc6xaxwrjkG1spQzlL+W4CGLqG";
@@ -787,8 +787,6 @@ mod tests {
     const PROVISION_MODE_NOT_SUPPORTED_ERROR_CODE: i32 = -32012;
     const PROVISION_MODE_NOT_SUPPORTED_MESSAGE: &str =
         "Provision mode is not supported by yubikey-signer";
-    const CREATE_KEY_UNSUPPORTED_USE_EXISTING_MESSAGE: &str =
-        "create_key is not supported; use an existing key";
 
     fn unsupported_action_error(method: &str) -> ExternalExecError {
         RemoteError {
@@ -1061,36 +1059,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_generate_fallback_add_first_unindexed_key() {
-        assert_generate_fallback_add_first_unindexed_key(
-            CREATE_KEY_UNSUPPORTED_USE_EXISTING_ERROR_CODE,
-            CREATE_KEY_UNSUPPORTED_USE_EXISTING_MESSAGE,
-        )
-        .await;
-    }
-
-    #[tokio::test]
-    async fn test_generate_fallback_add_first_unindexed_key_legacy_method_not_found() {
-        assert_generate_fallback_add_first_unindexed_key(
-            JSON_RPC_METHOD_NOT_FOUND_ERROR_CODE,
-            "Unsupported action create_key",
-        )
-        .await;
-    }
-
-    async fn assert_generate_fallback_add_first_unindexed_key(
-        create_key_error_code: i32,
-        create_key_error_message: &'static str,
-    ) {
         let mut mock = MockCommandRunner::new();
         let key_id = "key-123";
         mock.expect_run().returning(move |_, method, params| {
             if method == "create_key" && params == JsonValue::Null {
-                return Err(RemoteError {
-                    code: create_key_error_code,
-                    message: create_key_error_message.to_string(),
-                    data: None,
-                }
-                .into());
+                return Err(unsupported_action_error("create_key"));
             }
             if method == "keys" && params == json![null] {
                 return Ok(json!({

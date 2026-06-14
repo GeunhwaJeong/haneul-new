@@ -82,154 +82,153 @@ exclude = [
 ]
 
 members = [
-    "consensus/config",
-    "consensus/core",
-    "consensus/simtests",
-    "consensus/types",
-    "crates/anemo-benchmark",
-    "crates/bin-version",
-    "crates/haneullabs-common",
-    "crates/haneullabs-metrics",
-    "crates/haneullabs-network",
-    "crates/haneullabs-service",
-    "crates/prometheus-closure-metric",
-    "crates/shared-crypto",
-    "crates/simulacrum",
-    "crates/haneul",
-    "crates/haneul-adapter-transactional-tests",
-    "crates/haneul-analytics-indexer",
-    "crates/haneul-analytics-indexer-derive",
-    "crates/haneul-authority-aggregation",
-    "crates/haneul-benchmark",
-    "crates/haneul-bridge",
-    "crates/haneul-bridge-cli",
-    "crates/haneul-bridge-indexer",
-    "crates/haneul-bridge-indexer-alt",
-    "crates/haneul-bridge-schema",
-    "crates/haneul-checkpoint-blob-indexer",
-    "crates/haneul-cluster-test",
-    "crates/haneul-config",
-    "crates/haneul-core",
-    "crates/haneul-cost",
-    "crates/haneul-data-ingestion-core",
-    "crates/haneul-data-store",
-    "crates/haneul-default-config",
-    "crates/haneul-display",
-    "crates/haneul-e2e-tests",
-    "crates/haneul-enum-compat-util",
-    "crates/haneul-faucet",
-    "crates/haneul-field-count",
-    "crates/haneul-field-count-derive",
-    "crates/haneul-fork",
-    "crates/haneul-framework",
-    "crates/haneul-framework-snapshot",
-    "crates/haneul-framework-tests",
-    "crates/haneul-futures",
-    "crates/haneul-genesis-builder",
-    "crates/haneul-http",
-    "crates/haneul-indexer-alt",
-    "crates/haneul-indexer-alt-consistent-api",
-    "crates/haneul-indexer-alt-consistent-store",
-    "crates/haneul-indexer-alt-e2e-tests",
-    "crates/haneul-indexer-alt-framework",
-    "crates/haneul-indexer-alt-framework-store-traits",
-    "crates/haneul-indexer-alt-graphql",
-    "crates/haneul-indexer-alt-jsonrpc",
-    "crates/haneul-indexer-alt-metrics",
-    "crates/haneul-indexer-alt-object-store",
-    "crates/haneul-indexer-alt-reader",
-    "crates/haneul-indexer-alt-schema",
-    "crates/haneul-inverted-index",
-    "crates/haneul-json",
-    "crates/haneul-json-rpc",
-    "crates/haneul-json-rpc-api",
-    "crates/haneul-json-rpc-tests",
-    "crates/haneul-json-rpc-types",
-    "crates/haneul-keys",
-    "crates/haneul-kv-rpc",
-    "crates/haneul-kvstore",
-    "crates/haneul-light-client",
-    "crates/haneul-macros",
-    "crates/haneul-metric-checker",
-    "crates/haneul-metrics-push-client",
-    "crates/haneul-move",
-    "crates/haneul-move-build",
-    "crates/haneul-move-lsp",
-    "crates/haneul-name-service",
-    "crates/haneul-network",
-    "crates/haneul-node",
-    "crates/haneul-open-rpc",
-    "crates/haneul-open-rpc-macros",
-    "crates/haneul-oracle",
-    "crates/haneul-package-alt",
-    "crates/haneul-package-dump",
-    "crates/haneul-package-management",
-    "crates/haneul-package-resolver",
-    "crates/haneul-pg-db",
-    "crates/haneul-proc-macros",
-    "crates/haneul-protocol-config",
-    "crates/haneul-protocol-config-macros",
-    "crates/haneul-proxy",
-    "crates/haneul-replay",
-    "crates/haneul-replay-2",
-    "crates/haneul-rosetta",
-    "crates/haneul-rpc-api",
-    "crates/haneul-rpc-benchmark",
-    "crates/haneul-rpc-loadgen",
-    "crates/haneul-rpc-resolver",
-    "crates/haneul-sdk",
-    "crates/haneul-security-watchdog",
-    "crates/haneul-simulator",
-    "crates/haneul-single-node-benchmark",
-    "crates/haneul-snapshot",
-    "crates/haneul-source-validation",
-    "crates/haneul-sql-macro",
-    "crates/haneul-storage",
-    "crates/haneul-surfer",
-    "crates/haneul-swarm",
-    "crates/haneul-swarm-config",
-    "crates/haneul-synthetic-ingestion",
-    "crates/haneul-telemetry",
-    "crates/haneul-test-transaction-builder",
-    "crates/haneul-test-validator",
-    "crates/haneul-tls",
-    "crates/haneul-tool",
-    "crates/haneul-transaction-builder",
-    "crates/haneul-transaction-checks",
-    "crates/haneul-transactional-test-runner",
-    "crates/haneul-types",
-    "crates/haneul-upgrade-compatibility-transactional-tests",
-    "crates/haneul-verifier-transactional-tests",
-    "crates/telemetry-subscribers",
-    "crates/test-cluster",
-    "crates/transaction-fuzzer",
-    "crates/typed-store",
-    "crates/typed-store-derive",
-    "crates/typed-store-error",
-    "crates/typed-store-workspace-hack",
-    "crates/x",
-    "haneul-execution",
-    "haneul-execution/cut",
-    "haneul-execution/latest/haneul-adapter",
-    "haneul-execution/latest/haneul-move-natives",
-    "haneul-execution/latest/haneul-verifier",
-    "haneul-execution/v0/haneul-adapter",
-    "haneul-execution/v0/haneul-move-natives",
-    "haneul-execution/v0/haneul-verifier",
-    "haneul-execution/v1/haneul-adapter",
-    "haneul-execution/v1/haneul-move-natives",
-    "haneul-execution/v1/haneul-verifier",
-    "haneul-execution/v2/haneul-adapter",
-    "haneul-execution/v2/haneul-move-natives",
-    "haneul-execution/v2/haneul-verifier",
-    "haneul-execution/v3/haneul-adapter",
-    "haneul-execution/v3/haneul-move-natives",
-    "haneul-execution/v3/haneul-verifier",
+  "consensus/config",
+  "consensus/core",
+  "consensus/simtests",
+  "consensus/types",
+  "crates/anemo-benchmark",
+  "crates/bin-version",
+  "crates/haneul",
+  "crates/haneul-adapter-transactional-tests",
+  "crates/haneul-analytics-indexer",
+  "crates/haneul-analytics-indexer-derive",
+  "crates/haneul-authority-aggregation",
+  "crates/haneul-benchmark",
+  "crates/haneul-bridge",
+  "crates/haneul-bridge-cli",
+  "crates/haneul-bridge-indexer",
+  "crates/haneul-bridge-indexer-alt",
+  "crates/haneul-bridge-schema",
+  "crates/haneul-checkpoint-blob-indexer",
+  "crates/haneul-cluster-test",
+  "crates/haneul-config",
+  "crates/haneul-core",
+  "crates/haneul-cost",
+  "crates/haneul-data-ingestion-core",
+  "crates/haneul-data-store",
+  "crates/haneul-default-config",
+  "crates/haneul-display",
+  "crates/haneul-e2e-tests",
+  "crates/haneul-enum-compat-util",
+  "crates/haneul-faucet",
+  "crates/haneul-field-count",
+  "crates/haneul-field-count-derive",
+  "crates/haneul-fork",
+  "crates/haneul-framework",
+  "crates/haneul-framework-snapshot",
+  "crates/haneul-framework-tests",
+  "crates/haneul-futures",
+  "crates/haneul-genesis-builder",
+  "crates/haneul-http",
+  "crates/haneul-indexer-alt",
+  "crates/haneul-indexer-alt-consistent-api",
+  "crates/haneul-indexer-alt-consistent-store",
+  "crates/haneul-indexer-alt-e2e-tests",
+  "crates/haneul-indexer-alt-framework",
+  "crates/haneul-indexer-alt-framework-store-traits",
+  "crates/haneul-indexer-alt-graphql",
+  "crates/haneul-indexer-alt-jsonrpc",
+  "crates/haneul-indexer-alt-metrics",
+  "crates/haneul-indexer-alt-object-store",
+  "crates/haneul-indexer-alt-reader",
+  "crates/haneul-indexer-alt-schema",
+  "crates/haneul-json",
+  "crates/haneul-json-rpc",
+  "crates/haneul-json-rpc-api",
+  "crates/haneul-json-rpc-tests",
+  "crates/haneul-json-rpc-types",
+  "crates/haneul-keys",
+  "crates/haneul-kv-rpc",
+  "crates/haneul-kvstore",
+  "crates/haneul-light-client",
+  "crates/haneul-macros",
+  "crates/haneul-metric-checker",
+  "crates/haneul-metrics-push-client",
+  "crates/haneul-move",
+  "crates/haneul-move-build",
+  "crates/haneul-move-lsp",
+  "crates/haneul-name-service",
+  "crates/haneul-network",
+  "crates/haneul-node",
+  "crates/haneul-open-rpc",
+  "crates/haneul-open-rpc-macros",
+  "crates/haneul-oracle",
+  "crates/haneul-package-alt",
+  "crates/haneul-package-dump",
+  "crates/haneul-package-management",
+  "crates/haneul-package-resolver",
+  "crates/haneul-pg-db",
+  "crates/haneul-proc-macros",
+  "crates/haneul-protocol-config",
+  "crates/haneul-protocol-config-macros",
+  "crates/haneul-proxy",
+  "crates/haneul-replay",
+  "crates/haneul-replay-2",
+  "crates/haneul-rosetta",
+  "crates/haneul-rpc-api",
+  "crates/haneul-rpc-benchmark",
+  "crates/haneul-rpc-loadgen",
+  "crates/haneul-rpc-resolver",
+  "crates/haneul-sdk",
+  "crates/haneul-security-watchdog",
+  "crates/haneul-simulator",
+  "crates/haneul-single-node-benchmark",
+  "crates/haneul-snapshot",
+  "crates/haneul-source-validation",
+  "crates/haneul-sql-macro",
+  "crates/haneul-storage",
+  "crates/haneul-surfer",
+  "crates/haneul-swarm",
+  "crates/haneul-swarm-config",
+  "crates/haneul-synthetic-ingestion",
+  "crates/haneul-telemetry",
+  "crates/haneul-test-transaction-builder",
+  "crates/haneul-test-validator",
+  "crates/haneul-tls",
+  "crates/haneul-tool",
+  "crates/haneul-transaction-builder",
+  "crates/haneul-transaction-checks",
+  "crates/haneul-transactional-test-runner",
+  "crates/haneul-types",
+  "crates/haneul-upgrade-compatibility-transactional-tests",
+  "crates/haneul-verifier-transactional-tests",
+  "crates/haneullabs-common",
+  "crates/haneullabs-metrics",
+  "crates/haneullabs-network",
+  "crates/haneullabs-service",
+  "crates/prometheus-closure-metric",
+  "crates/shared-crypto",
+  "crates/simulacrum",
+  "crates/telemetry-subscribers",
+  "crates/test-cluster",
+  "crates/transaction-fuzzer",
+  "crates/typed-store",
+  "crates/typed-store-derive",
+  "crates/typed-store-error",
+  "crates/typed-store-workspace-hack",
+  "crates/x",
+  "haneul-execution",
+  "haneul-execution/cut",
+  "haneul-execution/latest/haneul-adapter",
+  "haneul-execution/latest/haneul-move-natives",
+  "haneul-execution/latest/haneul-verifier",
+  "haneul-execution/v0/haneul-adapter",
+  "haneul-execution/v0/haneul-move-natives",
+  "haneul-execution/v0/haneul-verifier",
+  "haneul-execution/v1/haneul-adapter",
+  "haneul-execution/v1/haneul-move-natives",
+  "haneul-execution/v1/haneul-verifier",
+  "haneul-execution/v2/haneul-adapter",
+  "haneul-execution/v2/haneul-move-natives",
+  "haneul-execution/v2/haneul-verifier",
+  "haneul-execution/v3/haneul-adapter",
+  "haneul-execution/v3/haneul-move-natives",
+  "haneul-execution/v3/haneul-verifier",
 ]
 
 [workspace.package]
 # This version string will be inherited by haneul-core, haneul-faucet, haneul-node, haneul-tools, haneul-sdk, haneul-move-build, and haneul crates.
-version = "1.74.0"
+version = "1.2.0"
 
 [profile.release]
 # debug = 1 means line charts only, which is minimum needed for good stack traces
@@ -286,11 +285,18 @@ unexpected_cfgs = { level = "warn", check-cfg = [
 
 # Dependencies that should be kept in sync through the whole workspace
 [workspace.dependencies]
+anemo = { git = "https://github.com/GeunhwaJeong/anemo.git", rev = "487f8bc739e535391a56e1aa1193084da9d64ce8" }
+anemo-benchmark = { path = "crates/anemo-benchmark" }
+anemo-build = { git = "https://github.com/GeunhwaJeong/anemo.git", rev = "487f8bc739e535391a56e1aa1193084da9d64ce8" }
+anemo-cli = { git = "https://github.com/GeunhwaJeong/anemo.git", rev = "487f8bc739e535391a56e1aa1193084da9d64ce8" }
+anemo-tower = { git = "https://github.com/GeunhwaJeong/anemo.git", rev = "487f8bc739e535391a56e1aa1193084da9d64ce8" }
+
+# core-types from the new sdk for use in gRPC
 antithesis_sdk = "0.2.5"
 anyhow = "1.0.71"
+arc-swap = { version = "1.5.1", features = ["serde"] }
 arrow = "57.3"
 arrow-array = "57.3"
-arc-swap = { version = "1.5.1", features = ["serde"] }
 assert_cmd = "2.0.6"
 async-graphql = "=7.0.1"
 async-graphql-axum = "=7.0.1"
@@ -329,6 +335,7 @@ base64-url = "2"
 bcs = "0.1.4"
 better_any = "0.1.1"
 bimap = "0.6.2"
+bin-version = { path = "crates/bin-version" }
 bincode = "1.3.3"
 bip32 = "0.4.0"
 byteorder = "1.4.3"
@@ -337,12 +344,21 @@ cached = "0.43.0"
 camino = "1.1.1"
 cfg-if = "1.0.0"
 chrono = { version = "0.4.44", features = ["clock", "serde"] }
+ciborium = "0.2"
+
+# anemo dependencies
 clap = { version = "4.4", features = ["derive", "wrap_help"] }
 clap_complete = "4.4"
 colored = "2.0.0"
 comfy-table = "6.1.3"
+consensus-config = { path = "consensus/config" }
+consensus-core = { path = "consensus/core" }
+consensus-simtests = { path = "consensus/simtests" }
+
+consensus-types = { path = "consensus/types" }
 console-subscriber = "0.4.1"
 const-str = "0.5.3"
+coset = "0.3"
 count-min-sketch = "0.1.7"
 criterion = { version = "0.5.0", features = [
   "async",
@@ -359,8 +375,8 @@ datatest-stable = { git = "https://github.com/nextest-rs/datatest-stable.git", r
 derive-syn-parse = "0.1.5"
 derive_more = "1.0.0"
 diesel = "2.3"
+diesel-async = "0.8"
 diesel_migrations = "2.3"
-diesel-async = "0.9"
 dirs = "4.0.0"
 duration-str = "0.5.0"
 ed25519 = { version = "2", features = ["pkcs8", "alloc", "zeroize"] }
@@ -369,14 +385,130 @@ either = "1.8.0"
 enum_dispatch = "^0.3"
 expect-test = "1.4.0"
 eyre = "0.6.8"
+fastcrypto = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "0eea35ee442a798fb1f1e7c2f39dc021bd21dbc3" }
+fastcrypto-tbls = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "0eea35ee442a798fb1f1e7c2f39dc021bd21dbc3" }
+fastcrypto-vdf = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "0eea35ee442a798fb1f1e7c2f39dc021bd21dbc3", features = [
+  "experimental",
+] }
+fastcrypto-zkp = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "0eea35ee442a798fb1f1e7c2f39dc021bd21dbc3", package = "fastcrypto-zkp" }
 fdlimit = "0.2.1"
 flate2 = "1.0.28"
 fs_extra = "1.3.0"
 futures = "0.3.28"
 futures-core = "0.3.21"
+gcp_auth = "0.12.6"
 git-version = "0.3.5"
 governor = "0.6.0"
-gcp_auth = "0.12.6"
+haneul = { path = "crates/haneul" }
+haneul-adapter-transactional-tests = { path = "crates/haneul-adapter-transactional-tests" }
+haneul-analytics-indexer = { path = "crates/haneul-analytics-indexer" }
+haneul-analytics-indexer-derive = { path = "crates/haneul-analytics-indexer-derive" }
+haneul-authority-aggregation = { path = "crates/haneul-authority-aggregation" }
+haneul-benchmark = { path = "crates/haneul-benchmark" }
+haneul-bridge = { path = "crates/haneul-bridge" }
+haneul-bridge-schema = { path = "crates/haneul-bridge-schema" }
+haneul-cluster-test = { path = "crates/haneul-cluster-test" }
+haneul-config = { path = "crates/haneul-config" }
+haneul-core = { path = "crates/haneul-core" }
+haneul-cost = { path = "crates/haneul-cost" }
+haneul-crypto = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "e0e1b3176f6f77099d71c455ee97f2649c5dc55c", features = [ "ed25519", "secp256r1", "secp256k1", "passkey", "zklogin" ] }
+haneul-data-ingestion-core = { path = "crates/haneul-data-ingestion-core" }
+haneul-data-store = { path = "crates/haneul-data-store" }
+haneul-default-config = { path = "crates/haneul-default-config" }
+haneul-display = { path = "crates/haneul-display" }
+haneul-e2e-tests = { path = "crates/haneul-e2e-tests" }
+haneul-enum-compat-util = { path = "crates/haneul-enum-compat-util" }
+haneul-execution = { path = "haneul-execution" }
+# haneul-move-natives = { path = "haneul-execution/latest/haneul-move-natives", package = "haneul-move-natives-latest" }
+# haneul-adapter = { path = "haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
+# haneul-verifier = { path = "haneul-execution/latest/haneul-verifier", package = "haneul-verifier-latest" }
+# move-stdlib = { path = "external-crates/move/move-stdlib" }
+# move-vm-runtime = { path = "external-crates/move/move-vm/runtime" }
+# move-bytecode-verifier = { path = "external-crates/move/move-bytecode-verifier" }
+
+haneul-faucet = { path = "crates/haneul-faucet" }
+haneul-field-count = { path = "crates/haneul-field-count" }
+haneul-field-count-derive = { path = "crates/haneul-field-count-derive" }
+haneul-framework = { path = "crates/haneul-framework" }
+haneul-framework-snapshot = { path = "crates/haneul-framework-snapshot" }
+haneul-framework-tests = { path = "crates/haneul-framework-tests" }
+haneul-futures = { path = "crates/haneul-futures" }
+haneul-genesis-builder = { path = "crates/haneul-genesis-builder" }
+haneul-http = { path = "crates/haneul-http" }
+haneul-indexer-alt = { path = "crates/haneul-indexer-alt" }
+haneul-indexer-alt-consistent-api = { path = "crates/haneul-indexer-alt-consistent-api" }
+haneul-indexer-alt-consistent-store = { path = "crates/haneul-indexer-alt-consistent-store" }
+haneul-indexer-alt-framework = { path = "crates/haneul-indexer-alt-framework", default-features = false }
+haneul-indexer-alt-framework-store-traits = { path = "crates/haneul-indexer-alt-framework-store-traits" }
+haneul-indexer-alt-graphql = { path = "crates/haneul-indexer-alt-graphql" }
+haneul-indexer-alt-jsonrpc = { path = "crates/haneul-indexer-alt-jsonrpc" }
+haneul-indexer-alt-metrics = { path = "crates/haneul-indexer-alt-metrics" }
+haneul-indexer-alt-object-store = { path = "crates/haneul-indexer-alt-object-store" }
+haneul-indexer-alt-reader = { path = "crates/haneul-indexer-alt-reader" }
+haneul-indexer-alt-schema = { path = "crates/haneul-indexer-alt-schema" }
+haneul-json = { path = "crates/haneul-json" }
+haneul-json-rpc = { path = "crates/haneul-json-rpc" }
+haneul-json-rpc-api = { path = "crates/haneul-json-rpc-api" }
+haneul-json-rpc-types = { path = "crates/haneul-json-rpc-types" }
+haneul-keys = { path = "crates/haneul-keys" }
+haneul-kv-rpc = { path = "crates/haneul-kv-rpc" }
+haneul-kvstore = { path = "crates/haneul-kvstore" }
+haneul-light-client = { path = "crates/haneul-light-client" }
+haneul-macros = { path = "crates/haneul-macros" }
+haneul-metric-checker = { path = "crates/haneul-metric-checker" }
+haneul-metrics-push-client = { path = "crates/haneul-metrics-push-client" }
+haneul-move = { path = "crates/haneul-move" }
+haneul-move-build = { path = "crates/haneul-move-build" }
+haneul-move-lsp = { path = "crates/haneul-move-lsp" }
+haneul-name-service = { path = "crates/haneul-name-service" }
+haneul-network = { path = "crates/haneul-network" }
+haneul-node = { path = "crates/haneul-node" }
+haneul-open-rpc = { path = "crates/haneul-open-rpc" }
+haneul-open-rpc-macros = { path = "crates/haneul-open-rpc-macros" }
+haneul-package-alt = { path = "crates/haneul-package-alt" }
+haneul-package-dump = { path = "crates/haneul-package-dump" }
+haneul-package-management = { path = "crates/haneul-package-management" }
+haneul-package-resolver = { path = "crates/haneul-package-resolver" }
+haneul-pg-db = { path = "crates/haneul-pg-db" }
+haneul-proc-macros = { path = "crates/haneul-proc-macros" }
+haneul-protocol-config = { path = "crates/haneul-protocol-config" }
+haneul-protocol-config-macros = { path = "crates/haneul-protocol-config-macros" }
+haneul-proxy = { path = "crates/haneul-proxy" }
+haneul-replay = { path = "crates/haneul-replay" }
+haneul-replay-2 = { path = "crates/haneul-replay-2" }
+haneul-rosetta = { path = "crates/haneul-rosetta" }
+haneul-rpc = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "e0e1b3176f6f77099d71c455ee97f2649c5dc55c" }
+
+### Workspace Members ###
+haneul-rpc-api = { path = "crates/haneul-rpc-api" }
+haneul-rpc-loadgen = { path = "crates/haneul-rpc-loadgen" }
+haneul-rpc-resolver = { path = "crates/haneul-rpc-resolver" }
+haneul-sdk = { path = "crates/haneul-sdk" }
+haneul-sdk-types = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "e0e1b3176f6f77099d71c455ee97f2649c5dc55c", features = [ "hash", "serde" ] }
+haneul-simulator = { path = "crates/haneul-simulator" }
+haneul-snapshot = { path = "crates/haneul-snapshot" }
+haneul-source-validation = { path = "crates/haneul-source-validation" }
+haneul-sql-macro = { path = "crates/haneul-sql-macro" }
+haneul-storage = { path = "crates/haneul-storage" }
+haneul-surfer = { path = "crates/haneul-surfer" }
+haneul-swarm = { path = "crates/haneul-swarm" }
+haneul-swarm-config = { path = "crates/haneul-swarm-config" }
+haneul-synthetic-ingestion = { path = "crates/haneul-synthetic-ingestion" }
+haneul-telemetry = { path = "crates/haneul-telemetry" }
+haneul-test-transaction-builder = { path = "crates/haneul-test-transaction-builder" }
+haneul-test-validator = { path = "crates/haneul-test-validator" }
+haneul-tls = { path = "crates/haneul-tls" }
+haneul-tool = { path = "crates/haneul-tool" }
+haneul-transaction-builder = { path = "crates/haneul-transaction-builder" }
+haneul-transaction-checks = { path = "crates/haneul-transaction-checks" }
+haneul-transactional-test-runner = { path = "crates/haneul-transactional-test-runner" }
+haneul-types = { path = "crates/haneul-types" }
+haneul-upgrade-compatibility-transactional-tests = { path = "crates/haneul-upgrade-compatibility-transactional-tests" }
+haneul-verifier-transactional-tests = { path = "crates/haneul-verifier-transactional-tests" }
+haneullabs-common = { path = "crates/haneullabs-common" }
+haneullabs-metrics = { path = "crates/haneullabs-metrics" }
+haneullabs-network = { path = "crates/haneullabs-network" }
+haneullabs-service = { path = "crates/haneullabs-service" }
 hdrhistogram = "7.5.1"
 headers = "0.4.0"
 hex = "0.4.3"
@@ -384,7 +516,6 @@ http = "1"
 http-body = "1"
 humantime = "2.1.0"
 hyper = "1"
-hyper-util = "0.1.6"
 hyper-rustls = { version = "0.27", default-features = false, features = [
   "webpki-roots",
   "http1",
@@ -392,21 +523,19 @@ hyper-rustls = { version = "0.27", default-features = false, features = [
   "ring",
   "tls12",
 ] }
+hyper-util = "0.1.6"
 im = "15"
 indexmap = { version = "2.8.0", features = ["serde"] }
-indoc = "2.0.6"
 indicatif = "0.18.3"
+indoc = "2.0.6"
 inquire = "0.6.0"
 insta = { version = "1.46.2", features = ["redactions", "yaml", "json"] }
 insta-cmd = "0.6.0"
 integer-encoding = "3.0.1"
 iso8601 = "0.6.3"
 itertools = "0.13.0"
-tikv-jemalloc-ctl = "^0.5"
-tikv-jemallocator = { version = "^0.5", features = [
-  "profiling",
-  "disable_initial_exec_tls",
-] }
+json_to_table = { git = "https://github.com/zhiburt/tabled/", rev = "e449317a1c02eb6b29e409ad6617e5d9eb7b3bd4" }
+jsonrpc = { path = "external-crates/move/crates/jsonrpc" }
 jsonrpsee = { version = "0.24.9", features = [
   "server",
   "macros",
@@ -414,7 +543,6 @@ jsonrpsee = { version = "0.24.9", features = [
   "http-client",
   "jsonrpsee-core",
 ] }
-json_to_table = { git = "https://github.com/zhiburt/tabled/", rev = "e449317a1c02eb6b29e409ad6617e5d9eb7b3bd4" }
 leb128 = "0.2.5"
 lru = "0.10"
 miette = { version = "7", features = ["fancy"] }
@@ -425,8 +553,33 @@ moka = { version = "0.12", default-features = false, features = [
   "atomic64",
 ] }
 more-asserts = "0.3.1"
-msim = { git = "https://github.com/GeunhwaJeong/mysten-sim.git", rev = "2c2ec3ffbc1e559c575dc7de1ff2498d1f6700f6", package = "msim" }
-msim-macros = { git = "https://github.com/GeunhwaJeong/mysten-sim.git", rev = "2c2ec3ffbc1e559c575dc7de1ff2498d1f6700f6", package = "msim-macros" }
+move-abstract-interpreter = { path = "external-crates/move/crates/move-abstract-interpreter" }
+move-abstract-stack = { path = "external-crates/move/crates/move-abstract-stack" }
+move-analyzer = { path = "external-crates/move/crates/move-analyzer" }
+move-binary-format = { path = "external-crates/move/crates/move-binary-format" }
+move-bytecode-source-map = { path = "external-crates/move/crates/move-bytecode-source-map" }
+move-bytecode-utils = { path = "external-crates/move/crates/move-bytecode-utils" }
+move-bytecode-verifier-meter = { path = "external-crates/move/crates/move-bytecode-verifier-meter" }
+move-cli = { path = "external-crates/move/crates/move-cli" }
+move-command-line-common = { path = "external-crates/move/crates/move-command-line-common" }
+move-compiler = { path = "external-crates/move/crates/move-compiler" }
+move-core-types = { path = "external-crates/move/crates/move-core-types" }
+move-disassembler = { path = "external-crates/move/crates/move-disassembler" }
+move-ir-types = { path = "external-crates/move/crates/move-ir-types" }
+move-package = { path = "external-crates/move/crates/move-package" }
+move-package-alt = { path = "external-crates/move/crates/move-package-alt" }
+move-package-alt-compilation = { path = "external-crates/move/crates/move-package-alt-compilation" }
+move-stackless-bytecode = { path = "external-crates/move/crates/move-stackless-bytecode" }
+move-stackless-bytecode-2 = { path = "external-crates/move/crates/move-stackless-bytecode-2" }
+move-symbol-pool = { path = "external-crates/move/crates/move-symbol-pool" }
+move-trace-format = { path = "external-crates/move/crates/move-trace-format" }
+
+move-transactional-test-runner = { path = "external-crates/move/crates/move-transactional-test-runner" }
+move-unit-test = { path = "external-crates/move/crates/move-unit-test" }
+move-vm-config = { path = "external-crates/move/crates/move-vm-config" }
+move-vm-profiler = { path = "external-crates/move/crates/move-vm-profiler" }
+msim = { git = "https://github.com/GeunhwaJeong/mysten-sim.git", rev = "53016c1a9038154b1e47b96f0a314efa7e7d809b", package = "msim" }
+msim-macros = { git = "https://github.com/GeunhwaJeong/mysten-sim.git", rev = "53016c1a9038154b1e47b96f0a314efa7e7d809b", package = "msim-macros" }
 multiaddr = "0.18.2"
 nexlint = { git = "https://github.com/nextest-rs/nexlint.git", rev = "7ce56bd591242a57660ed05f14ca2483c37d895b" }
 nexlint-lints = { git = "https://github.com/nextest-rs/nexlint.git", rev = "7ce56bd591242a57660ed05f14ca2483c37d895b" }
@@ -444,8 +597,16 @@ object_store = { version = "0.13.0", features = [
 ] }
 once_cell = "1.18.0"
 ouroboros = "0.17"
+p256 = { version = "0.13.2", features = ["ecdsa"] }
+p384 = { version = "0.13.0", default-features = false, features = [
+  "ecdsa",
+  "sha384",
+] }
 parking_lot = { version = "0.12.3", features = ["arc_lock"] }
 parquet = "57.3"
+passkey-authenticator = { version = "0.4.0" }
+passkey-client = { version = "0.4.0" }
+passkey-types = { version = "0.4.0" }
 pin-project = "1"
 pin-project-lite = "0.2.13"
 pkcs8 = { version = "0.10.0", features = ["std"] }
@@ -453,6 +614,7 @@ pprof = { version = "0.14.0", features = ["cpp", "frame-pointer"] }
 pretty_assertions = "1.3.0"
 proc-macro2 = "1.0.47"
 prometheus = { version = "0.14", features = ["protobuf"] }
+prometheus-closure-metric = { path = "crates/prometheus-closure-metric" }
 prometheus-http-query = { version = "0.8", default-features = false, features = [
   "rustls-tls",
 ] }
@@ -461,8 +623,10 @@ proptest-derive = "0.5"
 prost = "0.14.1"
 prost-build = "0.14.1"
 prost-types = "0.14.1"
-protox = "0.9"
 protobuf = { version = "3.7", features = ["with-bytes"] }
+protox = "0.9"
+quick_cache = { version = "0.6.18", features = ["stats"] }
+
 quinn-proto = "0.11.7"
 quote = "1.0.23"
 rand = "0.8.5"
@@ -474,10 +638,9 @@ reqwest = { version = "0.12", default-features = false, features = [
   "json",
   "rustls-tls",
 ] }
-roaring = "0.11.3"
+roaring = "0.10.6"
 ron = "0.8.0"
 rstest = "0.16.0"
-rustc-hash = "2"
 rustls = { version = "0.23", default-features = false, features = [
   "std",
   "tls12",
@@ -496,15 +659,21 @@ serde_repr = "0.1"
 serde_with = "3.8"
 # serde_yaml = "0.9.21"
 serde_yaml = "0.8.26"
+shared-crypto = { path = "crates/shared-crypto" }
 shellexpand = "3.1.0"
+shlex = "1.3.0"
 signature = "1.6.0"
 similar = "2.4.0"
-simple_moving_average = "1.0.2"
 simple-server-timing-header = "0.1.1"
+simple_moving_average = "1.0.2"
+simulacrum = { path = "crates/simulacrum" }
 slip10_ed25519 = "0.1.3"
 smallvec = "1.10.0"
 snap = "1.1.0"
 snowflake-api = "0.14.0"
+starlark = "0.13.0"
+
+# Move dependencies
 static_assertions = "1.1.0"
 strum = { version = "0.27.1", features = ["derive"] }
 strum_macros = "0.27.1"
@@ -514,9 +683,16 @@ sysinfo = "0.35.2"
 tabled = { version = "0.12" }
 tap = "1.0.1"
 tar = "0.4.45"
+telemetry-subscribers = { path = "crates/telemetry-subscribers" }
 tempfile = "3.20.0"
+test-cluster = { path = "crates/test-cluster" }
 test-fuzz = "3.0.4"
 thiserror = "1.0.40"
+tikv-jemalloc-ctl = "^0.5"
+tikv-jemallocator = { version = "^0.5", features = [
+  "profiling",
+  "disable_initial_exec_tls",
+] }
 timeout-tracing = "0.1.2"
 tiny-bip39 = "1.0.0"
 tokio = "=1.52.1"
@@ -529,18 +705,18 @@ tokio-tungstenite = { version = "0.26.2", features = ["connect"] }
 tokio-util = "0.7.18"
 toml = { version = "0.7.4", features = ["preserve_order"] }
 toml_edit = { version = "0.19.10" }
-tonic = { version = "0.14.6", features = [
+tonic = { version = "0.14.3", features = [
   "zstd",
   "transport",
   "tls-webpki-roots",
 ] }
-tonic-build = "0.14.6"
-tonic-prost = "0.14.6"
-tonic-prost-build = "0.14.6"
-tonic-health = "0.14.6"
-tonic-reflection = "0.14.6"
-tonic-web = "0.14.6"
+tonic-build = "0.14.2"
+tonic-health = "0.14.2"
+tonic-prost = "0.14.2"
+tonic-prost-build = "0.14.2"
+tonic-reflection = "0.14.2"
 tonic-rustls = "0.3.0"
+tonic-web = "0.14.2"
 tower = { version = "0.5", features = [
   "full",
   "util",
@@ -556,7 +732,6 @@ tower-http = { version = "0.5", features = [
   "propagate-header",
 ] }
 tower-layer = "0.3.2"
-twox-hash = "1.6.3"
 tracing = "0.1.37"
 tracing-appender = "0.2.2"
 tracing-error = "0.2.1"
@@ -570,208 +745,35 @@ tracing-subscriber = { version = "0.3.22", default-features = false, features = 
   "registry",
   "env-filter",
 ] }
+transaction-fuzzer = { path = "crates/transaction-fuzzer" }
+twox-hash = "1.6.3"
+typed-store = { path = "crates/typed-store" }
+typed-store-error = { path = "crates/typed-store-error" }
 uint = "0.10.0"
 unescape = "0.1.0"
 ureq = "2.9.1"
 url = "2.3.1"
 uuid = { version = "1.1.2", features = ["v4", "fast-rng"] }
+versions = "4.1.0"
 walkdir = "2.5.0"
 webpki = { version = "0.103.10", package = "rustls-webpki", features = [
   "alloc",
   "std",
   "ring",
 ] }
-which = "8.0.2"
 winnow = "0.7"
 wiremock = "0.5"
-x509-parser = { version = "0.17.0", features = ["verify"] }
-zstd = "0.12.3"
-versions = "4.1.0"
-shlex = "1.3.0"
-starlark = "0.13.0"
-
-# Move dependencies
-jsonrpc = { path = "external-crates/move/crates/jsonrpc" }
-move-binary-format = { path = "external-crates/move/crates/move-binary-format" }
-move-bytecode-utils = { path = "external-crates/move/crates/move-bytecode-utils" }
-move-bytecode-source-map = { path = "external-crates/move/crates/move-bytecode-source-map" }
-move-bytecode-verifier-meter = { path = "external-crates/move/crates/move-bytecode-verifier-meter" }
-move-cli = { path = "external-crates/move/crates/move-cli" }
-move-compiler = { path = "external-crates/move/crates/move-compiler" }
-move-core-types = { path = "external-crates/move/crates/move-core-types" }
-move-disassembler = { path = "external-crates/move/crates/move-disassembler" }
-move-package = { path = "external-crates/move/crates/move-package" }
-move-package-alt = { path = "external-crates/move/crates/move-package-alt" }
-move-package-alt-compilation = { path = "external-crates/move/crates/move-package-alt-compilation" }
-move-unit-test = { path = "external-crates/move/crates/move-unit-test" }
-move-vm-config = { path = "external-crates/move/crates/move-vm-config" }
-move-vm-profiler = { path = "external-crates/move/crates/move-vm-profiler" }
-move-command-line-common = { path = "external-crates/move/crates/move-command-line-common" }
-move-transactional-test-runner = { path = "external-crates/move/crates/move-transactional-test-runner" }
-move-ir-types = { path = "external-crates/move/crates/move-ir-types" }
-move-stackless-bytecode = { path = "external-crates/move/crates/move-stackless-bytecode" }
-move-stackless-bytecode-2 = { path = "external-crates/move/crates/move-stackless-bytecode-2" }
-move-symbol-pool = { path = "external-crates/move/crates/move-symbol-pool" }
-move-abstract-interpreter = { path = "external-crates/move/crates/move-abstract-interpreter" }
-move-abstract-stack = { path = "external-crates/move/crates/move-abstract-stack" }
-move-analyzer = { path = "external-crates/move/crates/move-analyzer" }
-move-trace-format = { path = "external-crates/move/crates/move-trace-format" }
-
-fastcrypto = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "239eed70b763f89fdb1e6c6866fe389690945c45" }
-fastcrypto-tbls = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "239eed70b763f89fdb1e6c6866fe389690945c45" }
-fastcrypto-zkp = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "239eed70b763f89fdb1e6c6866fe389690945c45", package = "fastcrypto-zkp" }
-fastcrypto-vdf = { git = "https://github.com/GeunhwaJeong/fastcrypto", rev = "239eed70b763f89fdb1e6c6866fe389690945c45", features = [
-  "experimental",
-] }
-passkey-types = { version = "0.4.0" }
-passkey-client = { version = "0.4.0" }
-passkey-authenticator = { version = "0.4.0" }
-coset = "0.3"
-p256 = { version = "0.13.2", features = ["ecdsa"] }
-quick_cache = { version = "0.6.18", features = ["stats"] }
-
-p384 = { version = "0.13.0", default-features = false, features = [
-  "ecdsa",
-  "sha384",
-] }
-ciborium = "0.2"
-
-# anemo dependencies
-anemo = { git = "https://github.com/GeunhwaJeong/anemo.git", rev = "487f8bc739e535391a56e1aa1193084da9d64ce8" }
-anemo-build = { git = "https://github.com/GeunhwaJeong/anemo.git", rev = "487f8bc739e535391a56e1aa1193084da9d64ce8" }
-anemo-cli = { git = "https://github.com/GeunhwaJeong/anemo.git", rev = "487f8bc739e535391a56e1aa1193084da9d64ce8" }
-anemo-tower = { git = "https://github.com/GeunhwaJeong/anemo.git", rev = "487f8bc739e535391a56e1aa1193084da9d64ce8" }
-
-# core-types from the new sdk for use in gRPC
-haneul-sdk-types = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "5b41bc701525f1b94f1fe63008d4841bc6fb1065", features = [ "hash", "serde" ] }
-haneul-crypto = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "5b41bc701525f1b94f1fe63008d4841bc6fb1065", features = [ "ed25519", "secp256r1", "secp256k1", "passkey", "zklogin" ] }
-haneul-rpc = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "5b41bc701525f1b94f1fe63008d4841bc6fb1065", features = [ "unstable" ] }
-
-### Workspace Members ###
-anemo-benchmark = { path = "crates/anemo-benchmark" }
-bin-version = { path = "crates/bin-version" }
-haneullabs-common = { path = "crates/haneullabs-common" }
-haneullabs-metrics = { path = "crates/haneullabs-metrics" }
-haneullabs-network = { path = "crates/haneullabs-network" }
-haneullabs-service = { path = "crates/haneullabs-service" }
-prometheus-closure-metric = { path = "crates/prometheus-closure-metric" }
-shared-crypto = { path = "crates/shared-crypto" }
-simulacrum = { path = "crates/simulacrum" }
-haneul = { path = "crates/haneul" }
-haneul-adapter-transactional-tests = { path = "crates/haneul-adapter-transactional-tests" }
-haneul-analytics-indexer = { path = "crates/haneul-analytics-indexer" }
-haneul-analytics-indexer-derive = { path = "crates/haneul-analytics-indexer-derive" }
-haneul-authority-aggregation = { path = "crates/haneul-authority-aggregation" }
-haneul-benchmark = { path = "crates/haneul-benchmark" }
-haneul-bridge = { path = "crates/haneul-bridge" }
-haneul-bridge-schema = { path = "crates/haneul-bridge-schema" }
-haneul-cluster-test = { path = "crates/haneul-cluster-test" }
-haneul-config = { path = "crates/haneul-config" }
-haneul-core = { path = "crates/haneul-core" }
-haneul-cost = { path = "crates/haneul-cost" }
-haneul-data-ingestion-core = { path = "crates/haneul-data-ingestion-core" }
-haneul-data-store = { path = "crates/haneul-data-store" }
-haneul-default-config = { path = "crates/haneul-default-config" }
-haneul-display = { path = "crates/haneul-display" }
-haneul-e2e-tests = { path = "crates/haneul-e2e-tests" }
-haneul-enum-compat-util = { path = "crates/haneul-enum-compat-util" }
-haneul-faucet = { path = "crates/haneul-faucet" }
-haneul-field-count = { path = "crates/haneul-field-count" }
-haneul-field-count-derive = { path = "crates/haneul-field-count-derive" }
-haneul-futures = { path = "crates/haneul-futures" }
-haneul-framework = { path = "crates/haneul-framework" }
-haneul-framework-snapshot = { path = "crates/haneul-framework-snapshot" }
-haneul-framework-tests = { path = "crates/haneul-framework-tests" }
-haneul-genesis-builder = { path = "crates/haneul-genesis-builder" }
-haneul-http = { path = "crates/haneul-http" }
-haneul-indexer-alt = { path = "crates/haneul-indexer-alt" }
-haneul-indexer-alt-consistent-api = { path = "crates/haneul-indexer-alt-consistent-api" }
-haneul-indexer-alt-consistent-store = { path = "crates/haneul-indexer-alt-consistent-store" }
-haneul-indexer-alt-framework = { path = "crates/haneul-indexer-alt-framework", default-features = false }
-haneul-indexer-alt-framework-store-traits = { path = "crates/haneul-indexer-alt-framework-store-traits" }
-haneul-indexer-alt-graphql = { path = "crates/haneul-indexer-alt-graphql" }
-haneul-indexer-alt-jsonrpc = { path = "crates/haneul-indexer-alt-jsonrpc" }
-haneul-indexer-alt-metrics = { path = "crates/haneul-indexer-alt-metrics" }
-haneul-indexer-alt-reader = { path = "crates/haneul-indexer-alt-reader" }
-haneul-indexer-alt-schema = { path = "crates/haneul-indexer-alt-schema" }
-haneul-indexer-alt-object-store = { path = "crates/haneul-indexer-alt-object-store" }
-haneul-json = { path = "crates/haneul-json" }
-haneul-json-rpc = { path = "crates/haneul-json-rpc" }
-haneul-json-rpc-api = { path = "crates/haneul-json-rpc-api" }
-haneul-json-rpc-types = { path = "crates/haneul-json-rpc-types" }
-haneul-keys = { path = "crates/haneul-keys" }
-haneul-inverted-index = { path = "crates/haneul-inverted-index" }
-haneul-kvstore = { path = "crates/haneul-kvstore" }
-haneul-kv-rpc = { path = "crates/haneul-kv-rpc" }
-haneul-light-client = { path = "crates/haneul-light-client" }
-haneul-macros = { path = "crates/haneul-macros" }
-haneul-metric-checker = { path = "crates/haneul-metric-checker" }
-haneul-metrics-push-client = { path = "crates/haneul-metrics-push-client" }
-haneul-move = { path = "crates/haneul-move" }
-haneul-move-build = { path = "crates/haneul-move-build" }
-haneul-move-lsp = { path = "crates/haneul-move-lsp" }
-haneul-name-service = { path = "crates/haneul-name-service" }
-haneul-network = { path = "crates/haneul-network" }
-haneul-node = { path = "crates/haneul-node" }
-haneul-open-rpc = { path = "crates/haneul-open-rpc" }
-haneul-open-rpc-macros = { path = "crates/haneul-open-rpc-macros" }
-haneul-package-dump = { path = "crates/haneul-package-dump" }
-haneul-package-alt = { path = "crates/haneul-package-alt" }
-haneul-package-management = { path = "crates/haneul-package-management" }
-haneul-package-resolver = { path = "crates/haneul-package-resolver" }
-haneul-pg-db = { path = "crates/haneul-pg-db" }
-haneul-proc-macros = { path = "crates/haneul-proc-macros" }
-haneul-protocol-config = { path = "crates/haneul-protocol-config" }
-haneul-protocol-config-macros = { path = "crates/haneul-protocol-config-macros" }
-haneul-proxy = { path = "crates/haneul-proxy" }
-haneul-replay = { path = "crates/haneul-replay" }
-haneul-replay-2 = { path = "crates/haneul-replay-2" }
-haneul-rosetta = { path = "crates/haneul-rosetta" }
-haneul-rpc-loadgen = { path = "crates/haneul-rpc-loadgen" }
-haneul-sdk = { path = "crates/haneul-sdk" }
-haneul-simulator = { path = "crates/haneul-simulator" }
-haneul-snapshot = { path = "crates/haneul-snapshot" }
-haneul-source-validation = { path = "crates/haneul-source-validation" }
-haneul-sql-macro = { path = "crates/haneul-sql-macro" }
-haneul-storage = { path = "crates/haneul-storage" }
-haneul-surfer = { path = "crates/haneul-surfer" }
-haneul-swarm = { path = "crates/haneul-swarm" }
-haneul-swarm-config = { path = "crates/haneul-swarm-config" }
-haneul-synthetic-ingestion = { path = "crates/haneul-synthetic-ingestion" }
-haneul-telemetry = { path = "crates/haneul-telemetry" }
-haneul-test-transaction-builder = { path = "crates/haneul-test-transaction-builder" }
-haneul-test-validator = { path = "crates/haneul-test-validator" }
-haneul-tls = { path = "crates/haneul-tls" }
-haneul-rpc-api = { path = "crates/haneul-rpc-api" }
-haneul-rpc-resolver = { path = "crates/haneul-rpc-resolver" }
-haneul-tool = { path = "crates/haneul-tool" }
-haneul-transaction-builder = { path = "crates/haneul-transaction-builder" }
-haneul-transaction-checks = { path = "crates/haneul-transaction-checks" }
-haneul-transactional-test-runner = { path = "crates/haneul-transactional-test-runner" }
-haneul-types = { path = "crates/haneul-types" }
-haneul-upgrade-compatibility-transactional-tests = { path = "crates/haneul-upgrade-compatibility-transactional-tests" }
-haneul-verifier-transactional-tests = { path = "crates/haneul-verifier-transactional-tests" }
-telemetry-subscribers = { path = "crates/telemetry-subscribers" }
-test-cluster = { path = "crates/test-cluster" }
-transaction-fuzzer = { path = "crates/transaction-fuzzer" }
-typed-store = { path = "crates/typed-store" }
-typed-store-error = { path = "crates/typed-store-error" }
 x = { path = "crates/x" }
 
-consensus-config = { path = "consensus/config" }
-consensus-core = { path = "consensus/core" }
-consensus-types = { path = "consensus/types" }
-consensus-simtests = { path = "consensus/simtests" }
-
-haneul-execution = { path = "haneul-execution" }
-# haneul-move-natives = { path = "haneul-execution/latest/haneul-move-natives", package = "haneul-move-natives-latest" }
-# haneul-adapter = { path = "haneul-execution/latest/haneul-adapter", package = "haneul-adapter-latest" }
-# haneul-verifier = { path = "haneul-execution/latest/haneul-verifier", package = "haneul-verifier-latest" }
-# move-stdlib = { path = "external-crates/move/move-stdlib" }
-# move-vm-runtime = { path = "external-crates/move/move-vm/runtime" }
-# move-bytecode-verifier = { path = "external-crates/move/move-bytecode-verifier" }
-
+x509-parser = { version = "0.17.0", features = ["verify"] }
+zstd = "0.12.3"
 [patch.crates-io]
+# Go back to using a crates.io release once a release is made that includes
+# this fix: https://github.com/hyperium/tonic/pull/2596
+tonic = { git = "https://github.com/hyperium/tonic.git", rev = "d6ce69b0d93e1de21b0769e942ace00b48f52e17" }
+tonic-prost = { git = "https://github.com/hyperium/tonic.git", rev = "d6ce69b0d93e1de21b0769e942ace00b48f52e17" }
+tonic-reflection = { git = "https://github.com/hyperium/tonic.git", rev = "d6ce69b0d93e1de21b0769e942ace00b48f52e17" }
 async-graphql = { git = "https://github.com/amnn/async-graphql", branch = "v7.0.1-react-18-graphiql-4" }
 async-graphql-axum = { git = "https://github.com/amnn/async-graphql", branch = "v7.0.1-react-18-graphiql-4" }
 async-graphql-value = { git = "https://github.com/amnn/async-graphql", branch = "v7.0.1-react-18-graphiql-4" }
+

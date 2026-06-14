@@ -31,10 +31,10 @@ use haneul_types::{
     executable_transaction::VerifiedExecutableTransaction,
 };
 
-use std::{collections::HashSet, path::PathBuf};
-use std::{env, str::FromStr};
 use haneul_types::execution_status::{CommandArgumentError, ExecutionFailure, ExecutionStatus};
 use haneul_types::move_package::UpgradeCap;
+use std::{collections::HashSet, path::PathBuf};
+use std::{env, str::FromStr};
 
 #[tokio::test]
 #[cfg_attr(msim, ignore)]
@@ -54,7 +54,7 @@ async fn test_object_wrapping_unwrapping() {
     )
     .await;
 
-    let gas_version = authority.get_object(&gas).unwrap().version();
+    let gas_version = authority.get_object(&gas).await.unwrap().version();
     let create_child_version = SequenceNumber::lamport_increment([gas_version]);
 
     // Create a Child object.
@@ -341,10 +341,9 @@ async fn test_object_owning_another_object() {
         Owner::Shared { .. }
         | Owner::Immutable
         | Owner::AddressOwner(_)
-        | Owner::ConsensusAddressOwner { .. }
-        | Owner::Party { .. } => panic!(),
+        | Owner::ConsensusAddressOwner { .. } => panic!(),
     };
-    let field_object = authority.get_object(&field_id).unwrap();
+    let field_object = authority.get_object(&field_id).await.unwrap();
     assert_eq!(field_object.owner, parent.0);
 
     // Mutate the child directly will now fail because we need the parent to authenticate.
@@ -2833,7 +2832,7 @@ pub async fn build_and_try_publish_test_package(
     let all_module_bytes = compiled_package.get_package_bytes(with_unpublished_deps);
     let dependencies = compiled_package.get_dependency_storage_package_ids();
 
-    let gas_object = authority.get_object(gas_object_id);
+    let gas_object = authority.get_object(gas_object_id).await;
     let gas_object_ref = gas_object.unwrap().compute_object_reference();
 
     let data = TransactionData::new_module(
@@ -2883,7 +2882,7 @@ pub async fn build_and_publish_package_with_upgrade_cap(
     let gas_price = authority.reference_gas_price_for_testing().unwrap();
     let gas_budget = TEST_ONLY_GAS_UNIT_FOR_PUBLISH * gas_price;
     let effects = {
-        let gas_object = authority.get_object(gas_object_id);
+        let gas_object = authority.get_object(gas_object_id).await;
         let gas_object_ref = gas_object.unwrap().compute_object_reference();
 
         let data = TransactionData::new_module(
@@ -2981,7 +2980,7 @@ pub async fn collect_packages_and_upgrade_caps(
         if !matches!(owner, Owner::AddressOwner(_)) {
             continue;
         }
-        let cap = authority.get_object(&obj_ref.0).unwrap();
+        let cap = authority.get_object(&obj_ref.0).await.unwrap();
         let bcs = cap.data.try_as_move().unwrap().contents();
         let obj: UpgradeCap = bcs::from_bytes(bcs).unwrap();
         let pkg = packages.get(&obj.package.bytes).unwrap();
@@ -2999,7 +2998,7 @@ pub async fn run_multi_txns(
 ) -> Result<(VerifiedExecutableTransaction, SignedTransactionEffects), HaneulError> {
     // build the transaction data
     let pt = builder.finish();
-    let gas_object = authority.get_object(gas_object_id);
+    let gas_object = authority.get_object(gas_object_id).await;
     let gas_object_ref = gas_object.unwrap().compute_object_reference();
     let gas_price = authority.reference_gas_price_for_testing().unwrap();
     let gas_budget = pt.non_system_packages_to_be_published().count() as u64

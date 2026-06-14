@@ -17,15 +17,15 @@ use crate::{
         env::Env, linkage::analysis::LinkageAnalyzer, metering::translation_meter,
     },
 };
-use move_trace_format::format::MoveTraceBuilder;
-use move_vm_runtime::runtime::MoveRuntime;
-use std::{cell::RefCell, rc::Rc, sync::Arc};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::{
-    base_types::TxContext, error::ExecutionErrorTrait, execution::ResultWithTimings,
+    base_types::TxContext, error::ExecutionError, execution::ResultWithTimings,
     execution_status::ExecutionErrorKind, metrics::ExecutionMetrics, storage::BackingPackageStore,
     transaction::ProgrammableTransaction,
 };
+use move_trace_format::format::MoveTraceBuilder;
+use move_vm_runtime::runtime::MoveRuntime;
+use std::{cell::RefCell, rc::Rc, sync::Arc};
 
 pub mod env;
 pub mod execution;
@@ -47,25 +47,25 @@ pub fn execute<Mode: ExecutionMode>(
     withdrawal_compatibility_inputs: Option<Vec<bool>>,
     txn: ProgrammableTransaction,
     trace_builder_opt: &mut Option<MoveTraceBuilder>,
-) -> ResultWithTimings<Mode::ExecutionResults, Mode::Error> {
+) -> ResultWithTimings<Mode::ExecutionResults, ExecutionError> {
     let gas_payment = gas_charger.gas_payment_amount();
     let package_store = CachedPackageStore::new(vm, TransactionPackageStore::new(package_store));
     let linkage_analysis =
         LinkageAnalyzer::new::<Mode>(protocol_config).map_err(|e| (e, vec![]))?;
     let ptb_type_linkage = linkage_analysis
-        .compute_input_type_resolution_linkage::<Mode::Error>(&txn, &package_store, state_view)
-        .and_then(|linkage| linkage.linkage_context::<Mode::Error>())
+        .compute_input_type_resolution_linkage(&txn, &package_store, state_view)
+        .and_then(|linkage| linkage.linkage_context())
         .map_err(|e| (e, vec![]))?;
     let resolution_vm = vm
         .make_vm(&package_store.package_store, ptb_type_linkage)
         .map_err(|e| {
             (
-                Mode::Error::new_with_source(ExecutionErrorKind::InvalidLinkage, e),
+                ExecutionError::new_with_source(ExecutionErrorKind::InvalidLinkage, e),
                 vec![],
             )
         })?;
 
-    let mut env: Env<Mode> = Env::new(
+    let mut env = Env::new(
         protocol_config,
         vm,
         state_view,

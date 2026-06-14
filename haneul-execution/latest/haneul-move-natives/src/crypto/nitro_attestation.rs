@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{NativesCostTable, get_extension, object_runtime::ObjectRuntime};
+use haneul_types::nitro_attestation::{parse_nitro_attestation, verify_nitro_attestation};
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_core_types::{gas_algebra::InternalGas, vm_status::StatusCode};
 use move_vm_runtime::execution::values::VectorSpecialization;
@@ -16,7 +17,6 @@ use move_vm_runtime::{
     pop_arg,
 };
 use std::collections::{BTreeMap, VecDeque};
-use haneul_types::nitro_attestation::{parse_nitro_attestation, verify_nitro_attestation};
 
 pub const NOT_SUPPORTED_ERROR: u64 = 0;
 pub const PARSE_ERROR: u64 = 1;

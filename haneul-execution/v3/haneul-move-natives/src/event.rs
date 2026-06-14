@@ -5,6 +5,7 @@ use crate::{
     NativesCostTable, abstract_size, get_extension, get_extension_mut, legacy_test_cost,
     object_runtime::{MoveAccumulatorAction, MoveAccumulatorValue, ObjectRuntime},
 };
+use haneul_types::{base_types::ObjectID, error::VMMemoryLimitExceededSubStatusCode};
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_core_types::{
     account_address::AccountAddress, gas_algebra::InternalGas, language_storage::TypeTag,
@@ -18,7 +19,6 @@ use move_vm_types::{
 };
 use smallvec::smallvec;
 use std::collections::VecDeque;
-use haneul_types::{base_types::ObjectID, error::VMMemoryLimitExceededSubStatusCode};
 
 pub const NOT_SUPPORTED: u64 = 0;
 

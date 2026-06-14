@@ -6,6 +6,10 @@ use crate::{
     NativesCostTable, get_extension, get_extension_mut, get_receiver_object_id,
     get_tag_and_layouts, object_runtime::object_store::ObjectResult,
 };
+use haneul_types::{
+    base_types::{MoveObjectType, ObjectID, SequenceNumber},
+    object::Owner,
+};
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_binary_format::{safe_assert, safe_unwrap};
 use move_core_types::{
@@ -19,10 +23,6 @@ use move_vm_runtime::{
 use move_vm_runtime::{native_charge_gas_early_exit, natives::functions::NativeContext};
 use smallvec::smallvec;
 use std::collections::VecDeque;
-use haneul_types::{
-    base_types::{MoveObjectType, ObjectID, SequenceNumber},
-    object::Owner,
-};
 
 const E_SHARED_NON_NEW_OBJECT: u64 = 0;
 const E_BCS_SERIALIZATION_FAILURE: u64 = 1;
@@ -248,7 +248,6 @@ pub fn party_transfer_internal(
         owner: address.into(),
     };
     object_runtime_transfer(context, owner, ty, obj)?;
-    // TODO check permissions for transfer
     let cost = context.gas_used();
     Ok(NativeResult::ok(cost, smallvec![]))
 }
@@ -283,7 +282,7 @@ pub fn freeze_object(
     let obj = safe_unwrap!(args.pop_back());
 
     object_runtime_transfer(context, Owner::Immutable, ty, obj)?;
-    // TODO check permissions for transfer
+
     Ok(NativeResult::ok(context.gas_used(), smallvec![]))
 }
 
@@ -325,7 +324,6 @@ pub fn share_object(
         ty,
         obj,
     )?;
-    // TODO check permissions for transfer
     let cost = context.gas_used();
     Ok(match transfer_result {
         // New means the ID was created in this transaction

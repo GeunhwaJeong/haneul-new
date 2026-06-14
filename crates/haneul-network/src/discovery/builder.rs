@@ -11,14 +11,14 @@ use anemo::types::PeerAffinity;
 use anemo::{PeerId, types::PeerInfo};
 use anemo_tower::rate_limit;
 use fastcrypto::traits::KeyPair;
-use std::{
-    collections::{HashMap, HashSet},
-    path::PathBuf,
-    sync::{Arc, OnceLock, RwLock},
-};
 use haneul_config::p2p::P2pConfig;
 use haneul_types::crypto::NetworkKeyPair;
 use haneul_types::multiaddr::Multiaddr;
+use std::{
+    collections::HashMap,
+    path::PathBuf,
+    sync::{Arc, OnceLock, RwLock},
+};
 use tap::{Pipe, TapFallible};
 use tokio::{
     sync::{mpsc, oneshot},
@@ -125,12 +125,10 @@ impl Builder {
         .pipe(Arc::new);
 
         let configured_peers = Arc::new(OnceLock::new());
-        let chain_peers = Arc::new(RwLock::new(HashSet::new()));
 
         let server = Server {
             state: state.clone(),
             configured_peers: configured_peers.clone(),
-            chain_peers: chain_peers.clone(),
             mailbox_sender: mailbox_tx.clone(),
         };
 
@@ -144,7 +142,6 @@ impl Builder {
                 mailbox_tx: mailbox_tx.clone(),
                 metrics,
                 configured_peers,
-                chain_peers,
                 consensus_external_address,
                 endpoint_manager: endpoint_manager.clone(),
                 store_path,
@@ -165,7 +162,6 @@ pub struct UnstartedDiscovery {
     pub(super) mailbox_tx: mpsc::Sender<DiscoveryMessage>,
     pub(super) metrics: Metrics,
     pub(super) configured_peers: Arc<OnceLock<HashMap<PeerId, PeerInfo>>>,
-    pub(super) chain_peers: Arc<RwLock<HashSet<PeerId>>>,
     pub(super) consensus_external_address: Option<Multiaddr>,
     pub(super) endpoint_manager: EndpointManager,
     pub(super) store_path: Option<PathBuf>,
@@ -190,7 +186,6 @@ impl UnstartedDiscovery {
             mailbox_tx,
             metrics,
             configured_peers,
-            chain_peers,
             consensus_external_address,
             endpoint_manager,
             store_path,
@@ -210,7 +205,6 @@ impl UnstartedDiscovery {
                 config,
                 discovery_config: Arc::new(discovery_config),
                 configured_peers: Arc::new(built_configured_peers),
-                chain_peers,
                 unidentified_seed_peers,
                 network,
                 keypair,

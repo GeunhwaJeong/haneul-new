@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::verification_failure;
-use move_binary_format::file_format::{Bytecode, CompiledModule};
 use haneul_types::error::ExecutionError;
+use move_binary_format::file_format::{Bytecode, CompiledModule};
 
 pub fn verify_module(module: &CompiledModule) -> Result<(), ExecutionError> {
     verify_global_storage_access(module)

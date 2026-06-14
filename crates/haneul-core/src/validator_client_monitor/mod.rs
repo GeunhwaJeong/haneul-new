@@ -8,11 +8,11 @@ mod stats;
 #[cfg(test)]
 mod tests;
 
+use haneul_types::{base_types::AuthorityName, messages_grpc::PingType};
 pub use metrics::ValidatorClientMetrics;
 pub use monitor::ValidatorClientMonitor;
 use std::time::Duration;
 use strum::EnumIter;
-use haneul_types::{base_types::AuthorityName, messages_grpc::PingType};
 
 /// Operation types for validator performance tracking
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, EnumIter)]

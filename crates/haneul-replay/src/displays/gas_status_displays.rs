@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::displays::Pretty;
-use std::fmt::{Display, Formatter};
 use haneul_types::gas::HaneulGasStatus;
 use haneul_types::gas_model::gas_v2::HaneulGasStatus as GasStatusV2;
+use std::fmt::{Display, Formatter};
 use tabled::{
     builder::Builder as TableBuilder,
     settings::{Style as TableStyle, style::HorizontalLine},
@@ -23,7 +23,10 @@ impl Display for Pretty<'_, HaneulGasStatus> {
     }
 }
 
-fn per_object_storage_table(f: &mut Formatter, haneul_gas_status: &GasStatusV2) -> std::fmt::Result {
+fn per_object_storage_table(
+    f: &mut Formatter,
+    haneul_gas_status: &GasStatusV2,
+) -> std::fmt::Result {
     let mut builder = TableBuilder::default();
     builder.push_record(vec!["Object ID", "Bytes", "Old Rebate", "New Rebate"]);
     for (object_id, per_obj_storage) in haneul_gas_status.per_object_storage() {

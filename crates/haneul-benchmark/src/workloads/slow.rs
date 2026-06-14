@@ -13,16 +13,16 @@ use crate::workloads::payload::Payload;
 use crate::workloads::{Gas, GasCoinConfig, workload::ExpectedFailureType};
 use crate::{ExecutionEffects, ValidatorProxy};
 use async_trait::async_trait;
-use move_core_types::identifier::Identifier;
-use std::{sync::Arc, time::Duration};
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::transaction::{ObjectArg, SharedObjectMutability};
 use haneul_types::{
     HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION,
     base_types::{ObjectRef, random_object_ref},
 };
-use haneul_types::{base_types::ObjectID, object::Owner};
 use haneul_types::{base_types::HaneulAddress, crypto::get_key_pair, transaction::Transaction};
+use haneul_types::{base_types::ObjectID, object::Owner};
+use move_core_types::identifier::Identifier;
+use std::{sync::Arc, time::Duration};
 
 #[derive(Debug)]
 pub struct SlowTestPayload {
@@ -99,7 +99,7 @@ impl SlowTestPayload {
                 .unwrap();
         }
 
-        tx_builder.ensure_unique().build_and_sign(account.key())
+        tx_builder.build_and_sign(account.key())
     }
 }
 
@@ -217,7 +217,6 @@ impl Workload<dyn Payload> for SlowWorkload {
         let transaction = TestTransactionBuilder::new(gas.1, gas.0, reference_gas_price)
             .publish_async(path)
             .await
-            .ensure_unique()
             .build_and_sign(gas.2.as_ref());
         let execution_result = execution_proxy.execute_transaction_block(transaction).await;
         let effects = execution_result.unwrap();

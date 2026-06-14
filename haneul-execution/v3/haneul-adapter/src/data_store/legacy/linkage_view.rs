@@ -2,6 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::data_store::PackageStore;
+use haneul_types::{
+    base_types::ObjectID,
+    error::{ExecutionError, HaneulError, HaneulResult},
+    move_package::{MovePackage, TypeOrigin, UpgradeInfo},
+};
 use move_core_types::{
     account_address::AccountAddress,
     identifier::{IdentStr, Identifier},
@@ -14,11 +19,6 @@ use std::{
     collections::{BTreeMap, HashMap, HashSet, hash_map::Entry},
     rc::Rc,
     str::FromStr,
-};
-use haneul_types::{
-    base_types::ObjectID,
-    error::{ExecutionError, HaneulError, HaneulResult},
-    move_package::{MovePackage, TypeOrigin, UpgradeInfo},
 };
 
 /// Exposes module and linkage resolution to the Move runtime.  The first by delegating to

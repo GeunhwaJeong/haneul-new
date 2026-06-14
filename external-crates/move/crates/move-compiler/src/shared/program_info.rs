@@ -7,6 +7,7 @@ use self::known_attributes::AttributePosition;
 use crate::{
     PreCompiledProgramInfo,
     expansion::ast::{AbilitySet, Attributes, ModuleIdent, Visibility},
+    haneul_mode::info::{HaneulInfo, HaneulModInfo},
     naming::ast::{
         self as N, BuiltinTypeName_, DatatypeTypeParameter, EnumDefinition, FunctionSignature,
         ResolvedUseFuns, StructDefinition, StructFields, SyntaxMethods, Type, TypeInner, TypeName_,
@@ -16,7 +17,6 @@ use crate::{
         ConstantName, DatatypeName, DocComment, Field, FunctionName, TargetKind, VariantName,
     },
     shared::{unique_map::UniqueMap, *},
-    haneul_mode::info::{HaneulInfo, HaneulModInfo},
     typing::ast::{self as T},
 };
 use move_core_types::runtime_value;

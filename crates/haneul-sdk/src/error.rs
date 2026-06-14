@@ -34,7 +34,10 @@ pub enum Error {
         server_version: String,
     },
     #[error("Insufficient fund for address [{address}], requested amount: {amount}")]
-    InsufficientFund { address: HaneulAddress, amount: u128 },
+    InsufficientFund {
+        address: HaneulAddress,
+        amount: u128,
+    },
     #[error("Invalid signature")]
     InvalidSignature,
     #[error("Invalid Header key-value pair: {0}")]

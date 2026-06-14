@@ -11,9 +11,8 @@ use move_ir_types::location::Loc;
 /// This is cached and used during typing analysis.
 #[derive(Default, Debug, Clone)]
 pub struct CompilerAnalysisInfo {
-    /// Macro call information keyed by expanded expression location.
-    /// Multiple expansions can share locations from macro definitions.
-    pub macro_info: BTreeMap<Loc, Vec<CI::MacroCallInfo>>,
+    /// Macro call information
+    pub macro_info: BTreeMap<Loc, CI::MacroCallInfo>,
     /// Expanded lambda expressions
     pub expanded_lambdas: BTreeSet<Loc>,
     /// Ellipsis-generated binders (to filter from IDE)
@@ -37,12 +36,8 @@ impl CompilerAnalysisInfo {
         Self::default()
     }
 
-    pub fn get_macro_info(&self, loc: &Loc, root_call_loc: Loc) -> Option<&CI::MacroCallInfo> {
-        let entries = self.macro_info.get(loc)?;
-        // Macro-expanded expressions can share locations because locations
-        // inside an expanded macro body come from the macro definition. Only
-        // use metadata from the expansion tree currently being traversed.
-        entries.iter().find(|e| e.root_call_loc == root_call_loc)
+    pub fn get_macro_info(&self, loc: &Loc) -> Option<&CI::MacroCallInfo> {
+        self.macro_info.get(loc)
     }
 
     pub fn is_expanded_lambda(&self, loc: &Loc) -> bool {
@@ -89,7 +84,7 @@ pub fn process_ide_annotations(
     for (loc, entry) in annotations {
         match entry {
             CI::IDEAnnotation::MacroCallInfo(info) => {
-                analysis.macro_info.entry(loc).or_default().push(*info);
+                analysis.macro_info.insert(loc, *info);
             }
             CI::IDEAnnotation::ExpandedLambda => {
                 analysis.expanded_lambdas.insert(loc);

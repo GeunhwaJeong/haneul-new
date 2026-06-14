@@ -12,17 +12,13 @@ use crate::{
 };
 use async_trait::async_trait;
 use consensus_types::block::BlockRef;
-use std::{
-    collections::{BTreeMap, HashMap},
-    net::SocketAddr,
-    sync::{Arc, Mutex as StdMutex},
-};
 use haneul_types::{
     base_types::{AuthorityName, random_object_ref},
     committee::Committee,
     digests::{TransactionDigest, TransactionEffectsDigest},
     effects::TransactionEffects,
     error::{HaneulError, HaneulErrorKind, UserInputError},
+    haneul_system_state::HaneulSystemState,
     messages_checkpoint::{
         CheckpointRequest, CheckpointRequestV2, CheckpointResponse, CheckpointResponseV2,
     },
@@ -33,8 +29,12 @@ use haneul_types::{
         TxType, ValidatorHealthRequest, ValidatorHealthResponse, WaitForEffectsRequest,
         WaitForEffectsResponse,
     },
-    haneul_system_state::HaneulSystemState,
     transaction_driver_types::EffectsFinalityInfo,
+};
+use std::{
+    collections::{BTreeMap, HashMap},
+    net::SocketAddr,
+    sync::{Arc, Mutex as StdMutex},
 };
 use tokio::time::{Duration, sleep};
 

@@ -9,7 +9,6 @@ use cynic::Operation;
 use reqwest::header::USER_AGENT;
 
 use haneul_protocol_config::Chain;
-use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::effects::TransactionEvents;
 use haneul_types::messages_checkpoint::CheckpointContents;
@@ -25,7 +24,6 @@ use crate::ObjectRead;
 use crate::TransactionInfo;
 use crate::TransactionRead;
 use crate::gql::AddressOwnedObject;
-use crate::gql::ObjectSeedMetadata;
 use crate::gql::queries;
 
 macro_rules! block_on {
@@ -131,7 +129,7 @@ impl TransactionRead for GraphQLClient {
 }
 
 impl GraphQLClient {
-    /// Fetch metadata for objects owned by an address at a checkpoint, paginating through
+    /// Fetch address-owned object metadata at a checkpoint, paginating through
     /// the checkpoint-scoped ownership connection.
     pub(crate) async fn get_address_owned_objects_at_checkpoint(
         &self,
@@ -139,15 +137,6 @@ impl GraphQLClient {
         checkpoint: CheckpointSequenceNumber,
     ) -> Result<Vec<AddressOwnedObject>, Error> {
         queries::address_owned_objects_query::query(address, checkpoint, self).await
-    }
-
-    /// Fetch lightweight metadata for explicit object seeds at a checkpoint.
-    pub(crate) async fn get_object_seed_metadata_at_checkpoint(
-        &self,
-        object_ids: &[ObjectID],
-        checkpoint: CheckpointSequenceNumber,
-    ) -> Result<Vec<ObjectSeedMetadata>, Error> {
-        queries::object_seed_query::query(object_ids, checkpoint, self).await
     }
 
     /// Get the latest checkpoint sequence number from GraphQL RPC.
@@ -214,8 +203,8 @@ impl CheckpointRead for GraphQLClient {
 mod tests {
     use cynic::QueryBuilder;
     use fastcrypto::encoding::Base64 as FastCryptoBase64;
-    use serde_json::json;
     use haneul_types::{base_types::ObjectID, test_checkpoint_data_builder::TestCheckpointBuilder};
+    use serde_json::json;
     use wiremock::matchers::{body_partial_json, header, method, path};
     use wiremock::{Mock, MockServer, ResponseTemplate};
 

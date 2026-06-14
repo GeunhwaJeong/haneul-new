@@ -11,9 +11,9 @@ pub mod one_time_witness_verifier;
 pub mod private_generics;
 pub mod struct_with_key_verifier;
 
-use move_core_types::{ident_str, identifier::IdentStr, vm_status::StatusCode};
 use haneul_types::error::ExecutionError;
 use haneul_types::execution_status::ExecutionErrorKind;
+use move_core_types::{ident_str, identifier::IdentStr, vm_status::StatusCode};
 
 pub const INIT_FN_NAME: &IdentStr = ident_str!("init");
 pub const TEST_SCENARIO_MODULE_NAME: &str = "test_scenario";

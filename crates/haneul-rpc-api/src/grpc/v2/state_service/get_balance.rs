@@ -7,8 +7,8 @@ use haneul_rpc::proto::haneul::rpc::v2::{Balance, GetBalanceRequest, GetBalanceR
 use haneul_sdk_types::Address;
 use haneul_sdk_types::StructTag;
 use haneul_types::base_types::HaneulAddress;
-use haneul_types::storage::BalanceInfo;
 use haneul_types::haneul_sdk_types_conversions::struct_tag_sdk_to_core;
+use haneul_types::storage::BalanceInfo;
 
 #[tracing::instrument(skip(service))]
 pub fn get_balance(service: &RpcService, request: GetBalanceRequest) -> Result<GetBalanceResponse> {

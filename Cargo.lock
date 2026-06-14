@@ -190,9 +190,9 @@ checksum = "0942ffc6dcaadf03badf6e6a2d0228460359d5e34b57ccdc720b7382dfbd5ec5"
 
 [[package]]
 name = "alloy"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e502b004e05578e537ce0284843ba3dfaf6a0d5c530f5c20454411aded561289"
+checksum = "cf23ee5a0d40c75ade22bf33f117058461fc30a95e84d48b01c845c28f4ea7c5"
 dependencies = [
  "alloy-consensus",
  "alloy-contract",
@@ -216,9 +216,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-chains"
-version = "0.2.29"
+version = "0.2.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef3a72a2247c34a8545ee99e562b1b9b69168e5000567257ae51e91b4e6b1193"
+checksum = "b163ff4acf0eac29af05a911397cc418a76e153467b859398adc26cb9335a611"
 dependencies = [
  "alloy-primitives",
  "num_enum 0.7.3",
@@ -227,9 +227,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-consensus"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5c3a590d13de3944675987394715f37537b50b856e3b23a0e66e97d963edbf38"
+checksum = "41e46a465e50a339a817070ec23f06eb3fc9fbb8af71612868367b875a9d49e3"
 dependencies = [
  "alloy-eips",
  "alloy-primitives",
@@ -254,9 +254,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-consensus-any"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f28f769d5ea999f0d8a105e434f483456a15b4e1fcb08edbbbe1650a497ff6d"
+checksum = "07001b1693af794c7526aab400b42e38075f986ef8fef78841e5ebc745473e56"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -268,9 +268,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-contract"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "990fa65cd132a99d3c3795a82b9f93ec82b81c7de3bab0bf26ca5c73286f7186"
+checksum = "3ef1b07c3ff5bf4fab5b8e6c46190cd40b2f2fd2cd72b5b02527a38125d0bff4"
 dependencies = [
  "alloy-consensus",
  "alloy-dyn-abi",
@@ -358,9 +358,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-eips"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09535cbc646b0e0c6fcc12b7597eaed12cf86dff4c4fba9507a61e71b94f30eb"
+checksum = "707337efeb051ddbaece17a73eaec5150945a5a5541112f4146508248edc2e40"
 dependencies = [
  "alloy-eip2124",
  "alloy-eip2930",
@@ -381,9 +381,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-genesis"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1005520ccf89fa3d755e46c1d992a9e795466c2e7921be2145ef1f749c5727de"
+checksum = "64ba7afffa225272cf50c62ff04ac574adc7bfa73af2370db556340f26fcff5c"
 dependencies = [
  "alloy-eips",
  "alloy-primitives",
@@ -408,9 +408,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-json-rpc"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72b626409c98ba43aaaa558361bca21440c88fd30df7542c7484b9c7a1489cdb"
+checksum = "48562f9b4c4e1514cab54af16feaffc18194a38216bbd0c23004ec4667ad696b"
 dependencies = [
  "alloy-primitives",
  "alloy-sol-types",
@@ -447,9 +447,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-network"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89924fdcfeee0e0fa42b1f10af42f92802b5d16be614a70897382565663bf7cf"
+checksum = "364a5eaa598437d7a57bcbcb4b7fcb0518e192cf809a19b09b2b5cf73b9ba1cd"
 dependencies = [
  "alloy-consensus",
  "alloy-consensus-any",
@@ -473,9 +473,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-network-primitives"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f0dbe56ff50065713ff8635d8712a0895db3ad7f209db9793ad8fcb6b1734aa"
+checksum = "21af5255bd276e528ee625d97033884916e879a1c6edcd5b70a043bd440c0710"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -515,9 +515,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-provider"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b56f7a77513308a21a2ba0e9d57785a9d9d2d609e77f4e71a78a1192b83ff2d"
+checksum = "5cc919fe241f9dd28c4c7f7dcff9e66e550c280bafe3545e1019622e1239db38"
 dependencies = [
  "alloy-chains",
  "alloy-consensus",
@@ -541,7 +541,7 @@ dependencies = [
  "either",
  "futures",
  "futures-utils-wasm",
- "lru 0.16.3",
+ "lru 0.13.0",
  "parking_lot 0.12.3",
  "pin-project",
  "reqwest",
@@ -556,9 +556,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-pubsub"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94813abbd7baa30c700ea02e7f92319dbcb03bff77aeea92a3a9af7ba19c5c70"
+checksum = "23a0778833917a71a9e0065e0409bfc00cddef55ca962b3453472be38ebe7035"
 dependencies = [
  "alloy-json-rpc",
  "alloy-primitives",
@@ -600,9 +600,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-rpc-client"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ff01723afc25ec4c5b04de399155bef7b6a96dfde2475492b1b7b4e7a4f46445"
+checksum = "2b587e63d8c4af437b0a7830dc12d24cb495e956cc8ecbf93e96d62c9cb55b13"
 dependencies = [
  "alloy-json-rpc",
  "alloy-primitives",
@@ -625,9 +625,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-rpc-types"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f91bf006bb06b7d812591b6ac33395cb92f46c6a65cda11ee30b348338214f0f"
+checksum = "97b3000edc72a300048cf461df94bfa29fc5d7760ddd88ca7d56ea6fc8b28729"
 dependencies = [
  "alloy-primitives",
  "alloy-rpc-types-eth",
@@ -637,9 +637,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-rpc-types-any"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "212ca1c1dab27f531d3858f8b1a2d6bfb2da664be0c1083971078eb7b71abe4b"
+checksum = "6ebc96cf29095c10a183fb7106a097fe12ca8dd46733895582da255407f54b29"
 dependencies = [
  "alloy-consensus-any",
  "alloy-rpc-types-eth",
@@ -648,9 +648,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-rpc-types-eth"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5715d0bf7efbd360873518bd9f6595762136b5327a9b759a8c42ccd9b5e44945"
+checksum = "9cc3f354a5079480acca0a6533d1d3838177a03ea494ef0ae8d1679efea88274"
 dependencies = [
  "alloy-consensus",
  "alloy-consensus-any",
@@ -669,9 +669,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-serde"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ed8531cae8d21ee1c6571d0995f8c9f0652a6ef6452fde369283edea6ab7138"
+checksum = "a438ce4cd49ec4bc213868c1fe94f2fe103d4c3f22f6a42073db974f9c0962da"
 dependencies = [
  "alloy-primitives",
  "serde",
@@ -680,9 +680,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-signer"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb10ccd49d0248df51063fce6b716f68a315dd912d55b32178c883fd48b4021d"
+checksum = "389372d6ae4d62b88c8dca8238e4f7d0a7727b66029eb8a5516a908a03161450"
 dependencies = [
  "alloy-primitives",
  "async-trait",
@@ -695,9 +695,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-signer-local"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4d992d44e6c414ece580294abbadb50e74cfd4eaa69787350a4dfd4b20eaa1b"
+checksum = "69c260e78b9c104c444f8a202f283d5e8c6637e6fa52a83f649ad6aaa0b91fd0"
 dependencies = [
  "alloy-consensus",
  "alloy-network",
@@ -784,9 +784,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-transport"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f50a9516736d22dd834cc2240e5bf264f338667cc1d9e514b55ec5a78b987ca"
+checksum = "f01c27edb3c0926919586a231d99e06284f9239da6044b5682033ef781e1cc62"
 dependencies = [
  "alloy-json-rpc",
  "auto_impl",
@@ -807,9 +807,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-transport-http"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a18b541a6197cf9a084481498a766fdf32fefda0c35ea6096df7d511025e9f1"
+checksum = "2cc57657fd3249fc8324cbbc8edbb7d5114af5fbc7c6c32dff944d6b5922f400"
 dependencies = [
  "alloy-json-rpc",
  "alloy-transport",
@@ -822,9 +822,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-transport-ws"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "921d37a57e2975e5215f7dd0f28873ed5407c7af630d4831a4b5c737de4b0b8b"
+checksum = "e81effa6a2db6b2152eefb244b4aa6334b1c42819d0eca8d5a91826ec7a9fdba"
 dependencies = [
  "alloy-pubsub",
  "alloy-transport",
@@ -839,9 +839,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-trie"
-version = "0.9.3"
+version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "428aa0f0e0658ff091f8f667c406e034b431cb10abd39de4f507520968acc499"
+checksum = "2b77b56af09ead281337d06b1d036c88e2dc8a2e45da512a532476dbee94912b"
 dependencies = [
  "alloy-primitives",
  "alloy-rlp",
@@ -855,9 +855,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-tx-macros"
-version = "1.4.3"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b2289a842d02fe63f8c466db964168bb2c7a9fdfb7b24816dbb17d45520575fb"
+checksum = "99dac443033e83b14f68fac56e8c27e76421f1253729574197ceccd06598f3ef"
 dependencies = [
  "darling 0.21.3",
  "proc-macro2",
@@ -1422,9 +1422,9 @@ dependencies = [
 
 [[package]]
 name = "arrow"
-version = "57.3.0"
+version = "57.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e4754a624e5ae42081f464514be454b39711daae0458906dacde5f4c632f33a8"
+checksum = "3bd47f2a6ddc39244bd722a27ee5da66c03369d087b9e024eafdb03e98b98ea7"
 dependencies = [
  "arrow-arith",
  "arrow-array",
@@ -1443,9 +1443,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-arith"
-version = "57.3.0"
+version = "57.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7b3141e0ec5145a22d8694ea8b6d6f69305971c4fa1c1a13ef0195aef2d678b"
+checksum = "7c7bbd679c5418b8639b92be01f361d60013c4906574b578b77b63c78356594c"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -1457,9 +1457,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-array"
-version = "57.3.0"
+version = "57.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c8955af33b25f3b175ee10af580577280b4bd01f7e823d94c7cdef7cf8c9aef"
+checksum = "c8a4ab47b3f3eac60f7fd31b81e9028fda018607bcc63451aca4f2b755269862"
 dependencies = [
  "ahash 0.8.11",
  "arrow-buffer",
@@ -1475,9 +1475,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-buffer"
-version = "57.3.0"
+version = "57.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c697ddca96183182f35b3a18e50b9110b11e916d7b7799cbfd4d34662f2c56c2"
+checksum = "0d18b89b4c4f4811d0858175e79541fe98e33e18db3b011708bc287b1240593f"
 dependencies = [
  "bytes",
  "half 2.3.1",
@@ -1487,9 +1487,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-cast"
-version = "57.3.0"
+version = "57.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "646bbb821e86fd57189c10b4fcdaa941deaf4181924917b0daa92735baa6ada5"
+checksum = "722b5c41dd1d14d0a879a1bce92c6fe33f546101bb2acce57a209825edd075b3"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -1508,9 +1508,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-csv"
-version = "57.3.0"
+version = "57.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8da746f4180004e3ce7b83c977daf6394d768332349d3d913998b10a120b790a"
+checksum = "27ddb80a4848e03b1655af496d5ac2563a779e5742fcb48f2ca2e089c9cd2197"
 dependencies = [
  "arrow-array",
  "arrow-cast",
@@ -1523,9 +1523,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-data"
-version = "57.3.0"
+version = "57.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1fdd994a9d28e6365aa78e15da3f3950c0fdcea6b963a12fa1c391afb637b304"
+checksum = "c1683705c63dcf0d18972759eda48489028cbbff67af7d6bef2c6b7b74ab778a"
 dependencies = [
  "arrow-buffer",
  "arrow-schema",
@@ -1536,9 +1536,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-ipc"
-version = "57.3.0"
+version = "57.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "abf7df950701ab528bf7c0cf7eeadc0445d03ef5d6ffc151eaae6b38a58feff1"
+checksum = "8cf72d04c07229fbf4dbebe7145cac37d7cf7ec582fe705c6b92cb314af096ab"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -1550,9 +1550,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-json"
-version = "57.3.0"
+version = "57.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ff8357658bedc49792b13e2e862b80df908171275f8e6e075c460da5ee4bf86"
+checksum = "a84a905f41fedfcd7679813c89a61dc369c0f932b27aa8dcc6aa051cc781a97d"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -1574,9 +1574,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-ord"
-version = "57.3.0"
+version = "57.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7d8f1870e03d4cbed632959498bcc84083b5a24bded52905ae1695bd29da45b"
+checksum = "082342947d4e5a2bcccf029a0a0397e21cb3bb8421edd9571d34fb5dd2670256"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -1587,9 +1587,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-row"
-version = "57.3.0"
+version = "57.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18228633bad92bff92a95746bbeb16e5fc318e8382b75619dec26db79e4de4c0"
+checksum = "e3a931b520a2a5e22033e01a6f2486b4cdc26f9106b759abeebc320f125e94d7"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -1600,15 +1600,15 @@ dependencies = [
 
 [[package]]
 name = "arrow-schema"
-version = "57.3.0"
+version = "57.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c872d36b7bf2a6a6a2b40de9156265f0242910791db366a2c17476ba8330d68"
+checksum = "e4cf0d4a6609679e03002167a61074a21d7b1ad9ea65e462b2c0a97f8a3b2bc6"
 
 [[package]]
 name = "arrow-select"
-version = "57.3.0"
+version = "57.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "68bf3e3efbd1278f770d67e5dc410257300b161b93baedb3aae836144edcaf4b"
+checksum = "0b320d86a9806923663bb0fd9baa65ecaba81cb0cd77ff8c1768b9716b4ef891"
 dependencies = [
  "ahash 0.8.11",
  "arrow-array",
@@ -1620,9 +1620,9 @@ dependencies = [
 
 [[package]]
 name = "arrow-string"
-version = "57.3.0"
+version = "57.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85e968097061b3c0e9fe3079cf2e703e487890700546b5b0647f60fca1b5a8d8"
+checksum = "b493e99162e5764077e7823e50ba284858d365922631c7aaefe9487b1abd02c2"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -1868,7 +1868,7 @@ dependencies = [
 [[package]]
 name = "async-task"
 version = "4.3.0"
-source = "git+https://github.com/GeunhwaJeongmark/async-task?rev=4e45b26e11126b191701b9b2ce5e2346b8d7682f#4e45b26e11126b191701b9b2ce5e2346b8d7682f"
+source = "git+https://github.com/mystenmark/async-task?rev=4e45b26e11126b191701b9b2ce5e2346b8d7682f#4e45b26e11126b191701b9b2ce5e2346b8d7682f"
 
 [[package]]
 name = "async-trait"
@@ -2753,7 +2753,7 @@ checksum = "230c5f1ca6a325a32553f8640d31ac9b49f2411e901e427570154868b46da4f7"
 
 [[package]]
 name = "bin-version"
-version = "1.74.0"
+version = "1.2.0"
 dependencies = [
  "const-str",
  "git-version",
@@ -2794,7 +2794,7 @@ version = "0.69.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "271383c67ccabffb7381723dea0672a673f292304fcb45c01cc648c7a8d58088"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "cexpr",
  "clang-sys",
  "itertools 0.12.1",
@@ -2843,6 +2843,12 @@ checksum = "08807e080ed7f9d5433fa9b275196cfc35414f66a0c79d864dc51a0d825231a3"
 dependencies = [
  "bit-vec 0.8.0",
 ]
+
+[[package]]
+name = "bit-vec"
+version = "0.4.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "02b4ff8b16e6076c3e14220b39fbc1fabb6737522281a388998046859400895f"
 
 [[package]]
 name = "bit-vec"
@@ -2895,9 +2901,9 @@ checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
 
 [[package]]
 name = "bitflags"
-version = "2.11.0"
+version = "2.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "843867be96c8daad0d758b57df9392b6d8d271134fce549de6ce169ff98a92af"
+checksum = "c4512299f36f043ab09a583e57bceb5a5aab7a73db1805848e8fef3c9e8c78b3"
 
 [[package]]
 name = "bitmaps"
@@ -2995,6 +3001,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0a90ec2df9600c28a01c56c4784c9207a96d2451833aeceb8cc97e4c9548bb78"
 dependencies = [
  "generic-array",
+]
+
+[[package]]
+name = "bloom"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d00ac8e5056d6d65376a3c1aa5c7c34850d6949ace17f0266953a254eb3d6fe8"
+dependencies = [
+ "bit-vec 0.4.4",
 ]
 
 [[package]]
@@ -3148,9 +3163,9 @@ dependencies = [
 
 [[package]]
 name = "bumpalo"
-version = "3.19.1"
+version = "3.20.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5dd9dc738b7a8311c7ade152424974d8115f2cdad61e8dab8dac9f2362298510"
+checksum = "72f5acc6cb2ba439de613abc23857ec3d78374d8ed5ac84e9d11336e87da8649"
 
 [[package]]
 name = "byte-slice-cast"
@@ -3423,7 +3438,7 @@ checksum = "6f8d983286843e49675a4b7a2d174efe136dc93a18d69130dd18198a6c167601"
 dependencies = [
  "cfg-if",
  "cpufeatures 0.3.0",
- "rand_core 0.10.0",
+ "rand_core 0.10.1",
 ]
 
 [[package]]
@@ -3659,8 +3674,8 @@ name = "consensus-config"
 version = "0.1.0"
 dependencies = [
  "fastcrypto",
- "insta",
  "haneullabs-network",
+ "insta",
  "rand 0.8.5",
  "serde",
  "shared-crypto",
@@ -3685,12 +3700,15 @@ dependencies = [
  "eyre",
  "fastcrypto",
  "futures",
- "http 1.3.1",
- "itertools 0.13.0",
- "mockall",
+ "haneul-http",
+ "haneul-macros",
+ "haneul-tls",
  "haneullabs-common",
  "haneullabs-metrics",
  "haneullabs-network",
+ "http 1.3.1",
+ "itertools 0.13.0",
+ "mockall",
  "nom 7.1.3",
  "parking_lot 0.12.3",
  "prometheus",
@@ -3702,9 +3720,6 @@ dependencies = [
  "serde",
  "shared-crypto",
  "strum_macros 0.27.1",
- "haneul-http",
- "haneul-macros",
- "haneul-tls",
  "tap",
  "telemetry-subscribers",
  "tempfile",
@@ -3712,7 +3727,7 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "tokio-util 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
- "tonic 0.14.6",
+ "tonic 0.14.5",
  "tonic-build",
  "tonic-prost",
  "tonic-rustls",
@@ -3732,15 +3747,15 @@ dependencies = [
  "consensus-core",
  "consensus-types",
  "fastcrypto",
+ "haneul-config",
+ "haneul-macros",
+ "haneul-protocol-config",
+ "haneul-simulator",
  "haneullabs-metrics",
  "haneullabs-network",
  "parking_lot 0.12.3",
  "prometheus",
  "rand 0.8.5",
- "haneul-config",
- "haneul-macros",
- "haneul-protocol-config",
- "haneul-simulator",
  "telemetry-subscribers",
  "tempfile",
  "tokio",
@@ -4119,7 +4134,7 @@ version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d8b9f2e4c67f833b660cdb0a3523065869fb35570177239812ed4c905aeff87b"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "crossterm_winapi",
  "derive_more 2.1.1",
  "document-features",
@@ -4508,9 +4523,9 @@ dependencies = [
 
 [[package]]
 name = "data-encoding"
-version = "2.10.0"
+version = "2.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7a1e2f27636f116493b8b860f5546edb47c8d8f8ea73e1d2a20be88e28d1fea"
+checksum = "a4ae5f15dda3c708c0ade84bfee31ccab44a3da4f88015ed22f63732abe300c8"
 
 [[package]]
 name = "data-encoding-macro"
@@ -4770,11 +4785,11 @@ dependencies = [
 
 [[package]]
 name = "diesel"
-version = "2.3.10"
+version = "2.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29fe29a87fb84c631ffb3ba21798c4b1f3a964701ba78f0dce4bf8668562ec88"
+checksum = "9940fb8467a0a06312218ed384185cb8536aa10d8ec017d0ce7fad2c1bd882d5"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "byteorder",
  "chrono",
  "diesel_derives",
@@ -4785,24 +4800,25 @@ dependencies = [
 
 [[package]]
 name = "diesel-async"
-version = "0.9.0"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c20ddcc6737cecdaef3dfecb2796bdfe3002456521189d30be8e4c5a1bc821d"
+checksum = "b95864e58597509106f1fddfe0600de7e589e1fddddd87f54eee0a49fd111bbc"
 dependencies = [
  "bb8",
  "diesel",
  "futures-core",
  "futures-util",
  "pin-project-lite",
+ "scoped-futures",
  "tokio",
  "tokio-postgres",
 ]
 
 [[package]]
 name = "diesel_derives"
-version = "2.3.8"
+version = "2.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b79402bd1cfb25b65650f0f4901d0e79c095729e2139c8ab779d025968c7099"
+checksum = "d1817b7f4279b947fc4cafddec12b0e5f8727141706561ce3ac94a60bddd1cf5"
 dependencies = [
  "diesel_table_macro_syntax",
  "dsl_auto_type",
@@ -5473,22 +5489,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "fastbloom"
-version = "0.17.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef975e30683b2d965054bb0a836f8973857c4ebf6acf274fe46617cd285060d8"
-dependencies = [
- "foldhash 0.2.0",
- "libm",
- "portable-atomic",
- "rand 0.9.0",
- "siphasher 1.0.1",
-]
-
-[[package]]
 name = "fastcrypto"
 version = "0.1.9"
-source = "git+https://github.com/GeunhwaJeong/fastcrypto?rev=239eed70b763f89fdb1e6c6866fe389690945c45#239eed70b763f89fdb1e6c6866fe389690945c45"
+source = "git+https://github.com/GeunhwaJeong/fastcrypto?rev=0eea35ee442a798fb1f1e7c2f39dc021bd21dbc3#0eea35ee442a798fb1f1e7c2f39dc021bd21dbc3"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -5549,7 +5552,7 @@ dependencies = [
 [[package]]
 name = "fastcrypto-derive"
 version = "0.1.3"
-source = "git+https://github.com/GeunhwaJeong/fastcrypto?rev=239eed70b763f89fdb1e6c6866fe389690945c45#239eed70b763f89fdb1e6c6866fe389690945c45"
+source = "git+https://github.com/GeunhwaJeong/fastcrypto?rev=0eea35ee442a798fb1f1e7c2f39dc021bd21dbc3#0eea35ee442a798fb1f1e7c2f39dc021bd21dbc3"
 dependencies = [
  "quote",
  "syn 1.0.107",
@@ -5558,7 +5561,7 @@ dependencies = [
 [[package]]
 name = "fastcrypto-tbls"
 version = "0.1.0"
-source = "git+https://github.com/GeunhwaJeong/fastcrypto?rev=239eed70b763f89fdb1e6c6866fe389690945c45#239eed70b763f89fdb1e6c6866fe389690945c45"
+source = "git+https://github.com/GeunhwaJeong/fastcrypto?rev=0eea35ee442a798fb1f1e7c2f39dc021bd21dbc3#0eea35ee442a798fb1f1e7c2f39dc021bd21dbc3"
 dependencies = [
  "bcs",
  "digest 0.10.7",
@@ -5578,7 +5581,7 @@ dependencies = [
 [[package]]
 name = "fastcrypto-vdf"
 version = "0.1.0"
-source = "git+https://github.com/GeunhwaJeong/fastcrypto?rev=239eed70b763f89fdb1e6c6866fe389690945c45#239eed70b763f89fdb1e6c6866fe389690945c45"
+source = "git+https://github.com/GeunhwaJeong/fastcrypto?rev=0eea35ee442a798fb1f1e7c2f39dc021bd21dbc3#0eea35ee442a798fb1f1e7c2f39dc021bd21dbc3"
 dependencies = [
  "bcs",
  "fastcrypto",
@@ -5595,7 +5598,7 @@ dependencies = [
 [[package]]
 name = "fastcrypto-zkp"
 version = "0.1.3"
-source = "git+https://github.com/GeunhwaJeong/fastcrypto?rev=239eed70b763f89fdb1e6c6866fe389690945c45#239eed70b763f89fdb1e6c6866fe389690945c45"
+source = "git+https://github.com/GeunhwaJeong/fastcrypto?rev=0eea35ee442a798fb1f1e7c2f39dc021bd21dbc3#0eea35ee442a798fb1f1e7c2f39dc021bd21dbc3"
 dependencies = [
  "ark-bn254",
  "ark-ec",
@@ -5820,7 +5823,7 @@ version = "25.12.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "35f6839d7b3b98adde531effaf34f0c2badc6f4735d26fe74709d8e513a96ef3"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "rustc_version 0.4.1",
 ]
 
@@ -6074,7 +6077,7 @@ dependencies = [
  "time",
  "tokio",
  "tokio-stream",
- "tonic 0.14.6",
+ "tonic 0.14.5",
  "tonic-build",
  "tonic-prost",
  "tonic-prost-build",
@@ -6167,7 +6170,7 @@ dependencies = [
  "cfg-if",
  "libc",
  "r-efi 6.0.0",
- "rand_core 0.10.0",
+ "rand_core 0.10.1",
  "wasip2",
  "wasip3",
 ]
@@ -6418,6 +6421,3678 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 1.0.69",
+]
+
+[[package]]
+name = "haneul"
+version = "1.2.0"
+dependencies = [
+ "anemo",
+ "anyhow",
+ "assert_cmd",
+ "async-recursion",
+ "async-trait",
+ "aws-config",
+ "aws-sdk-kms",
+ "bcs",
+ "bin-version",
+ "bip32",
+ "camino",
+ "clap",
+ "clap_complete",
+ "colored",
+ "csv",
+ "datatest-stable",
+ "expect-test",
+ "fastcrypto",
+ "fastcrypto-zkp",
+ "fs_extra",
+ "futures",
+ "haneul-bridge",
+ "haneul-config",
+ "haneul-data-store",
+ "haneul-execution",
+ "haneul-faucet",
+ "haneul-futures",
+ "haneul-genesis-builder",
+ "haneul-indexer-alt",
+ "haneul-indexer-alt-consistent-store",
+ "haneul-indexer-alt-framework",
+ "haneul-indexer-alt-graphql",
+ "haneul-indexer-alt-reader",
+ "haneul-json",
+ "haneul-json-rpc-types",
+ "haneul-keys",
+ "haneul-macros",
+ "haneul-move",
+ "haneul-move-build",
+ "haneul-package-alt",
+ "haneul-package-management",
+ "haneul-pg-db",
+ "haneul-protocol-config",
+ "haneul-replay-2",
+ "haneul-rpc",
+ "haneul-rpc-api",
+ "haneul-sdk",
+ "haneul-simulator",
+ "haneul-source-validation",
+ "haneul-swarm",
+ "haneul-swarm-config",
+ "haneul-test-transaction-builder",
+ "haneul-transaction-builder",
+ "haneul-types",
+ "haneullabs-common",
+ "http 1.3.1",
+ "im",
+ "inquire",
+ "insta",
+ "insta-cmd",
+ "json_to_table",
+ "miette",
+ "move-analyzer",
+ "move-binary-format",
+ "move-bytecode-source-map",
+ "move-bytecode-utils",
+ "move-bytecode-verifier-meter",
+ "move-cli",
+ "move-command-line-common",
+ "move-compiler",
+ "move-core-types",
+ "move-ir-types",
+ "move-package-alt",
+ "move-package-alt-compilation",
+ "move-symbol-pool",
+ "move-trace-format",
+ "move-vm-profiler",
+ "msim",
+ "normalize-line-endings",
+ "num-bigint 0.4.6",
+ "prometheus",
+ "rand 0.8.5",
+ "regex",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_yaml 0.8.26",
+ "shared-crypto",
+ "shlex",
+ "signature 1.6.4",
+ "tabled",
+ "tap",
+ "telemetry-subscribers",
+ "tempfile",
+ "test-cluster",
+ "thiserror 1.0.69",
+ "tikv-jemalloc-ctl",
+ "tokio",
+ "toml 0.7.4",
+ "toml_edit 0.19.10",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "haneul-adapter-latest"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "either",
+ "haneul-macros",
+ "haneul-move-natives-latest",
+ "haneul-protocol-config",
+ "haneul-types",
+ "haneul-verifier-latest",
+ "haneullabs-common",
+ "haneullabs-metrics",
+ "indexmap 2.8.0",
+ "leb128",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-bytecode-verifier",
+ "move-bytecode-verifier-meter",
+ "move-core-types",
+ "move-regex-borrow-graph",
+ "move-trace-format",
+ "move-vm-config",
+ "move-vm-profiler",
+ "move-vm-runtime",
+ "nonempty",
+ "parking_lot 0.12.3",
+ "quick_cache",
+ "serde",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-adapter-transactional-tests"
+version = "0.1.0"
+dependencies = [
+ "datatest-stable",
+ "haneul-transactional-test-runner",
+]
+
+[[package]]
+name = "haneul-adapter-v0"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "haneul-macros",
+ "haneul-move-natives-v0",
+ "haneul-protocol-config",
+ "haneul-types",
+ "haneul-verifier-v0",
+ "leb128",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-bytecode-verifier-meter",
+ "move-bytecode-verifier-v0",
+ "move-core-types",
+ "move-vm-config",
+ "move-vm-profiler",
+ "move-vm-runtime-v0",
+ "move-vm-types-v0",
+ "once_cell",
+ "parking_lot 0.12.3",
+ "serde",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-adapter-v1"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "haneul-macros",
+ "haneul-move-natives-v1",
+ "haneul-protocol-config",
+ "haneul-types",
+ "haneul-verifier-v1",
+ "leb128",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-bytecode-verifier-meter",
+ "move-bytecode-verifier-v1",
+ "move-core-types",
+ "move-vm-config",
+ "move-vm-profiler",
+ "move-vm-runtime-v1",
+ "move-vm-types-v1",
+ "parking_lot 0.12.3",
+ "serde",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-adapter-v2"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "haneul-macros",
+ "haneul-move-natives-v2",
+ "haneul-protocol-config",
+ "haneul-types",
+ "haneul-verifier-v2",
+ "leb128",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-bytecode-verifier-meter",
+ "move-bytecode-verifier-v2",
+ "move-core-types",
+ "move-vm-config",
+ "move-vm-profiler",
+ "move-vm-runtime-v2",
+ "move-vm-types-v2",
+ "parking_lot 0.12.3",
+ "serde",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-adapter-v3"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "either",
+ "haneul-macros",
+ "haneul-move-natives-v3",
+ "haneul-protocol-config",
+ "haneul-types",
+ "haneul-verifier-v3",
+ "haneullabs-common",
+ "haneullabs-metrics",
+ "indexmap 2.8.0",
+ "leb128",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-bytecode-verifier-meter",
+ "move-bytecode-verifier-v3",
+ "move-core-types",
+ "move-regex-borrow-graph",
+ "move-trace-format",
+ "move-vm-config",
+ "move-vm-profiler",
+ "move-vm-runtime-v3",
+ "move-vm-types-v3",
+ "nonempty",
+ "parking_lot 0.12.3",
+ "serde",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-analytics-indexer"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "arrow",
+ "arrow-array",
+ "async-trait",
+ "bcs",
+ "bytes",
+ "chrono",
+ "clap",
+ "csv",
+ "eyre",
+ "fastcrypto",
+ "futures",
+ "gcp-bigquery-client",
+ "haneul-analytics-indexer-derive",
+ "haneul-futures",
+ "haneul-indexer-alt-framework",
+ "haneul-indexer-alt-framework-store-traits",
+ "haneul-indexer-alt-metrics",
+ "haneul-indexer-alt-object-store",
+ "haneul-json-rpc-types",
+ "haneul-package-resolver",
+ "haneul-rpc",
+ "haneul-rpc-api",
+ "haneul-rpc-resolver",
+ "haneul-storage",
+ "haneul-types",
+ "haneullabs-common",
+ "indexmap 2.8.0",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-core-types",
+ "num_enum 0.6.1",
+ "object_store 0.13.0",
+ "parquet",
+ "prometheus",
+ "prost 0.14.1",
+ "reqwest",
+ "scoped-futures",
+ "serde",
+ "serde_json",
+ "serde_yaml 0.8.26",
+ "snowflake-api",
+ "strum 0.27.1",
+ "strum_macros 0.27.1",
+ "tap",
+ "telemetry-subscribers",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tokio",
+ "tokio-util 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tracing",
+ "url",
+ "zstd 0.12.3+zstd.1.5.2",
+]
+
+[[package]]
+name = "haneul-analytics-indexer-derive"
+version = "1.2.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.107",
+]
+
+[[package]]
+name = "haneul-authority-aggregation"
+version = "0.1.0"
+dependencies = [
+ "futures",
+ "haneul-types",
+ "haneullabs-metrics",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-benchmark"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bcs",
+ "clap",
+ "comfy-table",
+ "derive_more 1.0.0",
+ "duration-str",
+ "futures",
+ "haneul-config",
+ "haneul-core",
+ "haneul-framework",
+ "haneul-framework-snapshot",
+ "haneul-keys",
+ "haneul-macros",
+ "haneul-move-build",
+ "haneul-network",
+ "haneul-protocol-config",
+ "haneul-rpc",
+ "haneul-rpc-api",
+ "haneul-simulator",
+ "haneul-surfer",
+ "haneul-swarm-config",
+ "haneul-test-transaction-builder",
+ "haneul-types",
+ "haneullabs-common",
+ "haneullabs-metrics",
+ "hdrhistogram",
+ "indicatif",
+ "itertools 0.13.0",
+ "move-core-types",
+ "prometheus",
+ "prost 0.14.1",
+ "rand 0.8.5",
+ "regex",
+ "serde",
+ "serde_json",
+ "strum 0.27.1",
+ "strum_macros 0.27.1",
+ "sysinfo",
+ "telemetry-subscribers",
+ "test-cluster",
+ "tokio",
+ "tokio-util 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tracing",
+ "typed-store",
+ "zstd 0.12.3+zstd.1.5.2",
+]
+
+[[package]]
+name = "haneul-bridge"
+version = "1.2.0"
+dependencies = [
+ "alloy",
+ "alloy-multiprovider-strategy",
+ "anyhow",
+ "arc-swap",
+ "async-trait",
+ "axum 0.8.3",
+ "backoff",
+ "bcs",
+ "bin-version",
+ "bincode 1.3.3",
+ "clap",
+ "enum_dispatch",
+ "eyre",
+ "fastcrypto",
+ "futures",
+ "haneul-authority-aggregation",
+ "haneul-config",
+ "haneul-json-rpc-api",
+ "haneul-json-rpc-types",
+ "haneul-keys",
+ "haneul-metrics-push-client",
+ "haneul-rpc",
+ "haneul-rpc-api",
+ "haneul-sdk",
+ "haneul-sdk-types",
+ "haneul-test-transaction-builder",
+ "haneul-types",
+ "haneullabs-common",
+ "haneullabs-metrics",
+ "hex-literal 0.3.4",
+ "maplit",
+ "move-core-types",
+ "num_enum 0.6.1",
+ "once_cell",
+ "prometheus",
+ "rand 0.8.5",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "shared-crypto",
+ "strum_macros 0.27.1",
+ "tap",
+ "telemetry-subscribers",
+ "tempfile",
+ "test-cluster",
+ "thiserror 1.0.69",
+ "tokio",
+ "tonic 0.14.5",
+ "tower 0.5.3",
+ "tracing",
+ "typed-store",
+ "url",
+]
+
+[[package]]
+name = "haneul-bridge-cli"
+version = "1.2.0"
+dependencies = [
+ "alloy",
+ "anyhow",
+ "clap",
+ "fastcrypto",
+ "futures",
+ "haneul-bridge",
+ "haneul-config",
+ "haneul-json-rpc-types",
+ "haneul-keys",
+ "haneul-rpc",
+ "haneul-rpc-api",
+ "haneul-sdk-types",
+ "haneul-types",
+ "haneullabs-common",
+ "move-core-types",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "shared-crypto",
+ "telemetry-subscribers",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-bridge-indexer"
+version = "0.1.0"
+dependencies = [
+ "alloy",
+ "anyhow",
+ "async-trait",
+ "backoff",
+ "clap",
+ "diesel",
+ "diesel-async",
+ "diesel_migrations",
+ "futures",
+ "haneul-bridge",
+ "haneul-bridge-schema",
+ "haneul-config",
+ "haneul-test-transaction-builder",
+ "haneul-types",
+ "haneullabs-metrics",
+ "hex-literal 0.3.4",
+ "prometheus",
+ "rustls",
+ "serde",
+ "serde_json",
+ "tap",
+ "telemetry-subscribers",
+ "test-cluster",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-bridge-indexer-alt"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bcs",
+ "clap",
+ "diesel",
+ "diesel-async",
+ "haneul-bridge",
+ "haneul-bridge-schema",
+ "haneul-indexer-alt-framework",
+ "haneul-indexer-alt-metrics",
+ "move-core-types",
+ "prometheus",
+ "serde_json",
+ "telemetry-subscribers",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "haneul-bridge-schema"
+version = "0.1.0"
+dependencies = [
+ "diesel",
+ "diesel_migrations",
+ "haneul-field-count",
+ "serde",
+ "serde_json",
+ "strum 0.27.1",
+ "strum_macros 0.27.1",
+]
+
+[[package]]
+name = "haneul-checkpoint-blob-indexer"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bytes",
+ "clap",
+ "haneul-default-config",
+ "haneul-indexer-alt-framework",
+ "haneul-indexer-alt-framework-store-traits",
+ "haneul-indexer-alt-metrics",
+ "haneul-indexer-alt-object-store",
+ "haneul-rpc",
+ "haneul-storage",
+ "haneul-types",
+ "humantime",
+ "object_store 0.13.0",
+ "prometheus",
+ "prost 0.14.1",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "telemetry-subscribers",
+ "tokio",
+ "toml 0.7.4",
+ "tracing",
+ "url",
+ "zstd 0.12.3+zstd.1.5.2",
+]
+
+[[package]]
+name = "haneul-cluster-test"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "clap",
+ "derive_more 1.0.0",
+ "fastcrypto",
+ "futures",
+ "haneul-config",
+ "haneul-faucet",
+ "haneul-json",
+ "haneul-json-rpc-types",
+ "haneul-keys",
+ "haneul-move-build",
+ "haneul-sdk",
+ "haneul-swarm",
+ "haneul-swarm-config",
+ "haneul-test-transaction-builder",
+ "haneul-types",
+ "jsonrpsee",
+ "move-core-types",
+ "regex",
+ "reqwest",
+ "serde_json",
+ "shared-crypto",
+ "telemetry-subscribers",
+ "tempfile",
+ "test-cluster",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-config"
+version = "0.0.0"
+dependencies = [
+ "anemo",
+ "anyhow",
+ "bcs",
+ "clap",
+ "consensus-config",
+ "csv",
+ "dirs 4.0.0",
+ "fastcrypto",
+ "haneul-keys",
+ "haneul-types",
+ "haneullabs-common",
+ "move-vm-config",
+ "nonzero_ext",
+ "object_store 0.13.0",
+ "once_cell",
+ "prometheus",
+ "rand 0.8.5",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "serde_yaml 0.8.26",
+ "starlark",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-core"
+version = "0.1.0"
+dependencies = [
+ "anemo",
+ "antithesis_sdk",
+ "anyhow",
+ "arc-swap",
+ "async-stream",
+ "async-trait",
+ "axum 0.8.3",
+ "bcs",
+ "bincode 1.3.3",
+ "bytes",
+ "clap",
+ "consensus-config",
+ "consensus-core",
+ "consensus-types",
+ "count-min-sketch",
+ "criterion",
+ "dashmap 5.5.3",
+ "diffy",
+ "either",
+ "enum_dispatch",
+ "expect-test",
+ "eyre",
+ "fastcrypto",
+ "fastcrypto-tbls",
+ "fastcrypto-zkp",
+ "fs_extra",
+ "futures",
+ "governor",
+ "haneul-authority-aggregation",
+ "haneul-config",
+ "haneul-execution",
+ "haneul-framework",
+ "haneul-genesis-builder",
+ "haneul-json-rpc-types",
+ "haneul-macros",
+ "haneul-move",
+ "haneul-move-build",
+ "haneul-network",
+ "haneul-protocol-config",
+ "haneul-rpc",
+ "haneul-simulator",
+ "haneul-storage",
+ "haneul-swarm-config",
+ "haneul-test-transaction-builder",
+ "haneul-tls",
+ "haneul-transaction-checks",
+ "haneul-types",
+ "haneullabs-common",
+ "haneullabs-metrics",
+ "haneullabs-network",
+ "im",
+ "insta",
+ "itertools 0.13.0",
+ "lru 0.10.0",
+ "mockall",
+ "moka",
+ "more-asserts",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-core-types",
+ "move-symbol-pool",
+ "nonempty",
+ "nonzero_ext",
+ "num-bigint 0.4.6",
+ "num_cpus",
+ "object_store 0.13.0",
+ "once_cell",
+ "parking_lot 0.12.3",
+ "pin-project-lite",
+ "pprof",
+ "pretty_assertions",
+ "prometheus",
+ "prost 0.14.1",
+ "prost-build",
+ "protox",
+ "rand 0.8.5",
+ "rayon",
+ "reqwest",
+ "roaring 0.10.9",
+ "rstest",
+ "scopeguard",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "serde_yaml 0.8.26",
+ "shared-crypto",
+ "simple_moving_average",
+ "static_assertions",
+ "strum 0.27.1",
+ "strum_macros 0.27.1",
+ "sysinfo",
+ "tap",
+ "telemetry-subscribers",
+ "tempfile",
+ "test-fuzz",
+ "thiserror 1.0.69",
+ "tokio",
+ "tokio-stream",
+ "tokio-util 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tracing",
+ "twox-hash 1.6.3",
+ "typed-store",
+ "zstd 0.12.3+zstd.1.5.2",
+]
+
+[[package]]
+name = "haneul-cost"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "haneul-config",
+ "haneul-json-rpc-types",
+ "haneul-move-build",
+ "haneul-swarm-config",
+ "haneul-test-transaction-builder",
+ "haneul-types",
+ "insta",
+ "move-disassembler",
+ "serde",
+ "strum 0.27.1",
+ "strum_macros 0.27.1",
+ "test-cluster",
+ "tokio",
+]
+
+[[package]]
+name = "haneul-crypto"
+version = "0.3.0"
+source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=e0e1b3176f6f77099d71c455ee97f2649c5dc55c#e0e1b3176f6f77099d71c455ee97f2649c5dc55c"
+dependencies = [
+ "ark-bn254",
+ "ark-ff 0.4.2",
+ "ark-groth16",
+ "ark-snark",
+ "ark-std 0.4.0",
+ "base64ct",
+ "bnum",
+ "ed25519-dalek",
+ "haneul-sdk-types",
+ "itertools 0.14.0",
+ "k256 0.13.4",
+ "p256",
+ "rand_core 0.6.4",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "sha2 0.10.9",
+ "signature 2.2.0",
+]
+
+[[package]]
+name = "haneul-data-ingestion-core"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "backoff",
+ "bcs",
+ "futures",
+ "haneul-protocol-config",
+ "haneul-rpc",
+ "haneul-rpc-api",
+ "haneul-types",
+ "haneullabs-metrics",
+ "notify",
+ "object_store 0.13.0",
+ "once_cell",
+ "prometheus",
+ "prost 0.14.1",
+ "rand 0.8.5",
+ "serde_json",
+ "tap",
+ "tempfile",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+ "url",
+ "zstd 0.12.3+zstd.1.5.2",
+]
+
+[[package]]
+name = "haneul-data-store"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "chrono",
+ "csv",
+ "cynic",
+ "cynic-codegen",
+ "fastcrypto",
+ "haneul-types",
+ "haneullabs-common",
+ "lru 0.10.0",
+ "reqwest",
+ "serde",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-default-config"
+version = "1.2.0"
+dependencies = [
+ "quote",
+ "syn 1.0.107",
+]
+
+[[package]]
+name = "haneul-display"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "base64 0.21.7",
+ "bcs",
+ "chrono",
+ "dashmap 5.5.3",
+ "futures",
+ "haneul-json-rpc-types",
+ "haneul-types",
+ "haneullabs-common",
+ "indexmap 2.8.0",
+ "insta",
+ "itertools 0.13.0",
+ "move-core-types",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+]
+
+[[package]]
+name = "haneul-e2e-tests"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bcs",
+ "clap",
+ "coset",
+ "fastcrypto",
+ "fastcrypto-zkp",
+ "futures",
+ "haneul-config",
+ "haneul-core",
+ "haneul-framework",
+ "haneul-framework-snapshot",
+ "haneul-json-rpc",
+ "haneul-json-rpc-api",
+ "haneul-json-rpc-types",
+ "haneul-keys",
+ "haneul-light-client",
+ "haneul-macros",
+ "haneul-move-build",
+ "haneul-network",
+ "haneul-node",
+ "haneul-protocol-config",
+ "haneul-rpc",
+ "haneul-rpc-api",
+ "haneul-sdk",
+ "haneul-sdk-types",
+ "haneul-simulator",
+ "haneul-storage",
+ "haneul-swarm",
+ "haneul-swarm-config",
+ "haneul-test-transaction-builder",
+ "haneul-tool",
+ "haneul-types",
+ "haneullabs-common",
+ "haneullabs-metrics",
+ "indexmap 2.8.0",
+ "insta",
+ "itertools 0.13.0",
+ "jsonrpsee",
+ "move-binary-format",
+ "move-core-types",
+ "p256",
+ "passkey-authenticator",
+ "passkey-client",
+ "passkey-types",
+ "prometheus",
+ "prost 0.14.1",
+ "prost-types 0.14.1",
+ "rand 0.8.5",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "shared-crypto",
+ "telemetry-subscribers",
+ "tempfile",
+ "test-cluster",
+ "tokio",
+ "tokio-stream",
+ "tonic 0.14.5",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "haneul-enum-compat-util"
+version = "0.1.0"
+dependencies = [
+ "serde_yaml 0.8.26",
+]
+
+[[package]]
+name = "haneul-execution"
+version = "0.1.0"
+dependencies = [
+ "cargo_metadata 0.15.4",
+ "haneul-adapter-latest",
+ "haneul-adapter-v0",
+ "haneul-adapter-v1",
+ "haneul-adapter-v2",
+ "haneul-adapter-v3",
+ "haneul-move-natives-latest",
+ "haneul-move-natives-v0",
+ "haneul-move-natives-v1",
+ "haneul-move-natives-v2",
+ "haneul-move-natives-v3",
+ "haneul-protocol-config",
+ "haneul-types",
+ "haneul-verifier-latest",
+ "haneul-verifier-v0",
+ "haneul-verifier-v1",
+ "haneul-verifier-v2",
+ "haneul-verifier-v3",
+ "move-abstract-interpreter",
+ "move-abstract-interpreter-v2",
+ "move-abstract-interpreter-v3",
+ "move-binary-format",
+ "move-bytecode-verifier",
+ "move-bytecode-verifier-meter",
+ "move-bytecode-verifier-v0",
+ "move-bytecode-verifier-v1",
+ "move-bytecode-verifier-v2",
+ "move-bytecode-verifier-v3",
+ "move-trace-format",
+ "move-vm-config",
+ "move-vm-runtime",
+ "move-vm-runtime-v0",
+ "move-vm-runtime-v1",
+ "move-vm-runtime-v2",
+ "move-vm-runtime-v3",
+ "move-vm-types-v0",
+ "move-vm-types-v1",
+ "move-vm-types-v2",
+ "move-vm-types-v3",
+ "petgraph 0.5.1",
+]
+
+[[package]]
+name = "haneul-execution-cut"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "expect-test",
+ "tempfile",
+ "thiserror 1.0.69",
+ "toml 0.7.4",
+ "toml_edit 0.19.10",
+]
+
+[[package]]
+name = "haneul-faucet"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.3",
+ "bin-version",
+ "clap",
+ "haneul-config",
+ "haneul-keys",
+ "haneul-rpc-api",
+ "haneul-sdk",
+ "http 1.3.1",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "shared-crypto",
+ "test-cluster",
+ "thiserror 1.0.69",
+ "tokio",
+ "tower 0.5.3",
+ "tower-http 0.5.2",
+ "tracing",
+ "wiremock",
+]
+
+[[package]]
+name = "haneul-field-count"
+version = "1.2.0"
+dependencies = [
+ "haneul-field-count-derive",
+]
+
+[[package]]
+name = "haneul-field-count-derive"
+version = "1.2.0"
+dependencies = [
+ "quote",
+ "syn 1.0.107",
+]
+
+[[package]]
+name = "haneul-fork"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bcs",
+ "bin-version",
+ "chrono",
+ "clap",
+ "cynic",
+ "cynic-codegen",
+ "fastcrypto",
+ "haneul-protocol-config",
+ "haneul-rpc-api",
+ "haneul-swarm-config",
+ "haneul-types",
+ "itertools 0.13.0",
+ "move-core-types",
+ "prometheus",
+ "prost 0.14.1",
+ "rand 0.8.5",
+ "reqwest",
+ "roaring 0.10.9",
+ "serde",
+ "serde_json",
+ "simulacrum",
+ "tempfile",
+ "tokio",
+ "tonic 0.14.5",
+ "tonic-prost",
+ "tracing",
+ "tracing-subscriber",
+ "typed-store-error",
+ "wiremock",
+]
+
+[[package]]
+name = "haneul-framework"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "fs_extra",
+ "haneul-config",
+ "haneul-move-build",
+ "haneul-package-alt",
+ "haneul-types",
+ "move-binary-format",
+ "move-compiler",
+ "move-core-types",
+ "move-package-alt-compilation",
+ "regex",
+ "serde",
+ "tempfile",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-framework-snapshot"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "bin-version",
+ "haneul-framework",
+ "haneul-package-alt",
+ "haneul-protocol-config",
+ "haneul-types",
+ "move-package-alt",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
+name = "haneul-framework-tests"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "datatest-stable",
+ "fs_extra",
+ "haneul-adapter-latest",
+ "haneul-config",
+ "haneul-framework",
+ "haneul-move",
+ "haneul-move-build",
+ "haneul-package-alt",
+ "haneul-protocol-config",
+ "haneul-types",
+ "haneul-verifier-latest",
+ "move-bytecode-verifier",
+ "move-bytecode-verifier-meter",
+ "move-cli",
+ "move-package-alt-compilation",
+ "move-unit-test",
+ "msim",
+ "prometheus",
+ "tempfile",
+ "tokio",
+]
+
+[[package]]
+name = "haneul-futures"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "futures",
+ "tap",
+ "thiserror 1.0.69",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-genesis-builder"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "camino",
+ "fastcrypto",
+ "haneul-config",
+ "haneul-execution",
+ "haneul-framework",
+ "haneul-framework-snapshot",
+ "haneul-protocol-config",
+ "haneul-simulator",
+ "haneul-types",
+ "haneullabs-common",
+ "move-core-types",
+ "prometheus",
+ "rand 0.8.5",
+ "serde",
+ "serde_with",
+ "serde_yaml 0.8.26",
+ "shared-crypto",
+ "tempfile",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-http"
+version = "0.0.0"
+dependencies = [
+ "axum 0.8.3",
+ "bytes",
+ "http 1.3.1",
+ "http-body 1.0.1",
+ "http-body-util",
+ "hyper 1.8.1",
+ "hyper-util",
+ "pin-project-lite",
+ "reqwest",
+ "socket2 0.5.6",
+ "tokio",
+ "tokio-rustls",
+ "tokio-util 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tower 0.5.3",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-indexer-alt"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bcs",
+ "bin-version",
+ "clap",
+ "const-str",
+ "diesel",
+ "diesel-async",
+ "futures",
+ "haneul-default-config",
+ "haneul-indexer-alt-framework",
+ "haneul-indexer-alt-metrics",
+ "haneul-indexer-alt-schema",
+ "haneul-protocol-config",
+ "haneul-synthetic-ingestion",
+ "haneul-types",
+ "itertools 0.13.0",
+ "prometheus",
+ "rand 0.8.5",
+ "serde",
+ "telemetry-subscribers",
+ "tempfile",
+ "tokio",
+ "toml 0.7.4",
+ "tracing",
+ "url",
+ "wiremock",
+]
+
+[[package]]
+name = "haneul-indexer-alt-consistent-api"
+version = "1.2.0"
+dependencies = [
+ "prost 0.14.1",
+ "prost-types 0.14.1",
+ "protox",
+ "tonic 0.14.5",
+ "tonic-prost",
+ "tonic-prost-build",
+ "walkdir",
+]
+
+[[package]]
+name = "haneul-indexer-alt-consistent-store"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum 0.8.3",
+ "axum-server",
+ "backoff",
+ "bcs",
+ "bin-version",
+ "bincode 2.0.1",
+ "bytes",
+ "clap",
+ "const-str",
+ "fastcrypto",
+ "futures",
+ "haneul-default-config",
+ "haneul-futures",
+ "haneul-indexer-alt-consistent-api",
+ "haneul-indexer-alt-framework",
+ "haneul-indexer-alt-metrics",
+ "haneul-storage",
+ "haneullabs-common",
+ "haneullabs-network",
+ "http 1.3.1",
+ "integer-encoding",
+ "move-core-types",
+ "object_store 0.13.0",
+ "ouroboros 0.17.2",
+ "pin-project",
+ "prometheus",
+ "reqwest",
+ "rocksdb",
+ "scoped-futures",
+ "serde",
+ "serde_json",
+ "telemetry-subscribers",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tokio",
+ "tokio-stream",
+ "toml 0.7.4",
+ "tonic 0.14.5",
+ "tonic-health",
+ "tonic-reflection",
+ "tower 0.5.3",
+ "tracing",
+ "url",
+ "zstd 0.12.3+zstd.1.5.2",
+]
+
+[[package]]
+name = "haneul-indexer-alt-e2e-tests"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bcs",
+ "coset",
+ "datatest-stable",
+ "diesel",
+ "diesel-async",
+ "fastcrypto",
+ "futures",
+ "haneul-field-count",
+ "haneul-framework",
+ "haneul-futures",
+ "haneul-indexer-alt",
+ "haneul-indexer-alt-consistent-api",
+ "haneul-indexer-alt-consistent-store",
+ "haneul-indexer-alt-framework",
+ "haneul-indexer-alt-graphql",
+ "haneul-indexer-alt-jsonrpc",
+ "haneul-indexer-alt-reader",
+ "haneul-indexer-alt-schema",
+ "haneul-json-rpc-types",
+ "haneul-kv-rpc",
+ "haneul-kvstore",
+ "haneul-macros",
+ "haneul-move-build",
+ "haneul-pg-db",
+ "haneul-protocol-config",
+ "haneul-rpc",
+ "haneul-sdk",
+ "haneul-simulator",
+ "haneul-swarm-config",
+ "haneul-test-transaction-builder",
+ "haneul-transactional-test-runner",
+ "haneul-types",
+ "insta",
+ "itertools 0.13.0",
+ "jsonrpsee",
+ "move-core-types",
+ "msim",
+ "p256",
+ "passkey-authenticator",
+ "passkey-client",
+ "passkey-types",
+ "prometheus",
+ "prost 0.14.1",
+ "prost-types 0.14.1",
+ "rand 0.8.5",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "shared-crypto",
+ "simulacrum",
+ "telemetry-subscribers",
+ "tempfile",
+ "test-cluster",
+ "tokio",
+ "tokio-stream",
+ "tokio-tungstenite 0.26.2",
+ "tonic 0.14.5",
+ "tracing",
+ "url",
+ "zstd 0.12.3+zstd.1.5.2",
+]
+
+[[package]]
+name = "haneul-indexer-alt-framework"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum 0.8.3",
+ "backoff",
+ "bytes",
+ "chrono",
+ "clap",
+ "dashmap 5.5.3",
+ "diesel",
+ "diesel-async",
+ "diesel_migrations",
+ "futures",
+ "haneul-field-count",
+ "haneul-futures",
+ "haneul-indexer-alt-framework-store-traits",
+ "haneul-indexer-alt-metrics",
+ "haneul-pg-db",
+ "haneul-rpc",
+ "haneul-synthetic-ingestion",
+ "haneul-types",
+ "haneullabs-network",
+ "http 1.3.1",
+ "num_cpus",
+ "object_store 0.13.0",
+ "prometheus",
+ "prost 0.14.1",
+ "prost-types 0.14.1",
+ "rand 0.8.5",
+ "reqwest",
+ "scoped-futures",
+ "serde",
+ "serde_json",
+ "telemetry-subscribers",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tokio",
+ "tokio-stream",
+ "tonic 0.14.5",
+ "tracing",
+ "tracing-subscriber",
+ "url",
+ "wiremock",
+ "zstd 0.12.3+zstd.1.5.2",
+]
+
+[[package]]
+name = "haneul-indexer-alt-framework-store-traits"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "dashmap 5.5.3",
+ "scoped-futures",
+ "tokio",
+]
+
+[[package]]
+name = "haneul-indexer-alt-graphql"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-graphql",
+ "async-graphql-axum",
+ "async-graphql-value",
+ "async-stream",
+ "async-trait",
+ "axum 0.7.5",
+ "axum-extra 0.9.3",
+ "backoff",
+ "bcs",
+ "bin-version",
+ "chrono",
+ "clap",
+ "const-str",
+ "dashmap 5.5.3",
+ "diesel",
+ "fastcrypto",
+ "fastcrypto-zkp",
+ "futures",
+ "haneul-default-config",
+ "haneul-display",
+ "haneul-futures",
+ "haneul-indexer-alt-metrics",
+ "haneul-indexer-alt-reader",
+ "haneul-indexer-alt-schema",
+ "haneul-name-service",
+ "haneul-package-resolver",
+ "haneul-pg-db",
+ "haneul-protocol-config",
+ "haneul-rpc",
+ "haneul-sdk-types",
+ "haneul-sql-macro",
+ "haneul-types",
+ "headers",
+ "im",
+ "insta",
+ "itertools 0.13.0",
+ "move-binary-format",
+ "move-core-types",
+ "move-disassembler",
+ "move-ir-types",
+ "pin-project",
+ "prometheus",
+ "prost-types 0.14.1",
+ "regex",
+ "reqwest",
+ "rustls",
+ "serde",
+ "serde_json",
+ "shared-crypto",
+ "telemetry-subscribers",
+ "thiserror 1.0.69",
+ "timeout-tracing",
+ "tokio",
+ "tokio-stream",
+ "toml 0.7.4",
+ "tonic 0.14.5",
+ "tower-http 0.5.2",
+ "tracing",
+ "url",
+ "uuid",
+]
+
+[[package]]
+name = "haneul-indexer-alt-jsonrpc"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-graphql",
+ "async-trait",
+ "axum 0.8.3",
+ "bcs",
+ "bin-version",
+ "clap",
+ "const-str",
+ "diesel",
+ "fastcrypto",
+ "futures",
+ "haneul-default-config",
+ "haneul-display",
+ "haneul-futures",
+ "haneul-indexer-alt-consistent-store",
+ "haneul-indexer-alt-metrics",
+ "haneul-indexer-alt-reader",
+ "haneul-indexer-alt-schema",
+ "haneul-json",
+ "haneul-json-rpc-types",
+ "haneul-name-service",
+ "haneul-open-rpc",
+ "haneul-open-rpc-macros",
+ "haneul-package-resolver",
+ "haneul-pg-db",
+ "haneul-protocol-config",
+ "haneul-rpc",
+ "haneul-sql-macro",
+ "haneul-types",
+ "haneullabs-common",
+ "http 1.3.1",
+ "jsonrpsee",
+ "lru 0.10.0",
+ "move-binary-format",
+ "move-core-types",
+ "pin-project",
+ "pin-project-lite",
+ "prometheus",
+ "prost-types 0.14.1",
+ "reqwest",
+ "rustls",
+ "schemars 0.8.21",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "telemetry-subscribers",
+ "thiserror 1.0.69",
+ "tokio",
+ "toml 0.7.4",
+ "tonic 0.14.5",
+ "tower 0.4.13",
+ "tower-http 0.5.2",
+ "tower-layer",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "haneul-indexer-alt-metrics"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.3",
+ "clap",
+ "haneul-futures",
+ "haneul-pg-db",
+ "prometheus",
+ "prometheus-closure-metric",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-indexer-alt-object-store"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bytes",
+ "haneul-indexer-alt-framework-store-traits",
+ "object_store 0.13.0",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
+name = "haneul-indexer-alt-reader"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-graphql",
+ "async-trait",
+ "bcs",
+ "clap",
+ "diesel",
+ "diesel-async",
+ "futures",
+ "haneul-futures",
+ "haneul-indexer-alt-consistent-api",
+ "haneul-indexer-alt-metrics",
+ "haneul-indexer-alt-schema",
+ "haneul-kvstore",
+ "haneul-package-resolver",
+ "haneul-pg-db",
+ "haneul-rpc",
+ "haneul-sdk-types",
+ "haneul-sql-macro",
+ "haneul-types",
+ "haneullabs-common",
+ "http 1.3.1",
+ "move-core-types",
+ "prometheus",
+ "prost-types 0.14.1",
+ "thiserror 1.0.69",
+ "tokio",
+ "tonic 0.14.5",
+ "tower 0.5.3",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "haneul-indexer-alt-schema"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "diesel",
+ "diesel_migrations",
+ "haneul-field-count",
+ "haneul-protocol-config",
+ "haneul-types",
+ "move-core-types",
+ "serde",
+ "siphasher 1.0.1",
+]
+
+[[package]]
+name = "haneul-json"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "fastcrypto",
+ "haneul-framework",
+ "haneul-move-build",
+ "haneul-types",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-core-types",
+ "schemars 0.8.21",
+ "serde",
+ "serde_json",
+ "test-fuzz",
+ "tokio",
+]
+
+[[package]]
+name = "haneul-json-rpc"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "arc-swap",
+ "async-trait",
+ "axum 0.8.3",
+ "backoff",
+ "base64 0.21.7",
+ "bcs",
+ "cached",
+ "expect-test",
+ "eyre",
+ "fastcrypto",
+ "fastcrypto-zkp",
+ "futures",
+ "haneul-config",
+ "haneul-core",
+ "haneul-display",
+ "haneul-json",
+ "haneul-json-rpc-api",
+ "haneul-json-rpc-types",
+ "haneul-name-service",
+ "haneul-open-rpc",
+ "haneul-protocol-config",
+ "haneul-storage",
+ "haneul-transaction-builder",
+ "haneul-types",
+ "haneullabs-common",
+ "haneullabs-metrics",
+ "hyper 1.8.1",
+ "im",
+ "indexmap 2.8.0",
+ "itertools 0.13.0",
+ "jsonrpsee",
+ "mockall",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-core-types",
+ "once_cell",
+ "prometheus",
+ "serde",
+ "serde_json",
+ "shared-crypto",
+ "signature 1.6.4",
+ "tap",
+ "telemetry-subscribers",
+ "thiserror 1.0.69",
+ "tokio",
+ "tokio-util 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tower 0.5.3",
+ "tower-http 0.5.2",
+ "tracing",
+ "typed-store-error",
+]
+
+[[package]]
+name = "haneul-json-rpc-api"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "fastcrypto",
+ "haneul-json",
+ "haneul-json-rpc-types",
+ "haneul-open-rpc",
+ "haneul-open-rpc-macros",
+ "haneul-types",
+ "haneullabs-metrics",
+ "jsonrpsee",
+ "once_cell",
+ "prometheus",
+ "tap",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-json-rpc-tests"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bcs",
+ "haneul-config",
+ "haneul-core",
+ "haneul-json",
+ "haneul-json-rpc",
+ "haneul-json-rpc-api",
+ "haneul-json-rpc-types",
+ "haneul-keys",
+ "haneul-macros",
+ "haneul-move-build",
+ "haneul-open-rpc",
+ "haneul-open-rpc-macros",
+ "haneul-protocol-config",
+ "haneul-sdk",
+ "haneul-simulator",
+ "haneul-swarm-config",
+ "haneul-test-transaction-builder",
+ "haneul-types",
+ "hyper 1.8.1",
+ "jsonrpsee",
+ "move-core-types",
+ "prometheus",
+ "rand 0.8.5",
+ "reqwest",
+ "serde_json",
+ "shared-crypto",
+ "telemetry-subscribers",
+ "test-cluster",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-json-rpc-types"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "colored",
+ "enum_dispatch",
+ "fastcrypto",
+ "haneul-enum-compat-util",
+ "haneul-json",
+ "haneul-macros",
+ "haneul-package-resolver",
+ "haneul-protocol-config",
+ "haneul-types",
+ "haneullabs-common",
+ "haneullabs-metrics",
+ "insta",
+ "itertools 0.13.0",
+ "json_to_table",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-command-line-common",
+ "move-core-types",
+ "move-disassembler",
+ "move-ir-types",
+ "nonempty",
+ "schemars 0.8.21",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "tabled",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-keys"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "base64 0.21.7",
+ "bcs",
+ "bip32",
+ "colored",
+ "fastcrypto",
+ "haneul-types",
+ "haneullabs-common",
+ "jsonrpc",
+ "mockall",
+ "rand 0.8.5",
+ "regex",
+ "serde",
+ "serde_json",
+ "shared-crypto",
+ "signature 1.6.4",
+ "slip10_ed25519",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tiny-bip39",
+ "tokio",
+]
+
+[[package]]
+name = "haneul-kv-rpc"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum 0.8.3",
+ "bin-version",
+ "clap",
+ "haneul-futures",
+ "haneul-kvstore",
+ "haneul-package-resolver",
+ "haneul-protocol-config",
+ "haneul-rpc",
+ "haneul-rpc-api",
+ "haneul-sdk-types",
+ "haneul-storage",
+ "haneul-types",
+ "haneullabs-common",
+ "haneullabs-metrics",
+ "haneullabs-network",
+ "move-core-types",
+ "prometheus",
+ "prost-types 0.14.1",
+ "rustls",
+ "telemetry-subscribers",
+ "tokio",
+ "tonic 0.14.5",
+ "tonic-reflection",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-kvstore"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "arc-swap",
+ "async-trait",
+ "base64 0.21.7",
+ "bcs",
+ "bytes",
+ "clap",
+ "futures",
+ "gcp_auth",
+ "governor",
+ "haneul-default-config",
+ "haneul-indexer-alt-framework",
+ "haneul-indexer-alt-framework-store-traits",
+ "haneul-indexer-alt-metrics",
+ "haneul-keys",
+ "haneul-protocol-config",
+ "haneul-rpc",
+ "haneul-test-transaction-builder",
+ "haneul-types",
+ "haneullabs-common",
+ "http 1.3.1",
+ "prometheus",
+ "prost 0.14.1",
+ "prost-types 0.14.1",
+ "rand 0.8.5",
+ "rustls",
+ "serde",
+ "telemetry-subscribers",
+ "test-cluster",
+ "tokio",
+ "tokio-stream",
+ "toml 0.7.4",
+ "tonic 0.14.5",
+ "tonic-prost",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "haneul-light-client"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bcs",
+ "bytes",
+ "clap",
+ "env_logger",
+ "fastcrypto",
+ "futures",
+ "haneul-config",
+ "haneul-package-resolver",
+ "haneul-rpc",
+ "haneul-rpc-api",
+ "haneul-storage",
+ "haneul-types",
+ "haneullabs-common",
+ "haneullabs-metrics",
+ "hex",
+ "log",
+ "move-binary-format",
+ "move-core-types",
+ "object_store 0.13.0",
+ "prost-types 0.14.1",
+ "reqwest",
+ "roaring 0.10.9",
+ "serde",
+ "serde_json",
+ "serde_yaml 0.8.26",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tokio",
+ "tokio-stream",
+ "tonic 0.14.5",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "haneul-macros"
+version = "0.7.0"
+dependencies = [
+ "futures",
+ "haneul-proc-macros",
+ "once_cell",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-metric-checker"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "backoff",
+ "base64 0.21.7",
+ "chrono",
+ "clap",
+ "humantime",
+ "once_cell",
+ "prometheus-http-query",
+ "reqwest",
+ "serde",
+ "serde_yaml 0.9.21",
+ "strum_macros 0.27.1",
+ "telemetry-subscribers",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-metrics-push-client"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "fastcrypto",
+ "haneul-tls",
+ "haneul-types",
+ "haneullabs-metrics",
+ "prometheus",
+ "reqwest",
+ "snap",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-move"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "bin-version",
+ "clap",
+ "colored",
+ "haneul-adapter-latest",
+ "haneul-config",
+ "haneul-macros",
+ "haneul-move-build",
+ "haneul-move-natives-latest",
+ "haneul-package-alt",
+ "haneul-protocol-config",
+ "haneul-sdk",
+ "haneul-types",
+ "haneullabs-metrics",
+ "indoc",
+ "insta",
+ "jsonrpsee",
+ "move-binary-format",
+ "move-bytecode-source-map",
+ "move-cli",
+ "move-compiler",
+ "move-disassembler",
+ "move-ir-types",
+ "move-package-alt",
+ "move-package-alt-compilation",
+ "move-unit-test",
+ "move-vm-config",
+ "move-vm-runtime",
+ "prometheus",
+ "rand 0.8.5",
+ "serde",
+ "serde_json",
+ "serde_yaml 0.8.26",
+ "telemetry-subscribers",
+ "tempfile",
+ "tikv-jemalloc-ctl",
+ "tokio",
+ "toml 0.7.4",
+ "tracing",
+ "walkdir",
+]
+
+[[package]]
+name = "haneul-move-build"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "fastcrypto",
+ "fs_extra",
+ "haneul-package-alt",
+ "haneul-protocol-config",
+ "haneul-types",
+ "haneul-verifier-latest",
+ "haneullabs-common",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-bytecode-verifier",
+ "move-compiler",
+ "move-core-types",
+ "move-package-alt",
+ "move-package-alt-compilation",
+ "move-symbol-pool",
+ "serde-reflection",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tokio",
+]
+
+[[package]]
+name = "haneul-move-lsp"
+version = "1.2.0"
+dependencies = [
+ "bin-version",
+ "clap",
+ "haneul-package-alt",
+ "move-analyzer",
+ "move-compiler",
+ "tikv-jemalloc-ctl",
+ "tikv-jemallocator",
+]
+
+[[package]]
+name = "haneul-move-natives-latest"
+version = "0.1.0"
+dependencies = [
+ "bcs",
+ "better_any",
+ "fastcrypto",
+ "fastcrypto-vdf",
+ "fastcrypto-zkp",
+ "haneul-protocol-config",
+ "haneul-types",
+ "indexmap 2.8.0",
+ "move-binary-format",
+ "move-core-types",
+ "move-vm-runtime",
+ "rand 0.8.5",
+ "smallvec",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-move-natives-v0"
+version = "0.1.0"
+dependencies = [
+ "bcs",
+ "better_any",
+ "fastcrypto",
+ "fastcrypto-zkp",
+ "haneul-protocol-config",
+ "haneul-types",
+ "linked-hash-map",
+ "move-binary-format",
+ "move-core-types",
+ "move-stdlib-natives-v0",
+ "move-vm-runtime-v0",
+ "move-vm-types-v0",
+ "smallvec",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-move-natives-v1"
+version = "0.1.0"
+dependencies = [
+ "bcs",
+ "better_any",
+ "fastcrypto",
+ "fastcrypto-zkp",
+ "haneul-protocol-config",
+ "haneul-types",
+ "linked-hash-map",
+ "move-binary-format",
+ "move-core-types",
+ "move-stdlib-natives-v1",
+ "move-vm-runtime-v1",
+ "move-vm-types-v1",
+ "smallvec",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-move-natives-v2"
+version = "0.1.0"
+dependencies = [
+ "bcs",
+ "better_any",
+ "fastcrypto",
+ "fastcrypto-zkp",
+ "haneul-protocol-config",
+ "haneul-types",
+ "indexmap 2.8.0",
+ "move-binary-format",
+ "move-core-types",
+ "move-stdlib-natives-v2",
+ "move-vm-runtime-v2",
+ "move-vm-types-v2",
+ "smallvec",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-move-natives-v3"
+version = "0.1.0"
+dependencies = [
+ "bcs",
+ "better_any",
+ "fastcrypto",
+ "fastcrypto-vdf",
+ "fastcrypto-zkp",
+ "haneul-protocol-config",
+ "haneul-types",
+ "indexmap 2.8.0",
+ "move-binary-format",
+ "move-core-types",
+ "move-stdlib-natives-v3",
+ "move-vm-runtime-v3",
+ "move-vm-types-v3",
+ "rand 0.8.5",
+ "smallvec",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-name-service"
+version = "1.2.0"
+dependencies = [
+ "bcs",
+ "haneul-types",
+ "move-core-types",
+ "serde",
+ "thiserror 1.0.69",
+]
+
+[[package]]
+name = "haneul-network"
+version = "0.0.0"
+dependencies = [
+ "anemo",
+ "anemo-build",
+ "anemo-tower",
+ "anyhow",
+ "arc-swap",
+ "bcs",
+ "bytes",
+ "dashmap 5.5.3",
+ "ed25519-consensus",
+ "eyre",
+ "fastcrypto",
+ "fastcrypto-tbls",
+ "futures",
+ "governor",
+ "haneul-config",
+ "haneul-http",
+ "haneul-macros",
+ "haneul-protocol-config",
+ "haneul-rpc",
+ "haneul-simulator",
+ "haneul-storage",
+ "haneul-swarm-config",
+ "haneul-tls",
+ "haneul-types",
+ "haneullabs-common",
+ "haneullabs-metrics",
+ "haneullabs-network",
+ "http 1.3.1",
+ "object_store 0.13.0",
+ "once_cell",
+ "prometheus",
+ "prost 0.14.1",
+ "rand 0.8.5",
+ "serde",
+ "serde_yaml 0.8.26",
+ "shared-crypto",
+ "tap",
+ "telemetry-subscribers",
+ "tempfile",
+ "tokio",
+ "tokio-rustls",
+ "tonic 0.14.5",
+ "tonic-build",
+ "tonic-health",
+ "tonic-prost",
+ "tower 0.5.3",
+ "tower-http 0.5.2",
+ "tracing",
+ "url",
+ "zstd 0.12.3+zstd.1.5.2",
+]
+
+[[package]]
+name = "haneul-node"
+version = "1.2.0"
+dependencies = [
+ "anemo",
+ "anemo-tower",
+ "antithesis_sdk",
+ "anyhow",
+ "arc-swap",
+ "axum 0.8.3",
+ "base64 0.21.7",
+ "bcs",
+ "bin-version",
+ "clap",
+ "fastcrypto",
+ "fastcrypto-zkp",
+ "futures",
+ "haneul-config",
+ "haneul-core",
+ "haneul-http",
+ "haneul-json-rpc",
+ "haneul-json-rpc-api",
+ "haneul-macros",
+ "haneul-metrics-push-client",
+ "haneul-name-service",
+ "haneul-network",
+ "haneul-protocol-config",
+ "haneul-rpc-api",
+ "haneul-simulator",
+ "haneul-snapshot",
+ "haneul-storage",
+ "haneul-telemetry",
+ "haneul-tls",
+ "haneul-types",
+ "haneullabs-common",
+ "haneullabs-metrics",
+ "haneullabs-network",
+ "haneullabs-service",
+ "http 1.3.1",
+ "humantime",
+ "move-vm-config",
+ "prometheus",
+ "reqwest",
+ "serde",
+ "tap",
+ "telemetry-subscribers",
+ "tikv-jemallocator",
+ "tokio",
+ "tower 0.5.3",
+ "tower-http 0.5.2",
+ "tracing",
+ "typed-store",
+ "url",
+]
+
+[[package]]
+name = "haneul-open-rpc"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "fastcrypto",
+ "haneul-json",
+ "haneul-json-rpc",
+ "haneul-json-rpc-api",
+ "haneul-json-rpc-types",
+ "haneul-protocol-config",
+ "haneul-types",
+ "insta",
+ "move-core-types",
+ "rand 0.8.5",
+ "schemars 0.8.21",
+ "serde",
+ "serde_json",
+ "versions",
+]
+
+[[package]]
+name = "haneul-open-rpc-macros"
+version = "0.1.0"
+dependencies = [
+ "derive-syn-parse",
+ "itertools 0.13.0",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.107",
+ "unescape",
+]
+
+[[package]]
+name = "haneul-oracle"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "chrono",
+ "clap",
+ "dirs 4.0.0",
+ "haneul-config",
+ "haneul-keys",
+ "haneul-move-build",
+ "haneul-rpc-api",
+ "haneul-sdk",
+ "haneul-types",
+ "haneullabs-metrics",
+ "jsonpath_lib",
+ "once_cell",
+ "prometheus",
+ "rand 0.8.5",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "shared-crypto",
+ "tap",
+ "telemetry-subscribers",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-package-alt"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "haneul-package-management",
+ "haneul-protocol-config",
+ "haneul-rpc-api",
+ "haneul-sdk",
+ "indexmap 2.8.0",
+ "move-compiler",
+ "move-package-alt",
+ "serde",
+ "tempfile",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-package-dump"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "cynic",
+ "cynic-codegen",
+ "fastcrypto",
+ "haneul-types",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-package-management"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "haneul-framework-snapshot",
+ "haneul-protocol-config",
+ "haneul-types",
+ "thiserror 1.0.69",
+]
+
+[[package]]
+name = "haneul-package-resolver"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "bcs",
+ "haneul-move-build",
+ "haneul-types",
+ "hyper 1.8.1",
+ "insta",
+ "itertools 0.13.0",
+ "lru 0.10.0",
+ "move-binary-format",
+ "move-command-line-common",
+ "move-compiler",
+ "move-core-types",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+ "tower 0.5.3",
+]
+
+[[package]]
+name = "haneul-pg-db"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bb8",
+ "chrono",
+ "clap",
+ "diesel",
+ "diesel-async",
+ "diesel_migrations",
+ "futures",
+ "haneul-field-count",
+ "haneul-indexer-alt-framework-store-traits",
+ "haneul-sql-macro",
+ "prometheus",
+ "rustls",
+ "scoped-futures",
+ "telemetry-subscribers",
+ "tempfile",
+ "tokio",
+ "tokio-postgres",
+ "tokio-postgres-rustls",
+ "tracing",
+ "url",
+ "webpki-roots 0.26.3",
+]
+
+[[package]]
+name = "haneul-proc-macros"
+version = "0.7.0"
+dependencies = [
+ "haneul-enum-compat-util",
+ "msim-macros",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
+]
+
+[[package]]
+name = "haneul-protocol-config"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "fastcrypto",
+ "haneul-protocol-config-macros",
+ "haneullabs-common",
+ "insta",
+ "move-binary-format",
+ "move-core-types",
+ "move-vm-config",
+ "rand 0.8.5",
+ "schemars 0.8.21",
+ "serde",
+ "serde-env",
+ "serde_json",
+ "serde_with",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-protocol-config-macros"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.107",
+]
+
+[[package]]
+name = "haneul-proxy"
+version = "0.0.2"
+dependencies = [
+ "anyhow",
+ "axum 0.8.3",
+ "axum-extra 0.10.1",
+ "axum-server",
+ "bin-version",
+ "bytes",
+ "clap",
+ "const-str",
+ "fastcrypto",
+ "futures",
+ "haneul-tls",
+ "haneul-types",
+ "haneullabs-common",
+ "haneullabs-metrics",
+ "hex",
+ "hyper 1.8.1",
+ "itertools 0.13.0",
+ "mime",
+ "multiaddr",
+ "once_cell",
+ "prometheus",
+ "prost 0.14.1",
+ "prost-build",
+ "protobuf",
+ "rand 0.8.5",
+ "reqwest",
+ "rustls",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "serde_yaml 0.8.26",
+ "snap",
+ "telemetry-subscribers",
+ "tokio",
+ "tower 0.5.3",
+ "tower-http 0.5.2",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "haneul-replay"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-recursion",
+ "async-trait",
+ "bcs",
+ "clap",
+ "futures",
+ "haneul-config",
+ "haneul-core",
+ "haneul-execution",
+ "haneul-framework",
+ "haneul-json-rpc-api",
+ "haneul-json-rpc-types",
+ "haneul-protocol-config",
+ "haneul-sdk",
+ "haneul-transaction-checks",
+ "haneul-types",
+ "http 1.3.1",
+ "jsonrpsee",
+ "lru 0.10.0",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-core-types",
+ "parking_lot 0.12.3",
+ "prometheus",
+ "rand 0.8.5",
+ "regex",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "serde_yaml 0.8.26",
+ "shellexpand",
+ "similar",
+ "tabled",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tokio",
+ "tokio-util 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-replay-2"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "bin-version",
+ "clap",
+ "csv",
+ "haneul-config",
+ "haneul-data-store",
+ "haneul-execution",
+ "haneul-json-rpc-types",
+ "haneul-move-build",
+ "haneul-package-alt",
+ "haneul-types",
+ "indicatif",
+ "move-binary-format",
+ "move-bytecode-source-map",
+ "move-command-line-common",
+ "move-core-types",
+ "move-disassembler",
+ "move-ir-types",
+ "move-package-alt",
+ "move-package-alt-compilation",
+ "move-trace-format",
+ "prometheus",
+ "serde",
+ "serde_json",
+ "similar",
+ "tabled",
+ "telemetry-subscribers",
+ "tokio",
+ "toml 0.7.4",
+ "tracing",
+ "zstd 0.12.3+zstd.1.5.2",
+]
+
+[[package]]
+name = "haneul-rosetta"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum 0.8.3",
+ "axum-extra 0.10.1",
+ "bcs",
+ "chrono",
+ "clap",
+ "enum_dispatch",
+ "eyre",
+ "fastcrypto",
+ "futures",
+ "haneul-config",
+ "haneul-keys",
+ "haneul-move-build",
+ "haneul-rpc",
+ "haneul-sdk",
+ "haneul-sdk-types",
+ "haneul-swarm-config",
+ "haneul-test-transaction-builder",
+ "haneul-types",
+ "lru 0.10.0",
+ "move-cli",
+ "move-core-types",
+ "once_cell",
+ "prost-types 0.14.1",
+ "quick-js",
+ "rand 0.8.5",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "shared-crypto",
+ "signature 1.6.4",
+ "strum 0.27.1",
+ "strum_macros 0.27.1",
+ "telemetry-subscribers",
+ "tempfile",
+ "test-cluster",
+ "thiserror 1.0.69",
+ "tokio",
+ "tonic 0.14.5",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-rpc"
+version = "0.3.1"
+source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=e0e1b3176f6f77099d71c455ee97f2649c5dc55c#e0e1b3176f6f77099d71c455ee97f2649c5dc55c"
+dependencies = [
+ "base64 0.22.1",
+ "bcs",
+ "bytes",
+ "futures",
+ "haneul-sdk-types",
+ "http 1.3.1",
+ "http-body 1.0.1",
+ "prost 0.14.1",
+ "prost-types 0.14.1",
+ "serde",
+ "serde_json",
+ "tap",
+ "tokio",
+ "tonic 0.14.5",
+ "tonic-prost",
+ "tower 0.5.3",
+]
+
+[[package]]
+name = "haneul-rpc-api"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-stream",
+ "async-trait",
+ "axum 0.8.3",
+ "bcs",
+ "bytes",
+ "fastcrypto",
+ "futures",
+ "haneul-config",
+ "haneul-crypto",
+ "haneul-display",
+ "haneul-macros",
+ "haneul-name-service",
+ "haneul-package-resolver",
+ "haneul-protocol-config",
+ "haneul-rpc",
+ "haneul-sdk-types",
+ "haneul-transaction-builder",
+ "haneul-transaction-checks",
+ "haneul-types",
+ "haneullabs-common",
+ "haneullabs-network",
+ "http 1.3.1",
+ "itertools 0.13.0",
+ "move-binary-format",
+ "move-core-types",
+ "prometheus",
+ "prost 0.14.1",
+ "prost-types 0.14.1",
+ "protox",
+ "rand 0.8.5",
+ "serde",
+ "serde_json",
+ "tap",
+ "tokio",
+ "tonic 0.14.5",
+ "tonic-health",
+ "tonic-prost",
+ "tonic-prost-build",
+ "tonic-reflection",
+ "tonic-web",
+ "tower 0.5.3",
+ "tracing",
+ "walkdir",
+]
+
+[[package]]
+name = "haneul-rpc-benchmark"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "bb8",
+ "bb8-postgres",
+ "chrono",
+ "clap",
+ "dashmap 5.5.3",
+ "futures",
+ "haneul-futures",
+ "parking_lot 0.12.3",
+ "phf",
+ "rand 0.8.5",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "telemetry-subscribers",
+ "tokio",
+ "tokio-postgres",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "haneul-rpc-loadgen"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "clap",
+ "dashmap 5.5.3",
+ "dirs 4.0.0",
+ "futures",
+ "haneul-json-rpc-types",
+ "haneul-keys",
+ "haneul-sdk",
+ "haneul-types",
+ "itertools 0.13.0",
+ "serde",
+ "serde_json",
+ "shared-crypto",
+ "shellexpand",
+ "strum 0.27.1",
+ "strum_macros 0.27.1",
+ "telemetry-subscribers",
+ "tokio",
+ "tonic 0.14.5",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-rpc-resolver"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "base64 0.21.7",
+ "bcs",
+ "futures",
+ "haneul-package-resolver",
+ "haneul-rpc-api",
+ "haneul-types",
+ "lru 0.10.0",
+ "move-core-types",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+]
+
+[[package]]
+name = "haneul-sdk"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "base64 0.21.7",
+ "bcs",
+ "dirs 4.0.0",
+ "fastcrypto",
+ "futures",
+ "futures-core",
+ "haneul-config",
+ "haneul-crypto",
+ "haneul-json",
+ "haneul-json-rpc-api",
+ "haneul-json-rpc-types",
+ "haneul-keys",
+ "haneul-macros",
+ "haneul-protocol-config",
+ "haneul-rpc",
+ "haneul-rpc-api",
+ "haneul-sdk-types",
+ "haneul-simulator",
+ "haneul-transaction-builder",
+ "haneul-types",
+ "haneullabs-common",
+ "jsonrpsee",
+ "move-core-types",
+ "prometheus",
+ "rand 0.8.5",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "shared-crypto",
+ "tempfile",
+ "test-cluster",
+ "thiserror 1.0.69",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-sdk-types"
+version = "0.3.1"
+source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=e0e1b3176f6f77099d71c455ee97f2649c5dc55c#e0e1b3176f6f77099d71c455ee97f2649c5dc55c"
+dependencies = [
+ "base64ct",
+ "bcs",
+ "blake2",
+ "bnum",
+ "bs58 0.5.1",
+ "bytes",
+ "bytestring",
+ "itertools 0.14.0",
+ "roaring 0.11.2",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "serde_with",
+ "winnow 0.7.15",
+]
+
+[[package]]
+name = "haneul-security-watchdog"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "arrow-array",
+ "async-trait",
+ "chrono",
+ "clap",
+ "env_logger",
+ "haneullabs-metrics",
+ "lexical-util",
+ "prometheus",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "snowflake-api",
+ "telemetry-subscribers",
+ "tokio",
+ "tokio-cron-scheduler",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "haneul-simulator"
+version = "0.7.0"
+dependencies = [
+ "anemo",
+ "anemo-tower",
+ "bcs",
+ "fastcrypto",
+ "haneul-framework",
+ "haneul-move-build",
+ "haneul-types",
+ "haneullabs-network",
+ "lru 0.10.0",
+ "move-package-alt",
+ "move-package-alt-compilation",
+ "msim",
+ "rand 0.8.5",
+ "serde",
+ "telemetry-subscribers",
+ "tempfile",
+ "tower 0.5.3",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-single-node-benchmark"
+version = "1.2.0"
+dependencies = [
+ "bcs",
+ "clap",
+ "futures",
+ "haneul-config",
+ "haneul-core",
+ "haneul-macros",
+ "haneul-move-build",
+ "haneul-protocol-config",
+ "haneul-simulator",
+ "haneul-storage",
+ "haneul-test-transaction-builder",
+ "haneul-transaction-checks",
+ "haneul-types",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-core-types",
+ "move-symbol-pool",
+ "prometheus",
+ "serde",
+ "serde_json",
+ "strum 0.27.1",
+ "strum_macros 0.27.1",
+ "telemetry-subscribers",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-snapshot"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bcs",
+ "byteorder",
+ "bytes",
+ "fastcrypto",
+ "futures",
+ "haneul-config",
+ "haneul-core",
+ "haneul-futures",
+ "haneul-protocol-config",
+ "haneul-storage",
+ "haneul-types",
+ "indicatif",
+ "integer-encoding",
+ "num_enum 0.6.1",
+ "object_store 0.13.0",
+ "prometheus",
+ "serde",
+ "tempfile",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-source-validation"
+version = "1.2.0"
+dependencies = [
+ "anyhow",
+ "colored",
+ "datatest-stable",
+ "expect-test",
+ "flate2",
+ "fs_extra",
+ "futures",
+ "haneul-config",
+ "haneul-move-build",
+ "haneul-package-alt",
+ "haneul-package-management",
+ "haneul-rpc-api",
+ "haneul-sdk",
+ "haneul-test-transaction-builder",
+ "haneul-types",
+ "haneullabs-common",
+ "insta",
+ "insta-cmd",
+ "move-binary-format",
+ "move-bytecode-source-map",
+ "move-command-line-common",
+ "move-compiler",
+ "move-core-types",
+ "move-package-alt",
+ "move-package-alt-compilation",
+ "move-symbol-pool",
+ "msim",
+ "rand 0.8.5",
+ "serde",
+ "tar",
+ "tempfile",
+ "test-cluster",
+ "thiserror 1.0.69",
+ "tokio",
+ "toml 0.7.4",
+ "tracing",
+ "ureq",
+]
+
+[[package]]
+name = "haneul-sql-macro"
+version = "1.2.0"
+dependencies = [
+ "quote",
+ "syn 1.0.107",
+ "thiserror 1.0.69",
+]
+
+[[package]]
+name = "haneul-storage"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum 0.8.3",
+ "backoff",
+ "base64-url",
+ "bcs",
+ "byteorder",
+ "bytes",
+ "chrono",
+ "clap",
+ "eyre",
+ "fastcrypto",
+ "futures",
+ "haneul-config",
+ "haneul-json-rpc-types",
+ "haneul-macros",
+ "haneul-protocol-config",
+ "haneul-rpc",
+ "haneul-simulator",
+ "haneul-test-transaction-builder",
+ "haneul-types",
+ "haneullabs-common",
+ "haneullabs-metrics",
+ "hyper 1.8.1",
+ "hyper-rustls",
+ "indicatif",
+ "integer-encoding",
+ "itertools 0.13.0",
+ "lru 0.10.0",
+ "moka",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-core-types",
+ "num_enum 0.6.1",
+ "object_store 0.13.0",
+ "once_cell",
+ "parking_lot 0.12.3",
+ "percent-encoding",
+ "prometheus",
+ "prost 0.14.1",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tap",
+ "telemetry-subscribers",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "typed-store",
+ "url",
+ "zstd 0.12.3+zstd.1.5.2",
+]
+
+[[package]]
+name = "haneul-surfer"
+version = "1.2.0"
+dependencies = [
+ "bcs",
+ "clap",
+ "futures",
+ "haneul-core",
+ "haneul-macros",
+ "haneul-move-build",
+ "haneul-protocol-config",
+ "haneul-simulator",
+ "haneul-swarm-config",
+ "haneul-types",
+ "haneullabs-common",
+ "indexmap 2.8.0",
+ "move-binary-format",
+ "move-core-types",
+ "prometheus",
+ "rand 0.8.5",
+ "telemetry-subscribers",
+ "test-cluster",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-swarm"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "futures",
+ "haneul-config",
+ "haneul-macros",
+ "haneul-node",
+ "haneul-protocol-config",
+ "haneul-simulator",
+ "haneul-swarm-config",
+ "haneul-tls",
+ "haneul-types",
+ "haneullabs-metrics",
+ "haneullabs-network",
+ "prometheus",
+ "rand 0.8.5",
+ "tap",
+ "telemetry-subscribers",
+ "tempfile",
+ "tokio",
+ "tonic-health",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-swarm-config"
+version = "0.0.0"
+dependencies = [
+ "anemo",
+ "anyhow",
+ "bcs",
+ "fastcrypto",
+ "haneul-config",
+ "haneul-execution",
+ "haneul-genesis-builder",
+ "haneul-protocol-config",
+ "haneul-rpc-api",
+ "haneul-simulator",
+ "haneul-types",
+ "haneullabs-common",
+ "insta",
+ "prometheus",
+ "rand 0.8.5",
+ "serde",
+ "serde_with",
+ "serde_yaml 0.8.26",
+ "shared-crypto",
+ "tempfile",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-synthetic-ingestion"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "haneul-rpc",
+ "haneul-test-transaction-builder",
+ "haneul-types",
+ "prost 0.14.1",
+ "simulacrum",
+ "telemetry-subscribers",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "zstd 0.12.3+zstd.1.5.2",
+]
+
+[[package]]
+name = "haneul-telemetry"
+version = "0.1.0"
+dependencies = [
+ "haneul-core",
+ "reqwest",
+ "serde",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-test-transaction-builder"
+version = "0.1.0"
+dependencies = [
+ "bcs",
+ "haneul-genesis-builder",
+ "haneul-move-build",
+ "haneul-rpc-api",
+ "haneul-sdk",
+ "haneul-types",
+ "move-core-types",
+ "shared-crypto",
+]
+
+[[package]]
+name = "haneul-test-validator"
+version = "1.2.0"
+
+[[package]]
+name = "haneul-tls"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "arc-swap",
+ "axum 0.8.3",
+ "axum-server",
+ "ed25519",
+ "fastcrypto",
+ "pkcs8",
+ "rand 0.8.5",
+ "rcgen",
+ "reqwest",
+ "rustls",
+ "rustls-webpki",
+ "tokio",
+ "tokio-rustls",
+ "tower-layer",
+ "x509-parser",
+]
+
+[[package]]
+name = "haneul-tool"
+version = "1.2.0"
+dependencies = [
+ "anemo",
+ "anemo-cli",
+ "anyhow",
+ "bcs",
+ "bin-version",
+ "clap",
+ "colored",
+ "comfy-table",
+ "consensus-core",
+ "eyre",
+ "fastcrypto",
+ "futures",
+ "haneul-config",
+ "haneul-core",
+ "haneul-network",
+ "haneul-package-dump",
+ "haneul-protocol-config",
+ "haneul-replay",
+ "haneul-rpc-api",
+ "haneul-snapshot",
+ "haneul-storage",
+ "haneul-tls",
+ "haneul-types",
+ "haneullabs-metrics",
+ "hex",
+ "indicatif",
+ "itertools 0.13.0",
+ "move-core-types",
+ "num_cpus",
+ "object_store 0.13.0",
+ "prometheus",
+ "ron",
+ "serde",
+ "serde_json",
+ "strum 0.27.1",
+ "strum_macros 0.27.1",
+ "telemetry-subscribers",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "typed-store",
+]
+
+[[package]]
+name = "haneul-transaction-builder"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bcs",
+ "futures",
+ "haneul-json",
+ "haneul-json-rpc-types",
+ "haneul-types",
+ "move-binary-format",
+ "move-core-types",
+]
+
+[[package]]
+name = "haneul-transaction-checks"
+version = "0.1.0"
+dependencies = [
+ "fastcrypto-zkp",
+ "haneul-config",
+ "haneul-execution",
+ "haneul-macros",
+ "haneul-protocol-config",
+ "haneul-types",
+ "tracing",
+]
+
+[[package]]
+name = "haneul-transactional-test-runner"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bcs",
+ "bimap",
+ "bincode 2.0.1",
+ "clap",
+ "criterion",
+ "eyre",
+ "fastcrypto",
+ "fastcrypto-zkp",
+ "futures",
+ "haneul-config",
+ "haneul-core",
+ "haneul-framework",
+ "haneul-framework-snapshot",
+ "haneul-json-rpc",
+ "haneul-json-rpc-api",
+ "haneul-json-rpc-types",
+ "haneul-protocol-config",
+ "haneul-rpc-api",
+ "haneul-storage",
+ "haneul-swarm-config",
+ "haneul-types",
+ "http 1.3.1",
+ "iso8601",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-command-line-common",
+ "move-compiler",
+ "move-core-types",
+ "move-stdlib",
+ "move-symbol-pool",
+ "move-transactional-test-runner",
+ "move-vm-runtime",
+ "msim",
+ "once_cell",
+ "rand 0.8.5",
+ "regex",
+ "serde",
+ "serde_json",
+ "simulacrum",
+ "telemetry-subscribers",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "typed-store",
+ "winnow 0.7.15",
+]
+
+[[package]]
+name = "haneul-types"
+version = "0.1.0"
+dependencies = [
+ "anemo",
+ "anyhow",
+ "async-trait",
+ "base64 0.21.7",
+ "bcs",
+ "better_any",
+ "bincode 1.3.3",
+ "byteorder",
+ "bytes",
+ "chrono",
+ "ciborium",
+ "consensus-config",
+ "consensus-types",
+ "coset",
+ "criterion",
+ "derive_more 1.0.0",
+ "enum_dispatch",
+ "expect-test",
+ "eyre",
+ "fastcrypto",
+ "fastcrypto-tbls",
+ "fastcrypto-zkp",
+ "haneul-enum-compat-util",
+ "haneul-macros",
+ "haneul-protocol-config",
+ "haneul-rpc",
+ "haneul-sdk-types",
+ "haneullabs-common",
+ "haneullabs-metrics",
+ "haneullabs-network",
+ "im",
+ "indexmap 2.8.0",
+ "insta",
+ "itertools 0.13.0",
+ "lru 0.10.0",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-core-types",
+ "move-trace-format",
+ "move-vm-profiler",
+ "nonempty",
+ "num-bigint 0.4.6",
+ "num-traits",
+ "num_enum 0.6.1",
+ "once_cell",
+ "p256",
+ "p384",
+ "parking_lot 0.12.3",
+ "passkey-authenticator",
+ "passkey-client",
+ "passkey-types",
+ "prometheus",
+ "proptest",
+ "proptest-derive",
+ "prost 0.14.1",
+ "prost-types 0.14.1",
+ "rand 0.8.5",
+ "roaring 0.10.9",
+ "rustls-pki-types",
+ "schemars 0.8.21",
+ "serde",
+ "serde-name",
+ "serde-reflection",
+ "serde_json",
+ "serde_with",
+ "serde_yaml 0.8.26",
+ "shared-crypto",
+ "signature 1.6.4",
+ "static_assertions",
+ "strum 0.27.1",
+ "strum_macros 0.27.1",
+ "tap",
+ "thiserror 1.0.69",
+ "tokio",
+ "tonic 0.14.5",
+ "tracing",
+ "typed-store-error",
+ "url",
+ "x509-parser",
+]
+
+[[package]]
+name = "haneul-upgrade-compatibility-transactional-tests"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "datatest-stable",
+ "haneul-move-build",
+ "haneullabs-common",
+ "insta",
+ "move-binary-format",
+ "move-command-line-common",
+ "move-compiler",
+ "msim",
+ "tokio",
+]
+
+[[package]]
+name = "haneul-verifier-latest"
+version = "0.1.0"
+dependencies = [
+ "haneul-protocol-config",
+ "haneul-types",
+ "haneullabs-common",
+ "move-abstract-stack",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-bytecode-verifier",
+ "move-bytecode-verifier-meter",
+ "move-core-types",
+ "move-vm-config",
+]
+
+[[package]]
+name = "haneul-verifier-transactional-tests"
+version = "0.1.0"
+dependencies = [
+ "datatest-stable",
+ "haneul-transactional-test-runner",
+]
+
+[[package]]
+name = "haneul-verifier-v0"
+version = "0.1.0"
+dependencies = [
+ "haneul-protocol-config",
+ "haneul-types",
+ "move-abstract-stack",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-bytecode-verifier-meter",
+ "move-bytecode-verifier-v0",
+ "move-core-types",
+ "move-vm-config",
+]
+
+[[package]]
+name = "haneul-verifier-v1"
+version = "0.1.0"
+dependencies = [
+ "haneul-types",
+ "move-abstract-stack",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-bytecode-verifier-meter",
+ "move-bytecode-verifier-v1",
+ "move-core-types",
+ "move-vm-config",
+]
+
+[[package]]
+name = "haneul-verifier-v2"
+version = "0.1.0"
+dependencies = [
+ "haneul-protocol-config",
+ "haneul-types",
+ "move-abstract-stack",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-bytecode-verifier-meter",
+ "move-bytecode-verifier-v2",
+ "move-core-types",
+ "move-vm-config",
+]
+
+[[package]]
+name = "haneul-verifier-v3"
+version = "0.1.0"
+dependencies = [
+ "haneul-protocol-config",
+ "haneul-types",
+ "move-abstract-stack",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-bytecode-verifier-meter",
+ "move-bytecode-verifier-v3",
+ "move-core-types",
+ "move-vm-config",
+]
+
+[[package]]
+name = "haneullabs-common"
+version = "0.1.0"
+dependencies = [
+ "antithesis_sdk",
+ "either",
+ "futures",
+ "haneul-macros",
+ "haneullabs-metrics",
+ "once_cell",
+ "parking_lot 0.12.3",
+ "rand 0.8.5",
+ "serde_json",
+ "tempfile",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "haneullabs-metrics"
+version = "0.7.0"
+dependencies = [
+ "async-trait",
+ "axum 0.8.3",
+ "dashmap 5.5.3",
+ "futures",
+ "once_cell",
+ "parking_lot 0.12.3",
+ "prometheus",
+ "prometheus-closure-metric",
+ "scopeguard",
+ "simple-server-timing-header",
+ "tap",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "haneullabs-network"
+version = "0.2.0"
+dependencies = [
+ "anemo",
+ "anemo-tower",
+ "anyhow",
+ "bcs",
+ "bytes",
+ "dashmap 5.5.3",
+ "eyre",
+ "futures",
+ "haneul-http",
+ "haneul-tls",
+ "haneullabs-metrics",
+ "http 1.3.1",
+ "http-body 1.0.1",
+ "hyper-rustls",
+ "hyper-util",
+ "multiaddr",
+ "once_cell",
+ "pin-project-lite",
+ "prometheus",
+ "quinn-proto",
+ "rand 0.8.5",
+ "rustls",
+ "serde",
+ "snap",
+ "tokio",
+ "tokio-rustls",
+ "tonic 0.14.5",
+ "tower 0.5.3",
+ "tower-http 0.5.2",
+ "tracing",
+]
+
+[[package]]
+name = "haneullabs-service"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "axum 0.8.3",
+ "haneullabs-metrics",
+ "prometheus",
+ "serde",
+ "serde_json",
+ "simple-server-timing-header",
+ "telemetry-subscribers",
+ "tokio",
+ "tower 0.5.3",
+ "tracing",
 ]
 
 [[package]]
@@ -7826,7 +11501,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc2f4eb4bc735547cfed7c0a4922cbd04a4655978c09b54f1f7b228750664c34"
 dependencies = [
  "cfg-if",
- "windows-targets 0.52.6",
+ "windows-targets 0.48.0",
 ]
 
 [[package]]
@@ -7865,7 +11540,7 @@ version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1580801010e535496706ba011c15f8532df6b42297d2e471fec38ceadd8c0638"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "libc",
  "redox_syscall 0.5.13",
 ]
@@ -7911,11 +11586,11 @@ dependencies = [
 
 [[package]]
 name = "line-clipping"
-version = "0.3.5"
+version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f4de44e98ddbf09375cbf4d17714d18f39195f4f4894e8524501726fd9a8a4a"
+checksum = "3f50e8f47623268b5407192d26876c4d7f89d686ca130fdc53bced4814cd29f8"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
 ]
 
 [[package]]
@@ -8103,20 +11778,20 @@ dependencies = [
 
 [[package]]
 name = "lru"
-version = "0.10.1"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "718e8fae447df0c7e1ba7f5189829e63fd536945c8988d61444c19039f16b670"
+checksum = "03f1160296536f10c833a82dca22267d5486734230d47bf00bf435885814ba1e"
 dependencies = [
  "hashbrown 0.13.2",
 ]
 
 [[package]]
 name = "lru"
-version = "0.12.5"
+version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "234cf4f4a04dc1f57e24b96cc0cd600cf2af460d4161ac5ecdd0af8e1f3b2a38"
+checksum = "d3262e75e648fce39813cb56ac41f3c3e3f65217ebf3844d818d1f9398cfb0dc"
 dependencies = [
- "hashbrown 0.15.2",
+ "hashbrown 0.14.5",
 ]
 
 [[package]]
@@ -8130,9 +11805,9 @@ dependencies = [
 
 [[package]]
 name = "lru"
-version = "0.16.3"
+version = "0.16.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1dc47f592c06f33f8e3aea9591776ec7c9f9e4124778ff8a3c3b87159f7e593"
+checksum = "7f66e8d5d03f609abc3a39e6f08e4164ebf1447a732906d39eb9b99b7919ef39"
 dependencies = [
  "hashbrown 0.16.1",
 ]
@@ -8193,9 +11868,9 @@ dependencies = [
 
 [[package]]
 name = "lz4_flex"
-version = "0.12.1"
+version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "98c23545df7ecf1b16c303910a69b079e8e251d60f7dd2cc9b4177f2afaf1746"
+checksum = "90071f8077f8e40adfc4b7fe9cd495ce316263f19e75c2211eeff3fdf475a3d9"
 dependencies = [
  "twox-hash 2.1.2",
 ]
@@ -8404,7 +12079,7 @@ dependencies = [
 [[package]]
 name = "minibytes"
 version = "0.1.0"
-source = "git+https://github.com/GeunhwaJeong/tidehunter.git?rev=2e0cd5669b1b6776e204e9ad0385189a65a62236#2e0cd5669b1b6776e204e9ad0385189a65a62236"
+source = "git+https://github.com/GeunhwaJeong/tidehunter.git?rev=9a0472f81e71e821e1f4f71e308c2580f16f9e05#9a0472f81e71e821e1f4f71e308c2580f16f9e05"
 dependencies = [
  "bytes",
  "memmap2 0.7.1",
@@ -9429,7 +13104,7 @@ dependencies = [
 [[package]]
 name = "msim"
 version = "0.1.0"
-source = "git+https://github.com/GeunhwaJeong/mysten-sim.git?rev=2c2ec3ffbc1e559c575dc7de1ff2498d1f6700f6#2c2ec3ffbc1e559c575dc7de1ff2498d1f6700f6"
+source = "git+https://github.com/GeunhwaJeong/mysten-sim.git?rev=53016c1a9038154b1e47b96f0a314efa7e7d809b#53016c1a9038154b1e47b96f0a314efa7e7d809b"
 dependencies = [
  "ahash 0.7.8",
  "async-task",
@@ -9449,7 +13124,7 @@ dependencies = [
  "serde",
  "socket2 0.4.9",
  "tap",
- "tokio-util 0.7.18 (git+https://github.com/GeunhwaJeong/tokio-msim-fork.git?rev=e8ce7593bfbfbbd7c7ee8671faecb062a8966b2d)",
+ "tokio-util 0.7.18 (git+https://github.com/MystenLabs/tokio-msim-fork.git?rev=e8ce7593bfbfbbd7c7ee8671faecb062a8966b2d)",
  "toml 0.5.11",
  "tracing",
  "tracing-subscriber",
@@ -9458,7 +13133,7 @@ dependencies = [
 [[package]]
 name = "msim-macros"
 version = "0.1.0"
-source = "git+https://github.com/GeunhwaJeong/mysten-sim.git?rev=2c2ec3ffbc1e559c575dc7de1ff2498d1f6700f6#2c2ec3ffbc1e559c575dc7de1ff2498d1f6700f6"
+source = "git+https://github.com/GeunhwaJeong/mysten-sim.git?rev=53016c1a9038154b1e47b96f0a314efa7e7d809b#53016c1a9038154b1e47b96f0a314efa7e7d809b"
 dependencies = [
  "darling 0.14.2",
  "proc-macro2",
@@ -9515,11 +13190,10 @@ dependencies = [
 
 [[package]]
 name = "multihash"
-version = "0.19.4"
+version = "0.19.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89ace881e3f514092ce9efbcb8f413d0ad9763860b828981c2de51ddc666936c"
+checksum = "577c63b00ad74d57e8c9aa870b5fccebf2fd64a308a5aee9f1bb88e4aea19447"
 dependencies = [
- "no_std_io2",
  "unsigned-varint",
 ]
 
@@ -9528,99 +13202,6 @@ name = "multimap"
 version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
-
-[[package]]
-name = "haneullabs-common"
-version = "0.1.0"
-dependencies = [
- "antithesis_sdk",
- "either",
- "futures",
- "haneullabs-metrics",
- "once_cell",
- "parking_lot 0.12.3",
- "prost-types 0.14.1",
- "rand 0.8.5",
- "serde_json",
- "haneul-macros",
- "tempfile",
- "thiserror 1.0.69",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneullabs-metrics"
-version = "0.7.0"
-dependencies = [
- "async-trait",
- "axum 0.8.3",
- "dashmap 5.5.3",
- "futures",
- "once_cell",
- "parking_lot 0.12.3",
- "prometheus",
- "prometheus-closure-metric",
- "scopeguard",
- "simple-server-timing-header",
- "tap",
- "tokio",
- "tracing",
- "uuid",
-]
-
-[[package]]
-name = "haneullabs-network"
-version = "0.2.0"
-dependencies = [
- "anemo",
- "anemo-tower",
- "anyhow",
- "bcs",
- "bytes",
- "dashmap 5.5.3",
- "eyre",
- "futures",
- "http 1.3.1",
- "http-body 1.0.1",
- "hyper-rustls",
- "hyper-util",
- "multiaddr",
- "haneullabs-metrics",
- "once_cell",
- "pin-project-lite",
- "prometheus",
- "quinn-proto",
- "rand 0.8.5",
- "rustls",
- "serde",
- "snap",
- "haneul-http",
- "haneul-tls",
- "tokio",
- "tokio-rustls",
- "tonic 0.14.6",
- "tower 0.5.3",
- "tower-http 0.5.2",
- "tracing",
-]
-
-[[package]]
-name = "haneullabs-service"
-version = "0.0.1"
-dependencies = [
- "anyhow",
- "axum 0.8.3",
- "haneullabs-metrics",
- "prometheus",
- "serde",
- "serde_json",
- "simple-server-timing-header",
- "telemetry-subscribers",
- "tokio",
- "tower 0.5.3",
- "tracing",
-]
 
 [[package]]
 name = "naive-timer"
@@ -9725,7 +13306,7 @@ version = "0.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab2156c4fce2f8df6c499cc1c763e4394b7482525bf2a9701c9d79d215f519e4"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "cfg-if",
  "cfg_aliases 0.1.1",
  "libc",
@@ -9737,7 +13318,7 @@ version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "71e2746dc3a24dd78b3cfcb7be93368c6de9963d30f43a6a73998a9cf4b17b46"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "cfg-if",
  "cfg_aliases 0.2.1",
  "libc",
@@ -9749,15 +13330,6 @@ name = "no-std-compat"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b93853da6d84c2e3c7d730d6473e8817692dd89be387eb01b94d7f108ecb5b8c"
-
-[[package]]
-name = "no_std_io2"
-version = "0.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a3564ce7035b1e4778d8cb6cacebb5d766b5e8fe5a75b9e441e33fb61a872c6"
-dependencies = [
- "memchr",
-]
 
 [[package]]
 name = "nom"
@@ -9814,7 +13386,7 @@ version = "6.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6205bd8bb1e454ad2e27422015fb5e4f2bcc7e08fa8f27058670d208324a4d2d"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "crossbeam-channel",
  "filetime",
  "fsevent-sys",
@@ -9984,7 +13556,7 @@ checksum = "b285c575532a33ef6fdd3a57640d0b1c70e6ca48644d6df7bbd4b7a0cfbbb12d"
 dependencies = [
  "bitvec 1.0.1",
  "either",
- "lru 0.16.3",
+ "lru 0.16.4",
  "num-bigint 0.4.6",
  "num-integer",
  "num-modular",
@@ -10076,9 +13648,9 @@ dependencies = [
 
 [[package]]
 name = "nybbles"
-version = "0.4.7"
+version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b5676b5c379cf5b03da1df2b3061c4a4e2aa691086a56ac923e08c143f53f59"
+checksum = "2c4b5ecbd0beec843101bffe848217f770e8b8da81d8355b7d6e226f2199b3dc"
 dependencies = [
  "alloy-rlp",
  "cfg-if",
@@ -10094,7 +13666,7 @@ version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1c10c2894a6fed806ade6027bcd50662746363a9589d3ec9d9bef30a4e4bc166"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
 ]
 
 [[package]]
@@ -10204,9 +13776,6 @@ name = "once_cell"
 version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
-dependencies = [
- "portable-atomic",
-]
 
 [[package]]
 name = "oorandom"
@@ -10565,9 +14134,9 @@ dependencies = [
 
 [[package]]
 name = "parquet"
-version = "57.3.0"
+version = "57.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ee96b29972a257b855ff2341b37e61af5f12d6af1158b6dcdb5b31ea07bb3cb"
+checksum = "2e832c6aa20310fc6de7ea5a3f4e20d34fd83e3b43229d32b81ffe5c14d74692"
 dependencies = [
  "ahash 0.8.11",
  "arrow-array",
@@ -10635,7 +14204,7 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77144664f6aac5f629d7efa815f5098a054beeeca6ccafee5ec453fd2b0c53f9"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "ciborium",
  "coset",
  "data-encoding",
@@ -11283,7 +14852,7 @@ checksum = "14cae93065090804185d3b75f0bf93b8eeda30c7a9b4a33d3bdb3988d6229e50"
 dependencies = [
  "bit-set 0.8.0",
  "bit-vec 0.8.0",
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "lazy_static",
  "num-traits",
  "rand 0.8.5",
@@ -11473,7 +15042,7 @@ version = "0.9.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57206b407293d2bcd3af849ce869d52068623f19e1b5ff8e8778e3309439682b"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "memchr",
  "unicase",
 ]
@@ -11484,7 +15053,7 @@ version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1e8bbe1a966bd2f362681a44f6edce3c2310ac21e4d5067a6e7ec396297a6ea0"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "memchr",
  "unicase",
 ]
@@ -11542,9 +15111,9 @@ dependencies = [
 
 [[package]]
 name = "quick_cache"
-version = "0.6.18"
+version = "0.6.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ada44a88ef953a3294f6eb55d2007ba44646015e18613d2f213016379203ef3"
+checksum = "d1c821816e9b928e20e92ed59bb3ac4aab321d16ca2316871c9fe7ca739cd477"
 dependencies = [
  "ahash 0.8.11",
  "equivalent",
@@ -11566,7 +15135,7 @@ dependencies = [
  "quinn-udp",
  "rustc-hash 2.1.1",
  "rustls",
- "socket2 0.6.3",
+ "socket2 0.5.6",
  "thiserror 2.0.17",
  "tokio",
  "tracing",
@@ -11580,7 +15149,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "434b42fec591c96ef50e21e886936e66d3cc3f737104fdb9b737c40ffb94c098"
 dependencies = [
  "bytes",
- "fastbloom 0.14.1",
+ "fastbloom",
  "getrandom 0.3.2",
  "lru-slab",
  "rand 0.9.0",
@@ -11690,13 +15259,13 @@ dependencies = [
 
 [[package]]
 name = "rand"
-version = "0.10.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc266eb313df6c5c09c1c7b1fbe2510961e5bcd3add930c1e31f7ed9da0feff8"
+checksum = "d2e8e8bcc7961af1fdac401278c6a831614941f6164ee3bf4ce61b7edb162207"
 dependencies = [
  "chacha20",
  "getrandom 0.4.2",
- "rand_core 0.10.0",
+ "rand_core 0.10.1",
 ]
 
 [[package]]
@@ -11759,9 +15328,9 @@ dependencies = [
 
 [[package]]
 name = "rand_core"
-version = "0.10.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0c8d0fd677905edcbeedbf2edb6494d676f0e98d54d5cf9bda0b061cb8fb8aba"
+checksum = "63b8176103e19a2643978565ca18b50549f6101881c443590420e4dc998a3c69"
 
 [[package]]
 name = "rand_hc"
@@ -11792,9 +15361,9 @@ dependencies = [
 
 [[package]]
 name = "rapidhash"
-version = "4.2.1"
+version = "4.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d8b5b858a440a0bc02625b62dd95131b9201aa9f69f411195dd4a7cfb1de3d7"
+checksum = "2988730ee014541157f48ce4dcc603940e00915edc3c7f9a8d78092256bb2493"
 dependencies = [
  "rand 0.9.0",
  "rustversion",
@@ -11820,13 +15389,13 @@ version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5ef8dea09a92caaf73bff7adb70b76162e5937524058a7e5bff37869cbbec293"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "compact_str",
  "hashbrown 0.16.1",
  "indoc",
  "itertools 0.14.0",
  "kasuari",
- "lru 0.16.3",
+ "lru 0.16.4",
  "strum 0.27.1",
  "thiserror 2.0.17",
  "unicode-segmentation",
@@ -11872,7 +15441,7 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d7dbfa023cd4e604c2553483820c5fe8aa9d71a42eea5aa77c6e7f35756612db"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "hashbrown 0.16.1",
  "indoc",
  "instability",
@@ -11941,7 +15510,7 @@ dependencies = [
 [[package]]
 name = "real_tokio"
 version = "1.52.1"
-source = "git+https://github.com/GeunhwaJeong/tokio-msim-fork.git?rev=e8ce7593bfbfbbd7c7ee8671faecb062a8966b2d#e8ce7593bfbfbbd7c7ee8671faecb062a8966b2d"
+source = "git+https://github.com/MystenLabs/tokio-msim-fork.git?rev=e8ce7593bfbfbbd7c7ee8671faecb062a8966b2d#e8ce7593bfbfbbd7c7ee8671faecb062a8966b2d"
 dependencies = [
  "bytes",
  "libc",
@@ -11978,7 +15547,7 @@ version = "0.5.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0d04b7d0ee6b4a0207a0a7adb104d23ecb0b47d6beae7152d0fa34b692b29fd6"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
 ]
 
 [[package]]
@@ -12177,34 +15746,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rhai"
-version = "1.24.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f9ef5dabe4c0b43d8f1187dc6beb67b53fe607fff7e30c5eb7f71b814b8c2c1"
-dependencies = [
- "ahash 0.8.11",
- "bitflags 2.11.0",
- "num-traits",
- "once_cell",
- "rhai_codegen",
- "smallvec",
- "smartstring",
- "thin-vec",
- "web-time",
-]
-
-[[package]]
-name = "rhai_codegen"
-version = "3.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4322a2a4e8cf30771dd9f27f7f37ca9ac8fe812dddd811096a98483080dabe6"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.117",
-]
-
-[[package]]
 name = "ring"
 version = "0.16.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -12255,9 +15796,19 @@ dependencies = [
 
 [[package]]
 name = "roaring"
-version = "0.11.4"
+version = "0.10.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1dedc5658c6ecb3bdb5ef5f3295bb9253f42dcf3fd1402c03f6b1f7659c3c4a9"
+checksum = "41589aba99537475bf697f2118357cad1c31590c5a1b9f6d9fc4ad6d07503661"
+dependencies = [
+ "bytemuck",
+ "byteorder",
+]
+
+[[package]]
+name = "roaring"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f08d6a905edb32d74a5d5737a0c9d7e950c312f3c46cb0ca0a2ca09ea11878a0"
 dependencies = [
  "bytemuck",
  "byteorder",
@@ -12465,7 +16016,7 @@ version = "0.38.34"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "70dc5ec042f7a43c4a73241207cecc9873a06d45debb38b329f8541d85c2730f"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "errno",
  "libc",
  "linux-raw-sys 0.4.12",
@@ -12478,7 +16029,7 @@ version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c71e83d6afe7ff64890ec6b71d6a69bb8a610ab78ce364b3352876bb4c801266"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "errno",
  "libc",
  "linux-raw-sys 0.9.4",
@@ -12586,7 +16137,7 @@ version = "14.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7803e8936da37efd9b6d4478277f4b2b9bb5cdb37a113e8d63222e58da647e63"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "cfg-if",
  "clipboard-win",
  "fd-lock",
@@ -12820,7 +16371,7 @@ version = "3.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "271720403f46ca04f7ba6f55d438f8bd878d6b8ca0a1046e8228c4145bcbb316"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "core-foundation",
  "core-foundation-sys",
  "libc",
@@ -13316,12 +16867,6 @@ dependencies = [
  "anyhow",
  "bcs",
  "fastcrypto",
- "move-binary-format",
- "move-bytecode-utils",
- "move-core-types",
- "prometheus",
- "prost 0.14.1",
- "rand 0.8.5",
  "haneul-config",
  "haneul-core",
  "haneul-execution",
@@ -13331,6 +16876,12 @@ dependencies = [
  "haneul-swarm-config",
  "haneul-transaction-checks",
  "haneul-types",
+ "move-binary-format",
+ "move-bytecode-utils",
+ "move-core-types",
+ "prometheus",
+ "prost 0.14.1",
+ "rand 0.8.5",
  "zstd 0.12.3+zstd.1.5.2",
 ]
 
@@ -13393,17 +16944,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3c5e1a9a646d36c3599cd173a41282daf47c44583ad367b8e6837255952e5c67"
 dependencies = [
  "serde",
-]
-
-[[package]]
-name = "smartstring"
-version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fb72c633efbaa2dd666986505016c32c3044395ceaf881518399d2f4127ee29"
-dependencies = [
- "autocfg",
- "static_assertions",
- "version_check",
 ]
 
 [[package]]
@@ -13804,3651 +17344,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "734676eb262c623cec13c3155096e08d1f8f29adce39ba17948b18dad1e54142"
 
 [[package]]
-name = "haneul"
-version = "1.74.0"
-dependencies = [
- "anemo",
- "anyhow",
- "assert_cmd",
- "async-recursion",
- "async-trait",
- "aws-config",
- "aws-sdk-kms",
- "bcs",
- "bin-version",
- "bip32",
- "camino",
- "clap",
- "clap_complete",
- "colored",
- "csv",
- "datatest-stable",
- "expect-test",
- "fastcrypto",
- "fastcrypto-zkp",
- "fs_extra",
- "futures",
- "http 1.3.1",
- "im",
- "inquire",
- "insta",
- "insta-cmd",
- "json_to_table",
- "miette",
- "move-analyzer",
- "move-binary-format",
- "move-bytecode-source-map",
- "move-bytecode-utils",
- "move-bytecode-verifier-meter",
- "move-cli",
- "move-command-line-common",
- "move-compiler",
- "move-core-types",
- "move-ir-types",
- "move-package-alt",
- "move-package-alt-compilation",
- "move-symbol-pool",
- "move-trace-format",
- "move-vm-profiler",
- "msim",
- "haneullabs-common",
- "normalize-line-endings",
- "num-bigint 0.4.6",
- "prometheus",
- "rand 0.8.5",
- "regex",
- "reqwest",
- "serde",
- "serde_json",
- "serde_yaml 0.8.26",
- "shared-crypto",
- "shlex",
- "signature 1.6.4",
- "haneul-bridge",
- "haneul-config",
- "haneul-data-store",
- "haneul-execution",
- "haneul-faucet",
- "haneul-futures",
- "haneul-genesis-builder",
- "haneul-indexer-alt",
- "haneul-indexer-alt-consistent-store",
- "haneul-indexer-alt-framework",
- "haneul-indexer-alt-graphql",
- "haneul-indexer-alt-reader",
- "haneul-json",
- "haneul-json-rpc-types",
- "haneul-keys",
- "haneul-macros",
- "haneul-move",
- "haneul-move-build",
- "haneul-package-alt",
- "haneul-package-management",
- "haneul-pg-db",
- "haneul-protocol-config",
- "haneul-replay-2",
- "haneul-rpc",
- "haneul-rpc-api",
- "haneul-sdk",
- "haneul-simulator",
- "haneul-source-validation",
- "haneul-swarm",
- "haneul-swarm-config",
- "haneul-test-transaction-builder",
- "haneul-transaction-builder",
- "haneul-types",
- "tabled",
- "tap",
- "telemetry-subscribers",
- "tempfile",
- "test-cluster",
- "thiserror 1.0.69",
- "tikv-jemalloc-ctl",
- "tokio",
- "toml 0.7.4",
- "toml_edit 0.19.10",
- "tracing",
- "url",
-]
-
-[[package]]
-name = "haneul-adapter-latest"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bcs",
- "either",
- "indexmap 2.8.0",
- "leb128",
- "move-binary-format",
- "move-bytecode-utils",
- "move-bytecode-verifier",
- "move-bytecode-verifier-meter",
- "move-core-types",
- "move-regex-borrow-graph",
- "move-trace-format",
- "move-vm-config",
- "move-vm-profiler",
- "move-vm-runtime",
- "haneullabs-common",
- "haneullabs-metrics",
- "nonempty",
- "parking_lot 0.12.3",
- "quick_cache",
- "serde",
- "serde_json",
- "haneul-macros",
- "haneul-move-natives-latest",
- "haneul-protocol-config",
- "haneul-types",
- "haneul-verifier-latest",
- "tracing",
-]
-
-[[package]]
-name = "haneul-adapter-transactional-tests"
-version = "0.1.0"
-dependencies = [
- "datatest-stable",
- "haneul-transactional-test-runner",
-]
-
-[[package]]
-name = "haneul-adapter-v0"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bcs",
- "leb128",
- "move-binary-format",
- "move-bytecode-utils",
- "move-bytecode-verifier-meter",
- "move-bytecode-verifier-v0",
- "move-core-types",
- "move-vm-config",
- "move-vm-profiler",
- "move-vm-runtime-v0",
- "move-vm-types-v0",
- "once_cell",
- "parking_lot 0.12.3",
- "serde",
- "haneul-macros",
- "haneul-move-natives-v0",
- "haneul-protocol-config",
- "haneul-types",
- "haneul-verifier-v0",
- "tracing",
-]
-
-[[package]]
-name = "haneul-adapter-v1"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bcs",
- "leb128",
- "move-binary-format",
- "move-bytecode-utils",
- "move-bytecode-verifier-meter",
- "move-bytecode-verifier-v1",
- "move-core-types",
- "move-vm-config",
- "move-vm-profiler",
- "move-vm-runtime-v1",
- "move-vm-types-v1",
- "parking_lot 0.12.3",
- "serde",
- "haneul-macros",
- "haneul-move-natives-v1",
- "haneul-protocol-config",
- "haneul-types",
- "haneul-verifier-v1",
- "tracing",
-]
-
-[[package]]
-name = "haneul-adapter-v2"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bcs",
- "leb128",
- "move-binary-format",
- "move-bytecode-utils",
- "move-bytecode-verifier-meter",
- "move-bytecode-verifier-v2",
- "move-core-types",
- "move-vm-config",
- "move-vm-profiler",
- "move-vm-runtime-v2",
- "move-vm-types-v2",
- "parking_lot 0.12.3",
- "serde",
- "haneul-macros",
- "haneul-move-natives-v2",
- "haneul-protocol-config",
- "haneul-types",
- "haneul-verifier-v2",
- "tracing",
-]
-
-[[package]]
-name = "haneul-adapter-v3"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bcs",
- "either",
- "indexmap 2.8.0",
- "leb128",
- "move-binary-format",
- "move-bytecode-utils",
- "move-bytecode-verifier-meter",
- "move-bytecode-verifier-v3",
- "move-core-types",
- "move-regex-borrow-graph",
- "move-trace-format",
- "move-vm-config",
- "move-vm-profiler",
- "move-vm-runtime-v3",
- "move-vm-types-v3",
- "haneullabs-common",
- "haneullabs-metrics",
- "nonempty",
- "parking_lot 0.12.3",
- "serde",
- "serde_json",
- "haneul-macros",
- "haneul-move-natives-v3",
- "haneul-protocol-config",
- "haneul-types",
- "haneul-verifier-v3",
- "tracing",
-]
-
-[[package]]
-name = "haneul-analytics-indexer"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "arrow",
- "arrow-array",
- "async-trait",
- "bcs",
- "bytes",
- "chrono",
- "clap",
- "csv",
- "eyre",
- "fastcrypto",
- "futures",
- "gcp-bigquery-client",
- "indexmap 2.8.0",
- "move-binary-format",
- "move-bytecode-utils",
- "move-core-types",
- "haneullabs-common",
- "num_enum 0.6.1",
- "object_store 0.13.0",
- "parquet",
- "prometheus",
- "prost 0.14.1",
- "reqwest",
- "scoped-futures",
- "serde",
- "serde_json",
- "serde_yaml 0.8.26",
- "snowflake-api",
- "strum 0.27.1",
- "strum_macros 0.27.1",
- "haneul-analytics-indexer-derive",
- "haneul-futures",
- "haneul-indexer-alt-framework",
- "haneul-indexer-alt-framework-store-traits",
- "haneul-indexer-alt-metrics",
- "haneul-indexer-alt-object-store",
- "haneul-json-rpc-types",
- "haneul-package-resolver",
- "haneul-rpc",
- "haneul-rpc-api",
- "haneul-rpc-resolver",
- "haneul-storage",
- "haneul-types",
- "tap",
- "telemetry-subscribers",
- "tempfile",
- "thiserror 1.0.69",
- "tokio",
- "tokio-util 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
- "tracing",
- "url",
- "zstd 0.12.3+zstd.1.5.2",
-]
-
-[[package]]
-name = "haneul-analytics-indexer-derive"
-version = "1.74.0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.107",
-]
-
-[[package]]
-name = "haneul-authority-aggregation"
-version = "0.1.0"
-dependencies = [
- "futures",
- "haneullabs-metrics",
- "haneul-types",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneul-benchmark"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "bcs",
- "clap",
- "comfy-table",
- "consensus-config",
- "derive_more 1.0.0",
- "duration-str",
- "futures",
- "hdrhistogram",
- "indicatif",
- "itertools 0.13.0",
- "move-core-types",
- "haneullabs-common",
- "haneullabs-metrics",
- "prometheus",
- "prost 0.14.1",
- "rand 0.8.5",
- "regex",
- "serde",
- "serde_json",
- "strum 0.27.1",
- "strum_macros 0.27.1",
- "haneul-config",
- "haneul-core",
- "haneul-framework",
- "haneul-framework-snapshot",
- "haneul-keys",
- "haneul-macros",
- "haneul-move-build",
- "haneul-network",
- "haneul-protocol-config",
- "haneul-rpc",
- "haneul-rpc-api",
- "haneul-simulator",
- "haneul-surfer",
- "haneul-swarm-config",
- "haneul-test-transaction-builder",
- "haneul-types",
- "sysinfo",
- "telemetry-subscribers",
- "test-cluster",
- "tokio",
- "tokio-util 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
- "tracing",
- "typed-store",
- "zstd 0.12.3+zstd.1.5.2",
-]
-
-[[package]]
-name = "haneul-bridge"
-version = "1.74.0"
-dependencies = [
- "alloy",
- "alloy-multiprovider-strategy",
- "anyhow",
- "arc-swap",
- "async-trait",
- "axum 0.8.3",
- "backoff",
- "bcs",
- "bin-version",
- "bincode 1.3.3",
- "clap",
- "enum_dispatch",
- "eyre",
- "fastcrypto",
- "futures",
- "hex-literal 0.3.4",
- "maplit",
- "move-core-types",
- "haneullabs-common",
- "haneullabs-metrics",
- "num_enum 0.6.1",
- "once_cell",
- "prometheus",
- "rand 0.8.5",
- "reqwest",
- "serde",
- "serde_json",
- "serde_with",
- "shared-crypto",
- "strum_macros 0.27.1",
- "haneul-authority-aggregation",
- "haneul-config",
- "haneul-json-rpc-api",
- "haneul-json-rpc-types",
- "haneul-keys",
- "haneul-metrics-push-client",
- "haneul-rpc",
- "haneul-rpc-api",
- "haneul-sdk",
- "haneul-sdk-types",
- "haneul-test-transaction-builder",
- "haneul-types",
- "tap",
- "telemetry-subscribers",
- "tempfile",
- "test-cluster",
- "thiserror 1.0.69",
- "tokio",
- "tonic 0.14.6",
- "tower 0.5.3",
- "tracing",
- "typed-store",
- "url",
-]
-
-[[package]]
-name = "haneul-bridge-cli"
-version = "1.74.0"
-dependencies = [
- "alloy",
- "anyhow",
- "clap",
- "fastcrypto",
- "futures",
- "move-core-types",
- "haneullabs-common",
- "reqwest",
- "serde",
- "serde_json",
- "serde_with",
- "shared-crypto",
- "haneul-bridge",
- "haneul-config",
- "haneul-json-rpc-types",
- "haneul-keys",
- "haneul-rpc",
- "haneul-rpc-api",
- "haneul-sdk-types",
- "haneul-types",
- "telemetry-subscribers",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneul-bridge-indexer"
-version = "0.1.0"
-dependencies = [
- "alloy",
- "anyhow",
- "async-trait",
- "backoff",
- "clap",
- "diesel",
- "diesel-async",
- "diesel_migrations",
- "futures",
- "hex-literal 0.3.4",
- "haneullabs-metrics",
- "prometheus",
- "rustls",
- "serde",
- "serde_json",
- "haneul-bridge",
- "haneul-bridge-schema",
- "haneul-config",
- "haneul-test-transaction-builder",
- "haneul-types",
- "tap",
- "telemetry-subscribers",
- "test-cluster",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneul-bridge-indexer-alt"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "bcs",
- "clap",
- "diesel",
- "diesel-async",
- "move-core-types",
- "prometheus",
- "serde_json",
- "haneul-bridge",
- "haneul-bridge-schema",
- "haneul-indexer-alt-framework",
- "haneul-indexer-alt-metrics",
- "telemetry-subscribers",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
-name = "haneul-bridge-schema"
-version = "0.1.0"
-dependencies = [
- "diesel",
- "diesel_migrations",
- "serde",
- "serde_json",
- "strum 0.27.1",
- "strum_macros 0.27.1",
- "haneul-field-count",
-]
-
-[[package]]
-name = "haneul-checkpoint-blob-indexer"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "bytes",
- "clap",
- "humantime",
- "object_store 0.13.0",
- "prometheus",
- "prost 0.14.1",
- "reqwest",
- "serde",
- "serde_json",
- "haneul-default-config",
- "haneul-indexer-alt-framework",
- "haneul-indexer-alt-framework-store-traits",
- "haneul-indexer-alt-metrics",
- "haneul-indexer-alt-object-store",
- "haneul-rpc",
- "haneul-storage",
- "haneul-types",
- "telemetry-subscribers",
- "tokio",
- "toml 0.7.4",
- "tracing",
- "url",
- "zstd 0.12.3+zstd.1.5.2",
-]
-
-[[package]]
-name = "haneul-cluster-test"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "clap",
- "derive_more 1.0.0",
- "fastcrypto",
- "futures",
- "jsonrpsee",
- "move-core-types",
- "regex",
- "reqwest",
- "serde_json",
- "shared-crypto",
- "haneul-config",
- "haneul-faucet",
- "haneul-json",
- "haneul-json-rpc-types",
- "haneul-keys",
- "haneul-move-build",
- "haneul-sdk",
- "haneul-swarm",
- "haneul-swarm-config",
- "haneul-test-transaction-builder",
- "haneul-types",
- "telemetry-subscribers",
- "tempfile",
- "test-cluster",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneul-config"
-version = "0.0.0"
-dependencies = [
- "anemo",
- "anyhow",
- "bcs",
- "clap",
- "consensus-config",
- "csv",
- "dirs 4.0.0",
- "fastcrypto",
- "move-vm-config",
- "haneullabs-common",
- "nonzero_ext",
- "object_store 0.13.0",
- "once_cell",
- "prometheus",
- "rand 0.8.5",
- "reqwest",
- "serde",
- "serde_json",
- "serde_with",
- "serde_yaml 0.8.26",
- "starlark",
- "haneul-keys",
- "haneul-types",
- "tempfile",
- "thiserror 1.0.69",
- "tracing",
-]
-
-[[package]]
-name = "haneul-core"
-version = "0.1.0"
-dependencies = [
- "anemo",
- "antithesis_sdk",
- "anyhow",
- "arc-swap",
- "async-stream",
- "async-trait",
- "axum 0.8.3",
- "bcs",
- "bincode 1.3.3",
- "bytes",
- "clap",
- "consensus-config",
- "consensus-core",
- "consensus-types",
- "count-min-sketch",
- "criterion",
- "dashmap 5.5.3",
- "diffy",
- "either",
- "enum_dispatch",
- "expect-test",
- "eyre",
- "fastcrypto",
- "fastcrypto-tbls",
- "fastcrypto-zkp",
- "fs_extra",
- "futures",
- "governor",
- "im",
- "insta",
- "itertools 0.13.0",
- "lru 0.10.1",
- "mockall",
- "moka",
- "more-asserts",
- "move-binary-format",
- "move-bytecode-utils",
- "move-core-types",
- "move-symbol-pool",
- "haneullabs-common",
- "haneullabs-metrics",
- "haneullabs-network",
- "nonempty",
- "nonzero_ext",
- "num-bigint 0.4.6",
- "num_cpus",
- "object_store 0.13.0",
- "once_cell",
- "parking_lot 0.12.3",
- "pin-project-lite",
- "pprof",
- "pretty_assertions",
- "prometheus",
- "prost 0.14.1",
- "prost-build",
- "protox",
- "rand 0.8.5",
- "rayon",
- "reqwest",
- "roaring",
- "rstest",
- "rustc-hash 2.1.1",
- "scopeguard",
- "serde",
- "serde_json",
- "serde_with",
- "serde_yaml 0.8.26",
- "shared-crypto",
- "simple_moving_average",
- "static_assertions",
- "strum 0.27.1",
- "strum_macros 0.27.1",
- "haneul-authority-aggregation",
- "haneul-config",
- "haneul-execution",
- "haneul-framework",
- "haneul-genesis-builder",
- "haneul-inverted-index",
- "haneul-json-rpc-types",
- "haneul-macros",
- "haneul-move",
- "haneul-move-build",
- "haneul-network",
- "haneul-protocol-config",
- "haneul-rpc",
- "haneul-simulator",
- "haneul-storage",
- "haneul-swarm-config",
- "haneul-test-transaction-builder",
- "haneul-tls",
- "haneul-transaction-checks",
- "haneul-types",
- "sysinfo",
- "tap",
- "telemetry-subscribers",
- "tempfile",
- "test-fuzz",
- "thiserror 1.0.69",
- "tokio",
- "tokio-stream",
- "tokio-util 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
- "tracing",
- "twox-hash 1.6.3",
- "typed-store",
- "zstd 0.12.3+zstd.1.5.2",
-]
-
-[[package]]
-name = "haneul-cost"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bcs",
- "insta",
- "move-disassembler",
- "serde",
- "strum 0.27.1",
- "strum_macros 0.27.1",
- "haneul-config",
- "haneul-json-rpc-types",
- "haneul-move-build",
- "haneul-swarm-config",
- "haneul-test-transaction-builder",
- "haneul-types",
- "test-cluster",
- "tokio",
-]
-
-[[package]]
-name = "haneul-crypto"
-version = "0.3.0"
-source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=5b41bc701525f1b94f1fe63008d4841bc6fb1065#5b41bc701525f1b94f1fe63008d4841bc6fb1065"
-dependencies = [
- "ark-bn254",
- "ark-ff 0.4.2",
- "ark-groth16",
- "ark-snark",
- "ark-std 0.4.0",
- "base64ct",
- "blst",
- "bnum",
- "ed25519-dalek",
- "itertools 0.14.0",
- "k256 0.13.4",
- "p256",
- "rand_core 0.6.4",
- "serde",
- "serde_derive",
- "serde_json",
- "sha2 0.10.9",
- "signature 2.2.0",
- "haneul-sdk-types",
-]
-
-[[package]]
-name = "haneul-data-ingestion-core"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "backoff",
- "bcs",
- "futures",
- "haneullabs-metrics",
- "notify",
- "object_store 0.13.0",
- "once_cell",
- "prometheus",
- "prost 0.14.1",
- "rand 0.8.5",
- "serde_json",
- "haneul-protocol-config",
- "haneul-rpc",
- "haneul-rpc-api",
- "haneul-types",
- "tap",
- "tempfile",
- "tokio",
- "tokio-stream",
- "tracing",
- "url",
- "zstd 0.12.3+zstd.1.5.2",
-]
-
-[[package]]
-name = "haneul-data-store"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bcs",
- "chrono",
- "csv",
- "cynic",
- "cynic-codegen",
- "fastcrypto",
- "lru 0.10.1",
- "haneullabs-common",
- "reqwest",
- "serde",
- "haneul-types",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneul-default-config"
-version = "1.74.0"
-dependencies = [
- "quote",
- "syn 1.0.107",
-]
-
-[[package]]
-name = "haneul-display"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "base64 0.21.7",
- "bcs",
- "chrono",
- "dashmap 5.5.3",
- "futures",
- "indexmap 2.8.0",
- "insta",
- "itertools 0.13.0",
- "move-core-types",
- "haneullabs-common",
- "serde",
- "serde_json",
- "haneul-json-rpc-types",
- "haneul-types",
- "thiserror 1.0.69",
- "tokio",
-]
-
-[[package]]
-name = "haneul-e2e-tests"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "bcs",
- "clap",
- "coset",
- "fastcrypto",
- "fastcrypto-zkp",
- "futures",
- "indexmap 2.8.0",
- "insta",
- "itertools 0.13.0",
- "jsonrpsee",
- "move-binary-format",
- "move-core-types",
- "haneullabs-common",
- "haneullabs-metrics",
- "haneullabs-network",
- "p256",
- "passkey-authenticator",
- "passkey-client",
- "passkey-types",
- "prometheus",
- "prost 0.14.1",
- "prost-types 0.14.1",
- "rand 0.8.5",
- "reqwest",
- "serde",
- "serde_json",
- "shared-crypto",
- "haneul-config",
- "haneul-core",
- "haneul-framework",
- "haneul-framework-snapshot",
- "haneul-json-rpc",
- "haneul-json-rpc-api",
- "haneul-json-rpc-types",
- "haneul-keys",
- "haneul-light-client",
- "haneul-macros",
- "haneul-move-build",
- "haneul-network",
- "haneul-node",
- "haneul-protocol-config",
- "haneul-rpc",
- "haneul-rpc-api",
- "haneul-sdk",
- "haneul-sdk-types",
- "haneul-simulator",
- "haneul-storage",
- "haneul-swarm",
- "haneul-swarm-config",
- "haneul-test-transaction-builder",
- "haneul-tool",
- "haneul-types",
- "telemetry-subscribers",
- "tempfile",
- "test-cluster",
- "tokio",
- "tokio-stream",
- "tonic 0.14.6",
- "tracing",
- "url",
-]
-
-[[package]]
-name = "haneul-enum-compat-util"
-version = "0.1.0"
-dependencies = [
- "serde_yaml 0.8.26",
-]
-
-[[package]]
-name = "haneul-execution"
-version = "0.1.0"
-dependencies = [
- "cargo_metadata 0.15.4",
- "move-abstract-interpreter",
- "move-abstract-interpreter-v2",
- "move-abstract-interpreter-v3",
- "move-binary-format",
- "move-bytecode-verifier",
- "move-bytecode-verifier-meter",
- "move-bytecode-verifier-v0",
- "move-bytecode-verifier-v1",
- "move-bytecode-verifier-v2",
- "move-bytecode-verifier-v3",
- "move-trace-format",
- "move-vm-config",
- "move-vm-runtime",
- "move-vm-runtime-v0",
- "move-vm-runtime-v1",
- "move-vm-runtime-v2",
- "move-vm-runtime-v3",
- "move-vm-types-v0",
- "move-vm-types-v1",
- "move-vm-types-v2",
- "move-vm-types-v3",
- "haneullabs-common",
- "haneullabs-metrics",
- "petgraph 0.5.1",
- "haneul-adapter-latest",
- "haneul-adapter-v0",
- "haneul-adapter-v1",
- "haneul-adapter-v2",
- "haneul-adapter-v3",
- "haneul-move-natives-latest",
- "haneul-move-natives-v0",
- "haneul-move-natives-v1",
- "haneul-move-natives-v2",
- "haneul-move-natives-v3",
- "haneul-protocol-config",
- "haneul-types",
- "haneul-verifier-latest",
- "haneul-verifier-v0",
- "haneul-verifier-v1",
- "haneul-verifier-v2",
- "haneul-verifier-v3",
- "tracing",
-]
-
-[[package]]
-name = "haneul-execution-cut"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "expect-test",
- "tempfile",
- "thiserror 1.0.69",
- "toml 0.7.4",
- "toml_edit 0.19.10",
-]
-
-[[package]]
-name = "haneul-faucet"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "axum 0.8.3",
- "bin-version",
- "clap",
- "http 1.3.1",
- "reqwest",
- "serde",
- "serde_json",
- "shared-crypto",
- "haneul-config",
- "haneul-futures",
- "haneul-keys",
- "haneul-rpc-api",
- "haneul-sdk",
- "test-cluster",
- "thiserror 1.0.69",
- "tokio",
- "tower 0.5.3",
- "tower-http 0.5.2",
- "tracing",
- "wiremock",
-]
-
-[[package]]
-name = "haneul-field-count"
-version = "1.74.0"
-dependencies = [
- "haneul-field-count-derive",
-]
-
-[[package]]
-name = "haneul-field-count-derive"
-version = "1.74.0"
-dependencies = [
- "quote",
- "syn 1.0.107",
-]
-
-[[package]]
-name = "haneul-fork"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "bcs",
- "bin-version",
- "chrono",
- "clap",
- "cynic",
- "cynic-codegen",
- "fastcrypto",
- "itertools 0.13.0",
- "move-core-types",
- "prometheus",
- "prost 0.14.1",
- "rand 0.8.5",
- "reqwest",
- "roaring",
- "serde",
- "serde_json",
- "simulacrum",
- "haneul-protocol-config",
- "haneul-rpc-api",
- "haneul-swarm-config",
- "haneul-types",
- "tempfile",
- "tokio",
- "tonic 0.14.6",
- "tonic-prost",
- "tracing",
- "tracing-subscriber",
- "typed-store-error",
- "wiremock",
-]
-
-[[package]]
-name = "haneul-framework"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bcs",
- "fs_extra",
- "move-binary-format",
- "move-compiler",
- "move-core-types",
- "move-package-alt-compilation",
- "regex",
- "serde",
- "haneul-config",
- "haneul-move-build",
- "haneul-package-alt",
- "haneul-types",
- "tempfile",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneul-framework-snapshot"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "bcs",
- "bin-version",
- "move-package-alt",
- "serde",
- "serde_json",
- "haneul-framework",
- "haneul-package-alt",
- "haneul-protocol-config",
- "haneul-types",
- "tokio",
-]
-
-[[package]]
-name = "haneul-framework-tests"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "datatest-stable",
- "fs_extra",
- "move-bytecode-verifier",
- "move-bytecode-verifier-meter",
- "move-cli",
- "move-package-alt-compilation",
- "move-unit-test",
- "msim",
- "prometheus",
- "haneul-adapter-latest",
- "haneul-config",
- "haneul-framework",
- "haneul-move",
- "haneul-move-build",
- "haneul-package-alt",
- "haneul-protocol-config",
- "haneul-types",
- "haneul-verifier-latest",
- "tempfile",
- "tokio",
-]
-
-[[package]]
-name = "haneul-futures"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "futures",
- "tap",
- "thiserror 1.0.69",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneul-genesis-builder"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "bcs",
- "camino",
- "fastcrypto",
- "move-core-types",
- "haneullabs-common",
- "prometheus",
- "rand 0.8.5",
- "serde",
- "serde_with",
- "serde_yaml 0.8.26",
- "shared-crypto",
- "haneul-config",
- "haneul-execution",
- "haneul-framework",
- "haneul-framework-snapshot",
- "haneul-protocol-config",
- "haneul-simulator",
- "haneul-types",
- "tempfile",
- "tracing",
-]
-
-[[package]]
-name = "haneul-http"
-version = "0.0.0"
-dependencies = [
- "axum 0.8.3",
- "bytes",
- "http 1.3.1",
- "http-body 1.0.1",
- "http-body-util",
- "hyper 1.8.1",
- "hyper-util",
- "pin-project-lite",
- "reqwest",
- "socket2 0.5.6",
- "tokio",
- "tokio-rustls",
- "tokio-util 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
- "tower 0.5.3",
- "tracing",
-]
-
-[[package]]
-name = "haneul-indexer-alt"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "bcs",
- "bin-version",
- "clap",
- "const-str",
- "diesel",
- "diesel-async",
- "futures",
- "itertools 0.13.0",
- "prometheus",
- "rand 0.8.5",
- "serde",
- "haneul-default-config",
- "haneul-indexer-alt-framework",
- "haneul-indexer-alt-metrics",
- "haneul-indexer-alt-schema",
- "haneul-protocol-config",
- "haneul-synthetic-ingestion",
- "haneul-types",
- "telemetry-subscribers",
- "tempfile",
- "tokio",
- "toml 0.7.4",
- "tracing",
- "url",
- "wiremock",
-]
-
-[[package]]
-name = "haneul-indexer-alt-consistent-api"
-version = "1.74.0"
-dependencies = [
- "prost 0.14.1",
- "prost-types 0.14.1",
- "protox",
- "tonic 0.14.6",
- "tonic-prost",
- "tonic-prost-build",
- "walkdir",
-]
-
-[[package]]
-name = "haneul-indexer-alt-consistent-store"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "axum 0.8.3",
- "axum-server",
- "backoff",
- "bcs",
- "bin-version",
- "bincode 2.0.1",
- "bytes",
- "clap",
- "const-str",
- "fastcrypto",
- "futures",
- "http 1.3.1",
- "integer-encoding",
- "move-core-types",
- "haneullabs-common",
- "haneullabs-network",
- "object_store 0.13.0",
- "ouroboros 0.17.2",
- "pin-project",
- "prometheus",
- "reqwest",
- "rocksdb",
- "scoped-futures",
- "serde",
- "serde_json",
- "haneul-default-config",
- "haneul-futures",
- "haneul-indexer-alt-consistent-api",
- "haneul-indexer-alt-framework",
- "haneul-indexer-alt-metrics",
- "haneul-storage",
- "telemetry-subscribers",
- "tempfile",
- "thiserror 1.0.69",
- "tokio",
- "tokio-stream",
- "toml 0.7.4",
- "tonic 0.14.6",
- "tonic-health",
- "tonic-reflection",
- "tower 0.5.3",
- "tracing",
- "url",
- "zstd 0.12.3+zstd.1.5.2",
-]
-
-[[package]]
-name = "haneul-indexer-alt-e2e-tests"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-stream",
- "async-trait",
- "bcs",
- "bytes",
- "coset",
- "datatest-stable",
- "diesel",
- "diesel-async",
- "fastcrypto",
- "futures",
- "insta",
- "itertools 0.13.0",
- "jsonrpsee",
- "move-core-types",
- "msim",
- "p256",
- "passkey-authenticator",
- "passkey-client",
- "passkey-types",
- "prometheus",
- "prost 0.14.1",
- "prost-types 0.14.1",
- "rand 0.8.5",
- "reqwest",
- "serde",
- "serde_json",
- "shared-crypto",
- "simulacrum",
- "haneul-field-count",
- "haneul-framework",
- "haneul-futures",
- "haneul-indexer-alt",
- "haneul-indexer-alt-consistent-api",
- "haneul-indexer-alt-consistent-store",
- "haneul-indexer-alt-framework",
- "haneul-indexer-alt-graphql",
- "haneul-indexer-alt-jsonrpc",
- "haneul-indexer-alt-reader",
- "haneul-indexer-alt-schema",
- "haneul-json-rpc-types",
- "haneul-kv-rpc",
- "haneul-kvstore",
- "haneul-macros",
- "haneul-move-build",
- "haneul-pg-db",
- "haneul-protocol-config",
- "haneul-rpc",
- "haneul-sdk",
- "haneul-simulator",
- "haneul-swarm-config",
- "haneul-test-transaction-builder",
- "haneul-transactional-test-runner",
- "haneul-types",
- "telemetry-subscribers",
- "tempfile",
- "test-cluster",
- "tokio",
- "tokio-stream",
- "tonic 0.14.6",
- "tracing",
- "url",
- "zstd 0.12.3+zstd.1.5.2",
-]
-
-[[package]]
-name = "haneul-indexer-alt-framework"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "axum 0.8.3",
- "backoff",
- "bytes",
- "chrono",
- "clap",
- "dashmap 5.5.3",
- "diesel",
- "diesel-async",
- "diesel_migrations",
- "futures",
- "http 1.3.1",
- "haneullabs-network",
- "num_cpus",
- "object_store 0.13.0",
- "prometheus",
- "prost 0.14.1",
- "prost-types 0.14.1",
- "rand 0.8.5",
- "reqwest",
- "scoped-futures",
- "serde",
- "serde_json",
- "haneul-field-count",
- "haneul-futures",
- "haneul-indexer-alt-framework-store-traits",
- "haneul-indexer-alt-metrics",
- "haneul-pg-db",
- "haneul-rpc",
- "haneul-synthetic-ingestion",
- "haneul-types",
- "telemetry-subscribers",
- "tempfile",
- "thiserror 1.0.69",
- "tokio",
- "tokio-stream",
- "tonic 0.14.6",
- "tracing",
- "tracing-subscriber",
- "url",
- "wiremock",
- "zstd 0.12.3+zstd.1.5.2",
-]
-
-[[package]]
-name = "haneul-indexer-alt-framework-store-traits"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "chrono",
- "dashmap 5.5.3",
- "scoped-futures",
- "tokio",
-]
-
-[[package]]
-name = "haneul-indexer-alt-graphql"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-graphql",
- "async-graphql-axum",
- "async-graphql-value",
- "async-stream",
- "async-trait",
- "axum 0.7.5",
- "axum-extra 0.9.3",
- "backoff",
- "bcs",
- "bin-version",
- "chrono",
- "clap",
- "const-str",
- "dashmap 5.5.3",
- "diesel",
- "fastcrypto",
- "fastcrypto-zkp",
- "futures",
- "headers",
- "im",
- "insta",
- "itertools 0.13.0",
- "move-binary-format",
- "move-core-types",
- "move-disassembler",
- "move-ir-types",
- "pin-project",
- "prometheus",
- "prost-types 0.14.1",
- "regex",
- "reqwest",
- "rustls",
- "serde",
- "serde_json",
- "shared-crypto",
- "haneul-default-config",
- "haneul-display",
- "haneul-futures",
- "haneul-indexer-alt-metrics",
- "haneul-indexer-alt-reader",
- "haneul-indexer-alt-schema",
- "haneul-name-service",
- "haneul-package-resolver",
- "haneul-pg-db",
- "haneul-protocol-config",
- "haneul-rpc",
- "haneul-sdk-types",
- "haneul-sql-macro",
- "haneul-types",
- "telemetry-subscribers",
- "thiserror 1.0.69",
- "timeout-tracing",
- "tokio",
- "tokio-stream",
- "toml 0.7.4",
- "tonic 0.14.6",
- "tower-http 0.5.2",
- "tracing",
- "url",
- "uuid",
-]
-
-[[package]]
-name = "haneul-indexer-alt-jsonrpc"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-graphql",
- "async-trait",
- "axum 0.8.3",
- "bcs",
- "bin-version",
- "clap",
- "const-str",
- "diesel",
- "fastcrypto",
- "futures",
- "http 1.3.1",
- "jsonrpsee",
- "lru 0.10.1",
- "move-binary-format",
- "move-core-types",
- "haneullabs-common",
- "pin-project",
- "pin-project-lite",
- "prometheus",
- "prost-types 0.14.1",
- "reqwest",
- "rustls",
- "schemars 0.8.21",
- "serde",
- "serde_json",
- "serde_with",
- "haneul-default-config",
- "haneul-display",
- "haneul-futures",
- "haneul-indexer-alt-consistent-store",
- "haneul-indexer-alt-metrics",
- "haneul-indexer-alt-reader",
- "haneul-indexer-alt-schema",
- "haneul-json",
- "haneul-json-rpc-types",
- "haneul-name-service",
- "haneul-open-rpc",
- "haneul-open-rpc-macros",
- "haneul-package-resolver",
- "haneul-pg-db",
- "haneul-protocol-config",
- "haneul-rpc",
- "haneul-sql-macro",
- "haneul-types",
- "telemetry-subscribers",
- "thiserror 1.0.69",
- "tokio",
- "toml 0.7.4",
- "tonic 0.14.6",
- "tower 0.4.13",
- "tower-http 0.5.2",
- "tower-layer",
- "tracing",
- "url",
-]
-
-[[package]]
-name = "haneul-indexer-alt-metrics"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "axum 0.8.3",
- "clap",
- "prometheus",
- "prometheus-closure-metric",
- "haneul-futures",
- "haneul-pg-db",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneul-indexer-alt-object-store"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "bytes",
- "object_store 0.13.0",
- "serde",
- "serde_json",
- "haneul-indexer-alt-framework-store-traits",
- "tokio",
-]
-
-[[package]]
-name = "haneul-indexer-alt-reader"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-graphql",
- "async-trait",
- "bcs",
- "clap",
- "diesel",
- "diesel-async",
- "futures",
- "http 1.3.1",
- "move-core-types",
- "haneullabs-common",
- "prometheus",
- "prost-types 0.14.1",
- "haneul-futures",
- "haneul-indexer-alt-consistent-api",
- "haneul-indexer-alt-metrics",
- "haneul-indexer-alt-schema",
- "haneul-kvstore",
- "haneul-package-resolver",
- "haneul-pg-db",
- "haneul-rpc",
- "haneul-sdk-types",
- "haneul-sql-macro",
- "haneul-types",
- "thiserror 1.0.69",
- "tokio",
- "tonic 0.14.6",
- "tower 0.5.3",
- "tracing",
- "url",
-]
-
-[[package]]
-name = "haneul-indexer-alt-schema"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "bcs",
- "diesel",
- "diesel_migrations",
- "move-core-types",
- "serde",
- "siphasher 1.0.1",
- "haneul-field-count",
- "haneul-protocol-config",
- "haneul-types",
-]
-
-[[package]]
-name = "haneul-inverted-index"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-stream",
- "bcs",
- "futures",
- "move-core-types",
- "roaring",
- "haneul-types",
- "thiserror 1.0.69",
- "tokio",
-]
-
-[[package]]
-name = "haneul-json"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "bcs",
- "fastcrypto",
- "move-binary-format",
- "move-bytecode-utils",
- "move-core-types",
- "schemars 0.8.21",
- "serde",
- "serde_json",
- "haneul-framework",
- "haneul-move-build",
- "haneul-types",
- "test-fuzz",
- "tokio",
-]
-
-[[package]]
-name = "haneul-json-rpc"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "arc-swap",
- "async-trait",
- "axum 0.8.3",
- "backoff",
- "base64 0.21.7",
- "bcs",
- "cached",
- "expect-test",
- "eyre",
- "fastcrypto",
- "fastcrypto-zkp",
- "futures",
- "hyper 1.8.1",
- "im",
- "indexmap 2.8.0",
- "itertools 0.13.0",
- "jsonrpsee",
- "mockall",
- "move-binary-format",
- "move-bytecode-utils",
- "move-core-types",
- "haneullabs-common",
- "haneullabs-metrics",
- "once_cell",
- "prometheus",
- "serde",
- "serde_json",
- "shared-crypto",
- "signature 1.6.4",
- "haneul-config",
- "haneul-core",
- "haneul-display",
- "haneul-json",
- "haneul-json-rpc-api",
- "haneul-json-rpc-types",
- "haneul-name-service",
- "haneul-open-rpc",
- "haneul-protocol-config",
- "haneul-storage",
- "haneul-transaction-builder",
- "haneul-types",
- "tap",
- "telemetry-subscribers",
- "thiserror 1.0.69",
- "tokio",
- "tokio-util 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
- "tower 0.5.3",
- "tower-http 0.5.2",
- "tracing",
- "typed-store-error",
-]
-
-[[package]]
-name = "haneul-json-rpc-api"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "fastcrypto",
- "jsonrpsee",
- "haneullabs-metrics",
- "once_cell",
- "prometheus",
- "haneul-json",
- "haneul-json-rpc-types",
- "haneul-open-rpc",
- "haneul-open-rpc-macros",
- "haneul-types",
- "tap",
- "tracing",
-]
-
-[[package]]
-name = "haneul-json-rpc-tests"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "bcs",
- "hyper 1.8.1",
- "jsonrpsee",
- "move-core-types",
- "prometheus",
- "rand 0.8.5",
- "reqwest",
- "serde_json",
- "shared-crypto",
- "haneul-config",
- "haneul-core",
- "haneul-json",
- "haneul-json-rpc",
- "haneul-json-rpc-api",
- "haneul-json-rpc-types",
- "haneul-keys",
- "haneul-macros",
- "haneul-move-build",
- "haneul-open-rpc",
- "haneul-open-rpc-macros",
- "haneul-protocol-config",
- "haneul-sdk",
- "haneul-simulator",
- "haneul-swarm-config",
- "haneul-test-transaction-builder",
- "haneul-types",
- "telemetry-subscribers",
- "test-cluster",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneul-json-rpc-types"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "bcs",
- "colored",
- "enum_dispatch",
- "fastcrypto",
- "insta",
- "itertools 0.13.0",
- "json_to_table",
- "move-binary-format",
- "move-bytecode-utils",
- "move-command-line-common",
- "move-core-types",
- "move-disassembler",
- "move-ir-types",
- "haneullabs-common",
- "haneullabs-metrics",
- "nonempty",
- "schemars 0.8.21",
- "serde",
- "serde_json",
- "serde_with",
- "haneul-enum-compat-util",
- "haneul-json",
- "haneul-macros",
- "haneul-package-resolver",
- "haneul-protocol-config",
- "haneul-types",
- "tabled",
- "tracing",
-]
-
-[[package]]
-name = "haneul-keys"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "base64 0.21.7",
- "bcs",
- "bip32",
- "colored",
- "fastcrypto",
- "jsonrpc",
- "mockall",
- "haneullabs-common",
- "rand 0.8.5",
- "regex",
- "serde",
- "serde_json",
- "shared-crypto",
- "signature 1.6.4",
- "slip10_ed25519",
- "haneul-types",
- "tempfile",
- "thiserror 1.0.69",
- "tiny-bip39",
- "tokio",
-]
-
-[[package]]
-name = "haneul-kv-rpc"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-stream",
- "async-trait",
- "axum 0.8.3",
- "bcs",
- "bin-version",
- "bytes",
- "clap",
- "dashmap 5.5.3",
- "fastcrypto",
- "futures",
- "move-core-types",
- "haneullabs-common",
- "haneullabs-metrics",
- "haneullabs-network",
- "prometheus",
- "prost 0.14.1",
- "prost-types 0.14.1",
- "rustls",
- "schemars 0.8.21",
- "serde",
- "serde_json",
- "serde_yaml 0.8.26",
- "haneul-futures",
- "haneul-inverted-index",
- "haneul-kvstore",
- "haneul-package-resolver",
- "haneul-protocol-config",
- "haneul-rpc",
- "haneul-rpc-api",
- "haneul-sdk-types",
- "haneul-storage",
- "haneul-types",
- "telemetry-subscribers",
- "thiserror 1.0.69",
- "tokio",
- "tonic 0.14.6",
- "tonic-prost",
- "tonic-reflection",
- "tracing",
-]
-
-[[package]]
-name = "haneul-kvstore"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "arc-swap",
- "async-stream",
- "async-trait",
- "backoff",
- "base64 0.21.7",
- "bcs",
- "bytes",
- "clap",
- "futures",
- "gcp_auth",
- "governor",
- "http 1.3.1",
- "integer-encoding",
- "move-core-types",
- "haneullabs-common",
- "num_cpus",
- "prometheus",
- "prost 0.14.1",
- "prost-types 0.14.1",
- "rand 0.8.5",
- "roaring",
- "rustc-hash 2.1.1",
- "rustls",
- "scoped-futures",
- "serde",
- "haneul-default-config",
- "haneul-futures",
- "haneul-indexer-alt-framework",
- "haneul-indexer-alt-framework-store-traits",
- "haneul-indexer-alt-metrics",
- "haneul-inverted-index",
- "haneul-keys",
- "haneul-protocol-config",
- "haneul-rpc",
- "haneul-test-transaction-builder",
- "haneul-types",
- "telemetry-subscribers",
- "test-cluster",
- "tokio",
- "tokio-stream",
- "toml 0.7.4",
- "tonic 0.14.6",
- "tonic-prost",
- "tracing",
- "url",
-]
-
-[[package]]
-name = "haneul-light-client"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "bcs",
- "bytes",
- "clap",
- "env_logger",
- "fastcrypto",
- "futures",
- "hex",
- "log",
- "move-binary-format",
- "move-core-types",
- "haneullabs-common",
- "haneullabs-metrics",
- "object_store 0.13.0",
- "prost-types 0.14.1",
- "reqwest",
- "roaring",
- "serde",
- "serde_json",
- "serde_yaml 0.8.26",
- "haneul-config",
- "haneul-package-resolver",
- "haneul-rpc",
- "haneul-rpc-api",
- "haneul-storage",
- "haneul-types",
- "tempfile",
- "thiserror 1.0.69",
- "tokio",
- "tokio-stream",
- "tonic 0.14.6",
- "tracing",
- "url",
-]
-
-[[package]]
-name = "haneul-macros"
-version = "0.7.0"
-dependencies = [
- "futures",
- "once_cell",
- "haneul-proc-macros",
- "tracing",
-]
-
-[[package]]
-name = "haneul-metric-checker"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "backoff",
- "base64 0.21.7",
- "chrono",
- "clap",
- "humantime",
- "once_cell",
- "prometheus-http-query",
- "reqwest",
- "serde",
- "serde_yaml 0.9.21",
- "strum_macros 0.27.1",
- "telemetry-subscribers",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneul-metrics-push-client"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "fastcrypto",
- "haneullabs-metrics",
- "prometheus",
- "reqwest",
- "snap",
- "haneul-tls",
- "haneul-types",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneul-move"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "bin-version",
- "clap",
- "colored",
- "indoc",
- "insta",
- "jsonrpsee",
- "move-binary-format",
- "move-bytecode-source-map",
- "move-cli",
- "move-compiler",
- "move-disassembler",
- "move-ir-types",
- "move-package-alt",
- "move-package-alt-compilation",
- "move-unit-test",
- "move-vm-config",
- "move-vm-runtime",
- "haneullabs-metrics",
- "prometheus",
- "rand 0.8.5",
- "serde",
- "serde_json",
- "serde_yaml 0.8.26",
- "haneul-adapter-latest",
- "haneul-config",
- "haneul-macros",
- "haneul-move-build",
- "haneul-move-natives-latest",
- "haneul-package-alt",
- "haneul-protocol-config",
- "haneul-sdk",
- "haneul-types",
- "telemetry-subscribers",
- "tempfile",
- "tikv-jemalloc-ctl",
- "tokio",
- "toml 0.7.4",
- "tracing",
- "walkdir",
- "which",
-]
-
-[[package]]
-name = "haneul-move-build"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "fastcrypto",
- "fs_extra",
- "move-binary-format",
- "move-bytecode-utils",
- "move-bytecode-verifier",
- "move-compiler",
- "move-core-types",
- "move-package-alt",
- "move-package-alt-compilation",
- "move-symbol-pool",
- "haneullabs-common",
- "serde-reflection",
- "haneul-package-alt",
- "haneul-protocol-config",
- "haneul-types",
- "haneul-verifier-latest",
- "tempfile",
- "thiserror 1.0.69",
- "tokio",
-]
-
-[[package]]
-name = "haneul-move-lsp"
-version = "1.74.0"
-dependencies = [
- "bin-version",
- "clap",
- "move-analyzer",
- "move-compiler",
- "haneul-package-alt",
- "tikv-jemalloc-ctl",
- "tikv-jemallocator",
-]
-
-[[package]]
-name = "haneul-move-natives-latest"
-version = "0.1.0"
-dependencies = [
- "bcs",
- "better_any",
- "fastcrypto",
- "fastcrypto-vdf",
- "fastcrypto-zkp",
- "indexmap 2.8.0",
- "move-binary-format",
- "move-core-types",
- "move-vm-runtime",
- "rand 0.8.5",
- "smallvec",
- "haneul-protocol-config",
- "haneul-types",
- "tracing",
-]
-
-[[package]]
-name = "haneul-move-natives-v0"
-version = "0.1.0"
-dependencies = [
- "bcs",
- "better_any",
- "fastcrypto",
- "fastcrypto-zkp",
- "linked-hash-map",
- "move-binary-format",
- "move-core-types",
- "move-stdlib-natives-v0",
- "move-vm-runtime-v0",
- "move-vm-types-v0",
- "smallvec",
- "haneul-protocol-config",
- "haneul-types",
- "tracing",
-]
-
-[[package]]
-name = "haneul-move-natives-v1"
-version = "0.1.0"
-dependencies = [
- "bcs",
- "better_any",
- "fastcrypto",
- "fastcrypto-zkp",
- "linked-hash-map",
- "move-binary-format",
- "move-core-types",
- "move-stdlib-natives-v1",
- "move-vm-runtime-v1",
- "move-vm-types-v1",
- "smallvec",
- "haneul-protocol-config",
- "haneul-types",
- "tracing",
-]
-
-[[package]]
-name = "haneul-move-natives-v2"
-version = "0.1.0"
-dependencies = [
- "bcs",
- "better_any",
- "fastcrypto",
- "fastcrypto-zkp",
- "indexmap 2.8.0",
- "move-binary-format",
- "move-core-types",
- "move-stdlib-natives-v2",
- "move-vm-runtime-v2",
- "move-vm-types-v2",
- "smallvec",
- "haneul-protocol-config",
- "haneul-types",
- "tracing",
-]
-
-[[package]]
-name = "haneul-move-natives-v3"
-version = "0.1.0"
-dependencies = [
- "bcs",
- "better_any",
- "fastcrypto",
- "fastcrypto-vdf",
- "fastcrypto-zkp",
- "indexmap 2.8.0",
- "move-binary-format",
- "move-core-types",
- "move-stdlib-natives-v3",
- "move-vm-runtime-v3",
- "move-vm-types-v3",
- "rand 0.8.5",
- "smallvec",
- "haneul-protocol-config",
- "haneul-types",
- "tracing",
-]
-
-[[package]]
-name = "haneul-name-service"
-version = "1.74.0"
-dependencies = [
- "bcs",
- "move-core-types",
- "serde",
- "haneul-types",
- "thiserror 1.0.69",
-]
-
-[[package]]
-name = "haneul-network"
-version = "0.0.0"
-dependencies = [
- "anemo",
- "anemo-build",
- "anemo-tower",
- "anyhow",
- "arc-swap",
- "bcs",
- "bytes",
- "dashmap 5.5.3",
- "ed25519-consensus",
- "eyre",
- "fastcrypto",
- "fastcrypto-tbls",
- "futures",
- "governor",
- "http 1.3.1",
- "haneullabs-common",
- "haneullabs-metrics",
- "haneullabs-network",
- "object_store 0.13.0",
- "once_cell",
- "prometheus",
- "prost 0.14.1",
- "rand 0.8.5",
- "serde",
- "serde_yaml 0.8.26",
- "shared-crypto",
- "haneul-config",
- "haneul-http",
- "haneul-macros",
- "haneul-protocol-config",
- "haneul-rpc",
- "haneul-simulator",
- "haneul-storage",
- "haneul-swarm-config",
- "haneul-tls",
- "haneul-types",
- "tap",
- "telemetry-subscribers",
- "tempfile",
- "tokio",
- "tokio-rustls",
- "tonic 0.14.6",
- "tonic-build",
- "tonic-health",
- "tonic-prost",
- "tower 0.5.3",
- "tower-http 0.5.2",
- "tracing",
- "url",
- "zstd 0.12.3+zstd.1.5.2",
-]
-
-[[package]]
-name = "haneul-node"
-version = "1.74.0"
-dependencies = [
- "anemo",
- "anemo-tower",
- "antithesis_sdk",
- "anyhow",
- "arc-swap",
- "axum 0.8.3",
- "base64 0.21.7",
- "bcs",
- "bin-version",
- "bytes",
- "clap",
- "consensus-core",
- "fastcrypto",
- "fastcrypto-zkp",
- "futures",
- "http 1.3.1",
- "humantime",
- "move-vm-config",
- "haneullabs-common",
- "haneullabs-metrics",
- "haneullabs-network",
- "haneullabs-service",
- "prometheus",
- "reqwest",
- "serde",
- "serde_json",
- "haneul-config",
- "haneul-core",
- "haneul-http",
- "haneul-json-rpc",
- "haneul-json-rpc-api",
- "haneul-macros",
- "haneul-metrics-push-client",
- "haneul-name-service",
- "haneul-network",
- "haneul-protocol-config",
- "haneul-rpc-api",
- "haneul-simulator",
- "haneul-snapshot",
- "haneul-storage",
- "haneul-telemetry",
- "haneul-tls",
- "haneul-types",
- "tap",
- "telemetry-subscribers",
- "tikv-jemallocator",
- "tokio",
- "tower 0.5.3",
- "tower-http 0.5.2",
- "tracing",
- "typed-store",
- "url",
-]
-
-[[package]]
-name = "haneul-open-rpc"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "bcs",
- "fastcrypto",
- "insta",
- "move-core-types",
- "rand 0.8.5",
- "schemars 0.8.21",
- "serde",
- "serde_json",
- "haneul-json",
- "haneul-json-rpc",
- "haneul-json-rpc-api",
- "haneul-json-rpc-types",
- "haneul-protocol-config",
- "haneul-types",
- "versions",
-]
-
-[[package]]
-name = "haneul-open-rpc-macros"
-version = "0.1.0"
-dependencies = [
- "derive-syn-parse",
- "itertools 0.13.0",
- "proc-macro2",
- "quote",
- "syn 1.0.107",
- "unescape",
-]
-
-[[package]]
-name = "haneul-oracle"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "bcs",
- "chrono",
- "clap",
- "dirs 4.0.0",
- "jsonpath_lib",
- "haneullabs-metrics",
- "once_cell",
- "prometheus",
- "rand 0.8.5",
- "reqwest",
- "serde",
- "serde_json",
- "shared-crypto",
- "haneul-config",
- "haneul-keys",
- "haneul-move-build",
- "haneul-rpc-api",
- "haneul-sdk",
- "haneul-types",
- "tap",
- "telemetry-subscribers",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneul-package-alt"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "indexmap 2.8.0",
- "move-compiler",
- "move-package-alt",
- "serde",
- "haneul-package-management",
- "haneul-protocol-config",
- "haneul-rpc-api",
- "haneul-sdk",
- "tempfile",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneul-package-dump"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "bcs",
- "cynic",
- "cynic-codegen",
- "fastcrypto",
- "reqwest",
- "serde",
- "serde_json",
- "haneul-types",
- "tracing",
-]
-
-[[package]]
-name = "haneul-package-management"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "haneul-framework-snapshot",
- "haneul-protocol-config",
- "haneul-types",
- "thiserror 1.0.69",
-]
-
-[[package]]
-name = "haneul-package-resolver"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "bcs",
- "hyper 1.8.1",
- "insta",
- "itertools 0.13.0",
- "lru 0.10.1",
- "move-binary-format",
- "move-command-line-common",
- "move-compiler",
- "move-core-types",
- "serde_json",
- "haneul-move-build",
- "haneul-types",
- "thiserror 1.0.69",
- "tokio",
- "tower 0.5.3",
-]
-
-[[package]]
-name = "haneul-pg-db"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "bb8",
- "chrono",
- "clap",
- "diesel",
- "diesel-async",
- "diesel_migrations",
- "futures",
- "prometheus",
- "rustls",
- "scoped-futures",
- "haneul-field-count",
- "haneul-indexer-alt-framework-store-traits",
- "haneul-sql-macro",
- "telemetry-subscribers",
- "tempfile",
- "tokio",
- "tokio-postgres",
- "tokio-postgres-rustls",
- "tracing",
- "url",
- "webpki-roots 0.26.3",
-]
-
-[[package]]
-name = "haneul-proc-macros"
-version = "0.7.0"
-dependencies = [
- "msim-macros",
- "proc-macro2",
- "quote",
- "haneul-enum-compat-util",
- "syn 2.0.117",
-]
-
-[[package]]
-name = "haneul-protocol-config"
-version = "0.1.0"
-dependencies = [
- "clap",
- "fastcrypto",
- "insta",
- "move-binary-format",
- "move-core-types",
- "move-vm-config",
- "haneullabs-common",
- "prost-types 0.14.1",
- "rand 0.8.5",
- "schemars 0.8.21",
- "serde",
- "serde-env",
- "serde_json",
- "serde_with",
- "haneul-protocol-config-macros",
- "tracing",
-]
-
-[[package]]
-name = "haneul-protocol-config-macros"
-version = "0.1.0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.107",
-]
-
-[[package]]
-name = "haneul-proxy"
-version = "0.0.2"
-dependencies = [
- "anyhow",
- "axum 0.8.3",
- "axum-extra 0.10.1",
- "axum-server",
- "bin-version",
- "bytes",
- "clap",
- "const-str",
- "fastcrypto",
- "futures",
- "hex",
- "hyper 1.8.1",
- "itertools 0.13.0",
- "mime",
- "multiaddr",
- "haneullabs-common",
- "haneullabs-metrics",
- "once_cell",
- "prometheus",
- "prost 0.14.1",
- "prost-build",
- "protobuf",
- "rand 0.8.5",
- "reqwest",
- "rustls",
- "serde",
- "serde_json",
- "serde_with",
- "serde_yaml 0.8.26",
- "snap",
- "haneul-tls",
- "haneul-types",
- "telemetry-subscribers",
- "tokio",
- "tower 0.5.3",
- "tower-http 0.5.2",
- "tracing",
- "url",
-]
-
-[[package]]
-name = "haneul-replay"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-recursion",
- "async-trait",
- "bcs",
- "clap",
- "futures",
- "http 1.3.1",
- "jsonrpsee",
- "lru 0.10.1",
- "move-binary-format",
- "move-bytecode-utils",
- "move-core-types",
- "parking_lot 0.12.3",
- "prometheus",
- "rand 0.8.5",
- "regex",
- "serde",
- "serde_json",
- "serde_with",
- "serde_yaml 0.8.26",
- "shellexpand",
- "similar",
- "haneul-config",
- "haneul-core",
- "haneul-execution",
- "haneul-framework",
- "haneul-json-rpc-api",
- "haneul-json-rpc-types",
- "haneul-protocol-config",
- "haneul-sdk",
- "haneul-transaction-checks",
- "haneul-types",
- "tabled",
- "tempfile",
- "thiserror 1.0.69",
- "tokio",
- "tokio-util 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
- "tracing",
-]
-
-[[package]]
-name = "haneul-replay-2"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bcs",
- "bin-version",
- "clap",
- "csv",
- "indicatif",
- "move-binary-format",
- "move-bytecode-source-map",
- "move-command-line-common",
- "move-core-types",
- "move-disassembler",
- "move-ir-types",
- "move-package-alt",
- "move-package-alt-compilation",
- "move-trace-format",
- "prometheus",
- "serde",
- "serde_json",
- "similar",
- "haneul-config",
- "haneul-data-store",
- "haneul-execution",
- "haneul-json-rpc-types",
- "haneul-move-build",
- "haneul-package-alt",
- "haneul-types",
- "tabled",
- "telemetry-subscribers",
- "tokio",
- "toml 0.7.4",
- "tracing",
- "zstd 0.12.3+zstd.1.5.2",
-]
-
-[[package]]
-name = "haneul-rosetta"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "axum 0.8.3",
- "axum-extra 0.10.1",
- "bcs",
- "chrono",
- "clap",
- "enum_dispatch",
- "eyre",
- "fastcrypto",
- "futures",
- "lru 0.10.1",
- "move-cli",
- "move-core-types",
- "once_cell",
- "prost 0.14.1",
- "prost-types 0.14.1",
- "quick-js",
- "rand 0.8.5",
- "reqwest",
- "serde",
- "serde_json",
- "shared-crypto",
- "signature 1.6.4",
- "strum 0.27.1",
- "strum_macros 0.27.1",
- "haneul-config",
- "haneul-keys",
- "haneul-move-build",
- "haneul-rpc",
- "haneul-sdk",
- "haneul-sdk-types",
- "haneul-swarm-config",
- "haneul-test-transaction-builder",
- "haneul-types",
- "telemetry-subscribers",
- "tempfile",
- "test-cluster",
- "thiserror 1.0.69",
- "tokio",
- "tonic 0.14.6",
- "tracing",
-]
-
-[[package]]
-name = "haneul-rpc"
-version = "0.3.1"
-source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=5b41bc701525f1b94f1fe63008d4841bc6fb1065#5b41bc701525f1b94f1fe63008d4841bc6fb1065"
-dependencies = [
- "base64 0.22.1",
- "bcs",
- "bytes",
- "futures",
- "http 1.3.1",
- "http-body 1.0.1",
- "prost 0.14.1",
- "prost-types 0.14.1",
- "serde",
- "serde_json",
- "haneul-crypto",
- "haneul-sdk-types",
- "tap",
- "tokio",
- "tonic 0.14.6",
- "tonic-prost",
- "tower 0.5.3",
-]
-
-[[package]]
-name = "haneul-rpc-api"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-stream",
- "async-trait",
- "axum 0.8.3",
- "bcs",
- "bytes",
- "fastcrypto",
- "futures",
- "http 1.3.1",
- "itertools 0.13.0",
- "move-binary-format",
- "move-core-types",
- "haneullabs-common",
- "haneullabs-network",
- "prometheus",
- "prost 0.14.1",
- "prost-types 0.14.1",
- "rand 0.8.5",
- "roaring",
- "serde",
- "serde_json",
- "haneul-config",
- "haneul-crypto",
- "haneul-display",
- "haneul-inverted-index",
- "haneul-macros",
- "haneul-name-service",
- "haneul-package-resolver",
- "haneul-protocol-config",
- "haneul-rpc",
- "haneul-sdk-types",
- "haneul-transaction-builder",
- "haneul-transaction-checks",
- "haneul-types",
- "tap",
- "tokio",
- "tokio-util 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
- "tonic 0.14.6",
- "tonic-health",
- "tonic-prost",
- "tonic-reflection",
- "tonic-web",
- "tower 0.5.3",
- "tracing",
-]
-
-[[package]]
-name = "haneul-rpc-benchmark"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "bb8",
- "bb8-postgres",
- "chrono",
- "clap",
- "dashmap 5.5.3",
- "futures",
- "parking_lot 0.12.3",
- "phf",
- "rand 0.8.5",
- "reqwest",
- "serde",
- "serde_json",
- "haneul-futures",
- "telemetry-subscribers",
- "tokio",
- "tokio-postgres",
- "tracing",
- "url",
-]
-
-[[package]]
-name = "haneul-rpc-loadgen"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "clap",
- "dashmap 5.5.3",
- "dirs 4.0.0",
- "futures",
- "itertools 0.13.0",
- "serde",
- "serde_json",
- "shared-crypto",
- "shellexpand",
- "strum 0.27.1",
- "strum_macros 0.27.1",
- "haneul-json-rpc-types",
- "haneul-keys",
- "haneul-sdk",
- "haneul-types",
- "telemetry-subscribers",
- "tokio",
- "tonic 0.14.6",
- "tracing",
-]
-
-[[package]]
-name = "haneul-rpc-resolver"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "base64 0.21.7",
- "bcs",
- "futures",
- "lru 0.10.1",
- "move-core-types",
- "serde_json",
- "haneul-package-resolver",
- "haneul-rpc-api",
- "haneul-types",
- "thiserror 1.0.69",
- "tokio",
-]
-
-[[package]]
-name = "haneul-sdk"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "base64 0.21.7",
- "bcs",
- "dirs 4.0.0",
- "fastcrypto",
- "futures",
- "futures-core",
- "jsonrpsee",
- "move-core-types",
- "haneullabs-common",
- "prometheus",
- "rand 0.8.5",
- "reqwest",
- "serde",
- "serde_json",
- "serde_with",
- "shared-crypto",
- "haneul-config",
- "haneul-crypto",
- "haneul-json",
- "haneul-json-rpc-api",
- "haneul-json-rpc-types",
- "haneul-keys",
- "haneul-macros",
- "haneul-protocol-config",
- "haneul-rpc",
- "haneul-rpc-api",
- "haneul-sdk-types",
- "haneul-simulator",
- "haneul-transaction-builder",
- "haneul-types",
- "tempfile",
- "test-cluster",
- "thiserror 1.0.69",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneul-sdk-types"
-version = "0.3.1"
-source = "git+https://github.com/GeunhwaJeong/haneul-rust-sdk.git?rev=5b41bc701525f1b94f1fe63008d4841bc6fb1065#5b41bc701525f1b94f1fe63008d4841bc6fb1065"
-dependencies = [
- "base64ct",
- "bcs",
- "blake2",
- "bnum",
- "bs58 0.5.1",
- "bytes",
- "bytestring",
- "itertools 0.14.0",
- "roaring",
- "serde",
- "serde_derive",
- "serde_json",
- "serde_with",
- "winnow 0.7.15",
-]
-
-[[package]]
-name = "haneul-security-watchdog"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "arrow-array",
- "async-trait",
- "chrono",
- "clap",
- "env_logger",
- "lexical-util",
- "haneullabs-metrics",
- "prometheus",
- "reqwest",
- "serde",
- "serde_json",
- "snowflake-api",
- "telemetry-subscribers",
- "tokio",
- "tokio-cron-scheduler",
- "tracing",
- "uuid",
-]
-
-[[package]]
-name = "haneul-simulator"
-version = "0.7.0"
-dependencies = [
- "anemo",
- "anemo-tower",
- "bcs",
- "fastcrypto",
- "lru 0.10.1",
- "move-package-alt",
- "move-package-alt-compilation",
- "msim",
- "haneullabs-network",
- "rand 0.8.5",
- "serde",
- "haneul-framework",
- "haneul-move-build",
- "haneul-types",
- "telemetry-subscribers",
- "tempfile",
- "tower 0.5.3",
- "tracing",
-]
-
-[[package]]
-name = "haneul-single-node-benchmark"
-version = "1.74.0"
-dependencies = [
- "bcs",
- "clap",
- "futures",
- "move-binary-format",
- "move-bytecode-utils",
- "move-core-types",
- "move-symbol-pool",
- "prometheus",
- "serde",
- "serde_json",
- "strum 0.27.1",
- "strum_macros 0.27.1",
- "haneul-config",
- "haneul-core",
- "haneul-macros",
- "haneul-move-build",
- "haneul-protocol-config",
- "haneul-simulator",
- "haneul-storage",
- "haneul-test-transaction-builder",
- "haneul-transaction-checks",
- "haneul-types",
- "telemetry-subscribers",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneul-snapshot"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bcs",
- "byteorder",
- "bytes",
- "fastcrypto",
- "futures",
- "indicatif",
- "integer-encoding",
- "num_enum 0.6.1",
- "object_store 0.13.0",
- "prometheus",
- "serde",
- "haneul-config",
- "haneul-core",
- "haneul-futures",
- "haneul-protocol-config",
- "haneul-storage",
- "haneul-types",
- "tempfile",
- "tokio",
- "tokio-stream",
- "tracing",
-]
-
-[[package]]
-name = "haneul-source-validation"
-version = "1.74.0"
-dependencies = [
- "anyhow",
- "colored",
- "datatest-stable",
- "expect-test",
- "flate2",
- "fs_extra",
- "futures",
- "insta",
- "insta-cmd",
- "move-binary-format",
- "move-bytecode-source-map",
- "move-command-line-common",
- "move-compiler",
- "move-core-types",
- "move-package-alt",
- "move-package-alt-compilation",
- "move-symbol-pool",
- "msim",
- "haneullabs-common",
- "rand 0.8.5",
- "serde",
- "haneul-config",
- "haneul-move-build",
- "haneul-package-alt",
- "haneul-package-management",
- "haneul-rpc-api",
- "haneul-sdk",
- "haneul-test-transaction-builder",
- "haneul-types",
- "tar",
- "tempfile",
- "test-cluster",
- "thiserror 1.0.69",
- "tokio",
- "toml 0.7.4",
- "tracing",
- "ureq",
-]
-
-[[package]]
-name = "haneul-sql-macro"
-version = "1.74.0"
-dependencies = [
- "quote",
- "syn 1.0.107",
- "thiserror 1.0.69",
-]
-
-[[package]]
-name = "haneul-storage"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "axum 0.8.3",
- "backoff",
- "base64-url",
- "bcs",
- "byteorder",
- "bytes",
- "chrono",
- "clap",
- "eyre",
- "fastcrypto",
- "futures",
- "hyper 1.8.1",
- "hyper-rustls",
- "indicatif",
- "integer-encoding",
- "itertools 0.13.0",
- "lru 0.10.1",
- "moka",
- "move-binary-format",
- "move-bytecode-utils",
- "move-core-types",
- "haneullabs-common",
- "haneullabs-metrics",
- "num_enum 0.6.1",
- "object_store 0.13.0",
- "once_cell",
- "parking_lot 0.12.3",
- "percent-encoding",
- "prometheus",
- "prost 0.14.1",
- "reqwest",
- "serde",
- "serde_json",
- "haneul-config",
- "haneul-json-rpc-types",
- "haneul-macros",
- "haneul-protocol-config",
- "haneul-rpc",
- "haneul-simulator",
- "haneul-test-transaction-builder",
- "haneul-types",
- "tap",
- "telemetry-subscribers",
- "tempfile",
- "tokio",
- "tracing",
- "typed-store",
- "url",
- "zstd 0.12.3+zstd.1.5.2",
-]
-
-[[package]]
-name = "haneul-surfer"
-version = "1.74.0"
-dependencies = [
- "bcs",
- "clap",
- "futures",
- "indexmap 2.8.0",
- "move-binary-format",
- "move-core-types",
- "haneullabs-common",
- "prometheus",
- "rand 0.8.5",
- "haneul-core",
- "haneul-macros",
- "haneul-move-build",
- "haneul-protocol-config",
- "haneul-simulator",
- "haneul-swarm-config",
- "haneul-types",
- "telemetry-subscribers",
- "test-cluster",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "haneul-swarm"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "futures",
- "haneullabs-metrics",
- "haneullabs-network",
- "prometheus",
- "rand 0.8.5",
- "haneul-config",
- "haneul-macros",
- "haneul-node",
- "haneul-protocol-config",
- "haneul-simulator",
- "haneul-swarm-config",
- "haneul-tls",
- "haneul-types",
- "tap",
- "telemetry-subscribers",
- "tempfile",
- "tokio",
- "tonic-health",
- "tracing",
-]
-
-[[package]]
-name = "haneul-swarm-config"
-version = "0.0.0"
-dependencies = [
- "anemo",
- "anyhow",
- "bcs",
- "consensus-config",
- "fastcrypto",
- "insta",
- "haneullabs-common",
- "prometheus",
- "rand 0.8.5",
- "serde",
- "serde_with",
- "serde_yaml 0.8.26",
- "shared-crypto",
- "haneul-config",
- "haneul-execution",
- "haneul-genesis-builder",
- "haneul-protocol-config",
- "haneul-rpc-api",
- "haneul-simulator",
- "haneul-types",
- "tempfile",
- "tracing",
-]
-
-[[package]]
-name = "haneul-synthetic-ingestion"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "clap",
- "prost 0.14.1",
- "simulacrum",
- "haneul-rpc",
- "haneul-test-transaction-builder",
- "haneul-types",
- "telemetry-subscribers",
- "tempfile",
- "tokio",
- "tracing",
- "zstd 0.12.3+zstd.1.5.2",
-]
-
-[[package]]
-name = "haneul-telemetry"
-version = "0.1.0"
-dependencies = [
- "reqwest",
- "serde",
- "haneul-core",
- "tracing",
-]
-
-[[package]]
-name = "haneul-test-transaction-builder"
-version = "0.1.0"
-dependencies = [
- "bcs",
- "move-core-types",
- "rand 0.8.5",
- "shared-crypto",
- "haneul-genesis-builder",
- "haneul-move-build",
- "haneul-rpc-api",
- "haneul-sdk",
- "haneul-types",
-]
-
-[[package]]
-name = "haneul-test-validator"
-version = "1.74.0"
-
-[[package]]
-name = "haneul-tls"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "arc-swap",
- "axum 0.8.3",
- "axum-server",
- "ed25519",
- "fastcrypto",
- "pkcs8",
- "rand 0.8.5",
- "rcgen",
- "reqwest",
- "rustls",
- "rustls-webpki",
- "tokio",
- "tokio-rustls",
- "tower-layer",
- "x509-parser",
-]
-
-[[package]]
-name = "haneul-tool"
-version = "1.74.0"
-dependencies = [
- "anemo",
- "anemo-cli",
- "anyhow",
- "base64 0.21.7",
- "bcs",
- "bin-version",
- "clap",
- "colored",
- "comfy-table",
- "consensus-core",
- "eyre",
- "fastcrypto",
- "futures",
- "hex",
- "indicatif",
- "itertools 0.13.0",
- "move-core-types",
- "haneullabs-metrics",
- "num_cpus",
- "object_store 0.13.0",
- "parking_lot 0.12.3",
- "prometheus",
- "reqwest",
- "rhai",
- "ron",
- "rustyline",
- "serde",
- "serde_json",
- "strum 0.27.1",
- "strum_macros 0.27.1",
- "haneul-config",
- "haneul-core",
- "haneul-network",
- "haneul-package-dump",
- "haneul-protocol-config",
- "haneul-replay",
- "haneul-rpc-api",
- "haneul-snapshot",
- "haneul-storage",
- "haneul-tls",
- "haneul-types",
- "telemetry-subscribers",
- "tempfile",
- "tideconsole",
- "tokio",
- "tracing",
- "typed-store",
-]
-
-[[package]]
-name = "haneul-transaction-builder"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "bcs",
- "futures",
- "move-binary-format",
- "move-core-types",
- "haneul-json",
- "haneul-json-rpc-types",
- "haneul-types",
-]
-
-[[package]]
-name = "haneul-transaction-checks"
-version = "0.1.0"
-dependencies = [
- "fastcrypto-zkp",
- "haneul-config",
- "haneul-execution",
- "haneul-macros",
- "haneul-protocol-config",
- "haneul-types",
- "tracing",
-]
-
-[[package]]
-name = "haneul-transactional-test-runner"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "bcs",
- "bimap",
- "bincode 2.0.1",
- "clap",
- "criterion",
- "eyre",
- "fastcrypto",
- "fastcrypto-zkp",
- "futures",
- "http 1.3.1",
- "iso8601",
- "move-binary-format",
- "move-bytecode-utils",
- "move-command-line-common",
- "move-compiler",
- "move-core-types",
- "move-stdlib",
- "move-symbol-pool",
- "move-transactional-test-runner",
- "move-vm-runtime",
- "msim",
- "once_cell",
- "rand 0.8.5",
- "regex",
- "serde",
- "serde_json",
- "simulacrum",
- "haneul-config",
- "haneul-core",
- "haneul-framework",
- "haneul-framework-snapshot",
- "haneul-json-rpc",
- "haneul-json-rpc-api",
- "haneul-json-rpc-types",
- "haneul-protocol-config",
- "haneul-rpc-api",
- "haneul-storage",
- "haneul-swarm-config",
- "haneul-types",
- "telemetry-subscribers",
- "tempfile",
- "tokio",
- "tracing",
- "typed-store",
- "winnow 0.7.15",
-]
-
-[[package]]
-name = "haneul-types"
-version = "0.1.0"
-dependencies = [
- "anemo",
- "anyhow",
- "async-trait",
- "base64 0.21.7",
- "bcs",
- "better_any",
- "bincode 1.3.3",
- "byteorder",
- "bytes",
- "chrono",
- "ciborium",
- "consensus-config",
- "consensus-types",
- "coset",
- "criterion",
- "derive_more 1.0.0",
- "enum_dispatch",
- "expect-test",
- "eyre",
- "fastcrypto",
- "fastcrypto-tbls",
- "fastcrypto-zkp",
- "im",
- "indexmap 2.8.0",
- "insta",
- "itertools 0.13.0",
- "lru 0.10.1",
- "move-binary-format",
- "move-bytecode-utils",
- "move-core-types",
- "move-trace-format",
- "move-vm-profiler",
- "haneullabs-common",
- "haneullabs-metrics",
- "haneullabs-network",
- "nonempty",
- "num-bigint 0.4.6",
- "num-traits",
- "num_enum 0.6.1",
- "once_cell",
- "p256",
- "p384",
- "parking_lot 0.12.3",
- "passkey-authenticator",
- "passkey-client",
- "passkey-types",
- "prometheus",
- "proptest",
- "proptest-derive",
- "prost 0.14.1",
- "prost-types 0.14.1",
- "rand 0.8.5",
- "roaring",
- "rustls-pki-types",
- "schemars 0.8.21",
- "serde",
- "serde-name",
- "serde-reflection",
- "serde_json",
- "serde_with",
- "serde_yaml 0.8.26",
- "shared-crypto",
- "signature 1.6.4",
- "static_assertions",
- "strum 0.27.1",
- "strum_macros 0.27.1",
- "haneul-enum-compat-util",
- "haneul-macros",
- "haneul-protocol-config",
- "haneul-rpc",
- "haneul-sdk-types",
- "tap",
- "thiserror 1.0.69",
- "tokio",
- "tonic 0.14.6",
- "tracing",
- "typed-store-error",
- "url",
- "x509-parser",
-]
-
-[[package]]
-name = "haneul-upgrade-compatibility-transactional-tests"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "datatest-stable",
- "insta",
- "move-binary-format",
- "move-command-line-common",
- "move-compiler",
- "msim",
- "haneullabs-common",
- "haneul-move-build",
- "tokio",
-]
-
-[[package]]
-name = "haneul-verifier-latest"
-version = "0.1.0"
-dependencies = [
- "move-abstract-stack",
- "move-binary-format",
- "move-bytecode-utils",
- "move-bytecode-verifier",
- "move-bytecode-verifier-meter",
- "move-core-types",
- "move-vm-config",
- "haneullabs-common",
- "haneul-protocol-config",
- "haneul-types",
-]
-
-[[package]]
-name = "haneul-verifier-transactional-tests"
-version = "0.1.0"
-dependencies = [
- "datatest-stable",
- "haneul-transactional-test-runner",
-]
-
-[[package]]
-name = "haneul-verifier-v0"
-version = "0.1.0"
-dependencies = [
- "move-abstract-stack",
- "move-binary-format",
- "move-bytecode-utils",
- "move-bytecode-verifier-meter",
- "move-bytecode-verifier-v0",
- "move-core-types",
- "move-vm-config",
- "haneul-protocol-config",
- "haneul-types",
-]
-
-[[package]]
-name = "haneul-verifier-v1"
-version = "0.1.0"
-dependencies = [
- "move-abstract-stack",
- "move-binary-format",
- "move-bytecode-utils",
- "move-bytecode-verifier-meter",
- "move-bytecode-verifier-v1",
- "move-core-types",
- "move-vm-config",
- "haneul-types",
-]
-
-[[package]]
-name = "haneul-verifier-v2"
-version = "0.1.0"
-dependencies = [
- "move-abstract-stack",
- "move-binary-format",
- "move-bytecode-utils",
- "move-bytecode-verifier-meter",
- "move-bytecode-verifier-v2",
- "move-core-types",
- "move-vm-config",
- "haneul-protocol-config",
- "haneul-types",
-]
-
-[[package]]
-name = "haneul-verifier-v3"
-version = "0.1.0"
-dependencies = [
- "move-abstract-stack",
- "move-binary-format",
- "move-bytecode-utils",
- "move-bytecode-verifier-meter",
- "move-bytecode-verifier-v3",
- "move-core-types",
- "move-vm-config",
- "haneul-protocol-config",
- "haneul-types",
-]
-
-[[package]]
 name = "supports-color"
 version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -17760,7 +17655,7 @@ checksum = "4676b37242ccbd1aabf56edb093a4827dc49086c0ffd764a5705899e0f35f8f7"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "fancy-regex",
  "filedescriptor",
  "finl_unicode",
@@ -17802,12 +17697,6 @@ dependencies = [
  "bcs",
  "fastcrypto-zkp",
  "futures",
- "jsonrpsee",
- "move-binary-format",
- "move-core-types",
- "haneullabs-common",
- "prometheus",
- "rand 0.8.5",
  "haneul-config",
  "haneul-core",
  "haneul-framework",
@@ -17823,8 +17712,14 @@ dependencies = [
  "haneul-swarm-config",
  "haneul-test-transaction-builder",
  "haneul-types",
+ "haneullabs-common",
+ "jsonrpsee",
+ "move-binary-format",
+ "move-core-types",
+ "prometheus",
+ "rand 0.8.5",
  "tokio",
- "tonic 0.14.6",
+ "tonic 0.14.5",
  "tracing",
 ]
 
@@ -17906,12 +17801,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "thin-vec"
-version = "0.2.18"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0f7e269b48f0a7dd0146680fa24b50cc67fc0373f086a5b2f99bd084639b482"
-
-[[package]]
 name = "thiserror"
 version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -17981,34 +17870,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "tideconsole"
-version = "0.1.0"
-source = "git+https://github.com/GeunhwaJeong/tidehunter.git?rev=2e0cd5669b1b6776e204e9ad0385189a65a62236#2e0cd5669b1b6776e204e9ad0385189a65a62236"
-dependencies = [
- "anyhow",
- "clap",
- "hex",
- "parking_lot 0.12.3",
- "rhai",
- "rustyline",
- "tidehunter",
- "tikv-jemallocator",
-]
-
-[[package]]
 name = "tidehunter"
 version = "0.1.0"
-source = "git+https://github.com/GeunhwaJeong/tidehunter.git?rev=2e0cd5669b1b6776e204e9ad0385189a65a62236#2e0cd5669b1b6776e204e9ad0385189a65a62236"
+source = "git+https://github.com/GeunhwaJeong/tidehunter.git?rev=9a0472f81e71e821e1f4f71e308c2580f16f9e05#9a0472f81e71e821e1f4f71e308c2580f16f9e05"
 dependencies = [
  "arc-swap",
  "bincode 1.3.3",
  "blake2",
+ "bloom",
  "bytes",
  "crc32fast",
- "fastbloom 0.17.0",
  "libc",
- "lru 0.12.5",
- "lz4_flex",
+ "lru 0.12.3",
  "memmap2 0.7.1",
  "minibytes",
  "parking_lot 0.12.3",
@@ -18313,7 +18186,7 @@ dependencies = [
 [[package]]
 name = "tokio-util"
 version = "0.7.18"
-source = "git+https://github.com/GeunhwaJeong/tokio-msim-fork.git?rev=e8ce7593bfbfbbd7c7ee8671faecb062a8966b2d#e8ce7593bfbfbbd7c7ee8671faecb062a8966b2d"
+source = "git+https://github.com/MystenLabs/tokio-msim-fork.git?rev=e8ce7593bfbfbbd7c7ee8671faecb062a8966b2d#e8ce7593bfbfbbd7c7ee8671faecb062a8966b2d"
 dependencies = [
  "bytes",
  "futures-core",
@@ -18430,7 +18303,7 @@ version = "1.1.2+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2abe9b86193656635d2411dc43050282ca48aa31c2451210f4202550afb7526"
 dependencies = [
- "winnow 1.0.2",
+ "winnow 1.0.3",
 ]
 
 [[package]]
@@ -18465,9 +18338,8 @@ dependencies = [
 
 [[package]]
 name = "tonic"
-version = "0.14.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac2a5518c70fa84342385732db33fb3f44bc4cc748936eb5833d2df34d6445ef"
+version = "0.14.5"
+source = "git+https://github.com/hyperium/tonic.git?rev=d6ce69b0d93e1de21b0769e942ace00b48f52e17#d6ce69b0d93e1de21b0769e942ace00b48f52e17"
 dependencies = [
  "async-trait",
  "axum 0.8.3",
@@ -18499,9 +18371,9 @@ dependencies = [
 
 [[package]]
 name = "tonic-build"
-version = "0.14.6"
+version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c68f61875ac5293cf72e6c8cf0158086428c82c37229e98c840878f1706b0322"
+checksum = "4c40aaccc9f9eccf2cd82ebc111adc13030d23e887244bc9cfa5d1d636049de3"
 dependencies = [
  "prettyplease",
  "proc-macro2",
@@ -18511,33 +18383,32 @@ dependencies = [
 
 [[package]]
 name = "tonic-health"
-version = "0.14.6"
+version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fcfab99db777fba2802f0dfa861d1628d1ae916fb199d29819941f139ae85082"
+checksum = "2a82868bf299e0a1d2e8dce0dc33a46c02d6f045b2c1f1d6cc8dc3d0bf1812ef"
 dependencies = [
  "prost 0.14.1",
  "tokio",
  "tokio-stream",
- "tonic 0.14.6",
+ "tonic 0.14.5",
  "tonic-prost",
 ]
 
 [[package]]
 name = "tonic-prost"
-version = "0.14.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50849f68853be452acf590cde0b146665b8d507b3b8af17261df47e02c209ea0"
+version = "0.14.5"
+source = "git+https://github.com/hyperium/tonic.git?rev=d6ce69b0d93e1de21b0769e942ace00b48f52e17#d6ce69b0d93e1de21b0769e942ace00b48f52e17"
 dependencies = [
  "bytes",
  "prost 0.14.1",
- "tonic 0.14.6",
+ "tonic 0.14.5",
 ]
 
 [[package]]
 name = "tonic-prost-build"
-version = "0.14.6"
+version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "654e5643eff75d7f8c99197ce1440ed19a3474eada74c12bbac488b2cafdae27"
+checksum = "b4a16cba4043dc3ff43fcb3f96b4c5c154c64cbd18ca8dce2ab2c6a451d058a2"
 dependencies = [
  "prettyplease",
  "proc-macro2",
@@ -18551,15 +18422,14 @@ dependencies = [
 
 [[package]]
 name = "tonic-reflection"
-version = "0.14.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "acccd136a4bf19810a1fde9c74edc6129b42a66b44d0c1c8aaa67aeb49a146a7"
+version = "0.14.5"
+source = "git+https://github.com/hyperium/tonic.git?rev=d6ce69b0d93e1de21b0769e942ace00b48f52e17#d6ce69b0d93e1de21b0769e942ace00b48f52e17"
 dependencies = [
  "prost 0.14.1",
  "prost-types 0.14.1",
  "tokio",
  "tokio-stream",
- "tonic 0.14.6",
+ "tonic 0.14.5",
  "tonic-prost",
 ]
 
@@ -18583,7 +18453,7 @@ dependencies = [
  "tokio",
  "tokio-rustls",
  "tokio-stream",
- "tonic 0.14.6",
+ "tonic 0.14.5",
  "tower 0.5.3",
  "tower-layer",
  "tower-service",
@@ -18592,9 +18462,9 @@ dependencies = [
 
 [[package]]
 name = "tonic-web"
-version = "0.14.6"
+version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5e6a1b6319ca4b61a4c0f0c94d439c8f3ed344cca56fe0df40e1fe4be11380b"
+checksum = "75214f6b6bd28c19aa752ac09fdf0eea546095670906c21fe3940e180a4c43f2"
 dependencies = [
  "base64 0.22.1",
  "bytes",
@@ -18602,7 +18472,7 @@ dependencies = [
  "http-body 1.0.1",
  "pin-project",
  "tokio-stream",
- "tonic 0.14.6",
+ "tonic 0.14.5",
  "tower-layer",
  "tower-service",
  "tracing",
@@ -18670,7 +18540,7 @@ checksum = "1e9cd434a998747dd2c4276bc96ee2e0c7a2eadf3cae88e52be55a05fa9053f5"
 dependencies = [
  "async-compression",
  "base64 0.21.7",
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "bytes",
  "futures-core",
  "futures-util",
@@ -18700,7 +18570,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d4e6559d53cc268e5031cd8429d05415bc4cb4aefc4aa5d6cc35fbf5b924a1f8"
 dependencies = [
  "async-compression",
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "bytes",
  "futures-core",
  "futures-util",
@@ -18870,16 +18740,16 @@ dependencies = [
 name = "transaction-fuzzer"
 version = "0.1.0"
 dependencies = [
- "move-core-types",
- "haneullabs-common",
- "once_cell",
- "proptest",
- "proptest-derive",
- "rand 0.8.5",
  "haneul-core",
  "haneul-move-build",
  "haneul-protocol-config",
  "haneul-types",
+ "haneullabs-common",
+ "move-core-types",
+ "once_cell",
+ "proptest",
+ "proptest-derive",
+ "rand 0.8.5",
  "tokio",
  "tracing",
 ]
@@ -18962,16 +18832,16 @@ dependencies = [
  "eyre",
  "fastcrypto",
  "fdlimit",
- "hdrhistogram",
- "msim",
+ "haneul-macros",
  "haneullabs-common",
  "haneullabs-metrics",
+ "hdrhistogram",
+ "msim",
  "once_cell",
  "prometheus",
  "rocksdb",
  "rstest",
  "serde",
- "haneul-macros",
  "tap",
  "tempfile",
  "thiserror 1.0.69",
@@ -19138,9 +19008,9 @@ checksum = "52ea75f83c0137a9b98608359a5f1af8144876eb67bcb1ce837368e906a9f524"
 
 [[package]]
 name = "unicode-segmentation"
-version = "1.12.0"
+version = "1.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f6ccf251212114b54433ec949fd6a7841275f9ada20dddd2f29e9ceea4501493"
+checksum = "9629274872b2bfaf8d66f5f15725007f635594914870f65218920345aa11aa8c"
 
 [[package]]
 name = "unicode-truncate"
@@ -19289,14 +19159,14 @@ checksum = "711b9620af191e0cdc7468a8d14e709c3dcdb115b36f838e601583af800a370a"
 
 [[package]]
 name = "uuid"
-version = "1.22.0"
+version = "1.23.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a68d3c8f01c0cfa54a75291d83601161799e4a89a39e0929f4b0354d88757a37"
+checksum = "ddd74a9687298c6858e9b88ec8935ec45d22e8fd5e6394fa1bd4e99a87789c76"
 dependencies = [
  "atomic",
  "getrandom 0.4.2",
  "js-sys",
- "rand 0.10.0",
+ "rand 0.10.1",
  "wasm-bindgen",
 ]
 
@@ -19444,11 +19314,11 @@ dependencies = [
 
 [[package]]
 name = "wasip2"
-version = "1.0.2+wasi-0.2.9"
+version = "1.0.3+wasi-0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9517f9239f02c069db75e65f174b3da828fe5f5b945c4dd26bd25d89c03ebcf5"
+checksum = "20064672db26d7cdc89c7798c48a0fdfac8213434a1186e5ef29fd560ae223d6"
 dependencies = [
- "wit-bindgen",
+ "wit-bindgen 0.57.1",
 ]
 
 [[package]]
@@ -19457,7 +19327,7 @@ version = "0.4.0+wasi-0.3.0-rc-2026-01-06"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5428f8bf88ea5ddc08faddef2ac4a67e390b88186c703ce6dbd955e1c145aca5"
 dependencies = [
- "wit-bindgen",
+ "wit-bindgen 0.51.0",
 ]
 
 [[package]]
@@ -19592,7 +19462,7 @@ version = "0.244.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47b807c72e1bac69382b3a6fb3dbe8ea4c0ed87ff5629b8685ae6b9a611028fe"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "hashbrown 0.15.2",
  "indexmap 2.8.0",
  "semver 1.0.23",
@@ -19729,15 +19599,6 @@ dependencies = [
  "lazy_static",
  "serde",
  "wezterm-dynamic",
-]
-
-[[package]]
-name = "which"
-version = "8.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81995fafaaaf6ae47a7d0cc83c67caf92aeb7e5331650ae6ff856f7c0c60c459"
-dependencies = [
- "libc",
 ]
 
 [[package]]
@@ -20157,9 +20018,9 @@ dependencies = [
 
 [[package]]
 name = "winnow"
-version = "1.0.2"
+version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2ee1708bef14716a11bae175f579062d4554d95be2c6829f518df847b7b3fdd0"
+checksum = "0592e1c9d151f854e6fd382574c3a0855250e1d9b2f99d9281c6e6391af352f1"
 
 [[package]]
 name = "wiremock"
@@ -20193,6 +20054,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "wit-bindgen"
+version = "0.57.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1ebf944e87a7c253233ad6766e082e3cd714b5d03812acc24c318f549614536e"
+
+[[package]]
 name = "wit-bindgen-core"
 version = "0.51.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -20209,7 +20076,7 @@ version = "0.39.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6f42320e61fe2cfd34354ecb597f86f413484a798ba44a8ca1165c58d42da6c1"
 dependencies = [
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
 ]
 
 [[package]]
@@ -20250,7 +20117,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9d66ea20e9553b30172b5e831994e35fbde2d165325bec84fc43dbf6f4eb9cb2"
 dependencies = [
  "anyhow",
- "bitflags 2.11.0",
+ "bitflags 2.11.1",
  "indexmap 2.8.0",
  "log",
  "serde",
@@ -20328,7 +20195,7 @@ dependencies = [
 
 [[package]]
 name = "x"
-version = "1.74.0"
+version = "1.2.0"
 dependencies = [
  "anyhow",
  "camino",

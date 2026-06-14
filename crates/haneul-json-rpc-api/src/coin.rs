@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use jsonrpsee::core::RpcResult;
-use jsonrpsee::proc_macros::rpc;
 use haneul_json_rpc_types::{Balance, CoinPage, HaneulCoinMetadata};
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::balance::Supply;
 use haneul_types::base_types::HaneulAddress;
+use jsonrpsee::core::RpcResult;
+use jsonrpsee::proc_macros::rpc;
 
 #[open_rpc(namespace = "haneulx", tag = "Coin Query API")]
 #[rpc(server, client, namespace = "haneulx")]

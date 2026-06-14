@@ -6,13 +6,13 @@ use crate::authority::authority_store::LockDetailsWrapperDeprecated;
 #[cfg(tidehunter)]
 use crate::authority::epoch_marker_key::EPOCH_MARKER_KEY_SIZE;
 use crate::authority::epoch_marker_key::EpochMarkerKey;
-use serde::{Deserialize, Serialize};
-use std::path::Path;
-use std::sync::atomic::AtomicU64;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::global_state_hash::GlobalStateHash;
 use haneul_types::storage::MarkerValue;
+use serde::{Deserialize, Serialize};
+use std::path::Path;
+use std::sync::atomic::AtomicU64;
 use typed_store::metrics::SamplingInterval;
 use typed_store::rocks::{
     DBBatch, DBMap, DBMapTableConfigMap, DBOptions, MetricConf, default_db_options,
@@ -36,10 +36,7 @@ const ENV_VAR_EFFECTS_BLOCK_CACHE_SIZE: &str = "EFFECTS_BLOCK_CACHE_MB";
 pub struct AuthorityPerpetualTablesOptions {
     /// Whether to enable write stalling on all column families.
     pub enable_write_stall: bool,
-    /// On tidehunter, attach the per-keyspace objects compactor that retains
-    /// only the latest version per ObjectID. Mutually exclusive with the
-    /// object pruner — see `AuthorityStorePruner::new`.
-    pub enable_objects_compactor: bool,
+    pub is_validator: bool,
 }
 
 impl AuthorityPerpetualTablesOptions {
@@ -120,20 +117,6 @@ pub struct AuthorityPerpetualTables {
 
     /// A singleton table that stores latest pruned checkpoint. Used to keep objects pruner progress
     pub(crate) pruned_checkpoint: DBMap<(), CheckpointSequenceNumber>,
-
-    /// A singleton table recording the highest checkpoint whose transaction
-    /// outputs (objects, effects, etc.) are durably committed to this store.
-    /// It is written in the *same* atomic batch as those outputs (see
-    /// `AuthorityStore::build_db_batch` and the checkpoint executor), so it is
-    /// always consistent with the live object set even after an unclean stop.
-    ///
-    /// This differs from the checkpoint store's `highest_executed` watermark,
-    /// which is bumped in a separate write after the outputs are committed: an
-    /// abrupt stop can leave the object writes durable while `highest_executed`
-    /// still lags. Consumers that read the live object set directly (e.g. the
-    /// embedded rpc-store's bulk restore) use this watermark instead, so they
-    /// never observe objects beyond the checkpoint they think they are at.
-    pub(crate) highest_committed_checkpoint: DBMap<(), CheckpointSequenceNumber>,
 
     /// Expected total amount of HANEUL in the network. This is expected to remain constant
     /// throughout the lifetime of the network. We check it at the end of each epoch if
@@ -251,9 +234,9 @@ impl AuthorityPerpetualTables {
             KeyIndexing::key_reduction(obj_ref_size, 16..(obj_ref_size - 16));
 
         let mut objects_config = KeySpaceConfig::new()
-            .with_max_dirty_keys(16 * default_max_dirty_keys())
+            .with_max_dirty_keys(4 * default_max_dirty_keys())
             .with_value_cache_size(value_cache_size);
-        if matches!(db_options_override, Some(options) if options.enable_objects_compactor) {
+        if matches!(db_options_override, Some(options) if options.is_validator) {
             objects_config = objects_config.with_compactor(Box::new(objects_compactor));
         }
 
@@ -376,10 +359,6 @@ impl AuthorityPerpetualTables {
                 ThConfig::new(0, 1, KeyType::uniform(1)),
             ),
             (
-                "highest_committed_checkpoint".to_string(),
-                ThConfig::new(0, 1, KeyType::uniform(1)),
-            ),
-            (
                 "expected_network_haneul_amount".to_string(),
                 ThConfig::new(0, 1, KeyType::uniform(1)),
             ),
@@ -457,24 +436,6 @@ impl AuthorityPerpetualTables {
     #[cfg(tidehunter)]
     pub fn force_rebuild_control_region(&self) -> anyhow::Result<()> {
         self.objects.db.force_rebuild_control_region()
-    }
-
-    /// Wait for tidehunter background threads to finish before allowing the caller
-    /// to e.g. rename the database directory. Consumes `Arc<Self>` so all internal
-    /// `Arc<Database>` clones held by the column family `DBMap`s are released as
-    /// part of the drop, leaving only the `Arc<Database>` extracted here.
-    #[cfg(tidehunter)]
-    pub fn wait_for_tidehunter_background_threads(self: Arc<Self>) {
-        let strong = Arc::strong_count(&self);
-        if strong != 1 {
-            println!(
-                "WARNING: wait_for_tidehunter_background_threads called with Arc<AuthorityPerpetualTables> strong_count={} (expected 1); other clones will keep DBMap.db Arc<Database> alive past drop(self) and the inner Database wait will warn/timeout",
-                strong,
-            );
-        }
-        let db = self.objects.db.clone();
-        drop(self);
-        db.wait_for_tidehunter_background_threads();
     }
 
     // This is used by indexer to find the correct version of dynamic field child object.
@@ -632,27 +593,6 @@ impl AuthorityPerpetualTables {
         Ok(())
     }
 
-    pub fn get_highest_committed_checkpoint(
-        &self,
-    ) -> Result<Option<CheckpointSequenceNumber>, TypedStoreError> {
-        self.highest_committed_checkpoint.get(&())
-    }
-
-    /// Stage the highest-committed-checkpoint watermark into `wb`. Must be
-    /// called on the same batch that commits the checkpoint's transaction
-    /// outputs so the watermark and the outputs land atomically.
-    pub fn set_highest_committed_checkpoint(
-        &self,
-        wb: &mut DBBatch,
-        checkpoint_number: CheckpointSequenceNumber,
-    ) -> HaneulResult {
-        wb.insert_batch(
-            &self.highest_committed_checkpoint,
-            [((), checkpoint_number)],
-        )?;
-        Ok(())
-    }
-
     pub fn get_transaction(
         &self,
         digest: &TransactionDigest,
@@ -661,34 +601,6 @@ impl AuthorityPerpetualTables {
             return Ok(None);
         };
         Ok(Some(transaction))
-    }
-
-    pub fn list_transactions_from(
-        &self,
-        start: Option<TransactionDigest>,
-        limit: usize,
-    ) -> Result<Vec<TransactionDigest>, typed_store::TypedStoreError> {
-        let iter = self.transactions.safe_iter_with_bounds(start, None);
-        let mut result = Vec::with_capacity(limit);
-        for item in iter.take(limit) {
-            let (digest, _) = item?;
-            result.push(digest);
-        }
-        Ok(result)
-    }
-
-    pub fn get_executed_effects_digest(
-        &self,
-        tx_digest: &TransactionDigest,
-    ) -> Result<Option<TransactionEffectsDigest>, typed_store::TypedStoreError> {
-        self.executed_effects.get(tx_digest)
-    }
-
-    pub fn get_effects_by_digest(
-        &self,
-        effects_digest: &TransactionEffectsDigest,
-    ) -> Result<Option<TransactionEffects>, typed_store::TypedStoreError> {
-        self.effects.get(effects_digest)
     }
 
     /// Batch insert executed transaction digests for a given epoch.
@@ -707,7 +619,10 @@ impl AuthorityPerpetualTables {
         Ok(())
     }
 
-    pub fn get_effects(&self, digest: &TransactionDigest) -> HaneulResult<Option<TransactionEffects>> {
+    pub fn get_effects(
+        &self,
+        digest: &TransactionDigest,
+    ) -> HaneulResult<Option<TransactionEffects>> {
         let Some(effect_digest) = self.executed_effects.get(digest)? else {
             return Ok(None);
         };

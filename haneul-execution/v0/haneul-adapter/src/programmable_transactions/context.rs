@@ -21,17 +21,6 @@ mod checked {
     use crate::gas_charger::GasCharger;
     use crate::programmable_transactions::linkage_view::{LinkageInfo, LinkageView, SavedLinkage};
     use crate::type_resolver::TypeTagResolver;
-    use move_binary_format::{
-        errors::{Location, VMError, VMResult},
-        file_format::{CodeOffset, FunctionDefinitionIndex, TypeParameterIndex},
-        CompiledModule,
-    };
-    use move_core_types::{
-        account_address::AccountAddress,
-        language_storage::{ModuleId, StructTag, TypeTag},
-    };
-    use move_vm_runtime::{move_vm::MoveVM, session::Session};
-    use move_vm_types::loaded_data::runtime_types::Type;
     use haneul_move_natives::object_runtime::{
         self, get_all_uids, max_event_error, ObjectRuntime, RuntimeResults,
     };
@@ -40,7 +29,7 @@ mod checked {
     use haneul_types::storage::PackageObject;
     use haneul_types::{
         balance::Balance,
-        base_types::{MoveObjectType, ObjectID, SequenceNumber, HaneulAddress, TxContext},
+        base_types::{HaneulAddress, MoveObjectType, ObjectID, SequenceNumber, TxContext},
         coin::Coin,
         error::{command_argument_error, ExecutionError},
         event::Event,
@@ -55,6 +44,17 @@ mod checked {
         },
         transaction::{Argument, CallArg, ObjectArg},
     };
+    use move_binary_format::{
+        errors::{Location, VMError, VMResult},
+        file_format::{CodeOffset, FunctionDefinitionIndex, TypeParameterIndex},
+        CompiledModule,
+    };
+    use move_core_types::{
+        account_address::AccountAddress,
+        language_storage::{ModuleId, StructTag, TypeTag},
+    };
+    use move_vm_runtime::{move_vm::MoveVM, session::Session};
+    use move_vm_types::loaded_data::runtime_types::Type;
 
     /// Maintains all runtime state specific to programmable transactions
     pub struct ExecutionContext<'vm, 'state, 'a> {
@@ -842,8 +842,8 @@ mod checked {
 
         /// Special case errors for type arguments to Move functions
         pub fn convert_type_argument_error(&self, idx: usize, error: VMError) -> ExecutionError {
-            use move_core_types::vm_status::StatusCode;
             use haneul_types::execution_status::TypeArgumentError;
+            use move_core_types::vm_status::StatusCode;
             match error.major_status() {
                 StatusCode::NUMBER_OF_TYPE_ARGUMENTS_MISMATCH => {
                     ExecutionErrorKind::TypeArityMismatch.into()
@@ -1167,9 +1167,6 @@ mod checked {
             }
             Owner::ConsensusAddressOwner { .. } => {
                 unimplemented!("ConsensusAddressOwner does not exist for this execution version")
-            }
-            Owner::Party { .. } => {
-                unimplemented!("Party does not exist for this execution version")
             }
         };
         let owner = obj.owner.clone();

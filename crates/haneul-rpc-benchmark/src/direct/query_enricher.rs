@@ -8,9 +8,9 @@
 use anyhow::Result;
 use bb8::Pool;
 use bb8_postgres::PostgresConnectionManager;
+use haneul_futures::stream::TrySpawnStreamExt;
 use parking_lot::Mutex;
 use std::sync::Arc;
-use haneul_futures::stream::TrySpawnStreamExt;
 use tokio_postgres::{NoTls, Row, types::Type};
 use tracing::warn;
 use url::Url;

@@ -5,7 +5,6 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::time::Duration;
 
-use move_core_types::language_storage::TypeTag;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::HANEUL_ACCUMULATOR_ROOT_OBJECT_ID;
@@ -17,13 +16,14 @@ use haneul_types::base_types::ObjectID;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::execution_params::FundsWithdrawStatus;
 use haneul_types::{
-    base_types::{SequenceNumber, HaneulAddress},
+    base_types::{HaneulAddress, SequenceNumber},
     crypto::{AccountKeyPair, get_account_key_pair},
     executable_transaction::VerifiedExecutableTransaction,
     gas_coin::GAS,
     object::Object,
     transaction::FundsWithdrawalArg,
 };
+use move_core_types::language_storage::TypeTag;
 use tokio::sync::mpsc::{self, unbounded_channel};
 use tokio::time::timeout;
 

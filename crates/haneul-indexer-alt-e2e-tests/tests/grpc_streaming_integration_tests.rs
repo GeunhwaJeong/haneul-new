@@ -5,7 +5,6 @@ use std::time::Duration;
 
 use diesel::QueryDsl;
 use diesel_async::RunQueryDsl;
-use prometheus::Registry;
 use haneul_field_count::FieldCount;
 use haneul_indexer_alt_framework::Indexer;
 use haneul_indexer_alt_framework::IndexerArgs;
@@ -22,6 +21,7 @@ use haneul_pg_db::DbArgs;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::full_checkpoint_content::Checkpoint;
 use haneul_types::transaction::TransactionDataAPI;
+use prometheus::Registry;
 use tempfile::tempdir;
 use test_cluster::TestClusterBuilder;
 

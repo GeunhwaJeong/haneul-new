@@ -8,12 +8,12 @@ use std::collections::BTreeSet;
 use crate::execution_mode::ExecutionMode;
 use crate::sp;
 use crate::static_programmable_transactions::{env::Env, typing::ast as T};
-use move_binary_format::{CompiledModule, file_format::Visibility};
 use haneul_types::error::SafeIndex;
 use haneul_types::{
     error::{ExecutionError, command_argument_error},
     execution_status::CommandArgumentError,
 };
+use move_binary_format::{CompiledModule, file_format::Visibility};
 
 /// Marks if a clique is hot or not
 #[derive(Clone, Copy, Debug)]

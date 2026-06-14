@@ -6,10 +6,10 @@ use std::{
     sync::Arc,
 };
 
-use parking_lot::Mutex;
 use haneul_types::{
     accumulator_root::AccumulatorObjId, base_types::SequenceNumber, digests::TransactionDigest,
 };
+use parking_lot::Mutex;
 use tokio::sync::oneshot;
 use tracing::debug;
 
@@ -87,9 +87,7 @@ impl FundsWithdrawSchedulerTrait for EagerFundsWithdrawScheduler {
         let mut init_balances = BTreeMap::new();
         for account_id in untracked_accounts {
             // TODO: We can warm up the cache prior to holding the lock.
-            let (balance, version) = self
-                .funds_read
-                .get_consistent_latest_account_amount_and_version(account_id);
+            let (balance, version) = self.funds_read.get_latest_account_amount(account_id);
             if version > reservations.accumulator_version {
                 return reservations.notify_skip_schedule();
             }

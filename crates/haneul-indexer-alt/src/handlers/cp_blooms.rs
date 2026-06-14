@@ -132,8 +132,8 @@ mod tests {
     use diesel_async::RunQueryDsl;
     use haneul_indexer_alt_framework::Indexer;
     use haneul_indexer_alt_schema::cp_blooms::CpBloomFilter;
-    use haneul_types::base_types::ObjectID;
     use haneul_types::base_types::HaneulAddress;
+    use haneul_types::base_types::ObjectID;
     use haneul_types::test_checkpoint_data_builder::TestCheckpointBuilder;
     use haneul_types::transaction::TransactionDataAPI;
 

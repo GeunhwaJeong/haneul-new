@@ -8,14 +8,14 @@ use anyhow::Context;
 use async_graphql::dataloader::Loader;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
-use prost_types::FieldMask;
 use haneul_indexer_alt_schema::schema::kv_transactions;
 use haneul_indexer_alt_schema::transactions::StoredTransaction;
 use haneul_kvstore::TransactionData;
 use haneul_rpc::field::FieldMaskUtil;
-use haneul_rpc::proto::proto_to_timestamp_ms;
 use haneul_rpc::proto::haneul::rpc::v2 as proto;
+use haneul_rpc::proto::proto_to_timestamp_ms;
 use haneul_types::digests::TransactionDigest;
+use prost_types::FieldMask;
 
 use crate::bigtable_reader::BigtableReader;
 use crate::error::Error;
@@ -121,9 +121,10 @@ impl Loader<TransactionKey> for LedgerGrpcReader {
             if let Some(proto::get_transaction_result::Result::Transaction(executed)) =
                 tx_result.result
             {
-                let full_tx: haneul_types::full_checkpoint_content::ExecutedTransaction = (&executed)
-                    .try_into()
-                    .context("Failed to convert ExecutedTransaction from proto")?;
+                let full_tx: haneul_types::full_checkpoint_content::ExecutedTransaction =
+                    (&executed)
+                        .try_into()
+                        .context("Failed to convert ExecutedTransaction from proto")?;
 
                 let timestamp_ms = executed
                     .timestamp

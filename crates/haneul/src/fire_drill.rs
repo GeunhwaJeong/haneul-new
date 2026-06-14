@@ -15,13 +15,11 @@ use anyhow::bail;
 use clap::*;
 use fastcrypto::ed25519::Ed25519KeyPair;
 use fastcrypto::traits::{KeyPair, ToFromBytes};
-use move_core_types::ident_str;
-use std::path::{Path, PathBuf};
 use haneul_config::node::{AuthorityKeyPairWithPath, KeyPairWithPath};
 use haneul_config::{Config, NodeConfig, PersistedConfig, local_ip_utils};
 use haneul_keys::keypair_file::read_keypair_from_file;
 use haneul_rpc_api::Client;
-use haneul_types::base_types::{ObjectRef, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectRef};
 use haneul_types::crypto::{HaneulKeyPair, generate_proof_of_possession, get_key_pair};
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::gas_coin::GasCoin;
@@ -30,6 +28,8 @@ use haneul_types::transaction::{
     CallArg, TEST_ONLY_GAS_UNIT_FOR_GENERIC, Transaction, TransactionData,
 };
 use haneul_types::{HANEUL_SYSTEM_PACKAGE_ID, committee::EpochId, crypto::get_authority_key_pair};
+use move_core_types::ident_str;
+use std::path::{Path, PathBuf};
 use tracing::info;
 
 #[derive(Parser)]
@@ -81,9 +81,13 @@ async fn run_metadata_rotation(metadata_rotation: MetadataRotation) -> anyhow::R
     );
 
     // Prepare new metadata for next epoch
-    let new_config_path =
-        update_next_epoch_metadata(&haneul_node_config_path, &config, &haneul_client, &account_key)
-            .await?;
+    let new_config_path = update_next_epoch_metadata(
+        &haneul_node_config_path,
+        &config,
+        &haneul_client,
+        &account_key,
+    )
+    .await?;
 
     let current_epoch = current_epoch(&haneul_client).await?;
     if current_epoch > starting_epoch {
@@ -148,7 +152,8 @@ async fn update_next_epoch_metadata(
     // network key
     let new_network_key_pair: Ed25519KeyPair = get_key_pair().1;
     let new_network_key_pair_copy = new_network_key_pair.copy();
-    new_config.network_key_pair = KeyPairWithPath::new(HaneulKeyPair::Ed25519(new_network_key_pair));
+    new_config.network_key_pair =
+        KeyPairWithPath::new(HaneulKeyPair::Ed25519(new_network_key_pair));
 
     // worker key
     let new_worker_key_pair: Ed25519KeyPair = get_key_pair().1;
@@ -220,7 +225,13 @@ async fn update_next_epoch_metadata(
     let mut new_config_path = haneul_node_config_path.to_path_buf();
     new_config_path.pop();
     new_config_path.push(
-        String::from(haneul_node_config_path.file_name().unwrap().to_str().unwrap()) + ".next_epoch",
+        String::from(
+            haneul_node_config_path
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap(),
+        ) + ".next_epoch",
     );
     new_config.persisted(&new_config_path).save()?;
 
@@ -338,7 +349,11 @@ async fn execute_tx(
     let tx = Transaction::from_data_and_signer(tx_data, vec![account_key]);
     info!("Executing {:?}", tx.digest());
     let tx_digest = *tx.digest();
-    let resp = haneul_client.clone().execute_transaction(&tx).await.unwrap();
+    let resp = haneul_client
+        .clone()
+        .execute_transaction(&tx)
+        .await
+        .unwrap();
     if !resp.effects.status().is_ok() {
         anyhow::bail!("Tx to update metadata {:?} failed", tx_digest);
     }

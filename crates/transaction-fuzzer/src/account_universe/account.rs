@@ -6,12 +6,12 @@
 
 use std::sync::Arc;
 
-use proptest::prelude::*;
 use haneul_types::{
-    base_types::{ObjectID, HaneulAddress},
+    base_types::{HaneulAddress, ObjectID},
     crypto::{AccountKeyPair, get_key_pair},
     object::Object,
 };
+use proptest::prelude::*;
 
 use crate::executor::Executor;
 

@@ -4,6 +4,12 @@
 use crate::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use crate::consensus_adapter::ConsensusAdapter;
 use arc_swap::ArcSwap;
+use haneul_macros::handle_fail_point_if;
+use haneul_network::tonic;
+use haneul_types::error::{HaneulError, HaneulErrorKind, HaneulResult};
+use haneul_types::messages_consensus::{
+    ConsensusPosition, ConsensusTransaction, ConsensusTransactionKey,
+};
 use haneullabs_common::debug_fatal;
 use haneullabs_metrics::spawn_monitored_task;
 use prometheus::{
@@ -15,12 +21,6 @@ use std::net::IpAddr;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
-use haneul_macros::handle_fail_point_if;
-use haneul_network::tonic;
-use haneul_types::error::{HaneulError, HaneulErrorKind, HaneulResult};
-use haneul_types::messages_consensus::{
-    ConsensusPosition, ConsensusTransaction, ConsensusTransactionKey,
-};
 use tokio::sync::{mpsc, oneshot};
 use tracing::debug;
 
@@ -311,9 +311,9 @@ impl AdmissionQueueHandle {
             .await
             .map_err(|_| HaneulError::from(HaneulErrorKind::TooManyTransactionsPendingConsensus))?;
 
-        let newly_inserted = resp_rx
-            .await
-            .map_err(|_| HaneulError::from(HaneulErrorKind::TooManyTransactionsPendingConsensus))??;
+        let newly_inserted = resp_rx.await.map_err(|_| {
+            HaneulError::from(HaneulErrorKind::TooManyTransactionsPendingConsensus)
+        })??;
 
         Ok((position_rx, newly_inserted))
     }
@@ -642,7 +642,9 @@ mod tests {
 
         assert!(matches!(
             q.insert(e3).unwrap_err().as_inner(),
-            HaneulErrorKind::TransactionRejectedDueToOutbiddingDuringCongestion { min_gas_price: 100 }
+            HaneulErrorKind::TransactionRejectedDueToOutbiddingDuringCongestion {
+                min_gas_price: 100
+            }
         ));
         assert_eq!(q.len(), 2);
         assert!(r3.try_recv().is_err());
@@ -701,7 +703,9 @@ mod tests {
         q.insert(e1).unwrap();
         assert!(matches!(
             q.insert(e2).unwrap_err().as_inner(),
-            HaneulErrorKind::TransactionRejectedDueToOutbiddingDuringCongestion { min_gas_price: 100 }
+            HaneulErrorKind::TransactionRejectedDueToOutbiddingDuringCongestion {
+                min_gas_price: 100
+            }
         ));
     }
 

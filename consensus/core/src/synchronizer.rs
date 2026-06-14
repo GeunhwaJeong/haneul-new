@@ -10,16 +10,16 @@ use bytes::Bytes;
 use consensus_config::AuthorityIndex;
 use consensus_types::block::{BlockRef, Round};
 use futures::{StreamExt as _, stream::FuturesUnordered};
-use itertools::Itertools as _;
+use haneul_macros::fail_point_async;
 use haneullabs_common::{ZipDebugEqIteratorExt, debug_fatal};
 use haneullabs_metrics::{
     monitored_future,
     monitored_mpsc::{Receiver, Sender, channel},
     monitored_scope,
 };
+use itertools::Itertools as _;
 use parking_lot::{Mutex, RwLock};
 use rand::{prelude::SliceRandom as _, rngs::ThreadRng};
-use haneul_macros::fail_point_async;
 use tap::TapFallible;
 use tokio::{
     runtime::Handle,
@@ -34,7 +34,7 @@ use crate::{
     block::{ExtendedBlock, SignedBlock, VerifiedBlock},
     block_verifier::BlockVerifier,
     commit::CommitIndex,
-    commit_vote_monitor::{CommitVoteMonitor, is_commit_lagging},
+    commit_vote_monitor::CommitVoteMonitor,
     context::Context,
     dag_state::DagState,
     error::{ConsensusError, ConsensusResult},
@@ -42,7 +42,10 @@ use crate::{
     peers_pool::PeersPool,
     round_tracker::RoundTracker,
 };
-use crate::{core_thread::CoreThreadDispatcher, transaction_vote_tracker::TransactionVoteTracker};
+use crate::{
+    authority_service::COMMIT_LAG_MULTIPLIER, core_thread::CoreThreadDispatcher,
+    transaction_vote_tracker::TransactionVoteTracker,
+};
 
 /// The number of concurrent fetch blocks requests per authority
 const FETCH_BLOCKS_CONCURRENCY: usize = 5;
@@ -1051,15 +1054,13 @@ where
     fn should_run_periodic_sync(&mut self) -> bool {
         let current_commit_index = self.dag_state.read().last_commit_index();
         let quorum_commit_index = self.commit_vote_monitor.quorum_commit_index();
+        let commit_threshold = current_commit_index
+            + self.context.parameters.commit_sync_batch_size * COMMIT_LAG_MULTIPLIER;
         let now = Instant::now();
         let metrics = &self.context.metrics.node_metrics;
 
         // Commit is not lagging.
-        if !is_commit_lagging(
-            self.context.as_ref(),
-            current_commit_index,
-            quorum_commit_index,
-        ) {
+        if quorum_commit_index <= commit_threshold {
             metrics
                 .synchronizer_periodic_sync_decision
                 .with_label_values(&["true", "default"])
@@ -1411,7 +1412,7 @@ mod tests {
         },
     };
     use crate::{
-        commit_vote_monitor::COMMIT_LAG_MULTIPLIER, core_thread::MockCoreThreadDispatcher,
+        authority_service::COMMIT_LAG_MULTIPLIER, core_thread::MockCoreThreadDispatcher,
         peers_pool::PeersPool, round_tracker::RoundTracker,
         transaction_vote_tracker::TransactionVoteTracker,
     };

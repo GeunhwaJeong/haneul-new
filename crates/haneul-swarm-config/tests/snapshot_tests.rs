@@ -17,10 +17,6 @@
 // 2. Review, accept or reject changes.
 
 use fastcrypto::traits::KeyPair;
-use insta::assert_yaml_snapshot;
-use rand::SeedableRng;
-use rand::rngs::StdRng;
-use std::num::NonZeroUsize;
 use haneul_config::genesis::{GenesisCeremonyParameters, TokenDistributionScheduleBuilder};
 use haneul_config::node::{DEFAULT_COMMISSION_RATE, DEFAULT_VALIDATOR_GAS_PRICE};
 use haneul_genesis_builder::Builder;
@@ -28,10 +24,14 @@ use haneul_genesis_builder::validator_info::ValidatorInfo;
 use haneul_swarm_config::genesis_config::GenesisConfig;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{
-    AccountKeyPair, AuthorityKeyPair, NetworkKeyPair, HaneulKeyPair, generate_proof_of_possession,
+    AccountKeyPair, AuthorityKeyPair, HaneulKeyPair, NetworkKeyPair, generate_proof_of_possession,
     get_key_pair_from_rng,
 };
 use haneul_types::multiaddr::Multiaddr;
+use insta::assert_yaml_snapshot;
+use rand::SeedableRng;
+use rand::rngs::StdRng;
+use std::num::NonZeroUsize;
 
 #[test]
 #[cfg_attr(msim, ignore)]
@@ -108,9 +108,9 @@ fn populated_genesis_snapshot_matches() {
 #[test]
 #[cfg_attr(msim, ignore)]
 fn network_config_snapshot_matches() {
+    use haneul_swarm_config::network_config_builder::ConfigBuilder;
     use std::net::{IpAddr, Ipv4Addr, SocketAddr};
     use std::path::PathBuf;
-    use haneul_swarm_config::network_config_builder::ConfigBuilder;
 
     let temp_dir = tempfile::tempdir().unwrap();
     let committee_size = 7;

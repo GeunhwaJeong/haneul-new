@@ -5,22 +5,25 @@ use crate::{
     execution_mode::ExecutionMode,
     static_programmable_transactions::{env::Env, typing::ast as T},
 };
+use haneul_types::error::ExecutionError;
 
 /// Refines usage of values so that the last `Copy` of a value is a `Move` if it is not borrowed
 /// After, it verifies the following
 /// - No results without `drop` are unused (all unused non-input values have `drop`)
 pub fn refine_and_verify<Mode: ExecutionMode>(
-    env: &Env<Mode>,
+    env: &Env,
     ast: &mut T::Transaction,
-) -> Result<(), Mode::Error> {
+) -> Result<(), ExecutionError> {
     refine::transaction(env, ast)?;
     verify::transaction::<Mode>(env, ast)?;
     Ok(())
 }
 
 mod refine {
-    use crate::execution_mode::ExecutionMode;
-    use haneul_types::coin::{COIN_MODULE_NAME, SEND_FUNDS_FUNC_NAME};
+    use haneul_types::{
+        coin::{COIN_MODULE_NAME, SEND_FUNDS_FUNC_NAME},
+        error::ExecutionError,
+    };
 
     use crate::{
         sp,
@@ -55,10 +58,7 @@ mod refine {
 
     /// After memory safety, we can switch the last usage of a `Copy` to a `Move` if it is not
     /// borrowed at the time of the last usage.
-    pub fn transaction<Mode: ExecutionMode>(
-        env: &Env<Mode>,
-        ast: &mut T::Transaction,
-    ) -> Result<(), Mode::Error> {
+    pub fn transaction(env: &Env, ast: &mut T::Transaction) -> Result<(), ExecutionError> {
         let mut context = Context::new();
         for c in ast.commands.iter_mut().rev() {
             command(&mut context, c);
@@ -123,11 +123,11 @@ mod refine {
 
     /// For any withdrawal conversion where the value was not moved, send it back to the original
     /// owner
-    fn return_unused_withdrawal_conversions<Mode: ExecutionMode>(
-        env: &Env<Mode>,
+    fn return_unused_withdrawal_conversions(
+        env: &Env,
         ast: &mut T::Transaction,
         moved_locations: &BTreeSet<T::Location>,
-    ) -> Result<(), Mode::Error> {
+    ) -> Result<(), ExecutionError> {
         // withdrawal conversions not empty ==> accumulators enabled
         assert_invariant!(
             ast.withdrawal_compatibility_conversions.is_empty()
@@ -195,7 +195,7 @@ mod refine {
                     command: return_command__,
                     result_type: vec![],
                     drop_values: vec![],
-                    incurs_post_execution_checks: false,
+                    consumed_shared_objects: vec![],
                 },
             );
             ast.commands.push(return_command);
@@ -213,9 +213,9 @@ mod verify {
             typing::ast::{self as T, Type},
         },
     };
-    use haneullabs_common::ZipDebugEqIteratorExt;
-    use haneul_types::error::{ExecutionErrorTrait, SafeIndex};
+    use haneul_types::error::{ExecutionError, SafeIndex};
     use haneul_types::execution_status::ExecutionErrorKind;
+    use haneullabs_common::ZipDebugEqIteratorExt;
 
     #[must_use]
     struct Value;
@@ -231,7 +231,7 @@ mod verify {
     }
 
     impl Context {
-        fn new<Mode: ExecutionMode>(_env: &Env<Mode>, ast: &T::Transaction) -> Self {
+        fn new(_env: &Env, ast: &T::Transaction) -> Result<Self, ExecutionError> {
             let objects = ast.objects.iter().map(|_| Some(Value)).collect::<Vec<_>>();
             let withdrawals = ast
                 .withdrawals
@@ -249,7 +249,7 @@ mod verify {
             } else {
                 Some(Value)
             };
-            Self {
+            Ok(Self {
                 tx_context: Some(Value),
                 gas_coin,
                 objects,
@@ -257,13 +257,10 @@ mod verify {
                 pure,
                 receiving,
                 results: Vec::with_capacity(ast.commands.len()),
-            }
+            })
         }
 
-        fn location<E: ExecutionErrorTrait>(
-            &mut self,
-            l: T::Location,
-        ) -> Result<&mut Option<Value>, E> {
+        fn location(&mut self, l: T::Location) -> Result<&mut Option<Value>, ExecutionError> {
             Ok(match l {
                 T::Location::TxContext => &mut self.tx_context,
                 T::Location::GasCoin => &mut self.gas_coin,
@@ -282,14 +279,14 @@ mod verify {
     /// Checks the following
     /// - All unused result values have `drop`
     pub fn transaction<Mode: ExecutionMode>(
-        env: &Env<Mode>,
+        env: &Env,
         ast: &T::Transaction,
-    ) -> Result<(), Mode::Error> {
-        let mut context = Context::new(env, ast);
+    ) -> Result<(), ExecutionError> {
+        let mut context = Context::new(env, ast)?;
         let commands = &ast.commands;
         for c in commands {
-            let result = command::<Mode::Error>(&mut context, c)
-                .map_err(|e| e.with_command_index(c.idx as usize))?;
+            let result =
+                command(&mut context, c).map_err(|e| e.with_command_index(c.idx as usize))?;
             assert_invariant!(
                 result.len() == c.value.result_type.len(),
                 "result length mismatch"
@@ -341,10 +338,10 @@ mod verify {
         Ok(())
     }
 
-    fn command<E: ExecutionErrorTrait>(
+    fn command(
         context: &mut Context,
         sp!(_, c): &T::Command,
-    ) -> Result<Vec<Value>, E> {
+    ) -> Result<Vec<Value>, ExecutionError> {
         let result_tys = &c.result_type;
         Ok(match &c.command {
             T::Command__::MoveCall(mc) => {
@@ -404,7 +401,7 @@ mod verify {
         idx: (usize, usize),
         value: Option<Value>,
         ty: &Type,
-    ) -> Result<(), Mode::Error> {
+    ) -> Result<(), ExecutionError> {
         match value {
             Some(v) => drop_value::<Mode>(idx, v, ty),
             None => Ok(()),
@@ -415,7 +412,7 @@ mod verify {
         (i, j): (usize, usize),
         value: Value,
         ty: &Type,
-    ) -> Result<(), Mode::Error> {
+    ) -> Result<(), ExecutionError> {
         let abilities = ty.abilities();
         if !abilities.has_drop() && !Mode::allow_arbitrary_values() {
             let msg = if abilities.has_copy() {
@@ -424,7 +421,7 @@ mod verify {
             } else {
                 "Unused value without drop"
             };
-            return Err(Mode::Error::new_with_source(
+            return Err(ExecutionError::new_with_source(
                 ExecutionErrorKind::UnusedValueWithoutDrop {
                     result_idx: checked_as!(i, u16)?,
                     secondary_idx: checked_as!(j, u16)?,
@@ -436,17 +433,11 @@ mod verify {
         Ok(())
     }
 
-    fn arguments<E: ExecutionErrorTrait>(
-        context: &mut Context,
-        xs: &[T::Argument],
-    ) -> Result<Vec<Value>, E> {
+    fn arguments(context: &mut Context, xs: &[T::Argument]) -> Result<Vec<Value>, ExecutionError> {
         xs.iter().map(|x| argument(context, x)).collect()
     }
 
-    fn argument<E: ExecutionErrorTrait>(
-        context: &mut Context,
-        sp!(_, x): &T::Argument,
-    ) -> Result<Value, E> {
+    fn argument(context: &mut Context, sp!(_, x): &T::Argument) -> Result<Value, ExecutionError> {
         match &x.0 {
             T::Argument__::Use(T::Usage::Move(location)) => move_value(context, *location),
             T::Argument__::Use(T::Usage::Copy { location, .. }) => copy_value(context, *location),
@@ -456,51 +447,42 @@ mod verify {
         }
     }
 
-    fn move_value<E: ExecutionErrorTrait>(
-        context: &mut Context,
-        l: T::Location,
-    ) -> Result<Value, E> {
-        let Some(value) = context.location::<E>(l)?.take() else {
+    fn move_value(context: &mut Context, l: T::Location) -> Result<Value, ExecutionError> {
+        let Some(value) = context.location(l)?.take() else {
             invariant_violation!("memory safety should have failed")
         };
         Ok(value)
     }
 
-    fn copy_value<E: ExecutionErrorTrait>(
-        context: &mut Context,
-        l: T::Location,
-    ) -> Result<Value, E> {
+    fn copy_value(context: &mut Context, l: T::Location) -> Result<Value, ExecutionError> {
         assert_invariant!(
-            context.location::<E>(l)?.is_some(),
+            context.location(l)?.is_some(),
             "memory safety should have failed"
         );
         Ok(Value)
     }
 
-    fn borrow_location<E: ExecutionErrorTrait>(
-        context: &mut Context,
-        l: T::Location,
-    ) -> Result<Value, E> {
+    fn borrow_location(context: &mut Context, l: T::Location) -> Result<Value, ExecutionError> {
         assert_invariant!(
-            context.location::<E>(l)?.is_some(),
+            context.location(l)?.is_some(),
             "memory safety should have failed"
         );
         Ok(Value)
     }
 
-    fn read_ref<E: ExecutionErrorTrait>(context: &mut Context, u: &T::Usage) -> Result<Value, E> {
+    fn read_ref(context: &mut Context, u: &T::Usage) -> Result<Value, ExecutionError> {
         let value = match u {
-            T::Usage::Move(l) => move_value::<E>(context, *l)?,
-            T::Usage::Copy { location, .. } => copy_value::<E>(context, *location)?,
+            T::Usage::Move(l) => move_value(context, *l)?,
+            T::Usage::Copy { location, .. } => copy_value(context, *location)?,
         };
         consume_value(value);
         Ok(Value)
     }
 
-    fn freeze_ref<E: ExecutionErrorTrait>(context: &mut Context, u: &T::Usage) -> Result<Value, E> {
+    fn freeze_ref(context: &mut Context, u: &T::Usage) -> Result<Value, ExecutionError> {
         let value = match u {
-            T::Usage::Move(l) => move_value::<E>(context, *l)?,
-            T::Usage::Copy { location, .. } => copy_value::<E>(context, *location)?,
+            T::Usage::Move(l) => move_value(context, *l)?,
+            T::Usage::Copy { location, .. } => copy_value(context, *location)?,
         };
         consume_value(value);
         Ok(Value)

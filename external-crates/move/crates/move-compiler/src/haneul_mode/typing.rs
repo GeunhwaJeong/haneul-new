@@ -11,13 +11,13 @@ use crate::{
     diagnostics::{Diagnostic, DiagnosticReporter, Diagnostics, filter::FilterScope},
     editions::Flavor,
     expansion::ast::{Fields, ModuleIdent, Visibility},
+    haneul_mode::*,
     naming::ast::{
         self as N, BuiltinTypeName_, FunctionSignature, StructFields, Type, Type_, TypeInner as TI,
         TypeName_, UNIT_TYPE,
     },
     parser::ast::{Ability_, DatatypeName, DocComment, FunctionName, TargetKind},
     shared::{CompilationEnv, Identifier, program_info::TypingProgramInfo},
-    haneul_mode::*,
     typing::{
         ast::{self as T, ModuleCall},
         core::{Subst, error_format, error_format_},
@@ -638,7 +638,9 @@ pub fn is_mut_clock(param_ty: &Type) -> bool {
     match &param_ty.value.inner() {
         TI::Ref(/* mut */ false, _) => false,
         TI::Ref(/* mut */ true, t) => is_mut_clock(t),
-        TI::Apply(_, sp!(_, n_), _) => n_.is(&HANEUL_ADDR_VALUE, CLOCK_MODULE_NAME, CLOCK_TYPE_NAME),
+        TI::Apply(_, sp!(_, n_), _) => {
+            n_.is(&HANEUL_ADDR_VALUE, CLOCK_MODULE_NAME, CLOCK_TYPE_NAME)
+        }
         TI::Unit
         | TI::Param(_)
         | TI::Var(_)
@@ -698,7 +700,9 @@ fn exp(context: &mut Context, e: &T::Exp) {
                 check_event_emit(context, e.exp.loc, mcall)
             }
 
-            if module.value.is(&HANEUL_ADDR_VALUE, COIN_REGISTRY_MODULE_NAME)
+            if module
+                .value
+                .is(&HANEUL_ADDR_VALUE, COIN_REGISTRY_MODULE_NAME)
                 && name.value() == DYNAMIC_COIN_CREATION_FUNCTION_NAME
             {
                 check_dynamic_coin_creation(context, e.exp.loc, mcall)

@@ -4,30 +4,30 @@
 use anyhow::{Context, Result};
 use fastcrypto::encoding::{Base64, Encoding};
 use fastcrypto::hash::HashFunction;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::{fs, path::Path};
 use haneul_types::authenticator_state::{AuthenticatorStateInner, get_authenticator_state};
-use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID};
 use haneul_types::clock::Clock;
 use haneul_types::committee::CommitteeWithNetworkMetadata;
 use haneul_types::crypto::DefaultHash;
 use haneul_types::deny_list_v1::{PerTypeDenyList, get_coin_deny_list};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::gas_coin::TOTAL_SUPPLY_GEUNHWA;
-use haneul_types::messages_checkpoint::{
-    CertifiedCheckpointSummary, CheckpointContents, CheckpointSummary, VerifiedCheckpoint,
-};
-use haneul_types::storage::ObjectStore;
 use haneul_types::haneul_system_state::{
     HaneulSystemState, HaneulSystemStateTrait, HaneulSystemStateWrapper, HaneulValidatorGenesis,
     get_haneul_system_state, get_haneul_system_state_wrapper,
 };
+use haneul_types::messages_checkpoint::{
+    CertifiedCheckpointSummary, CheckpointContents, CheckpointSummary, VerifiedCheckpoint,
+};
+use haneul_types::storage::ObjectStore;
 use haneul_types::transaction::Transaction;
 use haneul_types::{HANEUL_BRIDGE_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
 use haneul_types::{
     committee::{Committee, EpochId, ProtocolVersion},
     object::Object,
 };
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::{fs, path::Path};
 use tracing::trace;
 
 #[derive(Clone, Debug)]
@@ -149,7 +149,8 @@ impl Genesis {
     }
 
     pub fn haneul_system_object(&self) -> HaneulSystemState {
-        get_haneul_system_state(&self.objects()).expect("Haneul System State object must always exist")
+        get_haneul_system_state(&self.objects())
+            .expect("Haneul System State object must always exist")
     }
 
     pub fn clock(&self) -> Clock {
@@ -317,7 +318,8 @@ impl UnsignedGenesis {
     }
 
     pub fn haneul_system_object(&self) -> HaneulSystemState {
-        get_haneul_system_state(&self.objects()).expect("Haneul System State object must always exist")
+        get_haneul_system_state(&self.objects())
+            .expect("Haneul System State object must always exist")
     }
 
     pub fn authenticator_state_object(&self) -> Option<AuthenticatorStateInner> {
@@ -331,7 +333,9 @@ impl UnsignedGenesis {
     }
 
     pub fn has_bridge_object(&self) -> bool {
-        self.objects().get_object(&HANEUL_BRIDGE_OBJECT_ID).is_some()
+        self.objects()
+            .get_object(&HANEUL_BRIDGE_OBJECT_ID)
+            .is_some()
     }
 
     pub fn coin_deny_list_state(&self) -> Option<PerTypeDenyList> {
@@ -458,7 +462,8 @@ impl GenesisCeremonyParameters {
             stake_subsidy_period_length: self.stake_subsidy_period_length,
             stake_subsidy_decrease_rate: self.stake_subsidy_decrease_rate,
             max_validator_count: haneul_types::governance::MAX_VALIDATOR_COUNT,
-            min_validator_joining_stake: haneul_types::governance::MIN_VALIDATOR_JOINING_STAKE_GEUNHWA,
+            min_validator_joining_stake:
+                haneul_types::governance::MIN_VALIDATOR_JOINING_STAKE_GEUNHWA,
             validator_low_stake_threshold:
                 haneul_types::governance::VALIDATOR_LOW_STAKE_THRESHOLD_GEUNHWA,
             validator_very_low_stake_threshold:

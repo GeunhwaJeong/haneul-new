@@ -9,6 +9,7 @@ use crate::{
     execution::TxnContextAndEffects,
 };
 use anyhow::{Context, Error};
+use haneul_types::object::Data;
 use move_binary_format::CompiledModule;
 use move_bytecode_source_map::utils::serialize_to_json_string;
 use move_command_line_common::files::MOVE_BYTECODE_EXTENSION;
@@ -16,7 +17,6 @@ use move_disassembler::disassembler::Disassembler;
 use move_ir_types::location::Spanned;
 use move_trace_format::format::MoveTraceBuilder;
 use std::fs;
-use haneul_types::object::Data;
 
 const BCODE_DIR: &str = "bytecode";
 const SOURCE_DIR: &str = "source";

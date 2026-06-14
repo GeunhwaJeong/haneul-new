@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 mod compatibility_tests {
-    use move_package_alt::PackageLoader;
-    use std::collections::BTreeMap;
-    use std::path::Path;
     use haneul_framework::{BuiltInFramework, compare_system_package};
     use haneul_framework_snapshot::{load_bytecode_snapshot, load_bytecode_snapshot_manifest};
     use haneul_package_alt::{HaneulFlavor, testnet_environment};
     use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
+    use move_package_alt::PackageLoader;
+    use std::collections::BTreeMap;
+    use std::path::Path;
 
     /// The number of bytecode snapshots to backtest against the current framework.
     /// This should be set to a reasonable number to ensure that we are testing against any

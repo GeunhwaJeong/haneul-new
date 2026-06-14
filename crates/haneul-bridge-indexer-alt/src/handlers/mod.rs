@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_core_types::ident_str;
-use move_core_types::identifier::IdentStr;
 use haneul_indexer_alt_framework::types::HANEUL_BRIDGE_OBJECT_ID;
 use haneul_indexer_alt_framework::types::full_checkpoint_content::ExecutedTransaction;
 use haneul_indexer_alt_framework::types::transaction::TransactionDataAPI;
+use move_core_types::ident_str;
+use move_core_types::identifier::IdentStr;
 
 pub mod error_handler;
 pub mod governance_action_handler;

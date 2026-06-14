@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 use anyhow::Context;
 use clap::Parser;
-use prometheus::Registry;
-use std::net::SocketAddr;
 use haneul_bridge_indexer_alt::handlers::error_handler::ErrorTransactionHandler;
 use haneul_bridge_indexer_alt::handlers::governance_action_handler::GovernanceActionHandler;
 use haneul_bridge_indexer_alt::handlers::token_transfer_data_handler::TokenTransferDataHandler;
@@ -17,6 +15,8 @@ use haneul_indexer_alt_framework::postgres::DbArgs;
 use haneul_indexer_alt_framework::service::Error;
 use haneul_indexer_alt_framework::{Indexer, IndexerArgs};
 use haneul_indexer_alt_metrics::{MetricsArgs, MetricsService};
+use prometheus::Registry;
+use std::net::SocketAddr;
 use url::Url;
 
 #[derive(Parser)]

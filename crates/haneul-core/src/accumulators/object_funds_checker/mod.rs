@@ -6,8 +6,6 @@ use std::{
     sync::Arc,
 };
 
-use haneullabs_common::{assert_reachable, debug_fatal};
-use parking_lot::RwLock;
 use haneul_types::{
     HANEUL_ACCUMULATOR_ROOT_OBJECT_ID,
     accumulator_root::AccumulatorObjId,
@@ -18,6 +16,8 @@ use haneul_types::{
     execution_status::ExecutionStatus,
     transaction::TransactionDataAPI,
 };
+use haneullabs_common::assert_reachable;
+use parking_lot::RwLock;
 use tokio::{
     sync::{oneshot, watch},
     time::Instant,
@@ -120,12 +120,14 @@ impl ObjectFundsChecker {
             debug!("No object withdraws, committing effects");
             return true;
         }
-        // A tx with object withdraws can only exist when accumulators are enabled
-        // for the epoch, and every production path that produces such a tx also
-        // assigns an accumulator version. The `None` paths (accumulator-disabled
-        // epoch, end-of-epoch tx) never produce withdraws and so never reach here.
         let Some(accumulator_version) = execution_env.assigned_versions.accumulator_version else {
-            debug_fatal!("accumulator_version must be set for a tx with object withdraws");
+            // Fastpath transactions that perform object funds withdraws
+            // must wait for consensus to assign the accumulator version.
+            // We cannot optimize the scheduling by processing fastpath object withdraws
+            // sooner because these may get reverted, and we don't want them
+            // pollute the scheduler tracking state.
+            // TODO: We could however optimize execution by caching
+            // the execution state to avoid re-execution.
             return false;
         };
         match self.check_object_funds(object_withdraws, accumulator_version, funds_read.as_ref()) {

@@ -3,7 +3,6 @@
 
 use crate::types::*;
 use crate::{AppState, FaucetConfig, FaucetError, FaucetRequest};
-use anyhow::Context;
 use axum::{
     BoxError, Extension, Json, Router,
     error_handling::HandleErrorLayer,
@@ -11,6 +10,8 @@ use axum::{
     response::IntoResponse,
     routing::{get, post},
 };
+use haneul_config::HANEUL_CLIENT_CONFIG;
+use haneul_sdk::wallet_context::WalletContext;
 use http::Method;
 use std::{
     borrow::Cow,
@@ -19,10 +20,6 @@ use std::{
     sync::Arc,
     time::Duration,
 };
-use haneul_config::HANEUL_CLIENT_CONFIG;
-use haneul_futures::service::Service;
-use haneul_sdk::wallet_context::WalletContext;
-use tokio::sync::oneshot;
 use tower::ServiceBuilder;
 use tower_http::cors::{Any, CorsLayer};
 use tracing::info;
@@ -104,13 +101,14 @@ async fn handle_error(error: BoxError) -> impl IntoResponse {
 
 /// Start a faucet that is run locally. This should only be used for starting a local network, and
 /// not for devnet/testnet deployments!
-pub async fn start_faucet(app_state: Arc<AppState>) -> anyhow::Result<Service> {
+pub async fn start_faucet(app_state: Arc<AppState>) -> Result<(), anyhow::Error> {
     let cors = CorsLayer::new()
         .allow_methods(vec![Method::GET, Method::POST])
         .allow_headers(Any)
         .allow_origin(Any);
     let FaucetConfig { port, host_ip, .. } = app_state.config;
 
+    info!("Starting faucet in local mode");
     let app = Router::new()
         .route("/", get(health))
         .route("/v2/gas", post(request_local_gas))
@@ -126,36 +124,23 @@ pub async fn start_faucet(app_state: Arc<AppState>) -> anyhow::Result<Service> {
         );
 
     let addr = SocketAddr::new(IpAddr::V4(host_ip), port);
-    info!("Starting local faucet service on {addr}");
-    let listener = tokio::net::TcpListener::bind(addr)
-        .await
-        .context("Failed to bind faucet to listen address")?;
+    info!("listening on {}", addr);
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .await?;
 
-    let (stx, srx) = oneshot::channel::<()>();
-    Ok(Service::new()
-        .with_shutdown_signal(async move {
-            let _ = stx.send(());
-        })
-        .spawn(async move {
-            axum::serve(
-                listener,
-                app.into_make_service_with_connect_info::<SocketAddr>(),
-            )
-            .with_graceful_shutdown(async move {
-                let _ = srx.await;
-                info!("Shutdown received, shutting down faucet service");
-            })
-            .await
-            .context("Failed to start faucet service")
-        }))
+    Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::LocalFaucet;
-    use serde_json::json;
     use haneul_sdk::types::base_types::HaneulAddress;
+    use serde_json::json;
     use test_cluster::TestClusterBuilder;
 
     #[tokio::test]
@@ -177,10 +162,12 @@ mod tests {
             config,
         });
 
-        // Start the faucet as a background Service
-        let service = start_faucet(app_state)
-            .await
-            .expect("Failed to start faucet");
+        // Spawn the faucet in a background task
+        let handle = tokio::spawn(async move {
+            start_faucet(app_state)
+                .await
+                .expect("Failed to start faucet");
+        });
 
         // Give the server a moment to start
         tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
@@ -214,9 +201,6 @@ mod tests {
             .unwrap();
 
         assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
-        service
-            .shutdown()
-            .await
-            .expect("Failed to shut down faucet");
+        handle.abort();
     }
 }

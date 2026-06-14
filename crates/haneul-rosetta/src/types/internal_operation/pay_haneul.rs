@@ -8,7 +8,7 @@ use std::str::FromStr;
 use haneul_rpc::client::Client;
 use haneul_rpc::proto::haneul::rpc::v2::{GetBalanceRequest, Object, owner::OwnerKind};
 use haneul_sdk_types::{Address, StructTag};
-use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID, ObjectRef, SequenceNumber};
 use haneul_types::gas_coin::GAS;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::rpc_proto_conversions::ObjectReferenceExt;
@@ -21,7 +21,7 @@ use super::{
     simulate_transaction, withdraw_coin_from_address_balance,
 };
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct PayHaneul {
     pub sender: HaneulAddress,
     pub recipients: Vec<HaneulAddress>,
@@ -127,8 +127,6 @@ impl TryConstructTransaction for PayHaneul {
                     address_balance_withdrawal: address_balance_withdrawl,
                     fss_object_count: None,
                     redeem_token_amount: None,
-                    redeem_plan: None,
-                    bind_epoch: None,
                 })
             }
             _ => {
@@ -170,8 +168,6 @@ impl TryConstructTransaction for PayHaneul {
                     address_balance_withdrawal,
                     fss_object_count: None,
                     redeem_token_amount: None,
-                    redeem_plan: None,
-                    bind_epoch: None,
                 })
             }
         }
@@ -233,7 +229,8 @@ pub(crate) fn pay_haneul_pt_ab_gas(
                             builder.obj(ObjectArg::SharedObject {
                                 id,
                                 initial_shared_version,
-                                mutability: haneul_types::transaction::SharedObjectMutability::Mutable,
+                                mutability:
+                                    haneul_types::transaction::SharedObjectMutability::Mutable,
                             })
                         })
                         .collect::<Result<Vec<Argument>, _>>()?;

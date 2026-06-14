@@ -19,12 +19,12 @@ pub use executor::{
     IndexerExecutor, MAX_CHECKPOINTS_IN_PROGRESS, setup_single_workflow,
     setup_single_workflow_with_options,
 };
+use haneul_types::full_checkpoint_content::CheckpointData;
 pub use metrics::DataIngestionMetrics;
 pub use progress_store::{
     ExecutorProgress, FileProgressStore, ProgressStore, ShimIndexerProgressStore, ShimProgressStore,
 };
 pub use reader::{CheckpointReader, ReaderOptions};
-use haneul_types::full_checkpoint_content::CheckpointData;
 pub use util::{create_remote_store_client, end_of_epoch_data};
 pub use worker_pool::WorkerPool;
 

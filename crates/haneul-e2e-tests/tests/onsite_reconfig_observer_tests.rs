@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use prometheus::Registry;
 use haneul_core::safe_client::SafeClientMetricsBase;
 use haneul_core::transaction_driver::{OnsiteReconfigObserver, ReconfigObserver};
+use prometheus::Registry;
 use test_cluster::TestClusterBuilder;
 use tracing::info;
 

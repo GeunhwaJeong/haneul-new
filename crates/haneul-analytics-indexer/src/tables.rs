@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 #![allow(dead_code)]
 
-use serde::Serialize;
-use strum_macros::Display;
 use haneul_analytics_indexer_derive::SerializeRow;
 use haneul_types::dynamic_field::DynamicFieldType;
+use serde::Serialize;
+use strum_macros::Display;
 
 // Checkpoint information.
 #[derive(Serialize, Clone, SerializeRow)]

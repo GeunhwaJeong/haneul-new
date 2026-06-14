@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use prometheus::Registry;
-use std::net::{IpAddr, SocketAddr};
-use std::sync::{Arc, Weak};
 use haneul_config::NodeConfig;
 use haneul_node::{HaneulNode, HaneulNodeHandle};
 use haneul_types::base_types::ConciseableName;
+use prometheus::Registry;
+use std::net::{IpAddr, SocketAddr};
+use std::sync::{Arc, Weak};
 use tokio::sync::watch;
 use tracing::{info, trace};
 
@@ -59,7 +59,8 @@ impl Container {
                 let mut cancel_receiver = cancel_receiver.clone();
                 let startup_sender = startup_sender.clone();
                 async move {
-                    let registry_service = haneullabs_metrics::RegistryService::new(Registry::new());
+                    let registry_service =
+                        haneullabs_metrics::RegistryService::new(Registry::new());
                     let server = HaneulNode::start(config, registry_service).await.unwrap();
 
                     startup_sender.send(Arc::downgrade(&server)).ok();

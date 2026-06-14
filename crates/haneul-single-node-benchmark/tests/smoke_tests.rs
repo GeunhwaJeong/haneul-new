@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::path::PathBuf;
-use strum::IntoEnumIterator;
 use haneul_macros::sim_test;
 use haneul_single_node_benchmark::command::{Component, WorkloadKind};
 use haneul_single_node_benchmark::run_benchmark;
 use haneul_single_node_benchmark::workload::Workload;
+use std::path::PathBuf;
+use strum::IntoEnumIterator;
 
 #[sim_test]
 async fn benchmark_non_move_transactions_smoke_test() {

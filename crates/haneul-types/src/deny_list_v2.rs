@@ -15,7 +15,8 @@ use crate::id::UID;
 use crate::storage::{DenyListResult, ObjectStore};
 use crate::transaction::{CheckedInputObjects, ReceivingObjects};
 use crate::{
-    MoveTypeTagTrait, HANEUL_DENY_LIST_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID,
+    HANEUL_DENY_LIST_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID,
+    MoveTypeTagTrait,
 };
 use move_core_types::ident_str;
 use move_core_types::identifier::IdentStr;

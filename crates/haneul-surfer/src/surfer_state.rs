@@ -1,25 +1,27 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_move_build::BuildConfig;
+use haneul_protocol_config::{Chain, ProtocolConfig};
+use haneul_types::base_types::{ConsensusObjectSequenceKey, HaneulAddress, ObjectID, ObjectRef};
+use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
+use haneul_types::object::{Object, Owner};
+use haneul_types::storage::WriteKind;
+use haneul_types::transaction::{
+    CallArg, ObjectArg, TEST_ONLY_GAS_UNIT_FOR_PUBLISH, TransactionData,
+};
+use haneul_types::{HANEUL_FRAMEWORK_ADDRESS, Identifier};
+use haneullabs_common::fatal;
 use indexmap::IndexSet;
 use move_binary_format::file_format::Visibility;
 use move_binary_format::normalized;
 use move_core_types::identifier::IdentStr;
 use move_core_types::language_storage::StructTag;
-use haneullabs_common::fatal;
 use rand::rngs::StdRng;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use haneul_move_build::BuildConfig;
-use haneul_protocol_config::{Chain, ProtocolConfig};
-use haneul_types::base_types::{ConsensusObjectSequenceKey, ObjectID, ObjectRef, HaneulAddress};
-use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
-use haneul_types::object::{Object, Owner};
-use haneul_types::storage::WriteKind;
-use haneul_types::transaction::{CallArg, ObjectArg, TEST_ONLY_GAS_UNIT_FOR_PUBLISH, TransactionData};
-use haneul_types::{Identifier, HANEUL_FRAMEWORK_ADDRESS};
 use test_cluster::TestCluster;
 use tokio::sync::RwLock;
 use tracing::{debug, error, info};
@@ -249,15 +251,11 @@ impl SurferState {
                     }
                 }
                 Owner::ObjectOwner(_) => (),
-                // TODO(Party WIP) Implement full support for Party objects in haneul-surfer.
                 Owner::Shared {
                     initial_shared_version,
                 }
+                // TODO: Implement full support for ConsensusAddressOwner objects in haneul-surfer.
                 | Owner::ConsensusAddressOwner {
-                    start_version: initial_shared_version,
-                    ..
-                }
-                | Owner::Party {
                     start_version: initial_shared_version,
                     ..
                 } => {
@@ -346,12 +344,7 @@ impl SurferState {
             self.address,
             self.gas_object,
             modules,
-            package
-                .dependency_ids
-                .published
-                .values()
-                .map(|dep| dep.published_at)
-                .collect(),
+            package.dependency_ids.published.values().cloned().collect(),
             TEST_ONLY_GAS_UNIT_FOR_PUBLISH * rgp,
             rgp,
         );

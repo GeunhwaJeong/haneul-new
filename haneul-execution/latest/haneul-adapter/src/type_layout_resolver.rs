@@ -5,16 +5,16 @@ use crate::data_store::cached_package_store::CachedPackageStore;
 use crate::data_store::transaction_package_store::TransactionPackageStore;
 use crate::static_programmable_transactions::linkage::config::{LinkageConfig, ResolutionConfig};
 use crate::static_programmable_transactions::linkage::resolved_linkage::ExecutableLinkage;
-use move_core_types::annotated_value as A;
-use move_core_types::language_storage::StructTag;
-use move_vm_runtime::runtime::MoveRuntime;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::TypeTag;
 use haneul_types::base_types::ObjectID;
-use haneul_types::error::{ExecutionError, HaneulErrorKind, HaneulResult};
+use haneul_types::error::{HaneulErrorKind, HaneulResult};
 use haneul_types::execution::TypeLayoutStore;
 use haneul_types::storage::{BackingPackageStore, PackageObject};
 use haneul_types::{error::HaneulError, layout_resolver::LayoutResolver};
+use move_core_types::annotated_value as A;
+use move_core_types::language_storage::StructTag;
+use move_vm_runtime::runtime::MoveRuntime;
 
 /// Retrieve a `MoveStructLayout` from a `Type`.
 pub struct TypeLayoutResolver<'state, 'runtime> {
@@ -59,9 +59,8 @@ impl LayoutResolver for TypeLayoutResolver<'_, '_> {
             ),
             self.protocol_config.binary_config(None),
         );
-        let tag_linkage =
-            ExecutableLinkage::type_linkage::<_, ExecutionError>(config, ids, &resolver)?;
-        let link_context = tag_linkage.linkage_context::<ExecutionError>()?;
+        let tag_linkage = ExecutableLinkage::type_linkage(config, ids, &resolver)?;
+        let link_context = tag_linkage.linkage_context()?;
         let data_store = TransactionPackageStore::new(&null_resolver);
         let Ok(vm) = self.vm.make_vm(data_store, link_context) else {
             return Err(HaneulErrorKind::FailObjectLayout {

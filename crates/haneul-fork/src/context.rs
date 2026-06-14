@@ -11,12 +11,12 @@ use tokio::sync::Mutex;
 use tokio::sync::RwLock;
 use tokio::sync::mpsc;
 
-use simulacrum::Simulacrum;
 use haneul_protocol_config::Chain;
 use haneul_types::full_checkpoint_content::Checkpoint;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::messages_checkpoint::VerifiedCheckpoint;
 use haneul_types::storage::ReadStore as _;
+use simulacrum::Simulacrum;
 
 use crate::store::DataStore;
 

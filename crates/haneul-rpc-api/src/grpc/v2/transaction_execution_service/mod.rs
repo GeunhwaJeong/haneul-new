@@ -4,7 +4,6 @@
 use crate::ErrorReason;
 use crate::RpcError;
 use crate::RpcService;
-use prost_types::FieldMask;
 use haneul_rpc::field::FieldMaskTree;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::merge::Merge;
@@ -20,6 +19,7 @@ use haneul_rpc::proto::haneul::rpc::v2::UserSignature;
 use haneul_rpc::proto::haneul::rpc::v2::transaction_execution_service_server::TransactionExecutionService;
 use haneul_types::balance_change::derive_balance_changes_2;
 use haneul_types::transaction_executor::TransactionExecutor;
+use prost_types::FieldMask;
 use tap::Pipe;
 
 mod simulate;
@@ -51,8 +51,7 @@ impl TransactionExecutionService for RpcService {
     }
 }
 
-pub const EXECUTE_TRANSACTION_READ_MASK_DEFAULT: &str =
-    crate::read_mask_defaults::EXECUTE_TRANSACTION;
+pub const EXECUTE_TRANSACTION_READ_MASK_DEFAULT: &str = "effects";
 // Current maximum number of supported UserSignature's,
 // one for the sender and one for an optional sponsor
 const MAX_NUMBER_OF_SIGNATURES: usize = 2;

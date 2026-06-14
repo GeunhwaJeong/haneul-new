@@ -3,16 +3,16 @@
 
 use clap::Parser;
 use fastcrypto::traits::KeyPair;
-use haneullabs_metrics::start_prometheus_server;
-use std::{
-    net::{IpAddr, Ipv4Addr, SocketAddr},
-    path::PathBuf,
-};
 use haneul_bridge::config::BridgeNodeConfig;
 use haneul_bridge::node::run_bridge_node;
 use haneul_bridge::server::BridgeNodePublicMetadata;
 use haneul_config::Config;
 use haneul_metrics_push_client::start_metrics_push_task;
+use haneullabs_metrics::start_prometheus_server;
+use std::{
+    net::{IpAddr, Ipv4Addr, SocketAddr},
+    path::PathBuf,
+};
 use tracing::info;
 
 // Define the `GIT_REVISION` and `VERSION` consts

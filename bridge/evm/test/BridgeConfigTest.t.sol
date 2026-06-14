@@ -338,7 +338,7 @@ contract BridgeConfigTest is BridgeBaseTest {
         });
         bytes memory encodedMessage = BridgeUtils.encodeMessage(message);
         bytes memory expectedEncodedMessage =
-            hex"5355495f4252494447455f4d4553534147450401000000000000010a0301000000003b9aca00";
+            hex"48414e45554c5f4252494447455f4d4553534147450401000000000000010a0301000000003b9aca00";
 
         assertEq(encodedMessage, expectedEncodedMessage);
     }
@@ -346,10 +346,10 @@ contract BridgeConfigTest is BridgeBaseTest {
     // An e2e update token price regression test covering message ser/de and signature verification
     function testUpdateTokenPriceRegressionTestWithSigVerficiation() public {
         address[] memory _committeeList = new address[](4);
-        _committeeList[0] = 0x68B43fD906C0B8F024a18C56e06744F7c6157c65;
-        _committeeList[1] = 0xaCAEf39832CB995c4E049437A3E2eC6a7bad1Ab5;
-        _committeeList[2] = 0x8061f127910e8eF56F16a2C411220BaD25D61444;
-        _committeeList[3] = 0x508F3F1ff45F4ca3D8e86CDCC91445F00aCC59fC;
+        _committeeList[0] = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+        _committeeList[1] = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8;
+        _committeeList[2] = 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC;
+        _committeeList[3] = 0x90F79bf6EB2c4f870365E785982E1f101E93b906;
         uint8 sendingChainID = 1;
         uint8[] memory _supportedChains = new uint8[](1);
         _supportedChains[0] = sendingChainID;
@@ -427,18 +427,18 @@ contract BridgeConfigTest is BridgeBaseTest {
         });
         bytes memory encodedMessage = BridgeUtils.encodeMessage(message);
         bytes memory expectedEncodedMessage =
-            hex"5355495f4252494447455f4d455353414745040100000000000000000b010000000023c34600";
+            hex"48414e45554c5f4252494447455f4d455353414745040100000000000000000b010000000023c34600";
 
         assertEq(encodedMessage, expectedEncodedMessage);
 
         bytes[] memory signatures = new bytes[](3);
 
         signatures[0] =
-            hex"eb81068c2214c01bf5d89e6bd748c0d184ae68f74d365174657053af916dcd335960737eb724560a3481bb77b7df4169d8305a034143e1c749fd9f9bcda6cc1601";
+            hex"d828a8f069fd36bdfe040839f8572807418efe456411aece6fed65fcf9b32e6b245c26ab3a197427d53ce6ab81db363bf67abb175b349bb3c2bd0deaf7b280d401";
         signatures[1] =
-            hex"116ad7d7bb705374328f85613020777d636fa092f98aa59a1d58f12f36d96f0e7aacfeb8ff356289da8d0d75278ccad8c19ec878db0b836f96ab544e91de1fed01";
+            hex"9710165017bef6228f4e0af8ab6c284a5baa1a85438e22ce99c888e0cfce18a820ebc7279e10bb0ad460d2524a1fe2cb94ea9a02393ab7e3afe16bddb51ec50c01";
         signatures[2] =
-            hex"b0229b50b0fe3fd4cdb05b31c7689d99e3181f9f11069cb457d73112985865ff504d9a9959c367d02b18b2d78312a012f194798499198410880351ab0a241a0c00";
+            hex"379b0825da1b44523bb6beef1fc84ee543d76abd6f7b7312eb29b2c347535e5e4d51324b15869241d456157569dd99bd6c5e938850b4d795526929e2c23ae06f01";
 
         committee.verifySignatures(signatures, message);
 
@@ -449,10 +449,10 @@ contract BridgeConfigTest is BridgeBaseTest {
     function testAddTokensRegressionTest() public {
         address[] memory _committeeList = new address[](4);
         uint16[] memory _stake = new uint16[](4);
-        _committeeList[0] = 0x68B43fD906C0B8F024a18C56e06744F7c6157c65;
-        _committeeList[1] = 0xaCAEf39832CB995c4E049437A3E2eC6a7bad1Ab5;
-        _committeeList[2] = 0x8061f127910e8eF56F16a2C411220BaD25D61444;
-        _committeeList[3] = 0x508F3F1ff45F4ca3D8e86CDCC91445F00aCC59fC;
+        _committeeList[0] = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+        _committeeList[1] = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8;
+        _committeeList[2] = 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC;
+        _committeeList[3] = 0x90F79bf6EB2c4f870365E785982E1f101E93b906;
         _stake[0] = 2500;
         _stake[1] = 2500;
         _stake[2] = 2500;
@@ -551,18 +551,18 @@ contract BridgeConfigTest is BridgeBaseTest {
         });
         bytes memory encodedMessage = BridgeUtils.encodeMessage(message);
         bytes memory expectedEncodedMessage =
-            hex"5355495f4252494447455f4d455353414745070100000000000000000c0103636465036b175474e89094c44da98b954eedeac495271d0fae7ab96520de3a18e5e111b5eaab095312d7fe84c18360217d8f7ab5e7c516566761ea12ce7f9d720305060703000000003b9aca00000000007735940000000000b2d05e00";
+            hex"48414e45554c5f4252494447455f4d455353414745070100000000000000000c0103636465036b175474e89094c44da98b954eedeac495271d0fae7ab96520de3a18e5e111b5eaab095312d7fe84c18360217d8f7ab5e7c516566761ea12ce7f9d720305060703000000003b9aca00000000007735940000000000b2d05e00";
 
         assertEq(encodedMessage, expectedEncodedMessage);
 
         bytes[] memory signatures = new bytes[](3);
 
         signatures[0] =
-            hex"98b064aa172d0a66142f2fc45d9cd3255fb096cb92e0fcc9be4688b425aad6b53251c9044de4475e64e85b38b32cd3c813a8010281b00811d40fce9b3b372f2200";
+            hex"d318147fc440114978fd934a543300a4c6fe88d978d6a81f596ae10166e90eda754baf7de1b684953e56feef700a0eceb44f3685a8992a760cf0ad08cb4e11de01";
         signatures[1] =
-            hex"275037d70185c835b0d1ee70a118d1cc5da90db2468fab1fa24517eeec3055d814f0ca65db7e6274dbda92d33c9df914db7ada4901a283ec1d3e8c126827923600";
+            hex"0e622baaf5ef84056044a6b0838fea25ec75c91e8a3f14ce65b86e11710719a4151014588650ab2a8ed1a8576430b49c495af89f79f0d1573abe698c5d11196e01";
         signatures[2] =
-            hex"ebb6669c8fb4b000fd41dde6e464c44c009ddcb47c05e7e5ea3deba71b21bd28156b23b6e7813a0603c57553ce484771c142ba6c981c4753035655e89006c0ee01";
+            hex"8ac1b47e51160ac0ebd2be80adf3879c3c1b7d02fbc50d951909b3d83b2783b02da7423a04fcc62c0d172e4140b10b50caaeb3fe93a16b7a36f6af543088400701";
 
         config.addTokensWithSignatures(signatures, message);
 

@@ -12,16 +12,16 @@ use crate::workloads::workload::{
 use crate::workloads::{Gas, WorkloadBuilderInfo, WorkloadParams};
 use crate::{ExecutionEffects, ValidatorProxy};
 use async_trait::async_trait;
-use std::sync::Arc;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::crypto::{AccountKeyPair, get_key_pair};
 use haneul_types::object::Owner;
 use haneul_types::transaction::{CallArg, ObjectArg, SharedObjectMutability};
-use haneul_types::{Identifier, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
+use haneul_types::{HANEUL_RANDOMNESS_STATE_OBJECT_ID, Identifier};
 use haneul_types::{
     base_types::{ObjectID, SequenceNumber},
     transaction::Transaction,
 };
+use std::sync::Arc;
 use tracing::{error, info};
 
 /// The max amount of gas units needed for a payload.
@@ -89,9 +89,7 @@ impl Payload for RandomnessTestPayload {
                 .unwrap();
         }
 
-        tx_builder
-            .ensure_unique()
-            .build_and_sign(self.gas.2.as_ref())
+        tx_builder.build_and_sign(self.gas.2.as_ref())
     }
     fn get_failure_type(&self) -> Option<ExpectedFailureType> {
         None
@@ -237,7 +235,6 @@ impl Workload<dyn Payload> for RandomnessWorkload {
         if self.counter_id.is_none() {
             let transaction = TestTransactionBuilder::new(counter_gas.1, counter_gas.0, gas_price)
                 .call_counter_create(self.basics_package_id.unwrap())
-                .ensure_unique()
                 .build_and_sign(counter_gas.2.as_ref());
             let (obj_ref, owner) = execution_proxy
                 .execute_transaction_block(transaction)

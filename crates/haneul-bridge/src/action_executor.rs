@@ -7,19 +7,19 @@
 use crate::retry_with_max_elapsed_time;
 use crate::types::IsBridgePaused;
 use arc_swap::ArcSwap;
-use haneullabs_metrics::spawn_logged_monitored_task;
-use shared_crypto::intent::{Intent, IntentMessage};
 use haneul_json_rpc_types::HaneulExecutionStatus;
 use haneul_types::TypeTag;
 use haneul_types::transaction::ObjectArg;
 use haneul_types::{
-    base_types::{ObjectID, ObjectRef, HaneulAddress},
-    crypto::{Signature, HaneulKeyPair},
+    base_types::{HaneulAddress, ObjectID, ObjectRef},
+    crypto::{HaneulKeyPair, Signature},
     digests::TransactionDigest,
     gas_coin::GasCoin,
     object::Owner,
     transaction::Transaction,
 };
+use haneullabs_metrics::spawn_logged_monitored_task;
+use shared_crypto::intent::{Intent, IntentMessage};
 
 use crate::events::{
     TokenTransferAlreadyApproved, TokenTransferAlreadyClaimed, TokenTransferApproved,
@@ -29,9 +29,9 @@ use crate::metrics::BridgeMetrics;
 use crate::{
     client::bridge_authority_aggregator::BridgeAuthorityAggregator,
     error::BridgeError,
-    storage::BridgeOrchestratorTables,
     haneul_client::{ExecuteTransactionResult, HaneulClient, HaneulClientInner},
     haneul_transaction_builder::build_haneul_transaction,
+    storage::BridgeOrchestratorTables,
     types::{BridgeAction, BridgeActionStatus, VerifiedCertifiedBridgeAction},
 };
 use std::collections::HashMap;
@@ -194,7 +194,9 @@ where
         haneul_client: Arc<HaneulClient<C>>,
         auth_agg: Arc<ArcSwap<BridgeAuthorityAggregator>>,
         store: Arc<BridgeOrchestratorTables>,
-        signing_queue_sender: haneullabs_metrics::metered_channel::Sender<BridgeActionExecutionWrapper>,
+        signing_queue_sender: haneullabs_metrics::metered_channel::Sender<
+            BridgeActionExecutionWrapper,
+        >,
         mut signing_queue_receiver: haneullabs_metrics::metered_channel::Receiver<
             BridgeActionExecutionWrapper,
         >,
@@ -221,9 +223,10 @@ where
     }
 
     async fn should_proceed_signing(haneul_client: &Arc<HaneulClient<C>>) -> bool {
-        let Ok(Ok(is_paused)) =
-            retry_with_max_elapsed_time!(haneul_client.is_bridge_paused(), Duration::from_secs(600))
-        else {
+        let Ok(Ok(is_paused)) = retry_with_max_elapsed_time!(
+            haneul_client.is_bridge_paused(),
+            Duration::from_secs(600)
+        ) else {
             error!("Failed to get bridge status after retry");
             return false;
         };
@@ -326,7 +329,9 @@ where
         auth_agg: Arc<ArcSwap<BridgeAuthorityAggregator>>,
         action: BridgeActionExecutionWrapper,
         store: Arc<BridgeOrchestratorTables>,
-        signing_queue_sender: haneullabs_metrics::metered_channel::Sender<BridgeActionExecutionWrapper>,
+        signing_queue_sender: haneullabs_metrics::metered_channel::Sender<
+            BridgeActionExecutionWrapper,
+        >,
         execution_queue_sender: haneullabs_metrics::metered_channel::Sender<
             CertifiedBridgeActionExecutionWrapper,
         >,
@@ -472,14 +477,18 @@ where
 
         // TODO check gas coin balance here. If gas balance too low, do not proceed.
         let (gas_coin, gas_object_ref) =
-            Self::get_gas_data_assert_ownership(*haneul_address, gas_object_id, haneul_client).await;
+            Self::get_gas_data_assert_ownership(*haneul_address, gas_object_id, haneul_client)
+                .await;
         metrics.gas_coin_balance.set(gas_coin.value() as i64);
 
         let ceriticate_clone = certificate.clone();
 
         // Check once: if the action is already processed, skip it.
         if Self::handle_already_processed_token_transfer_action_maybe(
-            haneul_client, action, store, metrics,
+            haneul_client,
+            action,
+            store,
+            metrics,
         )
         .await
         {
@@ -558,7 +567,10 @@ where
 
         // Check twice: If the action is already processed, skip it.
         if Self::handle_already_processed_token_transfer_action_maybe(
-            haneul_client, action, store, metrics,
+            haneul_client,
+            action,
+            store,
+            metrics,
         )
         .await
         {
@@ -728,23 +740,23 @@ mod tests {
     use crate::test_utils::DUMMY_MUTALBE_BRIDGE_OBJECT_ARG;
     use crate::types::BRIDGE_PAUSED;
     use fastcrypto::traits::KeyPair;
-    use haneullabs_common::ZipDebugEqIteratorExt;
-    use prometheus::Registry;
-    use std::collections::{BTreeMap, HashMap};
-    use std::str::FromStr;
     use haneul_json_rpc_types::HaneulEvent;
     use haneul_types::TypeTag;
     use haneul_types::crypto::get_key_pair;
     use haneul_types::gas_coin::GasCoin;
     use haneul_types::{base_types::random_object_ref, transaction::TransactionData};
+    use haneullabs_common::ZipDebugEqIteratorExt;
+    use prometheus::Registry;
+    use std::collections::{BTreeMap, HashMap};
+    use std::str::FromStr;
 
     use crate::{
         crypto::{
             BridgeAuthorityKeyPair, BridgeAuthorityPublicKeyBytes,
             BridgeAuthorityRecoverableSignature,
         },
-        server::mock_handler::BridgeRequestMockHandler,
         haneul_mock_client::HaneulMockClient,
+        server::mock_handler::BridgeRequestMockHandler,
         test_utils::{
             get_test_authorities_and_run_mock_bridge_server, get_test_eth_to_haneul_bridge_action,
             get_test_haneul_to_eth_bridge_action, sign_action_with_key,
@@ -1369,7 +1381,8 @@ mod tests {
             haneul_token_type_tags,
             _bridge_pause_tx,
         ) = setup().await;
-        let mut id_token_map: HashMap<u8, TypeTag> = (*haneul_token_type_tags.load().clone()).clone();
+        let mut id_token_map: HashMap<u8, TypeTag> =
+            (*haneul_token_type_tags.load().clone()).clone();
         let (action_certificate, _, _) = get_bridge_authority_approved_action(
             vec![&mock0, &mock1, &mock2, &mock3],
             vec![&secrets[0], &secrets[1], &secrets[2], &secrets[3]],
@@ -1500,8 +1513,13 @@ mod tests {
             get_test_eth_to_haneul_bridge_action(None, None, None, token_id)
         };
 
-        let sigs =
-            mock_bridge_authority_sigs(mocks, &action, secrets, haneul_tx_digest, haneul_tx_event_index);
+        let sigs = mock_bridge_authority_sigs(
+            mocks,
+            &action,
+            secrets,
+            haneul_tx_digest,
+            haneul_tx_event_index,
+        );
         let certified_action = CertifiedBridgeAction::new_from_data_and_sig(
             action,
             BridgeCommitteeValiditySignInfo { signatures: sigs },
@@ -1513,7 +1531,10 @@ mod tests {
         )
     }
 
-    fn get_tx_digest(tx_data: TransactionData, dummy_haneul_key: &HaneulKeyPair) -> TransactionDigest {
+    fn get_tx_digest(
+        tx_data: TransactionData,
+        dummy_haneul_key: &HaneulKeyPair,
+    ) -> TransactionDigest {
         let sig = Signature::new_secure(
             &IntentMessage::new(Intent::haneul_transaction(), &tx_data),
             dummy_haneul_key,

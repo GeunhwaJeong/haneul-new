@@ -1,13 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneullabs_metrics::histogram::Histogram as HaneullabsHistogram;
 use prometheus::{
     Histogram, IntCounter, IntGauge, Registry, register_histogram_with_registry,
     register_int_counter_with_registry, register_int_gauge_with_registry,
 };
 use std::sync::Arc;
-use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use tap::Pipe;
 
 #[derive(Clone)]

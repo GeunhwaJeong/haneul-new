@@ -8,6 +8,9 @@ use crate::validator_client_monitor::{
     OperationFeedback, OperationType, metrics::ValidatorClientMetrics,
 };
 use arc_swap::ArcSwap;
+use haneul_config::validator_client_monitor_config::ValidatorClientMonitorConfig;
+use haneul_types::committee::Committee;
+use haneul_types::{base_types::AuthorityName, messages_grpc::ValidatorHealthRequest};
 use parking_lot::RwLock;
 use rand::seq::SliceRandom;
 use std::collections::HashMap;
@@ -15,9 +18,6 @@ use std::{
     sync::Arc,
     time::{Duration, Instant},
 };
-use haneul_config::validator_client_monitor_config::ValidatorClientMonitorConfig;
-use haneul_types::committee::Committee;
-use haneul_types::{base_types::AuthorityName, messages_grpc::ValidatorHealthRequest};
 use tokio::{
     task::JoinSet,
     time::{interval, timeout},

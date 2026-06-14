@@ -23,21 +23,21 @@ use serde_with::serde_as;
 
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{
-    ObjectDigest, ObjectID, ObjectInfo, ObjectRef, ObjectType, SequenceNumber, HaneulAddress,
+    HaneulAddress, ObjectDigest, ObjectID, ObjectInfo, ObjectRef, ObjectType, SequenceNumber,
     TransactionDigest,
 };
 use haneul_types::error::{
     HaneulErrorKind, HaneulObjectResponseError, HaneulResult, UserInputError, UserInputResult,
 };
 use haneul_types::gas_coin::GasCoin;
+use haneul_types::haneul_serde::BigInt;
+use haneul_types::haneul_serde::HaneulStructTag;
+use haneul_types::haneul_serde::SequenceNumber as AsSequenceNumber;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::move_package::{MovePackage, TypeOrigin, UpgradeInfo};
 use haneul_types::object::{Data, MoveObject, Object, ObjectInner, ObjectRead, Owner};
-use haneul_types::haneul_serde::BigInt;
-use haneul_types::haneul_serde::SequenceNumber as AsSequenceNumber;
-use haneul_types::haneul_serde::HaneulStructTag;
 
-use crate::{Page, HaneulMoveStruct, HaneulMoveValue};
+use crate::{HaneulMoveStruct, HaneulMoveValue, Page};
 
 #[derive(Serialize, Deserialize, Debug, JsonSchema, Clone, PartialEq, Eq)]
 pub struct HaneulObjectResponse {
@@ -264,9 +264,9 @@ impl HaneulObjectData {
         };
         Ok(ObjectInner {
             data,
-            owner: self
-                .owner
-                .ok_or_else(|| anyhow!("Owner is required to convert HaneulObjectData to Object"))?,
+            owner: self.owner.ok_or_else(|| {
+                anyhow!("Owner is required to convert HaneulObjectData to Object")
+            })?,
             previous_transaction: self.previous_transaction.ok_or_else(|| {
                 anyhow!("previous_transaction is required to convert HaneulObjectData to Object")
             })?,
@@ -354,7 +354,8 @@ impl TryFrom<&HaneulMoveStruct> for GasCoin {
     type Error = anyhow::Error;
     fn try_from(move_struct: &HaneulMoveStruct) -> Result<Self, Self::Error> {
         match move_struct {
-            HaneulMoveStruct::WithFields(fields) | HaneulMoveStruct::WithTypes { type_: _, fields } => {
+            HaneulMoveStruct::WithFields(fields)
+            | HaneulMoveStruct::WithTypes { type_: _, fields } => {
                 if let Some(HaneulMoveValue::String(balance)) = fields.get("balance")
                     && let Ok(balance) = balance.parse::<u64>()
                     && let Some(HaneulMoveValue::UID { id }) = fields.get("id")
@@ -1209,9 +1210,13 @@ impl HaneulObjectDataFilter {
 
     pub fn matches(&self, object: &ObjectInfo) -> bool {
         match self {
-            HaneulObjectDataFilter::MatchAll(filters) => !filters.iter().any(|f| !f.matches(object)),
+            HaneulObjectDataFilter::MatchAll(filters) => {
+                !filters.iter().any(|f| !f.matches(object))
+            }
             HaneulObjectDataFilter::MatchAny(filters) => filters.iter().any(|f| f.matches(object)),
-            HaneulObjectDataFilter::MatchNone(filters) => !filters.iter().any(|f| f.matches(object)),
+            HaneulObjectDataFilter::MatchNone(filters) => {
+                !filters.iter().any(|f| f.matches(object))
+            }
             HaneulObjectDataFilter::StructType(s) => {
                 let obj_tag: StructTag = match &object.type_ {
                     ObjectType::Package => return false,
@@ -1257,7 +1262,10 @@ pub struct HaneulObjectResponseQuery {
 }
 
 impl HaneulObjectResponseQuery {
-    pub fn new(filter: Option<HaneulObjectDataFilter>, options: Option<HaneulObjectDataOptions>) -> Self {
+    pub fn new(
+        filter: Option<HaneulObjectDataFilter>,
+        options: Option<HaneulObjectDataOptions>,
+    ) -> Self {
         Self { filter, options }
     }
 

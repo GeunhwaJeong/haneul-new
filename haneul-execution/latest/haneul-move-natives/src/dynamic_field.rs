@@ -9,6 +9,7 @@ use crate::{
         object_store::{CacheInfo, ObjectResult},
     },
 };
+use haneul_types::{base_types::MoveObjectType, dynamic_field::derive_dynamic_field_id};
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_binary_format::{partial_vm_error, safe_assert, safe_assert_eq, safe_unwrap};
 use move_core_types::{
@@ -30,7 +31,6 @@ use move_vm_runtime::{
 };
 use smallvec::smallvec;
 use std::collections::VecDeque;
-use haneul_types::{base_types::MoveObjectType, dynamic_field::derive_dynamic_field_id};
 use tracing::instrument;
 
 const E_KEY_DOES_NOT_EXIST: u64 = 1;

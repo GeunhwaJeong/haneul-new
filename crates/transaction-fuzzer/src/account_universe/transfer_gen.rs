@@ -9,10 +9,6 @@ use crate::{
     account_universe::{AUTransactionGen, AccountPairGen, AccountTriple, AccountUniverse},
     executor::{ExecutionResult, Executor},
 };
-use once_cell::sync::Lazy;
-use proptest::prelude::*;
-use proptest_derive::Arbitrary;
-use std::sync::Arc;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::error::HaneulErrorKind;
@@ -25,6 +21,10 @@ use haneul_types::{
     transaction::{GasData, Transaction, TransactionData, TransactionKind},
     utils::{to_sender_signed_transaction, to_sender_signed_transaction_with_multi_signers},
 };
+use once_cell::sync::Lazy;
+use proptest::prelude::*;
+use proptest_derive::Arbitrary;
+use std::sync::Arc;
 
 const GAS_UNIT_PRICE: u64 = 2;
 const DEFAULT_TRANSFER_AMOUNT: u64 = 1;

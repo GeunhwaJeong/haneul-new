@@ -16,11 +16,6 @@ use alloy::rpc::types::{Block, Filter, Transaction};
 use anyhow::Error;
 use async_trait::async_trait;
 use futures::stream::StreamExt;
-use haneullabs_metrics::spawn_monitored_task;
-use prometheus::IntGauge;
-use std::collections::HashMap;
-use std::sync::Arc;
-use std::time::Duration;
 use haneul_bridge::abi::{
     EthBridgeCommitteeEvents, EthBridgeConfigEvents, EthBridgeEvent, EthBridgeLimiterEvents,
     EthHaneulBridgeEvents,
@@ -33,6 +28,11 @@ use haneul_bridge::retry_with_max_elapsed_time;
 use haneul_bridge::types::{EthEvent, RawEthLog};
 use haneul_bridge::utils::{EthProvider, EthWsProvider, get_eth_provider, get_eth_ws_provider};
 use haneul_bridge_schema::models::GovernanceActionType;
+use haneullabs_metrics::spawn_monitored_task;
+use prometheus::IntGauge;
+use std::collections::HashMap;
+use std::sync::Arc;
+use std::time::Duration;
 use tap::tap::TapFallible;
 use tokio::select;
 use tokio::task::JoinHandle;

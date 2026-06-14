@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_core_types::language_storage::StructTag;
 use haneul_kvstore::{BigTableClient, KeyValueStoreReader};
 use haneul_rpc::proto::haneul::rpc::v2::{
     BatchGetObjectsRequest, BatchGetObjectsResponse, BatchGetTransactionsRequest,
@@ -16,13 +15,14 @@ use haneul_sdk_types::Digest;
 use haneul_types::TypeTag;
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::object::rpc_visitor::proto::ProtoVisitor;
+use move_core_types::language_storage::StructTag;
 
 use crate::{KvRpcServer, PackageResolver};
 
-pub(crate) mod get_checkpoint;
+mod get_checkpoint;
 mod get_epoch;
 mod get_object;
-pub(crate) mod get_transaction;
+mod get_transaction;
 
 /// Maximum size in bytes for JSON-rendered Move values (1 MiB).
 const MAX_JSON_MOVE_VALUE_SIZE: usize = 1024 * 1024;

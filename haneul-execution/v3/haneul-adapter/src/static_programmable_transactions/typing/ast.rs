@@ -4,11 +4,11 @@
 use crate::static_programmable_transactions::{
     linkage::resolved_linkage::ResolvedLinkage, loading::ast as L, spanned::Spanned,
 };
+use haneul_types::base_types::{ObjectID, ObjectRef};
 use indexmap::{IndexMap, IndexSet};
 use move_core_types::{account_address::AccountAddress, u256::U256};
 use move_vm_types::values::VectorSpecialization;
 use std::cell::OnceCell;
-use haneul_types::base_types::{ObjectID, ObjectRef};
 
 //**************************************************************************************************
 // AST Nodes

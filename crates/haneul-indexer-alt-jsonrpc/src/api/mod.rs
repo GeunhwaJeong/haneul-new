@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use haneul_json_rpc_types::ObjectChange as HaneulObjectChange;
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::SequenceNumber;
-use haneul_types::base_types::HaneulAddress;
 use haneul_types::digests::ObjectDigest;
 use haneul_types::effects::IDOperation;
 use haneul_types::object::Object;

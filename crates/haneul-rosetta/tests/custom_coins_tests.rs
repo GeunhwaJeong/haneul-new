@@ -8,11 +8,11 @@ mod test_coin_utils;
 
 use std::num::NonZeroUsize;
 
-use prost_types::FieldMask;
-use serde_json::json;
 use haneul_rpc::client::Client as GrpcClient;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::GetTransactionRequest;
+use prost_types::FieldMask;
+use serde_json::json;
 
 use haneul_rosetta::operations::Operations;
 mod test_utils;
@@ -20,7 +20,7 @@ use haneul_rosetta::CoinMetadataCache;
 use haneul_rosetta::HANEUL;
 use haneul_rosetta::types::{
     AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, Amount, Currency,
-    CurrencyMetadata, NetworkIdentifier, HaneulEnv,
+    CurrencyMetadata, HaneulEnv, NetworkIdentifier,
 };
 use haneul_rosetta::types::{Currencies, OperationType};
 use test_cluster::TestClusterBuilder;

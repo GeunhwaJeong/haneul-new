@@ -7,8 +7,6 @@
 use crate::{
     diag,
     diagnostics::codes::{DiagnosticInfo, Severity, custom},
-    naming::ast::TypeName_,
-    shared::Identifier,
     haneul_mode::{
         HANEUL_ADDR_VALUE,
         linters::{
@@ -16,6 +14,8 @@ use crate::{
             PUBLIC_FREEZE_FUN, TRANSFER_MOD_NAME,
         },
     },
+    naming::ast::TypeName_,
+    shared::Identifier,
     typing::{ast as T, core, visitor::simple_visitor},
 };
 use move_core_types::account_address::AccountAddress;

@@ -9,12 +9,9 @@ use crate::rpc_index::CoinIndexInfo;
 use crate::rpc_index::OwnerIndexInfo;
 use crate::rpc_index::OwnerIndexKey;
 use crate::rpc_index::RpcIndexStore;
-use move_core_types::language_storage::StructTag;
-use parking_lot::Mutex;
-use std::sync::Arc;
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::SequenceNumber;
-use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::committee::Committee;
 use haneul_types::committee::EpochId;
@@ -35,9 +32,6 @@ use haneul_types::storage::BalanceIterator;
 use haneul_types::storage::ChildObjectResolver;
 use haneul_types::storage::CoinInfo;
 use haneul_types::storage::DynamicFieldKey;
-use haneul_types::storage::LedgerBitmapBucketIterator;
-use haneul_types::storage::LedgerTxSeqDigest;
-use haneul_types::storage::LedgerTxSeqDigestIterator;
 use haneul_types::storage::ObjectStore;
 use haneul_types::storage::OwnedObjectInfo;
 use haneul_types::storage::RpcIndexes;
@@ -47,6 +41,9 @@ use haneul_types::storage::error::Error as StorageError;
 use haneul_types::storage::error::Result;
 use haneul_types::storage::{ObjectKey, OverlayBackingPackageStore, ReadStore};
 use haneul_types::transaction::VerifiedTransaction;
+use move_core_types::language_storage::StructTag;
+use parking_lot::Mutex;
+use std::sync::Arc;
 use tap::Pipe;
 use tap::TapFallible;
 use tracing::error;
@@ -227,40 +224,16 @@ impl ReadStore for RocksDbStore {
             .get_transaction_block(digest)
     }
 
-    fn multi_get_transactions(
-        &self,
-        digests: &[TransactionDigest],
-    ) -> Vec<Option<Arc<VerifiedTransaction>>> {
-        self.cache_traits
-            .transaction_cache_reader
-            .multi_get_transaction_blocks(digests)
-    }
-
     fn get_transaction_effects(&self, digest: &TransactionDigest) -> Option<TransactionEffects> {
         self.cache_traits
             .transaction_cache_reader
             .get_executed_effects(digest)
     }
 
-    fn multi_get_transaction_effects(
-        &self,
-        digests: &[TransactionDigest],
-    ) -> Vec<Option<TransactionEffects>> {
-        self.cache_traits
-            .transaction_cache_reader
-            .multi_get_executed_effects(digests)
-    }
-
     fn get_events(&self, digest: &TransactionDigest) -> Option<TransactionEvents> {
         self.cache_traits
             .transaction_cache_reader
             .get_events(digest)
-    }
-
-    fn multi_get_events(&self, digests: &[TransactionDigest]) -> Vec<Option<TransactionEvents>> {
-        self.cache_traits
-            .transaction_cache_reader
-            .multi_get_events(digests)
     }
 
     fn get_unchanged_loaded_runtime_objects(
@@ -413,10 +386,9 @@ impl RestReadStore {
     }
 
     fn index(&self) -> haneul_types::storage::error::Result<&RpcIndexStore> {
-        self.state
-            .rpc_index
-            .as_deref()
-            .ok_or_else(|| haneul_types::storage::error::Error::custom("rest index store is disabled"))
+        self.state.rpc_index.as_deref().ok_or_else(|| {
+            haneul_types::storage::error::Error::custom("rest index store is disabled")
+        })
     }
 }
 
@@ -492,30 +464,12 @@ impl ReadStore for RestReadStore {
         self.rocks.get_transaction(digest)
     }
 
-    fn multi_get_transactions(
-        &self,
-        digests: &[TransactionDigest],
-    ) -> Vec<Option<Arc<VerifiedTransaction>>> {
-        self.rocks.multi_get_transactions(digests)
-    }
-
     fn get_transaction_effects(&self, digest: &TransactionDigest) -> Option<TransactionEffects> {
         self.rocks.get_transaction_effects(digest)
     }
 
-    fn multi_get_transaction_effects(
-        &self,
-        digests: &[TransactionDigest],
-    ) -> Vec<Option<TransactionEffects>> {
-        self.rocks.multi_get_transaction_effects(digests)
-    }
-
     fn get_events(&self, digest: &TransactionDigest) -> Option<TransactionEvents> {
         self.rocks.get_events(digest)
-    }
-
-    fn multi_get_events(&self, digests: &[TransactionDigest]) -> Vec<Option<TransactionEvents>> {
-        self.rocks.multi_get_events(digests)
     }
 
     fn get_full_checkpoint_contents(
@@ -610,6 +564,64 @@ impl RpcStateReader for RestReadStore {
             .map(|layout| layout.into_layout())
             .map(Some)
             .map_err(StorageError::custom)
+    }
+}
+
+struct BatchedEventIterator<'a, I>
+where
+    I: Iterator<Item = Result<crate::rpc_index::EventIndexKey, TypedStoreError>>,
+{
+    key_iter: I,
+    rocks: &'a RocksDbStore,
+    current_checkpoint: Option<u64>,
+    current_checkpoint_contents: Option<haneul_types::messages_checkpoint::CheckpointContents>,
+    cached_tx_events: Option<TransactionEvents>,
+    cached_tx_digest: Option<TransactionDigest>,
+}
+
+impl<I> Iterator for BatchedEventIterator<'_, I>
+where
+    I: Iterator<Item = Result<crate::rpc_index::EventIndexKey, TypedStoreError>>,
+{
+    type Item = Result<(u64, u64, u32, u32, haneul_types::event::Event), TypedStoreError>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let key = match self.key_iter.next()? {
+            Ok(k) => k,
+            Err(e) => return Some(Err(e)),
+        };
+
+        if self.current_checkpoint != Some(key.checkpoint_seq) {
+            self.current_checkpoint = Some(key.checkpoint_seq);
+            self.current_checkpoint_contents = self
+                .rocks
+                .get_checkpoint_contents_by_sequence_number(key.checkpoint_seq);
+            self.cached_tx_events = None;
+            self.cached_tx_digest = None;
+        }
+
+        let checkpoint_contents = self.current_checkpoint_contents.as_ref()?;
+
+        let exec_digest = checkpoint_contents
+            .iter()
+            .nth(key.transaction_idx as usize)?;
+        let tx_digest = exec_digest.transaction;
+
+        if self.cached_tx_digest != Some(tx_digest) {
+            self.cached_tx_digest = Some(tx_digest);
+            self.cached_tx_events = self.rocks.get_events(&tx_digest);
+        }
+
+        let tx_events = self.cached_tx_events.as_ref()?;
+        let event = tx_events.data.get(key.event_index as usize)?.clone();
+
+        Some(Ok((
+            key.checkpoint_seq,
+            key.accumulator_version,
+            key.transaction_idx,
+            key.event_index,
+            event,
+        )))
     }
 }
 
@@ -744,63 +756,46 @@ impl RpcIndexes for RestReadStore {
             .map_err(Into::into)
     }
 
-    fn ledger_tx_seq_digest(&self, tx_seq: u64) -> Result<Option<LedgerTxSeqDigest>> {
-        self.index()?
-            .ledger_tx_seq_digest(tx_seq)
-            .map_err(Into::into)
-    }
-
-    fn ledger_tx_seq_digest_multi_get(
+    fn authenticated_event_iter(
         &self,
-        tx_seqs: &[u64],
-    ) -> Result<Vec<Option<LedgerTxSeqDigest>>> {
-        self.index()?
-            .ledger_tx_seq_digest_multi_get(tx_seqs)
-            .map_err(Into::into)
-    }
+        stream_id: HaneulAddress,
+        start_checkpoint: u64,
+        start_accumulator_version: Option<u64>,
+        start_transaction_idx: Option<u32>,
+        start_event_idx: Option<u32>,
+        end_checkpoint: u64,
+        limit: u32,
+    ) -> haneul_types::storage::error::Result<
+        Box<
+            dyn Iterator<
+                    Item = Result<
+                        (u64, u64, u32, u32, haneul_types::event::Event),
+                        TypedStoreError,
+                    >,
+                > + '_,
+        >,
+    > {
+        let index = self.index()?;
+        let key_iter = index.event_iter(
+            stream_id,
+            start_checkpoint,
+            start_accumulator_version.unwrap_or(0),
+            start_transaction_idx.unwrap_or(0),
+            start_event_idx.unwrap_or(0),
+            end_checkpoint,
+            limit,
+        )?;
 
-    fn ledger_tx_seq_digest_iter(
-        &self,
-        start: u64,
-        end_exclusive: u64,
-        descending: bool,
-    ) -> Result<LedgerTxSeqDigestIterator<'_>> {
-        self.index()?
-            .ledger_tx_seq_digest_iter(start, end_exclusive, descending)
-            .map_err(Into::into)
-    }
+        let rocks = &self.rocks;
+        let iter = BatchedEventIterator {
+            key_iter,
+            rocks,
+            current_checkpoint: None,
+            current_checkpoint_contents: None,
+            cached_tx_events: None,
+            cached_tx_digest: None,
+        };
 
-    fn transaction_bitmap_bucket_iter(
-        &self,
-        dimension_key: Vec<u8>,
-        start_bucket: u64,
-        end_bucket_exclusive: u64,
-        descending: bool,
-    ) -> Result<LedgerBitmapBucketIterator<'_>> {
-        self.index()?
-            .transaction_bitmap_bucket_iter(
-                dimension_key,
-                start_bucket,
-                end_bucket_exclusive,
-                descending,
-            )
-            .map_err(Into::into)
-    }
-
-    fn event_bitmap_bucket_iter(
-        &self,
-        dimension_key: Vec<u8>,
-        start_bucket: u64,
-        end_bucket_exclusive: u64,
-        descending: bool,
-    ) -> Result<LedgerBitmapBucketIterator<'_>> {
-        self.index()?
-            .event_bitmap_bucket_iter(
-                dimension_key,
-                start_bucket,
-                end_bucket_exclusive,
-                descending,
-            )
-            .map_err(Into::into)
+        Ok(Box::new(iter))
     }
 }

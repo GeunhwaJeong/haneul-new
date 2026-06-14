@@ -13,6 +13,13 @@ use futures::FutureExt;
 use futures::StreamExt;
 use futures::future::{self, Either, select};
 use futures::stream::FuturesUnordered;
+use haneul_types::base_types::AuthorityName;
+use haneul_types::error::{HaneulError, HaneulErrorKind, HaneulResult};
+use haneul_types::fp_ensure;
+use haneul_types::messages_consensus::ConsensusPosition;
+use haneul_types::messages_consensus::ConsensusTransactionKind;
+use haneul_types::messages_consensus::{ConsensusTransaction, ConsensusTransactionKey};
+use haneul_types::transaction::TransactionDataAPI;
 use haneullabs_common::debug_fatal;
 use haneullabs_metrics::{
     GaugeGuard, InflightGuardFutureExt, LATENCY_SEC_BUCKETS, spawn_monitored_task,
@@ -30,13 +37,6 @@ use prometheus::{
     register_int_counter_vec_with_registry, register_int_counter_with_registry,
     register_int_gauge_vec_with_registry, register_int_gauge_with_registry,
 };
-use haneul_types::base_types::AuthorityName;
-use haneul_types::error::{HaneulError, HaneulErrorKind, HaneulResult};
-use haneul_types::fp_ensure;
-use haneul_types::messages_consensus::ConsensusPosition;
-use haneul_types::messages_consensus::ConsensusTransactionKind;
-use haneul_types::messages_consensus::{ConsensusTransaction, ConsensusTransactionKey};
-use haneul_types::transaction::TransactionDataAPI;
 use tokio::sync::{Notify, Semaphore, SemaphorePermit, oneshot};
 use tokio::task::JoinHandle;
 use tokio::time::Duration;

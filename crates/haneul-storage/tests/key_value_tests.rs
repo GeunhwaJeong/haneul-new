@@ -3,8 +3,6 @@
 
 use async_trait::async_trait;
 use futures::FutureExt;
-use std::collections::HashMap;
-use std::sync::Arc;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::{
@@ -23,6 +21,8 @@ use haneul_types::messages_checkpoint::{
     SignedCheckpointSummary,
 };
 use haneul_types::transaction::Transaction;
+use std::collections::HashMap;
+use std::sync::Arc;
 
 use haneul_storage::http_key_value_store::*;
 use haneul_storage::key_value_store::*;
@@ -203,7 +203,10 @@ impl TransactionKeyValueStoreTrait for MockTxStore {
         Ok(self.objects.get(&ObjectKey(object_id, version)).cloned())
     }
 
-    async fn multi_get_objects(&self, object_keys: &[ObjectKey]) -> HaneulResult<Vec<Option<Object>>> {
+    async fn multi_get_objects(
+        &self,
+        object_keys: &[ObjectKey],
+    ) -> HaneulResult<Vec<Option<Object>>> {
         Ok(object_keys
             .iter()
             .map(|key| self.objects.get(key).cloned())
@@ -377,11 +380,11 @@ mod simtests {
     use super::*;
     use axum::routing::get;
     use axum::{body::Body, extract::Request, extract::State, response::Response};
+    use haneul_macros::sim_test;
+    use haneul_simulator::configs::constant_latency_ms;
     use std::net::SocketAddr;
     use std::sync::Mutex;
     use std::time::{Duration, Instant};
-    use haneul_macros::sim_test;
-    use haneul_simulator::configs::constant_latency_ms;
     use tracing::info;
 
     async fn svc(

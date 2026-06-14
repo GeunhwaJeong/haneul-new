@@ -1,14 +1,14 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_types::base_types::ObjectType;
+use haneul_types::haneul_serde::HaneulStructTag;
+use haneul_types::parse_haneul_struct_tag;
 use move_core_types::language_storage::StructTag;
 use serde::Serialize;
 use serde_json::Value;
 use serde_with::serde_as;
 use std::str::FromStr;
-use haneul_types::base_types::ObjectType;
-use haneul_types::parse_haneul_struct_tag;
-use haneul_types::haneul_serde::HaneulStructTag;
 
 #[test]
 fn test_struct_tag_serde() {

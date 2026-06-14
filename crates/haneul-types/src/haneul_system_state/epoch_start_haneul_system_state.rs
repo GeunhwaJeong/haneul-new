@@ -10,9 +10,9 @@ use crate::crypto::{AuthorityPublicKey, NetworkPublicKey};
 use crate::multiaddr::Multiaddr;
 use anemo::PeerId;
 use consensus_config::{Authority, Committee as ConsensusCommittee};
+use haneul_protocol_config::ProtocolVersion;
 use haneullabs_common::ZipDebugEqIteratorExt;
 use serde::{Deserialize, Serialize};
-use haneul_protocol_config::ProtocolVersion;
 use tracing::error;
 
 #[enum_dispatch]
@@ -287,9 +287,9 @@ mod test {
         EpochStartSystemStateTrait, EpochStartSystemStateV1, EpochStartValidatorInfoV1,
     };
     use fastcrypto::traits::KeyPair;
+    use haneul_protocol_config::ProtocolVersion;
     use haneullabs_network::Multiaddr;
     use rand::thread_rng;
-    use haneul_protocol_config::ProtocolVersion;
 
     #[test]
     fn test_haneul_and_mysticeti_committee_are_same() {

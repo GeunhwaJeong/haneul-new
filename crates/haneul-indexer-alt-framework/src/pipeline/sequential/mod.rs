@@ -4,9 +4,9 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
+use haneul_futures::service::Service;
 use serde::Deserialize;
 use serde::Serialize;
-use haneul_futures::service::Service;
 use tokio::sync::mpsc;
 use tracing::info;
 
@@ -199,8 +199,8 @@ pub(crate) fn pipeline<H: Handler>(
 mod tests {
     use std::time::Duration;
 
-    use prometheus::Registry;
     use haneul_types::full_checkpoint_content::Checkpoint;
+    use prometheus::Registry;
 
     use crate::mocks::store::FallibleMockConnection;
     use crate::mocks::store::FallibleMockStore;

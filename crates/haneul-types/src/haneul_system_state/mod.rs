@@ -11,25 +11,25 @@ use crate::dynamic_field::{
 };
 use crate::error::{HaneulError, HaneulErrorKind};
 use crate::gas::GasCostSummary;
-use crate::object::{MoveObject, Object};
-use crate::storage::ObjectStore;
 use crate::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use crate::haneul_system_state::haneul_system_state_inner_v2::HaneulSystemStateInnerV2;
+use crate::object::{MoveObject, Object};
+use crate::storage::ObjectStore;
 use crate::versioned::Versioned;
-use crate::{MoveTypeTagTrait, HANEUL_SYSTEM_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID, id::UID};
+use crate::{HANEUL_SYSTEM_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID, MoveTypeTagTrait, id::UID};
 use anyhow::Result;
 use enum_dispatch::enum_dispatch;
+use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
 use move_core_types::{ident_str, identifier::IdentStr, language_storage::StructTag};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
 
 pub mod epoch_start_haneul_system_state;
-pub mod mock;
 pub mod haneul_system_state_inner_v1;
 pub mod haneul_system_state_inner_v2;
 pub mod haneul_system_state_summary;
+pub mod mock;
 
 #[cfg(msim)]
 mod simtest_haneul_system_state_inner;
@@ -42,9 +42,12 @@ use self::simtest_haneul_system_state_inner::{
 const HANEUL_SYSTEM_STATE_WRAPPER_STRUCT_NAME: &IdentStr = ident_str!("HaneulSystemState");
 
 pub const HANEUL_SYSTEM_MODULE_NAME: &IdentStr = ident_str!("haneul_system");
-pub const HANEUL_SYSTEM_STATE_INNER_MODULE_NAME: &IdentStr = ident_str!("haneul_system_state_inner");
-pub const HANEUL_SYSTEM_STATE_INNER_V1_STRUCT_NAME: &IdentStr = ident_str!("HaneulSystemStateInner");
-pub const HANEUL_SYSTEM_STATE_INNER_V2_STRUCT_NAME: &IdentStr = ident_str!("HaneulSystemStateInnerV2");
+pub const HANEUL_SYSTEM_STATE_INNER_MODULE_NAME: &IdentStr =
+    ident_str!("haneul_system_state_inner");
+pub const HANEUL_SYSTEM_STATE_INNER_V1_STRUCT_NAME: &IdentStr =
+    ident_str!("HaneulSystemStateInner");
+pub const HANEUL_SYSTEM_STATE_INNER_V2_STRUCT_NAME: &IdentStr =
+    ident_str!("HaneulSystemStateInnerV2");
 pub const VALIDATOR_MODULE_NAME: &IdentStr = ident_str!("validator");
 pub const VALIDATOR_STRUCT_NAME: &IdentStr = ident_str!("Validator");
 pub const ADVANCE_EPOCH_FUNCTION_NAME: &IdentStr = ident_str!("advance_epoch");
@@ -251,7 +254,9 @@ pub fn get_haneul_system_state_wrapper(
     Ok(result)
 }
 
-pub fn get_haneul_system_state(object_store: &dyn ObjectStore) -> Result<HaneulSystemState, HaneulError> {
+pub fn get_haneul_system_state(
+    object_store: &dyn ObjectStore,
+) -> Result<HaneulSystemState, HaneulError> {
     let wrapper = get_haneul_system_state_wrapper(object_store)?;
     let id = wrapper.id.id.bytes;
     match wrapper.version {

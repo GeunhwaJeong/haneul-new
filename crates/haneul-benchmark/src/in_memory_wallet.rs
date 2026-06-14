@@ -3,14 +3,14 @@
 
 use std::{collections::BTreeMap, sync::Arc};
 
-use move_core_types::{identifier::Identifier, language_storage::TypeTag};
 use haneul_types::{
-    base_types::{ObjectID, ObjectRef, HaneulAddress},
+    base_types::{HaneulAddress, ObjectID, ObjectRef},
     crypto::AccountKeyPair,
     object::Owner,
     transaction::{CallArg, Transaction, TransactionData, TransactionDataAPI},
     utils::to_sender_signed_transaction,
 };
+use move_core_types::{identifier::Identifier, language_storage::TypeTag};
 
 use crate::ProgrammableTransactionBuilder;
 use crate::{BenchMoveCallArg, ExecutionEffects, convert_move_call_args, workloads::Gas};
@@ -85,7 +85,8 @@ impl InMemoryWallet {
         gas: ObjectRef,
         objs: Vec<ObjectRef>,
     ) {
-        self.accounts.insert(addr, HaneulAccount::new(key, gas, objs));
+        self.accounts
+            .insert(addr, HaneulAccount::new(key, gas, objs));
     }
 
     /// Apply updates from `effects` to `self`

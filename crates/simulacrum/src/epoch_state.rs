@@ -15,12 +15,12 @@ use haneul_types::{
     effects::TransactionEffects,
     execution_params::ExecutionOrEarlyError,
     gas::HaneulGasStatus,
-    inner_temporary_store::InnerTemporaryStore,
-    metrics::{BytecodeVerifierMetrics, ExecutionMetrics},
     haneul_system_state::{
         HaneulSystemState, HaneulSystemStateTrait,
         epoch_start_haneul_system_state::{EpochStartSystemState, EpochStartSystemStateTrait},
     },
+    inner_temporary_store::InnerTemporaryStore,
+    metrics::{BytecodeVerifierMetrics, ExecutionMetrics},
     transaction::{TransactionDataAPI, VerifiedTransaction},
 };
 
@@ -138,15 +138,16 @@ impl EpochState {
 
         // Run the transaction input checks that would run when submitting the txn to a validator
         // for signing
-        let (gas_status, checked_input_objects) = haneul_transaction_checks::check_transaction_input(
-            &self.protocol_config,
-            self.epoch_start_state.reference_gas_price(),
-            transaction.data().transaction_data(),
-            input_objects,
-            &receiving_objects,
-            &self.bytecode_verifier_metrics,
-            verifier_signing_config,
-        )?;
+        let (gas_status, checked_input_objects) =
+            haneul_transaction_checks::check_transaction_input(
+                &self.protocol_config,
+                self.epoch_start_state.reference_gas_price(),
+                transaction.data().transaction_data(),
+                input_objects,
+                &receiving_objects,
+                &self.bytecode_verifier_metrics,
+                verifier_signing_config,
+            )?;
 
         let transaction_data = transaction.data().transaction_data();
         let (kind, signer, gas_data) = transaction_data.execution_parts();
@@ -158,7 +159,7 @@ impl EpochState {
                 self.execution_metrics.clone(),
                 false, // enable_expensive_checks
                 // TODO: Integrate with early execution error
-                ExecutionOrEarlyError::ok(None),
+                ExecutionOrEarlyError::Ok(()),
                 &self.epoch_start_state.epoch(),
                 self.epoch_start_state.epoch_start_timestamp_ms(),
                 checked_input_objects,

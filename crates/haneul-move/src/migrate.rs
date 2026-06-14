@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use clap::Parser;
+use haneul_package_alt::HaneulFlavor;
 use move_cli::base::migrate;
 use move_package_alt_compilation::build_config::BuildConfig;
 use std::path::Path;
-use haneul_package_alt::HaneulFlavor;
 
 #[derive(Parser)]
 #[group(id = "haneul-move-migrate")]

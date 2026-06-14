@@ -14,9 +14,9 @@ use serde_with::serde_as;
 use haneul_types::base_types::AuthorityName;
 use haneul_types::base_types::{EpochId, ObjectID};
 use haneul_types::committee::Committee;
-use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::haneul_serde::BigInt;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulValidatorSummary;
+use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 
 use crate::Page;
 

@@ -3,25 +3,25 @@
 
 use async_trait::async_trait;
 use futures::TryStreamExt;
-use prost_types::FieldMask;
-use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 use haneul_rpc::client::Client;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::{GetEpochRequest, ListOwnedObjectsRequest};
 use haneul_sdk_types::Address;
-use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID, ObjectRef};
+use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::rpc_proto_conversions::ObjectReferenceExt;
-use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::transaction::{CallArg, Command, ObjectArg, ProgrammableTransaction};
-use haneul_types::{Identifier, HANEUL_SYSTEM_PACKAGE_ID};
+use haneul_types::{HANEUL_SYSTEM_PACKAGE_ID, Identifier};
+use prost_types::FieldMask;
+use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 use crate::errors::Error;
 
 use super::{TransactionObjectData, TryConstructTransaction, simulate_transaction};
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ConsolidateAllStakedHaneulToFungible {
     pub sender: HaneulAddress,
     pub validator: HaneulAddress,
@@ -61,7 +61,8 @@ impl TryConstructTransaction for ConsolidateAllStakedHaneulToFungible {
         let current_epoch = crate::get_current_epoch(client).await?;
         let pool_id = get_validator_pool_id(client, validator).await?;
 
-        let staked_haneul_refs = discover_staked_haneul(client, sender, &pool_id, current_epoch).await?;
+        let staked_haneul_refs =
+            discover_staked_haneul(client, sender, &pool_id, current_epoch).await?;
         let fss_refs = discover_fss(client, sender, &pool_id).await?;
 
         if staked_haneul_refs.is_empty() && fss_refs.len() <= 1 {
@@ -109,8 +110,6 @@ impl TryConstructTransaction for ConsolidateAllStakedHaneulToFungible {
             address_balance_withdrawal: 0,
             fss_object_count: Some(fss_count as u64),
             redeem_token_amount: None,
-            redeem_plan: None,
-            bind_epoch: None,
         })
     }
 }

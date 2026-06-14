@@ -3,13 +3,9 @@
 
 use crate::{TestCaseImpl, TestContext};
 use async_trait::async_trait;
-use jsonrpsee::rpc_params;
-use move_core_types::language_storage::StructTag;
-use serde_json::json;
-use std::collections::HashMap;
 use haneul_json::HaneulJsonValue;
-use haneul_json_rpc_types::ObjectChange;
 use haneul_json_rpc_types::HaneulTransactionBlockResponse;
+use haneul_json_rpc_types::ObjectChange;
 use haneul_json_rpc_types::{Balance, HaneulTransactionBlockResponseOptions};
 use haneul_move_build::test_utils::compile_managed_coin_package;
 use haneul_test_transaction_builder::make_staking_transaction;
@@ -17,6 +13,10 @@ use haneul_types::base_types::{ObjectID, ObjectRef};
 use haneul_types::gas_coin::GAS;
 use haneul_types::object::Owner;
 use haneul_types::transaction_driver_types::ExecuteTransactionRequestType;
+use jsonrpsee::rpc_params;
+use move_core_types::language_storage::StructTag;
+use serde_json::json;
+use std::collections::HashMap;
 use tracing::info;
 
 pub struct CoinIndexTest;
@@ -456,7 +456,7 @@ impl TestCaseImpl for CoinIndexTest {
                 vec![],
                 vec![
                     HaneulJsonValue::from_object_id(cap.0),
-                    HaneulJsonValue::new(json!("5"))?,  // balance = 5
+                    HaneulJsonValue::new(json!("5"))?, // balance = 5
                     HaneulJsonValue::new(json!("40"))?, // num = 40
                     HaneulJsonValue::new(json!(account))?,
                 ],

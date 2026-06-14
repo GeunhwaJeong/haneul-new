@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use fs_extra::dir::CopyOptions;
+use haneul_config::{Config, HANEUL_CLIENT_CONFIG, HANEUL_KEYSTORE_FILENAME};
+use haneul_keys::keystore::{FileBasedKeystore, Keystore};
+use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use insta_cmd::get_cargo_bin;
 use move_command_line_common::insta_assert;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use haneul_config::{Config, HANEUL_CLIENT_CONFIG, HANEUL_KEYSTORE_FILENAME};
-use haneul_keys::keystore::{FileBasedKeystore, Keystore};
-use haneul_sdk::haneul_client_config::{HaneulClientConfig, HaneulEnv};
 use tempfile::TempDir;
 use test_cluster::TestClusterBuilder;
 
@@ -91,11 +91,9 @@ async fn shell_tests(path: &Path) -> datatest_stable::Result<()> {
         output.status.success(),
         output.status.code().unwrap_or(!0),
         String::from_utf8_lossy(&output.stdout)
-            .replace("\r\n", "\n")
             .replace(r"\\", "/")
             .replace(r"\", "/"),
         String::from_utf8_lossy(&output.stderr)
-            .replace("\r\n", "\n")
             .replace(r"\\", "/")
             .replace(r"\", "/"),
     );

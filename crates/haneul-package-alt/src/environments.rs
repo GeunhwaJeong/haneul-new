@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_package_alt::schema::Environment;
 use haneul_sdk::types::{
     digests::{get_mainnet_chain_identifier, get_testnet_chain_identifier},
     supported_protocol_versions::Chain,
 };
+use move_package_alt::schema::Environment;
 
 pub fn testnet_environment() -> Environment {
     Environment {

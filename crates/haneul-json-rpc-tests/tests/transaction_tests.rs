@@ -6,7 +6,6 @@
 #[cfg(not(msim))]
 use std::str::FromStr;
 
-use move_core_types::identifier::Identifier;
 use haneul_json::{call_args, type_args};
 use haneul_json_rpc_api::ReadApiClient;
 use haneul_json_rpc_types::HaneulTransactionBlockDataAPI;
@@ -18,14 +17,15 @@ use haneul_json_rpc_types::{
 };
 use haneul_macros::sim_test;
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
-use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::ObjectID;
 use haneul_types::gas_coin::GAS;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::Command;
 use haneul_types::transaction::SenderSignedData;
 use haneul_types::transaction::TransactionData;
 use haneul_types::transaction_driver_types::ExecuteTransactionRequestType;
+use move_core_types::identifier::Identifier;
 use test_cluster::TestClusterBuilder;
 
 use haneul_json_rpc_api::{IndexerApiClient, TransactionBuilderClient, WriteApiClient};
@@ -334,7 +334,10 @@ async fn test_get_fullnode_transaction() -> Result<(), anyhow::Error> {
     for tx_resp in tx.data {
         let response: HaneulTransactionBlockResponse = client
             .read_api()
-            .get_transaction_with_options(tx_resp.digest, HaneulTransactionBlockResponseOptions::new())
+            .get_transaction_with_options(
+                tx_resp.digest,
+                HaneulTransactionBlockResponseOptions::new(),
+            )
             .await
             .unwrap();
         assert_eq!(tx_resp.digest, response.digest);
@@ -484,8 +487,9 @@ async fn test_query_transaction_blocks_to_address() -> Result<(), anyhow::Error>
         .await?;
 
     // Query transactions where the recipient received funds.
-    let query =
-        HaneulTransactionBlockResponseQuery::new_with_filter(TransactionFilter::ToAddress(recipient));
+    let query = HaneulTransactionBlockResponseQuery::new_with_filter(TransactionFilter::ToAddress(
+        recipient,
+    ));
     let result = http_client
         .query_transaction_blocks(query, None, Some(10), Some(false))
         .await?;

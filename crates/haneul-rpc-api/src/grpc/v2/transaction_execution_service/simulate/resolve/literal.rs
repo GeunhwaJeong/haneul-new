@@ -5,9 +5,6 @@ use super::ArgUses;
 use super::NormalizedPackages;
 use crate::Result;
 use crate::RpcError;
-use move_binary_format::normalized;
-use prost_types::Value;
-use prost_types::value::Kind;
 use haneul_sdk_types::Command;
 use haneul_types::MOVE_STDLIB_ADDRESS;
 use haneul_types::base_types::ObjectID;
@@ -17,6 +14,9 @@ use haneul_types::base_types::STD_OPTION_MODULE_NAME;
 use haneul_types::base_types::STD_OPTION_STRUCT_NAME;
 use haneul_types::base_types::STD_UTF8_MODULE_NAME;
 use haneul_types::base_types::STD_UTF8_STRUCT_NAME;
+use move_binary_format::normalized;
+use prost_types::Value;
+use prost_types::value::Kind;
 
 type Type = normalized::Type<normalized::RcIdentifier>;
 
@@ -73,8 +73,9 @@ fn determine_literal_type(
             }
             (Command::MakeMoveVector(make_move_vector), Some(_)) => {
                 if let Some(ty) = &make_move_vector.type_ {
-                    let ty =
-                        haneul_types::haneul_sdk_types_conversions::type_tag_sdk_to_core(ty.clone())?;
+                    let ty = haneul_types::haneul_sdk_types_conversions::type_tag_sdk_to_core(
+                        ty.clone(),
+                    )?;
                     let ty = normalized::Type::from_type_tag(&mut called_packages.pool, &ty);
                     set_type(&mut literal_type, ty)?;
                 } else {

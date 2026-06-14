@@ -6,7 +6,6 @@ use crate::committee::extract_new_committee_info;
 use crate::config::Config;
 use crate::object_store::HaneulObjectStore;
 use anyhow::{Result, anyhow};
-use haneullabs_common::ZipDebugEqIteratorExt;
 use haneul_config::genesis::Genesis;
 use haneul_rpc_api::Client;
 use haneul_types::base_types::{ObjectID, TransactionDigest};
@@ -15,6 +14,7 @@ use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::object::Object;
+use haneullabs_common::ZipDebugEqIteratorExt;
 use tracing::info;
 
 use haneul_types::effects::TransactionEffectsAPI;
@@ -224,15 +224,15 @@ pub async fn get_verified_checkpoint(
 // Make a test namespace
 #[cfg(test)]
 mod tests {
+    use haneul_types::messages_checkpoint::{CheckpointSummary, FullCheckpointContents};
     use std::fs;
     use std::io::{Read, Write};
-    use haneul_types::messages_checkpoint::{CheckpointSummary, FullCheckpointContents};
 
     use super::*;
-    use std::path::{Path, PathBuf};
-    use std::str::FromStr;
     use haneul_types::crypto::AuthorityQuorumSignInfo;
     use haneul_types::message_envelope::Envelope;
+    use std::path::{Path, PathBuf};
+    use std::str::FromStr;
 
     async fn read_full_checkpoint(checkpoint_path: &PathBuf) -> anyhow::Result<CheckpointData> {
         let mut reader = fs::File::open(checkpoint_path.clone())?;

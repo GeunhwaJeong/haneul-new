@@ -3,8 +3,8 @@
 
 use bincode::Decode;
 use bincode::Encode;
-use move_core_types::language_storage::TypeTag;
 use haneul_indexer_alt_framework::types::base_types::HaneulAddress;
+use move_core_types::language_storage::TypeTag;
 
 #[derive(Encode, Decode, PartialEq, Eq, Ord, PartialOrd)]
 pub(crate) struct Key {

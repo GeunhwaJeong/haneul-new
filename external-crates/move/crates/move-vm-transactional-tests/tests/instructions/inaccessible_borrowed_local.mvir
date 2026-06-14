@@ -7,10 +7,10 @@ entry fun foo() {
     label start:
         jump_if_false (true) end;
     label if_true:
-        x = vector<u64; 0>();
+        x = vec_pack_0<u64>();
         r = &x;
     label end:
-        x = vector<u64; 0>();
+        x = vec_pack_0<u64>();
         return;
 }
 
@@ -22,7 +22,7 @@ entry fun foo() {
     let x: vector<u64>;
     let r: &vector<u64>;
     label start:
-        x = vector<u64; 0>();
+        x = vec_pack_0<u64>();
         jump_if_false (true) end;
     label if_true:
         r = &x;

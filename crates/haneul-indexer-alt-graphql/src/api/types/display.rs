@@ -7,11 +7,11 @@ use anyhow::Context as _;
 use async_graphql::Context;
 use async_graphql::SimpleObject;
 use async_graphql::dataloader::DataLoader;
-use move_core_types::language_storage::StructTag;
 use haneul_indexer_alt_reader::displays::DisplayKey;
 use haneul_indexer_alt_reader::pg_reader::PgReader;
 use haneul_types::display::DisplayVersionUpdatedEvent;
 use haneul_types::display_registry;
+use move_core_types::language_storage::StructTag;
 
 use crate::api::scalars::json::Json;
 use crate::api::types::object::Object;

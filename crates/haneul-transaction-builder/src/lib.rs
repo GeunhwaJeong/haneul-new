@@ -9,28 +9,30 @@ use std::sync::Arc;
 use anyhow::{Ok, anyhow, bail, ensure};
 use async_trait::async_trait;
 use futures::future::join_all;
+use haneul_json::{
+    HaneulJsonValue, ResolvedCallArg, is_receiving_argument, resolve_move_function_args,
+};
+use haneul_json_rpc_types::{HaneulTypeTag, RPCTransactionRequestParams};
+use haneul_types::base_types::{
+    FullObjectRef, HaneulAddress, ObjectID, ObjectInfo, ObjectRef, ObjectType,
+};
+use haneul_types::error::UserInputError;
+use haneul_types::gas_coin::GasCoin;
+use haneul_types::governance::{ADD_STAKE_MUL_COIN_FUN_NAME, WITHDRAW_STAKE_FUN_NAME};
+use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
+use haneul_types::object::{Object, Owner};
+use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
+use haneul_types::transaction::{
+    Argument, CallArg, Command, InputObjectKind, ObjectArg, SharedObjectMutability,
+    TransactionData, TransactionKind,
+};
+use haneul_types::{HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_PACKAGE_ID, coin, fp_ensure};
 use move_binary_format::CompiledModule;
 use move_binary_format::binary_config::BinaryConfig;
 use move_binary_format::file_format::SignatureToken;
 use move_core_types::ident_str;
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::{StructTag, TypeTag};
-use haneul_json::{ResolvedCallArg, HaneulJsonValue, is_receiving_argument, resolve_move_function_args};
-use haneul_json_rpc_types::{RPCTransactionRequestParams, HaneulTypeTag};
-use haneul_types::base_types::{
-    FullObjectRef, ObjectID, ObjectInfo, ObjectRef, ObjectType, HaneulAddress,
-};
-use haneul_types::error::UserInputError;
-use haneul_types::gas_coin::GasCoin;
-use haneul_types::governance::{ADD_STAKE_MUL_COIN_FUN_NAME, WITHDRAW_STAKE_FUN_NAME};
-use haneul_types::object::{Object, Owner};
-use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
-use haneul_types::transaction::{
-    Argument, CallArg, Command, InputObjectKind, ObjectArg, SharedObjectMutability,
-    TransactionData, TransactionKind,
-};
-use haneul_types::{HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_PACKAGE_ID, coin, fp_ensure};
 
 #[async_trait]
 pub trait DataReader {
@@ -402,10 +404,6 @@ impl TransactionBuilder {
             | Owner::ConsensusAddressOwner {
                 start_version: initial_shared_version,
                 ..
-            }
-            | Owner::Party {
-                start_version: initial_shared_version,
-                ..
             } => ObjectArg::SharedObject {
                 id,
                 initial_shared_version,
@@ -548,16 +546,11 @@ impl TransactionBuilder {
                 | Owner::ConsensusAddressOwner {
                     start_version: initial_shared_version,
                     ..
-                }
-                | Owner::Party {
-                    start_version: initial_shared_version,
-                    ..
                 } => ObjectArg::SharedObject {
                     id: upgrade_capability.compute_object_reference().0,
                     initial_shared_version,
                     mutability: SharedObjectMutability::Mutable,
                 },
-
                 Owner::Immutable => {
                     bail!("Upgrade capability is stored immutably and cannot be used for upgrades")
                 }

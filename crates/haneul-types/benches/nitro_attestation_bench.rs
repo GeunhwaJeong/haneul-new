@@ -4,11 +4,11 @@
 use criterion::*;
 use fastcrypto::encoding::Encoding;
 use fastcrypto::encoding::Hex;
+use haneul_types::nitro_attestation::{parse_nitro_attestation, verify_nitro_attestation};
 use p384::ecdsa::signature::Signer;
 use p384::ecdsa::signature::Verifier;
 use p384::ecdsa::{Signature, SigningKey, VerifyingKey};
 use rand::rngs::OsRng;
-use haneul_types::nitro_attestation::{parse_nitro_attestation, verify_nitro_attestation};
 
 fn nitro_attestation_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("attestation");

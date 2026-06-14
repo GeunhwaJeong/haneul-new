@@ -324,7 +324,7 @@ contract BridgeLimiterTest is BridgeBaseTest {
         });
         bytes memory encodedMessage = BridgeUtils.encodeMessage(message);
         bytes memory expectedEncodedMessage =
-            hex"5355495f4252494447455f4d4553534147450301000000000000000f020c00000002540be400";
+            hex"48414e45554c5f4252494447455f4d4553534147450301000000000000000f020c00000002540be400";
 
         assertEq(encodedMessage, expectedEncodedMessage);
     }
@@ -339,10 +339,10 @@ contract BridgeLimiterTest is BridgeBaseTest {
         _supportedChains[0] = sendingChainID;
         uint8[] memory _supportedDestinationChains = new uint8[](1);
         _supportedDestinationChains[0] = sendingChainID;
-        _committeeList[0] = 0x68B43fD906C0B8F024a18C56e06744F7c6157c65;
-        _committeeList[1] = 0xaCAEf39832CB995c4E049437A3E2eC6a7bad1Ab5;
-        _committeeList[2] = 0x8061f127910e8eF56F16a2C411220BaD25D61444;
-        _committeeList[3] = 0x508F3F1ff45F4ca3D8e86CDCC91445F00aCC59fC;
+        _committeeList[0] = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+        _committeeList[1] = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8;
+        _committeeList[2] = 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC;
+        _committeeList[3] = 0x90F79bf6EB2c4f870365E785982E1f101E93b906;
         _stake[0] = 2500;
         _stake[1] = 2500;
         _stake[2] = 2500;
@@ -427,18 +427,18 @@ contract BridgeLimiterTest is BridgeBaseTest {
         });
         bytes memory encodedMessage = BridgeUtils.encodeMessage(message);
         bytes memory expectedEncodedMessage =
-            hex"5355495f4252494447455f4d455353414745030100000000000000000b0100000915fa66bc00";
+            hex"48414e45554c5f4252494447455f4d455353414745030100000000000000000b0100000915fa66bc00";
 
         assertEq(encodedMessage, expectedEncodedMessage);
 
         bytes[] memory signatures = new bytes[](3);
 
         signatures[0] =
-            hex"d19f71162a73150af2b786befbf248914bd421ac42a7345c47b2ef48f98d24a45eba60676ea17c6aa25ca0f548d3ef97e1498b7232576f08b91b09e1a8daeec001";
+            hex"918150cf6c6d312c7dd35c0a9ebe84a5e6930e9f66e9de7819b051e1f2fff31a38550250848552f374c9b15b552955f8b2d7aaaa4b9d999e4ebdedde4ac07b1601";
         signatures[1] =
-            hex"5f9de5595ea57405c8b4e2728864f6fd33399f2bb22c5b9e24ee36f9a357d61223512a20cce8eb536c10e99c21c35f357ae26a5cb2083c495d8f280b31d89ec300";
+            hex"77325f1c02cb3bdc96799acf7c14bd50f78ff94ea31fc0d5e410a13a794a5d1c16be33f85fcdc9715292608ec7a35434d941a5727cb636e124b1163f86c5a90500";
         signatures[2] =
-            hex"33deda897325e500e84ab97eac33cc3d5bdc3ec46361ab8df1068da71bd8bf077f0f1265d80b23c590c55eeee2612d4cfae03a21f7c67e268c4f09dc2f1a0d9401";
+            hex"beaf7c4b6136e13f609b45c4168678108203577811e97f9b51ec006e0f8c56ef0a10229d9f344d98adc50ca80f13ee858a49368e6a56f75c421cd9246ccfa35c01";
 
         committee.verifySignatures(signatures, message);
 

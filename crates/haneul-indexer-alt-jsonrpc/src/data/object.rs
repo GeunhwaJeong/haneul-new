@@ -5,10 +5,10 @@ use std::time::Duration;
 
 use anyhow::Context as _;
 use anyhow::ensure;
-use serde::de::DeserializeOwned;
 use haneul_indexer_alt_reader::object_versions::LatestObjectVersionKey;
 use haneul_types::base_types::ObjectID;
 use haneul_types::object::Object;
+use serde::de::DeserializeOwned;
 
 use crate::context::Context;
 

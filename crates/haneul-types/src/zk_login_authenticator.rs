@@ -5,7 +5,7 @@ use crate::crypto::PublicKey;
 use crate::signature_verification::VerifiedDigestCache;
 use crate::{
     base_types::{EpochId, HaneulAddress},
-    crypto::{DefaultHash, Signature, SignatureScheme, HaneulSignature},
+    crypto::{DefaultHash, HaneulSignature, Signature, SignatureScheme},
     digests::ZKLoginInputsDigest,
     error::{HaneulErrorKind, HaneulResult},
     signature::{AuthenticatorTrait, VerifyParams},

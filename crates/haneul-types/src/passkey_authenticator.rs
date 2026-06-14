@@ -1,13 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
+use crate::crypto::HaneulSignatureInner;
 use crate::crypto::PublicKey;
 use crate::crypto::Secp256r1HaneulSignature;
-use crate::crypto::HaneulSignatureInner;
 use crate::error::HaneulErrorKind;
 use crate::signature_verification::VerifiedDigestCache;
 use crate::{
     base_types::{EpochId, HaneulAddress},
-    crypto::{DefaultHash, Signature, SignatureScheme, HaneulSignature},
+    crypto::{DefaultHash, HaneulSignature, Signature, SignatureScheme},
     digests::ZKLoginInputsDigest,
     error::{HaneulError, HaneulResult},
     signature::{AuthenticatorTrait, VerifyParams},

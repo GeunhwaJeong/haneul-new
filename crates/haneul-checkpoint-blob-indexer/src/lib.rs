@@ -20,13 +20,13 @@ pub use handlers::EpochsPipeline;
 mod tests {
     use super::*;
     use bytes::Bytes;
+    use haneul_indexer_alt_framework::pipeline::concurrent::Handler;
+    use haneul_indexer_alt_framework_store_traits::Store;
+    use haneul_indexer_alt_object_store::ObjectStore;
     use object_store::ObjectStoreExt as _;
     use object_store::memory::InMemory;
     use object_store::path::Path as ObjectPath;
     use std::sync::Arc;
-    use haneul_indexer_alt_framework::pipeline::concurrent::Handler;
-    use haneul_indexer_alt_framework_store_traits::Store;
-    use haneul_indexer_alt_object_store::ObjectStore;
 
     #[tokio::test]
     async fn test_checkpoint_blob_handler_uncompressed() {

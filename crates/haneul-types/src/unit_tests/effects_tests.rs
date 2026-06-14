@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::base_types::{ObjectID, SequenceNumber, HaneulAddress};
+use crate::base_types::{HaneulAddress, ObjectID, SequenceNumber};
 use crate::crypto::{AccountKeyPair, get_key_pair_from_rng};
 use crate::digests::ObjectDigest;
 use crate::effects::{TestEffectsBuilder, TransactionEffectsAPI};

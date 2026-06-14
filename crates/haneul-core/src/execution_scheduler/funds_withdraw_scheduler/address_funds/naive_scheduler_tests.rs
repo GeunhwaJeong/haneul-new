@@ -6,13 +6,13 @@ use crate::execution_scheduler::funds_withdraw_scheduler::address_funds::test_sc
 };
 
 use super::{FundsSettlement, ScheduleResult, ScheduleStatus, TxFundsWithdraw};
-use parking_lot::Mutex;
-use std::{collections::BTreeMap, sync::Arc, time::Duration};
 use haneul_types::{
     accumulator_root::AccumulatorObjId,
     base_types::{ObjectID, SequenceNumber},
     digests::TransactionDigest,
 };
+use parking_lot::Mutex;
+use std::{collections::BTreeMap, sync::Arc, time::Duration};
 use tokio::time::sleep;
 
 #[tokio::test]

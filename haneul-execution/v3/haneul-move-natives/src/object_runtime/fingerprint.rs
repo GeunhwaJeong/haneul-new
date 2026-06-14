@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_protocol_config::ProtocolConfig;
+use haneul_types::base_types::{MoveObjectType, ObjectID};
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_core_types::vm_status::StatusCode;
 use move_vm_types::values::Value;
-use haneul_protocol_config::ProtocolConfig;
-use haneul_types::base_types::{MoveObjectType, ObjectID};
 
 /// This type is used to track if an object has changed since it was read from storage. Ideally,
 /// this would just store the owner ID+type+BCS bytes of the object; however, due to pending

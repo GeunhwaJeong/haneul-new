@@ -9,11 +9,6 @@ use std::path::PathBuf;
 use anyhow::Context;
 use fastcrypto::encoding::Base64;
 use fastcrypto::encoding::Encoding;
-use prometheus::Registry;
-use reqwest::Client;
-use serde::Deserialize;
-use serde_json::Value;
-use serde_json::json;
 use haneul_futures::service::Service;
 use haneul_indexer_alt::config::IndexerConfig;
 use haneul_indexer_alt::setup_indexer;
@@ -35,6 +30,11 @@ use haneul_test_transaction_builder::make_transfer_haneul_transaction;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::gas_coin::GasCoin;
+use prometheus::Registry;
+use reqwest::Client;
+use serde::Deserialize;
+use serde_json::Value;
+use serde_json::json;
 use test_cluster::TestCluster;
 use test_cluster::TestClusterBuilder;
 use url::Url;
@@ -241,33 +241,6 @@ impl GraphQlTestCluster {
     }
 }
 
-/// Insta settings that mask non-deterministic values (object IDs, balances,
-/// dynamic package addresses in type `repr`s) and sort object change nodes.
-fn graphql_redactions() -> insta::Settings {
-    let mut settings = insta::Settings::clone_current();
-    settings.add_redaction(".**.json.id", "[id]");
-    settings.add_redaction(".**.json.balance", "[balance]");
-    settings.add_redaction(".**.json.package", "[package]");
-    settings.add_dynamic_redaction(".**.repr", |value, _path| {
-        let s = value.as_str().unwrap();
-        if let Some(idx) = s.find("::") {
-            insta::internals::Content::from(format!("[pkg]{}", &s[idx..]))
-        } else {
-            insta::internals::Content::from(s.to_string())
-        }
-    });
-    settings.add_dynamic_redaction(".**.objectChanges.nodes", |mut value, _path| {
-        if let insta::internals::Content::Seq(ref mut items) = value {
-            items.sort_by_key(|item| {
-                let s = format!("{:?}", item);
-                s.find("::").map(|i| s[i..].to_string()).unwrap_or(s)
-            });
-        }
-        value
-    });
-    settings
-}
-
 #[tokio::test]
 async fn test_simulate_transaction_basic() {
     let validator_cluster = TestClusterBuilder::new().build().await;
@@ -276,9 +249,12 @@ async fn test_simulate_transaction_basic() {
 
     // Create a simple transfer transaction for simulation (no signatures needed!)
     let recipient = HaneulAddress::random_for_testing_only();
-    let signed_tx =
-        make_transfer_haneul_transaction(&validator_cluster.wallet, Some(recipient), Some(1_000_000))
-            .await;
+    let signed_tx = make_transfer_haneul_transaction(
+        &validator_cluster.wallet,
+        Some(recipient),
+        Some(1_000_000),
+    )
+    .await;
     let (tx_bytes, _signatures) = signed_tx.to_tx_bytes_and_signatures();
 
     let result = graphql_cluster
@@ -461,9 +437,12 @@ async fn test_simulate_transaction_object_changes() {
 
     // Create a transfer transaction that will modify objects
     let recipient = HaneulAddress::random_for_testing_only();
-    let signed_tx =
-        make_transfer_haneul_transaction(&validator_cluster.wallet, Some(recipient), Some(1_000_000))
-            .await;
+    let signed_tx = make_transfer_haneul_transaction(
+        &validator_cluster.wallet,
+        Some(recipient),
+        Some(1_000_000),
+    )
+    .await;
     let (tx_bytes, _signatures) = signed_tx.to_tx_bytes_and_signatures();
 
     let result = graphql_cluster
@@ -1006,82 +985,6 @@ async fn test_package_resolver_finds_newly_published_package() {
     );
 }
 
-/// Verifies that `outputState.asMoveObject.contents.json` is populated for objects
-/// created by a simulated transaction. Covers both the system-package case (gas coin
-/// of type `0x2::haneul::HANEUL`) and the newly-published-package case (`SimpleObject`
-/// defined in the package this same transaction publishes, which requires the
-/// scope's package resolver to consult execution context).
-#[tokio::test]
-async fn test_simulate_transaction_object_json() {
-    let validator_cluster = TestClusterBuilder::new().build().await;
-    let graphql_cluster = GraphQlTestCluster::new(&validator_cluster).await;
-
-    let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    path.extend(["packages", "package_resolver_test"]);
-    let tx_data = validator_cluster
-        .test_transaction_builder()
-        .await
-        .publish(path)
-        .build();
-    let signed_tx = validator_cluster.sign_transaction(&tx_data).await;
-    let (tx_bytes, _signatures) = signed_tx.to_tx_bytes_and_signatures();
-
-    let result = graphql_cluster
-        .execute_graphql(
-            r#"
-            query($txData: JSON!) {
-                simulateTransaction(transaction: $txData) {
-                    effects {
-                        status
-                        objectChanges {
-                            nodes {
-                                inputState {
-                                    asMoveObject {
-                                        contents {
-                                            type { repr }
-                                            json
-                                        }
-                                    }
-                                    asMovePackage {
-                                        modules { nodes { name } }
-                                    }
-                                }
-                                outputState {
-                                    asMoveObject {
-                                        contents {
-                                            type { repr }
-                                            json
-                                        }
-                                    }
-                                    asMovePackage {
-                                        modules { nodes { name } }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        "#,
-            json!({
-                "txData": {
-                    "bcs": {
-                        "value": tx_bytes.encoded()
-                    }
-                }
-            }),
-        )
-        .await
-        .expect("GraphQL request failed");
-
-    graphql_redactions().bind(|| {
-        insta::assert_json_snapshot!(
-            "simulate_transaction_object_json",
-            result.pointer("/data/simulateTransaction"),
-        );
-    });
-}
-
 #[tokio::test]
 async fn test_simulate_transaction_balance_changes() {
     let validator_cluster = TestClusterBuilder::new().build().await;
@@ -1272,9 +1175,12 @@ async fn test_simulate_transaction_effects_json() {
 
     // Create a transfer transaction
     let recipient = HaneulAddress::random_for_testing_only();
-    let signed_tx =
-        make_transfer_haneul_transaction(&validator_cluster.wallet, Some(recipient), Some(1_000_000))
-            .await;
+    let signed_tx = make_transfer_haneul_transaction(
+        &validator_cluster.wallet,
+        Some(recipient),
+        Some(1_000_000),
+    )
+    .await;
     let (tx_bytes, _signatures) = signed_tx.to_tx_bytes_and_signatures();
 
     let result = graphql_cluster
@@ -1373,9 +1279,12 @@ async fn test_simulate_transaction_transaction_json() {
 
     // Create a transfer transaction
     let recipient = HaneulAddress::random_for_testing_only();
-    let signed_tx =
-        make_transfer_haneul_transaction(&validator_cluster.wallet, Some(recipient), Some(1_000_000))
-            .await;
+    let signed_tx = make_transfer_haneul_transaction(
+        &validator_cluster.wallet,
+        Some(recipient),
+        Some(1_000_000),
+    )
+    .await;
     let (tx_bytes, _signatures) = signed_tx.to_tx_bytes_and_signatures();
 
     let result = graphql_cluster

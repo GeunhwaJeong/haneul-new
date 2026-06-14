@@ -5,8 +5,6 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use serde::Deserialize;
-use serde::Serialize;
 use haneul_indexer_alt_framework::pipeline::Processor;
 use haneul_indexer_alt_framework::pipeline::sequential;
 use haneul_indexer_alt_framework::types::TypeTag;
@@ -15,6 +13,8 @@ use haneul_indexer_alt_framework::types::coin::Coin;
 use haneul_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 use haneul_indexer_alt_framework::types::object::Object;
 use haneul_indexer_alt_framework::types::object::Owner;
+use serde::Deserialize;
+use serde::Serialize;
 
 use crate::Schema;
 use crate::handlers::checkpoint_input_objects;
@@ -130,8 +130,6 @@ fn delta(obj: &Object) -> anyhow::Result<Option<Delta>> {
     let &owner = match obj.owner() {
         Owner::AddressOwner(owner) | Owner::ConsensusAddressOwner { owner, .. } => owner,
         Owner::ObjectOwner(_) | Owner::Shared { .. } | Owner::Immutable => return Ok(None),
-        // TODO(Party WIP)
-        Owner::Party { .. } => todo!("Party WIP"),
     };
 
     // Only track coins.

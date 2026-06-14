@@ -5,16 +5,16 @@ use std::fmt;
 use std::marker::PhantomData;
 use std::str::FromStr;
 
-use move_core_types::ident_str;
-use move_core_types::identifier::IdentStr;
-use move_core_types::language_storage::StructTag;
-use serde::{Deserialize, Serialize};
 use haneul_types::TypeTag;
-use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID};
 use haneul_types::collection_types::VecMap;
 use haneul_types::dynamic_field::Field;
 use haneul_types::id::{ID, UID};
 use haneul_types::object::{MoveObject, Object};
+use move_core_types::ident_str;
+use move_core_types::identifier::IdentStr;
+use move_core_types::language_storage::StructTag;
+use serde::{Deserialize, Serialize};
 
 const NAME_SERVICE_DOMAIN_MODULE: &IdentStr = ident_str!("domain");
 const NAME_SERVICE_DOMAIN_STRUCT: &IdentStr = ident_str!("Domain");
@@ -464,7 +464,10 @@ mod tests {
 
     #[test]
     fn test_name_service_outputs() {
-        assert_eq!("@test".parse::<Domain>().unwrap().to_string(), "test.haneul");
+        assert_eq!(
+            "@test".parse::<Domain>().unwrap().to_string(),
+            "test.haneul"
+        );
         assert_eq!(
             "test.haneul".parse::<Domain>().unwrap().to_string(),
             "test.haneul"
@@ -482,7 +485,10 @@ mod tests {
             "haneul.haneul.haneul"
         );
 
-        assert_eq!("@haneul".parse::<Domain>().unwrap().to_string(), "haneul.haneul");
+        assert_eq!(
+            "@haneul".parse::<Domain>().unwrap().to_string(),
+            "haneul.haneul"
+        );
 
         assert_eq!(
             "test*test@test".parse::<Domain>().unwrap().to_string(),
@@ -493,14 +499,20 @@ mod tests {
             "test.test.haneul"
         );
         assert_eq!(
-            "test.test.test.haneul".parse::<Domain>().unwrap().to_string(),
+            "test.test.test.haneul"
+                .parse::<Domain>()
+                .unwrap()
+                .to_string(),
             "test.test.test.haneul"
         );
     }
 
     #[test]
     fn test_different_wildcard() {
-        assert_eq!("test.haneul".parse::<Domain>(), "test*haneul".parse::<Domain>(),);
+        assert_eq!(
+            "test.haneul".parse::<Domain>(),
+            "test*haneul".parse::<Domain>(),
+        );
 
         assert_eq!("@test".parse::<Domain>(), "test*haneul".parse::<Domain>(),);
     }

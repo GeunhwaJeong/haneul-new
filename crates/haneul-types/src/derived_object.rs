@@ -3,7 +3,7 @@
 
 use crate::{
     HANEUL_FRAMEWORK_ADDRESS,
-    base_types::{ObjectID, HaneulAddress},
+    base_types::{HaneulAddress, ObjectID},
     dynamic_field,
 };
 use move_core_types::{

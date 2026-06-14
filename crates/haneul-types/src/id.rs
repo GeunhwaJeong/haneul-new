@@ -18,8 +18,11 @@ pub const OBJECT_MODULE_NAME_STR: &str = "object";
 pub const OBJECT_MODULE_NAME: &IdentStr = ident_str!(OBJECT_MODULE_NAME_STR);
 pub const UID_STRUCT_NAME: &IdentStr = ident_str!("UID");
 pub const ID_STRUCT_NAME: &IdentStr = ident_str!("ID");
-pub const RESOLVED_HANEUL_ID: (&AccountAddress, &IdentStr, &IdentStr) =
-    (&HANEUL_FRAMEWORK_ADDRESS, OBJECT_MODULE_NAME, ID_STRUCT_NAME);
+pub const RESOLVED_HANEUL_ID: (&AccountAddress, &IdentStr, &IdentStr) = (
+    &HANEUL_FRAMEWORK_ADDRESS,
+    OBJECT_MODULE_NAME,
+    ID_STRUCT_NAME,
+);
 
 /// Rust version of the Move haneul::object::Info type
 #[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Eq, PartialEq)]

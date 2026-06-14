@@ -16,6 +16,16 @@ use crate::workloads::{Gas, GasCoinConfig, workload::ExpectedFailureType};
 use crate::{BenchMoveCallArg, ExecutionEffects, ValidatorProxy, convert_move_call_args};
 use anyhow::anyhow;
 use async_trait::async_trait;
+use haneul_move_build::{BuildConfig, CompiledPackage};
+use haneul_protocol_config::ProtocolConfig;
+use haneul_test_transaction_builder::{PublishData, TestTransactionBuilder};
+use haneul_types::base_types::{ObjectRef, random_object_ref};
+use haneul_types::effects::TransactionEffectsAPI;
+use haneul_types::transaction::Command;
+use haneul_types::transaction::{CallArg, ObjectArg, SharedObjectMutability};
+use haneul_types::{base_types::HaneulAddress, crypto::get_key_pair, transaction::Transaction};
+use haneul_types::{base_types::ObjectID, object::Owner};
+use haneul_types::{transaction::TransactionData, utils::to_sender_signed_transaction};
 use move_core_types::identifier::Identifier;
 use rand::Rng;
 use rand::distributions::{Distribution, Standard};
@@ -24,16 +34,6 @@ use std::str::FromStr;
 use std::sync::Arc;
 use strum::{EnumCount, IntoEnumIterator};
 use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
-use haneul_move_build::{BuildConfig, CompiledPackage};
-use haneul_protocol_config::ProtocolConfig;
-use haneul_test_transaction_builder::{PublishData, TestTransactionBuilder};
-use haneul_types::base_types::{ObjectRef, random_object_ref};
-use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::transaction::Command;
-use haneul_types::transaction::{CallArg, ObjectArg, SharedObjectMutability};
-use haneul_types::{base_types::ObjectID, object::Owner};
-use haneul_types::{base_types::HaneulAddress, crypto::get_key_pair, transaction::Transaction};
-use haneul_types::{transaction::TransactionData, utils::to_sender_signed_transaction};
 use tracing::debug;
 
 /// Number of vectors to create in LargeTransientRuntimeVectors workload
@@ -250,7 +250,6 @@ impl AdversarialTestPayload {
                     .publish_with_data(PublishData::CompiledPackage(
                         self.max_package_published_compiled.clone(),
                     ))
-                    .ensure_unique()
                     .build_and_sign(account.key())
             }
             _ => self.state.move_call_pt(
@@ -478,7 +477,6 @@ impl Workload<dyn Payload> for AdversarialWorkload {
         let transaction = TestTransactionBuilder::new(gas.1, gas.0, reference_gas_price)
             .publish_async(path)
             .await
-            .ensure_unique()
             .build_and_sign(gas.2.as_ref());
 
         let execution_result = execution_proxy.execute_transaction_block(transaction).await;

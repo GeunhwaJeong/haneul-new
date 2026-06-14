@@ -1869,7 +1869,8 @@ mod tests {
                     },
                     C {
                         root: Some(L::Enum(Box::new(Enum {
-                            type_: StructTag::from_str("0x2::coin::Coin<0x2::haneul::HANEUL>").unwrap(),
+                            type_: StructTag::from_str("0x2::coin::Coin<0x2::haneul::HANEUL>")
+                                .unwrap(),
                             variant_name: Some("Foo"),
                             variant_index: 1,
                             fields: Fields::Named(vec![(

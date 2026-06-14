@@ -27,12 +27,12 @@ use move_compiler::{
     Compiler,
     compiled_unit::{AnnotatedCompiledUnit, CompiledUnit, NamedCompiledModule},
     editions::Flavor,
+    haneul_mode::{self},
     linters,
     shared::{
         NamedAddressMap, NumericalAddress, PackageConfig, PackagePaths, SaveFlag, SaveHook,
         files::MappedFiles,
     },
-    haneul_mode::{self},
 };
 use move_disassembler::disassembler::Disassembler;
 use move_docgen::{Docgen, DocgenFlags, DocgenOptions};

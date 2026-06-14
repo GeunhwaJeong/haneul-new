@@ -6,7 +6,7 @@ use jsonrpsee::proc_macros::rpc;
 
 use haneul_json_rpc_types::{DelegatedStake, HaneulCommittee, ValidatorApys};
 use haneul_open_rpc_macros::open_rpc;
-use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID};
 use haneul_types::haneul_serde::BigInt;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 

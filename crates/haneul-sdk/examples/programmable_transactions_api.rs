@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 mod utils;
-use shared_crypto::intent::Intent;
 use haneul_config::{HANEUL_KEYSTORE_FILENAME, haneul_config_dir};
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore};
 use haneul_sdk::{
@@ -13,6 +12,7 @@ use haneul_sdk::{
         transaction_driver_types::ExecuteTransactionRequestType,
     },
 };
+use shared_crypto::intent::Intent;
 use utils::setup_for_write;
 
 // This example shows how to use programmable transactions to chain multiple

@@ -3,7 +3,6 @@
 
 use anyhow::Context;
 use clap::Parser;
-use prometheus::Registry;
 use haneul_futures::service::Error;
 use haneul_indexer_alt_jsonrpc::args::Args;
 use haneul_indexer_alt_jsonrpc::args::Command;
@@ -11,6 +10,7 @@ use haneul_indexer_alt_jsonrpc::config::RpcLayer;
 use haneul_indexer_alt_jsonrpc::start_rpc;
 use haneul_indexer_alt_metrics::MetricsService;
 use haneul_indexer_alt_metrics::uptime;
+use prometheus::Registry;
 use tokio::fs;
 
 // Define the `GIT_REVISION` const

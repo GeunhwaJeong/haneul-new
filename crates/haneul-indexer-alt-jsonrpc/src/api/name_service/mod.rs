@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use jsonrpsee::core::RpcResult;
-use jsonrpsee::proc_macros::rpc;
 use haneul_json_rpc_types::Page as PageResponse;
 use haneul_open_rpc::Module;
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::HaneulAddress;
+use jsonrpsee::core::RpcResult;
+use jsonrpsee::proc_macros::rpc;
 
 use crate::api::name_service::error::Error;
 use crate::api::rpc_module::RpcModule;

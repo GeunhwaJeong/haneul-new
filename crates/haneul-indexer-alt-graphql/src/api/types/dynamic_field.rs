@@ -10,9 +10,6 @@ use async_graphql::Union;
 use async_graphql::connection::Connection;
 use async_graphql::connection::Edge;
 use async_trait::async_trait;
-use move_core_types::account_address::AccountAddress;
-use move_core_types::annotated_value::MoveTypeLayout;
-use move_core_types::language_storage::StructTag;
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use haneul_types::TypeTag;
 use haneul_types::dynamic_field::DYNAMIC_FIELD_FIELD_STRUCT_NAME;
@@ -21,13 +18,16 @@ use haneul_types::dynamic_field::DynamicFieldInfo;
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::dynamic_field::derive_dynamic_field_id;
 use haneul_types::dynamic_field::visitor as DFV;
+use move_core_types::account_address::AccountAddress;
+use move_core_types::annotated_value::MoveTypeLayout;
+use move_core_types::language_storage::StructTag;
 use tokio::sync::OnceCell;
 
 use crate::api::scalars::base64::Base64;
 use crate::api::scalars::big_int::BigInt;
+use crate::api::scalars::haneul_address::HaneulAddress;
 use crate::api::scalars::id::Id;
 use crate::api::scalars::owner_kind::OwnerKind;
-use crate::api::scalars::haneul_address::HaneulAddress;
 use crate::api::scalars::type_filter::TypeFilter;
 use crate::api::scalars::type_filter::TypeInput;
 use crate::api::scalars::uint53::UInt53;
@@ -576,11 +576,13 @@ impl DynamicField {
         let limits: &Limits = ctx.data()?;
         let limits = limits.display();
 
-        let root =
-            haneul_display::v2::OwnedSlice::new(MoveTypeLayout::Bool, bcs::to_bytes(&false).unwrap());
+        let root = haneul_display::v2::OwnedSlice::new(
+            MoveTypeLayout::Bool,
+            bcs::to_bytes(&false).unwrap(),
+        );
 
-        let parsed =
-            haneul_display::v2::Name::parse(limits, &literal).map_err(|e| bad_user_input(e.into()))?;
+        let parsed = haneul_display::v2::Name::parse(limits, &literal)
+            .map_err(|e| bad_user_input(e.into()))?;
 
         let interpreter = haneul_display::v2::Interpreter::new(root, NopStore);
 

@@ -5,10 +5,10 @@ use crate::{
     crypto::{CompressedSignature, SignatureScheme},
     digests::ZKLoginInputsDigest,
     error::HaneulErrorKind,
+    haneul_serde::HaneulBitmap,
     multisig::{MultiSig, MultiSigPublicKey},
     signature::{AuthenticatorTrait, GenericSignature, VerifyParams},
     signature_verification::VerifiedDigestCache,
-    haneul_serde::HaneulBitmap,
 };
 pub use enum_dispatch::enum_dispatch;
 use fastcrypto::{

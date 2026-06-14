@@ -7,13 +7,6 @@ use anyhow::Context as _;
 use anyhow::bail;
 use fastcrypto::encoding::Base64;
 use fastcrypto::encoding::Encoding;
-use insta::assert_debug_snapshot;
-use prometheus::Registry;
-use serde::Deserialize;
-use serde_json::json;
-use shared_crypto::intent::Intent;
-use shared_crypto::intent::IntentMessage;
-use shared_crypto::intent::PersonalMessage;
 use haneul_indexer_alt_framework::ingestion::ClientArgs;
 use haneul_indexer_alt_framework::ingestion::ingestion_client::IngestionClientArgs;
 use haneul_indexer_alt_graphql::config::RpcConfig as GraphQlConfig;
@@ -26,6 +19,13 @@ use haneul_types::crypto::Signature;
 use haneul_types::signature::GenericSignature;
 use haneul_types::utils::load_test_vectors;
 use haneul_types::zk_login_authenticator::ZkLoginAuthenticator;
+use insta::assert_debug_snapshot;
+use prometheus::Registry;
+use serde::Deserialize;
+use serde_json::json;
+use shared_crypto::intent::Intent;
+use shared_crypto::intent::IntentMessage;
+use shared_crypto::intent::PersonalMessage;
 use tempfile::TempDir;
 use test_cluster::TestCluster;
 use test_cluster::TestClusterBuilder;
@@ -394,7 +394,8 @@ async fn test_verify_wrong_address() {
 async fn test_verify_invalid_signature() {
     let cluster = FullCluster::new().await.unwrap();
 
-    let (_, pk, _) = &load_test_vectors("../haneul-types/src/unit_tests/zklogin_test_vectors.json")[1];
+    let (_, pk, _) =
+        &load_test_vectors("../haneul-types/src/unit_tests/zklogin_test_vectors.json")[1];
 
     let addr: HaneulAddress = pk.into();
     let personal = b"Hello, World!".to_vec();
@@ -417,8 +418,8 @@ async fn test_verify_not_zklogin_signature() {
     // Create a regular Ed25519 keypair
     use fastcrypto::ed25519::Ed25519KeyPair;
     use fastcrypto::traits::KeyPair;
-    use rand::SeedableRng;
     use haneul_types::crypto::HaneulKeyPair;
+    use rand::SeedableRng;
 
     let keypair = HaneulKeyPair::Ed25519(Ed25519KeyPair::generate(
         &mut rand::rngs::StdRng::from_seed([1; 32]),

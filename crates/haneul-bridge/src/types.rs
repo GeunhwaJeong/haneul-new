@@ -14,14 +14,6 @@ use alloy::rpc::types::eth::Log;
 use enum_dispatch::enum_dispatch;
 use fastcrypto::encoding::{Encoding, Hex};
 use fastcrypto::hash::{HashFunction, Keccak256};
-use num_enum::TryFromPrimitive;
-use rand::Rng;
-use rand::seq::SliceRandom;
-use serde::{Deserialize, Serialize};
-use shared_crypto::intent::IntentScope;
-use std::collections::{BTreeMap, BTreeSet};
-use std::fmt::Debug;
-use strum_macros::Display;
 use haneul_types::TypeTag;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::bridge::{
@@ -40,6 +32,14 @@ use haneul_types::committee::StakeUnit;
 use haneul_types::crypto::ToFromBytes;
 use haneul_types::digests::{Digest, TransactionDigest};
 use haneul_types::message_envelope::{Envelope, Message, VerifiedEnvelope};
+use num_enum::TryFromPrimitive;
+use rand::Rng;
+use rand::seq::SliceRandom;
+use serde::{Deserialize, Serialize};
+use shared_crypto::intent::IntentScope;
+use std::collections::{BTreeMap, BTreeSet};
+use std::fmt::Debug;
+use strum_macros::Display;
 
 pub const BRIDGE_AUTHORITY_TOTAL_VOTING_POWER: u64 = 10000;
 
@@ -584,15 +584,17 @@ impl BridgeAction {
             crate::encoding::TOKEN_TRANSFER_MESSAGE_VERSION_V1 => {
                 let payload: HaneulToEthOnChainBcsPayload = bcs::from_bytes(payload)?;
 
-                Ok(BridgeAction::HaneulToEthTokenTransfer(HaneulToEthTokenTransfer {
-                    nonce: *seq_num,
-                    haneul_chain_id: BridgeChainId::try_from(*source_chain)?,
-                    eth_chain_id: BridgeChainId::try_from(payload.target_chain)?,
-                    haneul_address: HaneulAddress::from_bytes(payload.haneul_address)?,
-                    eth_address: EthAddress::from_str(&Hex::encode(&payload.eth_address))?,
-                    token_id: payload.token_type,
-                    amount_adjusted: u64::from_be_bytes(payload.amount),
-                }))
+                Ok(BridgeAction::HaneulToEthTokenTransfer(
+                    HaneulToEthTokenTransfer {
+                        nonce: *seq_num,
+                        haneul_chain_id: BridgeChainId::try_from(*source_chain)?,
+                        eth_chain_id: BridgeChainId::try_from(payload.target_chain)?,
+                        haneul_address: HaneulAddress::from_bytes(payload.haneul_address)?,
+                        eth_address: EthAddress::from_str(&Hex::encode(&payload.eth_address))?,
+                        token_id: payload.token_type,
+                        amount_adjusted: u64::from_be_bytes(payload.amount),
+                    },
+                ))
             }
             crate::encoding::TOKEN_TRANSFER_MESSAGE_VERSION_V2 => {
                 let payload: HaneulToEthOnChainBcsPayloadV2 = bcs::from_bytes(payload)?;
@@ -773,9 +775,9 @@ mod tests {
     use crate::test_utils::get_test_haneul_to_eth_bridge_action;
     use alloy::primitives::Address as EthAddress;
     use fastcrypto::traits::KeyPair;
-    use std::collections::HashSet;
     use haneul_types::bridge::TOKEN_ID_BTC;
     use haneul_types::crypto::get_key_pair;
+    use std::collections::HashSet;
 
     use super::*;
 

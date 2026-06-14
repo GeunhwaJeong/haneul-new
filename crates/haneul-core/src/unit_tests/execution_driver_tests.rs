@@ -29,11 +29,9 @@ use haneul_types::transaction::VerifiedTransaction;
 use std::sync::Arc;
 use std::time::Duration;
 
-use itertools::Itertools;
-use move_core_types::{account_address::AccountAddress, ident_str};
 use haneul_config::node::AuthorityOverloadConfig;
 use haneul_test_transaction_builder::TestTransactionBuilder;
-use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID, ObjectRef};
 use haneul_types::crypto::{AccountKeyPair, Signature, Signer, get_key_pair};
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::messages_grpc::{LayoutGenerationOption, ObjectInfoRequest};
@@ -42,6 +40,8 @@ use haneul_types::transaction::{
     CallArg, TEST_ONLY_GAS_UNIT_FOR_HEAVY_COMPUTATION_STORAGE, Transaction, TransactionData,
 };
 use haneul_types::utils::to_sender_signed_transaction;
+use itertools::Itertools;
+use move_core_types::{account_address::AccountAddress, ident_str};
 use tokio::time::sleep;
 
 /// Creates a Move transaction that creates an object_basics object.
@@ -772,7 +772,9 @@ async fn test_authority_txn_validation_pushback() {
         .with_authority_overload_config(overload_config)
         .build()
         .await;
-    authority_state.insert_genesis_objects(&[gas_object1.clone(), gas_object2.clone()]);
+    authority_state
+        .insert_genesis_objects(&[gas_object1.clone(), gas_object2.clone()])
+        .await;
 
     // Create a validator service around the `authority_state`.
     let consensus_adapter = Arc::new(ConsensusAdapter::new(

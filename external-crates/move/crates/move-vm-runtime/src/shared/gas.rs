@@ -3,7 +3,10 @@
 
 use crate::shared::views::ValueView;
 use move_binary_format::errors::PartialVMResult;
-use move_core_types::gas_algebra::{InternalGas, NumArgs, NumBytes};
+use move_core_types::{
+    gas_algebra::{InternalGas, NumArgs, NumBytes},
+    language_storage::ModuleId,
+};
 
 /// Enum of instructions that do not need extra information for gas metering.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -74,12 +77,16 @@ pub trait GasMeter {
 
     fn charge_call(
         &mut self,
+        module_id: &ModuleId,
+        func_name: &str,
         args: impl ExactSizeIterator<Item = impl ValueView>,
         num_locals: NumArgs,
     ) -> PartialVMResult<()>;
 
     fn charge_call_generic(
         &mut self,
+        module_id: &ModuleId,
+        func_name: &str,
         args: impl ExactSizeIterator<Item = impl ValueView>,
         num_locals: NumArgs,
     ) -> PartialVMResult<()>;
@@ -179,6 +186,8 @@ impl GasMeter for UnmeteredGasMeter {
 
     fn charge_call(
         &mut self,
+        _module_id: &ModuleId,
+        _func_name: &str,
         _args: impl IntoIterator<Item = impl ValueView>,
         _num_locals: NumArgs,
     ) -> PartialVMResult<()> {
@@ -187,6 +196,8 @@ impl GasMeter for UnmeteredGasMeter {
 
     fn charge_call_generic(
         &mut self,
+        _module_id: &ModuleId,
+        _func_name: &str,
         _args: impl ExactSizeIterator<Item = impl ValueView>,
         _num_locals: NumArgs,
     ) -> PartialVMResult<()> {

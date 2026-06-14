@@ -4,7 +4,7 @@
 use std::collections::BTreeMap;
 
 use haneul_json_rpc_types::ObjectChange;
-use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID, ObjectRef, SequenceNumber};
 use haneul_types::effects::ObjectRemoveKind;
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::object::Owner;

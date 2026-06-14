@@ -20,9 +20,9 @@ use move_compiler::{
     diagnostics::filter::{empty_filter_scope, unused_for_test_filter_scope},
     diagnostics::*,
     editions::{Edition, Flavor},
+    haneul_mode,
     linters::{self, LintLevel},
     shared::{Flags, NumericalAddress, PackageConfig, PackagePaths},
-    haneul_mode,
 };
 use move_symbol_pool::Symbol;
 use serde::{Deserialize, Serialize};

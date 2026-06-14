@@ -11,10 +11,10 @@ use crate::types::EmergencyAction;
 use crate::types::EthToHaneulBridgeAction;
 use crate::types::EthToHaneulTokenTransferV2;
 use crate::types::EvmContractUpgradeAction;
-use crate::types::LimitUpdateAction;
 use crate::types::HaneulToEthBridgeAction;
 use crate::types::HaneulToEthTokenTransfer;
 use crate::types::HaneulToEthTokenTransferV2;
+use crate::types::LimitUpdateAction;
 use alloy::primitives::Address as EthAddress;
 use alloy::sol_types::SolValue;
 use anyhow::Result;
@@ -532,13 +532,13 @@ mod tests {
     use fastcrypto::hash::HashFunction;
     use fastcrypto::hash::Keccak256;
     use fastcrypto::traits::ToFromBytes;
-    use prometheus::Registry;
-    use std::str::FromStr;
     use haneul_types::TypeTag;
     use haneul_types::base_types::{HaneulAddress, TransactionDigest};
     use haneul_types::bridge::BridgeChainId;
     use haneul_types::bridge::TOKEN_ID_BTC;
     use haneul_types::bridge::TOKEN_ID_USDC;
+    use prometheus::Registry;
+    use std::str::FromStr;
 
     use super::*;
 
@@ -1000,7 +1000,8 @@ mod tests {
     }
 
     #[test]
-    fn test_bridge_message_encoding_regression_eth_to_haneul_token_bridge_v1() -> anyhow::Result<()> {
+    fn test_bridge_message_encoding_regression_eth_to_haneul_token_bridge_v1() -> anyhow::Result<()>
+    {
         telemetry_subscribers::init_for_testing();
         let registry = Registry::new();
         haneullabs_metrics::init_metrics(&registry);

@@ -8,8 +8,8 @@ use move_core_types::{account_address::AccountAddress, ident_str, identifier::Id
 use crate::base_types::SequenceNumber;
 
 use crate::{
-    HANEUL_FRAMEWORK_ADDRESS, HANEUL_RANDOMNESS_STATE_OBJECT_ID, error::HaneulResult, object::Owner,
-    storage::ObjectStore,
+    HANEUL_FRAMEWORK_ADDRESS, HANEUL_RANDOMNESS_STATE_OBJECT_ID, error::HaneulResult,
+    object::Owner, storage::ObjectStore,
 };
 
 pub const RANDOMNESS_MODULE_NAME: &IdentStr = ident_str!("random");

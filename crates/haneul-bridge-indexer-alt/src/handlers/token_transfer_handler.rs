@@ -8,8 +8,6 @@ use crate::metrics::BridgeIndexerMetrics;
 use crate::struct_tag;
 use async_trait::async_trait;
 use diesel_async::RunQueryDsl;
-use move_core_types::language_storage::StructTag;
-use std::sync::Arc;
 use haneul_bridge::events::{
     MoveTokenDepositedEvent, MoveTokenDepositedEventV2, MoveTokenTransferApproved,
     MoveTokenTransferClaimed,
@@ -23,6 +21,8 @@ use haneul_indexer_alt_framework::types::BRIDGE_ADDRESS;
 use haneul_indexer_alt_framework::types::effects::TransactionEffectsAPI;
 use haneul_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 use haneul_indexer_alt_framework::types::transaction::TransactionDataAPI;
+use move_core_types::language_storage::StructTag;
+use std::sync::Arc;
 use tracing::info;
 
 pub struct TokenTransferHandler {

@@ -12,7 +12,6 @@ import copy from "copy-text-to-clipboard";
 import { translate } from "@docusaurus/Translate";
 import Button from "@theme/CodeBlock/Buttons/Button";
 import type { Props } from "@theme/CodeBlock/Buttons/CopyButton";
-import OpenInAgentButton from "../../../../shared/components/OpenInAgentButton";
 
 function getNearestCodeText(start: HTMLElement | null): string | null {
   let el: HTMLElement | null = start;
@@ -76,7 +75,7 @@ export default function CopyButton({ className }: Props): ReactNode {
   const { copyCode, isCopied } = useCopyButton(buttonRef);
 
   return (
-    <span ref={buttonRef} style={{ display: "contents" }}>
+    <span ref={buttonRef}>
       <Button
         aria-label={ariaLabel(isCopied)}
         title={title()}
@@ -98,7 +97,6 @@ export default function CopyButton({ className }: Props): ReactNode {
           </span>
         </span>
       </Button>
-      <OpenInAgentButton className={className} />
     </span>
   );
 }

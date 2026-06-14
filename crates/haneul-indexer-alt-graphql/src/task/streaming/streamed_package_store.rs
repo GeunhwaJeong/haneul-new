@@ -4,10 +4,10 @@
 use std::sync::Arc;
 
 use dashmap::DashMap;
-use move_core_types::account_address::AccountAddress;
 use haneul_package_resolver::Package;
 use haneul_package_resolver::PackageStore;
 use haneul_package_resolver::Result;
+use move_core_types::account_address::AccountAddress;
 
 /// Package store for streaming subscriptions that holds packages not yet indexed by the DB.
 ///

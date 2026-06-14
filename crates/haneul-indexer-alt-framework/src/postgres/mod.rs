@@ -4,9 +4,9 @@
 use anyhow::Context;
 use anyhow::Result;
 use diesel_migrations::EmbeddedMigrations;
-use prometheus::Registry;
 use haneul_indexer_alt_metrics::db::DbConnectionStatsCollector;
 use haneul_pg_db::temp::TempDb;
+use prometheus::Registry;
 use tempfile::tempdir;
 use url::Url;
 

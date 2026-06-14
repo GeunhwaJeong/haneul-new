@@ -250,7 +250,9 @@ mod tests {
                 pkg.set_legacy().set_legacy_name("HaneulSystem")
             })
             .add_deps([("root", "std")])
-            .add_dep("root", "haneul", |dep| dep.name("my_haneul").rename_from("haneul"))
+            .add_dep("root", "haneul", |dep| {
+                dep.name("my_haneul").rename_from("haneul")
+            })
             .add_dep("root", "haneul_system", |dep| {
                 dep.name("my_haneul_system").rename_from("haneul_system")
             })

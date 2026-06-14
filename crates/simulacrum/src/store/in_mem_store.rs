@@ -1,17 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_binary_format::CompiledModule;
-use move_bytecode_utils::module_cache::GetModule;
-use move_core_types::account_address::AccountAddress;
-use move_core_types::resolver::SerializedPackage;
-use move_core_types::{language_storage::ModuleId, resolver::ModuleResolver};
-use std::collections::{BTreeMap, HashMap};
 use haneul_config::genesis;
 use haneul_types::error::HaneulErrorKind;
 use haneul_types::storage::{PackageObject, get_module, load_package_object_from_object_store};
 use haneul_types::{
-    base_types::{AuthorityName, ObjectID, SequenceNumber, HaneulAddress},
+    base_types::{AuthorityName, HaneulAddress, ObjectID, SequenceNumber},
     committee::{Committee, EpochId},
     crypto::{AccountKeyPair, AuthorityKeyPair},
     digests::{ObjectDigest, TransactionDigest},
@@ -25,6 +19,12 @@ use haneul_types::{
     storage::{BackingPackageStore, ChildObjectResolver, ObjectStore, ParentSync},
     transaction::VerifiedTransaction,
 };
+use move_binary_format::CompiledModule;
+use move_bytecode_utils::module_cache::GetModule;
+use move_core_types::account_address::AccountAddress;
+use move_core_types::resolver::SerializedPackage;
+use move_core_types::{language_storage::ModuleId, resolver::ModuleResolver};
+use std::collections::{BTreeMap, HashMap};
 
 use super::SimulatorStore;
 
@@ -114,7 +114,8 @@ impl InMemoryStore {
     }
 
     pub fn get_system_state(&self) -> haneul_types::haneul_system_state::HaneulSystemState {
-        haneul_types::haneul_system_state::get_haneul_system_state(self).expect("system state must exist")
+        haneul_types::haneul_system_state::get_haneul_system_state(self)
+            .expect("system state must exist")
     }
 
     pub fn get_clock(&self) -> haneul_types::clock::Clock {

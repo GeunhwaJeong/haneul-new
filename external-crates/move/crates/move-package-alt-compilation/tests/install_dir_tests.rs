@@ -58,14 +58,9 @@ async fn test_install_dir_creates_directory() {
     );
     let env = Vanilla::default_environment();
 
-    let result = compile_package::<_, Vanilla>(
-        &package_path,
-        &build_config,
-        &env,
-        Vanilla::new(),
-        &mut Vec::new(),
-    )
-    .await;
+    let result =
+        compile_package::<_, Vanilla>(&package_path, &build_config, &env, Vanilla, &mut Vec::new())
+            .await;
 
     assert!(result.is_ok(), "Compilation should succeed");
 
@@ -109,14 +104,9 @@ async fn test_install_dir_relative_path() {
     let env = Vanilla::default_environment();
     let mut output = Cursor::new(Vec::new());
 
-    let result = compile_package::<_, Vanilla>(
-        &package_path,
-        &build_config,
-        &env,
-        Vanilla::new(),
-        &mut output,
-    )
-    .await;
+    let result =
+        compile_package::<_, Vanilla>(&package_path, &build_config, &env, Vanilla, &mut output)
+            .await;
 
     assert!(
         result.is_ok(),
@@ -155,15 +145,9 @@ async fn test_install_dir_absolute_path() {
     let env = Vanilla::default_environment();
     let mut output = Cursor::new(Vec::new());
 
-    compile_package::<_, Vanilla>(
-        &package_path,
-        &build_config,
-        &env,
-        Vanilla::new(),
-        &mut output,
-    )
-    .await
-    .expect("compilation succeeds");
+    compile_package::<_, Vanilla>(&package_path, &build_config, &env, Vanilla, &mut output)
+        .await
+        .expect("compilation succeeds");
 
     assert!(
         absolute_install_dir.exists(),
@@ -198,14 +182,9 @@ async fn test_no_install_dir_uses_default() {
     let env = Vanilla::default_environment();
     let mut output = Cursor::new(Vec::new());
 
-    let result = compile_package::<_, Vanilla>(
-        &package_path,
-        &build_config,
-        &env,
-        Vanilla::new(),
-        &mut output,
-    )
-    .await;
+    let result =
+        compile_package::<_, Vanilla>(&package_path, &build_config, &env, Vanilla, &mut output)
+            .await;
 
     assert!(result.is_ok(), "Compilation should succeed");
 
@@ -242,14 +221,9 @@ async fn test_install_dir_existing_directory() {
     let env = Vanilla::default_environment();
     let mut output = Cursor::new(Vec::new());
 
-    let result = compile_package::<_, Vanilla>(
-        &package_path,
-        &build_config,
-        &env,
-        Vanilla::new(),
-        &mut output,
-    )
-    .await;
+    let result =
+        compile_package::<_, Vanilla>(&package_path, &build_config, &env, Vanilla, &mut output)
+            .await;
 
     assert!(
         result.is_ok(),

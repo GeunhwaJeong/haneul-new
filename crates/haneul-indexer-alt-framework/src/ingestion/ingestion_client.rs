@@ -11,6 +11,10 @@ use backoff::Error as BE;
 use backoff::ExponentialBackoff;
 use backoff::backoff::Constant;
 use clap::ArgGroup;
+use haneul_futures::future::with_slow_future_monitor;
+use haneul_rpc::Client;
+use haneul_rpc::client::HeadersInterceptor;
+use haneul_types::digests::ChainIdentifier;
 use haneullabs_network::callback::CallbackLayer;
 use object_store::ClientOptions;
 use object_store::ObjectStore;
@@ -23,10 +27,6 @@ use prometheus::Histogram;
 use reqwest::header::HeaderMap;
 use reqwest::header::HeaderName;
 use reqwest::header::HeaderValue;
-use haneul_futures::future::with_slow_future_monitor;
-use haneul_rpc::Client;
-use haneul_rpc::client::HeadersInterceptor;
-use haneul_types::digests::ChainIdentifier;
 use tokio::sync::OnceCell;
 use tracing::debug;
 use tracing::warn;
@@ -53,7 +53,7 @@ const MAX_TRANSIENT_RETRY_INTERVAL: Duration = Duration::from_secs(60);
 const SLOW_OPERATION_WARNING_THRESHOLD: Duration = Duration::from_secs(60);
 
 #[async_trait]
-pub trait IngestionClientTrait: Send + Sync {
+pub(crate) trait IngestionClientTrait: Send + Sync {
     async fn chain_id(&self) -> anyhow::Result<ChainIdentifier>;
 
     async fn checkpoint(&self, checkpoint: u64) -> CheckpointResult;
@@ -260,7 +260,7 @@ impl IngestionClient {
             store,
             Some(metrics.total_ingested_bytes.clone()),
         ));
-        Ok(Self::from_trait(client, metrics))
+        Ok(Self::new_impl(client, metrics))
     }
 
     /// An ingestion client that fetches checkpoints from a fullnode, over gRPC.
@@ -283,24 +283,10 @@ impl IngestionClient {
         } else {
             client
         };
-        Ok(Self::from_trait(Arc::new(client), metrics))
+        Ok(Self::new_impl(Arc::new(client), metrics))
     }
 
-    /// The metrics handle this client reports against. Callers constructing peer services (e.g. an
-    /// [`IngestionService`]) against the same client should reuse this Arc rather than building a
-    /// second [`IngestionMetrics`] from the same registry, which would double-register the metric
-    /// vectors.
-    ///
-    /// [`IngestionService`]: crate::ingestion::IngestionService
-    pub fn metrics(&self) -> &Arc<IngestionMetrics> {
-        &self.metrics
-    }
-
-    /// Wrap an arbitrary [`IngestionClientTrait`] implementation in an [`IngestionClient`]. Use
-    /// this when the source of checkpoints is not one of the built-in remote object stores or gRPC
-    /// endpoints — for example, when embedding the indexer in a fullnode that already has
-    /// checkpoint data on hand.
-    pub fn from_trait(
+    pub(crate) fn new_impl(
         client: Arc<dyn IngestionClientTrait>,
         metrics: Arc<IngestionMetrics>,
     ) -> Self {
@@ -506,10 +492,10 @@ pub(crate) mod tests {
     use clap::Parser;
     use clap::error::ErrorKind;
     use dashmap::DashMap;
-    use prometheus::Registry;
     use haneul_types::digests::CheckpointDigest;
     use haneul_types::event::Event;
     use haneul_types::test_checkpoint_data_builder::TestCheckpointBuilder;
+    use prometheus::Registry;
 
     use crate::ingestion::decode;
     use crate::ingestion::test_utils::test_checkpoint_data;
@@ -613,7 +599,7 @@ pub(crate) mod tests {
         let registry = Registry::new_custom(Some("test".to_string()), None).unwrap();
         let metrics = IngestionMetrics::new(None, &registry);
         let mock_client = Arc::new(MockIngestionClient::default());
-        let client = IngestionClient::from_trait(mock_client.clone(), metrics);
+        let client = IngestionClient::new_impl(mock_client.clone(), metrics);
         (client, mock_client)
     }
 

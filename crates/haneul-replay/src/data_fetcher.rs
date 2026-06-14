@@ -5,13 +5,6 @@ use crate::types::EPOCH_CHANGE_STRUCT_TAG;
 use crate::types::ReplayEngineError;
 use async_trait::async_trait;
 use futures::future::join_all;
-use lru::LruCache;
-use move_core_types::language_storage::StructTag;
-use parking_lot::RwLock;
-use rand::Rng;
-use std::collections::BTreeMap;
-use std::num::NonZeroUsize;
-use std::str::FromStr;
 use haneul_core::authority::NodeStateDump;
 use haneul_json_rpc_api::QUERY_MAX_RESULT_LIMIT;
 use haneul_json_rpc_types::EventFilter;
@@ -30,6 +23,13 @@ use haneul_types::object::Object;
 use haneul_types::transaction::SenderSignedData;
 use haneul_types::transaction::TransactionDataAPI;
 use haneul_types::transaction::{EndOfEpochTransactionKind, TransactionKind};
+use lru::LruCache;
+use move_core_types::language_storage::StructTag;
+use parking_lot::RwLock;
+use rand::Rng;
+use std::collections::BTreeMap;
+use std::num::NonZeroUsize;
+use std::str::FromStr;
 
 /// This trait defines the interfaces for fetching data from some local or remote store
 #[async_trait]
@@ -617,7 +617,9 @@ fn convert_past_obj_response(resp: HaneulPastObjectResponse) -> Result<Object, R
             version: r.version,
             digest: r.digest,
         }),
-        HaneulPastObjectResponse::ObjectNotExists(id) => Err(ReplayEngineError::ObjectNotExist { id }),
+        HaneulPastObjectResponse::ObjectNotExists(id) => {
+            Err(ReplayEngineError::ObjectNotExist { id })
+        }
         HaneulPastObjectResponse::VersionNotFound(id, version) => {
             Err(ReplayEngineError::ObjectVersionNotFound { id, version })
         }

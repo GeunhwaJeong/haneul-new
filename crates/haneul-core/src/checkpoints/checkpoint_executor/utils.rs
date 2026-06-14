@@ -6,14 +6,14 @@ use std::{sync::Arc, time::Instant};
 use crate::checkpoints::CheckpointStore;
 use crate::execution_cache::TransactionCacheRead;
 use futures::{Stream, future::Either};
-use haneullabs_common::fatal;
-use std::time::Duration;
-use strum::VariantNames;
 use haneul_types::{
     base_types::{TransactionDigest, TransactionEffectsDigest},
     message_envelope::Message,
     messages_checkpoint::{CheckpointSequenceNumber, CheckpointSummary, VerifiedCheckpoint},
 };
+use haneullabs_common::fatal;
+use std::time::Duration;
+use strum::VariantNames;
 use tokio::sync::watch;
 use tracing::{debug, error, instrument, warn};
 
@@ -491,9 +491,9 @@ impl TPSEstimator {
 
 #[cfg(test)]
 mod test {
+    use haneul_macros::sim_test;
     use rand::{Rng, thread_rng};
     use std::collections::HashMap;
-    use haneul_macros::sim_test;
 
     use super::*;
     use futures::future::join_all;

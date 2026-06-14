@@ -36,7 +36,9 @@ pub fn get_layout_from_struct_tag(
     }
 }
 
-pub fn into_struct_layout(layout: A::MoveDatatypeLayout) -> Result<A::MoveStructLayout, HaneulError> {
+pub fn into_struct_layout(
+    layout: A::MoveDatatypeLayout,
+) -> Result<A::MoveStructLayout, HaneulError> {
     match layout {
         A::MoveDatatypeLayout::Struct(s) => Ok(*s),
         A::MoveDatatypeLayout::Enum(e) => Err(HaneulErrorKind::ObjectSerializationError {

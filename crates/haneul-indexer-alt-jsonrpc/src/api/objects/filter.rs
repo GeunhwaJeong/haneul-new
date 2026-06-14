@@ -2,21 +2,21 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use anyhow::Context as _;
+use haneul_indexer_alt_reader::consistent_reader::proto::owner::OwnerKind;
+use haneul_json_rpc_types::HaneulObjectDataOptions;
+use haneul_json_rpc_types::Page as PageResponse;
+use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
+use haneul_types::Identifier;
+use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::ObjectID;
+use haneul_types::dynamic_field::DYNAMIC_FIELD_FIELD_STRUCT_NAME;
+use haneul_types::dynamic_field::DYNAMIC_FIELD_MODULE_NAME;
+use haneul_types::haneul_serde::HaneulStructTag;
 use move_core_types::language_storage::StructTag;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_with::serde_as;
-use haneul_indexer_alt_reader::consistent_reader::proto::owner::OwnerKind;
-use haneul_json_rpc_types::Page as PageResponse;
-use haneul_json_rpc_types::HaneulObjectDataOptions;
-use haneul_types::Identifier;
-use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
-use haneul_types::base_types::ObjectID;
-use haneul_types::base_types::HaneulAddress;
-use haneul_types::dynamic_field::DYNAMIC_FIELD_FIELD_STRUCT_NAME;
-use haneul_types::dynamic_field::DYNAMIC_FIELD_MODULE_NAME;
-use haneul_types::haneul_serde::HaneulStructTag;
 
 use crate::api::objects::error::Error;
 use crate::context::Context;
@@ -88,7 +88,9 @@ pub(super) async fn owned_objects(
             )
             .await
         }
-        Some(HaneulObjectDataFilter::MatchNone(_)) => Err(invalid_params(Error::MultipleExclusions)),
+        Some(HaneulObjectDataFilter::MatchNone(_)) => {
+            Err(invalid_params(Error::MultipleExclusions))
+        }
         filter => {
             query_objects(
                 ctx,

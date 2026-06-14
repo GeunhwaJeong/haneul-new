@@ -27,11 +27,11 @@ pub fn validate_system_package(package: &Package) {
 
     let expected_modules = vec![
         "genesis".to_string(),
+        "haneul_system".to_string(),
+        "haneul_system_state_inner".to_string(),
         "stake_subsidy".to_string(),
         "staking_pool".to_string(),
         "storage_fund".to_string(),
-        "haneul_system".to_string(),
-        "haneul_system_state_inner".to_string(),
         "validator".to_string(),
         "validator_cap".to_string(),
         "validator_set".to_string(),

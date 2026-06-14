@@ -11,10 +11,10 @@ use dashmap::DashMap;
 use futures::future::OptionFuture;
 use futures::future::join_all;
 use futures::join;
-use move_core_types::account_address::AccountAddress;
 use haneul_types::dynamic_field::DynamicFieldType;
 use haneul_types::dynamic_field::visitor as DFV;
 use haneul_types::dynamic_field::visitor::FieldVisitor;
+use move_core_types::account_address::AccountAddress;
 
 use crate::v2::error::FormatError;
 use crate::v2::parser as P;

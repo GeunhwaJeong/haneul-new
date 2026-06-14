@@ -10,15 +10,15 @@ use move_core_types::{
     language_storage::StructTag,
 };
 
+use haneul_json_rpc_types::HaneulMoveStruct;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::json;
-use haneul_json_rpc_types::HaneulMoveStruct;
 
 use haneul_types::base_types::ObjectID;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::bounded_visitor::BoundedVisitor;
-use haneul_types::{MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS};
+use haneul_types::{HANEUL_FRAMEWORK_ADDRESS, MOVE_STDLIB_ADDRESS};
 
 #[test]
 fn test_to_json_value() {

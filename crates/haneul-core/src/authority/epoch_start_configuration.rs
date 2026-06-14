@@ -2,13 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use enum_dispatch::enum_dispatch;
-use serde::{Deserialize, Serialize};
 use haneul_config::NodeConfig;
 use haneul_types::accumulator_root::get_accumulator_root_obj_initial_shared_version;
 use haneul_types::address_alias::get_address_alias_state_obj_initial_shared_version;
 use haneul_types::display_registry::get_display_registry_obj_initial_shared_version;
+use serde::{Deserialize, Serialize};
 
-use std::fmt;
 use haneul_types::authenticator_state::get_authenticator_state_obj_initial_shared_version;
 use haneul_types::base_types::SequenceNumber;
 use haneul_types::bridge::{get_bridge_obj_initial_shared_version, is_bridge_committee_initiated};
@@ -16,12 +15,13 @@ use haneul_types::coin_registry::get_coin_registry_obj_initial_shared_version;
 use haneul_types::deny_list_v1::get_deny_list_obj_initial_shared_version;
 use haneul_types::epoch_data::EpochData;
 use haneul_types::error::HaneulResult;
-use haneul_types::messages_checkpoint::{CheckpointDigest, CheckpointTimestamp};
-use haneul_types::randomness_state::get_randomness_state_obj_initial_shared_version;
-use haneul_types::storage::ObjectStore;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::{
     EpochStartSystemState, EpochStartSystemStateTrait,
 };
+use haneul_types::messages_checkpoint::{CheckpointDigest, CheckpointTimestamp};
+use haneul_types::randomness_state::get_randomness_state_obj_initial_shared_version;
+use haneul_types::storage::ObjectStore;
+use std::fmt;
 
 #[enum_dispatch]
 pub trait EpochStartConfigTrait {

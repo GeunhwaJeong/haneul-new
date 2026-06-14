@@ -4,9 +4,6 @@
 use async_trait::async_trait;
 use chrono::DateTime;
 use futures::stream::{self, StreamExt, TryStreamExt};
-use prost_types::FieldMask;
-use std::str::FromStr;
-use std::sync::Arc;
 use haneul_rpc::client::Client as GrpcClient;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::{
@@ -15,6 +12,9 @@ use haneul_rpc::proto::haneul::rpc::v2::{
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::digests::CheckpointDigest;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
+use prost_types::FieldMask;
+use std::str::FromStr;
+use std::sync::Arc;
 
 use haneul_types::digests::ChainIdentifier;
 

@@ -11,11 +11,6 @@ use std::collections::BTreeSet;
 
 use anyhow::Result;
 use anyhow::anyhow;
-use move_core_types::annotated_value::MoveStruct;
-use move_core_types::annotated_value::MoveTypeLayout;
-use move_core_types::annotated_value::MoveValue;
-use move_core_types::language_storage::StructTag;
-use move_core_types::language_storage::TypeTag;
 use haneul_package_resolver::PackageStore;
 use haneul_package_resolver::Resolver;
 use haneul_types::base_types::ObjectID;
@@ -26,6 +21,11 @@ use haneul_types::object::Owner;
 use haneul_types::object::bounded_visitor::BoundedVisitor;
 use haneul_types::transaction::TransactionData;
 use haneul_types::transaction::TransactionDataAPI;
+use move_core_types::annotated_value::MoveStruct;
+use move_core_types::annotated_value::MoveTypeLayout;
+use move_core_types::annotated_value::MoveValue;
+use move_core_types::language_storage::StructTag;
+use move_core_types::language_storage::TypeTag;
 
 use crate::tables::InputObjectKind;
 use crate::tables::ObjectStatus;
@@ -168,8 +168,6 @@ pub fn get_owner_type(object: &Object) -> OwnerType {
         Owner::Shared { .. } => OwnerType::Shared,
         Owner::Immutable => OwnerType::Immutable,
         Owner::ConsensusAddressOwner { .. } => OwnerType::AddressOwner,
-        // TODO(Party WIP) we might want a more granular OwnerType here
-        Owner::Party { .. } => OwnerType::Shared,
     }
 }
 
@@ -180,7 +178,6 @@ pub fn get_owner_address(object: &Object) -> Option<String> {
         Owner::Shared { .. } => None,
         Owner::Immutable => None,
         Owner::ConsensusAddressOwner { owner, .. } => Some(owner.to_string()),
-        Owner::Party { .. } => None,
     }
 }
 
@@ -191,7 +188,6 @@ pub fn get_is_consensus(object: &Object) -> bool {
         Owner::Shared { .. } => true,
         Owner::Immutable => false,
         Owner::ConsensusAddressOwner { .. } => true,
-        Owner::Party { .. } => true,
     }
 }
 
@@ -308,6 +304,7 @@ fn parse_struct_field(
 #[cfg(test)]
 mod tests {
     use super::parse_struct;
+    use haneul_types::base_types::ObjectID;
     use move_core_types::account_address::AccountAddress;
     use move_core_types::annotated_value::MoveStruct;
     use move_core_types::annotated_value::MoveValue;
@@ -316,7 +313,6 @@ mod tests {
     use move_core_types::language_storage::StructTag;
     use std::collections::BTreeMap;
     use std::str::FromStr;
-    use haneul_types::base_types::ObjectID;
 
     #[tokio::test]
     async fn test_wrapped_object_parsing() -> anyhow::Result<()> {

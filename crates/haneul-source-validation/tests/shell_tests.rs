@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use fs_extra::dir::CopyOptions;
+use haneul_config::HANEUL_CLIENT_CONFIG;
 use insta_cmd::get_cargo_bin;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use haneul_config::HANEUL_CLIENT_CONFIG;
 use test_cluster::TestClusterBuilder;
 
 // [test_shell_snapshot] is run on every file matching [TEST_PATTERN] in [TEST_DIR].

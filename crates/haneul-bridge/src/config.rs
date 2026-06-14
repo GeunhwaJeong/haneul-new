@@ -5,15 +5,26 @@ use crate::abi::EthBridgeConfig;
 use crate::crypto::BridgeAuthorityKeyPair;
 use crate::error::BridgeError;
 use crate::eth_client::EthClient;
+use crate::haneul_client::HaneulBridgeClient;
 use crate::metered_eth_provider::new_metered_eth_multi_provider;
 use crate::metrics::BridgeMetrics;
-use crate::haneul_client::HaneulBridgeClient;
 use crate::types::{BridgeAction, is_route_valid};
 use crate::utils::get_eth_contract_addresses;
 use alloy::primitives::Address as EthAddress;
 use alloy::providers::Provider;
 use anyhow::anyhow;
 use futures::StreamExt;
+use haneul_config::Config;
+use haneul_keys::keypair_file::read_key;
+use haneul_types::base_types::ObjectRef;
+use haneul_types::base_types::{HaneulAddress, ObjectID};
+use haneul_types::bridge::BridgeChainId;
+use haneul_types::crypto::KeypairTraits;
+use haneul_types::crypto::{HaneulKeyPair, NetworkKeyPair, get_key_pair_from_rng};
+use haneul_types::digests::{get_mainnet_chain_identifier, get_testnet_chain_identifier};
+use haneul_types::event::EventID;
+use haneul_types::gas_coin::GasCoin;
+use haneul_types::object::Owner;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::collections::BTreeMap;
@@ -21,17 +32,6 @@ use std::collections::HashSet;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::Arc;
-use haneul_config::Config;
-use haneul_keys::keypair_file::read_key;
-use haneul_types::base_types::ObjectRef;
-use haneul_types::base_types::{ObjectID, HaneulAddress};
-use haneul_types::bridge::BridgeChainId;
-use haneul_types::crypto::KeypairTraits;
-use haneul_types::crypto::{NetworkKeyPair, HaneulKeyPair, get_key_pair_from_rng};
-use haneul_types::digests::{get_mainnet_chain_identifier, get_testnet_chain_identifier};
-use haneul_types::event::EventID;
-use haneul_types::gas_coin::GasCoin;
-use haneul_types::object::Owner;
 use tracing::info;
 
 #[serde_as]
@@ -255,8 +255,9 @@ impl BridgeNodeConfig {
         }
 
         // If client is enabled, prepare client config
-        let (bridge_client_key, client_haneul_address, gas_object_ref) =
-            self.prepare_for_haneul(haneul_client.clone(), metrics).await?;
+        let (bridge_client_key, client_haneul_address, gas_object_ref) = self
+            .prepare_for_haneul(haneul_client.clone(), metrics)
+            .await?;
 
         let db_path = self
             .db_path
@@ -429,7 +430,8 @@ impl BridgeNodeConfig {
                 info!("No gas object configured, finding gas object with highest balance");
                 let haneul_client = haneul_rpc_api::Client::new(&self.haneul.haneul_rpc_url)?;
                 // Minimum balance for gas object is 10 HANEUL
-                pick_highest_balance_coin(haneul_client, client_haneul_address, 10_000_000_000).await?
+                pick_highest_balance_coin(haneul_client, client_haneul_address, 10_000_000_000)
+                    .await?
             }
         };
         let (gas_coin, gas_object_ref, owner) = haneul_client

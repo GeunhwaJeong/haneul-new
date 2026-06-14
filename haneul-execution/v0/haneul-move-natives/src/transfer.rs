@@ -3,6 +3,7 @@
 
 use super::object_runtime::{ObjectRuntime, TransferResult};
 use crate::NativesCostTable;
+use haneul_types::{base_types::SequenceNumber, object::Owner};
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_core_types::{
     account_address::AccountAddress, gas_algebra::InternalGas, language_storage::TypeTag,
@@ -14,7 +15,6 @@ use move_vm_types::{
 };
 use smallvec::smallvec;
 use std::collections::VecDeque;
-use haneul_types::{base_types::SequenceNumber, object::Owner};
 
 const E_SHARED_NON_NEW_OBJECT: u64 = 0;
 

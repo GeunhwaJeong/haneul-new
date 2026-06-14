@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_types::multiaddr::Multiaddr;
 use std::net::SocketAddr;
 #[cfg(msim)]
 use std::sync::{Arc, atomic::AtomicI16};
-use haneul_types::multiaddr::Multiaddr;
 
 /// A singleton struct to manage IP addresses and ports for simtest.
 /// This allows us to generate unique IP addresses and ports for each node in simtest.

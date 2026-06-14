@@ -11,10 +11,10 @@ use crate::action_executor::{
     BridgeActionExecutionWrapper, BridgeActionExecutorTrait, submit_to_executor,
 };
 use crate::events::HaneulBridgeEvent;
-use crate::metrics::BridgeMetrics;
-use crate::storage::BridgeOrchestratorTables;
 use crate::haneul_client::{HaneulClient, HaneulClientInner};
 use crate::haneul_syncer::GrpcSyncedEvents;
+use crate::metrics::BridgeMetrics;
+use crate::storage::BridgeOrchestratorTables;
 use crate::types::EthLog;
 use alloy::primitives::Address as EthAddress;
 use haneullabs_common::ZipDebugEqIteratorExt;
@@ -25,7 +25,8 @@ use tracing::{error, info};
 
 pub struct BridgeOrchestrator<C> {
     _haneul_client: Arc<HaneulClient<C>>,
-    haneul_grpc_events_rx: haneullabs_metrics::metered_channel::Receiver<(u64, Vec<HaneulBridgeEvent>)>,
+    haneul_grpc_events_rx:
+        haneullabs_metrics::metered_channel::Receiver<(u64, Vec<HaneulBridgeEvent>)>,
     eth_events_rx: haneullabs_metrics::metered_channel::Receiver<(EthAddress, u64, Vec<EthLog>)>,
     store: Arc<BridgeOrchestratorTables>,
     eth_monitor_tx: haneullabs_metrics::metered_channel::Sender<EthBridgeEvent>,
@@ -38,8 +39,15 @@ where
 {
     pub fn new(
         haneul_client: Arc<HaneulClient<C>>,
-        haneul_grpc_events_rx: haneullabs_metrics::metered_channel::Receiver<(u64, Vec<HaneulBridgeEvent>)>,
-        eth_events_rx: haneullabs_metrics::metered_channel::Receiver<(EthAddress, u64, Vec<EthLog>)>,
+        haneul_grpc_events_rx: haneullabs_metrics::metered_channel::Receiver<(
+            u64,
+            Vec<HaneulBridgeEvent>,
+        )>,
+        eth_events_rx: haneullabs_metrics::metered_channel::Receiver<(
+            EthAddress,
+            u64,
+            Vec<EthLog>,
+        )>,
         store: Arc<BridgeOrchestratorTables>,
         eth_monitor_tx: haneullabs_metrics::metered_channel::Sender<EthBridgeEvent>,
         metrics: Arc<BridgeMetrics>,
@@ -257,15 +265,17 @@ mod tests {
         types::BridgeActionDigest,
     };
     use alloy::primitives::TxHash;
+    use haneul_types::Identifier;
     use prometheus::Registry;
     use std::str::FromStr;
-    use haneul_types::Identifier;
 
     use super::*;
     use crate::events::HaneulBridgeEvent;
     use crate::events::init_all_struct_tags;
     use crate::test_utils::get_test_haneul_to_eth_bridge_action;
-    use crate::{events::tests::get_test_haneul_event_and_action, haneul_mock_client::HaneulMockClient};
+    use crate::{
+        events::tests::get_test_haneul_event_and_action, haneul_mock_client::HaneulMockClient,
+    };
 
     #[tokio::test]
     async fn test_eth_watcher_task() {
@@ -546,13 +556,14 @@ mod tests {
                 .with_label_values(&["unit_test_eth_events_queue"]),
         );
 
-        let (haneul_grpc_events_tx, haneul_grpc_events_rx) = haneullabs_metrics::metered_channel::channel(
-            100,
-            &haneullabs_metrics::get_metrics()
-                .unwrap()
-                .channel_inflight
-                .with_label_values(&["unit_test_haneul_events_queue"]),
-        );
+        let (haneul_grpc_events_tx, haneul_grpc_events_rx) =
+            haneullabs_metrics::metered_channel::channel(
+                100,
+                &haneullabs_metrics::get_metrics()
+                    .unwrap()
+                    .channel_inflight
+                    .with_label_values(&["unit_test_haneul_events_queue"]),
+            );
         let (eth_monitor_tx, eth_monitor_rx) = haneullabs_metrics::metered_channel::channel(
             10000,
             &haneullabs_metrics::get_metrics()

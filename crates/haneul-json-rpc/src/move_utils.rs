@@ -5,6 +5,16 @@ use crate::authority_state::StateRead;
 use crate::error::{Error, HaneulRpcInputError};
 use crate::{HaneulRpcModule, with_tracing};
 use async_trait::async_trait;
+use haneul_core::authority::AuthorityState;
+use haneul_json_rpc_api::{MoveUtilsOpenRpc, MoveUtilsServer};
+use haneul_json_rpc_types::{
+    HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
+    MoveFunctionArgType, ObjectValueKind,
+};
+use haneul_open_rpc::Module;
+use haneul_types::base_types::ObjectID;
+use haneul_types::move_package::normalize_modules;
+use haneul_types::object::{Data, ObjectRead};
 use jsonrpsee::RpcModule;
 use jsonrpsee::core::RpcResult;
 #[cfg(test)]
@@ -13,16 +23,6 @@ use move_binary_format::{binary_config::BinaryConfig, normalized};
 use move_core_types::identifier::Identifier;
 use std::collections::BTreeMap;
 use std::sync::Arc;
-use haneul_core::authority::AuthorityState;
-use haneul_json_rpc_api::{MoveUtilsOpenRpc, MoveUtilsServer};
-use haneul_json_rpc_types::{
-    MoveFunctionArgType, ObjectValueKind, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
-    HaneulMoveNormalizedStruct,
-};
-use haneul_open_rpc::Module;
-use haneul_types::base_types::ObjectID;
-use haneul_types::move_package::normalize_modules;
-use haneul_types::object::{Data, ObjectRead};
 use tap::TapFallible;
 use tracing::{error, instrument, warn};
 
@@ -341,8 +341,9 @@ mod tests {
             let (package, module_name) = setup();
             let mut mock_internal = MockMoveUtilsInternalTrait::new();
             let error_string = format!("No module found with module name {module_name}");
-            let expected_error =
-                Error::HaneulRpcInputError(HaneulRpcInputError::GenericNotFound(error_string.clone()));
+            let expected_error = Error::HaneulRpcInputError(HaneulRpcInputError::GenericNotFound(
+                error_string.clone(),
+            ));
             mock_internal
                 .expect_get_move_module()
                 .return_once(move |_package, _module_name| Err(expected_error));

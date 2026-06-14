@@ -7,5 +7,5 @@ It is a thin wrapper around the `move-package-alt` crate to fill in the haneul-s
 
 See also the [user guide][guide] ([generated][generated]).
 
-[guide]: /docs/content/develop/manage-packages/move-package-management.mdx
-[generated]: https://docs.haneul.io/guides/developer/packages/move-package-management
+[guide]: /docs/content/guides/developer/haneul-101/move-package-management.mdx
+[generated]: https://docs.haneul.io/guides/developer/haneul-101/move-package-management

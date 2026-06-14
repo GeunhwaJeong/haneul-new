@@ -15,15 +15,15 @@ use crate::FaucetConfig;
 use crate::FaucetError;
 
 use crate::CoinInfo;
-use shared_crypto::intent::Intent;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_sdk::types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_sdk::types::{
-    base_types::{ObjectID, HaneulAddress},
+    base_types::{HaneulAddress, ObjectID},
     gas_coin::GasCoin,
     transaction::{Transaction, TransactionData},
 };
 use haneul_sdk::wallet_context::WalletContext;
+use shared_crypto::intent::Intent;
 
 const GAS_BUDGET: u64 = 10_000_000;
 const NUM_RETRIES: u8 = 2;

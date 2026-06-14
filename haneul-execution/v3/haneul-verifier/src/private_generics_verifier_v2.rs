@@ -3,6 +3,9 @@
 
 use std::borrow::Cow;
 
+use haneul_types::{
+    HANEUL_FRAMEWORK_ADDRESS, MOVE_STDLIB_ADDRESS, error::ExecutionError, make_invariant_violation,
+};
 use move_binary_format::{
     CompiledModule,
     file_format::{Bytecode, FunctionDefinition, FunctionHandle, SignatureToken, Visibility},
@@ -10,9 +13,6 @@ use move_binary_format::{
 use move_bytecode_utils::format_signature_token;
 use move_core_types::{account_address::AccountAddress, ident_str, identifier::IdentStr};
 use move_vm_config::verifier::VerifierConfig;
-use haneul_types::{
-    MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, error::ExecutionError, make_invariant_violation,
-};
 
 use crate::{FunctionIdent, TEST_SCENARIO_MODULE_NAME, verification_failure};
 
@@ -164,7 +164,8 @@ pub fn verify_module(
     let module_name = module_id.name();
 
     // Skip haneul::test_scenario
-    if module_address == HANEUL_FRAMEWORK_ADDRESS && module_name.as_str() == TEST_SCENARIO_MODULE_NAME
+    if module_address == HANEUL_FRAMEWORK_ADDRESS
+        && module_name.as_str() == TEST_SCENARIO_MODULE_NAME
     {
         // exclude test_module which is a test-only module in the Haneul framework which "emulates"
         // transactional execution and needs to allow test code to bypass private generics

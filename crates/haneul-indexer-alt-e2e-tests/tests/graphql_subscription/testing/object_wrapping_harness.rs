@@ -5,7 +5,6 @@
 
 use std::path::PathBuf;
 
-use move_core_types::ident_str;
 use haneul_indexer_alt_e2e_tests::move_helpers::execute_ptb;
 use haneul_indexer_alt_e2e_tests::move_helpers::publish_package;
 use haneul_types::base_types::ObjectID;
@@ -14,6 +13,7 @@ use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::Argument;
 use haneul_types::transaction::ObjectArg;
+use move_core_types::ident_str;
 
 pub async fn publish(cluster: &mut test_cluster::TestCluster) -> ObjectID {
     let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));

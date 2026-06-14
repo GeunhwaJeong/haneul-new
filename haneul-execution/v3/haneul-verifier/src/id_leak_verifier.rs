@@ -12,6 +12,18 @@
 //! 2. Written into a mutable reference
 //! 3. Added to a vector
 //! 4. Passed to a function cal::;
+use haneul_types::bridge::BRIDGE_MODULE_NAME;
+use haneul_types::deny_list_v1::{DENY_LIST_CREATE_FUNC, DENY_LIST_MODULE};
+use haneul_types::{
+    BRIDGE_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS,
+    accumulator_event::ACCUMULATOR_MODULE_NAME,
+    authenticator_state::AUTHENTICATOR_STATE_MODULE_NAME,
+    clock::CLOCK_MODULE_NAME,
+    error::{ExecutionError, VMMVerifierErrorSubStatusCode},
+    haneul_system_state::HANEUL_SYSTEM_MODULE_NAME,
+    id::OBJECT_MODULE_NAME,
+    randomness_state::RANDOMNESS_MODULE_NAME,
+};
 use move_abstract_stack::AbstractStack;
 use move_binary_format::{
     errors::PartialVMError,
@@ -26,18 +38,6 @@ use move_bytecode_verifier::absint::{
 use move_bytecode_verifier_meter::{Meter, Scope};
 use move_core_types::{ident_str, vm_status::StatusCode};
 use std::{collections::BTreeMap, error::Error, num::NonZeroU64};
-use haneul_types::bridge::BRIDGE_MODULE_NAME;
-use haneul_types::deny_list_v1::{DENY_LIST_CREATE_FUNC, DENY_LIST_MODULE};
-use haneul_types::{
-    BRIDGE_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_ADDRESS,
-    accumulator_event::ACCUMULATOR_MODULE_NAME,
-    authenticator_state::AUTHENTICATOR_STATE_MODULE_NAME,
-    clock::CLOCK_MODULE_NAME,
-    error::{ExecutionError, VMMVerifierErrorSubStatusCode},
-    id::OBJECT_MODULE_NAME,
-    randomness_state::RANDOMNESS_MODULE_NAME,
-    haneul_system_state::HANEUL_SYSTEM_MODULE_NAME,
-};
 
 use crate::{
     FunctionIdent, TEST_SCENARIO_MODULE_NAME, check_for_verifier_timeout,
@@ -53,7 +53,11 @@ enum AbstractValue {
     Other,
 }
 
-const OBJECT_NEW: FunctionIdent = (HANEUL_FRAMEWORK_ADDRESS, OBJECT_MODULE_NAME, ident_str!("new"));
+const OBJECT_NEW: FunctionIdent = (
+    HANEUL_FRAMEWORK_ADDRESS,
+    OBJECT_MODULE_NAME,
+    ident_str!("new"),
+);
 const OBJECT_NEW_UID_FROM_HASH: FunctionIdent = (
     HANEUL_FRAMEWORK_ADDRESS,
     OBJECT_MODULE_NAME,
@@ -95,7 +99,8 @@ const HANEUL_DENY_LIST_CREATE: FunctionIdent = (
     DENY_LIST_CREATE_FUNC,
 );
 
-const HANEUL_BRIDGE_CREATE: FunctionIdent = (BRIDGE_ADDRESS, BRIDGE_MODULE_NAME, ident_str!("create"));
+const HANEUL_BRIDGE_CREATE: FunctionIdent =
+    (BRIDGE_ADDRESS, BRIDGE_MODULE_NAME, ident_str!("create"));
 const HANEUL_ACCUMULATOR_CREATE: FunctionIdent = (
     HANEUL_FRAMEWORK_ADDRESS,
     ACCUMULATOR_MODULE_NAME,

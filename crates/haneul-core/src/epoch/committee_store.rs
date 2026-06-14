@@ -1,13 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_types::base_types::ObjectID;
+use haneul_types::committee::{Committee, EpochId};
+use haneul_types::error::{HaneulErrorKind, HaneulResult};
 use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use haneul_types::base_types::ObjectID;
-use haneul_types::committee::{Committee, EpochId};
-use haneul_types::error::{HaneulErrorKind, HaneulResult};
 use typed_store::rocks::{DBMap, DBOptions, MetricConf, default_db_options};
 use typed_store::rocksdb::Options;
 
@@ -119,20 +119,6 @@ impl CommitteeStore {
                 .map(|c| Committee::clone(&*c))?,
             None => self.get_latest_committee()?,
         })
-    }
-
-    /// List epoch→committee pairs starting at `start` epoch, up to `limit`.
-    pub fn list_epochs(
-        &self,
-        start: Option<EpochId>,
-        limit: usize,
-    ) -> HaneulResult<Vec<(EpochId, Committee)>> {
-        self.tables
-            .committee_map
-            .safe_iter_with_bounds(start, None)
-            .take(limit)
-            .map(|r| r.map_err(Into::into))
-            .collect()
     }
 
     pub fn checkpoint_db(&self, path: &Path) -> HaneulResult {

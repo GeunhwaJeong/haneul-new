@@ -9,15 +9,15 @@ use crate::workloads::{Gas, GasCoinConfig, WorkloadBuilderInfo, WorkloadParams};
 use crate::{ExecutionEffects, ValidatorProxy};
 use async_trait::async_trait;
 use futures::future::join_all;
-use std::sync::atomic::{AtomicU32, Ordering};
-use std::sync::{Arc, Mutex};
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{AccountKeyPair, get_key_pair};
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::gas_coin::GAS;
 use haneul_types::transaction::{Argument, Command, FundsWithdrawalArg, Transaction};
-use haneul_types::{Identifier, HANEUL_FRAMEWORK_PACKAGE_ID};
+use haneul_types::{HANEUL_FRAMEWORK_PACKAGE_ID, Identifier};
+use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::{Arc, Mutex};
 use tracing::info;
 
 const GAS_BUDGET: u64 = 50_000_000;
@@ -204,7 +204,7 @@ impl Workload<dyn Payload> for AddrBalDepositWorkload {
                     vec![coin_balance, recipient_arg],
                 );
             }
-            let tx = tx_builder.ensure_unique().build_and_sign(keypair.as_ref());
+            let tx = tx_builder.build_and_sign(keypair.as_ref());
             let proxy_ref = execution_proxy.clone();
             futures.push(async move {
                 let result = proxy_ref.execute_transaction_block(tx).await;
@@ -346,9 +346,7 @@ impl Payload for AddrBalDepositPayload {
             }
         }
 
-        let tx = tx_builder
-            .ensure_unique()
-            .build_and_sign(self.keypair.as_ref());
+        let tx = tx_builder.build_and_sign(self.keypair.as_ref());
         self.metrics.lock().unwrap().sent += 1;
         vec![tx]
     }

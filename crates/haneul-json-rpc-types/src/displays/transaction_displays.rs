@@ -34,7 +34,9 @@ impl Display for Pretty<'_, HaneulProgrammableTransactionBlock> {
                         };
                         builder.push_record(vec![pure_arg]);
                     }
-                    HaneulCallArg::Object(HaneulObjectArg::ImmOrOwnedObject { object_id, .. }) => {
+                    HaneulCallArg::Object(HaneulObjectArg::ImmOrOwnedObject {
+                        object_id, ..
+                    }) => {
                         builder.push_record(vec![format!(
                             "{i:<3} Imm/Owned Object ID: {}",
                             object_id

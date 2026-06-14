@@ -3,8 +3,8 @@
 
 use anyhow::Context;
 use anyhow::bail;
-use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::ObjectRef;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::execution_status::{ExecutionFailure, ExecutionStatus};
@@ -25,7 +25,10 @@ pub fn address_owned(fx: &TransactionEffects) -> anyhow::Result<ObjectRef> {
 
 /// Returns the reference for the first address-owned object created in the effects owned by
 /// `owner`, or an error if there is none.
-pub fn address_owned_by(fx: &TransactionEffects, owner: HaneulAddress) -> anyhow::Result<ObjectRef> {
+pub fn address_owned_by(
+    fx: &TransactionEffects,
+    owner: HaneulAddress,
+) -> anyhow::Result<ObjectRef> {
     if let ExecutionStatus::Failure(ExecutionFailure { error, command }) = fx.status() {
         bail!("Transaction failed: {error} (command {command:?})");
     }

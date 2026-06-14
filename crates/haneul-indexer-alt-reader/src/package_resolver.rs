@@ -9,7 +9,6 @@ use async_graphql::dataloader::Loader;
 use diesel::prelude::QueryableByName;
 use diesel::sql_types::Array;
 use diesel::sql_types::Bytea;
-use move_core_types::account_address::AccountAddress;
 use haneul_indexer_alt_schema::schema::kv_packages;
 use haneul_package_resolver::Package;
 use haneul_package_resolver::PackageStore;
@@ -17,6 +16,7 @@ use haneul_package_resolver::PackageStoreWithLruCache;
 use haneul_package_resolver::Result;
 use haneul_package_resolver::error::Error;
 use haneul_types::object::Object;
+use move_core_types::account_address::AccountAddress;
 
 use crate::pg_reader::PgReader;
 

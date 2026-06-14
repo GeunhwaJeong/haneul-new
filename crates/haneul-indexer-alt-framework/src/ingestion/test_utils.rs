@@ -1,13 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use prost::Message;
-use rand::SeedableRng;
-use rand::prelude::StdRng;
 use haneul_rpc::field::FieldMask;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::merge::Merge;
 use haneul_rpc::proto::haneul::rpc;
+use prost::Message;
+use rand::SeedableRng;
+use rand::prelude::StdRng;
 
 use crate::types::crypto::KeypairTraits;
 use crate::types::full_checkpoint_content::CheckpointData;

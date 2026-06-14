@@ -3,8 +3,8 @@
 
 use super::gas_predicates::{charge_input_as_memory, legacy_charge_native_pops_args};
 use crate::gas_model::units_types::{CostTable, Gas, GasCost};
-use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use haneullabs_common::debug_fatal;
+use move_binary_format::errors::{PartialVMError, PartialVMResult};
 
 use move_core_types::gas_algebra::{AbstractMemorySize, InternalGas};
 

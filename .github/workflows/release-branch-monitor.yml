@@ -1,9 +1,7 @@
 name: Release Branch Monitor
 
 on:
-  push:
-    branches:
-      - 'releases/haneul-v*-release'
+  workflow_dispatch:
 
 permissions:
   contents: read

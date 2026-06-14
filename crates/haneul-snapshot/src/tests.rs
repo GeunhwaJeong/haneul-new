@@ -8,11 +8,6 @@ use crate::writer::StateSnapshotWriterV1;
 use fastcrypto::hash::MultisetHash;
 use futures::StreamExt;
 use futures::future::AbortHandle;
-use indicatif::MultiProgress;
-use prometheus::Registry;
-use std::collections::HashSet;
-use std::num::NonZeroUsize;
-use std::sync::Arc;
 use haneul_config::object_storage_config::{ObjectStoreConfig, ObjectStoreType};
 use haneul_core::authority::authority_store_tables::AuthorityPerpetualTables;
 use haneul_core::checkpoints::CheckpointStore;
@@ -23,6 +18,11 @@ use haneul_types::base_types::ObjectID;
 use haneul_types::global_state_hash::GlobalStateHash;
 use haneul_types::messages_checkpoint::ECMHLiveObjectSetDigest;
 use haneul_types::object::Object;
+use indicatif::MultiProgress;
+use prometheus::Registry;
+use std::collections::HashSet;
+use std::num::NonZeroUsize;
+use std::sync::Arc;
 use tempfile::tempdir;
 
 fn temp_dir() -> std::path::PathBuf {
@@ -243,7 +243,8 @@ async fn test_archive_epoch_if_needed() -> Result<(), anyhow::Error> {
     for (filename, expected_content) in &test_files {
         let archive_path =
             object_store::path::Path::from(format!("archive/epoch_{}/{}", epoch, filename));
-        let archived_content = haneul_storage::object_store::util::get(&store, &archive_path).await?;
+        let archived_content =
+            haneul_storage::object_store::util::get(&store, &archive_path).await?;
         assert_eq!(bytes::Bytes::from(*expected_content), archived_content);
     }
 

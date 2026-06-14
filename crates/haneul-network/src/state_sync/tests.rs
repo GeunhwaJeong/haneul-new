@@ -10,13 +10,6 @@ use crate::{
 };
 use anemo::{PeerId, Request};
 use anyhow::anyhow;
-use haneullabs_common::ZipDebugEqIteratorExt;
-use prost::Message;
-use std::num::NonZeroUsize;
-use std::{
-    collections::HashMap,
-    time::{Duration, Instant as StdInstant},
-};
 use haneul_config::node::ArchiveReaderConfig;
 use haneul_config::object_storage_config::ObjectStoreConfig;
 use haneul_config::p2p::StateSyncConfig;
@@ -28,6 +21,13 @@ use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::{
     messages_checkpoint::CheckpointDigest,
     storage::{ReadStore, SharedInMemoryStore, WriteStore},
+};
+use haneullabs_common::ZipDebugEqIteratorExt;
+use prost::Message;
+use std::num::NonZeroUsize;
+use std::{
+    collections::HashMap,
+    time::{Duration, Instant as StdInstant},
 };
 use tempfile::tempdir;
 use tokio::time::{Instant, timeout};

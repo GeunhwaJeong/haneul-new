@@ -8,57 +8,66 @@ module enums::colors;
 // -- enums -- 
 
 public enum Color has copy, drop {
-    Red,
-    Green,
-    Blue,
+    Red {},
+    Green {},
+    Blue {},
 }
 
 // -- functions -- 
 
-public fun is_blue(l0: Color): bool {
+public fun is_blue(l0: enums::colors::Color): bool {
     let l3 = l0;
-    return match (&l3) {
-        Red => {
-            false
+    let l2 = &l3;
+    match (l2) {
+        Color::Red => {
+            let l1 = false;
         },
-        Green => {
-            false
+        Color::Green => {
+            l1 = false;
         },
-        Blue => {
-            let Color::Blue {} = l3;
-            true
+        Color::Blue => {
+            0x0::colors::Color::Blue {} = l2;
+            0x0::colors::Color::Blue {} = l3;
+            l1 = true;
         }
-    }
+    };
+    return l1
 }
 
-public fun is_green(l0: Color): bool {
+public fun is_green(l0: enums::colors::Color): bool {
     let l3 = l0;
-    return match (&l3) {
-        Red => {
-            false
+    let l2 = &l3;
+    match (l2) {
+        Color::Red => {
+            let l1 = false;
         },
-        Green => {
-            let Color::Green {} = l3;
-            true
+        Color::Green => {
+            0x0::colors::Color::Green {} = l2;
+            0x0::colors::Color::Green {} = l3;
+            l1 = true;
         },
-        Blue => {
-            false
+        Color::Blue => {
+            l1 = false;
         }
-    }
+    };
+    return l1
 }
 
-public fun is_red(l0: Color): bool {
+public fun is_red(l0: enums::colors::Color): bool {
     let l3 = l0;
-    return match (&l3) {
-        Red => {
-            let Color::Red {} = l3;
-            true
+    let l2 = &l3;
+    match (l2) {
+        Color::Red => {
+            0x0::colors::Color::Red {} = l2;
+            0x0::colors::Color::Red {} = l3;
+            let l1 = true;
         },
-        Green => {
-            false
+        Color::Green => {
+            l1 = false;
         },
-        Blue => {
-            false
+        Color::Blue => {
+            l1 = false;
         }
-    }
+    };
+    return l1
 }

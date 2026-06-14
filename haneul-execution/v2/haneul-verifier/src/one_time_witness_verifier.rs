@@ -15,11 +15,6 @@
 //! - its definition does not involve type parameters
 //! - its only instance in existence is passed as an argument to the module initializer
 //! - it is never instantiated anywhere in its defining module
-use move_binary_format::file_format::{
-    Ability, AbilitySet, Bytecode, CompiledModule, DatatypeHandle, FunctionDefinition,
-    FunctionHandle, SignatureToken, StructDefinition,
-};
-use move_core_types::{ident_str, language_storage::ModuleId};
 use haneul_types::bridge::BRIDGE_SUPPORTED_ASSET;
 use haneul_types::{
     base_types::{TX_CONTEXT_MODULE_NAME, TX_CONTEXT_STRUCT_NAME},
@@ -27,6 +22,11 @@ use haneul_types::{
     move_package::{is_test_fun, FnInfoMap},
     BRIDGE_ADDRESS, HANEUL_FRAMEWORK_ADDRESS,
 };
+use move_binary_format::file_format::{
+    Ability, AbilitySet, Bytecode, CompiledModule, DatatypeHandle, FunctionDefinition,
+    FunctionHandle, SignatureToken, StructDefinition,
+};
+use move_core_types::{ident_str, language_storage::ModuleId};
 
 use crate::{verification_failure, INIT_FN_NAME};
 

@@ -165,7 +165,8 @@ mod tests {
         let disallowed = Ed25519KeyPair::generate(&mut rng);
 
         let allowed_public_keys = BTreeSet::from([allowed.public().to_owned()]);
-        let allowed_cert = SelfSignedCertificate::new(allowed.private(), HANEUL_VALIDATOR_SERVER_NAME);
+        let allowed_cert =
+            SelfSignedCertificate::new(allowed.private(), HANEUL_VALIDATOR_SERVER_NAME);
 
         let disallowed_cert =
             SelfSignedCertificate::new(disallowed.private(), HANEUL_VALIDATOR_SERVER_NAME);

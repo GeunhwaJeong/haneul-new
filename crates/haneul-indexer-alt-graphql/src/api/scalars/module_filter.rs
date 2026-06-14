@@ -8,8 +8,8 @@ use async_graphql::*;
 use haneul_types::parse_haneul_address;
 use haneul_types::parse_haneul_module_id;
 
-use crate::api::scalars::impl_string_input;
 use crate::api::scalars::haneul_address::HaneulAddress;
+use crate::api::scalars::impl_string_input;
 
 /// GraphQL scalar containing a filter on modules. The filter can be one of:
 ///

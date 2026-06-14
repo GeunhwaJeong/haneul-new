@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::collections::HashMap;
 use haneul_kvstore::{BigTableClient, KeyValueStoreReader};
 use haneul_rpc::merge::Merge;
 use haneul_rpc::proto::haneul::rpc::v2::BatchGetObjectsRequest;
@@ -14,6 +13,7 @@ use haneul_rpc_api::{
     grpc::v2::ledger_service::validate_get_object_requests,
 };
 use haneul_types::storage::ObjectKey;
+use std::collections::HashMap;
 
 use super::render_json;
 use crate::PackageResolver;

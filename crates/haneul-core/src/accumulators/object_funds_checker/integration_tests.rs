@@ -12,7 +12,7 @@ use haneul_types::{
     HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, TypeTag,
     accumulator_root::AccumulatorValue,
     balance::Balance,
-    base_types::{ObjectID, ObjectRef, HaneulAddress},
+    base_types::{HaneulAddress, ObjectID, ObjectRef},
     crypto::get_account_key_pair,
     effects::TransactionEffectsAPI,
     executable_transaction::VerifiedExecutableTransaction,
@@ -63,6 +63,7 @@ impl TestEnv {
         let cert = VerifiedExecutableTransaction::new_for_testing(tx, &keypair);
         let (effects, ..) = authority
             .try_execute_immediately(&cert, ExecutionEnv::new(), &epoch_store)
+            .await
             .unwrap();
         assert!(effects.status().is_ok());
         let package_id = effects
@@ -80,6 +81,7 @@ impl TestEnv {
         let cert = VerifiedExecutableTransaction::new_for_testing(tx, &keypair);
         let (effects, ..) = authority
             .try_execute_immediately(&cert, ExecutionEnv::new(), &epoch_store)
+            .await
             .unwrap();
         assert!(effects.status().is_ok());
         let vault_obj = effects.created().into_iter().next().unwrap().0;
@@ -94,9 +96,10 @@ impl TestEnv {
         }
     }
 
-    pub fn oref(&self, object_id: &ObjectID) -> ObjectRef {
+    pub async fn oref(&self, object_id: &ObjectID) -> ObjectRef {
         self.authority
             .get_object(object_id)
+            .await
             .unwrap()
             .compute_object_reference()
     }
@@ -106,7 +109,7 @@ impl TestEnv {
     }
 
     pub async fn fund_address(&self, address: HaneulAddress, amount: u64) {
-        let gas = self.oref(&self.gas_obj);
+        let gas = self.oref(&self.gas_obj).await;
         let tx = TestTransactionBuilder::new(self.sender, gas, self.rgp())
             .transfer_haneul_to_address_balance(FundSource::coin(gas), vec![(amount, address)])
             .build();
@@ -115,6 +118,7 @@ impl TestEnv {
         let (effects, ..) = self
             .authority
             .try_execute_immediately(&cert, ExecutionEnv::new(), &self.epoch_store)
+            .await
             .unwrap();
         assert!(effects.status().is_ok());
 
@@ -128,7 +132,8 @@ impl TestEnv {
             AccumulatorValue::get_field_id(self.vault_obj.into(), &Balance::type_tag(type_tag))
                 .unwrap();
         let balance_read = self.authority.get_account_funds_read();
-        balance_read.get_latest_account_amount(&account_id)
+        let (balance, _version) = balance_read.get_latest_account_amount(&account_id);
+        balance
     }
 }
 
@@ -138,16 +143,16 @@ async fn test_object_withdraw_basic_flow() {
 
     env.fund_address(env.vault_obj.into(), 1000).await;
 
-    let gas = env.oref(&env.gas_obj);
+    let gas = env.oref(&env.gas_obj).await;
     let tx = TestTransactionBuilder::new(env.sender, gas, env.rgp())
         .transfer_haneul_to_address_balance(
-            FundSource::object_fund_owned(env.package_id, env.oref(&env.vault_obj)),
+            FundSource::object_fund_owned(env.package_id, env.oref(&env.vault_obj).await),
             vec![(1000, env.sender)],
         )
         .build();
     let cert = VerifiedExecutableTransaction::new_for_testing(tx, &env.keypair);
 
-    let accumulator_version = env.oref(&HANEUL_ACCUMULATOR_ROOT_OBJECT_ID).1;
+    let accumulator_version = env.oref(&HANEUL_ACCUMULATOR_ROOT_OBJECT_ID).await.1;
     let effects = env
         .authority
         .try_execute_immediately(
@@ -156,9 +161,33 @@ async fn test_object_withdraw_basic_flow() {
                 .with_assigned_versions(AssignedVersions::new(vec![], Some(accumulator_version))),
             &env.epoch_store,
         )
+        .await
         .unwrap()
         .0;
     assert!(effects.status().is_ok());
+}
+
+#[tokio::test]
+async fn test_object_withdraw_fast_path_abort() {
+    let env = TestEnv::new().await;
+
+    env.fund_address(env.vault_obj.into(), 1000).await;
+
+    let gas = env.oref(&env.gas_obj).await;
+    let tx = TestTransactionBuilder::new(env.sender, gas, env.rgp())
+        .transfer_haneul_to_address_balance(
+            FundSource::object_fund_owned(env.package_id, env.oref(&env.vault_obj).await),
+            vec![(1000, env.sender)],
+        )
+        .build();
+    let cert = VerifiedExecutableTransaction::new_for_testing(tx, &env.keypair);
+
+    let output = env
+        .authority
+        // Fastpath execution
+        .try_execute_immediately(&cert, ExecutionEnv::new(), &env.epoch_store)
+        .await;
+    assert!(matches!(output, ExecutionOutput::RetryLater));
 }
 
 #[tokio::test]
@@ -171,16 +200,16 @@ async fn test_object_withdraw_multiple_withdraws() {
     // Withdraw from the same object account 3 times, each 300.
     // All withdraws should be sufficient.
     for _ in 0..3 {
-        let gas = env.oref(&env.gas_obj);
+        let gas = env.oref(&env.gas_obj).await;
         let tx = TestTransactionBuilder::new(env.sender, gas, env.rgp())
             .transfer_haneul_to_address_balance(
-                FundSource::object_fund_owned(env.package_id, env.oref(&env.vault_obj)),
+                FundSource::object_fund_owned(env.package_id, env.oref(&env.vault_obj).await),
                 vec![(300, env.sender)],
             )
             .build();
         let cert = VerifiedExecutableTransaction::new_for_testing(tx, &env.keypair);
 
-        let accumulator_version = env.oref(&HANEUL_ACCUMULATOR_ROOT_OBJECT_ID).1;
+        let accumulator_version = env.oref(&HANEUL_ACCUMULATOR_ROOT_OBJECT_ID).await.1;
         let effects = env
             .authority
             // Fastpath execution
@@ -192,6 +221,7 @@ async fn test_object_withdraw_multiple_withdraws() {
                 )),
                 &env.epoch_store,
             )
+            .await
             .unwrap()
             .0;
         assert!(effects.status().is_ok());
@@ -209,17 +239,17 @@ async fn test_object_withdraw_multiple_withdraws() {
     // The first 2 withdraws should be sufficient, the last one should be insufficient.
     // This test exercises the case where we have to track unsettled balance withdraws from the same consensus commit.
     for i in 0..3 {
-        let gas = env.oref(&env.gas_obj);
+        let gas = env.oref(&env.gas_obj).await;
         let tx = TestTransactionBuilder::new(env.sender, gas, env.rgp())
             .transfer_haneul_to_address_balance(
-                FundSource::object_fund_owned(env.package_id, env.oref(&env.vault_obj)),
+                FundSource::object_fund_owned(env.package_id, env.oref(&env.vault_obj).await),
                 vec![(40, env.sender)],
             )
             .build();
         let cert = VerifiedExecutableTransaction::new_for_testing(tx, &env.keypair);
         let digest = *cert.digest();
 
-        let accumulator_version = env.oref(&HANEUL_ACCUMULATOR_ROOT_OBJECT_ID).1;
+        let accumulator_version = env.oref(&HANEUL_ACCUMULATOR_ROOT_OBJECT_ID).await.1;
         let output = env
             .authority
             // Fastpath execution
@@ -230,7 +260,8 @@ async fn test_object_withdraw_multiple_withdraws() {
                     Some(accumulator_version),
                 )),
                 &env.epoch_store,
-            );
+            )
+            .await;
         let effects = if i < 2 {
             let effects = output.unwrap().0;
             assert!(effects.status().is_ok());
@@ -273,22 +304,25 @@ async fn test_object_withdraw_and_deposit_same_transaction() {
     // The max net withdraws for this account should be 3, because at any given moment,
     // the net withdraws is at most 3.
     // Since the account has a balance of 2, the transaction should fail.
-    let gas = env.oref(&env.gas_obj);
+    let gas = env.oref(&env.gas_obj).await;
     let tx = TestTransactionBuilder::new(env.sender, gas, env.rgp())
         .transfer_haneul_to_address_balance(
-            FundSource::object_fund_owned(env.package_id, env.oref(&env.vault_obj)),
+            FundSource::object_fund_owned(env.package_id, env.oref(&env.vault_obj).await),
             vec![(3, env.vault_obj.into())],
         )
         .build();
     let cert = VerifiedExecutableTransaction::new_for_testing(tx, &env.keypair);
     let digest = *cert.digest();
-    let accumulator_version = env.oref(&HANEUL_ACCUMULATOR_ROOT_OBJECT_ID).1;
-    let output = env.authority.try_execute_immediately(
-        &cert,
-        ExecutionEnv::new()
-            .with_assigned_versions(AssignedVersions::new(vec![], Some(accumulator_version))),
-        &env.epoch_store,
-    );
+    let accumulator_version = env.oref(&HANEUL_ACCUMULATOR_ROOT_OBJECT_ID).await.1;
+    let output = env
+        .authority
+        .try_execute_immediately(
+            &cert,
+            ExecutionEnv::new()
+                .with_assigned_versions(AssignedVersions::new(vec![], Some(accumulator_version))),
+            &env.epoch_store,
+        )
+        .await;
     assert!(matches!(output, ExecutionOutput::RetryLater));
     let effects = env
         .authority
@@ -302,16 +336,16 @@ async fn test_object_withdraw_and_deposit_same_transaction() {
         })
     ));
 
-    let gas = env.oref(&env.gas_obj);
+    let gas = env.oref(&env.gas_obj).await;
     // Now we try with withdraw 2 and deposit 2, which should be sufficient,
     // even if we do it twice.
     let tx = TestTransactionBuilder::new(env.sender, gas, env.rgp())
         .transfer_haneul_to_address_balance(
-            FundSource::object_fund_owned(env.package_id, env.oref(&env.vault_obj)),
+            FundSource::object_fund_owned(env.package_id, env.oref(&env.vault_obj).await),
             vec![(2, env.vault_obj.into())],
         )
         .transfer_haneul_to_address_balance(
-            FundSource::object_fund_owned(env.package_id, env.oref(&env.vault_obj)),
+            FundSource::object_fund_owned(env.package_id, env.oref(&env.vault_obj).await),
             vec![(2, env.vault_obj.into())],
         )
         .build();
@@ -324,6 +358,7 @@ async fn test_object_withdraw_and_deposit_same_transaction() {
                 .with_assigned_versions(AssignedVersions::new(vec![], Some(accumulator_version))),
             &env.epoch_store,
         )
+        .await
         .unwrap()
         .0;
     assert!(effects.status().is_ok());
@@ -331,21 +366,24 @@ async fn test_object_withdraw_and_deposit_same_transaction() {
     // Now try to withdraw 1 and deposit 1. Since the previous
     // transaction has a pending withdraw of 2, there is no more balance available.
     // This should fail.
-    let gas = env.oref(&env.gas_obj);
+    let gas = env.oref(&env.gas_obj).await;
     let tx = TestTransactionBuilder::new(env.sender, gas, env.rgp())
         .transfer_haneul_to_address_balance(
-            FundSource::object_fund_owned(env.package_id, env.oref(&env.vault_obj)),
+            FundSource::object_fund_owned(env.package_id, env.oref(&env.vault_obj).await),
             vec![(1, env.vault_obj.into())],
         )
         .build();
     let cert = VerifiedExecutableTransaction::new_for_testing(tx, &env.keypair);
     let digest = *cert.digest();
-    let output = env.authority.try_execute_immediately(
-        &cert,
-        ExecutionEnv::new()
-            .with_assigned_versions(AssignedVersions::new(vec![], Some(accumulator_version))),
-        &env.epoch_store,
-    );
+    let output = env
+        .authority
+        .try_execute_immediately(
+            &cert,
+            ExecutionEnv::new()
+                .with_assigned_versions(AssignedVersions::new(vec![], Some(accumulator_version))),
+            &env.epoch_store,
+        )
+        .await;
     assert!(matches!(output, ExecutionOutput::RetryLater));
     let effects = env
         .authority

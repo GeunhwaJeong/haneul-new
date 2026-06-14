@@ -382,7 +382,7 @@ contract BridgeCommitteeTest is BridgeBaseTest {
         });
         bytes memory encodedMessage = BridgeUtils.encodeMessage(message);
         bytes memory expectedEncodedMessage =
-            hex"5355495f4252494447455f4d4553534147450101000000000000004402010268b43fd906c0b8f024a18c56e06744f7c6157c65acaef39832cb995c4e049437a3e2ec6a7bad1ab5";
+            hex"48414e45554c5f4252494447455f4d4553534147450101000000000000004402010268b43fd906c0b8f024a18c56e06744f7c6157c65acaef39832cb995c4e049437a3e2ec6a7bad1ab5";
 
         assertEq(encodedMessage, expectedEncodedMessage);
     }
@@ -392,10 +392,10 @@ contract BridgeCommitteeTest is BridgeBaseTest {
         address[] memory _committeeList = new address[](4);
         uint16[] memory _stake = new uint16[](4);
         uint8 chainID = 11;
-        _committeeList[0] = 0x68B43fD906C0B8F024a18C56e06744F7c6157c65;
-        _committeeList[1] = 0xaCAEf39832CB995c4E049437A3E2eC6a7bad1Ab5;
-        _committeeList[2] = 0x8061f127910e8eF56F16a2C411220BaD25D61444;
-        _committeeList[3] = 0x508F3F1ff45F4ca3D8e86CDCC91445F00aCC59fC;
+        _committeeList[0] = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+        _committeeList[1] = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8;
+        _committeeList[2] = 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC;
+        _committeeList[3] = 0x90F79bf6EB2c4f870365E785982E1f101E93b906;
         _stake[0] = 2500;
         _stake[1] = 2500;
         _stake[2] = 2500;
@@ -426,10 +426,10 @@ contract BridgeCommitteeTest is BridgeBaseTest {
 
         committee.initializeConfig(_config);
 
-        assertEq(committee.blocklist(0x68B43fD906C0B8F024a18C56e06744F7c6157c65), false);
+        assertEq(committee.blocklist(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266), false);
 
-        // blocklist 1 member 02321ede33d2c2d7a8a152f275a1484edef2098f034121a602cb7d767d38680aa4 ("0x68B43fD906C0B8F024a18C56e06744F7c6157c65")
-        bytes memory payload = hex"000168b43fd906c0b8f024a18c56e06744f7c6157c65";
+        // blocklist 1 member addr1 ("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
+        bytes memory payload = hex"0001f39fd6e51aad88f6f4ce6ab8827279cfffb92266";
         BridgeUtils.Message memory message = BridgeUtils.Message({
             messageType: BridgeUtils.BLOCKLIST,
             version: 1,
@@ -439,27 +439,27 @@ contract BridgeCommitteeTest is BridgeBaseTest {
         });
         bytes memory encodedMessage = BridgeUtils.encodeMessage(message);
         bytes memory expectedEncodedMessage =
-            hex"5355495f4252494447455f4d455353414745010100000000000000000b000168b43fd906c0b8f024a18c56e06744f7c6157c65";
+            hex"48414e45554c5f4252494447455f4d455353414745010100000000000000000b0001f39fd6e51aad88f6f4ce6ab8827279cfffb92266";
 
         assertEq(encodedMessage, expectedEncodedMessage);
 
         bytes[] memory signatures = new bytes[](3);
 
         signatures[0] =
-            hex"add4b78733cc1cbf4e50b7f6b60c60370ed43fd57e016f478d49ed5050960c6b0099fc474e4ac92a5f260bd35e2a5870a2ec515897f2b0222ef601658210823400";
+            hex"7ce744b7c7124ecdd3b8eca648f8b1967e6510ac6fb40f05767433a9764e99260bbb8a214c7133407a47a617cc663036ee72ffc84d81ad950e2253f6dccd704501";
         signatures[1] =
-            hex"7d16301c6ed6de65d9276f6135511102ff2917a97e5ca9fd2bf5a04fa80b0b4530818c3aec19d8da4331b2d5bac08e502507c0ce4e3e60cf9f993196f2123b7e01";
+            hex"34c8d98b0e489c3f7fb3daf6aa30bfccb3d1ecc4e405c73d0382ffcbb9f283ec23e46cb7789f346c7401ce48cec62eacaf3155ddc59c905cbb658c1dbe52432001";
         signatures[2] =
-            hex"753ae3fc2c22c7254cc9418461345a0bd9c83528d7b2988f03976b839a01e2532b91eefa5cfeeb209cf520329f89ad490cd752cfc9faad1d15df408093b23cd001";
+            hex"85777a40bb70f998cb6ae3dbd66d5efa85f5aa018009650fdc0d3d6a7a6ef0381bb069124bb4e2676c422571f6fe2e60f044bbc9a02274687aaf10b7eb6a1c6c01";
 
         committee.verifySignatures(signatures, message);
 
         committee.updateBlocklistWithSignatures(signatures, message);
 
-        assertEq(committee.blocklist(0x68B43fD906C0B8F024a18C56e06744F7c6157c65), true);
+        assertEq(committee.blocklist(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266), true);
 
-        // unblocklist 1 member 02321ede33d2c2d7a8a152f275a1484edef2098f034121a602cb7d767d38680aa4 ("0x68B43fD906C0B8F024a18C56e06744F7c6157c65")
-        payload = hex"010168b43fd906c0b8f024a18c56e06744f7c6157c65";
+        // unblocklist 1 member addr1 ("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
+        payload = hex"0101f39fd6e51aad88f6f4ce6ab8827279cfffb92266";
         message = BridgeUtils.Message({
             messageType: BridgeUtils.BLOCKLIST,
             version: 1,
@@ -469,7 +469,7 @@ contract BridgeCommitteeTest is BridgeBaseTest {
         });
         encodedMessage = BridgeUtils.encodeMessage(message);
         expectedEncodedMessage =
-            hex"5355495f4252494447455f4d455353414745010100000000000000010b010168b43fd906c0b8f024a18c56e06744f7c6157c65";
+            hex"48414e45554c5f4252494447455f4d455353414745010100000000000000010b0101f39fd6e51aad88f6f4ce6ab8827279cfffb92266";
 
         assertEq(encodedMessage, expectedEncodedMessage);
 
@@ -477,20 +477,20 @@ contract BridgeCommitteeTest is BridgeBaseTest {
 
         // Note sig[0] is from blocklisetd validator, and it does not count.
         signatures[0] =
-            hex"2b62c1b5e17de7f4baeec0f1e9c01107b799edb3070c2c1f00e41c9c1eb550c82ce168d2d635fd8b6999b6bd8f8ec31bcc86d4b13dc094c713c7f0f111d21dad00";
+            hex"ffe8fcbebbb81b01cffe70766276a55aa1d03e39cc3b2366ef0a4c8df13991b739675eada6e47b08e64dee3d0699c7263bb6cbfe74a11df5c965d6b2d7ada8e600";
         signatures[1] =
-            hex"0fc3cc67cb21dac7b7a5ef93a54b9e7b1057cab45cf62b8bd0f6dd217cf99f001d1ebdcf2751ec95d24829403b87ba6f0e603ebf6d98595048474837f9c40a8c00";
+            hex"3ead3b0c928f9615fa457f66d11b956bc990e008df15d62e8f4849f6066d45f000fe4606fc2f97a122ec37e21e7535464eeccd8cf48582cf1a803c28792ec02500";
         signatures[2] =
-            hex"62b36dab0d2c10f74d84b5f9838435c396cca1f3c4939eb4df82d1c72430e7ec2a030a980a9514beaeda6dffdc5e177b7edbd18543979f488d8fd09dba753a5500";
+            hex"f1495e3a07b6cfc40e841062404fca1a150b7d3281423565e0546214f917929516ed487d8da6c4c3c535363cdda1b949ecaac531cb9d8542396e35a2d483cdcc00";
 
         vm.expectRevert(bytes("BridgeCommittee: Signer is blocklisted"));
         committee.verifySignatures(signatures, message);
 
         // use sig from a unblocklisted validator
         signatures[0] =
-            hex"5f2bef9593c37589c18519e2b97c735e60e3ef26471d07e804fb259ed75beb7e0ad180d932ef8af6885a544ded4e372d75451667c238d8e7215454f8bdbebd3401";
+            hex"e7531e483de908b5e29a55871e9ba66cac0eb6d76a1e7818bc55d1ec54f331d17a39a2b8762f75a7383e03bdba3d3e729da021f3328fc9582378c1aef48439cb00";
         committee.verifySignatures(signatures, message);
         committee.updateBlocklistWithSignatures(signatures, message);
-        assertEq(committee.blocklist(0x68B43fD906C0B8F024a18C56e06744F7c6157c65), false);
+        assertEq(committee.blocklist(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266), false);
     }
 }

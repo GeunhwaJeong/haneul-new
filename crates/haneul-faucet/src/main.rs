@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use clap::Parser;
-use std::env;
-use std::sync::Arc;
 use haneul_config::haneul_config_dir;
 use haneul_faucet::{AppState, create_wallet_context, start_faucet};
 use haneul_faucet::{FaucetConfig, LocalFaucet};
-use haneul_futures::service::Error as ServiceError;
+use std::env;
+use std::sync::Arc;
 
 // Define the `GIT_REVISION` and `VERSION` consts
 bin_version::bin_version!();
@@ -27,9 +26,5 @@ async fn main() -> Result<(), anyhow::Error> {
         config,
     });
 
-    match start_faucet(app_state).await?.main().await {
-        Ok(()) | Err(ServiceError::Terminated) => Ok(()),
-        Err(ServiceError::Aborted) => Err(anyhow::anyhow!("Faucet aborted during shutdown")),
-        Err(ServiceError::Task(e)) => Err(e),
-    }
+    start_faucet(app_state).await
 }

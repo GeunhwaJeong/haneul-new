@@ -69,7 +69,8 @@ impl SubscriptionMetrics {
 
 pub struct SubscriptionHandler {
     event_streamer: Streamer<HaneulEvent, HaneulEvent, EventFilter>,
-    transaction_streamer: Streamer<EffectsWithInput, HaneulTransactionBlockEffects, TransactionFilter>,
+    transaction_streamer:
+        Streamer<EffectsWithInput, HaneulTransactionBlockEffects, TransactionFilter>,
 }
 
 impl SubscriptionHandler {

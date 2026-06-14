@@ -1,6 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_types::{
+    base_types::ObjectID,
+    error::{ExecutionError, HaneulError, HaneulResult},
+    move_package::MovePackage,
+    storage::BackingPackageStore,
+};
 use indexmap::IndexMap;
 use move_core_types::{
     account_address::AccountAddress,
@@ -10,12 +16,6 @@ use move_vm_runtime::{
     shared::types::VersionId, validation::verification::ast::Package as VerifiedPackage,
 };
 use std::{cell::RefCell, rc::Rc, sync::Arc};
-use haneul_types::{
-    base_types::ObjectID,
-    error::{ExecutionError, HaneulError, HaneulResult},
-    move_package::MovePackage,
-    storage::BackingPackageStore,
-};
 
 /// A `TransactionPackageStore` is a `ModuleResolver` that fetches packages from a backing store.
 /// It also tracks packages that are being published in the current transaction and allows
@@ -159,7 +159,10 @@ impl<'a> TransactionPackageStore<'a> {
     /// Fetch a package by its version ID. This will first look in the new packages, and then in
     /// the cache for any packages that have been loaded this transaction, and then in the backing store.
     /// If found, it will be returned as a [`SerializedPackage`].
-    fn fetch_package(&self, package_version_id: VersionId) -> HaneulResult<Option<SerializedPackage>> {
+    fn fetch_package(
+        &self,
+        package_version_id: VersionId,
+    ) -> HaneulResult<Option<SerializedPackage>> {
         self.fetch_move_package(package_version_id)
             .and_then(|opt_pkg| {
                 opt_pkg

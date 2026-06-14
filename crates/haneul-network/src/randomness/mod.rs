@@ -11,6 +11,13 @@ use fastcrypto_tbls::{
     tbls::ThresholdBls,
     types::{ShareIndex, ThresholdBls12381MinSig},
 };
+use haneul_config::p2p::RandomnessConfig;
+use haneul_macros::fail_point_if;
+use haneul_types::{
+    base_types::AuthorityName,
+    committee::EpochId,
+    crypto::{RandomnessPartialSignature, RandomnessRound, RandomnessSignature},
+};
 use haneullabs_common::ZipDebugEqIteratorExt;
 use haneullabs_metrics::spawn_monitored_task;
 use haneullabs_network::anemo_ext::NetworkExt;
@@ -20,13 +27,6 @@ use std::{
     ops::Bound,
     sync::Arc,
     time::{self, Duration},
-};
-use haneul_config::p2p::RandomnessConfig;
-use haneul_macros::fail_point_if;
-use haneul_types::{
-    base_types::AuthorityName,
-    committee::EpochId,
-    crypto::{RandomnessPartialSignature, RandomnessRound, RandomnessSignature},
 };
 use tokio::sync::{
     OnceCell, {mpsc, oneshot},
@@ -157,7 +157,7 @@ impl Handle {
 
     // For testing.
     pub fn new_stub() -> Self {
-        let (sender, mut receiver) = mpsc::channel(100);
+        let (sender, mut receiver) = mpsc::channel(1);
         // Keep receiver open until all senders are closed.
         tokio::spawn(async move {
             loop {

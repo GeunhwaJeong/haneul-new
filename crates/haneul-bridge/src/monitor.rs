@@ -12,17 +12,17 @@ use crate::client::bridge_authority_aggregator::BridgeAuthorityAggregator;
 use crate::crypto::BridgeAuthorityPublicKeyBytes;
 use crate::events::{BlocklistValidatorEvent, CommitteeMemberUrlUpdateEvent};
 use crate::events::{EmergencyOpEvent, HaneulBridgeEvent};
+use crate::haneul_client::{HaneulClient, HaneulClientInner};
 use crate::metrics::BridgeMetrics;
 use crate::retry_with_max_elapsed_time;
-use crate::haneul_client::{HaneulClient, HaneulClientInner};
 use crate::types::{BridgeCommittee, IsBridgePaused};
 use arc_swap::ArcSwap;
 use futures::StreamExt;
-use std::collections::HashMap;
-use std::sync::Arc;
 use haneul_rpc::field::{FieldMask, FieldMaskUtil};
 use haneul_rpc::proto::haneul::rpc::v2::{Checkpoint, SubscribeCheckpointsRequest};
 use haneul_types::TypeTag;
+use std::collections::HashMap;
+use std::sync::Arc;
 use tokio::time::Duration;
 use tracing::{error, info, warn};
 
@@ -446,9 +446,10 @@ async fn get_latest_bridge_pause_status_with_emergency_event<C: HaneulClientInne
 ) -> IsBridgePaused {
     let mut remaining_retry_times = REFRESH_BRIDGE_RETRY_TIMES;
     loop {
-        let Ok(Ok(summary)) =
-            retry_with_max_elapsed_time!(haneul_client.get_bridge_summary(), Duration::from_secs(600))
-        else {
+        let Ok(Ok(summary)) = retry_with_max_elapsed_time!(
+            haneul_client.get_bridge_summary(),
+            Duration::from_secs(600)
+        ) else {
             error!("Failed to get bridge summary after retry");
             continue;
         };
@@ -521,7 +522,8 @@ pub async fn subscribe_bridge_events(
                     continue;
                 };
 
-                let Ok(events) = bcs_events.deserialize::<haneul_types::effects::TransactionEvents>()
+                let Ok(events) =
+                    bcs_events.deserialize::<haneul_types::effects::TransactionEvents>()
                 else {
                     tracing::warn!(
                         "error deserializing events from txn {txn_digest} in checkpoint {ckpt}"
@@ -561,11 +563,11 @@ mod tests {
     };
     use crate::types::{BRIDGE_PAUSED, BRIDGE_UNPAUSED, BridgeAuthority};
     use fastcrypto::traits::KeyPair;
-    use prometheus::Registry;
     use haneul_types::base_types::HaneulAddress;
     use haneul_types::bridge::BridgeCommitteeSummary;
     use haneul_types::bridge::MoveTypeCommitteeMember;
     use haneul_types::crypto::get_key_pair;
+    use prometheus::Registry;
 
     use crate::{haneul_mock_client::HaneulMockClient, types::BridgeCommittee};
     use haneul_types::crypto::ToFromBytes;

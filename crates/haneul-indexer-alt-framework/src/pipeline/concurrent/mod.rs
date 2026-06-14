@@ -5,9 +5,9 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use async_trait::async_trait;
+use haneul_futures::service::Service;
 use serde::Deserialize;
 use serde::Serialize;
-use haneul_futures::service::Service;
 use tokio::sync::SetOnce;
 use tokio::sync::mpsc;
 use tracing::info;
@@ -351,8 +351,8 @@ mod tests {
     use std::sync::Arc;
     use std::time::Duration;
 
-    use prometheus::Registry;
     use haneul_types::digests::CheckpointDigest;
+    use prometheus::Registry;
     use tokio::sync::mpsc;
     use tokio::time::timeout;
 

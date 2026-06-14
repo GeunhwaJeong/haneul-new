@@ -22,18 +22,19 @@ use haneul_json_rpc_types::BcsEvent;
 use haneul_json_rpc_types::DevInspectArgs;
 use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, CheckpointPage, Coin, CoinPage, DelegatedStake,
-    DevInspectResults, DynamicFieldPage, EventFilter, EventPage, MoveCallParams,
-    MoveFunctionArgType, ObjectChange, ObjectValueKind::ByImmutableReference,
-    ObjectValueKind::ByMutableReference, ObjectValueKind::ByValue, ObjectsPage, OwnedObjectRef,
-    Page, ProtocolConfigResponse, RPCTransactionRequestParams, Stake, StakeStatus, HaneulCoinMetadata,
-    HaneulCommittee, HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulGetPastObjectRequest, HaneulMoveAbility,
-    HaneulMoveAbilitySet, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
-    HaneulMoveNormalizedType, HaneulMoveVisibility, HaneulObjectData, HaneulObjectDataFilter,
-    HaneulObjectDataOptions, HaneulObjectRef, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedData,
+    DevInspectResults, DynamicFieldPage, EventFilter, EventPage, HaneulCoinMetadata,
+    HaneulCommittee, HaneulData, HaneulEvent, HaneulExecutionStatus, HaneulGetPastObjectRequest,
+    HaneulMoveAbility, HaneulMoveAbilitySet, HaneulMoveNormalizedFunction,
+    HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct, HaneulMoveNormalizedType,
+    HaneulMoveVisibility, HaneulObjectData, HaneulObjectDataFilter, HaneulObjectDataOptions,
+    HaneulObjectRef, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulParsedData,
     HaneulPastObjectResponse, HaneulTransactionBlock, HaneulTransactionBlockData,
     HaneulTransactionBlockEffects, HaneulTransactionBlockEffectsV1, HaneulTransactionBlockEvents,
     HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
-    HaneulTransactionBlockResponseQuery, TransactionBlockBytes, TransactionBlocksPage,
+    HaneulTransactionBlockResponseQuery, MoveCallParams, MoveFunctionArgType, ObjectChange,
+    ObjectValueKind::ByImmutableReference, ObjectValueKind::ByMutableReference,
+    ObjectValueKind::ByValue, ObjectsPage, OwnedObjectRef, Page, ProtocolConfigResponse,
+    RPCTransactionRequestParams, Stake, StakeStatus, TransactionBlockBytes, TransactionBlocksPage,
     TransactionFilter, TransferObjectParams,
 };
 use haneul_json_rpc_types::{HaneulTypeTag, ValidatorApy, ValidatorApys};
@@ -43,8 +44,8 @@ use haneul_protocol_config::ProtocolConfig;
 use haneul_types::balance::Supply;
 use haneul_types::base_types::random_object_ref;
 use haneul_types::base_types::{
-    FullObjectRef, MoveObjectType, ObjectDigest, ObjectID, ObjectType, SequenceNumber, HaneulAddress,
-    TransactionDigest,
+    FullObjectRef, HaneulAddress, MoveObjectType, ObjectDigest, ObjectID, ObjectType,
+    SequenceNumber, TransactionDigest,
 };
 use haneul_types::committee::Committee;
 use haneul_types::crypto::{AccountKeyPair, AggregateAuthoritySignature, get_key_pair_from_rng};
@@ -501,7 +502,8 @@ impl RpcExampleProvider {
                         "query",
                         json!(HaneulObjectResponseQuery {
                             filter: Some(HaneulObjectDataFilter::StructType(
-                                StructTag::from_str("0x2::coin::Coin<0x2::haneul::HANEUL>").unwrap()
+                                StructTag::from_str("0x2::coin::Coin<0x2::haneul::HANEUL>")
+                                    .unwrap()
                             )),
                             options: Some(
                                 HaneulObjectDataOptions::new()

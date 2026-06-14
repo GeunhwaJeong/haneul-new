@@ -6,10 +6,10 @@ use std::fmt;
 use std::mem;
 use std::sync::Arc;
 
-use move_core_types::annotated_visitor as AV;
-use move_core_types::language_storage::TypeTag;
 use haneul_types::object::option_visitor as OV;
 use haneul_types::object::rpc_visitor as RV;
+use move_core_types::annotated_visitor as AV;
+use move_core_types::language_storage::TypeTag;
 
 use crate::v2::lexer::Lexeme;
 use crate::v2::lexer::OwnedLexeme;

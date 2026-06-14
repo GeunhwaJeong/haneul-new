@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use fastcrypto::hash::Blake2b256;
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use haneul_types::base_types::{ObjectRef, SequenceNumber};
 use haneul_types::digests::{CheckpointArtifactsDigest, Digest, ObjectDigest};
 use haneul_types::messages_checkpoint::CheckpointArtifacts;
@@ -11,6 +9,8 @@ use haneul_types::{
     base_types::ObjectID, full_checkpoint_content::CheckpointData,
     messages_checkpoint::VerifiedCheckpoint,
 };
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 use crate::proof::{
     base::{Proof, ProofBuilder, ProofContents, ProofContentsVerifier, ProofTarget},

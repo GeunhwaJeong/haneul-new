@@ -4,7 +4,6 @@
 use move_binary_format::file_format::CompiledModule;
 use move_core_types::account_address::AccountAddress;
 
-use std::{collections::BTreeMap, path::PathBuf};
 use haneul_move_build::{BuildConfig, CompiledPackage};
 use haneul_protocol_config::{Chain, ProtocolConfig};
 use haneul_types::{
@@ -14,6 +13,7 @@ use haneul_types::{
     move_package::{MovePackage, TypeOrigin, UpgradeInfo},
     object::{Data, OBJECT_START_VERSION, Object},
 };
+use std::{collections::BTreeMap, path::PathBuf};
 
 macro_rules! type_origin_table {
     {} => { Vec::new() };

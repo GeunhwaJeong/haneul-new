@@ -8,7 +8,7 @@ use consensus_core::BlockStatus;
 use consensus_types::block::{BlockRef, PING_TRANSACTION_INDEX};
 use fastcrypto::traits::KeyPair;
 use haneul_test_transaction_builder::TestTransactionBuilder;
-use haneul_types::base_types::{ObjectRef, HaneulAddress, random_object_ref};
+use haneul_types::base_types::{HaneulAddress, ObjectRef, random_object_ref};
 use haneul_types::crypto::{AccountKeyPair, get_account_key_pair};
 use haneul_types::effects::TransactionEffectsAPI as _;
 use haneul_types::error::{HaneulError, HaneulErrorKind, UserInputError};
@@ -223,6 +223,7 @@ async fn test_submit_transaction_already_executed() {
     test_context
         .state
         .try_execute_immediately(&verified_transaction, ExecutionEnv::new(), &epoch_store)
+        .await
         .unwrap();
 
     // Submit the same transaction that has already been executed.
@@ -387,12 +388,13 @@ async fn test_submit_batched_transactions_with_already_executed() {
     test_context
         .state
         .try_execute_immediately(&verified_tx1, ExecutionEnv::new(), &epoch_store)
+        .await
         .unwrap();
 
     // Create 2nd transaction (not executed)
     let gas_object2 = Object::with_owner_for_testing(test_context.sender);
     let gas_object_ref2 = gas_object2.compute_object_reference();
-    test_context.state.insert_genesis_object(gas_object2);
+    test_context.state.insert_genesis_object(gas_object2).await;
 
     let tx_data2 = TestTransactionBuilder::new(
         test_context.sender,
@@ -499,12 +501,13 @@ async fn test_submit_soft_bundle_transactions_with_already_executed() {
     test_context
         .state
         .try_execute_immediately(&verified_tx1, ExecutionEnv::new(), &epoch_store)
+        .await
         .unwrap();
 
     // Create 2nd transaction (not executed)
     let gas_object2 = Object::with_owner_for_testing(test_context.sender);
     let gas_object_ref2 = gas_object2.compute_object_reference();
-    test_context.state.insert_genesis_object(gas_object2);
+    test_context.state.insert_genesis_object(gas_object2).await;
 
     let tx_data2 = TestTransactionBuilder::new(
         test_context.sender,
@@ -571,6 +574,7 @@ async fn test_submit_oversized_transaction() {
     let gas_object = test_context
         .state
         .get_object(&test_context.gas_object_ref.0)
+        .await
         .unwrap();
     let full_object_ref = gas_object.compute_full_object_reference();
     let recipient = dbg_addr(2);

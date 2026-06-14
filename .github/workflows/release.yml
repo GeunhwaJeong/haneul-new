@@ -69,6 +69,13 @@ jobs:
         with:
           ref: ${{ env.haneul_tag }}          
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # pin@v5.1.1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
       - name: Set os/arch variables (Windows)
         if: ${{ matrix.os == 'windows-ghcloud' }}
         shell: bash
@@ -101,9 +108,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p ${{ env.TMP_BUILD_DIR }}
-          # released archives are publicly readable (the existence check above
-          # relies on that), so no AWS credentials are needed here
-          curl -fSs -o ./tmp/haneul-${{ env.haneul_tag }}-${os_type}.tgz https://haneul-releases.s3.us-east-1.amazonaws.com/${{ env.s3_existing_archive }}
+          aws s3 cp s3://haneul-releases/${{ env.s3_existing_archive }} ./tmp/haneul-${{ env.haneul_tag }}-${os_type}.tgz
           tar -xf ./tmp/haneul-${{ env.haneul_tag }}-${os_type}.tgz -C ${{ env.TMP_BUILD_DIR }}
 
       - name: Install nexttest (Windows)
@@ -134,6 +139,12 @@ jobs:
         run: |
           brew install postgresql
 
+      - name: Install postgres (Ubuntu arm64)
+        if: ${{ matrix.os == 'ubuntu-arm64' && env.s3_existing_archive == '' }}
+        shell: bash
+        run: |
+          sudo apt update && sudo apt install libpq-dev
+
       - name: Remove unused apps (MacOS arm64)
         if: ${{ matrix.os == 'macos-latest-xlarge' && env.s3_existing_archive == '' }}
         continue-on-error: true
@@ -147,35 +158,11 @@ jobs:
           sudo rm -rf ~/Library/Developer/Xcode/iOS\ DeviceSupport/*
           df -h /
 
-      - uses: ./.github/actions/setup-sccache
-        if: ${{ env.s3_existing_archive == '' }}
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          key-prefix: ${{ matrix.os }}
-
-      - name: Register cargo problem matcher
-        if: ${{ env.s3_existing_archive == '' }}
-        run: echo "::add-matcher::.github/matchers/cargo.json"
-
       - name: Cargo build for ${{ matrix.os }} platform
         if: ${{ env.s3_existing_archive == '' }}
         shell: bash
         run: |
-          [ -f ~/.cargo/env ] && source ~/.cargo/env
-          # Build only the binaries we actually package (the release_binaries in
-          # binary-build-list.json — the same list the rename step below moves),
-          # not the whole workspace. `haneul` is built separately, once, with the
-          # tracing feature: a plain `cargo build --release` compiled `haneul` without
-          # tracing and the next step overwrote it, wasting a compile+link of `haneul`
-          # on every platform.
-          haneul_bins=""
-          for b in $(jq -r '.release_binaries[] | select(. != "haneul")' "${{ env.BINARY_LIST_FILE }}"); do
-            haneul_bins="$haneul_bins --bin $(echo "$b" | tr -d $'\r')"
-          done
-          cargo build --release $haneul_bins
-          cargo build --release --features tracing --bin haneul
-          cargo build --profile=dev --bin haneul --features tracing
+          [ -f ~/.cargo/env ] && source ~/.cargo/env ; cargo build --release && cargo build --release --features tracing --bin haneul && cargo build --profile=dev --bin haneul --features tracing
 
       - name: Rename binaries for ${{ matrix.os }}
         if: ${{ env.s3_existing_archive == '' }}
@@ -191,6 +178,9 @@ jobs:
 
           mv ./target/debug/haneul${{ env.extention }} ${{ env.TMP_BUILD_DIR }}/haneul-debug${{ env.extention }}
           tar -cvzf ./tmp/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz -C ${{ env.TMP_BUILD_DIR }} .
+
+          # Upload tar balls to s3 so that we don't have to rebuild if they have already built
+          aws s3 cp ./tmp/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz s3://haneul-releases/releases/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz || true
 
       - name: Publish Windows haneul binary to Chocolatey
         if: ${{ matrix.os == 'windows-ghcloud' && contains(env.haneul_tag, 'testnet') }}
@@ -228,8 +218,19 @@ jobs:
           files: |
             ./tmp/haneul-${{ env.haneul_tag }}-${{ env.os_type }}.tgz
 
-      - name: Dispatch Walrus Haneul testnet tag update
-        if: ${{ matrix.os == 'ubuntu-ghcloud' && contains(env.haneul_tag, 'testnet') }}
+  trigger-walrus-testnet-tag-update:
+    name: Trigger Walrus Testnet Tag Update
+    needs: release-build
+    if: ${{ contains( inputs.haneul_tag, 'testnet') || contains( github.ref_name, 'testnet') }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clean up tag name ${{ env.TAG_NAME }}
+        shell: bash
+        run: |
+          echo "haneul_tag=$(echo ${{ env.TAG_NAME }} | sed s/'refs\/tags\/'//)" >> $GITHUB_ENV
+
+      - name: Dispatch Haneul Testnet tag update in HaneulLabs/walrus
         uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # pin@v4.0.1
         with:
           repository: HaneulLabs/walrus
@@ -237,100 +238,55 @@ jobs:
           event-type: update-walrus-haneul-testnet-tag
           client-payload: '{"new_tag": "${{ env.haneul_tag }}"}'
 
-  # Copy built archives to s3://haneul-releases so future runs skip the rebuild and
-  # node operators can pull binaries by tag. Runs in the protected `release`
-  # environment to assume the dedicated release-s3 OIDC role, credential-isolated
-  # from the build job (see .github/AWS_OIDC_ROLES.md, Role 2). `!cancelled()`
-  # preserves the old per-platform best-effort upload: archives from matrix legs
-  # that succeeded are uploaded even if another leg failed.
-  upload-release-archives-to-s3:
-    name: Upload release archives to S3
+  update-homebrew-formula:
+    name: Run brew bump-formula-pr for haneul on testnet releases
     needs: release-build
-    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
-    environment: release
-    permissions:
-      contents: read
-      id-token: write # OIDC token to assume the release-s3 role
+    # releasing haneul cli on testnet releases because it lags `main` less than mainnet, but is more likely to be stable than devnet
+    if: ${{ contains( inputs.haneul_tag, 'testnet') || contains( github.ref_name, 'testnet') }}
     steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # pin@v6.0.0
-        with:
-          pattern: haneul-binaries-*
-          merge-multiple: true
-          path: ./archives
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # pin@v5.1.1
-        with:
-          role-to-assume: arn:aws:iam::011083325127:role/haneul-releases-rw-github
-          allowed-account-ids: '011083325127'
-          aws-region: us-west-2
-
-      - name: Upload archives to s3://haneul-releases
+      - name: Clean up tag name ${{ env.TAG_NAME }}
         shell: bash
         run: |
-          shopt -s nullglob
-          for f in ./archives/*.tgz; do
-            aws s3 cp "$f" "s3://haneul-releases/releases/$(basename "$f")" || true
-          done
+          echo "haneul_tag=$(echo ${{ env.TAG_NAME }} | sed s/'refs\/tags\/'//)" >> $GITHUB_ENV
+          echo "versionless_tag=$(echo ${{ env.TAG_NAME }} | sed s/'refs\/tags\/'// | sed s/'testnet\-v'//)" >> $GITHUB_ENV
+      - uses: mislav/bump-homebrew-formula-action@b3327118b2153c82da63fd9cbf58942146ee99f0 # pin@v3
+        with:
+          formula-name: haneul
+          create-pullrequest: true
+          tag-name: "${{ env.haneul_tag }}"
+          commit-message: |
+            {{formulaName}} ${{ env.versionless_tag }}
 
-  update-homebrew-formula:
-    name: Bump haneul formula on Homebrew/homebrew-core
-    needs: release-build
-    # releasing haneul cli on testnet releases because it lags `main` less than mainnet, but is more likely to be stable than devnet
-    if: ${{ contains( github.event.inputs.haneul_tag, 'testnet') || contains( github.ref_name, 'testnet') }}
-    uses: ./.github/workflows/homebrew-bump.yml
-    with:
-      haneul_tag: ${{ github.event.inputs.haneul_tag || github.ref_name }}
-    secrets:
-      HOMEBREW_GH_FORMULA_BUMP: ${{ secrets.HOMEBREW_GH_FORMULA_BUMP }}
+            Created by https://github.com/mislav/bump-homebrew-formula-action
+
+            From release: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        env:
+          # https://github.com/settings/tokens/new?scopes=public_repo,workflow
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_GH_FORMULA_BUMP }}
 
   # Tag all haneul images with release tag, so that they can be easily found
   tag-docker-hub-images:
     name: Tag haneul docker images in DockerHub
     runs-on: ubuntu-latest
     steps:
-      - name: Derive cache_family from release tag
-        id: cf
-        shell: bash
-        run: |
-          haneul_tag="${{ env.TAG_NAME }}"
-          haneul_version=$(echo "${haneul_tag}" | sed -e 's|^refs/tags/||' -e 's/^mainnet-v//' -e 's/^testnet-v//' -e 's/^devnet-v//')
-          # Release branches are cut per minor version at patch .0; patches (e.g. v1.73.1)
-          # land as commits on that branch, so bucket the cache by the .0 branch that exists.
-          release_branch_version=$(echo "${haneul_version}" | awk -F. '{print $1"."$2".0"}')
-          echo "cache_family=releases/haneul-v${release_branch_version}-release" >> "$GITHUB_OUTPUT"
-
       - name: Dispatch Tagging of images in DockerHub, in HaneulLabs/haneul-operations
         uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # pin@v4.0.1
         with:
           repository: HaneulLabs/haneul-operations
           token: ${{ secrets.DOCKER_BINARY_BUILDS_DISPATCH }}
           event-type: tag-docker-images
-          client-payload: '{"haneul_commit": "${{ github.sha }}", "tag": "${{ env.TAG_NAME }}", "cache_family": "${{ steps.cf.outputs.cache_family }}"}'
+          client-payload: '{"haneul_commit": "${{ github.sha }}", "tag": "${{ env.TAG_NAME }}"}'
 
-  # Tag haneul binaries in S3 under the release alias so node operators that pull
-  # by tag name (e.g. `release: testnet-v1.70.2` in ansible) find them.
+  # Tag all haneul images with release tag, so that they can be easily found
   tag-release-binaries-in-s3:
     name: Tag haneul binaries in s3
     runs-on: ubuntu-latest
     steps:
-      - name: Derive cache_family from release tag
-        id: cf
-        shell: bash
-        run: |
-          haneul_tag="${{ env.TAG_NAME }}"
-          haneul_version=$(echo "${haneul_tag}" | sed -e 's|^refs/tags/||' -e 's/^mainnet-v//' -e 's/^testnet-v//' -e 's/^devnet-v//')
-          # Release branches are cut per minor version at patch .0; patches (e.g. v1.73.1)
-          # land as commits on that branch, so bucket the cache by the .0 branch that exists.
-          release_branch_version=$(echo "${haneul_version}" | awk -F. '{print $1"."$2".0"}')
-          echo "cache_family=releases/haneul-v${release_branch_version}-release" >> "$GITHUB_OUTPUT"
-
-      - name: Dispatch ensure-haneul-binaries in HaneulLabs/haneul-operations
+      - name: Dispatch Release binaries builds in HaneulLabs/haneul-operations
         uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # pin@v4.0.1
         with:
           repository: HaneulLabs/haneul-operations
           token: ${{ secrets.DOCKER_BINARY_BUILDS_DISPATCH }}
-          event-type: ensure-haneul-binaries
-          client-payload: '{"haneul_commit": "${{ github.sha }}", "tag_name": "${{ env.TAG_NAME }}", "cache_family": "${{ steps.cf.outputs.cache_family }}"}'
+          event-type: build-release-binaries
+          client-payload: '{"haneul_commit": "${{ github.sha }}", "tag_name": "${{ env.TAG_NAME }}"}'

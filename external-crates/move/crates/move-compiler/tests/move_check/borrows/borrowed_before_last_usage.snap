@@ -5,7 +5,7 @@ info:
   edition: legacy
   lint: false
 ---
-error[E07006]: ambiguous variable usage
+error[E07006]: ambiguous usage of variable
   ┌─ tests/move_check/borrows/borrowed_before_last_usage.move:5:13
   │
 4 │     let r = &x;

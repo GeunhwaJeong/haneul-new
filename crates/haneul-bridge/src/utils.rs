@@ -5,7 +5,8 @@ use crate::abi::{
     EthBridgeCommittee, EthBridgeConfig, EthBridgeLimiter, EthBridgeVault, EthHaneulBridge,
 };
 use crate::config::{
-    BridgeNodeConfig, EthConfig, MetricsConfig, HaneulConfig, WatchdogConfig, default_ed25519_key_pair,
+    BridgeNodeConfig, EthConfig, HaneulConfig, MetricsConfig, WatchdogConfig,
+    default_ed25519_key_pair,
 };
 use crate::crypto::{BridgeAuthorityKeyPair, BridgeAuthorityPublicKeyBytes};
 use crate::server::APPLICATION_JSON;
@@ -20,11 +21,6 @@ use fastcrypto::encoding::{Encoding, Hex};
 use fastcrypto::secp256k1::Secp256k1KeyPair;
 use fastcrypto::traits::{EncodeDecodeBase64, KeyPair};
 use futures::future::join_all;
-use move_core_types::language_storage::StructTag;
-use std::collections::BTreeMap;
-use std::path::PathBuf;
-use std::str::FromStr;
-use std::sync::Arc;
 use haneul_config::Config;
 use haneul_keys::keypair_file::read_key;
 use haneul_sdk::wallet_context::WalletContext;
@@ -37,9 +33,14 @@ use haneul_types::bridge::{
 use haneul_types::committee::StakeUnit;
 use haneul_types::crypto::{HaneulKeyPair, ToFromBytes, get_key_pair};
 use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
+use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{ObjectArg, TransactionData};
+use move_core_types::language_storage::StructTag;
+use std::collections::BTreeMap;
+use std::path::PathBuf;
+use std::str::FromStr;
+use std::sync::Arc;
 use url::Url;
 
 pub struct EthBridgeContracts {
@@ -157,7 +158,10 @@ pub fn generate_bridge_client_key_and_write_to_file(
         HaneulKeyPair::from(kp)
     };
     let haneul_address = HaneulAddress::from(&kp.public());
-    println!("Corresponding Haneul address by this key: {:?}", haneul_address);
+    println!(
+        "Corresponding Haneul address by this key: {:?}",
+        haneul_address
+    );
 
     let contents = kp.encode_base64();
     std::fs::write(path, contents)
@@ -340,7 +344,8 @@ pub fn generate_bridge_node_config_and_write_to_file(
         }),
     };
     if run_client {
-        config.haneul.bridge_client_key_path = Some(PathBuf::from("/path/to/your/bridge_client_key"));
+        config.haneul.bridge_client_key_path =
+            Some(PathBuf::from("/path/to/your/bridge_client_key"));
         config.db_path = Some(PathBuf::from("/path/to/your/client_db"));
     }
     config.save(path)

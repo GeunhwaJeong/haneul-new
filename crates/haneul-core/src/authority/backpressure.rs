@@ -3,8 +3,8 @@
 
 use std::sync::Arc;
 
-use haneullabs_metrics::monitored_scope;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
+use haneullabs_metrics::monitored_scope;
 use tokio::sync::watch;
 use tracing::{debug, info};
 

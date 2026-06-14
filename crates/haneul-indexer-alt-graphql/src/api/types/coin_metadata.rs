@@ -8,7 +8,6 @@ use async_graphql::Enum;
 use async_graphql::Object;
 use async_graphql::SimpleObject;
 use async_graphql::connection::Connection;
-use move_core_types::language_storage::StructTag;
 use haneul_types::HANEUL_FRAMEWORK_ADDRESS;
 use haneul_types::TypeTag;
 use haneul_types::base_types::HaneulAddress as NativeAddress;
@@ -23,6 +22,7 @@ use haneul_types::coin_registry::SupplyState as NativeSupply;
 use haneul_types::gas_coin::GAS;
 use haneul_types::gas_coin::TOTAL_SUPPLY_GEUNHWA;
 use haneul_types::object::Owner as NativeOwner;
+use move_core_types::language_storage::StructTag;
 use tokio::sync::OnceCell;
 
 use crate::api::scalars::base64::Base64;

@@ -5,7 +5,6 @@ use std::path::Path;
 
 use anyhow::Context as _;
 use anyhow::ensure;
-use prometheus::Registry;
 use haneul_indexer_alt_framework as framework;
 use haneul_indexer_alt_framework::IndexerArgs;
 use haneul_indexer_alt_framework::ingestion::ClientArgs;
@@ -13,6 +12,7 @@ use haneul_indexer_alt_framework::ingestion::IngestionConfig;
 use haneul_indexer_alt_framework::pipeline::sequential::SequentialConfig;
 use haneul_indexer_alt_framework::pipeline::sequential::{self};
 use haneul_indexer_alt_framework::service::Service;
+use prometheus::Registry;
 
 use crate::config::ConsistencyConfig;
 use crate::db::config::DbConfig;

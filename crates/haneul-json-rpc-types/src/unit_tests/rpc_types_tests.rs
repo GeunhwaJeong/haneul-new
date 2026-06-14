@@ -10,13 +10,13 @@ use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::{StructTag, TypeTag};
 use serde_json::json;
 
+use haneul_types::base_types::{HaneulAddress, ObjectID};
 use haneul_types::base_types::{ObjectDigest, SequenceNumber};
-use haneul_types::base_types::{ObjectID, HaneulAddress};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::{MoveObject, Owner};
-use haneul_types::{MOVE_STDLIB_ADDRESS, HANEUL_FRAMEWORK_ADDRESS, parse_haneul_struct_tag};
+use haneul_types::{HANEUL_FRAMEWORK_ADDRESS, MOVE_STDLIB_ADDRESS, parse_haneul_struct_tag};
 
-use crate::{ObjectChange, HaneulMoveStruct, HaneulMoveValue};
+use crate::{HaneulMoveStruct, HaneulMoveValue, ObjectChange};
 
 #[test]
 fn test_move_value_to_haneul_coin() {

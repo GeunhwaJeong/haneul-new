@@ -7,6 +7,14 @@ use crate::test_adapter::{FakeID, HaneulTestAdapter};
 use anyhow::{bail, ensure};
 use clap;
 use clap::{Args, Parser};
+use haneul_types::balance::Balance;
+use haneul_types::base_types::{HaneulAddress, SequenceNumber};
+use haneul_types::move_package::UpgradePolicy;
+use haneul_types::object::{Object, Owner};
+use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
+use haneul_types::transaction::{
+    Argument, CallArg, FundsWithdrawalArg, ObjectArg, SharedObjectMutability,
+};
 use move_compiler::editions::Flavor;
 use move_core_types::parsing::{
     parser::Parser as MoveCLParser,
@@ -19,14 +27,6 @@ use move_core_types::runtime_value::{MoveStruct, MoveValue};
 use move_core_types::u256::U256;
 use move_symbol_pool::Symbol;
 use move_transactional_test_runner::tasks::{RunCommand, SyntaxChoice};
-use haneul_types::balance::Balance;
-use haneul_types::base_types::{SequenceNumber, HaneulAddress};
-use haneul_types::move_package::UpgradePolicy;
-use haneul_types::object::{Object, Owner};
-use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
-use haneul_types::transaction::{
-    Argument, CallArg, FundsWithdrawalArg, ObjectArg, SharedObjectMutability,
-};
 
 pub const HANEUL_ARGS_LONG: &str = "haneul-args";
 const DEFAULT_CONSISTENT_RANGE: usize = 300;
@@ -356,9 +356,11 @@ impl<ExtraValueArgs: ParsableValue, ExtraRunArgs: Parser> clap::FromArgMatches
             Some(("transfer-object", matches)) => {
                 HaneulSubcommand::TransferObject(TransferObjectCommand::from_arg_matches(matches)?)
             }
-            Some(("consensus-commit-prologue", matches)) => HaneulSubcommand::ConsensusCommitPrologue(
-                ConsensusCommitPrologueCommand::from_arg_matches(matches)?,
-            ),
+            Some(("consensus-commit-prologue", matches)) => {
+                HaneulSubcommand::ConsensusCommitPrologue(
+                    ConsensusCommitPrologueCommand::from_arg_matches(matches)?,
+                )
+            }
             Some(("programmable", matches)) => HaneulSubcommand::ProgrammableTransaction(
                 ProgrammableTransactionCommand::from_arg_matches(matches)?,
             ),
@@ -371,9 +373,9 @@ impl<ExtraValueArgs: ParsableValue, ExtraRunArgs: Parser> clap::FromArgMatches
             Some(("set-address", matches)) => {
                 HaneulSubcommand::SetAddress(SetAddressCommand::from_arg_matches(matches)?)
             }
-            Some(("create-checkpoint", matches)) => {
-                HaneulSubcommand::CreateCheckpoint(CreateCheckpointCommand::from_arg_matches(matches)?)
-            }
+            Some(("create-checkpoint", matches)) => HaneulSubcommand::CreateCheckpoint(
+                CreateCheckpointCommand::from_arg_matches(matches)?,
+            ),
             Some(("advance-epoch", matches)) => {
                 HaneulSubcommand::AdvanceEpoch(AdvanceEpochCommand::from_arg_matches(matches)?)
             }
@@ -664,9 +666,13 @@ impl HaneulValue {
             HaneulValue::Object(_, _) => panic!("unexpected nested Haneul object in args"),
             HaneulValue::ObjVec(_) => panic!("unexpected nested Haneul object vector in args"),
             HaneulValue::Digest(_) => panic!("unexpected nested Haneul package digest in args"),
-            HaneulValue::Receiving(_, _) => panic!("unexpected nested Haneul receiving object in args"),
+            HaneulValue::Receiving(_, _) => {
+                panic!("unexpected nested Haneul receiving object in args")
+            }
             HaneulValue::Owned(_, _) => panic!("unexpected nested Haneul owned object in args"),
-            HaneulValue::Shared(_, _, _) => panic!("unexpected nested Haneul shared object in args"),
+            HaneulValue::Shared(_, _, _) => {
+                panic!("unexpected nested Haneul shared object in args")
+            }
             HaneulValue::Withdraw(_, _) => {
                 panic!("unexpected nested Haneul withdraw reservation in args")
             }
@@ -679,9 +685,13 @@ impl HaneulValue {
             HaneulValue::Object(id, version) => (id, version),
             HaneulValue::ObjVec(_) => panic!("unexpected nested Haneul object vector in args"),
             HaneulValue::Digest(_) => panic!("unexpected nested Haneul package digest in args"),
-            HaneulValue::Receiving(_, _) => panic!("unexpected nested Haneul receiving object in args"),
+            HaneulValue::Receiving(_, _) => {
+                panic!("unexpected nested Haneul receiving object in args")
+            }
             HaneulValue::Owned(_, _) => panic!("unexpected nested Haneul owned object in args"),
-            HaneulValue::Shared(_, _, _) => panic!("unexpected nested Haneul shared object in args"),
+            HaneulValue::Shared(_, _, _) => {
+                panic!("unexpected nested Haneul shared object in args")
+            }
             HaneulValue::Withdraw(_, _) => {
                 panic!("unexpected nested Haneul withdraw reservation in args")
             }
@@ -744,7 +754,6 @@ impl HaneulValue {
                 initial_shared_version,
             } => initial_shared_version,
             Owner::ConsensusAddressOwner { start_version, .. } => start_version,
-            Owner::Party { start_version, .. } => start_version,
         };
         Ok(ObjectArg::SharedObject {
             id,
@@ -772,11 +781,6 @@ impl HaneulValue {
                 initial_shared_version,
                 mutability: SharedObjectMutability::Mutable,
             }),
-            Owner::Party { .. } => {
-                // TODO(Party WIP)
-                // We need to know the sender for mutability flag
-                todo!("Party WIP")
-            }
             Owner::AddressOwner(_) | Owner::ObjectOwner(_) | Owner::Immutable => {
                 let obj_ref = obj.compute_object_reference();
                 Ok(ObjectArg::ImmOrOwnedObject(obj_ref))
@@ -878,7 +882,10 @@ impl ParsableValue for HaneulExtraValueArgs {
             ))
         } else {
             Ok(HaneulValue::MoveValue(MoveValue::Vector(
-                elems.into_iter().map(HaneulValue::assert_move_value).collect(),
+                elems
+                    .into_iter()
+                    .map(HaneulValue::assert_move_value)
+                    .collect(),
             )))
         }
     }

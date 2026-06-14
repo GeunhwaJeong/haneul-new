@@ -4,39 +4,42 @@
 mod test_utils;
 
 use anyhow::anyhow;
-use move_core_types::identifier::Identifier;
-use prost_types::FieldMask;
-use rand::seq::{IteratorRandom, SliceRandom};
-use shared_crypto::intent::Intent;
-use signature::rand_core::OsRng;
-use std::collections::{BTreeMap, HashMap};
-use std::num::NonZeroUsize;
-use std::path::PathBuf;
-use std::str::FromStr;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
 use haneul_move_build::BuildConfig;
 use haneul_rosetta::CoinMetadataCache;
 use haneul_rosetta::operations::Operations;
-use haneul_rosetta::types::{OperationStatus, OperationType};
+use haneul_rosetta::types::{ConstructionMetadata, OperationStatus, OperationType};
 use haneul_rpc::client::Client as GrpcClient;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::{
     ExecutedTransaction, GetBalanceRequest, GetEpochRequest, GetTransactionRequest,
 };
 use haneul_types::HANEUL_SYSTEM_PACKAGE_ID;
-use haneul_types::base_types::{FullObjectRef, ObjectRef, HaneulAddress};
+use haneul_types::base_types::{FullObjectRef, HaneulAddress, ObjectRef};
 use haneul_types::gas_coin::GAS;
-use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
+use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{
     CallArg, InputObjectKind, ObjectArg, ProgrammableTransaction, TEST_ONLY_GAS_UNIT_FOR_GENERIC,
     TEST_ONLY_GAS_UNIT_FOR_HEAVY_COMPUTATION_STORAGE, TEST_ONLY_GAS_UNIT_FOR_SPLIT_COIN,
     TEST_ONLY_GAS_UNIT_FOR_STAKING, TEST_ONLY_GAS_UNIT_FOR_TRANSFER, Transaction, TransactionData,
     TransactionDataAPI, TransactionKind,
 };
+use move_core_types::identifier::Identifier;
+use prost_types::FieldMask;
+use rand::seq::{IteratorRandom, SliceRandom};
+use serde_json::json;
+use shared_crypto::intent::Intent;
+use signature::rand_core::OsRng;
+use std::collections::{BTreeMap, HashMap};
+use std::num::NonZeroUsize;
+use std::path::PathBuf;
+use std::str::FromStr;
 use test_cluster::TestClusterBuilder;
-use test_utils::{execute_transaction, find_module_object, find_published_package, get_random_haneul};
+use test_utils::{
+    execute_transaction, find_module_object, find_published_package, get_random_haneul,
+};
 
 #[tokio::test]
 async fn test_transfer_haneul() {
@@ -583,6 +586,77 @@ async fn test_pay_all_haneul() {
     .await;
 }
 
+#[tokio::test]
+async fn test_delegation_parsing() -> Result<(), anyhow::Error> {
+    let network = TestClusterBuilder::new().build().await;
+    let mut client = GrpcClient::new(network.rpc_url()).unwrap();
+    let rgp = client.get_reference_gas_price().await.unwrap();
+    let sender = get_random_address(&network.get_addresses(), vec![]);
+    let mut client = GrpcClient::new(network.rpc_url()).unwrap();
+    let gas = get_random_haneul(&mut client, sender, vec![]).await;
+    let total_coin_value = 0i128;
+    let request = GetEpochRequest::latest().with_read_mask(FieldMask::from_paths(["system_state"]));
+
+    let response = client
+        .ledger_client()
+        .get_epoch(request)
+        .await
+        .unwrap()
+        .into_inner();
+
+    let system_state = response.epoch.and_then(|epoch| epoch.system_state).unwrap();
+
+    let validator = system_state.validators.unwrap().active_validators[0]
+        .address()
+        .parse::<HaneulAddress>()
+        .unwrap();
+
+    let ops: Operations = serde_json::from_value(json!(
+        [{
+            "operation_identifier":{"index":0},
+            "type":"Stake",
+            "account": { "address" : sender.to_string() },
+            "amount" : { "value": "-100000" , "currency": { "symbol": "HANEUL", "decimals": 9}},
+            "metadata": { "Stake" : {"validator": validator.to_string()} }
+        }]
+    ))
+    .unwrap();
+    let metadata = ConstructionMetadata {
+        sender,
+        gas_coins: vec![gas],
+        extra_gas_coins: vec![],
+        objects: vec![],
+        party_objects: vec![],
+        total_coin_value,
+        gas_price: rgp,
+        budget: rgp * TEST_ONLY_GAS_UNIT_FOR_STAKING,
+        currency: None,
+        address_balance_withdrawal: 0,
+        fss_object_count: None,
+        redeem_token_amount: None,
+        epoch: None,
+        chain_id: None,
+    };
+    let parsed_data = ops.clone().into_internal()?.try_into_data(metadata)?;
+
+    let proto_tx: haneul_rpc::proto::haneul::rpc::v2::Transaction = parsed_data.clone().into();
+    let parsed_ops = Operations::new(Operations::from_transaction(
+        proto_tx
+            .kind
+            .ok_or_else(|| anyhow::anyhow!("Transaction missing kind"))?,
+        parsed_data.sender(),
+        None,
+    )?);
+
+    assert_eq!(
+        ops, parsed_ops,
+        "expected {:#?}, got: {:#?}",
+        ops, parsed_ops
+    );
+
+    Ok(())
+}
+
 // Record current Haneul balance of an address then execute the transaction,
 // and compare the balance change reported by the event against the actual balance change.
 async fn test_transaction(
@@ -716,7 +790,8 @@ fn extract_balance_changes_from_ops(ops: Operations) -> HashMap<HaneulAddress, i
                         if let (Some(addr), Some(amount)) = (op.account, op.amount) {
                             // Todo: amend this method and tests to cover other coin types too (eg. test_publish_and_move_call also mints MY_COIN)
                             if amount.currency.metadata.coin_type
-                                == haneul_types::TypeTag::from(GAS::type_()).to_canonical_string(true)
+                                == haneul_types::TypeTag::from(GAS::type_())
+                                    .to_canonical_string(true)
                             {
                                 *changes.entry(addr.address).or_default() += amount.value
                             }

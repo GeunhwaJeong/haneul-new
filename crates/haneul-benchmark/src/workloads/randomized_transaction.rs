@@ -12,17 +12,17 @@ use crate::workloads::{Gas, GasCoinConfig, WorkloadBuilderInfo, WorkloadParams};
 use crate::{ExecutionEffects, ValidatorProxy};
 use async_trait::async_trait;
 use futures::future::join_all;
-use haneullabs_common::ZipDebugEqIteratorExt;
-use rand::Rng;
-use std::sync::Arc;
-use std::time::Duration;
 use haneul_test_transaction_builder::TestTransactionBuilder;
-use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID, ObjectRef, SequenceNumber};
 use haneul_types::crypto::{AccountKeyPair, get_key_pair};
 use haneul_types::object::Owner;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{CallArg, ObjectArg, SharedObjectMutability, Transaction};
-use haneul_types::{Identifier, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
+use haneul_types::{HANEUL_RANDOMNESS_STATE_OBJECT_ID, Identifier};
+use haneullabs_common::ZipDebugEqIteratorExt;
+use rand::Rng;
+use std::sync::Arc;
+use std::time::Duration;
 use tracing::{error, info};
 
 use super::STORAGE_COST_PER_COUNTER;
@@ -333,9 +333,7 @@ impl Payload for RandomizedTransactionPayload {
                 }
             }
 
-            let signed_tx = tx_builder
-                .ensure_unique()
-                .build_and_sign(self.gas_objects[i].2.as_ref());
+            let signed_tx = tx_builder.build_and_sign(self.gas_objects[i].2.as_ref());
             transactions.push(signed_tx);
         }
 
@@ -609,7 +607,6 @@ impl Workload<dyn Payload> for RandomizedTransactionWorkload {
             for (gas, sender, keypair) in counter_gas.iter() {
                 let transaction = TestTransactionBuilder::new(*sender, *gas, gas_price)
                     .call_counter_create(self.basics_package_id.unwrap())
-                    .ensure_unique()
                     .build_and_sign(keypair.as_ref());
                 let proxy_ref = execution_proxy.clone();
                 futures.push(async move {
@@ -636,7 +633,6 @@ impl Workload<dyn Payload> for RandomizedTransactionWorkload {
                         CallArg::Pure(bcs::to_bytes(&sender).unwrap()),
                     ],
                 )
-                .ensure_unique()
                 .build_and_sign(keypair.as_ref());
             let execution_result = execution_proxy.execute_transaction_block(transaction).await;
             let effects = execution_result.expect("Failed to create immutable object");
@@ -652,7 +648,6 @@ impl Workload<dyn Payload> for RandomizedTransactionWorkload {
                     "freeze_object",
                     vec![CallArg::Object(ObjectArg::ImmOrOwnedObject(created_obj))],
                 )
-                .ensure_unique()
                 .build_and_sign(keypair.as_ref());
             let execution_result = execution_proxy.execute_transaction_block(transaction).await;
             let effects = execution_result.expect("Failed to freeze object");
@@ -685,7 +680,6 @@ impl Workload<dyn Payload> for RandomizedTransactionWorkload {
                             CallArg::Pure(bcs::to_bytes(&sender).unwrap()),
                         ],
                     )
-                    .ensure_unique()
                     .build_and_sign(keypair.as_ref());
                 let proxy_ref = execution_proxy.clone();
                 futures.push(async move {

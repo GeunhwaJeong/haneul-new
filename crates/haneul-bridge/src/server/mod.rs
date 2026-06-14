@@ -7,9 +7,9 @@ use crate::error::BridgeError;
 use crate::metrics::BridgeMetrics;
 use crate::server::handler::BridgeRequestHandlerTrait;
 use crate::types::{
-    AddTokensOnEvmAction, AddTokensOnHaneulAction, AssetPriceUpdateAction, BlocklistCommitteeAction,
-    BlocklistType, BridgeAction, EmergencyAction, EmergencyActionType, EvmContractUpgradeAction,
-    LimitUpdateAction, SignedBridgeAction,
+    AddTokensOnEvmAction, AddTokensOnHaneulAction, AssetPriceUpdateAction,
+    BlocklistCommitteeAction, BlocklistType, BridgeAction, EmergencyAction, EmergencyActionType,
+    EvmContractUpgradeAction, LimitUpdateAction, SignedBridgeAction,
 };
 use crate::with_metrics;
 use alloy::primitives::Address as EthAddress;
@@ -23,11 +23,11 @@ use axum::routing::get;
 use fastcrypto::ed25519::Ed25519PublicKey;
 use fastcrypto::encoding::{Encoding, Hex};
 use fastcrypto::traits::ToFromBytes;
+use haneul_types::TypeTag;
+use haneul_types::bridge::BridgeChainId;
 use std::net::SocketAddr;
 use std::str::FromStr;
 use std::sync::Arc;
-use haneul_types::TypeTag;
-use haneul_types::bridge::BridgeChainId;
 use tracing::{info, instrument};
 
 pub mod governance_verifier;
@@ -120,7 +120,10 @@ pub(crate) fn make_router(
         .route(METRICS_KEY_PATH, get(metrics_key_fetch))
         .route(ETH_TO_HANEUL_TX_PATH, get(handle_eth_tx_hash))
         .route(HANEUL_TO_ETH_TX_PATH, get(handle_haneul_tx_digest))
-        .route(HANEUL_TO_ETH_TRANSFER_PATH, get(handle_haneul_token_transfer))
+        .route(
+            HANEUL_TO_ETH_TRANSFER_PATH,
+            get(handle_haneul_token_transfer),
+        )
         .route(
             COMMITTEE_BLOCKLIST_UPDATE_PATH,
             get(handle_update_committee_blocklist_action),
@@ -601,15 +604,15 @@ async fn handle_add_tokens_on_haneul(
 
 #[instrument(level = "error", skip_all, fields(chain_id=chain_id, nonce=nonce, native=native, token_ids=token_ids, token_addresses=token_addresses, token_haneul_decimals=token_haneul_decimals, token_prices=token_prices))]
 async fn handle_add_tokens_on_evm(
-    Path((chain_id, nonce, native, token_ids, token_addresses, token_haneul_decimals, token_prices)): Path<(
-        u8,
-        u64,
-        u8,
-        String,
-        String,
-        String,
-        String,
-    )>,
+    Path((
+        chain_id,
+        nonce,
+        native,
+        token_ids,
+        token_addresses,
+        token_haneul_decimals,
+        token_prices,
+    )): Path<(u8, u64, u8, String, String, String, String)>,
     State((handler, metrics, _metadata)): State<(
         Arc<impl BridgeRequestHandlerTrait + Sync + Send>,
         Arc<BridgeMetrics>,

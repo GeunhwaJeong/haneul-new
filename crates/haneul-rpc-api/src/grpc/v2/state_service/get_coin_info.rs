@@ -9,13 +9,15 @@ use haneul_rpc::proto::haneul::rpc::v2::GetCoinInfoRequest;
 use haneul_rpc::proto::haneul::rpc::v2::GetCoinInfoResponse;
 use haneul_rpc::proto::haneul::rpc::v2::coin_treasury::SupplyState as RpcSupplyState;
 use haneul_sdk_types::{Address, StructTag};
-use haneul_types::base_types::{ObjectID as HaneulObjectID, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID as HaneulObjectID};
 use haneul_types::coin::RegulatedCoinMetadata;
-use haneul_types::coin_registry::{Currency, RegulatedState as CurrencyRegulatedState, SupplyState};
+use haneul_types::coin_registry::{
+    Currency, RegulatedState as CurrencyRegulatedState, SupplyState,
+};
+use haneul_types::haneul_sdk_types_conversions::struct_tag_sdk_to_core;
 use haneul_types::object::Owner::AddressOwner;
 use haneul_types::object::Owner::ConsensusAddressOwner;
 use haneul_types::object::Owner::Immutable;
-use haneul_types::haneul_sdk_types_conversions::struct_tag_sdk_to_core;
 
 const HANEUL_COIN_TREASURY: CoinTreasury = {
     let mut treasury = CoinTreasury::const_default();
@@ -293,7 +295,9 @@ fn get_treasury_cap_info(
     let supply_state = match &obj.owner {
         Immutable => RpcSupplyState::Fixed,
         AddressOwner(addr) if *addr == HaneulAddress::ZERO => RpcSupplyState::Fixed,
-        ConsensusAddressOwner { owner, .. } if *owner == HaneulAddress::ZERO => RpcSupplyState::Fixed,
+        ConsensusAddressOwner { owner, .. } if *owner == HaneulAddress::ZERO => {
+            RpcSupplyState::Fixed
+        }
         _ => RpcSupplyState::Unknown,
     };
 

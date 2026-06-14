@@ -6,8 +6,6 @@ use axum::{Extension, Json};
 use axum_extra::extract::WithRejection;
 use futures::{TryStreamExt, future::join_all};
 
-use prost_types::FieldMask;
-use std::str::FromStr;
 use haneul_rpc::client::Client;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::{
@@ -15,13 +13,15 @@ use haneul_rpc::proto::haneul::rpc::v2::{
 };
 use haneul_sdk_types::{Address, StructTag};
 use haneul_types::base_types::HaneulAddress;
+use prost_types::FieldMask;
+use std::str::FromStr;
 
 use crate::errors::Error;
 use crate::types::{
     AccountBalanceRequest, AccountBalanceResponse, AccountCoinsRequest, AccountCoinsResponse,
     Amount, Coin, CoinID, CoinIdentifier, Currencies, Currency, SubAccountType, SubBalance,
 };
-use crate::{OnlineServerContext, HaneulEnv};
+use crate::{HaneulEnv, OnlineServerContext};
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 
@@ -154,73 +154,22 @@ pub(crate) struct PoolRateInfo {
     pub haneul_balance: u64,
     pub pool_token_balance: u64,
     pub validator_address: Address,
-    /// `pool.extra_fields.id` — the Bag's UID, needed by callers that want to
-    /// derive dynamic field ids inside the pool (e.g.,
-    /// `FungibleStakedHaneulData`). `None` if the proto omitted the field.
-    pub pool_extra_fields_id: Option<String>,
 }
 
 /// Reads exchange rates for all active validator staking pools.
 pub(crate) async fn get_pool_exchange_rates(
     client: &mut Client,
 ) -> Result<std::collections::HashMap<String, PoolRateInfo>, Error> {
-    Ok(get_pool_exchange_rates_with_epoch(client).await?.0)
-}
-
-/// Atomic snapshot of validator-set state from a single `GetEpochRequest::latest()`.
-///
-/// Splitting these reads across multiple RPCs allows an epoch transition to
-/// land between them: the caller could observe rate from epoch N, then read
-/// epoch N+1, and bind the transaction to N+1 with a stale N rate, silently
-/// violating AtMost caps and aborting AtLeast guards. Bundling rate, epoch,
-/// and the inactive-table id into one response eliminates that race.
-pub(crate) struct ValidatorSetSnapshot {
-    /// Active pool rates keyed by `pool.id` (canonical 0x-prefixed hex string).
-    pub active_rates: std::collections::HashMap<String, PoolRateInfo>,
-    /// Current epoch the snapshot was taken in.
-    pub epoch: u64,
-    /// `validators.inactive_validators.id` — UID of the
-    /// `Table<ID, ValidatorWrapper>` storing deactivated pools. `None` only if
-    /// the proto omitted the field.
-    pub inactive_validators_table_id: Option<String>,
-}
-
-/// Reads exchange rates and the epoch they're snapshotted in from a single
-/// `GetEpochRequest::latest()` response. Used by amount-sensitive operations
-/// (e.g. `MergeAndRedeemFungibleStakedHaneul::AtLeast`/`AtMost`) that must pin
-/// the rate quote to the same epoch the resulting transaction will be bound to.
-pub(crate) async fn get_pool_exchange_rates_with_epoch(
-    client: &mut Client,
-) -> Result<(std::collections::HashMap<String, PoolRateInfo>, u64), Error> {
-    let snap = get_validator_set_snapshot(client).await?;
-    Ok((snap.active_rates, snap.epoch))
-}
-
-/// Read the full validator-set snapshot atomically.
-pub(crate) async fn get_validator_set_snapshot(
-    client: &mut Client,
-) -> Result<ValidatorSetSnapshot, Error> {
     let request = GetEpochRequest::latest().with_read_mask(FieldMask::from_paths([
-        "epoch",
         "system_state.validators.active_validators",
-        "system_state.validators.inactive_validators",
     ]));
     let response = client
         .ledger_client()
         .get_epoch(request)
         .await?
         .into_inner();
-    let epoch_obj = response.epoch();
-    let epoch = epoch_obj.epoch();
-    let system_state = epoch_obj.system_state();
-    let validators_proto = system_state.validators();
-    let validators = validators_proto.active_validators();
-
-    let inactive_validators_table_id = validators_proto
-        .inactive_validators
-        .as_ref()
-        .and_then(|t| t.id.as_ref())
-        .cloned();
+    let system_state = response.epoch().system_state();
+    let validators = system_state.validators().active_validators();
 
     let mut rates = std::collections::HashMap::new();
     for validator in validators {
@@ -228,25 +177,16 @@ pub(crate) async fn get_validator_set_snapshot(
         let pool_id = pool.id().to_string();
         let validator_address = Address::from_str(validator.address())
             .map_err(|e| Error::DataError(format!("Invalid validator address: {}", e)))?;
-        let pool_extra_fields_id = pool
-            .extra_fields_opt()
-            .and_then(|t| t.id_opt())
-            .map(|s| s.to_string());
         rates.insert(
             pool_id,
             PoolRateInfo {
                 haneul_balance: pool.haneul_balance(),
                 pool_token_balance: pool.pool_token_balance(),
                 validator_address,
-                pool_extra_fields_id,
             },
         );
     }
-    Ok(ValidatorSetSnapshot {
-        active_rates: rates,
-        epoch,
-        inactive_validators_table_id,
-    })
+    Ok(rates)
 }
 
 async fn get_sub_account_balances(
@@ -356,7 +296,8 @@ async fn get_fungible_staked_haneul_value(
         })?;
 
         let haneul_equivalent = if rate.pool_token_balance > 0 {
-            (fss.value as u128 * rate.haneul_balance as u128 / rate.pool_token_balance as u128) as u64
+            (fss.value as u128 * rate.haneul_balance as u128 / rate.pool_token_balance as u128)
+                as u64
         } else {
             fss.value
         };

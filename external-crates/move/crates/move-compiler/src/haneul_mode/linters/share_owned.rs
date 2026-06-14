@@ -22,6 +22,14 @@ use crate::{
         codes::{DiagnosticInfo, Severity, custom},
     },
     expansion::ast::ModuleIdent,
+    haneul_mode::{
+        HANEUL_ADDR_VALUE, TX_CONTEXT_MODULE_NAME, TX_CONTEXT_TYPE_NAME,
+        info::TransferKind,
+        linters::{
+            LINT_WARNING_PREFIX, LinterDiagnosticCategory, LinterDiagnosticCode, PUBLIC_SHARE_FUN,
+            SHARE_FUN, TRANSFER_MOD_NAME, type_abilities,
+        },
+    },
     hlir::ast::{
         BaseType, BaseType_, Exp, LValue, LValue_, Label, ModuleCall, SingleType, SingleType_,
         Type, Type_, TypeName_, UnannotatedExp_, Var,
@@ -31,14 +39,6 @@ use crate::{
     shared::{
         Identifier,
         program_info::{DatatypeKind, TypingProgramInfo},
-    },
-    haneul_mode::{
-        HANEUL_ADDR_VALUE, TX_CONTEXT_MODULE_NAME, TX_CONTEXT_TYPE_NAME,
-        info::TransferKind,
-        linters::{
-            LINT_WARNING_PREFIX, LinterDiagnosticCategory, LinterDiagnosticCode, PUBLIC_SHARE_FUN,
-            SHARE_FUN, TRANSFER_MOD_NAME, type_abilities,
-        },
     },
 };
 use move_core_types::account_address::AccountAddress;

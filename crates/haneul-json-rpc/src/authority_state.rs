@@ -3,9 +3,6 @@
 
 use arc_swap::Guard;
 use async_trait::async_trait;
-use move_core_types::language_storage::TypeTag;
-use std::collections::{BTreeMap, HashMap};
-use std::sync::Arc;
 use haneul_core::accumulators::balances::{get_all_balances_for_owner, get_balance};
 use haneul_core::authority::AuthorityState;
 use haneul_core::authority::authority_per_epoch_store::AuthorityPerEpochStore;
@@ -13,8 +10,8 @@ use haneul_core::execution_cache::ObjectCacheRead;
 use haneul_core::jsonrpc_index::{CoinIndexKey2, CoinInfo, TotalBalance};
 use haneul_core::subscription_handler::SubscriptionHandler;
 use haneul_json_rpc_types::{
-    Coin as HaneulCoin, DevInspectResults, DryRunTransactionBlockResponse, EventFilter, HaneulEvent,
-    HaneulObjectDataFilter, TransactionFilter,
+    Coin as HaneulCoin, DevInspectResults, DryRunTransactionBlockResponse, EventFilter,
+    HaneulEvent, HaneulObjectDataFilter, TransactionFilter,
 };
 use haneul_storage::key_value_store::{
     KVStoreTransactionData, TransactionKeyValueStore, TransactionKeyValueStoreTrait,
@@ -22,7 +19,7 @@ use haneul_storage::key_value_store::{
 use haneul_types::accumulator_root::AccumulatorKey;
 use haneul_types::balance::Balance;
 use haneul_types::base_types::{
-    MoveObjectType, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, HaneulAddress,
+    HaneulAddress, MoveObjectType, ObjectID, ObjectInfo, ObjectRef, SequenceNumber,
 };
 use haneul_types::bridge::Bridge;
 use haneul_types::coin_reservation;
@@ -33,15 +30,18 @@ use haneul_types::effects::TransactionEffects;
 use haneul_types::error::{HaneulError, HaneulErrorKind, HaneulResult, UserInputError};
 use haneul_types::event::EventID;
 use haneul_types::governance::StakedHaneul;
+use haneul_types::haneul_serde::BigInt;
+use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointContentsDigest, CheckpointDigest, CheckpointSequenceNumber,
     VerifiedCheckpoint,
 };
 use haneul_types::object::{MoveObject, Object, ObjectRead, Owner, PastObjectRead};
 use haneul_types::storage::{BackingPackageStore, ObjectStore, WriteKind};
-use haneul_types::haneul_serde::BigInt;
-use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::transaction::{Transaction, TransactionData, TransactionKind};
+use move_core_types::language_storage::TypeTag;
+use std::collections::{BTreeMap, HashMap};
+use std::sync::Arc;
 use thiserror::Error;
 use tokio::task::JoinError;
 
@@ -305,7 +305,7 @@ impl StateRead for AuthorityState {
     }
 
     async fn get_object(&self, object_id: &ObjectID) -> StateReadResult<Option<Object>> {
-        Ok(self.get_object(object_id))
+        Ok(self.get_object(object_id).await)
     }
 
     fn get_past_object_read(
@@ -442,7 +442,9 @@ impl StateRead for AuthorityState {
     }
 
     async fn get_staked_haneul(&self, owner: HaneulAddress) -> StateReadResult<Vec<StakedHaneul>> {
-        Ok(self.get_move_objects(owner, MoveObjectType::staked_haneul())?)
+        Ok(self
+            .get_move_objects(owner, MoveObjectType::staked_haneul())
+            .await?)
     }
     fn get_system_state(&self) -> StateReadResult<HaneulSystemState> {
         Ok(self

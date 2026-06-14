@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::data_store::{PackageStore, legacy::linkage_view::LinkageView};
+use haneul_types::{base_types::ObjectID, error::HaneulResult, move_package::MovePackage};
 use move_binary_format::errors::{Location, PartialVMError, PartialVMResult, VMResult};
 use move_core_types::{
     account_address::AccountAddress, identifier::IdentStr, language_storage::ModuleId,
@@ -9,7 +10,6 @@ use move_core_types::{
 };
 use move_vm_types::data_store::DataStore;
 use std::rc::Rc;
-use haneul_types::{base_types::ObjectID, error::HaneulResult, move_package::MovePackage};
 
 // Implementation of the `DataStore` trait for the Move VM.
 // When used during execution it may have a list of new packages that have

@@ -15,11 +15,11 @@ use crate::workloads::transfer_object::TransferObjectWorkloadBuilder;
 use crate::workloads::{ExpectedFailureType, GroupID, WorkloadBuilderInfo, WorkloadInfo};
 use anyhow::Result;
 use futures::future::join_all;
+use haneul_types::base_types::HaneulAddress;
 use haneullabs_common::ZipDebugEqIteratorExt;
 use std::collections::BTreeMap;
 use std::str::FromStr;
 use std::sync::Arc;
-use haneul_types::base_types::HaneulAddress;
 use tracing::info;
 
 use super::adversarial::{AdversarialPayloadCfg, AdversarialWorkloadBuilder};

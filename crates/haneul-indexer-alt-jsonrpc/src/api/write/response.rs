@@ -5,11 +5,8 @@ use std::collections::HashMap;
 use std::str::FromStr;
 
 use anyhow::Context as _;
-use move_core_types::annotated_value::MoveDatatypeLayout;
-use move_core_types::annotated_value::MoveTypeLayout;
 use haneul_json_rpc_types::BalanceChange as HaneulBalanceChange;
 use haneul_json_rpc_types::DryRunTransactionBlockResponse;
-use haneul_json_rpc_types::ObjectChange as HaneulObjectChange;
 use haneul_json_rpc_types::HaneulEvent;
 use haneul_json_rpc_types::HaneulTransactionBlock;
 use haneul_json_rpc_types::HaneulTransactionBlockData;
@@ -17,11 +14,12 @@ use haneul_json_rpc_types::HaneulTransactionBlockEffects;
 use haneul_json_rpc_types::HaneulTransactionBlockEvents;
 use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
+use haneul_json_rpc_types::ObjectChange as HaneulObjectChange;
 use haneul_rpc::proto::haneul::rpc::v2 as proto;
 use haneul_types::TypeTag;
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::SequenceNumber;
-use haneul_types::base_types::HaneulAddress;
 use haneul_types::digests::ObjectDigest;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::ObjectChange;
@@ -33,6 +31,8 @@ use haneul_types::object::Owner;
 use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::TransactionData;
 use haneul_types::transaction::TransactionDataAPI;
+use move_core_types::annotated_value::MoveDatatypeLayout;
+use move_core_types::annotated_value::MoveTypeLayout;
 
 use crate::api::to_haneul_object_change;
 use crate::context::Context;
@@ -179,7 +179,9 @@ async fn events(
         );
     }
 
-    Ok(HaneulTransactionBlockEvents { data: haneul_events })
+    Ok(HaneulTransactionBlockEvents {
+        data: haneul_events,
+    })
 }
 
 /// Convert balance changes from the gRPC response.

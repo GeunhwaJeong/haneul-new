@@ -4,9 +4,6 @@
 use std::time::Duration;
 
 use anyhow::Context;
-use reqwest::Client;
-use serde_json::Value;
-use serde_json::json;
 use haneul_indexer_alt_e2e_tests::OffchainCluster;
 use haneul_indexer_alt_e2e_tests::OffchainClusterConfig;
 use haneul_indexer_alt_e2e_tests::local_ingestion_client_args;
@@ -14,12 +11,15 @@ use haneul_indexer_alt_jsonrpc::NodeArgs as JsonRpcNodeArgs;
 use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_test_transaction_builder::make_staking_transaction;
-use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::ObjectID;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::object::Owner;
 use haneul_types::transaction::TransactionDataAPI;
+use reqwest::Client;
+use serde_json::Value;
+use serde_json::json;
 use test_cluster::TestCluster;
 use test_cluster::TestClusterBuilder;
 use url::Url;
@@ -522,7 +522,11 @@ async fn test_get_stakes_by_ids_omits_withdrawn() {
                 .as_array()
                 .expect("stakes should be an array")
                 .iter()
-                .map(|s| s["stakedHaneulId"].as_str().expect("missing stakedHaneulId"))
+                .map(|s| {
+                    s["stakedHaneulId"]
+                        .as_str()
+                        .expect("missing stakedHaneulId")
+                })
         })
         .collect();
 
@@ -550,7 +554,11 @@ async fn test_get_stakes_by_ids_omits_withdrawn() {
                 .as_array()
                 .expect("stakes should be an array")
                 .iter()
-                .map(|s| s["stakedHaneulId"].as_str().expect("missing stakedHaneulId"))
+                .map(|s| {
+                    s["stakedHaneulId"]
+                        .as_str()
+                        .expect("missing stakedHaneulId")
+                })
         })
         .collect();
     assert_eq!(

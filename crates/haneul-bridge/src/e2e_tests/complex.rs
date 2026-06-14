@@ -5,15 +5,16 @@ use crate::abi::{EthHaneulBridge, eth_haneul_bridge};
 use crate::client::bridge_authority_aggregator::BridgeAuthorityAggregator;
 use crate::e2e_tests::test_utils::{
     BridgeTestClusterBuilder, get_signatures, initiate_bridge_eth_to_haneul,
-    initiate_bridge_haneul_to_eth, initiate_bridge_haneul_to_eth_v2, send_eth_tx_and_get_tx_receipt,
+    initiate_bridge_haneul_to_eth, initiate_bridge_haneul_to_eth_v2,
+    send_eth_tx_and_get_tx_receipt,
 };
 use crate::haneul_transaction_builder::build_haneul_transaction;
 use crate::types::{BridgeAction, BridgeActionStatus, EmergencyAction, EmergencyActionType};
 use alloy::primitives::{Address as EthAddress, U256};
-use std::sync::Arc;
 use haneul_types::bridge::{BridgeChainId, TOKEN_ID_ETH};
 use haneul_types::coin::Coin;
 use haneul_types::effects::TransactionEffectsAPI;
+use std::sync::Arc;
 use tracing::info;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 16)]
@@ -111,7 +112,8 @@ async fn test_haneul_bridge_paused() {
     assert!(bridge_client.get_bridge_summary().await.unwrap().is_frozen);
 
     // Transfer from eth to haneul should fail on Haneul
-    let eth_to_haneul_bridge_action = initiate_bridge_eth_to_haneul(&bridge_test_cluster, 10, 1).await;
+    let eth_to_haneul_bridge_action =
+        initiate_bridge_eth_to_haneul(&bridge_test_cluster, 10, 1).await;
     assert!(eth_to_haneul_bridge_action.is_err());
     // message should not be recorded on Haneul when the bridge is paused
     let res = bridge_test_cluster
@@ -278,12 +280,15 @@ async fn test_v2_haneul_with_v1_evm() {
     );
 
     // Now try to claim on EVM using V2 function - this should fail because EVM is still on V1
-    let message_v2: eth_haneul_bridge::BridgeUtils::Message = haneul_to_eth_v2_action.try_into().unwrap();
-    let signatures_v2 = get_signatures(bridge_test_cluster.bridge_client(), 1, haneul_chain_id).await;
+    let message_v2: eth_haneul_bridge::BridgeUtils::Message =
+        haneul_to_eth_v2_action.try_into().unwrap();
+    let signatures_v2 =
+        get_signatures(bridge_test_cluster.bridge_client(), 1, haneul_chain_id).await;
 
     // The V1 EVM contract doesn't have transferBridgedTokensWithSignaturesV2,
     // so calling it will fail. We verify this by attempting the call.
-    let call_v2 = eth_haneul_bridge.transferBridgedTokensWithSignaturesV2(signatures_v2, message_v2);
+    let call_v2 =
+        eth_haneul_bridge.transferBridgedTokensWithSignaturesV2(signatures_v2, message_v2);
     let result = call_v2.send().await;
 
     // The call should fail since V1 contract doesn't have this function
@@ -435,7 +440,8 @@ async fn test_v1_deposit_during_v2_upgrade() {
 
     // Claim on EVM using V2 function (should work now that EVM is upgraded)
     let timer = std::time::Instant::now();
-    let message: eth_haneul_bridge::BridgeUtils::Message = haneul_to_eth_v2_action.try_into().unwrap();
+    let message: eth_haneul_bridge::BridgeUtils::Message =
+        haneul_to_eth_v2_action.try_into().unwrap();
     let signatures = get_signatures(
         bridge_test_cluster.bridge_client(),
         0,

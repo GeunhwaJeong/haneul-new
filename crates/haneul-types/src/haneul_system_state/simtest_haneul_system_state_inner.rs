@@ -8,7 +8,6 @@ use crate::committee::{CommitteeWithNetworkMetadata, NetworkMetadata};
 use crate::crypto::{AuthorityPublicKey, AuthorityPublicKeyBytes, NetworkPublicKey};
 use crate::error::HaneulError;
 use crate::gas::GasCostSummary;
-use crate::storage::ObjectStore;
 use crate::haneul_system_state::epoch_start_haneul_system_state::{
     EpochStartSystemState, EpochStartValidatorInfoV1,
 };
@@ -16,6 +15,7 @@ use crate::haneul_system_state::haneul_system_state_summary::{
     HaneulSystemStateSummary, HaneulValidatorSummary,
 };
 use crate::haneul_system_state::{AdvanceEpochParams, HaneulSystemStateTrait};
+use crate::storage::ObjectStore;
 use fastcrypto::traits::ToFromBytes;
 use haneullabs_network::Multiaddr;
 use once_cell::sync::OnceCell;

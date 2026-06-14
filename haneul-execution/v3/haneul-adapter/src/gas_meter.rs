@@ -3,6 +3,10 @@
 
 use std::ops::DerefMut;
 
+use haneul_types::gas_model::{
+    gas_predicates::{native_function_threshold_exceeded, use_legacy_abstract_size},
+    tables::{GasStatus, REFERENCE_SIZE, STRUCT_SIZE, VEC_SIZE},
+};
 use move_binary_format::errors::PartialVMResult;
 use move_core_types::{
     gas_algebra::{AbstractMemorySize, InternalGas, NumArgs, NumBytes},
@@ -12,10 +16,6 @@ use move_vm_types::{
     gas::{GasMeter, SimpleInstruction},
     loaded_data::runtime_types::Type,
     views::{SizeConfig, TypeView, ValueView},
-};
-use haneul_types::gas_model::{
-    gas_predicates::{native_function_threshold_exceeded, use_legacy_abstract_size},
-    tables::{GasStatus, REFERENCE_SIZE, STRUCT_SIZE, VEC_SIZE},
 };
 
 pub struct HaneulGasMeter<G: DerefMut<Target = GasStatus>>(pub G);

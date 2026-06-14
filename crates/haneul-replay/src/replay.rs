@@ -13,21 +13,6 @@ use crate::{
     types::*,
 };
 use futures::executor::block_on;
-use move_binary_format::CompiledModule;
-use move_bytecode_utils::module_cache::GetModule;
-use move_core_types::resolver::SerializedPackage;
-use move_core_types::{
-    account_address::AccountAddress, language_storage::ModuleId, resolver::ModuleResolver,
-};
-use prometheus::Registry;
-use serde::{Deserialize, Serialize};
-use similar::{ChangeTag, TextDiff};
-use std::{
-    collections::{BTreeMap, HashSet},
-    path::PathBuf,
-    sync::Arc,
-    sync::Mutex,
-};
 use haneul_config::node::ExpensiveSafetyCheckConfig;
 use haneul_core::authority::NodeStateDump;
 use haneul_execution::Executor;
@@ -64,6 +49,21 @@ use haneul_types::{
         CheckedInputObjects, InputObjectKind, InputObjects, ObjectReadResult, ObjectReadResultKind,
         SenderSignedData, Transaction, TransactionDataAPI, TransactionKind, VerifiedTransaction,
     },
+};
+use move_binary_format::CompiledModule;
+use move_bytecode_utils::module_cache::GetModule;
+use move_core_types::resolver::SerializedPackage;
+use move_core_types::{
+    account_address::AccountAddress, language_storage::ModuleId, resolver::ModuleResolver,
+};
+use prometheus::Registry;
+use serde::{Deserialize, Serialize};
+use similar::{ChangeTag, TextDiff};
+use std::{
+    collections::{BTreeMap, HashSet},
+    path::PathBuf,
+    sync::Arc,
+    sync::Mutex,
 };
 use tracing::{error, info, trace, warn};
 
@@ -789,8 +789,8 @@ impl LocalExec {
             &FundsWithdrawStatus::MaybeSufficient,
         );
         let execution_params = match early_execution_error {
-            None => ExecutionOrEarlyError::ok(None),
-            Some(errors) => ExecutionOrEarlyError::failed(errors, None),
+            Some(error) => ExecutionOrEarlyError::Err(error),
+            None => ExecutionOrEarlyError::Ok(()),
         };
         let (inner_store, gas_status, effects, _timings, result) = executor
             .execute_transaction_to_effects_and_execution_error(
@@ -867,8 +867,8 @@ impl LocalExec {
             &FundsWithdrawStatus::MaybeSufficient,
         );
         let execution_params = match early_execution_error {
-            None => ExecutionOrEarlyError::ok(None),
-            Some(errors) => ExecutionOrEarlyError::failed(errors, None),
+            Some(error) => ExecutionOrEarlyError::Err(error),
+            None => ExecutionOrEarlyError::Ok(()),
         };
         if let ProgrammableTransaction(pt) = transaction_kind {
             trace!(
@@ -985,8 +985,8 @@ impl LocalExec {
             &FundsWithdrawStatus::MaybeSufficient,
         );
         let execution_params = match early_execution_error {
-            None => ExecutionOrEarlyError::ok(None),
-            Some(errors) => ExecutionOrEarlyError::failed(errors, None),
+            Some(error) => ExecutionOrEarlyError::Err(error),
+            None => ExecutionOrEarlyError::Ok(()),
         };
         let (_, _, effects, _timings, exec_res) = executor
             .execute_transaction_to_effects_and_execution_error(

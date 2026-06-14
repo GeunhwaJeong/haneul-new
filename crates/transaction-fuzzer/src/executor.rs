@@ -10,7 +10,7 @@ use haneul_core::authority::AuthorityState;
 use haneul_core::authority::authority_test_utils::submit_and_execute;
 use haneul_core::authority::test_authority_builder::TestAuthorityBuilder;
 use haneul_move_build::BuildConfig;
-use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID, ObjectRef};
 use haneul_types::crypto::get_authority_key_pair;
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
 use haneul_types::error::HaneulError;
@@ -110,11 +110,11 @@ impl Executor {
     }
 
     pub fn add_object(&mut self, object: Object) {
-        self.state.insert_genesis_object(object);
+        self.rt.block_on(self.state.insert_genesis_object(object));
     }
 
     pub fn add_objects(&mut self, objects: &[Object]) {
-        self.state.insert_genesis_objects(objects);
+        self.rt.block_on(self.state.insert_genesis_objects(objects));
     }
 
     pub fn execute_transaction(&mut self, txn: Transaction) -> ExecutionResult {

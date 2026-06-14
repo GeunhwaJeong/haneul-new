@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use clap::*;
+use haneul_package_alt::HaneulFlavor;
 use move_analyzer::analyzer;
 use move_compiler::editions::Flavor;
-use haneul_package_alt::HaneulFlavor;
 
 #[cfg(target_os = "linux")]
 mod alloc_utils {
@@ -55,5 +55,8 @@ struct App {}
 fn main() {
     App::parse();
     alloc_utils::maybe_enable_jemalloc();
-    analyzer::run::<HaneulFlavor>(std::sync::Arc::new(HaneulFlavor::new()), Some(Flavor::Haneul));
+    analyzer::run::<HaneulFlavor>(
+        std::sync::Arc::new(HaneulFlavor::new()),
+        Some(Flavor::Haneul),
+    );
 }

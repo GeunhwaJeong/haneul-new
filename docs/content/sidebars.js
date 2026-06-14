@@ -161,7 +161,6 @@ export default {
       link: { type: 'doc', id: 'develop/accessing-data/index' },
       items: [
         'develop/accessing-data/data-serving',
-        'develop/accessing-data/json-rpc-migration',
         {
           type: 'category',
           label: 'gRPC',
@@ -230,7 +229,7 @@ export default {
 
   gettingStartedSidebar: [
     'getting-started',
-    { type: 'link', label: 'Skills', href: '/skills' },
+    'getting-started/agent-skills',
     {
       type: 'category',
       label: 'Hello, World!',
@@ -528,7 +527,6 @@ haneulStackSidebar: [
         'haneul-stack/walrus/haneul-stack-walrus',
         'haneul-stack/walrus/indexer-walrus',
         'haneul-stack/walrus/only-fins',
-        'haneul-stack/walrus/haneul-stack-walrus-sites',
       ],
     },
     {
@@ -542,85 +540,7 @@ haneulStackSidebar: [
           href: 'https://seal-docs.wal.app',
         },
         'haneul-stack/seal/haneul-stack-seal',
-        {
-          type: 'link',
-          label: 'Messaging SDK Chat App Example →',
-          href: '/haneul-stack/messaging/chat-app',
-        },
-      ],
-    },
-    {
-      type: 'category',
-      label: 'Messaging SDK',
-      link: { type: 'doc', id: 'haneul-stack/messaging/index' },
-      items: [
-        {
-          type: 'category',
-          label: 'Getting Started',
-          collapsed: true,
-          items: [
-            'haneul-stack/messaging/installation',
-            'haneul-stack/messaging/setup',
-            'haneul-stack/messaging/examples',
-          ],
-        },
-        {
-          type: 'category',
-          label: 'Architecture',
-          collapsed: true,
-          items: [
-            'haneul-stack/messaging/encryption',
-            'haneul-stack/messaging/security',
-            'haneul-stack/messaging/relayer',
-          ],
-        },
-        {
-          type: 'category',
-          label: 'Guides',
-          collapsed: true,
-          items: [
-            'haneul-stack/messaging/attachments',
-            'haneul-stack/messaging/archive-recovery',
-            'haneul-stack/messaging/group-discovery',
-            'haneul-stack/messaging/extending',
-          ],
-        },
-        {
-          type: 'category',
-          label: 'Reference',
-          collapsed: true,
-          items: [
-            'haneul-stack/messaging/api-reference',
-            'haneul-stack/messaging/testing',
-            'haneul-stack/messaging/community-contributed',
-          ],
-        },
-        {
-          type: 'category',
-          label: 'Examples',
-          collapsed: true,
-          items: [
-            'haneul-stack/messaging/chat-app',
-          ],
-        },
-        {
-          type: 'link',
-          label: 'GitHub Repo',
-          href: 'https://github.com/GeunhwaJeong/haneul-stack-messaging',
-        },
-      ],
-    },
-    {
-      type: 'category',
-      label: 'HaneulNS',
-      link: { type: 'doc', id: 'haneul-stack/haneulns/index' },
-      items: [
-        {
-          type: 'link',
-          label: 'HaneulNS Docs',
-          href: 'https://docs.haneulns.io',
-        },
-        'haneul-stack/haneulns/haneul-stack-haneulns',
+        'haneul-stack/seal/haneul-chat-app',
       ],
     },
     {
@@ -653,22 +573,9 @@ haneulStackSidebar: [
     {
       type: 'category',
       label: 'DeepBook',
-	  items: [
-		{
-          type: 'link',
-          label: 'DeepBookV3',
-          href: 'https://docs.haneul.io/onchain-finance/deepbookv3/deepbook',
-        },
-		{
-          type: 'link',
-          label: 'DeepBook Margin',
-          href: 'https://docs.haneul.io/onchain-finance/deepbook-margin/design',
-        },
-		{
-          type: 'link',
-          label: 'DeepBook Predict',
-          href: 'https://docs.haneul.io/onchain-finance/deepbook-predict/design',
-        },
+      items: [
+        'onchain-finance/deepbookv3/deepbook',
+        'onchain-finance/deepbook-margin/deepbook-margin',
       ],
     },
     {

@@ -18,14 +18,6 @@ use crate::{
     },
 };
 use futures::stream::{FuturesUnordered, StreamExt};
-use haneullabs_common::ZipDebugEqIteratorExt;
-use haneullabs_common::{assert_reachable, debug_fatal};
-use haneullabs_metrics::spawn_monitored_task;
-use parking_lot::Mutex;
-use std::{
-    collections::{BTreeMap, BTreeSet, HashMap, HashSet},
-    sync::Arc,
-};
 use haneul_config::node::{AuthorityOverloadConfig, FundsWithdrawSchedulerType};
 use haneul_types::{
     HANEUL_ACCUMULATOR_ROOT_OBJECT_ID,
@@ -38,6 +30,14 @@ use haneul_types::{
         SenderSignedData, SharedInputObject, SharedObjectMutability, TransactionData,
         TransactionDataAPI, TransactionKey,
     },
+};
+use haneullabs_common::ZipDebugEqIteratorExt;
+use haneullabs_common::{assert_reachable, debug_fatal};
+use haneullabs_metrics::spawn_monitored_task;
+use parking_lot::Mutex;
+use std::{
+    collections::{BTreeMap, BTreeSet, HashMap, HashSet},
+    sync::Arc,
 };
 use tokio::sync::mpsc::UnboundedSender;
 use tokio::time::Instant;
@@ -174,8 +174,8 @@ impl ExecutionScheduler {
         scheduler_type: FundsWithdrawSchedulerType,
         address_funds_scheduler_metrics: &Arc<AddressFundsSchedulerMetrics>,
     ) -> Option<FundsWithdrawScheduler> {
-        let withdraw_scheduler_enabled = epoch_store.node_role().process_consensus_commits()
-            && epoch_store.accumulators_enabled();
+        let withdraw_scheduler_enabled =
+            epoch_store.is_validator() && epoch_store.accumulators_enabled();
         if !withdraw_scheduler_enabled {
             return None;
         }
@@ -227,7 +227,10 @@ impl ExecutionScheduler {
                 (**epoch_store.epoch_start_config()).accumulator_root_obj_initial_shared_version()
         {
             input_object_keys.push(InputKey::VersionedObject {
-                id: FullObjectID::new(HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, Some(initial_shared_version)),
+                id: FullObjectID::new(
+                    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID,
+                    Some(initial_shared_version),
+                ),
                 version: accumulator_version,
             });
         }
@@ -664,8 +667,6 @@ mod test {
     use crate::authority::ExecutionEnv;
     use crate::authority::shared_object_version_manager::AssignedVersions;
     use crate::authority::{AuthorityState, authority_tests::init_state_with_objects};
-    use std::collections::BTreeSet;
-    use std::{time::Duration, vec};
     use haneul_test_transaction_builder::TestTransactionBuilder;
     use haneul_types::base_types::{HaneulAddress, random_object_ref};
     use haneul_types::executable_transaction::VerifiedExecutableTransaction;
@@ -681,6 +682,8 @@ mod test {
         object::Object,
         transaction::{CallArg, ObjectArg},
     };
+    use std::collections::BTreeSet;
+    use std::{time::Duration, vec};
     use tokio::time::Instant;
     use tokio::{
         sync::mpsc::{UnboundedReceiver, error::TryRecvError, unbounded_channel},
@@ -716,7 +719,12 @@ mod test {
         let (sender, keypair) = deterministic_random_account_key();
         let transaction =
             TestTransactionBuilder::new(sender, gas_object.compute_object_reference(), rgp)
-                .move_call(HANEUL_FRAMEWORK_PACKAGE_ID, "counter", "assert_value", input)
+                .move_call(
+                    HANEUL_FRAMEWORK_PACKAGE_ID,
+                    "counter",
+                    "assert_value",
+                    input,
+                )
                 .build_and_sign(&keypair);
         VerifiedExecutableTransaction::new_system(
             VerifiedTransaction::new_unchecked(transaction),

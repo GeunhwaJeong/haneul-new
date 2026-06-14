@@ -13,6 +13,76 @@ use bimap::btree::BiBTreeMap;
 use criterion::Criterion;
 use fastcrypto::encoding::{Base64, Encoding};
 use fastcrypto::traits::KeyPair;
+use haneul_core::authority::AuthorityState;
+use haneul_core::authority::shared_object_version_manager::AssignedVersions;
+use haneul_core::authority::test_authority_builder::TestAuthorityBuilder;
+use haneul_framework::DEFAULT_FRAMEWORK_PATH;
+use haneul_json_rpc_api::QUERY_MAX_RESULT_LIMIT;
+use haneul_json_rpc_types::{
+    DevInspectResults, DryRunTransactionBlockResponse, HaneulAccumulatorOperation,
+    HaneulAccumulatorValue, HaneulExecutionStatus, HaneulTransactionBlockEffects,
+    HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockEvents,
+};
+use haneul_protocol_config::{
+    Chain, ExecutionTimeEstimateParams, PerObjectCongestionControlMode, ProtocolConfig,
+    ProtocolVersion,
+};
+use haneul_storage::{
+    key_value_store::TransactionKeyValueStore, key_value_store_metrics::KeyValueStoreMetrics,
+};
+use haneul_swarm_config::genesis_config::AccountConfig;
+use haneul_swarm_config::network_config_builder::KeyPairWrapper;
+use haneul_types::accumulator_root::AccumulatorValue;
+use haneul_types::base_types::{SequenceNumber, VersionNumber};
+use haneul_types::committee::EpochId;
+use haneul_types::crypto::{
+    AuthorityKeyPair, AuthorityPublicKeyBytes, RandomnessRound, get_authority_key_pair,
+};
+use haneul_types::digests::{ChainIdentifier, ConsensusCommitDigest, TransactionDigest};
+use haneul_types::effects::{
+    AccumulatorOperation, AccumulatorValue as EffectsAccumulatorValue, TransactionEffects,
+    TransactionEffectsAPI, TransactionEvents,
+};
+use haneul_types::execution_status::ExecutionErrorKind;
+use haneul_types::messages_checkpoint::{
+    CheckpointContents, CheckpointContentsDigest, CheckpointSequenceNumber, VerifiedCheckpoint,
+};
+use haneul_types::messages_consensus::ConsensusDeterminedVersionAssignments;
+use haneul_types::object::bounded_visitor::BoundedVisitor;
+use haneul_types::storage::ReadStore;
+use haneul_types::storage::{ObjectStore, RpcStateReader};
+use haneul_types::transaction::Command;
+use haneul_types::transaction::ProgrammableTransaction;
+use haneul_types::utils::to_sender_signed_transaction_with_multi_signers;
+use haneul_types::{BRIDGE_ADDRESS, HANEUL_DISPLAY_REGISTRY_OBJECT_ID, MOVE_STDLIB_PACKAGE_ID};
+use haneul_types::{DEEPBOOK_ADDRESS, HANEUL_DENY_LIST_OBJECT_ID};
+use haneul_types::{DEEPBOOK_PACKAGE_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
+use haneul_types::{
+    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS,
+    HANEUL_SYSTEM_STATE_OBJECT_ID, MOVE_STDLIB_ADDRESS,
+    base_types::{HANEUL_ADDRESS_LENGTH, HaneulAddress, ObjectID, ObjectRef},
+    crypto::{AccountKeyPair, get_key_pair_from_rng},
+    event::Event,
+    object::{self, Object},
+    transaction::{Transaction, TransactionData, VerifiedTransaction},
+};
+use haneul_types::{
+    HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_ADDRESS,
+    programmable_transaction_builder::ProgrammableTransactionBuilder,
+};
+use haneul_types::{HANEUL_SYSTEM_PACKAGE_ID, utils::to_sender_signed_transaction};
+use haneul_types::{balance::Balance, gas_coin::GAS};
+use haneul_types::{
+    coin_reservation::ParsedObjectRefWithdrawal, gas::GasCostSummary, object::GAS_VALUE_FOR_TESTING,
+};
+use haneul_types::{
+    execution_status::{ExecutionFailure, ExecutionStatus},
+    transaction::TransactionKind,
+};
+use haneul_types::{
+    move_package::MovePackage,
+    transaction::{Argument, CallArg, TransactionDataAPI, TransactionExpiration},
+};
 use iso8601::Duration as IsoDuration;
 use move_binary_format::CompiledModule;
 use move_bytecode_utils::module_cache::GetModule;
@@ -53,78 +123,6 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     path::Path,
     sync::Arc,
-};
-use haneul_core::authority::AuthorityState;
-use haneul_core::authority::shared_object_version_manager::AssignedVersions;
-use haneul_core::authority::test_authority_builder::TestAuthorityBuilder;
-use haneul_framework::DEFAULT_FRAMEWORK_PATH;
-use haneul_json_rpc_api::QUERY_MAX_RESULT_LIMIT;
-use haneul_json_rpc_types::{
-    DevInspectResults, DryRunTransactionBlockResponse, HaneulAccumulatorOperation,
-    HaneulAccumulatorValue, HaneulExecutionStatus, HaneulTransactionBlockEffects,
-    HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockEvents,
-};
-use haneul_protocol_config::{
-    Chain, ExecutionTimeEstimateParams, PerObjectCongestionControlMode, ProtocolConfig,
-    ProtocolVersion,
-};
-use haneul_storage::{
-    key_value_store::TransactionKeyValueStore, key_value_store_metrics::KeyValueStoreMetrics,
-};
-use haneul_swarm_config::genesis_config::AccountConfig;
-use haneul_swarm_config::network_config_builder::KeyPairWrapper;
-use haneul_types::accumulator_root::AccumulatorValue;
-use haneul_types::base_types::{SequenceNumber, VersionNumber};
-use haneul_types::committee::EpochId;
-use haneul_types::crypto::{
-    AuthorityKeyPair, AuthorityPublicKeyBytes, RandomnessRound, get_authority_key_pair,
-};
-use haneul_types::digests::{
-    ChainIdentifier, CheckpointDigest, ConsensusCommitDigest, TransactionDigest,
-};
-use haneul_types::effects::{
-    AccumulatorOperation, AccumulatorValue as EffectsAccumulatorValue, TransactionEffects,
-    TransactionEffectsAPI, TransactionEvents,
-};
-use haneul_types::execution_status::ExecutionErrorKind;
-use haneul_types::messages_checkpoint::{
-    CheckpointContents, CheckpointContentsDigest, CheckpointSequenceNumber, VerifiedCheckpoint,
-};
-use haneul_types::messages_consensus::ConsensusDeterminedVersionAssignments;
-use haneul_types::object::bounded_visitor::BoundedVisitor;
-use haneul_types::storage::ReadStore;
-use haneul_types::storage::{ObjectStore, RpcStateReader};
-use haneul_types::transaction::Command;
-use haneul_types::transaction::ProgrammableTransaction;
-use haneul_types::utils::to_sender_signed_transaction_with_multi_signers;
-use haneul_types::{BRIDGE_ADDRESS, MOVE_STDLIB_PACKAGE_ID, HANEUL_DISPLAY_REGISTRY_OBJECT_ID};
-use haneul_types::{DEEPBOOK_ADDRESS, HANEUL_DENY_LIST_OBJECT_ID};
-use haneul_types::{DEEPBOOK_PACKAGE_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
-use haneul_types::{
-    MOVE_STDLIB_ADDRESS, HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID,
-    HANEUL_FRAMEWORK_ADDRESS, HANEUL_SYSTEM_STATE_OBJECT_ID,
-    base_types::{ObjectID, ObjectRef, HANEUL_ADDRESS_LENGTH, HaneulAddress},
-    crypto::{AccountKeyPair, get_key_pair_from_rng},
-    event::Event,
-    object::{self, Object},
-    transaction::{Transaction, TransactionData, VerifiedTransaction},
-};
-use haneul_types::{
-    HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_ADDRESS,
-    programmable_transaction_builder::ProgrammableTransactionBuilder,
-};
-use haneul_types::{HANEUL_SYSTEM_PACKAGE_ID, utils::to_sender_signed_transaction};
-use haneul_types::{balance::Balance, gas_coin::GAS};
-use haneul_types::{
-    coin_reservation::ParsedObjectRefWithdrawal, gas::GasCostSummary, object::GAS_VALUE_FOR_TESTING,
-};
-use haneul_types::{
-    execution_status::{ExecutionFailure, ExecutionStatus},
-    transaction::TransactionKind,
-};
-use haneul_types::{
-    move_package::MovePackage,
-    transaction::{Argument, CallArg, TransactionDataAPI, TransactionExpiration},
 };
 use tempfile::{NamedTempFile, tempdir};
 
@@ -170,9 +168,6 @@ pub struct HaneulTestAdapter {
     object_enumeration: BiBTreeMap<ObjectID, FakeID>,
     /// Mapping from task ID to a transaction digest, for use in named variable substitution.
     digest_enumeration: BTreeMap<u64, TransactionDigest>,
-    /// Mapping from a checkpoint's sequence number to its digest, for use in named variable
-    /// substitution as `@{cp_digest_N}`.
-    cp_digest_enumeration: BTreeMap<u64, CheckpointDigest>,
     /// Tracks the global creation order of each object across all transactions.
     creation_order: BTreeMap<ObjectID, u64>,
     next_fake: (u64, u64),
@@ -531,7 +526,6 @@ impl MoveTestAdapter<'_> for HaneulTestAdapter {
             default_syntax,
             object_enumeration: BiBTreeMap::new(),
             digest_enumeration: BTreeMap::new(),
-            cp_digest_enumeration: BTreeMap::new(),
             creation_order: BTreeMap::new(),
             next_fake: (0, 0),
             // TODO: make this configurable
@@ -883,10 +877,7 @@ impl MoveTestAdapter<'_> for HaneulTestAdapter {
             }
             HaneulSubcommand::CreateCheckpoint(CreateCheckpointCommand { count }) => {
                 for _ in 0..count.unwrap_or(1) {
-                    let checkpoint = self.executor.create_checkpoint().await?;
-                    let summary = checkpoint.data();
-                    self.cp_digest_enumeration
-                        .insert(summary.sequence_number, *checkpoint.digest());
+                    self.executor.create_checkpoint().await?;
                 }
                 let latest_chk = self.executor.get_latest_checkpoint_sequence_number()?;
                 Ok(Some(format!("Checkpoint created: {}", latest_chk)))
@@ -1070,7 +1061,8 @@ impl MoveTestAdapter<'_> for HaneulTestAdapter {
                 gas_price,
             }) => {
                 let mut builder = ProgrammableTransactionBuilder::new();
-                let obj_arg = HaneulValue::Object(fake_id, None).into_argument(&mut builder, self)?;
+                let obj_arg =
+                    HaneulValue::Object(fake_id, None).into_argument(&mut builder, self)?;
                 let recipient = match self.accounts.get(&recipient) {
                     Some(test_account) => test_account.address,
                     None => panic!("Unbound account {}", recipient),
@@ -1731,10 +1723,6 @@ impl HaneulTestAdapter {
 
         for (tid, digest) in &self.digest_enumeration {
             variables.insert(format!("digest_{tid}"), digest.to_string());
-        }
-
-        for (seq, digest) in &self.cp_digest_enumeration {
-            variables.insert(format!("cp_digest_{seq}"), digest.to_string());
         }
 
         variables

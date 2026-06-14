@@ -7,10 +7,6 @@
 // 2. Many conversions require additional context (e.g., package_id, module_name) that From traits cannot provide
 
 use crate::{Result, RpcError};
-use move_binary_format::file_format::{
-    Ability as MoveAbility, AbilitySet as MoveAbilitySet, DatatypeTyParameter,
-    Visibility as MoveVisibility,
-};
 use haneul_package_resolver::{DataDef, FunctionDef, MoveData, VariantDef};
 use haneul_rpc::proto::haneul::rpc::v2::{
     Ability, DatatypeDescriptor, FieldDescriptor, FunctionDescriptor, Module, OpenSignature,
@@ -19,6 +15,10 @@ use haneul_rpc::proto::haneul::rpc::v2::{
     open_signature_body::Type as SignatureType,
 };
 use haneul_types::base_types::ObjectID;
+use move_binary_format::file_format::{
+    Ability as MoveAbility, AbilitySet as MoveAbilitySet, DatatypeTyParameter,
+    Visibility as MoveVisibility,
+};
 
 pub(crate) fn convert_error(e: haneul_package_resolver::error::Error) -> RpcError {
     RpcError::new(tonic::Code::Internal, e.to_string())
@@ -225,13 +225,19 @@ fn convert_open_signature_body(
     body: &haneul_package_resolver::OpenSignatureBody,
 ) -> OpenSignatureBody {
     let (type_enum, type_name, type_params, type_param_idx) = match body {
-        haneul_package_resolver::OpenSignatureBody::Bool => (SignatureType::Bool, None, vec![], None),
+        haneul_package_resolver::OpenSignatureBody::Bool => {
+            (SignatureType::Bool, None, vec![], None)
+        }
         haneul_package_resolver::OpenSignatureBody::U8 => (SignatureType::U8, None, vec![], None),
         haneul_package_resolver::OpenSignatureBody::U16 => (SignatureType::U16, None, vec![], None),
         haneul_package_resolver::OpenSignatureBody::U32 => (SignatureType::U32, None, vec![], None),
         haneul_package_resolver::OpenSignatureBody::U64 => (SignatureType::U64, None, vec![], None),
-        haneul_package_resolver::OpenSignatureBody::U128 => (SignatureType::U128, None, vec![], None),
-        haneul_package_resolver::OpenSignatureBody::U256 => (SignatureType::U256, None, vec![], None),
+        haneul_package_resolver::OpenSignatureBody::U128 => {
+            (SignatureType::U128, None, vec![], None)
+        }
+        haneul_package_resolver::OpenSignatureBody::U256 => {
+            (SignatureType::U256, None, vec![], None)
+        }
         haneul_package_resolver::OpenSignatureBody::Address => {
             (SignatureType::Address, None, vec![], None)
         }

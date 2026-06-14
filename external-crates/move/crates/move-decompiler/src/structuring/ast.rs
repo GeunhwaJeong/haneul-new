@@ -30,64 +30,12 @@ pub enum Input {
     Code(Label, Code, Option<Label>),
 }
 
-/// Provenance for a surviving `Jump`/`JumpIf`. Each variant names the structurer path that
-/// created the goto; the tag rides through `insert_breaks` and is printed on stderr when a
-/// Jump is lowered to `Unstructured(Goto)` in `generate_output`, letting the corpus driver
-/// attribute residual gotos by source.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum GotoSource {
-    /// Condition whose arm targets the condition node itself (back-edge to the loop head).
-    DegenerateJumpIf,
-    /// Arm target is the loop-head's chosen successor; `insert_breaks` rewrites this to
-    /// `Break(loop_head)`.
-    LoopBreak,
-    /// Arm target sits outside `start`'s dominator subtree, or is the IfElse/Switch's join
-    /// point. Either way, the owned-children hoist may place the target as a sibling and
-    /// elide this Jump; if it survives, `insert_breaks` reclassifies for the enclosing
-    /// loop, or `generate_output` lowers to `Unstructured`.
-    ArmOutsideSubtree,
-    /// Jump emitted by `structure_code_node` when the Code block's `next` isn't its
-    /// dom-tree child — the join is owned by an enclosing scope. Without this explicit
-    /// Jump the branch would live only in the bytecode terminator, invisible to elision.
-    CodeBranch,
-    /// JumpIf emitted at a latch node by `structure_latch_node`.
-    LatchTest,
-    /// Jump emitted at a latch node's Code-input by `structure_latch_node`.
-    LatchCode,
-    /// Self-edge Jump emitted by `structure_code_node` for a code block whose `next` is
-    /// itself. Suspected unreachable in practice.
-    SelfLoop,
-    /// Escape Jump synthesized in `insert_breaks` when a JumpIf has one Latch arm.
-    EscapeJumpIf,
-}
-
-impl GotoSource {
-    pub fn as_tag(&self) -> &'static str {
-        match self {
-            GotoSource::DegenerateJumpIf => "DJI",
-            GotoSource::LoopBreak => "LB",
-            GotoSource::ArmOutsideSubtree => "AOS",
-            GotoSource::CodeBranch => "CB",
-            GotoSource::LatchTest => "LT",
-            GotoSource::LatchCode => "LC",
-            GotoSource::SelfLoop => "SL",
-            GotoSource::EscapeJumpIf => "EJI",
-        }
-    }
-}
-
 #[derive(Debug, Clone)]
 pub enum Structured {
-    /// `break 'label;` — targets the labeled enclosing Loop. Structuring always knows which
-    /// loop a break targets (the loop being processed), so this is unconditional `Label`. The
-    /// `Option`al/unlabeled form lives in `crate::ast::Exp` after `strip_loop_labels` runs.
-    Break(Label),
-    /// `continue 'label;` — see `Break`.
-    Continue(Label),
+    Break,
+    Continue,
     Block(Code),
-    /// `'label: loop { ... }`. The label is the loop_head NodeIndex; it disambiguates
-    /// labeled `Break`/`Continue` from inner loops that target this one.
-    Loop(Label, Box<Structured>),
+    Loop(Box<Structured>),
     Seq(Vec<Structured>),
     IfElse(Code, Box<Structured>, Box<Option<Structured>>),
     Switch(
@@ -95,10 +43,8 @@ pub enum Structured {
         /* enum */ (ModuleId<Symbol>, Symbol),
         /* variant x rhs */ Vec<(Symbol, Structured)>,
     ),
-    /// Goto. `GotoSource` records which structurer path created it for instrumentation.
-    Jump(GotoSource, Label),
-    /// Two-way goto. Same instrumentation as `Jump`.
-    JumpIf(GotoSource, Code, Label, Label),
+    Jump(Label),
+    JumpIf(Code, Label, Label),
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -156,9 +102,9 @@ impl std::fmt::Display for Structured {
                     indent(f, level)?;
                     writeln!(f, "{{ {:?} }}", code)
                 }
-                Structured::Loop(label, body) => {
+                Structured::Loop(body) => {
                     indent(f, level)?;
-                    writeln!(f, "'loop_{}: loop {{", label.index())?;
+                    writeln!(f, "loop {{")?;
                     fmt_structured(body, f, level + 1)?;
                     indent(f, level)?;
                     writeln!(f, "}}")
@@ -197,27 +143,21 @@ impl std::fmt::Display for Structured {
                     indent(f, level)?;
                     writeln!(f, "}}")
                 }
-                Structured::Break(label) => {
+                Structured::Break => {
                     indent(f, level)?;
-                    writeln!(f, "break 'loop_{};", label.index())
+                    writeln!(f, "break;")
                 }
-                Structured::Continue(label) => {
+                Structured::Continue => {
                     indent(f, level)?;
-                    writeln!(f, "continue 'loop_{};", label.index())
+                    writeln!(f, "continue;")
                 }
-                Structured::Jump(src, node_index) => {
+                Structured::Jump(node_index) => {
                     indent(f, level)?;
-                    writeln!(f, "jump<{}> {:?};", src.as_tag(), node_index)
+                    writeln!(f, "jump {:?};", node_index)
                 }
-                Structured::JumpIf(src, _, node_index, node_index1) => {
+                Structured::JumpIf(_, node_index, node_index1) => {
                     indent(f, level)?;
-                    writeln!(
-                        f,
-                        "jump_if<{}> ({:?}, {:?});",
-                        src.as_tag(),
-                        node_index,
-                        node_index1
-                    )
+                    writeln!(f, "jump_if ({:?}, {:?});", node_index, node_index1)
                 }
             }
         }

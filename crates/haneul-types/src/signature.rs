@@ -3,7 +3,7 @@
 
 use crate::committee::EpochId;
 use crate::crypto::{
-    CompressedSignature, PasskeyAuthenticatorAsBytes, PublicKey, SignatureScheme, HaneulSignature,
+    CompressedSignature, HaneulSignature, PasskeyAuthenticatorAsBytes, PublicKey, SignatureScheme,
     ZkLoginAuthenticatorAsBytes,
 };
 use crate::digests::ZKLoginInputsDigest;
@@ -12,7 +12,9 @@ use crate::multisig_legacy::MultiSigLegacy;
 use crate::passkey_authenticator::PasskeyAuthenticator;
 use crate::signature_verification::VerifiedDigestCache;
 use crate::zk_login_authenticator::ZkLoginAuthenticator;
-use crate::{base_types::HaneulAddress, crypto::Signature, error::HaneulResult, multisig::MultiSig};
+use crate::{
+    base_types::HaneulAddress, crypto::Signature, error::HaneulResult, multisig::MultiSig,
+};
 pub use enum_dispatch::enum_dispatch;
 use fastcrypto::ed25519::{Ed25519PublicKey, Ed25519Signature};
 use fastcrypto::secp256k1::{Secp256k1PublicKey, Secp256k1Signature};
@@ -195,7 +197,9 @@ impl GenericSignature {
                 match s.scheme() {
                     SignatureScheme::ED25519 => Ok(PublicKey::Ed25519(
                         (&Ed25519PublicKey::from_bytes(bytes).map_err(|_| {
-                            HaneulErrorKind::KeyConversionError("Cannot parse ed25519 pk".to_string())
+                            HaneulErrorKind::KeyConversionError(
+                                "Cannot parse ed25519 pk".to_string(),
+                            )
                         })?)
                             .into(),
                     )),

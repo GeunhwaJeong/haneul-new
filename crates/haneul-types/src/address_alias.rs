@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneullabs_common::debug_fatal;
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::{StructTag, TypeTag};
-use haneullabs_common::debug_fatal;
 use serde::{Deserialize, Serialize};
 
-use crate::base_types::{SequenceNumber, HaneulAddress};
+use crate::base_types::{HaneulAddress, SequenceNumber};
 use crate::collection_types::VecSet;
 use crate::error::{HaneulErrorKind, HaneulResult};
 use crate::object::Owner;

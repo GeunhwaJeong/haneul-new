@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use rand::{SeedableRng, seq::SliceRandom};
 use haneul_types::transaction::TransactionKind;
+use rand::{SeedableRng, seq::SliceRandom};
 
 use crate::fuzz::TransactionKindMutator;
 

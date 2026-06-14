@@ -3,10 +3,6 @@
 
 use std::collections::{BTreeMap, HashMap};
 
-use itertools::Itertools;
-use move_core_types::ident_str;
-use move_core_types::u256::U256;
-use haneullabs_common::fatal;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::accumulator_event::AccumulatorEvent;
 use haneul_types::accumulator_root::{
@@ -15,6 +11,10 @@ use haneul_types::accumulator_root::{
 };
 use haneul_types::balance::{BALANCE_MODULE_NAME, BALANCE_STRUCT_NAME};
 use haneul_types::base_types::SequenceNumber;
+use haneullabs_common::fatal;
+use itertools::Itertools;
+use move_core_types::ident_str;
+use move_core_types::u256::U256;
 
 use haneul_types::accumulator_root::ACCUMULATOR_METADATA_MODULE;
 use haneul_types::digests::Digest;
@@ -27,7 +27,8 @@ use haneul_types::transaction::{
     Argument, CallArg, ObjectArg, SharedObjectMutability, TransactionKind,
 };
 use haneul_types::{
-    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID, TypeTag,
+    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID,
+    TypeTag,
 };
 
 use crate::execution_cache::TransactionCacheRead;
@@ -355,7 +356,10 @@ impl AccumulatorSettlementTxBuilder {
                 updates
                     .iter()
                     .fold((0, 0), |(acc_input, acc_output), (_, update)| {
-                        (acc_input + update.input_haneul, acc_output + update.output_haneul)
+                        (
+                            acc_input + update.input_haneul,
+                            acc_output + update.output_haneul,
+                        )
                     });
 
             Self::build_one_settlement_txn(

@@ -10,18 +10,18 @@ use crate::workloads::workload::{ExpectedFailureType, STORAGE_COST_PER_COIN, Wor
 use crate::workloads::{Gas, GasCoinConfig, WorkloadBuilderInfo, WorkloadParams};
 use crate::{ExecutionEffects, ValidatorProxy};
 use async_trait::async_trait;
-use std::collections::HashMap;
-use std::sync::Arc;
 use haneul_core::test_utils::make_pay_haneul_transaction;
 use haneul_types::base_types::{ObjectID, SequenceNumber};
 use haneul_types::digests::ObjectDigest;
 use haneul_types::gas_coin::GEUNHWA_PER_HANEUL;
 use haneul_types::object::Owner;
 use haneul_types::{
-    base_types::{ObjectRef, HaneulAddress},
+    base_types::{HaneulAddress, ObjectRef},
     crypto::get_key_pair,
     transaction::Transaction,
 };
+use std::collections::HashMap;
+use std::sync::Arc;
 use tracing::{debug, error};
 
 /// Value of each address's "primary coin" in geunhwa. The first transaction gives
@@ -72,7 +72,11 @@ impl Payload for BatchPaymentTestPayload {
     }
 
     fn make_transaction(&mut self) -> Transaction {
-        let addrs = self.state.addresses().cloned().collect::<Vec<HaneulAddress>>();
+        let addrs = self
+            .state
+            .addresses()
+            .cloned()
+            .collect::<Vec<HaneulAddress>>();
         let num_recipients = addrs.len();
         let sender = if self.num_payments == 0 {
             // first tx--use the address that has gas

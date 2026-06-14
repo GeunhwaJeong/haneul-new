@@ -13,8 +13,8 @@ use crate::{
     commit::{CommitRange, TrustedCommit},
     error::ConsensusResult,
     network::{
-        BlockStream, NodeId, ObserverBlockStream, ObserverNetworkService, ObserverStreamItem,
-        PeerId, ValidatorNetworkService,
+        BlockStream, NodeId, ObserverBlockStream, ObserverNetworkService, PeerId,
+        ValidatorNetworkService,
     },
 };
 
@@ -146,15 +146,11 @@ impl ObserverNetworkService for Mutex<TestService> {
                 .collect::<Vec<_>>()
         };
 
-        let block_stream =
-            stream::iter(
-                blocks_to_send
-                    .into_iter()
-                    .map(|extended_block| ObserverStreamItem {
-                        blocks: vec![extended_block.block],
-                        auxiliary_data: Default::default(),
-                    }),
-            );
+        let block_stream = stream::iter(
+            blocks_to_send
+                .into_iter()
+                .map(|extended_block| vec![extended_block.block]),
+        );
 
         Ok(Box::pin(block_stream))
     }

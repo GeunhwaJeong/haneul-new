@@ -6,12 +6,12 @@ use crate::{
     diag,
     diagnostics::codes::{DiagnosticInfo, Severity, custom},
     expansion::ast::ModuleIdent,
-    parser::ast::FunctionName,
     haneul_mode::{
-        CLOCK_MODULE_NAME, CLOCK_TYPE_NAME, RANDOMNESS_MODULE_NAME, RANDOMNESS_STATE_TYPE_NAME,
-        HANEUL_ADDR_NAME, HANEUL_ADDR_VALUE,
+        CLOCK_MODULE_NAME, CLOCK_TYPE_NAME, HANEUL_ADDR_NAME, HANEUL_ADDR_VALUE,
+        RANDOMNESS_MODULE_NAME, RANDOMNESS_STATE_TYPE_NAME,
         typing::{TxContextKind, is_mut_clock, is_mut_random, tx_context_kind},
     },
+    parser::ast::FunctionName,
     typing::{ast as T, visitor::simple_visitor},
 };
 use move_ir_types::location::Loc;

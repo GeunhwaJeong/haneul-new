@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use client::MetricsPushClient;
+use haneul_types::crypto::NetworkKeyPair;
 use haneullabs_metrics::RegistryService;
 use std::time::Duration;
-use haneul_types::crypto::NetworkKeyPair;
 
 mod client;
 

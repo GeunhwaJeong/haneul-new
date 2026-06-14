@@ -5,15 +5,15 @@ use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 use std::time::Duration;
 
-use serde::Deserialize;
-use serde::Serialize;
 use haneul_default_config::DefaultConfig;
 use haneul_name_service::NameServiceConfig;
 use haneul_protocol_config::Chain;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_protocol_config::ProtocolVersion;
-use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::ObjectID;
+use serde::Deserialize;
+use serde::Serialize;
 
 use crate::extensions::query_limits::QueryLimitsConfig;
 use crate::extensions::timeout::TimeoutConfig;
@@ -41,9 +41,6 @@ pub struct RpcConfig {
 
     /// Configuration for streaming subscriptions.
     pub subscription: SubscriptionConfig,
-
-    /// Configuration for the request-logging extension.
-    pub logging: LoggingConfig,
 }
 
 #[DefaultConfig]
@@ -56,7 +53,6 @@ pub struct RpcLayer {
     pub watermark: WatermarkLayer,
     pub zklogin: ZkLoginLayer,
     pub subscription: SubscriptionLayer,
-    pub logging: LoggingLayer,
 }
 
 #[derive(Clone)]
@@ -280,39 +276,6 @@ impl SubscriptionLayer {
     }
 }
 
-#[derive(Clone, Default, Debug)]
-pub struct LoggingConfig {
-    /// Per-SDK list of versions emitted verbatim as the `client_sdk_version` Prometheus label.
-    /// Versions outside this list map to `"other"`. Add an entry only when explicitly tracking
-    /// adoption or retention of a specific SDK version.
-    pub sdk_version_allowlist: BTreeMap<String, BTreeSet<String>>,
-}
-
-#[DefaultConfig]
-#[derive(Default, Clone, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct LoggingLayer {
-    pub sdk_version_allowlist: Option<BTreeMap<String, BTreeSet<String>>>,
-}
-
-impl LoggingLayer {
-    pub(crate) fn finish(self, base: LoggingConfig) -> LoggingConfig {
-        LoggingConfig {
-            sdk_version_allowlist: self
-                .sdk_version_allowlist
-                .unwrap_or(base.sdk_version_allowlist),
-        }
-    }
-}
-
-impl From<LoggingConfig> for LoggingLayer {
-    fn from(value: LoggingConfig) -> Self {
-        Self {
-            sdk_version_allowlist: Some(value.sdk_version_allowlist),
-        }
-    }
-}
-
 impl RpcLayer {
     pub fn example() -> Self {
         Self {
@@ -322,7 +285,6 @@ impl RpcLayer {
             watermark: WatermarkConfig::default().into(),
             zklogin: ZkLoginConfig::default().into(),
             subscription: SubscriptionConfig::default().into(),
-            logging: LoggingConfig::default().into(),
         }
     }
 
@@ -334,7 +296,6 @@ impl RpcLayer {
             watermark: self.watermark.finish(WatermarkConfig::default()),
             zklogin: self.zklogin.finish(ZkLoginConfig::default()),
             subscription: self.subscription.finish(SubscriptionConfig::default()),
-            logging: self.logging.finish(LoggingConfig::default()),
         }
     }
 }

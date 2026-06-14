@@ -68,7 +68,9 @@ async fn chain_id_is_base58_digest() {
 
     // Verify the X-Haneul-Chain-Id response header is a base58-encoded
     // 32-byte digest matching the genesis checkpoint digest.
-    let header_chain_id = response.chain_id().expect("missing x-haneul-chain-id header");
+    let header_chain_id = response
+        .chain_id()
+        .expect("missing x-haneul-chain-id header");
     assert_eq!(header_chain_id, expected_digest);
 
     // Verify the chain_id field in the GetServiceInfo response body

@@ -12,6 +12,8 @@
 //! rendering logic for Clever Errors should be used instead.
 
 use fastcrypto::encoding::{Base64, Encoding};
+use haneul_rpc_api::Client;
+use haneul_types::{Identifier, base_types::ObjectID};
 use move_binary_format::{
     CompiledModule, binary_config::BinaryConfig, file_format::SignatureToken,
 };
@@ -20,8 +22,6 @@ use move_command_line_common::{
     error_bitset::ErrorBitset,
 };
 use move_core_types::account_address::AccountAddress;
-use haneul_rpc_api::Client;
-use haneul_types::{Identifier, base_types::ObjectID};
 
 /// Take a Move abort status string and render it into a more human-readable error message using
 /// by parsing the string (as best we can) and seeing if the abort code is a Clever Error abort

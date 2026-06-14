@@ -6,9 +6,6 @@
 use crate::error::{BridgeError, BridgeResult};
 use crate::test_utils::DUMMY_MUTALBE_BRIDGE_OBJECT_ARG;
 use async_trait::async_trait;
-use std::collections::HashMap;
-use std::sync::atomic::AtomicU64;
-use std::sync::{Arc, Mutex};
 use haneul_json_rpc_types::HaneulEvent;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::ObjectRef;
@@ -20,9 +17,12 @@ use haneul_types::gas_coin::GasCoin;
 use haneul_types::object::Owner;
 use haneul_types::transaction::ObjectArg;
 use haneul_types::transaction::Transaction;
+use std::collections::HashMap;
+use std::sync::atomic::AtomicU64;
+use std::sync::{Arc, Mutex};
 
 use crate::haneul_client::{ExecuteTransactionResult, HaneulClientInner};
-use crate::types::{BridgeAction, BridgeActionStatus, IsBridgePaused, HaneulEvents};
+use crate::types::{BridgeAction, BridgeActionStatus, HaneulEvents, IsBridgePaused};
 
 /// Mock client used in test environments.
 #[allow(clippy::type_complexity)]

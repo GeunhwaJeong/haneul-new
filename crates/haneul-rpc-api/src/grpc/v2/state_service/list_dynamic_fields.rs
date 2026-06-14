@@ -5,8 +5,6 @@ use crate::Result;
 use crate::RpcError;
 use crate::RpcService;
 use bytes::Bytes;
-use prost::Message;
-use prost_types::FieldMask;
 use haneul_rpc::field::FieldMaskTree;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
@@ -19,11 +17,13 @@ use haneul_rpc::proto::haneul::rpc::v2::dynamic_field::DynamicFieldKind;
 use haneul_sdk_types::Address;
 use haneul_types::base_types::ObjectID;
 use haneul_types::full_checkpoint_content::ObjectSet;
+use prost::Message;
+use prost_types::FieldMask;
 
 const MAX_PAGE_SIZE: usize = 1000;
 const DEFAULT_PAGE_SIZE: usize = 50;
 const MAX_PAGE_SIZE_BYTES: usize = 512 * 1024; // 512KiB
-const READ_MASK_DEFAULT: &str = crate::read_mask_defaults::DYNAMIC_FIELD;
+const READ_MASK_DEFAULT: &str = "parent,field_id";
 
 #[tracing::instrument(skip(service))]
 pub fn list_dynamic_fields(
@@ -248,7 +248,9 @@ fn load_dynamic_field(
     if read_mask.contains(DynamicField::VALUE_FIELD) {
         message.value = Some(
             Bcs::default()
-                .with_name(haneul_types::TypeTag::from(field.value_layout).to_canonical_string(true))
+                .with_name(
+                    haneul_types::TypeTag::from(field.value_layout).to_canonical_string(true),
+                )
                 .with_value(field.value_bytes.to_vec()),
         );
     }

@@ -11,16 +11,16 @@ use crate::error::{BridgeError, BridgeResult};
 use crate::types::{
     AddTokensOnEvmAction, AssetPriceUpdateAction, BlocklistCommitteeAction, BridgeAction,
     BridgeActionType, EmergencyAction, EthLog, EthToHaneulBridgeAction, EthToHaneulTokenTransferV2,
-    EvmContractUpgradeAction, LimitUpdateAction, ParsedTokenTransferMessage, HaneulToEthBridgeAction,
-    HaneulToEthTokenTransfer, HaneulToEthTokenTransferV2,
+    EvmContractUpgradeAction, HaneulToEthBridgeAction, HaneulToEthTokenTransfer,
+    HaneulToEthTokenTransferV2, LimitUpdateAction, ParsedTokenTransferMessage,
 };
 use alloy::primitives::{Address as EthAddress, TxHash};
 use alloy::rpc::types::eth::Log;
 use alloy::sol;
 use alloy::sol_types::SolEventInterface;
-use serde::{Deserialize, Serialize};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::bridge::BridgeChainId;
+use serde::{Deserialize, Serialize};
 
 macro_rules! gen_eth_events {
     // Contracts with Events
@@ -137,11 +137,13 @@ impl EthBridgeEvent {
                             }
                         };
 
-                        Some(BridgeAction::EthToHaneulBridgeAction(EthToHaneulBridgeAction {
-                            eth_tx_hash,
-                            eth_event_index,
-                            eth_bridge_event: bridge_event,
-                        }))
+                        Some(BridgeAction::EthToHaneulBridgeAction(
+                            EthToHaneulBridgeAction {
+                                eth_tx_hash,
+                                eth_event_index,
+                                eth_bridge_event: bridge_event,
+                            },
+                        ))
                     }
                     EthHaneulBridgeEvents::TokensDepositedV2(event) => {
                         let eth_bridge_event = EthToHaneulTokenBridgeV2::try_from(&event)?;
@@ -448,9 +450,9 @@ mod tests {
     };
     use alloy::primitives::{B256, Bytes, LogData};
     use fastcrypto::encoding::{Encoding, Hex};
+    use haneul_types::{bridge::TOKEN_ID_ETH, crypto::ToFromBytes};
     use hex_literal::hex;
     use std::str::FromStr;
-    use haneul_types::{bridge::TOKEN_ID_ETH, crypto::ToFromBytes};
 
     #[test]
     fn test_eth_message_conversion_emergency_action_regression() -> anyhow::Result<()> {

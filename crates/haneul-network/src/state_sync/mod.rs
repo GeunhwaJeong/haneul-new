@@ -49,12 +49,6 @@
 
 use anemo::{PeerId, Request, Response, Result, types::PeerEvent};
 use futures::{FutureExt, StreamExt, stream::FuturesOrdered};
-use rand::Rng;
-use std::{
-    collections::{HashMap, VecDeque},
-    sync::{Arc, RwLock},
-    time::{Duration, Instant},
-};
 use haneul_config::p2p::StateSyncConfig;
 use haneul_types::{
     committee::Committee,
@@ -64,6 +58,12 @@ use haneul_types::{
         VerifiedCheckpoint, VerifiedCheckpointContents, VersionedFullCheckpointContents,
     },
     storage::WriteStore,
+};
+use rand::Rng;
+use std::{
+    collections::{HashMap, VecDeque},
+    sync::{Arc, RwLock},
+    time::{Duration, Instant},
 };
 use tap::Pipe;
 use tokio::sync::oneshot;
@@ -90,11 +90,11 @@ pub use generated::{
     state_sync_client::StateSyncClient,
     state_sync_server::{StateSync, StateSyncServer},
 };
-pub use server::GetCheckpointAvailabilityResponse;
-pub use server::GetCheckpointSummaryRequest;
 use haneul_config::node::ArchiveReaderConfig;
 use haneul_storage::object_store::util::{build_object_store, fetch_checkpoint};
 use haneul_storage::verify_checkpoint;
+pub use server::GetCheckpointAvailabilityResponse;
+pub use server::GetCheckpointSummaryRequest;
 
 /// A handle to the StateSync subsystem.
 ///

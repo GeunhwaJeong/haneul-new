@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use shared_crypto::intent::{Intent, IntentMessage};
 use haneul_macros::sim_test;
 use haneul_rpc::proto::haneul::rpc::v2::Bcs;
 use haneul_rpc::proto::haneul::rpc::v2::UserSignature;
@@ -12,6 +11,7 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::Signature;
 use haneul_types::signature::GenericSignature;
 use haneul_types::zk_login_authenticator::ZkLoginAuthenticator;
+use shared_crypto::intent::{Intent, IntentMessage};
 use test_cluster::TestClusterBuilder;
 
 #[sim_test]

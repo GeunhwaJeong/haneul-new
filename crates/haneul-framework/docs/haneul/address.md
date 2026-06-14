@@ -17,12 +17,12 @@ title: Module `haneul::address`
 -  [Function `max`](#haneul_address_max)
 
 
-<pre><code><b>use</b> <a href="../std/ascii.md#std_ascii">std::ascii</a>;
+<pre><code><b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
+<b>use</b> <a href="../std/ascii.md#std_ascii">std::ascii</a>;
 <b>use</b> <a href="../std/bcs.md#std_bcs">std::bcs</a>;
 <b>use</b> <a href="../std/option.md#std_option">std::option</a>;
 <b>use</b> <a href="../std/string.md#std_string">std::string</a>;
 <b>use</b> <a href="../std/vector.md#std_vector">std::vector</a>;
-<b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
 </code></pre>
 
 

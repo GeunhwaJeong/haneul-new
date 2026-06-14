@@ -3,8 +3,8 @@
 
 use std::{collections::VecDeque, sync::Arc};
 
-use haneullabs_common::assert_reachable;
 use haneul_types::{accumulator_root::AccumulatorObjId, base_types::SequenceNumber};
+use haneullabs_common::assert_reachable;
 use tracing::debug;
 
 use crate::execution_scheduler::funds_withdraw_scheduler::address_funds::eager_scheduler::pending_withdraw::PendingWithdraw;
@@ -183,10 +183,10 @@ impl ReservedFunds {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::BTreeMap;
     use haneul_types::{
         accumulator_root::AccumulatorObjId, base_types::ObjectID, digests::TransactionDigest,
     };
+    use std::collections::BTreeMap;
     use tokio::sync::oneshot;
 
     use crate::execution_scheduler::funds_withdraw_scheduler::{ScheduleStatus, TxFundsWithdraw};

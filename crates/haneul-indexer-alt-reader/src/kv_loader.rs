@@ -6,7 +6,6 @@ use std::sync::Arc;
 
 use anyhow::Context;
 use async_graphql::dataloader::DataLoader;
-use prometheus::Registry;
 use haneul_indexer_alt_schema::transactions::StoredTransaction;
 use haneul_kvstore::TransactionData as KVTransactionData;
 use haneul_kvstore::TransactionEventsData as KVTransactionEventsData;
@@ -15,7 +14,6 @@ use haneul_rpc::proto::haneul::rpc::v2 as grpc;
 use haneul_types::balance_change::BalanceChange as NativeBalanceChange;
 use haneul_types::base_types::ObjectID;
 use haneul_types::crypto::AuthorityQuorumSignInfo;
-use haneul_types::digests::CheckpointDigest;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::digests::TransactionEffectsDigest;
 use haneul_types::effects::TransactionEffects;
@@ -28,11 +26,11 @@ use haneul_types::messages_checkpoint::CheckpointSummary;
 use haneul_types::object::Object;
 use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::TransactionData;
+use prometheus::Registry;
 use tonic::transport::Uri;
 
 use crate::bigtable_reader::BigtableArgs;
 use crate::bigtable_reader::BigtableReader;
-use crate::checkpoints::CheckpointDigestKey;
 use crate::checkpoints::CheckpointKey;
 use crate::error::Error;
 use crate::events::StoredTransactionEvents;
@@ -298,38 +296,6 @@ impl KvLoader {
                 })
                 .transpose(),
             Self::LedgerGrpc(loader) => loader.load_one(key).await,
-        }
-    }
-
-    /// Resolve a checkpoint digest to its sequence number. Returns `None` if the digest is not
-    /// found in the configured reader. Used by `Query.checkpoint(digest:)` to translate a
-    /// caller-supplied digest into the sequence number that downstream resolvers consume.
-    ///
-    /// Only the PG path goes through the DataLoader (its `Loader<CheckpointDigestKey>` impl can
-    /// batch via `eq_any`). The BigTable and LedgerGrpc paths call the reader directly because
-    /// their backends only support single-digest lookup, so DataLoader can't add real batching;
-    /// it would only fan keys out into N parallel backend requests.
-    pub async fn load_one_checkpoint_seq_by_digest(
-        &self,
-        digest: CheckpointDigest,
-    ) -> Result<Option<u64>, Error> {
-        match self {
-            Self::Pg(loader) => loader.load_one(CheckpointDigestKey(digest)).await,
-            Self::Bigtable(loader) => {
-                let checkpoint = loader
-                    .loader()
-                    .checkpoint_by_digest(digest)
-                    .await
-                    .map_err(Error::from)?;
-                Ok(checkpoint
-                    .and_then(|c| c.summary)
-                    .map(|s| s.sequence_number))
-            }
-            Self::LedgerGrpc(loader) => loader
-                .loader()
-                .checkpoint_seq_by_digest(digest)
-                .await
-                .map_err(Error::from),
         }
     }
 

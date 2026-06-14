@@ -3,13 +3,6 @@
 
 #![allow(deprecated)]
 
-use serde_json::json;
-use shared_crypto::intent::{Intent, IntentMessage};
-use std::collections::BTreeMap;
-use std::path::{Path, PathBuf};
-#[cfg(not(msim))]
-use std::str::FromStr;
-use std::time::Duration;
 use haneul_json::{call_args, type_args};
 use haneul_json_rpc_api::{
     CoinReadApiClient, GovernanceReadApiClient, IndexerApiClient, ReadApiClient,
@@ -17,20 +10,23 @@ use haneul_json_rpc_api::{
 };
 use haneul_json_rpc_types::ObjectsPage;
 use haneul_json_rpc_types::{
-    Balance, CoinPage, DelegatedStake, StakeStatus, HaneulCoinMetadata, HaneulExecutionStatus,
-    HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery, HaneulTransactionBlockEffectsAPI,
-    HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions, TransactionBlockBytes,
+    Balance, CoinPage, DelegatedStake, HaneulCoinMetadata, HaneulExecutionStatus,
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
+    HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions, StakeStatus, TransactionBlockBytes,
 };
 use haneul_json_rpc_types::{ObjectChange, ZkLoginIntentScope};
 use haneul_macros::sim_test;
 use haneul_move_build::BuildConfig;
 use haneul_simulator::fastcrypto::encoding::{Base64, Encoding};
-use haneul_swarm_config::genesis_config::{DEFAULT_GAS_AMOUNT, DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT};
+use haneul_swarm_config::genesis_config::{
+    DEFAULT_GAS_AMOUNT, DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT,
+};
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_test_transaction_builder::make_transfer_haneul_transaction;
 use haneul_types::balance::Supply;
 use haneul_types::base_types::SequenceNumber;
-use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID};
 use haneul_types::coin::{COIN_MODULE_NAME, TreasuryCap};
 use haneul_types::crypto::Signature;
 use haneul_types::digests::ObjectDigest;
@@ -39,7 +35,16 @@ use haneul_types::signature::GenericSignature;
 use haneul_types::transaction_driver_types::ExecuteTransactionRequestType;
 use haneul_types::utils::load_test_vectors;
 use haneul_types::zk_login_authenticator::ZkLoginAuthenticator;
-use haneul_types::{HANEUL_DISPLAY_REGISTRY_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, parse_haneul_struct_tag};
+use haneul_types::{
+    HANEUL_DISPLAY_REGISTRY_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, parse_haneul_struct_tag,
+};
+use serde_json::json;
+use shared_crypto::intent::{Intent, IntentMessage};
+use std::collections::BTreeMap;
+use std::path::{Path, PathBuf};
+#[cfg(not(msim))]
+use std::str::FromStr;
+use std::time::Duration;
 use test_cluster::TestClusterBuilder;
 use tokio::time::sleep;
 
@@ -610,7 +615,8 @@ async fn test_sorted_get_coin_response() {
     // send 5 coins to address `address` with different values
     let amounts = [1, 2, 3, 4, 5];
     for amount in amounts {
-        let tx = make_transfer_haneul_transaction(&cluster.wallet, Some(address), Some(amount)).await;
+        let tx =
+            make_transfer_haneul_transaction(&cluster.wallet, Some(address), Some(amount)).await;
         let (tx_bytes, signatures) = tx.to_tx_bytes_and_signatures();
 
         http_client
@@ -834,7 +840,8 @@ async fn test_get_total_supply() -> Result<(), anyhow::Error> {
                 ..
             } = e
             {
-                if &TreasuryCap::type_(parse_haneul_struct_tag(&coin_name).unwrap()) == object_type {
+                if &TreasuryCap::type_(parse_haneul_struct_tag(&coin_name).unwrap()) == object_type
+                {
                     Some(object_id)
                 } else {
                     None

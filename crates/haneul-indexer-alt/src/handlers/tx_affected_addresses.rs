@@ -9,7 +9,6 @@ use async_trait::async_trait;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
 use diesel_async::RunQueryDsl;
-use itertools::Itertools;
 use haneul_indexer_alt_framework::pipeline::Processor;
 use haneul_indexer_alt_framework::postgres::Connection;
 use haneul_indexer_alt_framework::postgres::handler::Handler;
@@ -20,6 +19,7 @@ use haneul_types::balance::Balance;
 use haneul_types::effects::AccumulatorValue;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::transaction::TransactionDataAPI;
+use itertools::Itertools;
 
 use crate::handlers::affected_addresses;
 use crate::handlers::cp_sequence_numbers::tx_interval;

@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use futures::FutureExt;
-use prost_types::Struct;
 use haneul_rpc::{
     field::FieldMaskTree,
     merge::Merge,
     proto::haneul::rpc::v2::{Bcs, Display, Event, Object, TransactionEffects, TransactionEvents},
 };
 use haneul_types::full_checkpoint_content::ObjectSet;
+use prost_types::Struct;
 
 use crate::{RpcService, reader::DisplayStore};
 
@@ -102,7 +102,8 @@ impl RpcService {
             .flatten()?;
 
         let root = haneul_display::v2::OwnedSlice::new(layout, contents.to_owned());
-        let interpreter = haneul_display::v2::Interpreter::new(root, DisplayStore::new(&self.reader));
+        let interpreter =
+            haneul_display::v2::Interpreter::new(root, DisplayStore::new(&self.reader));
 
         let mut display = Display::default();
 
@@ -239,7 +240,10 @@ impl RpcService {
         fn render(service: &RpcService, move_abort: &MoveAbort) -> Option<CleverError> {
             let location = move_abort.location.as_ref()?;
             let abort_code = move_abort.abort_code();
-            let package_id = location.package().parse::<haneul_sdk_types::Address>().ok()?;
+            let package_id = location
+                .package()
+                .parse::<haneul_sdk_types::Address>()
+                .ok()?;
             let module = location.module();
 
             let package = {

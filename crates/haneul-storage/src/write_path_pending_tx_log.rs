@@ -9,12 +9,12 @@
 use std::collections::HashSet;
 use std::path::PathBuf;
 
-use parking_lot::Mutex;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::crypto::EmptySignInfo;
 use haneul_types::error::{HaneulError, HaneulResult};
 use haneul_types::message_envelope::TrustedEnvelope;
 use haneul_types::transaction::{SenderSignedData, VerifiedTransaction};
+use parking_lot::Mutex;
 use typed_store::DBMapUtils;
 use typed_store::rocks::MetricConf;
 use typed_store::{rocks::DBMap, traits::Map};
@@ -93,8 +93,8 @@ impl WritePathPendingTransactionLog {
 mod tests {
     use super::*;
     use anyhow;
-    use std::collections::HashSet;
     use haneul_types::utils::create_fake_transaction;
+    use std::collections::HashSet;
 
     #[tokio::test]
     async fn test_pending_tx_log_basic() -> anyhow::Result<()> {

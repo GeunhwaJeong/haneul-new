@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use serde::{Deserialize, Serialize};
 use haneul_types::{
     base_types::{ObjectID, ObjectRef},
     committee::Committee,
@@ -10,6 +9,7 @@ use haneul_types::{
     messages_checkpoint::{CertifiedCheckpointSummary, VerifiedCheckpoint},
     object::Object,
 };
+use serde::{Deserialize, Serialize};
 
 use crate::proof::{
     committee::{CommitteeProof, CommitteeTarget},

@@ -1,16 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_core_types::{identifier::Identifier, u256::U256};
-use rand::{Rng, seq::SliceRandom};
-use shared_crypto::intent::Intent;
-use std::{
-    path::PathBuf,
-    sync::{
-        Arc,
-        atomic::{AtomicU64, Ordering},
-    },
-};
 use haneul_core::accumulators::balances::get_all_balances_for_owner;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_macros::*;
@@ -22,7 +12,7 @@ use haneul_types::{
     HANEUL_FRAMEWORK_PACKAGE_ID, TypeTag,
     accumulator_root::AccumulatorValue,
     balance::Balance,
-    base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, dbg_addr},
+    base_types::{HaneulAddress, ObjectID, ObjectRef, SequenceNumber, dbg_addr},
     coin_reservation::{CoinReservationResolverTrait, ParsedObjectRefWithdrawal},
     digests::{ChainIdentifier, CheckpointDigest},
     effects::{InputConsensusObject, TransactionEffectsAPI},
@@ -36,6 +26,16 @@ use haneul_types::{
         Argument, CallArg, Command, FundsWithdrawalArg, GasData, ObjectArg, SharedObjectMutability,
         Transaction, TransactionData, TransactionDataAPI, TransactionDataV1, TransactionExpiration,
         TransactionKind, VerifiedTransaction, WithdrawalTypeArg,
+    },
+};
+use move_core_types::{identifier::Identifier, u256::U256};
+use rand::{Rng, seq::SliceRandom};
+use shared_crypto::intent::Intent;
+use std::{
+    path::PathBuf,
+    sync::{
+        Arc,
+        atomic::{AtomicU64, Ordering},
     },
 };
 use test_cluster::{
@@ -683,7 +683,10 @@ async fn test_sponsored_address_balance_storage_rebates() {
 
     let deposit_tx_sender = test_env
         .tx_builder_with_gas(sender, sender_gas)
-        .transfer_haneul_to_address_balance(FundSource::coin(sender_gas), vec![(100_000_000, sender)])
+        .transfer_haneul_to_address_balance(
+            FundSource::coin(sender_gas),
+            vec![(100_000_000, sender)],
+        )
         .build();
     test_env.exec_tx_directly(deposit_tx_sender).await.unwrap();
 
@@ -1097,7 +1100,11 @@ fn create_withdraw_balance_transaction(
         HANEUL_FRAMEWORK_PACKAGE_ID,
         Identifier::new("funds_accumulator").unwrap(),
         Identifier::new("withdrawal_split").unwrap(),
-        vec!["0x2::balance::Balance<0x2::haneul::HANEUL>".parse().unwrap()],
+        vec![
+            "0x2::balance::Balance<0x2::haneul::HANEUL>"
+                .parse()
+                .unwrap(),
+        ],
         vec![withdraw_arg, amount_arg],
     );
 
@@ -1681,7 +1688,10 @@ async fn test_sponsor_insufficient_balance_charges_zero_gas() {
 
     let deposit_tx_sender = test_env
         .tx_builder_with_gas(sender, sender_gas)
-        .transfer_haneul_to_address_balance(FundSource::coin(sender_gas), vec![(100_000_000, sender)])
+        .transfer_haneul_to_address_balance(
+            FundSource::coin(sender_gas),
+            vec![(100_000_000, sender)],
+        )
         .build();
     test_env.exec_tx_directly(deposit_tx_sender).await.unwrap();
 
@@ -1942,13 +1952,19 @@ async fn test_soft_bundle_different_gas_payers() {
 
     let deposit_tx1 = test_env
         .tx_builder_with_gas(sender1, sender1_gas)
-        .transfer_haneul_to_address_balance(FundSource::coin(sender1_gas), vec![(10_000_000, sender1)])
+        .transfer_haneul_to_address_balance(
+            FundSource::coin(sender1_gas),
+            vec![(10_000_000, sender1)],
+        )
         .build();
     test_env.exec_tx_directly(deposit_tx1).await.unwrap();
 
     let deposit_tx2 = test_env
         .tx_builder_with_gas(sender2, sender2_gas)
-        .transfer_haneul_to_address_balance(FundSource::coin(sender2_gas), vec![(10_000_000, sender2)])
+        .transfer_haneul_to_address_balance(
+            FundSource::coin(sender2_gas),
+            vec![(10_000_000, sender2)],
+        )
         .build();
     test_env.exec_tx_directly(deposit_tx2).await.unwrap();
 
@@ -2090,7 +2106,11 @@ async fn test_multiple_deposits_merged_in_effects() {
             HANEUL_FRAMEWORK_PACKAGE_ID,
             Identifier::new("funds_accumulator").unwrap(),
             Identifier::new("withdrawal_split").unwrap(),
-            vec!["0x2::balance::Balance<0x2::haneul::HANEUL>".parse().unwrap()],
+            vec![
+                "0x2::balance::Balance<0x2::haneul::HANEUL>"
+                    .parse()
+                    .unwrap(),
+            ],
             vec![withdraw_arg, amount_arg],
         );
 
@@ -2446,7 +2466,10 @@ async fn test_sponsored_address_balance_storage_oog() {
 
     let deposit_tx_sender = test_env
         .tx_builder(sender)
-        .transfer_haneul_to_address_balance(FundSource::coin(sender_gas), vec![(100_000_000, sender)])
+        .transfer_haneul_to_address_balance(
+            FundSource::coin(sender_gas),
+            vec![(100_000_000, sender)],
+        )
         .build();
     test_env.exec_tx_directly(deposit_tx_sender).await.unwrap();
 
@@ -2599,7 +2622,9 @@ async fn publish_and_mint_trusted_coin(test_env: &mut TestEnv, sender: HaneulAdd
                     .cluster
                     .fullnode_handle
                     .haneul_node
-                    .with_async(|node| async move { node.state().get_object(&obj_ref.0).unwrap() })
+                    .with_async(
+                        |node| async move { node.state().get_object(&obj_ref.0).await.unwrap() },
+                    )
                     .await;
                 if object.type_().unwrap().name().as_str() == "TreasuryCap" {
                     treasury_cap = Some(obj_ref);
@@ -3029,21 +3054,7 @@ async fn address_balance_stress_test() {
                             } else {
                                 exec_failure_count.fetch_add(1, Ordering::Relaxed);
                             }
-                            // On the IFFW short-circuit `effects.gas_object()` is `None` (the
-                            // executor never builds gas-charge metadata), but the gas coin is
-                            // still mutated. Fall back to looking up the input gas coin in
-                            // `mutated()` so subsequent transactions can chain off its new ref.
-                            current_gas = effects
-                                .gas_object()
-                                .map(|(obj_ref, _)| obj_ref)
-                                .or_else(|| {
-                                    effects
-                                        .mutated()
-                                        .into_iter()
-                                        .find(|(obj_ref, _)| obj_ref.0 == current_gas.0)
-                                        .map(|(obj_ref, _)| obj_ref)
-                                })
-                                .expect("gas coin must be present in effects");
+                            current_gas = effects.gas_object().unwrap().0;
                         }
                         Err(err) => {
                             let err_str = err.to_string();
@@ -3636,7 +3647,9 @@ async fn test_two_large_reservations_overflow() {
 #[sim_test]
 async fn test_json_rpc_balance_changes_with_address_balance_withdrawal() {
     use haneul_json_rpc_api::{ReadApiClient, WriteApiClient};
-    use haneul_json_rpc_types::{HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponseOptions};
+    use haneul_json_rpc_types::{
+        HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponseOptions,
+    };
     use haneul_types::transaction_driver_types::ExecuteTransactionRequestType;
 
     let mut test_env = TestEnvBuilder::new().build().await;
@@ -3648,7 +3661,10 @@ async fn test_json_rpc_balance_changes_with_address_balance_withdrawal() {
     let deposit_amount = 100_000_000u64;
     let deposit_tx = test_env
         .tx_builder(sender)
-        .transfer_haneul_to_address_balance(FundSource::coin(gas_coin), vec![(deposit_amount, sender)])
+        .transfer_haneul_to_address_balance(
+            FundSource::coin(gas_coin),
+            vec![(deposit_amount, sender)],
+        )
         .build();
     test_env.exec_tx_directly(deposit_tx).await.unwrap();
     test_env.verify_accumulator_exists(sender, deposit_amount);
@@ -3869,7 +3885,10 @@ async fn test_explicit_withdrawal_plus_implicit_gas_exceeds_balance() {
     let deposit_amount = 5_000_000u64;
     let deposit_tx = test_env
         .tx_builder(sender)
-        .transfer_haneul_to_address_balance(FundSource::coin(gas_coin), vec![(deposit_amount, sender)])
+        .transfer_haneul_to_address_balance(
+            FundSource::coin(gas_coin),
+            vec![(deposit_amount, sender)],
+        )
         .build();
     test_env.exec_tx_directly(deposit_tx).await.unwrap();
     test_env.verify_accumulator_exists(sender, deposit_amount);

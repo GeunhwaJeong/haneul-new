@@ -11,7 +11,7 @@ mod checked {
         data_store::{
             PackageStore,
             cached_package_store::CachedPackageStore,
-            legacy::{linkage_view::LinkageView, haneul_data_store::HaneulDataStore},
+            legacy::{haneul_data_store::HaneulDataStore, linkage_view::LinkageView},
         },
         execution_mode::ExecutionMode,
         execution_value::{
@@ -23,6 +23,32 @@ mod checked {
         gas_meter::HaneulGasMeter,
         type_resolver::TypeTagResolver,
     };
+    use haneul_move_natives::object_runtime::{
+        self, LoadedRuntimeObject, MoveAccumulatorEvent, MoveAccumulatorValue, ObjectRuntime,
+        RuntimeResults, get_all_uids, max_event_error,
+    };
+    use haneul_protocol_config::ProtocolConfig;
+    use haneul_types::{
+        accumulator_event::AccumulatorEvent,
+        accumulator_root::AccumulatorObjId,
+        balance::Balance,
+        base_types::{HaneulAddress, MoveObjectType, ObjectID, TxContext},
+        coin::Coin,
+        effects::{AccumulatorAddress, AccumulatorValue, AccumulatorWriteV1},
+        error::{ExecutionError, HaneulError, command_argument_error},
+        event::Event,
+        execution::{ExecutionResults, ExecutionResultsV2},
+        execution_status::{CommandArgumentError, ExecutionErrorKind},
+        funds_accumulator::Withdrawal,
+        metrics::ExecutionMetrics,
+        move_package::MovePackage,
+        object::{Data, MoveObject, Object, ObjectInner, Owner},
+        storage::DenyListResult,
+        transaction::{
+            Argument, CallArg, FundsWithdrawalArg, ObjectArg, SharedObjectMutability, WithdrawFrom,
+        },
+    };
+    use haneullabs_common::debug_fatal;
     use indexmap::IndexSet;
     use move_binary_format::{
         CompiledModule,
@@ -43,7 +69,6 @@ mod checked {
         session::{LoadedFunctionInstantiation, SerializedReturnValues},
     };
     use move_vm_types::{data_store::MoveResolver, loaded_data::runtime_types::Type};
-    use haneullabs_common::debug_fatal;
     use nonempty::nonempty;
     use std::{
         borrow::Borrow,
@@ -51,31 +76,6 @@ mod checked {
         collections::{BTreeMap, BTreeSet, HashMap},
         rc::Rc,
         sync::Arc,
-    };
-    use haneul_move_natives::object_runtime::{
-        self, LoadedRuntimeObject, MoveAccumulatorEvent, MoveAccumulatorValue, ObjectRuntime,
-        RuntimeResults, get_all_uids, max_event_error,
-    };
-    use haneul_protocol_config::ProtocolConfig;
-    use haneul_types::{
-        accumulator_event::AccumulatorEvent,
-        accumulator_root::AccumulatorObjId,
-        balance::Balance,
-        base_types::{MoveObjectType, ObjectID, HaneulAddress, TxContext},
-        coin::Coin,
-        effects::{AccumulatorAddress, AccumulatorValue, AccumulatorWriteV1},
-        error::{ExecutionError, HaneulError, command_argument_error},
-        event::Event,
-        execution::{ExecutionResults, ExecutionResultsV2},
-        execution_status::{CommandArgumentError, ExecutionErrorKind},
-        funds_accumulator::Withdrawal,
-        metrics::ExecutionMetrics,
-        move_package::MovePackage,
-        object::{Data, MoveObject, Object, ObjectInner, Owner},
-        storage::DenyListResult,
-        transaction::{
-            Argument, CallArg, FundsWithdrawalArg, ObjectArg, SharedObjectMutability, WithdrawFrom,
-        },
     };
     use tracing::instrument;
 
@@ -1817,9 +1817,6 @@ mod checked {
             Owner::ObjectOwner(_) => {
                 // protected by transaction input checker
                 invariant_violation!("ObjectOwner objects cannot be input")
-            }
-            Owner::Party { .. } => {
-                unimplemented!("Party does not exist for this execution version")
             }
         };
         let owner = obj.owner.clone();

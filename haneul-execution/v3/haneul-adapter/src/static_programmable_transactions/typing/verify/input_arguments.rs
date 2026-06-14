@@ -11,7 +11,6 @@ use crate::{
         typing::ast::{self as T, BytesConstraint, ObjectArg},
     },
 };
-use indexmap::IndexSet;
 use haneul_types::{
     base_types::{RESOLVED_ASCII_STR, RESOLVED_STD_OPTION, RESOLVED_UTF8_STR},
     error::{ExecutionError, SafeIndex, command_argument_error},
@@ -19,6 +18,7 @@ use haneul_types::{
     id::RESOLVED_HANEUL_ID,
     transfer::RESOLVED_RECEIVING_STRUCT,
 };
+use indexmap::IndexSet;
 
 struct ObjectUsage {
     allow_by_value: bool,

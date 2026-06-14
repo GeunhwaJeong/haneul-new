@@ -5,7 +5,6 @@ use std::time::Duration;
 
 use anyhow::Context;
 use async_graphql::dataloader::DataLoader;
-use prometheus::Registry;
 use haneul_rpc::proto::haneul::rpc::v2 as grpc;
 use haneul_rpc::proto::haneul::rpc::v2::ledger_service_client::LedgerServiceClient;
 use haneul_types::effects::TransactionEffects;
@@ -13,6 +12,7 @@ use haneul_types::event::Event;
 use haneul_types::messages_checkpoint::CheckpointSummary;
 use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::TransactionData;
+use prometheus::Registry;
 use tonic::transport::Channel;
 use tonic::transport::ClientTlsConfig;
 use tonic::transport::Uri;
@@ -99,8 +99,8 @@ impl LedgerGrpcReader {
 
     pub async fn checkpoint_watermark(&self) -> anyhow::Result<CheckpointSummary> {
         use grpc::GetCheckpointRequest;
-        use prost_types::FieldMask;
         use haneul_rpc::field::FieldMaskUtil;
+        use prost_types::FieldMask;
 
         let request =
             GetCheckpointRequest::default().with_read_mask(FieldMask::from_paths(["summary.bcs"]));
@@ -116,30 +116,6 @@ impl LedgerGrpcReader {
             .context("Missing summary.bcs")?
             .deserialize()
             .context("Failed to deserialize checkpoint summary")
-    }
-
-    /// Resolve a checkpoint digest to its sequence number via the ledger service. Returns `None`
-    /// if no checkpoint with that digest is known.
-    pub async fn checkpoint_seq_by_digest(
-        &self,
-        digest: haneul_types::digests::CheckpointDigest,
-    ) -> anyhow::Result<Option<u64>> {
-        use grpc::GetCheckpointRequest;
-        use prost_types::FieldMask;
-        use haneul_rpc::field::FieldMaskUtil;
-
-        let sdk_digest = haneul_sdk_types::Digest::new(digest.inner().to_owned());
-        let request = GetCheckpointRequest::by_digest(&sdk_digest)
-            .with_read_mask(FieldMask::from_paths(["sequence_number"]));
-
-        match self.get_checkpoint(request).await {
-            Ok(response) => {
-                let checkpoint = response.checkpoint.context("No checkpoint returned")?;
-                Ok(checkpoint.sequence_number)
-            }
-            Err(status) if status.code() == tonic::Code::NotFound => Ok(None),
-            Err(e) => Err(anyhow::anyhow!(e)),
-        }
     }
 
     // Public wrapper methods for gRPC calls with metrics instrumentation

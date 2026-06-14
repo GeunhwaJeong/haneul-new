@@ -3,12 +3,12 @@
 
 use std::{collections::HashMap, sync::Arc};
 
-use rand::{Rng, SeedableRng, rngs::StdRng};
 use haneul_core::authority::authority_store_tables::LiveObject;
 use haneul_types::{
-    base_types::{ObjectRef, HaneulAddress},
+    base_types::{HaneulAddress, ObjectRef},
     object::Owner,
 };
+use rand::{Rng, SeedableRng, rngs::StdRng};
 use test_cluster::TestCluster;
 use tokio::sync::{RwLock, watch};
 
@@ -67,15 +67,11 @@ impl SurferTask {
                                     .or_default()
                                     .push(obj_ref);
                             }
-                            // TODO(Party WIP) Implement full support for Party objects in haneul-surfer.
                             Owner::Shared {
                                 initial_shared_version,
                             }
+                            // TODO: Implement full support for ConsensusAddressOwner objects in haneul-surfer.
                             | Owner::ConsensusAddressOwner {
-                                start_version: initial_shared_version,
-                                ..
-                            }
-                            | Owner::Party {
                                 start_version: initial_shared_version,
                                 ..
                             } => {

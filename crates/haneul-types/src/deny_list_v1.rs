@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::HANEUL_DENY_LIST_OBJECT_ID;
-use crate::base_types::{SequenceNumber, HaneulAddress};
+use crate::base_types::{HaneulAddress, SequenceNumber};
 use crate::collection_types::{Bag, Table, VecSet};
 use crate::dynamic_field::get_dynamic_field_from_store;
 use crate::error::{UserInputError, UserInputResult};

@@ -5,9 +5,9 @@ use crate::execution_mode::ExecutionMode;
 use crate::programmable_transactions::execution::check_private_generics_v2;
 use crate::sp;
 use crate::static_programmable_transactions::{env::Env, loading::ast::Type, typing::ast as T};
-use move_binary_format::{CompiledModule, file_format::Visibility};
 use haneul_types::error::ExecutionError;
 use haneul_types::execution_status::ExecutionErrorKind;
+use move_binary_format::{CompiledModule, file_format::Visibility};
 
 /// Checks the following
 /// - valid visibility for move function calls

@@ -7,17 +7,12 @@ use std::str::FromStr;
 
 use anyhow::Context;
 use anyhow::bail;
-use move_core_types::ident_str;
-use move_core_types::language_storage::StructTag;
-use move_core_types::u256::U256;
-use serde::Deserialize;
-use serde_json::json;
 use haneul_types::HANEUL_FRAMEWORK_PACKAGE_ID;
 use haneul_types::TypeTag;
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::ObjectDigest;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::ObjectRef;
-use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::Signature;
 use haneul_types::crypto::Signer;
 use haneul_types::crypto::get_account_key_pair;
@@ -32,6 +27,11 @@ use haneul_types::transaction::ObjectArg;
 use haneul_types::transaction::Transaction;
 use haneul_types::transaction::TransactionData;
 use haneul_types::transaction::TransactionKind;
+use move_core_types::ident_str;
+use move_core_types::language_storage::StructTag;
+use move_core_types::u256::U256;
+use serde::Deserialize;
+use serde_json::json;
 
 use haneul_indexer_alt_e2e_tests::FullCluster;
 use haneul_indexer_alt_e2e_tests::find;
@@ -1037,7 +1037,12 @@ fn create_coin(cluster: &mut FullCluster, owner: HaneulAddress, amount: u64) -> 
 
 /// Run a transaction on `cluster` signed by a fresh funded account that creates a `Bag`
 /// owned by `owner` with `size` many elements.
-fn create_bag(cluster: &mut FullCluster, owner: HaneulAddress, ty: TypeTag, size: u64) -> ObjectRef {
+fn create_bag(
+    cluster: &mut FullCluster,
+    owner: HaneulAddress,
+    ty: TypeTag,
+    size: u64,
+) -> ObjectRef {
     let (sender, kp, gas) = cluster
         .funded_account(DEFAULT_GAS_BUDGET)
         .expect("Failed to fund account");
@@ -1093,7 +1098,12 @@ fn create_bag(cluster: &mut FullCluster, owner: HaneulAddress, ty: TypeTag, size
 
 /// Run a transaction on `cluster` signed by a fresh funded account that creates a `Table<ty, ty>`
 /// owned by `owner` with `size` many elements.
-fn create_table(cluster: &mut FullCluster, owner: HaneulAddress, ty: TypeTag, size: u64) -> ObjectRef {
+fn create_table(
+    cluster: &mut FullCluster,
+    owner: HaneulAddress,
+    ty: TypeTag,
+    size: u64,
+) -> ObjectRef {
     let (sender, kp, gas) = cluster
         .funded_account(DEFAULT_GAS_BUDGET)
         .expect("Failed to fund account");

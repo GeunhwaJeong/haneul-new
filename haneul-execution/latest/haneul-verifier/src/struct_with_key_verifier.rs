@@ -7,13 +7,13 @@
 //! - The first field has type `haneul::object::UID`
 
 use crate::verification_failure;
-use move_binary_format::file_format::{CompiledModule, SignatureToken};
 use haneul_types::{
     HANEUL_FRAMEWORK_ADDRESS,
     error::ExecutionError,
     fp_ensure,
     id::{OBJECT_MODULE_NAME, UID_STRUCT_NAME},
 };
+use move_binary_format::file_format::{CompiledModule, SignatureToken};
 
 pub fn verify_module(module: &CompiledModule) -> Result<(), ExecutionError> {
     verify_key_structs(module)?;

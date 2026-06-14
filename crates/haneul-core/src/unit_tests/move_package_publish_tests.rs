@@ -6,7 +6,6 @@ use crate::authority::{
     move_integration_tests::{build_and_publish_test_package, build_test_package},
 };
 
-use move_binary_format::CompiledModule;
 use haneul_types::{
     base_types::ObjectID,
     error::{HaneulErrorKind, UserInputError},
@@ -14,17 +13,18 @@ use haneul_types::{
     transaction::{TEST_ONLY_GAS_UNIT_FOR_PUBLISH, TransactionData},
     utils::to_sender_signed_transaction,
 };
+use move_binary_format::CompiledModule;
 
 use haneul_types::crypto::{AccountKeyPair, get_key_pair};
 
 use crate::authority::move_integration_tests::{
     build_multi_publish_txns, build_package, run_multi_txns,
 };
-use std::collections::HashSet;
 use haneul_framework::BuiltInFramework;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::execution_status::{ExecutionErrorKind, ExecutionFailure, ExecutionStatus};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
+use std::collections::HashSet;
 
 #[tokio::test]
 #[cfg_attr(msim, ignore)]
@@ -96,7 +96,7 @@ async fn test_publish_empty_package() {
     let gas = ObjectID::random();
     let authority = init_state_with_ids(vec![(sender, gas)]).await;
     let rgp = authority.reference_gas_price_for_testing().unwrap();
-    let gas_object = authority.get_object(&gas);
+    let gas_object = authority.get_object(&gas).await;
     let gas_object_ref = gas_object.unwrap().compute_object_reference();
 
     // empty package
@@ -145,7 +145,7 @@ async fn test_publish_duplicate_modules() {
     let (sender, sender_key): (_, AccountKeyPair) = get_key_pair();
     let gas = ObjectID::random();
     let authority = init_state_with_ids(vec![(sender, gas)]).await;
-    let gas_object = authority.get_object(&gas);
+    let gas_object = authority.get_object(&gas).await;
     let gas_object_ref = gas_object.unwrap().compute_object_reference();
     let rgp = authority.reference_gas_price_for_testing().unwrap();
 
@@ -178,7 +178,7 @@ async fn test_publish_extraneous_bytes_modules() {
     let (sender, sender_key): (_, AccountKeyPair) = get_key_pair();
     let gas = ObjectID::random();
     let authority = init_state_with_ids(vec![(sender, gas)]).await;
-    let gas_object = authority.get_object(&gas);
+    let gas_object = authority.get_object(&gas).await;
     let gas_object_ref = gas_object.unwrap().compute_object_reference();
     let rgp = authority.reference_gas_price_for_testing().unwrap();
 
@@ -199,7 +199,7 @@ async fn test_publish_extraneous_bytes_modules() {
     assert_eq!(result.status(), &ExecutionStatus::Success);
 
     // make the bytes invalid
-    let gas_object = authority.get_object(&gas);
+    let gas_object = authority.get_object(&gas).await;
     let gas_object_ref = gas_object.unwrap().compute_object_reference();
     let mut modules = correct_modules.clone();
     modules[0].push(0);
@@ -223,7 +223,7 @@ async fn test_publish_extraneous_bytes_modules() {
     );
 
     // make the bytes invalid, in a different way
-    let gas_object = authority.get_object(&gas);
+    let gas_object = authority.get_object(&gas).await;
     let gas_object_ref = gas_object.unwrap().compute_object_reference();
     let mut modules = correct_modules.clone();
     let first_module = modules[0].clone();
@@ -248,7 +248,7 @@ async fn test_publish_extraneous_bytes_modules() {
     );
 
     // make the bytes invalid by adding metadata
-    let gas_object = authority.get_object(&gas);
+    let gas_object = authority.get_object(&gas).await;
     let gas_object_ref = gas_object.unwrap().compute_object_reference();
     let mut modules = correct_modules.clone();
     let new_bytes = {

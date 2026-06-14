@@ -1,36 +1,35 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_core_types::ident_str;
-use move_core_types::u256::U256;
-use rand::Rng;
-use shared_crypto::intent::{Intent, IntentMessage};
-use std::path::PathBuf;
 use haneul_genesis_builder::validator_info::GenesisValidatorMetadata;
 use haneul_move_build::{BuildConfig, CompiledPackage};
 use haneul_rpc_api::client::ExecutedTransaction;
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::balance::Balance;
-use haneul_types::base_types::{FullObjectRef, ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
+use haneul_types::base_types::{FullObjectRef, HaneulAddress, ObjectID, ObjectRef, SequenceNumber};
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::{AccountKeyPair, Signature, Signer, get_key_pair};
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::gas_coin::GAS;
+use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::multisig::{BitmapUnit, MultiSig, MultiSigPublicKey};
 use haneul_types::multisig_legacy::{MultiSigLegacy, MultiSigPublicKeyLegacy};
 use haneul_types::object::Owner;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::signature::GenericSignature;
-use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::transaction::{
     Argument, CallArg, DEFAULT_VALIDATOR_GAS_PRICE, FundsWithdrawalArg, ObjectArg,
     SharedObjectMutability, TEST_ONLY_GAS_UNIT_FOR_HEAVY_COMPUTATION_STORAGE,
     TEST_ONLY_GAS_UNIT_FOR_TRANSFER, Transaction, TransactionData,
 };
-use haneul_types::{Identifier, HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
+use haneul_types::{HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID, Identifier};
 use haneul_types::{HANEUL_SYSTEM_PACKAGE_ID, TypeTag};
+use move_core_types::ident_str;
+use move_core_types::u256::U256;
+use shared_crypto::intent::{Intent, IntentMessage};
+use std::path::PathBuf;
 
 #[derive(Clone)]
 pub enum FundSource {
@@ -678,15 +677,6 @@ impl TestTransactionBuilder {
 
     pub fn build_and_sign(self, signer: &dyn Signer<Signature>) -> Transaction {
         Transaction::from_data_and_signer(self.build(), vec![signer])
-    }
-
-    // ensure that transaction is unique
-    pub fn ensure_unique(mut self) -> Self {
-        let nonce: u64 = rand::thread_rng().r#gen();
-        self.ptb_builder
-            .force_separate_pure(nonce)
-            .expect("nonce serialization is infallible");
-        self
     }
 
     pub fn build_and_sign_multisig(

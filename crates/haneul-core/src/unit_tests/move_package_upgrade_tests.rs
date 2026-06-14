@@ -1,19 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_binary_format::{
-    CompiledModule,
-    file_format::{
-        AddressIdentifierIndex, IdentifierIndex, ModuleHandle, TableIndex, empty_module,
-    },
-    file_format_common::VERSION_MAX,
-};
-use move_core_types::{account_address::AccountAddress, ident_str, language_storage::StructTag};
 use haneul_move_build::BuildConfig;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::{
-    Identifier, MOVE_STDLIB_PACKAGE_ID, HANEUL_FRAMEWORK_PACKAGE_ID,
-    base_types::{ObjectID, ObjectRef, HaneulAddress},
+    HANEUL_FRAMEWORK_PACKAGE_ID, Identifier, MOVE_STDLIB_PACKAGE_ID,
+    base_types::{HaneulAddress, ObjectID, ObjectRef},
     crypto::{AccountKeyPair, get_key_pair},
     error::HaneulErrorKind,
     move_package::{MovePackage, UpgradePolicy},
@@ -22,17 +14,25 @@ use haneul_types::{
     storage::ObjectStore,
     transaction::{Argument, ObjectArg, ProgrammableTransaction, TEST_ONLY_GAS_UNIT_FOR_PUBLISH},
 };
+use move_binary_format::{
+    CompiledModule,
+    file_format::{
+        AddressIdentifierIndex, IdentifierIndex, ModuleHandle, TableIndex, empty_module,
+    },
+    file_format_common::VERSION_MAX,
+};
+use move_core_types::{account_address::AccountAddress, ident_str, language_storage::StructTag};
 
+use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
+use haneul_types::error::UserInputError;
+use haneul_types::execution_status::{
+    CommandArgumentError, ExecutionErrorKind, ExecutionStatus, PackageUpgradeError,
+};
 use std::{
     collections::BTreeSet,
     path::{Path, PathBuf},
     str::FromStr,
     sync::Arc,
-};
-use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI};
-use haneul_types::error::UserInputError;
-use haneul_types::execution_status::{
-    CommandArgumentError, ExecutionErrorKind, ExecutionStatus, PackageUpgradeError,
 };
 
 use crate::authority::move_integration_tests::{
@@ -139,12 +139,7 @@ pub fn build_upgrade_test_modules_with_dep_addr(
     (
         package.get_package_digest(with_unpublished_deps).to_vec(),
         package.get_package_bytes(with_unpublished_deps),
-        package
-            .dependency_ids
-            .published
-            .values()
-            .map(|dep| dep.published_at)
-            .collect(),
+        package.dependency_ids.published.values().cloned().collect(),
     )
 }
 
@@ -194,7 +189,7 @@ impl UpgradeStateRunner {
         let gas_object_id = ObjectID::random();
         let gas_object = Object::with_id_owner_for_testing(gas_object_id, sender);
         let authority_state = TestAuthorityBuilder::new().build().await;
-        authority_state.insert_genesis_object(gas_object);
+        authority_state.insert_genesis_object(gas_object).await;
         let rgp = authority_state.reference_gas_price_for_testing().unwrap();
 
         let (package, upgrade_cap) = build_and_publish_test_package_with_upgrade_cap(
@@ -224,7 +219,7 @@ impl UpgradeStateRunner {
         let gas_object_id = ObjectID::random();
         let gas_object = Object::with_id_owner_for_testing(gas_object_id, sender);
         let authority_state = TestAuthorityBuilder::new().build().await;
-        authority_state.insert_genesis_object(gas_object);
+        authority_state.insert_genesis_object(gas_object).await;
         let rgp = authority_state.reference_gas_price_for_testing().unwrap();
 
         let (package, upgrade_cap) = build_and_publish_package_with_upgrade_cap(

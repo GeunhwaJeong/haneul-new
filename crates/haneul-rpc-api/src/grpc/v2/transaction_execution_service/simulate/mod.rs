@@ -5,7 +5,6 @@ use crate::ErrorReason;
 use crate::Result;
 use crate::RpcError;
 use crate::RpcService;
-use itertools::Itertools;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_rpc::field::FieldMaskTree;
 use haneul_rpc::merge::Merge;
@@ -32,6 +31,7 @@ use haneul_types::transaction::TransactionExpiration;
 use haneul_types::transaction::TransactionKind;
 use haneul_types::transaction_executor::SimulateTransactionResult;
 use haneul_types::transaction_executor::TransactionChecks;
+use itertools::Itertools;
 
 mod resolve;
 
@@ -103,15 +103,8 @@ pub fn simulate_transaction(
 
     let perform_gas_selection = request.do_gas_selection() && checks.enabled();
     let simulation_result = 'simulate: {
-        // BCS transactions that are already in gasless shape (price=0, no payment) are simulated
-        // as-is — the caller pre-built the transaction, so gas selection is not needed and the
-        // priced flow must be skipped (it would fail with GasPriceUnderRGP for price=0).
-        let skip_gas_selection_for_bcs_gasless = perform_gas_selection
-            && request.transaction().bcs_opt().is_some()
-            && transaction.is_gasless_transaction();
-
-        if perform_gas_selection && !skip_gas_selection_for_bcs_gasless {
-            // If the caller didn't set a non-zero price and the tx passes the cheap structural +
+        if perform_gas_selection {
+            // If the caller didn't set a price and the tx passes the cheap structural +
             // object-input gasless checks, try a gasless simulate first. Post-execution gasless
             // requirements (all input Coins consumed, minimum transfer amounts) can only be
             // verified by running the tx. If that fails, we discard the gasless variant and
@@ -395,8 +388,11 @@ fn estimate_gas_budget_from_gas_cost(
     // by the simulation. When the request did not specify any payment objects, the loading
     // cost is added incrementally inside `select_gas` once the actual coins are known.
     let extra_payment_objects = (num_payment_objects_on_request as u64).saturating_sub(1);
-    let gas_loading_cost_geunhwa =
-        compute_gas_loading_cost_geunhwa(extra_payment_objects, reference_gas_price, protocol_config);
+    let gas_loading_cost_geunhwa = compute_gas_loading_cost_geunhwa(
+        extra_payment_objects,
+        reference_gas_price,
+        protocol_config,
+    );
 
     let safe_overhead_geunhwa = GAS_SAFE_OVERHEAD.saturating_mul(reference_gas_price);
 
@@ -524,8 +520,11 @@ fn select_gas(
                 .ok()
                 .and_then(|withdrawals| {
                     let haneul_type = Balance::type_tag(GAS::type_tag());
-                    let haneul_account_id = AccumulatorValue::get_field_id(owner, &haneul_type).ok()?;
-                    withdrawals.get(&haneul_account_id).map(|(amount, _)| *amount)
+                    let haneul_account_id =
+                        AccumulatorValue::get_field_id(owner, &haneul_type).ok()?;
+                    withdrawals
+                        .get(&haneul_account_id)
+                        .map(|(amount, _)| *amount)
                 })
                 .unwrap_or(0);
 
@@ -665,10 +664,9 @@ fn select_gas(
 
 /// Returns true if the simulate request is eligible for auto gas_price=0 handling.
 ///
-/// Requires: gasless enabled by protocol, caller did not set price (or set it to 0) and did not
-/// set gas payment objects, tx is a PTB that passes the structural gasless checks, and all loaded
-/// Move object inputs pass the runtime gasless input check (`Coin<T>` with `T` allowlisted,
-/// AddressOwner/ConsensusAddressOwner).
+/// Requires: gasless enabled by protocol, caller did not set price or gas payment objects, tx is a
+/// PTB that passes the structural gasless checks, and all loaded Move object inputs pass the
+/// runtime gasless input check (`Coin<T>` with `T` allowlisted, AddressOwner/ConsensusAddressOwner).
 fn is_gasless_candidate(
     request: &SimulateTransactionRequest,
     transaction: &haneul_types::transaction::TransactionData,
@@ -683,14 +681,7 @@ fn is_gasless_candidate(
     if request.transaction().bcs_opt().is_some() {
         return Ok(false);
     }
-    // An explicit non-zero price opts out of gasless. price=0 is treated the same as unset: the
-    // caller is either asserting gasless intent or echoing the suggestion from a prior simulate.
-    if request
-        .transaction()
-        .gas_payment()
-        .price
-        .is_some_and(|p| p != 0)
-    {
+    if request.transaction().gas_payment().price.is_some() {
         return Ok(false);
     }
     if !request.transaction().gas_payment().objects.is_empty() {

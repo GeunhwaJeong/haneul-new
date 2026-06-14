@@ -5,24 +5,16 @@ edition = "2024"
 license = "Apache-2.0"
 publish = false
 
-[lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = [
-  'cfg(msim)',
-  'cfg(fail_points)',
-] }
-
 [dependencies]
 anyhow.workspace = true
 axum = { workspace = true, features = ["matched-path"] }
 bcs.workspace = true
 rand.workspace = true
-roaring.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 haneul-config.workspace = true
 tap.workspace = true
 tokio.workspace = true
-tokio-util.workspace = true
 async-trait.workspace = true
 itertools.workspace = true
 haneul-sdk-types.workspace = true
@@ -37,7 +29,6 @@ futures.workspace = true
 
 haneul-name-service.workspace = true
 fastcrypto.workspace = true
-haneul-inverted-index.workspace = true
 haneul-types.workspace = true
 haneul-macros.workspace = true
 haneullabs-common.workspace = true
@@ -61,8 +52,8 @@ tonic-health.workspace = true
 tonic-reflection.workspace = true
 tonic-web.workspace = true
 
-[dev-dependencies]
-# `test-util` enables `#[tokio::test(start_paused = true)]` for the
-# virtual-time deadline tests in `grpc::deadline`.
-tokio = { workspace = true, features = ["test-util"] }
-
+[build-dependencies]
+tonic-prost-build.workspace = true
+protox.workspace = true
+walkdir.workspace = true
+serde_json.workspace = true

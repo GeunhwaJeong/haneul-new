@@ -22,6 +22,7 @@ pub(crate) enum PeerService {
     /// The validator consensus service for validator-to-validator communication
     Validator,
     /// The observer service for streaming blocks and serving observer requests
+    #[allow(dead_code)]
     Observer,
 }
 
@@ -83,6 +84,7 @@ impl PeersPool {
 
     /// Registers a validator as known in the pool with its supported services.
     /// Note: this method will override the peer if it already exists in the pool.
+    #[allow(dead_code)]
     pub(crate) fn register_validator(
         &self,
         authority_index: AuthorityIndex,
@@ -113,6 +115,7 @@ impl PeersPool {
     /// Registers an observer as known in the pool.
     /// Note that we do not allow observers to register with supported services other than Observer. This is done for safety
     /// as only validators are supposed to support both the Validator and Observer services.
+    #[allow(dead_code)]
     pub(crate) fn register_observer(&self, node_id: NodeId) {
         let mut peers = self.registered_peers.write();
         peers.insert(
@@ -124,7 +127,7 @@ impl PeersPool {
     }
 
     /// Removes a peer from the pool
-    #[cfg(test)]
+    #[allow(dead_code)]
     pub(crate) fn remove_peer(&self, peer: &PeerId) {
         let mut peers = self.registered_peers.write();
         peers.remove(peer);
@@ -173,6 +176,7 @@ impl PeersPool {
     }
 
     /// Gets all known peers that are compatible with the current node.
+    #[allow(dead_code)]
     pub(crate) fn get_known_peers(&self) -> Vec<PeerId> {
         let compatible_services = self.get_compatible_services();
         self.get_known_peers_for_services(&compatible_services)
@@ -184,6 +188,7 @@ impl PeersPool {
     ///
     /// Note: This method does NOT check node compatibility. If you want to ensure
     /// only compatible peers are returned, use `get_known_peers()`
+    #[allow(dead_code)]
     pub(crate) fn get_known_peers_for_services(
         &self,
         filter_services: &[PeerService],
@@ -215,6 +220,7 @@ impl PeersPool {
     /// Gets the compatible services based on the current node type
     /// - If we're a Validator node: can talk to both Validator and Observer services
     /// - If we're an Observer node: can only talk to Observer services
+    #[allow(dead_code)]
     fn get_compatible_services(&self) -> Vec<PeerService> {
         if self.context.is_validator() {
             vec![PeerService::Validator, PeerService::Observer]

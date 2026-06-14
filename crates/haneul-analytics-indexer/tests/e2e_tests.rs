@@ -6,13 +6,6 @@ use std::sync::Arc;
 use std::sync::RwLock;
 use std::time::Duration;
 
-use mock_store::MockStore;
-use haneullabs_common::ZipDebugEqIteratorExt;
-use object_store::ObjectStore;
-use object_store::ObjectStoreExt as _;
-use object_store::memory::InMemory;
-use parquet::file::reader::FileReader;
-use prost::Message;
 use haneul_analytics_indexer::config::CommitterLayer;
 use haneul_analytics_indexer::config::IngestionLayer;
 use haneul_indexer_alt_framework::store::Store;
@@ -25,6 +18,13 @@ use haneul_rpc::proto::haneul::rpc;
 use haneul_types::full_checkpoint_content::Checkpoint;
 use haneul_types::test_checkpoint_data_builder::AdvanceEpochConfig;
 use haneul_types::test_checkpoint_data_builder::TestCheckpointBuilder;
+use haneullabs_common::ZipDebugEqIteratorExt;
+use mock_store::MockStore;
+use object_store::ObjectStore;
+use object_store::ObjectStoreExt as _;
+use object_store::memory::InMemory;
+use parquet::file::reader::FileReader;
+use prost::Message;
 use tempfile::TempDir;
 
 use haneul_analytics_indexer::RowSchema;

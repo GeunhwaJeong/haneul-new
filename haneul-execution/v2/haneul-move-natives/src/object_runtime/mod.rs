@@ -6,6 +6,20 @@ pub(crate) mod object_store;
 use self::object_store::{ChildObjectEffect, ObjectResult};
 use super::get_object_id;
 use better_any::{Tid, TidAble};
+use haneul_protocol_config::{check_limit_by_meter, LimitThresholdCrossed, ProtocolConfig};
+use haneul_types::{
+    base_types::{HaneulAddress, MoveObjectType, ObjectID, SequenceNumber},
+    committee::EpochId,
+    error::{ExecutionError, VMMemoryLimitExceededSubStatusCode},
+    execution::DynamicallyLoadedObjectMetadata,
+    execution_status::ExecutionErrorKind,
+    id::UID,
+    metrics::ExecutionMetrics,
+    object::{MoveObject, Owner},
+    storage::ChildObjectResolver,
+    HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_DENY_LIST_OBJECT_ID,
+    HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
+};
 use indexmap::map::IndexMap;
 use indexmap::set::IndexSet;
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
@@ -26,20 +40,6 @@ use object_store::ChildObjectStore;
 use std::{
     collections::{BTreeMap, BTreeSet},
     sync::Arc,
-};
-use haneul_protocol_config::{check_limit_by_meter, LimitThresholdCrossed, ProtocolConfig};
-use haneul_types::{
-    base_types::{MoveObjectType, ObjectID, SequenceNumber, HaneulAddress},
-    committee::EpochId,
-    error::{ExecutionError, VMMemoryLimitExceededSubStatusCode},
-    execution::DynamicallyLoadedObjectMetadata,
-    execution_status::ExecutionErrorKind,
-    id::UID,
-    metrics::ExecutionMetrics,
-    object::{MoveObject, Owner},
-    storage::ChildObjectResolver,
-    HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_DENY_LIST_OBJECT_ID,
-    HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
 
 pub enum ObjectEvent {
@@ -635,9 +635,6 @@ fn check_circular_ownership(
             }
             Owner::ConsensusAddressOwner { .. } => {
                 unimplemented!("ConsensusAddressOwner does not exist for this execution version")
-            }
-            Owner::Party { .. } => {
-                unimplemented!("Party does not exist for this execution version")
             }
         }
     }

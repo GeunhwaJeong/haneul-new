@@ -7,12 +7,12 @@ use crate::workloads::payload::Payload;
 use crate::workloads::workload::{MAX_BUDGET, Workload, WorkloadBuilder};
 use crate::workloads::{Gas, GasCoinConfig};
 use anyhow::{Error, Result};
-use itertools::Itertools;
-use std::collections::{HashMap, VecDeque};
-use std::sync::Arc;
 use haneul_core::test_utils::{make_pay_haneul_transaction, make_transfer_haneul_transaction};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::AccountKeyPair;
+use itertools::Itertools;
+use std::collections::{HashMap, VecDeque};
+use std::sync::Arc;
 use tracing::info;
 
 /// Bank is used for generating gas for running the benchmark.
@@ -107,7 +107,8 @@ impl BenchmarkBank {
         init_coin: &mut Gas,
         gas_price: u64,
     ) -> Result<UpdatedAndNewlyMintedGasCoins> {
-        let recipient_addresses: Vec<HaneulAddress> = coin_configs.iter().map(|g| g.address).collect();
+        let recipient_addresses: Vec<HaneulAddress> =
+            coin_configs.iter().map(|g| g.address).collect();
         let amounts: Vec<u64> = coin_configs.iter().map(|c| c.amount).collect();
 
         info!(

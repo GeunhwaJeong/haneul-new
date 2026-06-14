@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_core_types::language_storage::TypeTag;
 use haneul_protocol_config::ProtocolConfig;
+use move_core_types::language_storage::TypeTag;
 
 use crate::{
     accumulator_root::AccumulatorValue,
-    base_types::{ObjectID, SequenceNumber, HaneulAddress, random_object_ref},
+    base_types::{HaneulAddress, ObjectID, SequenceNumber, random_object_ref},
     coin_reservation::{CoinReservationResolverTrait, ParsedObjectRefWithdrawal},
     digests::{ChainIdentifier, CheckpointDigest},
     error::UserInputResult,

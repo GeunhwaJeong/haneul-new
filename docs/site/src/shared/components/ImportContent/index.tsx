@@ -318,11 +318,11 @@ export default function ImportContent({
 
   let out = content
     .replace(
-      /^\/\/\s*Copyright.*Haneul Labs.*\n\/\/\s*SPDX-License.*?\n?$/gim,
+      /^\/\/\s*Copyright.*Mysten Labs.*\n\/\/\s*SPDX-License.*?\n?$/gim,
       "",
     )
     .replace(
-      /\[dependencies\]\nhaneul\s?=\s?{\s?local\s?=.*haneul-framework.*\n/i,
+      /\[dependencies\]\nsui\s?=\s?{\s?local\s?=.*sui-framework.*\n/i,
       "[dependencies]",
     );
 

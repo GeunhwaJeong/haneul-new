@@ -6,11 +6,11 @@ use std::{collections::BTreeSet, fmt::Display};
 use consensus_core::{BlockAPI, CommitRef, VerifiedBlock};
 use consensus_types::block::{BlockRef, TransactionIndex};
 use fastcrypto::hash::HashFunction as _;
-use itertools::Itertools as _;
 use haneul_types::{
     digests::Digest,
     messages_consensus::{AuthorityIndex, ConsensusTransaction},
 };
+use itertools::Itertools as _;
 
 pub(crate) struct ParsedTransaction {
     // Transaction from consensus output.
@@ -82,8 +82,9 @@ impl ConsensusCommitAPI for consensus_core::CommittedSubDag {
     }
 
     fn rejected_transactions_digest(&self) -> Digest {
+        let bytes = bcs::to_bytes(&self.rejected_transactions_by_block).unwrap();
         let mut hasher = haneul_types::crypto::DefaultHash::new();
-        bcs::serialize_into(&mut hasher, &self.rejected_transactions_by_block).unwrap();
+        hasher.update(bytes);
         hasher.finalize().digest.into()
     }
 

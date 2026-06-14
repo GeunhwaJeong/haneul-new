@@ -4,9 +4,9 @@
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
-use parking_lot::RwLock;
 use haneul_types::base_types::ObjectID;
 use haneul_types::{accumulator_root::AccumulatorObjId, base_types::SequenceNumber};
+use parking_lot::RwLock;
 
 use crate::accumulators::funds_read::AccountFundsRead;
 
@@ -62,7 +62,7 @@ impl MockFundsRead {
         let new_accumulator_version = cur_version.next();
         assert_eq!(new_accumulator_version, next_accumulator_version);
         for (account_id, balance_change) in funds_changes {
-            let balance = self.inner.read().get_latest_account_amount(&account_id);
+            let balance = self.inner.read().get_latest_account_amount(&account_id).0;
             let new_balance = balance as i128 + balance_change;
             assert!(new_balance >= 0);
             let new_entry = if new_balance == 0 {
@@ -88,25 +88,15 @@ impl MockFundsRead {
 }
 
 impl MockFundsReadInner {
-    fn get_latest_account_amount(&self, account_id: &AccumulatorObjId) -> u128 {
+    fn get_latest_account_amount(&self, account_id: &AccumulatorObjId) -> (u128, SequenceNumber) {
         let account_amounts = self.amounts.get(account_id);
         match account_amounts {
             Some(amounts) => {
-                let (_, amount) = amounts.iter().last().unwrap();
-                amount.unwrap_or(0)
+                let (version, amount) = amounts.iter().last().unwrap();
+                (amount.unwrap_or(0), *version)
             }
-            None => 0,
+            None => (0, self.cur_version),
         }
-    }
-
-    fn get_consistent_latest_account_amount_and_version(
-        &self,
-        account_id: &AccumulatorObjId,
-    ) -> (u128, SequenceNumber) {
-        (
-            self.get_account_amount_at_version(account_id, self.cur_version),
-            self.cur_version,
-        )
     }
 
     fn get_account_amount_at_version(
@@ -116,28 +106,19 @@ impl MockFundsReadInner {
     ) -> u128 {
         let account_amounts = self.amounts.get(account_id);
         match account_amounts {
-            Some(amounts) => amounts
-                .range(..=version)
-                .last()
-                .and_then(|(_, amount)| *amount)
-                .unwrap_or(0),
+            Some(amounts) => {
+                let (_, amount) = amounts.range(..=version).last().unwrap();
+                amount.unwrap_or(0)
+            }
             None => 0,
         }
     }
 }
 
 impl AccountFundsRead for MockFundsRead {
-    fn get_latest_account_amount(&self, account_id: &AccumulatorObjId) -> u128 {
+    fn get_latest_account_amount(&self, account_id: &AccumulatorObjId) -> (u128, SequenceNumber) {
         let inner = self.inner.read();
         inner.get_latest_account_amount(account_id)
-    }
-
-    fn get_consistent_latest_account_amount_and_version(
-        &self,
-        account_id: &AccumulatorObjId,
-    ) -> (u128, SequenceNumber) {
-        let inner = self.inner.read();
-        inner.get_consistent_latest_account_amount_and_version(account_id)
     }
 
     fn get_account_amount_at_version(

@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use fastcrypto_zkp::bn254::zk_login::{JWK, JwkId};
-use move_core_types::{account_address::AccountAddress, ident_str, identifier::IdentStr};
 use haneullabs_common::ZipDebugEqIteratorExt;
+use move_core_types::{account_address::AccountAddress, ident_str, identifier::IdentStr};
 use serde::{Deserialize, Serialize};
 
 use crate::base_types::SequenceNumber;
@@ -125,13 +125,17 @@ pub fn get_authenticator_state(
     assert_eq!(outer.version, AUTHENTICATOR_STATE_VERSION);
 
     let id = outer.id.id.bytes;
-    let inner: AuthenticatorStateInner =
-        get_dynamic_field_from_store(&object_store, id, &outer.version).map_err(|err| {
-            HaneulErrorKind::DynamicFieldReadError(format!(
-                "Failed to load haneul system state inner object with ID {:?} and version {:?}: {:?}",
-                id, outer.version, err
-            ))
-        })?;
+    let inner: AuthenticatorStateInner = get_dynamic_field_from_store(
+        &object_store,
+        id,
+        &outer.version,
+    )
+    .map_err(|err| {
+        HaneulErrorKind::DynamicFieldReadError(format!(
+            "Failed to load haneul system state inner object with ID {:?} and version {:?}: {:?}",
+            id, outer.version, err
+        ))
+    })?;
 
     Ok(Some(inner))
 }

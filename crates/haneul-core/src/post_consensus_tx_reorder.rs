@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use haneullabs_metrics::monitored_scope;
 use haneul_protocol_config::ConsensusTransactionOrdering;
 use haneul_types::{
     executable_transaction::VerifiedExecutableTransactionWithAliases,
     transaction::TransactionDataAPI as _,
 };
+use haneullabs_metrics::monitored_scope;
 
 pub struct PostConsensusTxReorder {}
 

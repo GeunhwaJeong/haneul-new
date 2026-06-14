@@ -11,7 +11,6 @@ use fastcrypto::encoding::Base64;
 use futures::StreamExt;
 use futures::stream;
 use futures_core::Stream;
-use jsonrpsee::core::client::Subscription;
 use haneul_json_rpc_api::{
     CoinReadApiClient, GovernanceReadApiClient, IndexerApiClient, MoveUtilsClient, ReadApiClient,
     WriteApiClient,
@@ -23,22 +22,23 @@ use haneul_json_rpc_types::ZkLoginIntentScope;
 use haneul_json_rpc_types::ZkLoginVerifyResult;
 use haneul_json_rpc_types::{
     Balance, Checkpoint, CheckpointId, Coin, CoinPage, DelegatedStake, DevInspectResults,
-    DryRunTransactionBlockResponse, DynamicFieldPage, EventFilter, EventPage, ObjectsPage,
-    ProtocolConfigResponse, HaneulCoinMetadata, HaneulCommittee, HaneulEvent, HaneulGetPastObjectRequest,
-    HaneulMoveNormalizedModule, HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
+    DryRunTransactionBlockResponse, DynamicFieldPage, EventFilter, EventPage, HaneulCoinMetadata,
+    HaneulCommittee, HaneulEvent, HaneulGetPastObjectRequest, HaneulMoveNormalizedModule,
+    HaneulObjectDataOptions, HaneulObjectResponse, HaneulObjectResponseQuery,
     HaneulPastObjectResponse, HaneulTransactionBlockEffects, HaneulTransactionBlockResponse,
-    HaneulTransactionBlockResponseOptions, HaneulTransactionBlockResponseQuery, TransactionBlocksPage,
-    TransactionFilter,
+    HaneulTransactionBlockResponseOptions, HaneulTransactionBlockResponseQuery, ObjectsPage,
+    ProtocolConfigResponse, TransactionBlocksPage, TransactionFilter,
 };
 use haneul_types::balance::Supply;
-use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress, TransactionDigest};
+use haneul_types::base_types::{HaneulAddress, ObjectID, SequenceNumber, TransactionDigest};
 use haneul_types::dynamic_field::DynamicFieldName;
 use haneul_types::event::EventID;
-use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::haneul_serde::BigInt;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
+use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::transaction::{Transaction, TransactionData, TransactionKind};
 use haneul_types::transaction_driver_types::ExecuteTransactionRequestType;
+use jsonrpsee::core::client::Subscription;
 use tracing::debug;
 
 use crate::RpcClient;
@@ -1272,7 +1272,9 @@ impl GovernanceApi {
     /// Use this method to access system's information, such as the current epoch,
     /// the protocol version, the reference gas price, the total stake, active validators,
     /// and much more. See the [HaneulSystemStateSummary] for all the available fields.
-    pub async fn get_latest_haneul_system_state(&self) -> HaneulRpcResult<HaneulSystemStateSummary> {
+    pub async fn get_latest_haneul_system_state(
+        &self,
+    ) -> HaneulRpcResult<HaneulSystemStateSummary> {
         Ok(self.api.http.get_latest_haneul_system_state().await?)
     }
 

@@ -1,9 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use haneullabs_common::ZipDebugEqIteratorExt;
-use std::collections::{BTreeSet, HashMap};
-use std::str::FromStr;
 use haneul_kvstore::tables::transactions::col;
 use haneul_kvstore::{BigTableClient, KeyValueStoreReader, TransactionData};
 use haneul_rpc::field::{FieldMask, FieldMaskTree, FieldMaskUtil};
@@ -20,15 +17,18 @@ use haneul_rpc_api::{
 use haneul_types::base_types::{ObjectID, TransactionDigest};
 use haneul_types::object::Object;
 use haneul_types::storage::ObjectKey;
+use haneullabs_common::ZipDebugEqIteratorExt;
+use std::collections::{BTreeSet, HashMap};
+use std::str::FromStr;
 use tracing::warn;
 
 use super::render_json;
 use crate::PackageResolver;
 
 pub const MAX_BATCH_REQUESTS: usize = 200;
-pub const READ_MASK_DEFAULT: &str = haneul_rpc_api::read_mask_defaults::TRANSACTION;
+pub const READ_MASK_DEFAULT: &str = "digest";
 
-pub(crate) fn validate_read_mask(read_mask: Option<FieldMask>) -> Result<FieldMaskTree, RpcError> {
+fn validate_read_mask(read_mask: Option<FieldMask>) -> Result<FieldMaskTree, RpcError> {
     let read_mask = read_mask.unwrap_or_else(|| FieldMask::from_str(READ_MASK_DEFAULT));
     read_mask
         .validate::<ExecutedTransaction>()
@@ -129,7 +129,7 @@ pub async fn batch_get_transactions(
     Ok(BatchGetTransactionsResponse::new(transactions))
 }
 
-pub(crate) async fn transaction_to_response(
+async fn transaction_to_response(
     source: TransactionData,
     mask: &FieldMaskTree,
     objects: &HashMap<ObjectKey, Object>,
@@ -218,9 +218,10 @@ pub(crate) async fn transaction_to_response(
             for (proto_event, haneul_event) in
                 proto_events.events.iter_mut().zip_debug_eq(&events.data)
             {
-                proto_event.json = render_json(resolver, &haneul_event.type_, &haneul_event.contents)
-                    .await
-                    .map(Box::new);
+                proto_event.json =
+                    render_json(resolver, &haneul_event.type_, &haneul_event.contents)
+                        .await
+                        .map(Box::new);
             }
         }
     }
@@ -242,7 +243,7 @@ pub(crate) async fn transaction_to_response(
 /// Always includes `cn` and `ts` (small metadata).
 /// Only includes `td`, `sg`, `ef`, `ev`, `bc`, and `ul` when the corresponding fields
 /// are in the mask.
-pub(crate) fn transaction_columns(mask: &FieldMaskTree) -> Vec<&'static str> {
+fn transaction_columns(mask: &FieldMaskTree) -> Vec<&'static str> {
     let mut columns = vec![col::CHECKPOINT_NUMBER, col::TIMESTAMP];
 
     if mask
@@ -282,7 +283,7 @@ pub(crate) fn transaction_columns(mask: &FieldMaskTree) -> Vec<&'static str> {
     columns
 }
 
-pub(crate) fn needs_object_types(mask: &FieldMaskTree) -> bool {
+fn needs_object_types(mask: &FieldMaskTree) -> bool {
     mask.subtree(ExecutedTransaction::EFFECTS_FIELD.name)
         .is_some_and(|submask| {
             submask.contains(TransactionEffects::CHANGED_OBJECTS_FIELD.name)
@@ -290,7 +291,7 @@ pub(crate) fn needs_object_types(mask: &FieldMaskTree) -> bool {
         })
 }
 
-pub(crate) fn compute_object_keys(source: &TransactionData) -> BTreeSet<ObjectKey> {
+fn compute_object_keys(source: &TransactionData) -> BTreeSet<ObjectKey> {
     match (&source.transaction_data, &source.effects) {
         (Some(tx_data), Some(effects)) => haneul_types::storage::get_transaction_object_set(
             tx_data,
@@ -301,7 +302,7 @@ pub(crate) fn compute_object_keys(source: &TransactionData) -> BTreeSet<ObjectKe
     }
 }
 
-pub(crate) async fn fetch_object_map<'a>(
+async fn fetch_object_map<'a>(
     client: &mut BigTableClient,
     transactions: impl Iterator<Item = &'a TransactionData>,
 ) -> Result<HashMap<ObjectKey, Object>, RpcError> {
@@ -330,15 +331,13 @@ fn object_type_to_string(object_type: haneul_types::base_types::ObjectType) -> S
 #[cfg(test)]
 mod tests {
     use super::*;
-    use move_core_types::account_address::AccountAddress;
-    use std::sync::Arc;
     use haneul_kvstore::TransactionData as KvTransactionData;
     use haneul_package_resolver::{Package, PackageStore, Resolver};
     use haneul_rpc::proto::haneul::rpc::v2::BalanceChange as ProtoBalanceChange;
     use haneul_rpc::proto::haneul::rpc::v2::ObjectReference;
     use haneul_types::TypeTag;
     use haneul_types::balance_change::BalanceChange;
-    use haneul_types::base_types::{ObjectID, HaneulAddress};
+    use haneul_types::base_types::{HaneulAddress, ObjectID};
     use haneul_types::effects::TestEffectsBuilder;
     use haneul_types::object::Object;
     use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
@@ -346,6 +345,8 @@ mod tests {
     use haneul_types::transaction::{
         SenderSignedData, Transaction, TransactionData as HaneulTransactionData,
     };
+    use move_core_types::account_address::AccountAddress;
+    use std::sync::Arc;
 
     use haneul_types::digests::TransactionDigest;
 

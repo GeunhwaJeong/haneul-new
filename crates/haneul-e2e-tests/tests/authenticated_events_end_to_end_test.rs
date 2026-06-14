@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_core_types::{account_address::AccountAddress, identifier::Identifier};
 use haneul_keys::keystore::AccountKeystore;
 use haneul_light_client::authenticated_events::mmr::apply_stream_updates;
 use haneul_macros::sim_test;
@@ -10,13 +9,14 @@ use haneul_rpc_api::client::ExecutedTransaction;
 use haneul_types::accumulator_root::EventCommitment;
 use haneul_types::{
     accumulator_root::{self as ar, EventStreamHead},
-    base_types::{ObjectID, HaneulAddress},
+    base_types::{HaneulAddress, ObjectID},
     dynamic_field::Field,
     effects::{AccumulatorValue, TransactionEffectsAPI},
     messages_checkpoint::CheckpointSequenceNumber,
     programmable_transaction_builder::ProgrammableTransactionBuilder,
     transaction::TransactionData,
 };
+use move_core_types::{account_address::AccountAddress, identifier::Identifier};
 use test_cluster::{TestCluster, TestClusterBuilder};
 
 async fn setup_test_cluster_with_auth_events() -> TestCluster {
@@ -90,7 +90,7 @@ async fn load_event_stream_head_by_object_id(
     state: &haneul_core::authority::AuthorityState,
     object_id: ObjectID,
 ) -> Option<EventStreamHead> {
-    let obj = state.get_object(&object_id)?;
+    let obj = state.get_object(&object_id).await?;
     let mo = obj.data.try_as_move()?;
     let field = mo.to_rust::<Field<ar::AccumulatorKey, EventStreamHead>>()?;
     Some(field.value)

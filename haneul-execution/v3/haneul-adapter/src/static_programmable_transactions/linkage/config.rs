@@ -7,11 +7,11 @@ use crate::{
         ResolutionTable, VersionConstraint, add_and_unify,
     },
 };
-use move_binary_format::binary_config::BinaryConfig;
 use haneul_types::{
-    MOVE_STDLIB_PACKAGE_ID, HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_PACKAGE_ID, base_types::ObjectID,
-    error::ExecutionError,
+    HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_PACKAGE_ID, MOVE_STDLIB_PACKAGE_ID,
+    base_types::ObjectID, error::ExecutionError,
 };
+use move_binary_format::binary_config::BinaryConfig;
 
 /// These are the set of native packages in Haneul -- importantly they can be used implicitly by
 /// different parts of the system and are not required to be explicitly imported always.

@@ -23,9 +23,9 @@ pub mod transaction_deny_config;
 pub mod validator_client_monitor_config;
 pub mod verifier_signing_config;
 
+use haneul_types::multiaddr::Multiaddr;
 pub use node::{ConsensusConfig, ExecutionCacheConfig, NodeConfig};
 pub use rpc_config::{RpcConfig, RpcIndexInitConfig, RpcTlsConfig};
-use haneul_types::multiaddr::Multiaddr;
 use tracing::debug;
 
 const HANEUL_DIR: &str = ".haneul";
@@ -64,7 +64,9 @@ pub fn genesis_blob_exists(config_dir: Option<PathBuf>) -> bool {
     if let Some(dir) = config_dir {
         dir.join(HANEUL_GENESIS_FILENAME).exists()
     } else if let Some(config_env) = std::env::var_os("HANEUL_CONFIG_DIR") {
-        Path::new(&config_env).join(HANEUL_GENESIS_FILENAME).exists()
+        Path::new(&config_env)
+            .join(HANEUL_GENESIS_FILENAME)
+            .exists()
     } else if let Some(home) = dirs::home_dir() {
         let mut config = PathBuf::new();
         config.push(&home);

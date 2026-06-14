@@ -12,8 +12,8 @@ use std::sync::Arc;
 
 use consensus_config::{AuthorityIndex, Committee};
 use consensus_types::block::Round;
-use itertools::Itertools;
 use haneullabs_common::ZipDebugEqIteratorExt;
+use itertools::Itertools;
 use tracing::{debug, trace};
 
 use crate::{

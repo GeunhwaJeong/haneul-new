@@ -14,12 +14,12 @@ use std::sync::RwLock;
 
 use anyhow::Context;
 use bincode::Encode;
+use haneul_indexer_alt_framework::store::CommitterWatermark;
 use rocksdb::AsColumnFamilyRef;
 use rocksdb::properties;
 use serde::Deserialize;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
-use haneul_indexer_alt_framework::store::CommitterWatermark;
 
 use crate::db::error::Error;
 

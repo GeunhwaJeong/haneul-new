@@ -14,11 +14,11 @@ use crate::{
         typing::ast::{self as T, Type},
     },
 };
-use move_regex_borrow_graph::{MeterError, meter::DummyMeter, references::Ref};
 use haneul_types::{
     error::{ExecutionError, SafeIndex, command_argument_error},
     execution_status::CommandArgumentError,
 };
+use move_regex_borrow_graph::{MeterError, meter::DummyMeter, references::Ref};
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
 struct Location(T::Location);

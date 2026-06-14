@@ -3,10 +3,7 @@
 
 use std::sync::Arc;
 
-use haneullabs_common::ZipDebugEqIteratorExt;
 use haneul_sdk_types::{EpochId, ValidatorCommittee};
-use haneul_types::base_types::TransactionDigest;
-use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::storage::ObjectKey;
 use haneul_types::storage::RpcStateReader;
 use haneul_types::storage::error::{Error as StorageError, Result};
@@ -58,7 +55,9 @@ impl StateReader {
     #[tracing::instrument(skip(self))]
     pub fn get_system_state_summary(
         &self,
-    ) -> Result<haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary> {
+    ) -> Result<
+        haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary,
+    > {
         use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 
         let system_state = self.get_system_state()?;
@@ -84,6 +83,8 @@ impl StateReader {
         haneul_types::effects::TransactionEffects,
         Option<haneul_types::effects::TransactionEvents>,
     )> {
+        use haneul_types::effects::TransactionEffectsAPI;
+
         let transaction_digest = digest.into();
 
         let transaction = (*self
@@ -110,78 +111,6 @@ impl StateReader {
         let transaction = transaction.intent_message.value;
 
         Ok((transaction, signatures, effects, events))
-    }
-
-    pub fn multi_get_transaction_reads(
-        &self,
-        digests: &[haneul_sdk_types::Digest],
-    ) -> crate::Result<Vec<TransactionRead>> {
-        let transaction_digests = digests
-            .iter()
-            .copied()
-            .map(Into::into)
-            .collect::<Vec<TransactionDigest>>();
-        let transactions = self.inner().multi_get_transactions(&transaction_digests);
-        let effects = self
-            .inner()
-            .multi_get_transaction_effects(&transaction_digests);
-        let events = self.inner().multi_get_events(&transaction_digests);
-
-        let mut reads = Vec::with_capacity(digests.len());
-        for (((digest, transaction_digest), transaction), (effects, events)) in digests
-            .iter()
-            .copied()
-            .zip_debug_eq(transaction_digests)
-            .zip_debug_eq(transactions)
-            .zip_debug_eq(effects.into_iter().zip_debug_eq(events))
-        {
-            let transaction = (*transaction.ok_or(TransactionNotFoundError(digest))?)
-                .clone()
-                .into_inner();
-            let effects = effects.ok_or(TransactionNotFoundError(digest))?;
-            let events = if effects.events_digest().is_some() {
-                events.ok_or(TransactionNotFoundError(digest))?.pipe(Some)
-            } else {
-                None
-            };
-
-            let transaction = transaction.into_data().into_inner();
-            let signatures = transaction.tx_signatures;
-            let transaction = transaction.intent_message.value;
-
-            let checkpoint = self.inner().get_transaction_checkpoint(&transaction_digest);
-            let timestamp_ms = if let Some(checkpoint) = checkpoint {
-                self.inner()
-                    .get_checkpoint_by_sequence_number(checkpoint)
-                    .map(|checkpoint| checkpoint.timestamp_ms)
-            } else {
-                None
-            };
-
-            let unchanged_loaded_runtime_objects = self
-                .inner()
-                .get_unchanged_loaded_runtime_objects(&transaction_digest);
-
-            reads.push(TransactionRead {
-                digest,
-                transaction,
-                signatures,
-                effects,
-                events,
-                checkpoint,
-                timestamp_ms,
-                unchanged_loaded_runtime_objects,
-            });
-        }
-
-        Ok(reads)
-    }
-
-    pub fn multi_get_events(
-        &self,
-        digests: &[TransactionDigest],
-    ) -> Vec<Option<haneul_types::effects::TransactionEvents>> {
-        self.inner().multi_get_events(digests)
     }
 
     #[tracing::instrument(skip(self))]
@@ -222,8 +151,8 @@ impl StateReader {
         owner: haneul_types::base_types::HaneulAddress,
         coin_type: move_core_types::language_storage::StructTag,
     ) -> Option<u64> {
-        use haneul_types::MoveTypeTagTraitGeneric;
         use haneul_types::HANEUL_ACCUMULATOR_ROOT_OBJECT_ID;
+        use haneul_types::MoveTypeTagTraitGeneric;
         use haneul_types::accumulator_root::AccumulatorKey;
         use haneul_types::dynamic_field::DynamicFieldKey;
 

@@ -9,13 +9,6 @@ use fastcrypto::encoding::Base64;
 use fastcrypto::encoding::Encoding;
 use fastcrypto::traits::KeyPair;
 use fastcrypto::traits::ToFromBytes;
-use insta::assert_debug_snapshot;
-use prometheus::Registry;
-use rand::SeedableRng;
-use serde_json::json;
-use shared_crypto::intent::Intent;
-use shared_crypto::intent::IntentMessage;
-use shared_crypto::intent::PersonalMessage;
 use haneul_indexer_alt_e2e_tests::OffchainCluster;
 use haneul_indexer_alt_e2e_tests::OffchainClusterConfig;
 use haneul_indexer_alt_framework::ingestion::ClientArgs;
@@ -25,13 +18,20 @@ use haneul_indexer_alt_graphql::config::ZkLoginConfig;
 use haneul_indexer_alt_graphql::config::ZkLoginEnv;
 use haneul_swarm_config::genesis_config::AccountConfig;
 use haneul_types::base_types::HaneulAddress;
-use haneul_types::crypto::Signature;
 use haneul_types::crypto::HaneulKeyPair;
+use haneul_types::crypto::Signature;
 use haneul_types::multisig::MultiSig;
 use haneul_types::multisig::MultiSigPublicKey;
 use haneul_types::signature::GenericSignature;
 use haneul_types::utils::load_test_vectors;
 use haneul_types::zk_login_authenticator::ZkLoginAuthenticator;
+use insta::assert_debug_snapshot;
+use prometheus::Registry;
+use rand::SeedableRng;
+use serde_json::json;
+use shared_crypto::intent::Intent;
+use shared_crypto::intent::IntentMessage;
+use shared_crypto::intent::PersonalMessage;
 use tempfile::TempDir;
 use test_cluster::TestCluster;
 use test_cluster::TestClusterBuilder;
@@ -333,6 +333,8 @@ async fn test_zklogin_personal_message() {
 
 /// Create a passkey credential and sign a personal message, returning (raw_message, signature_bytes, address).
 async fn sign_passkey_personal_message(msg: &[u8]) -> (Vec<u8>, Vec<u8>, HaneulAddress) {
+    use haneul_types::crypto::{PublicKey, SignatureScheme};
+    use haneul_types::passkey_authenticator::PasskeyAuthenticator;
     use passkey_authenticator::{Authenticator, UserCheck, UserValidationMethod};
     use passkey_client::Client;
     use passkey_types::{
@@ -346,8 +348,6 @@ async fn sign_passkey_personal_message(msg: &[u8]) -> (Vec<u8>, Vec<u8>, HaneulA
             PublicKeyCredentialType, PublicKeyCredentialUserEntity, UserVerificationRequirement,
         },
     };
-    use haneul_types::crypto::{PublicKey, SignatureScheme};
-    use haneul_types::passkey_authenticator::PasskeyAuthenticator;
 
     struct TestUserValidation;
     #[async_trait::async_trait]
@@ -518,7 +518,12 @@ async fn test_wrong_address() {
         sign_personal_message(&ed25519_keypair(/* seed = */ 1), b"Hello, World!");
 
     let result = cluster
-        .verify(message, signature, SCOPE_PERSONAL_MESSAGE, HaneulAddress::ZERO)
+        .verify(
+            message,
+            signature,
+            SCOPE_PERSONAL_MESSAGE,
+            HaneulAddress::ZERO,
+        )
         .await
         .unwrap_err();
 

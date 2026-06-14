@@ -6,28 +6,13 @@ use anyhow::Result;
 use async_trait::async_trait;
 use fastcrypto::traits::KeyPair;
 use futures::{TryFutureExt, future};
-use itertools::Itertools as _;
-use haneullabs_common::ZipDebugEqIteratorExt;
-use haneullabs_common::{assert_reachable, debug_fatal};
-use haneullabs_metrics::spawn_monitored_task;
-use prometheus::{
-    Gauge, Histogram, HistogramVec, IntCounter, IntCounterVec, Registry,
-    register_gauge_with_registry, register_histogram_vec_with_registry,
-    register_histogram_with_registry, register_int_counter_vec_with_registry,
-    register_int_counter_with_registry,
-};
-use std::{
-    io,
-    net::{IpAddr, SocketAddr},
-    sync::Arc,
-    time::{Duration, SystemTime},
-};
 use haneul_network::{
     api::{Validator, ValidatorServer},
     tonic,
     validator::server::HANEUL_TLS_SERVER_NAME,
 };
 use haneul_types::effects::TransactionEffectsAPI;
+use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::message_envelope::Message;
 use haneul_types::messages_consensus::{ConsensusPosition, ConsensusTransaction};
 use haneul_types::messages_grpc::{
@@ -36,7 +21,6 @@ use haneul_types::messages_grpc::{
 };
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::object::Object;
-use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::traffic_control::{ClientIdSource, Weight};
 use haneul_types::{
     base_types::ObjectID,
@@ -57,6 +41,22 @@ use haneul_types::{
     messages_checkpoint::{
         CheckpointRequest, CheckpointRequestV2, CheckpointResponse, CheckpointResponseV2,
     },
+};
+use haneullabs_common::ZipDebugEqIteratorExt;
+use haneullabs_common::{assert_reachable, debug_fatal};
+use haneullabs_metrics::spawn_monitored_task;
+use itertools::Itertools as _;
+use prometheus::{
+    Gauge, Histogram, HistogramVec, IntCounter, IntCounterVec, Registry,
+    register_gauge_with_registry, register_histogram_vec_with_registry,
+    register_histogram_with_registry, register_int_counter_vec_with_registry,
+    register_int_counter_with_registry,
+};
+use std::{
+    io,
+    net::{IpAddr, SocketAddr},
+    sync::Arc,
+    time::{Duration, SystemTime},
 };
 use tokio::time::timeout;
 use tonic::metadata::{Ascii, MetadataValue};
@@ -186,7 +186,14 @@ impl AuthorityServer {
 pub struct ValidatorServiceMetrics {
     pub signature_errors: IntCounter,
     pub tx_verification_latency: Histogram,
+    pub cert_verification_latency: Histogram,
     pub handle_transaction_latency: Histogram,
+    pub submit_certificate_consensus_latency: Histogram,
+    pub handle_certificate_consensus_latency: Histogram,
+    pub handle_certificate_non_consensus_latency: Histogram,
+    pub handle_soft_bundle_certificates_consensus_latency: Histogram,
+    pub handle_soft_bundle_certificates_count: Histogram,
+    pub handle_soft_bundle_certificates_size_bytes: Histogram,
     pub handle_transaction_consensus_latency: Histogram,
     pub handle_submit_transaction_consensus_latency: HistogramVec,
     pub handle_wait_for_effects_ping_latency: HistogramVec,
@@ -224,10 +231,59 @@ impl ValidatorServiceMetrics {
                 registry,
             )
             .unwrap(),
+            cert_verification_latency: register_histogram_with_registry!(
+                "validator_service_cert_verification_latency",
+                "Latency of verifying a certificate",
+                haneullabs_metrics::SUBSECOND_LATENCY_SEC_BUCKETS.to_vec(),
+                registry,
+            )
+            .unwrap(),
             handle_transaction_latency: register_histogram_with_registry!(
                 "validator_service_handle_transaction_latency",
                 "Latency of handling a transaction",
                 haneullabs_metrics::SUBSECOND_LATENCY_SEC_BUCKETS.to_vec(),
+                registry,
+            )
+            .unwrap(),
+            handle_certificate_consensus_latency: register_histogram_with_registry!(
+                "validator_service_handle_certificate_consensus_latency",
+                "Latency of handling a consensus transaction certificate",
+                haneullabs_metrics::COARSE_LATENCY_SEC_BUCKETS.to_vec(),
+                registry,
+            )
+            .unwrap(),
+            submit_certificate_consensus_latency: register_histogram_with_registry!(
+                "validator_service_submit_certificate_consensus_latency",
+                "Latency of submit_certificate RPC handler",
+                haneullabs_metrics::COARSE_LATENCY_SEC_BUCKETS.to_vec(),
+                registry,
+            )
+            .unwrap(),
+            handle_certificate_non_consensus_latency: register_histogram_with_registry!(
+                "validator_service_handle_certificate_non_consensus_latency",
+                "Latency of handling a non-consensus transaction certificate",
+                haneullabs_metrics::SUBSECOND_LATENCY_SEC_BUCKETS.to_vec(),
+                registry,
+            )
+            .unwrap(),
+            handle_soft_bundle_certificates_consensus_latency: register_histogram_with_registry!(
+                "validator_service_handle_soft_bundle_certificates_consensus_latency",
+                "Latency of handling a consensus soft bundle",
+                haneullabs_metrics::COARSE_LATENCY_SEC_BUCKETS.to_vec(),
+                registry,
+            )
+            .unwrap(),
+            handle_soft_bundle_certificates_count: register_histogram_with_registry!(
+                "handle_soft_bundle_certificates_count",
+                "The number of certificates included in a soft bundle",
+                haneullabs_metrics::COUNT_BUCKETS.to_vec(),
+                registry,
+            )
+            .unwrap(),
+            handle_soft_bundle_certificates_size_bytes: register_histogram_with_registry!(
+                "handle_soft_bundle_certificates_size_bytes",
+                "The size of soft bundle in bytes",
+                haneullabs_metrics::BYTES_BUCKETS.to_vec(),
                 registry,
             )
             .unwrap(),
@@ -577,12 +633,12 @@ impl ValidatorService {
                             timeout(Duration::from_secs(15), state.wait_for_epoch(next_epoch)).await
                         {
                             assert_reachable!("retry submission at epoch end");
-                            if new_epoch >= next_epoch {
+                            if new_epoch == next_epoch {
                                 continue;
                             }
-                            // wait_for_epoch guarantees >= target; < would indicate a bug there.
+
                             debug_fatal!(
-                                "wait_for_epoch returned early: expected >= {}, got {}",
+                                "expected epoch {} after reconfiguration. got {}",
                                 next_epoch,
                                 new_epoch
                             );
@@ -668,8 +724,6 @@ impl ValidatorService {
         let mut total_size_bytes = 0;
         // Traffic control spam weight to use for the transaction.
         let mut spam_weight = Weight::zero();
-        // First gas price seen in this soft bundle.
-        let mut expected_soft_bundle_gas_price = None;
 
         let req_type = if is_ping_request {
             "ping"
@@ -702,28 +756,6 @@ impl ValidatorService {
 
             // Ok to fail the request when any transaction is invalid.
             let tx_size = transaction.validity_check(&epoch_store.tx_validity_check_context())?;
-            let tx_digest = *transaction.digest();
-
-            // Soft bundles require all transactions to use the same gas price.
-            if is_soft_bundle_request {
-                let gas_price = transaction.data().transaction_data().gas_price();
-                if let Some(expected) = expected_soft_bundle_gas_price {
-                    fp_ensure!(
-                        gas_price == expected,
-                        HaneulErrorKind::UserInputError {
-                            error: UserInputError::GasPriceMismatchError {
-                                digest: tx_digest,
-                                expected,
-                                actual: gas_price,
-                            }
-                        }
-                        .into()
-                    );
-                } else {
-                    expected_soft_bundle_gas_price = Some(gas_price);
-                }
-            }
-
             let is_gasless = transaction
                 .data()
                 .transaction_data()
@@ -767,12 +799,6 @@ impl ValidatorService {
                     .num_rejected_tx_during_overload
                     .with_label_values(&[error.as_ref()])
                     .inc();
-                if is_gasless {
-                    metrics
-                        .gasless_submission_outcomes
-                        .with_label_values(&["rejected_overload"])
-                        .inc();
-                }
                 results[idx] = Some(SubmitTxResult::Rejected { error });
                 continue;
             }
@@ -818,6 +844,7 @@ impl ValidatorService {
                 }
             };
 
+            let tx_digest = *verified_transaction.tx().digest();
             debug!(
                 ?tx_digest,
                 "handle_submit_transaction: verified transaction"
@@ -1461,11 +1488,12 @@ impl ValidatorService {
             last_committed_leader_round,
         };
 
-        let raw_response = typed_response
-            .try_into()
-            .map_err(|e: haneul_types::error::HaneulError| {
-                tonic::Status::internal(format!("Failed to serialize health response: {}", e))
-            })?;
+        let raw_response =
+            typed_response
+                .try_into()
+                .map_err(|e: haneul_types::error::HaneulError| {
+                    tonic::Status::internal(format!("Failed to serialize health response: {}", e))
+                })?;
 
         Ok((tonic::Response::new(raw_response), Weight::one()))
     }
@@ -1593,7 +1621,6 @@ impl ValidatorService {
         &self,
         client: Option<IpAddr>,
         wrapped_response: WrappedServiceResponse<T>,
-        method_name: &str,
     ) -> Result<tonic::Response<T>, tonic::Status> {
         let (error, spam_weight, unwrapped_response) = match wrapped_response {
             Ok((result, spam_weight)) => (None, spam_weight.clone(), Ok(result)),
@@ -1615,7 +1642,6 @@ impl ValidatorService {
                 }),
                 spam_weight,
                 timestamp: SystemTime::now(),
-                method: Some(method_name.to_string()),
             })
         }
         unwrapped_response
@@ -1643,7 +1669,7 @@ fn normalize(err: HaneulError) -> Weight {
 /// unless it is necessary to override the return value.
 #[macro_export]
 macro_rules! handle_with_decoration {
-    ($self:ident, $func_name:ident, $request:ident, $method_name:expr) => {{
+    ($self:ident, $func_name:ident, $request:ident) => {{
         if $self.client_id_source.is_none() {
             return $self.$func_name($request).await.map(|(result, _)| result);
         }
@@ -1655,7 +1681,7 @@ macro_rules! handle_with_decoration {
 
         // handle traffic tallying
         let wrapped_response = $self.$func_name($request).await;
-        $self.handle_traffic_resp(client, wrapped_response, $method_name)
+        $self.handle_traffic_resp(client, wrapped_response)
     }};
 }
 
@@ -1672,12 +1698,7 @@ impl Validator for ValidatorService {
         spawn_monitored_task!(async move {
             // NB: traffic tally wrapping handled within the task rather than on task exit
             // to prevent an attacker from subverting traffic control by severing the connection
-            handle_with_decoration!(
-                validator_service,
-                handle_submit_transaction_impl,
-                request,
-                "submit_transaction"
-            )
+            handle_with_decoration!(validator_service, handle_submit_transaction_impl, request)
         })
         .await
         .unwrap()
@@ -1687,54 +1708,51 @@ impl Validator for ValidatorService {
         &self,
         request: tonic::Request<RawWaitForEffectsRequest>,
     ) -> Result<tonic::Response<RawWaitForEffectsResponse>, tonic::Status> {
-        handle_with_decoration!(self, wait_for_effects_impl, request, "wait_for_effects")
+        handle_with_decoration!(self, wait_for_effects_impl, request)
     }
 
     async fn object_info(
         &self,
         request: tonic::Request<ObjectInfoRequest>,
     ) -> Result<tonic::Response<ObjectInfoResponse>, tonic::Status> {
-        handle_with_decoration!(self, object_info_impl, request, "object_info")
+        handle_with_decoration!(self, object_info_impl, request)
     }
 
     async fn transaction_info(
         &self,
         request: tonic::Request<TransactionInfoRequest>,
     ) -> Result<tonic::Response<TransactionInfoResponse>, tonic::Status> {
-        handle_with_decoration!(self, transaction_info_impl, request, "transaction_info")
+        handle_with_decoration!(self, transaction_info_impl, request)
     }
 
     async fn checkpoint(
         &self,
         request: tonic::Request<CheckpointRequest>,
     ) -> Result<tonic::Response<CheckpointResponse>, tonic::Status> {
-        handle_with_decoration!(self, checkpoint_impl, request, "checkpoint")
+        handle_with_decoration!(self, checkpoint_impl, request)
     }
 
     async fn checkpoint_v2(
         &self,
         request: tonic::Request<CheckpointRequestV2>,
     ) -> Result<tonic::Response<CheckpointResponseV2>, tonic::Status> {
-        handle_with_decoration!(self, checkpoint_v2_impl, request, "checkpoint_v2")
+        handle_with_decoration!(self, checkpoint_v2_impl, request)
     }
 
     async fn get_system_state_object(
         &self,
         request: tonic::Request<SystemStateRequest>,
     ) -> Result<tonic::Response<HaneulSystemState>, tonic::Status> {
-        handle_with_decoration!(
-            self,
-            get_system_state_object_impl,
-            request,
-            "get_system_state_object"
-        )
+        handle_with_decoration!(self, get_system_state_object_impl, request)
     }
 
     async fn validator_health(
         &self,
         request: tonic::Request<haneul_types::messages_grpc::RawValidatorHealthRequest>,
-    ) -> Result<tonic::Response<haneul_types::messages_grpc::RawValidatorHealthResponse>, tonic::Status>
-    {
-        handle_with_decoration!(self, validator_health_impl, request, "validator_health")
+    ) -> Result<
+        tonic::Response<haneul_types::messages_grpc::RawValidatorHealthResponse>,
+        tonic::Status,
+    > {
+        handle_with_decoration!(self, validator_health_impl, request)
     }
 }

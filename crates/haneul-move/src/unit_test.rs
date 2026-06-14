@@ -2,22 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use clap::Parser;
-use move_cli::base::{
-    self,
-    test::{self, UnitTestResult},
-};
-use move_package_alt_compilation::build_config::BuildConfig;
-use move_unit_test::{UnitTestingConfig, vm_test_setup::VMTestSetup};
-use move_vm_config::runtime::VMConfig;
-use move_vm_runtime::natives::extensions::NativeContextExtensions;
-use std::{
-    cell::RefCell,
-    collections::BTreeMap,
-    ops::{Deref, DerefMut},
-    path::Path,
-    rc::Rc,
-    sync::{Arc, LazyLock},
-};
 use haneul_adapter::gas_meter::HaneulGasMeter;
 use haneul_move_build::decorate_warnings;
 use haneul_move_natives::{
@@ -34,6 +18,22 @@ use haneul_types::{
     gas_model::{tables::GasStatus, units_types::Gas},
     in_memory_storage::InMemoryStorage,
     metrics::ExecutionMetrics,
+};
+use move_cli::base::{
+    self,
+    test::{self, UnitTestResult},
+};
+use move_package_alt_compilation::build_config::BuildConfig;
+use move_unit_test::{UnitTestingConfig, vm_test_setup::VMTestSetup};
+use move_vm_config::runtime::VMConfig;
+use move_vm_runtime::natives::extensions::NativeContextExtensions;
+use std::{
+    cell::RefCell,
+    collections::BTreeMap,
+    ops::{Deref, DerefMut},
+    path::Path,
+    rc::Rc,
+    sync::{Arc, LazyLock},
 };
 
 // Move unit tests will halt after executing this many steps. This is a protection to avoid divergence

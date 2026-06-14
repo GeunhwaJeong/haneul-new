@@ -3,6 +3,8 @@
 
 use anyhow::Result;
 use fs_extra::dir::CopyOptions;
+use haneul_move_build::BuildConfig;
+use haneul_package_alt::{HaneulFlavor, mainnet_environment};
 use move_binary_format::{CompiledModule, file_format::Visibility};
 use move_compiler::editions::{Edition, Flavor};
 use move_package_alt_compilation::{
@@ -13,8 +15,6 @@ use std::{
     env, fs,
     path::{Path, PathBuf},
 };
-use haneul_move_build::BuildConfig;
-use haneul_package_alt::{HaneulFlavor, mainnet_environment};
 
 const CRATE_ROOT: &str = env!("CARGO_MANIFEST_DIR");
 const COMPILED_PACKAGES_DIR: &str = "packages_compiled";

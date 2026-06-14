@@ -4,8 +4,8 @@
 use std::sync::Arc;
 use std::time::Instant;
 
-use parking_lot::Mutex;
 use haneul_protocol_config::ProtocolConfig;
+use parking_lot::Mutex;
 
 /// Tracks how many gasless transactions were included in consensus commits
 /// within the current 1-second window. Updated by the consensus handler on

@@ -16,8 +16,8 @@ use test_fuzz::runtime::num_traits::ToPrimitive;
 use haneul_framework::BuiltInFramework;
 use haneul_move_build::BuildConfig;
 use haneul_types::base_types::{
-    ObjectID, STD_ASCII_MODULE_NAME, STD_ASCII_STRUCT_NAME, STD_OPTION_MODULE_NAME,
-    STD_OPTION_STRUCT_NAME, HaneulAddress, TransactionDigest,
+    HaneulAddress, ObjectID, STD_ASCII_MODULE_NAME, STD_ASCII_STRUCT_NAME, STD_OPTION_MODULE_NAME,
+    STD_OPTION_STRUCT_NAME, TransactionDigest,
 };
 use haneul_types::dynamic_field::derive_dynamic_field_id;
 use haneul_types::gas_coin::GasCoin;
@@ -545,7 +545,8 @@ fn test_no_address_zero_trimming() {
         .unwrap(),
     )
     .unwrap();
-    let value = HaneulJsonValue::from_bcs_bytes(Some(&MoveTypeLayout::Address), &bcs_bytes).unwrap();
+    let value =
+        HaneulJsonValue::from_bcs_bytes(Some(&MoveTypeLayout::Address), &bcs_bytes).unwrap();
     assert_eq!(
         "0x0000000000000000000000000000011111111111111111111111111111111111",
         value.0.as_str().unwrap()

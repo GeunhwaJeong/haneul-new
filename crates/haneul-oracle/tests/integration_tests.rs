@@ -4,13 +4,12 @@
 use std::path::Path;
 use std::str::FromStr;
 
-use shared_crypto::intent::Intent;
 use haneul_keys::keystore::{AccountKeystore, FileBasedKeystore, Keystore};
 use haneul_move_build::BuildConfig;
 use haneul_rpc_api::Client;
 use haneul_sdk::haneul_sdk_types::StructTag;
 use haneul_sdk::types::Identifier;
-use haneul_sdk::types::base_types::{ObjectID, HaneulAddress};
+use haneul_sdk::types::base_types::{HaneulAddress, ObjectID};
 use haneul_sdk::types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_sdk::types::transaction::{
     CallArg, ObjectArg, SharedObjectMutability, Transaction, TransactionData,
@@ -19,6 +18,7 @@ use haneul_types::base_types::{ObjectRef, SequenceNumber};
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::{TypeTag, parse_haneul_type_tag};
+use shared_crypto::intent::Intent;
 
 // Integration tests for HANEUL Oracle, these test can be run manually on local or remote testnet.
 #[ignore]
@@ -186,7 +186,9 @@ async fn test_publish_complex_value() {
             package,
             module.clone(),
             submit_data.clone(),
-            vec![parse_haneul_type_tag(&format!("{package}::decimal_value::DecimalValue")).unwrap()],
+            vec![
+                parse_haneul_type_tag(&format!("{package}::decimal_value::DecimalValue")).unwrap(),
+            ],
             vec![simple_oracle, clock, ticker, decimal_value, identifier],
         );
     }
@@ -267,7 +269,9 @@ async fn test_consume_oracle_data() {
             .unwrap();
 
         let ticker = builder
-            .input(CallArg::Pure(bcs::to_bytes("HANEULUSD".as_bytes()).unwrap()))
+            .input(CallArg::Pure(
+                bcs::to_bytes("HANEULUSD".as_bytes()).unwrap(),
+            ))
             .unwrap();
         let identifier = builder
             .input(CallArg::Pure(
@@ -279,7 +283,9 @@ async fn test_consume_oracle_data() {
             package,
             module.clone(),
             submit_data.clone(),
-            vec![parse_haneul_type_tag(&format!("{package}::decimal_value::DecimalValue")).unwrap()],
+            vec![
+                parse_haneul_type_tag(&format!("{package}::decimal_value::DecimalValue")).unwrap(),
+            ],
             vec![simple_oracle, clock, ticker, decimal_value, identifier],
         );
 
@@ -317,7 +323,9 @@ async fn test_consume_oracle_data() {
         }))
         .unwrap();
     let ticker = builder
-        .input(CallArg::Pure(bcs::to_bytes("HANEULUSD".as_bytes()).unwrap()))
+        .input(CallArg::Pure(
+            bcs::to_bytes("HANEULUSD".as_bytes()).unwrap(),
+        ))
         .unwrap();
     let data = builder.programmable_move_call(
         package,

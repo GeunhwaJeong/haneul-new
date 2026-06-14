@@ -1,13 +1,6 @@
 name: Docs
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "**.rs"
-      - "Cargo.toml"
-      - "Cargo.lock"
   workflow_dispatch:
 
 jobs:

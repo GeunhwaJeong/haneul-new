@@ -5,7 +5,6 @@ use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::time::Duration;
 
-use consensus_config::{ObserverParameters, Parameters as ConsensusParameters};
 use fastcrypto::encoding::{Encoding, Hex};
 use fastcrypto::traits::KeyPair;
 use haneul_config::node::{
@@ -23,9 +22,10 @@ use haneul_config::{
     local_ip_utils,
 };
 use haneul_protocol_config::Chain;
-use haneul_types::crypto::{AuthorityKeyPair, AuthorityPublicKeyBytes, NetworkKeyPair, HaneulKeyPair};
+use haneul_types::crypto::{
+    AuthorityKeyPair, AuthorityPublicKeyBytes, HaneulKeyPair, NetworkKeyPair,
+};
 use haneul_types::multiaddr::Multiaddr;
-use haneul_types::node_role::FullNodeSyncMode;
 use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 use haneul_types::traffic_control::{PolicyConfig, RemoteFirewallConfig};
 
@@ -50,7 +50,6 @@ pub struct ValidatorConfigBuilder {
     execution_time_observer_config: Option<ExecutionTimeObserverConfig>,
     chain_override: Option<Chain>,
     state_sync_config: Option<StateSyncConfig>,
-    observer_config: Option<ObserverParameters>,
 }
 
 impl ValidatorConfigBuilder {
@@ -143,11 +142,6 @@ impl ValidatorConfigBuilder {
         self
     }
 
-    pub fn with_observer_config(mut self, config: ObserverParameters) -> Self {
-        self.observer_config = Some(config);
-        self
-    }
-
     pub fn build(
         self,
         validator: ValidatorGenesisConfig,
@@ -164,24 +158,12 @@ impl ValidatorConfigBuilder {
         let network_address = validator.network_address;
         let consensus_db_path = config_directory.join(CONSENSUS_DB_NAME).join(key_path);
         let localhost = local_ip_utils::localhost_for_testing();
-        let parameters = self
-            .observer_config
-            .map(|observer_config| ConsensusParameters {
-                observer: ObserverParameters {
-                    server_port: observer_config
-                        .server_port
-                        .or_else(|| Some(local_ip_utils::get_available_port(&localhost))),
-                    allowlist: observer_config.allowlist,
-                    peers: observer_config.peers,
-                },
-                ..Default::default()
-            });
         let consensus_config = ConsensusConfig {
             db_path: consensus_db_path,
             db_retention_epochs: None,
             db_pruner_period_secs: None,
             max_pending_transactions: None,
-            parameters,
+            parameters: Default::default(),
             listen_address: None,
             external_address: None,
         };
@@ -222,9 +204,13 @@ impl ValidatorConfigBuilder {
 
         NodeConfig {
             protocol_key_pair: AuthorityKeyPairWithPath::new(validator.key_pair),
-            network_key_pair: KeyPairWithPath::new(HaneulKeyPair::Ed25519(validator.network_key_pair)),
+            network_key_pair: KeyPairWithPath::new(HaneulKeyPair::Ed25519(
+                validator.network_key_pair,
+            )),
             account_key_pair: KeyPairWithPath::new(validator.account_key_pair),
-            worker_key_pair: KeyPairWithPath::new(HaneulKeyPair::Ed25519(validator.worker_key_pair)),
+            worker_key_pair: KeyPairWithPath::new(HaneulKeyPair::Ed25519(
+                validator.worker_key_pair,
+            )),
             db_path,
             network_address,
             metrics_address: validator.metrics_address,
@@ -233,7 +219,6 @@ impl ValidatorConfigBuilder {
                 .to_socket_addr()
                 .unwrap(),
             consensus_config: Some(consensus_config),
-            fullnode_sync_mode: None,
             remove_deprecated_tables: false,
             enable_index_processing: default_enable_index_processing(),
             sync_post_process_one_tx: false,
@@ -329,7 +314,6 @@ pub struct FullnodeConfigBuilder {
     transaction_driver_config: Option<TransactionDriverConfig>,
     rpc_config: Option<haneul_config::RpcConfig>,
     state_sync_config: Option<StateSyncConfig>,
-    observer_config: Option<ObserverParameters>,
 }
 
 impl FullnodeConfigBuilder {
@@ -435,8 +419,9 @@ impl FullnodeConfigBuilder {
 
     pub fn with_network_key_pair(mut self, network_key_pair: Option<NetworkKeyPair>) -> Self {
         if let Some(network_key_pair) = network_key_pair {
-            self.network_key_pair =
-                Some(KeyPairWithPath::new(HaneulKeyPair::Ed25519(network_key_pair)));
+            self.network_key_pair = Some(KeyPairWithPath::new(HaneulKeyPair::Ed25519(
+                network_key_pair,
+            )));
         }
         self
     }
@@ -476,11 +461,6 @@ impl FullnodeConfigBuilder {
         self
     }
 
-    pub fn with_observer_config(mut self, config: ObserverParameters) -> Self {
-        self.observer_config = Some(config);
-        self
-    }
-
     pub fn build<R: rand::RngCore + rand::CryptoRng>(
         self,
         rng: &mut R,
@@ -500,34 +480,6 @@ impl FullnodeConfigBuilder {
         let config_directory = self
             .config_directory
             .unwrap_or_else(|| haneullabs_common::tempdir().unwrap().keep());
-
-        let consensus_db_path = config_directory.join(CONSENSUS_DB_NAME).join(&key_path);
-
-        let fullnode_sync_mode = self
-            .observer_config
-            .as_ref()
-            .filter(|c| !c.peers.is_empty())
-            .map(|_| FullNodeSyncMode::ConsensusObserver);
-
-        // Create consensus config, if observer config is provided.
-        let consensus_config = self.observer_config.map(|observer_config| ConsensusConfig {
-            db_path: consensus_db_path,
-            db_retention_epochs: None,
-            db_pruner_period_secs: None,
-            max_pending_transactions: None,
-            parameters: Some(ConsensusParameters {
-                observer: ObserverParameters {
-                    server_port: observer_config
-                        .server_port
-                        .or_else(|| Some(local_ip_utils::get_available_port(&ip))),
-                    allowlist: observer_config.allowlist,
-                    peers: observer_config.peers,
-                },
-                ..Default::default()
-            }),
-            listen_address: None,
-            external_address: None,
-        });
 
         let p2p_config = {
             let seed_peers = network_config
@@ -612,8 +564,7 @@ impl FullnodeConfigBuilder {
                 .admin_interface_port
                 .unwrap_or(local_ip_utils::get_available_port(&localhost)),
             json_rpc_address: self.json_rpc_address.unwrap_or(json_rpc_address),
-            fullnode_sync_mode,
-            consensus_config,
+            consensus_config: None,
             remove_deprecated_tables: false,
             enable_index_processing: default_enable_index_processing(),
             sync_post_process_one_tx: self.sync_post_process_one_tx,

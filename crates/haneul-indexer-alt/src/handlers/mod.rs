@@ -7,7 +7,6 @@ use haneul_indexer_alt_framework::types::object::Owner;
 
 pub(crate) mod cp_bloom_blocks;
 pub(crate) mod cp_blooms;
-pub(crate) mod cp_digests;
 pub(crate) mod cp_sequence_numbers;
 pub(crate) mod ev_emit_mod;
 pub(crate) mod ev_struct_inst;
@@ -32,7 +31,9 @@ pub(crate) mod tx_kinds;
 ///
 /// Returns addresses from `AddressOwner` and `ConsensusAddressOwner` owners,
 /// skipping other owner types.
-pub(crate) fn affected_addresses(effects: &TransactionEffects) -> impl Iterator<Item = HaneulAddress> {
+pub(crate) fn affected_addresses(
+    effects: &TransactionEffects,
+) -> impl Iterator<Item = HaneulAddress> {
     effects
         .all_changed_objects()
         .into_iter()

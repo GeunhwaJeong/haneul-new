@@ -18,7 +18,7 @@ pub mod checked {
     };
     use haneul_types::{
         accumulator_event::AccumulatorEvent,
-        base_types::{ObjectID, ObjectRef, HaneulAddress},
+        base_types::{HaneulAddress, ObjectID, ObjectRef},
         digests::TransactionDigest,
         error::ExecutionError,
         gas_model::tables::GasStatus,

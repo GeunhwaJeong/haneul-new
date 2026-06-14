@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use anyhow::Context;
-use prometheus::Registry;
 use haneul_indexer_alt_framework::Indexer;
 use haneul_indexer_alt_framework::IndexerArgs;
 use haneul_indexer_alt_framework::ingestion::ClientArgs;
@@ -15,6 +14,7 @@ use haneul_indexer_alt_framework::postgres::Db;
 use haneul_indexer_alt_framework::postgres::DbArgs;
 use haneul_indexer_alt_metrics::db::DbConnectionStatsCollector;
 use haneul_indexer_alt_schema::MIGRATIONS;
+use prometheus::Registry;
 use url::Url;
 
 use crate::bootstrap::bootstrap;
@@ -22,7 +22,6 @@ use crate::config::IndexerConfig;
 use crate::config::PipelineLayer;
 use crate::handlers::cp_bloom_blocks::CpBloomBlocks;
 use crate::handlers::cp_blooms::CpBlooms;
-use crate::handlers::cp_digests::CpDigests;
 use crate::handlers::cp_sequence_numbers::CpSequenceNumbers;
 use crate::handlers::ev_emit_mod::EvEmitMod;
 use crate::handlers::ev_struct_inst::EvStructInst;
@@ -72,7 +71,6 @@ pub async fn setup_indexer(
         sum_displays,
         cp_blooms,
         cp_bloom_blocks,
-        cp_digests,
         cp_sequence_numbers,
         ev_emit_mod,
         ev_struct_inst,
@@ -182,7 +180,6 @@ pub async fn setup_indexer(
 
     add_concurrent!(CpBlooms, cp_blooms);
     add_concurrent!(CpBloomBlocks, cp_bloom_blocks);
-    add_concurrent!(CpDigests, cp_digests);
     add_concurrent!(CpSequenceNumbers, cp_sequence_numbers);
     add_concurrent!(EvEmitMod, ev_emit_mod);
     add_concurrent!(EvStructInst, ev_struct_inst);

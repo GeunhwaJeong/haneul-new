@@ -9,15 +9,15 @@ use crate::{
         ResolutionTable, VersionConstraint, add_and_unify,
     },
 };
+use haneul_protocol_config::Amendments;
+use haneul_types::{
+    HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_PACKAGE_ID, MOVE_STDLIB_PACKAGE_ID,
+    base_types::ObjectID, error::ExecutionError,
+};
 use move_binary_format::binary_config::BinaryConfig;
 use move_vm_runtime::{
     shared::types::{OriginalId, VersionId},
     validation::verification::ast::Package as VerifiedPackage,
-};
-use haneul_protocol_config::Amendments;
-use haneul_types::{
-    MOVE_STDLIB_PACKAGE_ID, HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_PACKAGE_ID, base_types::ObjectID,
-    error::ExecutionErrorTrait,
 };
 
 /// These are the set of native packages in Haneul -- importantly they can be used implicitly by
@@ -69,10 +69,10 @@ impl ResolutionConfig {
         &self.0.binary_config
     }
 
-    pub(crate) fn resolution_table_with_native_packages<E: ExecutionErrorTrait>(
+    pub(crate) fn resolution_table_with_native_packages(
         &self,
         store: &dyn PackageStore,
-    ) -> Result<ResolutionTable, E> {
+    ) -> Result<ResolutionTable, ExecutionError> {
         let mut resolution_table = ResolutionTable::empty(self.clone());
         if self.0.linkage_config.always_include_system_packages {
             for id in NATIVE_PACKAGE_IDS {

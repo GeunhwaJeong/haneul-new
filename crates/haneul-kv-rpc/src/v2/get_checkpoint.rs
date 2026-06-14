@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use haneul_kvstore::CheckpointData;
 use haneul_kvstore::tables::checkpoints::col;
 use haneul_kvstore::{BigTableClient, CHECKPOINTS_PIPELINE, KeyValueStoreReader};
 use haneul_rpc::field::{FieldMask, FieldMaskTree, FieldMaskUtil};
@@ -14,7 +13,7 @@ use haneul_rpc_api::{
 use haneul_storage::object_store::util::{build_object_store, fetch_checkpoint};
 use haneul_types::digests::CheckpointDigest;
 
-pub const READ_MASK_DEFAULT: &str = haneul_rpc_api::read_mask_defaults::CHECKPOINT;
+pub const READ_MASK_DEFAULT: &str = "sequence_number,digest";
 
 pub async fn get_checkpoint(
     mut client: BigTableClient,
@@ -64,33 +63,20 @@ pub async fn get_checkpoint(
         }
     };
 
-    let message =
-        checkpoint_to_response(checkpoint, &read_mask, checkpoint_bucket.as_deref()).await?;
-    Ok(GetCheckpointResponse::new(message))
-}
-
-/// Render a `CheckpointData` into the proto `Checkpoint`, populating fields
-/// according to `read_mask`. Shared by `get_checkpoint` and the
-/// v2alpha list-checkpoints handler.
-pub(crate) async fn checkpoint_to_response(
-    checkpoint: CheckpointData,
-    read_mask: &FieldMaskTree,
-    checkpoint_bucket: Option<&str>,
-) -> Result<Checkpoint, RpcError> {
     let summary = checkpoint
         .summary
         .ok_or_else(|| anyhow::anyhow!("checkpoint summary missing"))?;
     let sequence_number = summary.sequence_number;
     let mut message = Checkpoint::default();
     let summary: haneul_sdk_types::CheckpointSummary = summary.try_into()?;
-    message.merge(&summary, read_mask);
+    message.merge(&summary, &read_mask);
 
     if read_mask.contains(Checkpoint::SIGNATURE_FIELD) {
         let signatures = checkpoint
             .signatures
             .ok_or_else(|| anyhow::anyhow!("checkpoint signatures missing"))?;
         let signatures: haneul_sdk_types::ValidatorAggregatedSignature = signatures.into();
-        message.merge(signatures, read_mask);
+        message.merge(signatures, &read_mask);
     }
 
     if read_mask.contains(Checkpoint::CONTENTS_FIELD.name) {
@@ -99,7 +85,7 @@ pub(crate) async fn checkpoint_to_response(
             .ok_or_else(|| anyhow::anyhow!("checkpoint contents missing"))?;
         message.merge(
             haneul_sdk_types::CheckpointContents::try_from(contents)?,
-            read_mask,
+            &read_mask,
         );
     }
 
@@ -107,19 +93,19 @@ pub(crate) async fn checkpoint_to_response(
         || read_mask.contains(Checkpoint::OBJECTS_FIELD))
         && let Some(url) = checkpoint_bucket
     {
-        let store = build_object_store(url, vec![]);
+        let store = build_object_store(&url, vec![]);
         let checkpoint = fetch_checkpoint(&store, sequence_number).await?;
 
-        message.merge(&checkpoint, read_mask);
+        message.merge(&checkpoint, &read_mask);
     }
 
-    Ok(message)
+    Ok(GetCheckpointResponse::new(message))
 }
 
 /// Compute the set of BigTable columns needed for the given read mask.
 /// Always includes `s` (summary) since it provides sequence_number, digest, etc.
 /// Only includes `sg` (signatures) and `c` (contents) when needed.
-pub(crate) fn checkpoint_columns(mask: &FieldMaskTree) -> Vec<&'static str> {
+fn checkpoint_columns(mask: &FieldMaskTree) -> Vec<&'static str> {
     let mut columns = vec![col::SUMMARY];
 
     if mask.contains(Checkpoint::SIGNATURE_FIELD) {

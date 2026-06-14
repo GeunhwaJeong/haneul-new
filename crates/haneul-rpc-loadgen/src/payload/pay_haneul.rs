@@ -29,8 +29,8 @@ impl<'a> ProcessPayload<'a, &'a PayHaneul> for RpcCommandProcessor {
         let gas_budget = gas_budget.unwrap_or(DEFAULT_GAS_BUDGET);
         let gas_payments = gas_payment.unwrap();
 
-        let keypair =
-            HaneulKeyPair::decode_base64(&encoded_keypair).expect("Decoding keypair should not fail");
+        let keypair = HaneulKeyPair::decode_base64(&encoded_keypair)
+            .expect("Decoding keypair should not fail");
 
         debug!(
             "Transfer Haneul {} time to {recipient} with {amount} GEUNHWA with {gas_payments:?}",

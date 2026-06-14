@@ -3,9 +3,9 @@
 
 //! This module contains the public APIs supported by the bytecode verifier.
 
+use haneul_types::{error::ExecutionError, move_package::FnInfoMap};
 use move_binary_format::file_format::CompiledModule;
 use move_vm_config::verifier::VerifierConfig;
-use haneul_types::{error::ExecutionError, move_package::FnInfoMap};
 
 use crate::{
     entry_points_verifier, global_storage_access_verifier, id_leak_verifier,

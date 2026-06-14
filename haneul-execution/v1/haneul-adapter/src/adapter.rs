@@ -8,6 +8,9 @@ mod checked {
     use std::{collections::BTreeMap, sync::Arc};
 
     use anyhow::Result;
+    use haneul_move_natives::object_runtime;
+    use haneul_types::{error::HaneulErrorKind, metrics::BytecodeVerifierMetrics};
+    use haneul_verifier::check_for_verifier_timeout;
     use move_binary_format::file_format::CompiledModule;
     use move_bytecode_verifier::verify_module_with_config_metered;
     use move_bytecode_verifier_meter::Meter;
@@ -20,9 +23,6 @@ mod checked {
         move_vm::MoveVM, native_extensions::NativeContextExtensions,
         native_functions::NativeFunctionTable,
     };
-    use haneul_move_natives::object_runtime;
-    use haneul_types::{error::HaneulErrorKind, metrics::BytecodeVerifierMetrics};
-    use haneul_verifier::check_for_verifier_timeout;
     use tracing::instrument;
 
     use haneul_move_natives::{object_runtime::ObjectRuntime, NativesCostTable};

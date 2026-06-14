@@ -1,10 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use proptest::arbitrary::*;
-use proptest::prelude::*;
-use proptest::test_runner::TestCaseError;
-use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress, dbg_addr};
+use haneul_types::base_types::{HaneulAddress, ObjectID, ObjectRef, dbg_addr};
 use haneul_types::crypto::{AccountKeyPair, KeypairTraits, get_key_pair};
 use haneul_types::digests::TransactionDigest;
 use haneul_types::error::HaneulError;
@@ -12,6 +9,9 @@ use haneul_types::object::{MoveObject, OBJECT_START_VERSION, Object, Owner};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{GasData, TransactionData, TransactionKind};
 use haneul_types::utils::to_sender_signed_transaction;
+use proptest::arbitrary::*;
+use proptest::prelude::*;
+use proptest::test_runner::TestCaseError;
 use tracing::debug;
 use transaction_fuzzer::GasDataGenConfig;
 use transaction_fuzzer::GasDataWithObjects;
@@ -329,7 +329,8 @@ fn make_gas_data_balance_insufficient(rgp: u64) -> GasDataWithObjects {
 /// ensuring edge cases are always exercised alongside random exploration.
 fn gen_gas_data_with_edge_cases() -> BoxedStrategy<GasDataWithObjects> {
     let rgp = Executor::new().get_reference_gas_price();
-    let max_budget = haneul_protocol_config::ProtocolConfig::get_for_max_version_UNSAFE().max_tx_gas();
+    let max_budget =
+        haneul_protocol_config::ProtocolConfig::get_for_max_version_UNSAFE().max_tx_gas();
 
     prop_oneof![
         1 => Just(()).prop_map(move |_| make_valid_gas_data(rgp)),
@@ -498,7 +499,8 @@ fn test_gas_budget_zero() {
 fn test_gas_budget_exceeds_max() {
     let mut executor = Executor::new();
     let rgp = executor.get_reference_gas_price();
-    let max_budget = haneul_protocol_config::ProtocolConfig::get_for_max_version_UNSAFE().max_tx_gas();
+    let max_budget =
+        haneul_protocol_config::ProtocolConfig::get_for_max_version_UNSAFE().max_tx_gas();
     let case = make_gas_data_budget_exceeds_max(rgp, max_budget);
     let sender = case.sender_key.public().into();
 

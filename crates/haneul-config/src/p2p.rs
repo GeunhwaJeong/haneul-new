@@ -3,11 +3,11 @@
 
 use std::{net::SocketAddr, num::NonZeroU32, path::PathBuf, time::Duration};
 
-use serde::{Deserialize, Serialize};
 use haneul_types::{
     messages_checkpoint::{CheckpointDigest, CheckpointSequenceNumber},
     multiaddr::Multiaddr,
 };
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
@@ -445,7 +445,7 @@ impl StateSyncConfig {
 ///   node's info will not be shared through discovery.
 /// * Trusted is the same as Private, except it allows sharing the node's info
 ///   only to other preconfigured peers (i.e. those in `allowlisted_peers` and
-///   `seed_peers`, or active Haneul validators).
+///   `seed_peers`).
 /// * If not set, defaults to Public.
 ///
 /// AccessType is useful when a network of nodes want to stay private. To achieve this,

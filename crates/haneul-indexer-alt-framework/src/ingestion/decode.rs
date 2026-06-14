@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use prost::Message;
 use haneul_rpc::proto::TryFromProtoError;
 use haneul_rpc::proto::haneul::rpc::v2 as proto;
+use prost::Message;
 
 use crate::types::full_checkpoint_content::Checkpoint;
 

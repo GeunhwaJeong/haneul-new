@@ -15,8 +15,6 @@ use crate::{
     },
     move_call,
 };
-use move_core_types::ident_str;
-use std::sync::Arc;
 use haneul_macros::{register_fail_point_arg, sim_test};
 use haneul_protocol_config::{
     Chain, ExecutionTimeEstimateParams, PerObjectCongestionControlMode, ProtocolConfig,
@@ -30,12 +28,14 @@ use haneul_types::transaction::PlainTransactionWithClaims;
 use haneul_types::transaction::VerifiedTransaction;
 use haneul_types::transaction::{ObjectArg, SharedObjectMutability};
 use haneul_types::{
-    base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress},
+    base_types::{HaneulAddress, ObjectID, ObjectRef, SequenceNumber},
     crypto::{AccountKeyPair, get_key_pair},
     execution_status::{CongestedObjects, ExecutionErrorKind},
     object::Object,
     programmable_transaction_builder::ProgrammableTransactionBuilder,
 };
+use move_core_types::ident_str;
+use std::sync::Arc;
 
 pub const TEST_ONLY_GAS_PRICE: u64 = 1000;
 pub const TEST_ONLY_GAS_UNIT: u64 = 10_000;
@@ -82,7 +82,9 @@ impl TestSetup {
 
         let gas_object_id = ObjectID::random();
         let gas_object = Object::with_id_owner_for_testing(gas_object_id, sender);
-        setup_authority_state.insert_genesis_object(gas_object.clone());
+        setup_authority_state
+            .insert_genesis_object(gas_object.clone())
+            .await;
 
         let package = build_and_publish_test_package(
             &setup_authority_state,
@@ -177,17 +179,19 @@ impl TestSetup {
         genesis_objects.push(TestSetup::convert_to_genesis_obj(
             self.setup_authority_state
                 .get_object(&self.package.0)
+                .await
                 .unwrap(),
         ));
         genesis_objects.push(TestSetup::convert_to_genesis_obj(
             self.setup_authority_state
                 .get_object(&self.gas_object_id)
+                .await
                 .unwrap(),
         ));
 
         for obj in objects {
             genesis_objects.push(TestSetup::convert_to_genesis_obj(
-                self.setup_authority_state.get_object(obj).unwrap(),
+                self.setup_authority_state.get_object(obj).await.unwrap(),
             ));
         }
         genesis_objects
@@ -224,13 +228,17 @@ async fn test_congestion_control_execution_cancellation() {
         .with_protocol_config(test_setup.protocol_config.clone())
         .build()
         .await;
-    authority_state.insert_genesis_objects(&genesis_objects);
+    authority_state
+        .insert_genesis_objects(&genesis_objects)
+        .await;
     let authority_state_2 = TestAuthorityBuilder::new()
         .with_reference_gas_price(TEST_ONLY_GAS_PRICE)
         .with_protocol_config(test_setup.protocol_config.clone())
         .build()
         .await;
-    authority_state_2.insert_genesis_objects(&genesis_objects);
+    authority_state_2
+        .insert_genesis_objects(&genesis_objects)
+        .await;
 
     // Initialize shared object queue so that any transaction touches shared_object_1 should result in congestion and cancellation.
     // Set initial cost of 10 for shared_object_1, which with 0% target_utilization and 0 burst limit
@@ -278,6 +286,7 @@ async fn test_congestion_control_execution_cancellation() {
         .unwrap();
     let owned_object_ref = authority_state
         .get_object(&owned_object.0)
+        .await
         .unwrap()
         .compute_object_reference();
     let arg3 = txn_builder

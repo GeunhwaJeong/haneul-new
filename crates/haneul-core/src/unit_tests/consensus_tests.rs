@@ -12,9 +12,6 @@ use crate::mock_consensus::with_block_status;
 use consensus_core::BlockStatus;
 use consensus_types::block::{BlockRef, PING_TRANSACTION_INDEX};
 use fastcrypto::traits::KeyPair;
-use move_core_types::{account_address::AccountAddress, ident_str};
-use rand::rngs::StdRng;
-use rand::{Rng, SeedableRng, thread_rng};
 use haneul_macros::sim_test;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::HANEUL_FRAMEWORK_PACKAGE_ID;
@@ -28,10 +25,13 @@ use haneul_types::transaction::SharedObjectMutability;
 use haneul_types::transaction::VerifiedTransactionWithAliases;
 use haneul_types::utils::{make_committee_key_num, to_sender_signed_transaction};
 use haneul_types::{
-    base_types::{ExecutionDigests, ObjectID, HaneulAddress},
+    base_types::{ExecutionDigests, HaneulAddress, ObjectID},
     object::Object,
     transaction::{CallArg, ObjectArg, TEST_ONLY_GAS_UNIT_FOR_OBJECT_BASICS, TransactionData},
 };
+use move_core_types::{account_address::AccountAddress, ident_str};
+use rand::rngs::StdRng;
+use rand::{Rng, SeedableRng, thread_rng};
 use tokio::time::sleep;
 
 /// Fixture: a few test gas objects.
@@ -75,7 +75,7 @@ pub async fn test_user_transactions_with_gas_objects(
     };
     for gas_object in gas_objects {
         // Object digest may be different in genesis than originally generated.
-        let gas_object = authority.get_object(&gas_object.id()).unwrap();
+        let gas_object = authority.get_object(&gas_object.id()).await.unwrap();
         // Make a sample transaction.
         let module = "object_basics";
         let function = "create";
@@ -123,10 +123,10 @@ pub async fn test_user_transaction(
     let rgp = epoch_store.reference_gas_price();
 
     // Object digest may be different in genesis than originally generated.
-    let gas_object = authority.get_object(&gas_object.id()).unwrap();
+    let gas_object = authority.get_object(&gas_object.id()).await.unwrap();
     let mut input_objs = vec![];
     for obj in input_objects {
-        input_objs.push(authority.get_object(&obj.id()).unwrap());
+        input_objs.push(authority.get_object(&obj.id()).await.unwrap());
     }
 
     let mut object_args: Vec<_> = input_objs

@@ -10,14 +10,11 @@ pub(crate) trait CommitteeThreshold {
     fn threshold(committee: &Committee) -> Stake;
 }
 
-#[derive(Clone, Default)]
+#[derive(Default)]
 pub(crate) struct QuorumThreshold;
 
-#[derive(Clone, Default)]
-pub(crate) struct CertificationThreshold;
-
 #[cfg(test)]
-#[derive(Clone, Default)]
+#[derive(Default)]
 pub(crate) struct ValidityThreshold;
 
 impl CommitteeThreshold for QuorumThreshold {
@@ -26,15 +23,6 @@ impl CommitteeThreshold for QuorumThreshold {
     }
     fn threshold(committee: &Committee) -> Stake {
         committee.quorum_threshold()
-    }
-}
-
-impl CommitteeThreshold for CertificationThreshold {
-    fn is_threshold(committee: &Committee, amount: Stake) -> bool {
-        amount >= committee.certification_threshold()
-    }
-    fn threshold(committee: &Committee) -> Stake {
-        committee.certification_threshold()
     }
 }
 
@@ -48,7 +36,7 @@ impl CommitteeThreshold for ValidityThreshold {
     }
 }
 
-#[derive(Clone, Default)]
+#[derive(Default)]
 pub(crate) struct StakeAggregator<T> {
     votes: BTreeSet<AuthorityIndex>,
     stake: Stake,
@@ -87,10 +75,6 @@ impl<T: CommitteeThreshold> StakeAggregator<T> {
 
     pub(crate) fn stake(&self) -> Stake {
         self.stake
-    }
-
-    pub(crate) fn authorities(&self) -> &BTreeSet<AuthorityIndex> {
-        &self.votes
     }
 
     pub(crate) fn reached_threshold(&self, committee: &Committee) -> bool {

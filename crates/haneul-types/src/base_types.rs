@@ -2,12 +2,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::MOVE_STDLIB_ADDRESS;
-use crate::MoveTypeTagTrait;
-use crate::MoveTypeTagTraitGeneric;
 use crate::HANEUL_CLOCK_OBJECT_ID;
 use crate::HANEUL_FRAMEWORK_ADDRESS;
 use crate::HANEUL_SYSTEM_ADDRESS;
+use crate::MOVE_STDLIB_ADDRESS;
+use crate::MoveTypeTagTrait;
+use crate::MoveTypeTagTraitGeneric;
 use crate::accumulator_root::accumulator_value_balance_type_maybe;
 use crate::balance::Balance;
 use crate::coin::COIN_MODULE_NAME;
@@ -18,7 +18,8 @@ use crate::coin::TreasuryCap;
 use crate::coin_registry::Currency;
 pub use crate::committee::EpochId;
 use crate::crypto::{
-    AuthorityPublicKeyBytes, DefaultHash, PublicKey, SignatureScheme, HaneulPublicKey, HaneulSignature,
+    AuthorityPublicKeyBytes, DefaultHash, HaneulPublicKey, HaneulSignature, PublicKey,
+    SignatureScheme,
 };
 pub use crate::digests::{ObjectDigest, TransactionDigest, TransactionEffectsDigest};
 use crate::dynamic_field::DynamicFieldInfo;
@@ -36,15 +37,15 @@ use crate::gas_coin::GasCoin;
 use crate::governance::STAKED_HANEUL_STRUCT_NAME;
 use crate::governance::STAKING_POOL_MODULE_NAME;
 use crate::governance::StakedHaneul;
+use crate::haneul_serde::Readable;
+use crate::haneul_serde::to_custom_deser_error;
+use crate::haneul_serde::to_haneul_struct_tag_string;
 use crate::id::RESOLVED_HANEUL_ID;
 use crate::messages_checkpoint::CheckpointTimestamp;
 use crate::multisig::MultiSigPublicKey;
 use crate::object::{Object, Owner};
 use crate::parse_haneul_struct_tag;
 use crate::signature::GenericSignature;
-use crate::haneul_serde::Readable;
-use crate::haneul_serde::to_custom_deser_error;
-use crate::haneul_serde::to_haneul_struct_tag_string;
 use crate::transaction::Transaction;
 use crate::transaction::VerifiedTransaction;
 use crate::zk_login_authenticator::ZkLoginAuthenticator;
@@ -54,6 +55,7 @@ use fastcrypto::encoding::{Encoding, Hex};
 use fastcrypto::hash::HashFunction;
 use fastcrypto::traits::AllowedRng;
 use fastcrypto_zkp::bn254::zk_login::ZkLoginInputs;
+use haneul_protocol_config::ProtocolConfig;
 use move_binary_format::CompiledModule;
 use move_binary_format::file_format::SignatureToken;
 use move_bytecode_utils::resolve_struct;
@@ -80,7 +82,6 @@ use std::cmp::max;
 use std::convert::{TryFrom, TryInto};
 use std::fmt;
 use std::str::FromStr;
-use haneul_protocol_config::ProtocolConfig;
 
 #[cfg(test)]
 #[path = "unit_tests/base_types_tests.rs"]
@@ -551,9 +552,11 @@ impl MoveObjectType {
             MoveObjectType_::Coin(inner) => {
                 Coin::is_coin(s) && s.type_params.len() == 1 && inner == &s.type_params[0]
             }
-            MoveObjectType_::HaneulBalanceAccumulatorField => accumulator_value_balance_type_maybe(s)
-                .map(|t| GAS::is_gas_type(&t))
-                .unwrap_or(false),
+            MoveObjectType_::HaneulBalanceAccumulatorField => {
+                accumulator_value_balance_type_maybe(s)
+                    .map(|t| GAS::is_gas_type(&t))
+                    .unwrap_or(false)
+            }
             MoveObjectType_::BalanceAccumulatorField(inner) => {
                 accumulator_value_balance_type_maybe(s)
                     .map(|t| &t == inner)

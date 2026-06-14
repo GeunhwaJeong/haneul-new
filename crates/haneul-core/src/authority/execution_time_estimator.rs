@@ -15,14 +15,6 @@ use super::authority_per_epoch_store::AuthorityPerEpochStore;
 use super::weighted_moving_average::WeightedMovingAverage;
 use crate::consensus_adapter::SubmitToConsensus;
 use governor::{Quota, RateLimiter, clock::MonotonicClock};
-use itertools::Itertools;
-use lru::LruCache;
-#[cfg(not(msim))]
-use haneullabs_common::in_antithesis;
-use haneullabs_common::{assert_reachable, debug_fatal, in_test_configuration};
-use haneullabs_metrics::{monitored_scope, spawn_monitored_task};
-use rand::{Rng, SeedableRng, random, rngs, thread_rng};
-use simple_moving_average::{SMA, SingleSumSMA};
 use haneul_config::node::ExecutionTimeObserverConfig;
 use haneul_protocol_config::{ExecutionTimeEstimateParams, PerObjectCongestionControlMode};
 use haneul_types::{
@@ -36,6 +28,14 @@ use haneul_types::{
         TransactionDataAPI, TransactionKind,
     },
 };
+#[cfg(not(msim))]
+use haneullabs_common::in_antithesis;
+use haneullabs_common::{assert_reachable, debug_fatal, in_test_configuration};
+use haneullabs_metrics::{monitored_scope, spawn_monitored_task};
+use itertools::Itertools;
+use lru::LruCache;
+use rand::{Rng, SeedableRng, random, rngs, thread_rng};
+use simple_moving_average::{SMA, SingleSumSMA};
 use tokio::{sync::mpsc, time::Instant};
 use tracing::{debug, info, trace, warn};
 
@@ -901,14 +901,14 @@ mod tests {
         ConsensusAdapter, ConsensusAdapterMetrics, MockConsensusClient,
     };
     use haneul_protocol_config::ProtocolConfig;
-    use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
+    use haneul_types::base_types::{HaneulAddress, ObjectID, SequenceNumber};
     use haneul_types::transaction::{
         Argument, CallArg, ObjectArg, ProgrammableMoveCall, SharedObjectMutability,
     };
     use {
-        rand::{Rng, SeedableRng},
         haneul_protocol_config::ProtocolVersion,
         haneul_types::supported_protocol_versions::Chain,
+        rand::{Rng, SeedableRng},
     };
 
     #[tokio::test]

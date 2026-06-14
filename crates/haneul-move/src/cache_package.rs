@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use clap::Parser;
+use haneul_package_alt::HaneulFlavor;
 use move_package_alt::{
     cache_package,
     schema::{Environment, ManifestDependencyInfo},
 };
 use serde::Deserialize;
-use haneul_package_alt::HaneulFlavor;
 
 /// Download a package and return information about it. Note that local packages must use the
 /// absolute path.

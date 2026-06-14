@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use clap::Parser;
+use haneul_package_alt::HaneulFlavor;
 use move_binary_format::CompiledModule;
 use move_bytecode_source_map::utils::serialize_to_json_string;
 use move_cli::base;
@@ -12,7 +13,6 @@ use std::fs::File;
 use std::io::{BufReader, Read};
 use std::path::Path;
 use std::path::PathBuf;
-use haneul_package_alt::HaneulFlavor;
 
 #[derive(Parser)]
 #[group(id = "haneul-move-disassemmble")]

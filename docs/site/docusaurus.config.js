@@ -357,7 +357,6 @@ const config = {
       "data-mcp-enabled": "true",
       "data-mcp-server-url": "https://haneul.mcp.kapa.ai",
       "data-mcp-button-text": "Use Haneul MCP Server",
-      "data-chat-disclaimer": "**New:** Install [Haneul Agent Skills](https://docs.haneul.io/skills) to supercharge your AI coding agent with Haneul expertise.",
       async: true,
     },
   ],
@@ -382,12 +381,6 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      announcementBar: {
-        id: "skills_launch",
-        content:
-          'New: <a href="/skills">Haneul Agent Skills</a> — drop pre-built skills into Claude Code, Cursor, Codex, and other AI coding agents.',
-        isCloseable: true,
-      },
       image: "img/haneul-doc-og.png",
       mermaid: {
         theme: {
@@ -441,7 +434,6 @@ const config = {
             label: "Getting Started",
             to: "getting-started",
             items: [
-              { to: "/skills", label: "Skills" },
               { type: "doc", docId: "getting-started/onboarding/index", label: "Hello, World!" },
               { type: "doc", docId: "getting-started/examples/index", label: "Example Apps" },
               { type: "doc", docId: "getting-started/tooling", label: "Developer Tools" },
@@ -491,14 +483,13 @@ const config = {
             label: "Haneul Stack",
             to: "haneul-stack",
             items: [
-              { type: "doc", docId: "haneul-stack/on-chain-primitives/access-time", label: "Onchain Time" },
               { type: "doc", docId: "haneul-stack/on-chain-primitives/randomness-onchain", label: "Onchain Randomness" },
+              { type: "doc", docId: "haneul-stack/on-chain-primitives/access-time", label: "Onchain Time" },
               { type: "doc", docId: "haneul-stack/sagat", label: "Sagat" },
               { type: "doc", docId: "haneul-stack/walrus/index", label: "Walrus" },
-              { type: "doc", docId: "haneul-stack/seal/index", label: "Seal" },
-              { type: "doc", docId: "haneul-stack/haneulns/index", label: "HaneulNS" },
-              { type: "doc", docId: "haneul-stack/enoki/solitaire", label: "Enoki" },
+              { type: "doc", docId: "haneul-stack/walrus/index", label: "Seal" },
               { type: "doc", docId: "haneul-stack/nautilus/index", label: "Nautilus" },
+              { type: "doc", docId: "haneul-stack/enoki/solitaire", label: "Enoki" },
               { type: "doc", docId: "haneul-stack/zklogin-integration/index", label: "zkLogin" },
               { type: "doc", docId: "haneul-stack/haneulplay0x1/index", label: "HaneulPlay0X1" },
             ],

@@ -2,9 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use futures::StreamExt;
-use move_core_types::identifier::Identifier;
-use std::sync::Arc;
-use std::time::Duration;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_light_client::authenticated_events::AuthenticatedEventsClient;
 use haneul_macros::sim_test;
@@ -14,15 +11,18 @@ use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc_api::proto::haneul::rpc::v2::GetEpochRequest;
 use haneul_rpc_api::proto::haneul::rpc::v2::ledger_service_client::LedgerServiceClient;
 use haneul_sdk_types::ValidatorCommittee;
-use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID};
 use haneul_types::committee::Committee;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::TransactionData;
+use move_core_types::identifier::Identifier;
+use std::sync::Arc;
+use std::time::Duration;
 use test_cluster::{TestCluster, TestClusterBuilder};
 
 fn create_rpc_config_with_authenticated_events() -> haneul_config::RpcConfig {
     haneul_config::RpcConfig {
-        ledger_history_indexing: Some(true),
+        authenticated_events_indexing: Some(true),
         enable_indexing: Some(true),
         ..Default::default()
     }
@@ -516,32 +516,17 @@ async fn test_client_pruned_checkpoint_error() {
         .await;
 
     let Err(e) = result else {
-        panic!(
-            "Expected error resuming from an unmodifiable checkpoint, but stream creation succeeded"
-        );
+        panic!("Expected error for pruned checkpoint, but stream creation succeeded");
     };
 
-    // Two outcomes are valid for resuming at a checkpoint that didn't emit
-    // any events on this stream:
-    //   * `RpcError` (NotFound) — the checkpoint was actually pruned before
-    //     the resume request landed.
-    //   * `InternalError` carrying "EventStreamHead was not updated" — the
-    //     checkpoint is still retained but never modified the head, so the
-    //     server returned a non-inclusion proof and the client surfaces it
-    //     as an internal error.
-    // The test relies on cluster pruning to flush a stale checkpoint within
-    // the 2-epoch window, but cluster timing is not strict; both shapes
-    // confirm the client refused to silently resume from a checkpoint with
-    // no committed head update.
-    use haneul_light_client::authenticated_events::ClientError;
-    match &e {
-        ClientError::RpcError(status) if status.code() == tonic::Code::NotFound => {}
-        ClientError::InternalError(msg) if msg.contains("EventStreamHead was not updated") => {}
-        other => panic!(
-            "Expected RpcError(NotFound) or InternalError(\"...not updated...\"), got: {:?}",
-            other
+    assert!(
+        matches!(
+            e,
+            haneul_light_client::authenticated_events::ClientError::RpcError(_)
         ),
-    }
+        "Expected RpcError for pruned checkpoint, got: {:?}",
+        e
+    );
 }
 
 #[sim_test]
@@ -722,6 +707,7 @@ async fn test_client_pagination_limit_forward_progress() {
     let config = haneul_light_client::authenticated_events::ClientConfig::new(
         5,                                     /* page_size */
         std::time::Duration::from_millis(100), /* poll_interval */
+        2,                                     /* max_pagination_iterations */
         std::time::Duration::from_secs(30),    /* rpc_timeout */
     )
     .unwrap();

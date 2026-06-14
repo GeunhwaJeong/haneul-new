@@ -1,48 +1,45 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_core_types::language_storage::StructTag;
-use std::str::FromStr;
-use std::time::Duration;
 use haneul_keys::keystore::AccountKeystore;
-use haneul_light_client::authenticated_events::AuthenticatedEvent;
 use haneul_light_client::authenticated_events::mmr::apply_stream_updates;
 use haneul_light_client::proof::base::{Proof, ProofContents, ProofTarget, ProofVerifier};
 use haneul_light_client::proof::committee::extract_new_committee_info;
-use haneul_light_client::proof::ocs::{OCSProof, OCSTarget};
+use haneul_light_client::proof::ocs::{OCSInclusionProof, OCSProof, OCSTarget};
 use haneul_macros::sim_test;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_rpc::field::FieldMask;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::ledger_service_client::LedgerServiceClient;
-use haneul_rpc::proto::haneul::rpc::v2::{GetCheckpointRequest, GetEpochRequest};
-use haneul_rpc::proto::haneul::rpc::v2alpha::ledger_service_client::LedgerServiceClient as V2AlphaLedgerServiceClient;
-use haneul_rpc::proto::haneul::rpc::v2alpha::proof_service_client::ProofServiceClient;
-use haneul_rpc::proto::haneul::rpc::v2alpha::{
-    AffectedObjectFilter, EventFilter, EventLiteral, EventPredicate, EventStreamHeadFilter,
-    EventTerm, GetCheckpointObjectProofRequest, GetCheckpointObjectProofResponse,
-    ListEventsRequest, ListTransactionsRequest, QueryEndReason, QueryOptions, TransactionFilter,
-    TransactionLiteral, TransactionPredicate, TransactionTerm,
-    get_checkpoint_object_proof_response, list_events_response, list_transactions_response,
+use haneul_rpc::proto::haneul::rpc::v2::{Event, GetCheckpointRequest, GetEpochRequest};
+use haneul_rpc_api::grpc::alpha::event_service_proto::event_service_client::EventServiceClient;
+use haneul_rpc_api::grpc::alpha::event_service_proto::{
+    AuthenticatedEvent, ListAuthenticatedEventsRequest,
 };
-use haneul_rpc_api::client::ExecutedTransaction;
+use haneul_rpc_api::grpc::alpha::proof_service_proto::GetObjectInclusionProofRequest;
+use haneul_rpc_api::grpc::alpha::proof_service_proto::proof_service_client::ProofServiceClient;
 use haneul_sdk_types::ValidatorCommittee;
 use haneul_types::accumulator_root as ar;
 use haneul_types::accumulator_root::EventCommitment;
-use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID, SequenceNumber};
 use haneul_types::committee::Committee;
+use haneul_types::digests::{Digest, ObjectDigest};
 use haneul_types::dynamic_field::{DynamicFieldKey, Field};
 use haneul_types::object::Object;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::TransactionData;
-use haneul_types::{MoveTypeTagTraitGeneric, HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS};
+use haneul_types::{
+    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, MoveTypeTagTraitGeneric,
+};
+use itertools::Itertools;
+use move_core_types::language_storage::StructTag;
+use std::str::FromStr;
+use std::time::Duration;
 use test_cluster::{TestCluster, TestClusterBuilder};
 
-/// Test cluster config that enables ledger history indexing, which is what
-/// backs the v2alpha ListEvents and ProofService endpoints.
-fn create_rpc_config_with_ledger_history() -> haneul_config::RpcConfig {
+fn create_rpc_config_with_authenticated_events() -> haneul_config::RpcConfig {
     haneul_config::RpcConfig {
-        ledger_history_indexing: Some(true),
+        authenticated_events_indexing: Some(true),
         enable_indexing: Some(true),
         ..Default::default()
     }
@@ -113,7 +110,7 @@ async fn emit_multiple_test_events(
     sender: HaneulAddress,
     start_value: u64,
     count: u64,
-) -> ExecutedTransaction {
+) -> haneul_rpc_api::client::ExecutedTransaction {
     let rgp = test_cluster.get_reference_gas_price().await;
     let mut ptb = ProgrammableTransactionBuilder::new();
     let start = ptb.pure(start_value).unwrap();
@@ -124,6 +121,40 @@ async fn emit_multiple_test_events(
         move_core_types::identifier::Identifier::new("emit_multiple").unwrap(),
         vec![],
         vec![start, cnt],
+    );
+    let gas_object = test_cluster
+        .wallet
+        .get_one_gas_object_owned_by_address(sender)
+        .await
+        .unwrap()
+        .unwrap();
+    let tx_data = TransactionData::new(
+        haneul_types::transaction::TransactionKind::ProgrammableTransaction(ptb.finish()),
+        sender,
+        gas_object,
+        50_000_000_000,
+        rgp,
+    );
+    test_cluster.sign_and_execute_transaction(&tx_data).await
+}
+
+async fn emit_large_test_event(
+    test_cluster: &TestCluster,
+    package_id: ObjectID,
+    sender: HaneulAddress,
+    value: u64,
+    size: u64,
+) -> haneul_rpc_api::client::ExecutedTransaction {
+    let rgp = test_cluster.get_reference_gas_price().await;
+    let mut ptb = ProgrammableTransactionBuilder::new();
+    let val = ptb.pure(value).unwrap();
+    let sz = ptb.pure(size).unwrap();
+    ptb.programmable_move_call(
+        package_id,
+        move_core_types::identifier::Identifier::new("events").unwrap(),
+        move_core_types::identifier::Identifier::new("emit_large").unwrap(),
+        vec![],
+        vec![val, sz],
     );
     let gas_object = test_cluster
         .wallet
@@ -170,280 +201,72 @@ where
     unreachable!()
 }
 
-fn build_event_stream_head_filter(stream_id: HaneulAddress) -> EventFilter {
-    let head_filter = EventStreamHeadFilter::default().with_stream_id(stream_id.to_string());
-    let predicate = EventPredicate::default().with_event_stream_head(head_filter);
-    let literal = EventLiteral::default().with_include(predicate);
-    let term = EventTerm::default().with_literals(vec![literal]);
-    EventFilter::default().with_terms(vec![term])
-}
-
-fn build_affected_object_filter(object_id: ObjectID) -> TransactionFilter {
-    let predicate = TransactionPredicate::default().with_affected_object(
-        AffectedObjectFilter::default().with_object_id(object_id.to_string()),
-    );
-    let literal = TransactionLiteral::default().with_include(predicate);
-    let term = TransactionTerm::default().with_literals(vec![literal]);
-    TransactionFilter::default().with_terms(vec![term])
-}
-
-/// List every settle_events transaction that touched the given
-/// `EventStreamHead` object in `[start_checkpoint, end_checkpoint)`. Each
-/// settle_events call mutates the stream head, so filtering by
-/// `affected_object = event_stream_head_object_id` returns exactly the
-/// per-stream settlement boundaries. Returns ascending
-/// `(checkpoint, transaction_offset)` pairs.
-async fn fetch_settlements_for_range(
-    client: &mut V2AlphaLedgerServiceClient<tonic::transport::Channel>,
-    stream_head_object_id: ObjectID,
-    start_checkpoint: u64,
-    end_checkpoint_exclusive: u64,
-) -> Result<Vec<(u64, u64)>, tonic::Status> {
-    use futures::StreamExt;
-
-    let filter = build_affected_object_filter(stream_head_object_id);
-    let read_mask = FieldMask::from_paths(["checkpoint"]);
-    let mut all = Vec::new();
-    let mut cursor: Option<Vec<u8>> = None;
-
-    loop {
-        let mut options = QueryOptions::default().with_limit_items(1000);
-        if let Some(c) = cursor.clone() {
-            options.set_after(c);
-        }
-        let mut request = ListTransactionsRequest::default()
-            .with_read_mask(read_mask.clone())
-            .with_start_checkpoint(start_checkpoint)
-            .with_filter(filter.clone())
-            .with_options(options);
-        if end_checkpoint_exclusive > start_checkpoint {
-            request = request.with_end_checkpoint(end_checkpoint_exclusive);
-        }
-
-        let mut response = client.list_transactions(request).await?.into_inner();
-        let mut end_reason: Option<QueryEndReason> = None;
-        let mut last_cursor: Option<Vec<u8>> = None;
-
-        while let Some(frame) = response.next().await {
-            let frame = frame?;
-            match frame.response {
-                Some(list_transactions_response::Response::Item(item)) => {
-                    if let Some(c) = item.watermark.as_ref().and_then(|w| w.cursor.as_ref()) {
-                        last_cursor = Some(c.to_vec());
-                    }
-                    let checkpoint = item
-                        .transaction
-                        .as_ref()
-                        .and_then(|tx| tx.checkpoint)
-                        .ok_or_else(|| {
-                            tonic::Status::internal("settlement tx missing checkpoint")
-                        })?;
-                    let tx_offset = item.transaction_offset.ok_or_else(|| {
-                        tonic::Status::internal("settlement tx missing transaction_offset")
-                    })?;
-                    all.push((checkpoint, tx_offset));
-                }
-                Some(list_transactions_response::Response::Watermark(w)) => {
-                    if let Some(c) = w.cursor.as_ref() {
-                        last_cursor = Some(c.to_vec());
-                    }
-                }
-                Some(list_transactions_response::Response::End(end)) => {
-                    end_reason = QueryEndReason::try_from(end.reason).ok();
-                }
-                Some(_) | None => {}
-            }
-        }
-
-        if matches!(
-            end_reason,
-            Some(QueryEndReason::ItemLimit) | Some(QueryEndReason::ScanLimit),
-        ) {
-            cursor = last_cursor;
-            continue;
-        }
-        break;
-    }
-
-    Ok(all)
-}
-
-/// Bucket events into per-settlement MMR-fold batches. Each event maps to
-/// the next settlement transaction with `(cp == event.cp, tx_offset >=
-/// event.tx_offset)`; events sharing a settlement key form one batch.
-/// Events at checkpoints `<= floor_checkpoint` are dropped (the caller
-/// uses this to skip already-verified initial state).
-fn bucket_events_by_settlement(
-    events: &[AuthenticatedEvent],
-    settlements: &[(u64, u64)],
-    floor_checkpoint: u64,
-) -> Vec<Vec<EventCommitment>> {
-    let mut batches: Vec<Vec<EventCommitment>> = Vec::new();
-    let mut current_key: Option<(u64, u64)> = None;
-    let mut current_batch: Vec<EventCommitment> = Vec::new();
-    let mut settlement_idx: usize = 0;
-
-    for event in events {
-        if event.checkpoint <= floor_checkpoint {
-            continue;
-        }
-
-        while settlement_idx < settlements.len()
-            && (settlements[settlement_idx].0 < event.checkpoint
-                || (settlements[settlement_idx].0 == event.checkpoint
-                    && settlements[settlement_idx].1 < event.transaction_offset))
-        {
-            settlement_idx += 1;
-        }
-        assert!(
-            settlement_idx < settlements.len() && settlements[settlement_idx].0 == event.checkpoint,
-            "no settlement transaction covering event at (cp={}, tx_offset={})",
-            event.checkpoint,
-            event.transaction_offset,
-        );
-
-        let settlement_key = settlements[settlement_idx];
-        let commitment = EventCommitment::new(
-            event.checkpoint,
-            event.transaction_offset,
-            event.event_index as u64,
-            event.event.digest(),
-        );
-
-        match current_key {
-            Some(key) if key == settlement_key => current_batch.push(commitment),
-            _ => {
-                if !current_batch.is_empty() {
-                    batches.push(std::mem::take(&mut current_batch));
-                }
-                current_batch.push(commitment);
-                current_key = Some(settlement_key);
-            }
-        }
-    }
-
-    if !current_batch.is_empty() {
-        batches.push(current_batch);
-    }
-    batches
-}
-
-/// Drive a single `ListEvents` server-streaming request, accumulating every
-/// emitted `EventItem` into `AuthenticatedEvent`s.
-async fn fetch_list_events_page(
-    client: &mut V2AlphaLedgerServiceClient<tonic::transport::Channel>,
-    request: ListEventsRequest,
-) -> Result<(Vec<AuthenticatedEvent>, Option<Vec<u8>>), tonic::Status> {
-    use futures::StreamExt;
-
-    let mut stream = client.list_events(request).await?.into_inner();
-    let mut events = Vec::new();
-    let mut last_cursor: Option<Vec<u8>> = None;
-
-    while let Some(frame) = stream.next().await {
-        let frame = frame?;
-        match frame.response {
-            Some(list_events_response::Response::Item(item)) => {
-                if let Some(cursor) = item.watermark.as_ref().and_then(|w| w.cursor.as_ref()) {
-                    last_cursor = Some(cursor.to_vec());
-                }
-                let event = AuthenticatedEvent::try_from(item).map_err(|e| {
-                    tonic::Status::internal(format!("failed to convert event: {e}"))
-                })?;
-                events.push(event);
-            }
-            Some(list_events_response::Response::Watermark(w)) => {
-                if let Some(cursor) = w.cursor.as_ref() {
-                    last_cursor = Some(cursor.to_vec());
-                }
-            }
-            Some(list_events_response::Response::End(_)) | Some(_) | None => {}
-        }
-    }
-
-    Ok((events, last_cursor))
-}
-
-/// Read mask covering everything the in-tree `AuthenticatedEvent`
-/// converter needs from a v2alpha `EventItem`. The server's default mask
-/// drops `contents`, so we request the full event explicitly.
-fn full_event_read_mask() -> FieldMask {
-    FieldMask::from_paths(["package_id", "module", "sender", "event_type", "contents"])
-}
-
-/// Issue one `ListEvents` call for the given stream and return the events
-/// it produces. Errors propagate so tests can assert specific status codes.
 async fn query_authenticated_events(
     rpc_url: &str,
-    stream_id: HaneulAddress,
+    stream_id: &str,
     start_checkpoint: u64,
     page_size: Option<u32>,
-) -> Result<Vec<AuthenticatedEvent>, tonic::Status> {
-    let mut client =
-        connect_with_retry(|| V2AlphaLedgerServiceClient::connect(rpc_url.to_owned())).await;
+) -> Result<
+    haneul_rpc_api::grpc::alpha::event_service_proto::ListAuthenticatedEventsResponse,
+    tonic::Status,
+> {
+    let mut client = connect_with_retry(|| EventServiceClient::connect(rpc_url.to_owned())).await;
 
-    let mut options = QueryOptions::default();
-    if let Some(size) = page_size {
-        options.set_limit_items(size);
-    }
-    let request = ListEventsRequest::default()
-        .with_read_mask(full_event_read_mask())
-        .with_start_checkpoint(start_checkpoint)
-        .with_filter(build_event_stream_head_filter(stream_id))
-        .with_options(options);
+    let mut req = ListAuthenticatedEventsRequest::default();
+    req.stream_id = Some(stream_id.to_string());
+    req.start_checkpoint = Some(start_checkpoint);
+    req.page_size = page_size;
+    req.page_token = None;
 
-    fetch_list_events_page(&mut client, request)
+    client
+        .list_authenticated_events(req)
         .await
-        .map(|(events, _)| events)
+        .map(|r| r.into_inner())
 }
 
-/// Page through `ListEvents` until the server reports no remaining matches,
-/// returning the full sequence.
 async fn list_authenticated_events(
     rpc_url: &str,
-    stream_id: HaneulAddress,
+    stream_id: &str,
     start_checkpoint: u64,
     page_size: Option<u32>,
 ) -> Vec<AuthenticatedEvent> {
-    let mut client =
-        connect_with_retry(|| V2AlphaLedgerServiceClient::connect(rpc_url.to_owned())).await;
+    let mut event_client =
+        connect_with_retry(|| EventServiceClient::connect(rpc_url.to_owned())).await;
 
-    let filter = build_event_stream_head_filter(stream_id);
     let mut all_events = Vec::new();
-    let mut next_cursor: Option<Vec<u8>> = None;
-    let mut next_checkpoint = start_checkpoint;
+    let mut page_token: Option<Vec<u8>> = None;
+    let page_size_value = page_size.unwrap_or(1000);
 
     loop {
-        let mut options = QueryOptions::default();
-        if let Some(size) = page_size {
-            options.set_limit_items(size);
-        }
-        if let Some(cursor) = next_cursor.clone() {
-            options.set_after(cursor);
-        }
-        let request = ListEventsRequest::default()
-            .with_read_mask(full_event_read_mask())
-            .with_start_checkpoint(next_checkpoint)
-            .with_filter(filter.clone())
-            .with_options(options);
+        let mut req = ListAuthenticatedEventsRequest::default();
+        req.stream_id = Some(stream_id.to_string());
+        req.start_checkpoint = Some(start_checkpoint);
+        req.page_size = page_size;
+        req.page_token = page_token.clone();
 
-        let (events, last_cursor) = fetch_list_events_page(&mut client, request).await.unwrap();
-        let event_count = events.len();
-        let last_checkpoint = events.last().map(|e| e.checkpoint);
-        all_events.extend(events);
+        let response = event_client
+            .list_authenticated_events(req)
+            .await
+            .unwrap()
+            .into_inner();
 
-        match (last_cursor, last_checkpoint) {
-            (Some(cursor), Some(_)) if event_count > 0 => {
-                next_cursor = Some(cursor);
-            }
-            _ => break,
+        let event_count = response.events.len();
+        all_events.extend(response.events);
+
+        if response.next_page_token.is_none()
+            || response.next_page_token.as_ref().unwrap().is_empty()
+        {
+            break;
         }
 
-        // Cursor-bounded paging: advance the lower checkpoint so the next
-        // request scans strictly past the last returned event.
-        if let Some(cp) = last_checkpoint {
-            next_checkpoint = cp;
-        }
+        page_token = response.next_page_token;
+
+        assert!(
+            event_count <= page_size_value as usize,
+            "Page should not exceed page_size. Got {} events, expected <= {}",
+            event_count,
+            page_size_value
+        );
     }
 
     all_events
@@ -455,7 +278,7 @@ async fn verify_events_with_stream_head(
     events: &[AuthenticatedEvent],
     expected_event_count: u64,
 ) {
-    let stream_id = HaneulAddress::from(package_id);
+    let stream_id = haneul_types::base_types::HaneulAddress::from(package_id);
     let event_stream_head_id = get_event_stream_head_object_id(stream_id).unwrap();
 
     let mut proof_client =
@@ -476,8 +299,8 @@ async fn verify_events_with_stream_head(
         .await
         .expect("Failed to build epoch cache");
 
-    let first_event_checkpoint = events[0].checkpoint;
-    let last_event_checkpoint = events.last().unwrap().checkpoint;
+    let first_event_checkpoint = events[0].checkpoint.unwrap();
+    let last_event_checkpoint = events.last().unwrap().checkpoint.unwrap();
 
     let first_stream_head = fetch_and_verify_event_stream_head(
         &mut proof_client,
@@ -503,29 +326,24 @@ async fn verify_events_with_stream_head(
         expected_event_count
     );
 
-    // Bucket events into per-settlement MMR-fold batches. The framework
-    // runs one `settle_events` per consensus commit per stream, so a
-    // checkpoint that aggregates multiple commits has multiple folds at
-    // the same `checkpoint_seq`. We need the corresponding settlement
-    // boundaries to reconstruct each fold separately — fetch them via
-    // `ListTransactions` filtered to the stream's `EventStreamHead`.
-    let mut ledger_v2alpha = V2AlphaLedgerServiceClient::connect(test_cluster.rpc_url().to_owned())
-        .await
-        .expect("connect v2alpha ledger");
-    let settlements = fetch_settlements_for_range(
-        &mut ledger_v2alpha,
-        event_stream_head_id,
-        first_event_checkpoint,
-        last_event_checkpoint.saturating_add(1),
-    )
-    .await
-    .expect("fetch settlement transactions");
-
-    let events_by_settlement =
-        bucket_events_by_settlement(events, &settlements, first_event_checkpoint);
+    let events_by_accum_version: Vec<Vec<EventCommitment>> = events
+        .iter()
+        .filter(|event| event.checkpoint.unwrap() > first_event_checkpoint)
+        .map(|event| {
+            let commitment = convert_grpc_event_to_commitment(event)
+                .expect("should convert event to commitment");
+            let accumulator_version = event
+                .accumulator_version
+                .expect("Missing accumulator_version");
+            (accumulator_version, commitment)
+        })
+        .chunk_by(|(version, _)| *version)
+        .into_iter()
+        .map(|(_, group)| group.map(|(_, commitment)| commitment).collect())
+        .collect();
 
     let calculated_stream_head =
-        apply_stream_updates(&first_stream_head.value, events_by_settlement);
+        apply_stream_updates(&first_stream_head.value, events_by_accum_version);
 
     assert_eq!(
         calculated_stream_head.num_events, last_stream_head.value.num_events,
@@ -538,7 +356,103 @@ async fn verify_events_with_stream_head(
     );
 }
 
-fn get_event_stream_head_object_id(stream_id: HaneulAddress) -> Result<ObjectID, String> {
+fn proto_object_ref_to_haneul_object_ref(
+    object_ref_proto: &haneul_rpc::proto::haneul::rpc::v2::ObjectReference,
+) -> Result<(ObjectID, SequenceNumber, ObjectDigest), String> {
+    let object_id_str = object_ref_proto
+        .object_id
+        .as_ref()
+        .ok_or("Missing object_id")?;
+    let object_id =
+        ObjectID::from_str(object_id_str).map_err(|e| format!("Invalid object_id: {}", e))?;
+
+    let version = SequenceNumber::from_u64(object_ref_proto.version.ok_or("Missing version")?);
+
+    let digest_str = object_ref_proto.digest.as_ref().ok_or("Missing digest")?;
+    let digest =
+        ObjectDigest::from_str(digest_str).map_err(|e| format!("Invalid digest: {}", e))?;
+
+    Ok((object_id, version, digest))
+}
+
+fn proto_bytes_to_digest(bytes: &[u8]) -> Result<Digest, String> {
+    let digest: [u8; 32] = bytes
+        .try_into()
+        .map_err(|_| format!("Invalid digest length: expected 32, got {}", bytes.len()))?;
+    Ok(Digest::new(digest))
+}
+
+fn proto_ocs_inclusion_proof_to_light_client_proof(
+    grpc_proof: &haneul_rpc_api::grpc::alpha::proof_service_proto::OcsInclusionProof,
+) -> Result<OCSInclusionProof, String> {
+    let merkle_proof_bytes = grpc_proof
+        .merkle_proof
+        .as_ref()
+        .ok_or("Missing merkle_proof")?;
+    let merkle_proof = bcs::from_bytes(merkle_proof_bytes)
+        .map_err(|e| format!("Failed to deserialize merkle_proof: {}", e))?;
+
+    let leaf_index = grpc_proof.leaf_index.ok_or("Missing leaf_index")? as usize;
+
+    let tree_root_bytes = grpc_proof.tree_root.as_ref().ok_or("Missing tree_root")?;
+    let tree_root = proto_bytes_to_digest(tree_root_bytes)?;
+
+    Ok(OCSInclusionProof {
+        merkle_proof,
+        leaf_index,
+        tree_root,
+    })
+}
+
+fn convert_grpc_event_to_commitment(
+    auth_event: &AuthenticatedEvent,
+) -> Result<EventCommitment, String> {
+    let checkpoint = auth_event.checkpoint.ok_or("Missing checkpoint")?;
+    let transaction_idx = auth_event
+        .transaction_idx
+        .ok_or("Missing transaction_idx")? as u64;
+    let event_idx = auth_event.event_idx.ok_or("Missing event_idx")? as u64;
+
+    let event = auth_event.event.as_ref().ok_or("Missing event")?;
+    let bcs_contents = event.contents.as_ref().ok_or("Missing event contents")?;
+    let bcs_bytes = bcs_contents.value.as_ref().ok_or("Missing BCS value")?;
+
+    let package_id = event.package_id.as_ref().ok_or("Missing package_id")?;
+    let module = event.module.as_ref().ok_or("Missing module")?;
+    let sender = event.sender.as_ref().ok_or("Missing sender")?;
+    let event_type = event.event_type.as_ref().ok_or("Missing event_type")?;
+
+    let package_id = haneul_types::base_types::ObjectID::from_hex_literal(package_id)
+        .map_err(|e| format!("Failed to parse package_id: {}", e))?;
+    let module = move_core_types::identifier::Identifier::new(module.as_str())
+        .map_err(|e| format!("Failed to parse module: {}", e))?;
+    let sender = haneul_types::base_types::HaneulAddress::from_str(sender)
+        .map_err(|e| format!("Failed to parse sender: {}", e))?;
+    let type_tag: move_core_types::language_storage::StructTag = event_type
+        .parse()
+        .map_err(|e| format!("Failed to parse event_type: {}", e))?;
+
+    let haneul_event = haneul_types::event::Event {
+        package_id,
+        transaction_module: module,
+        sender,
+        type_: type_tag,
+        contents: bcs_bytes.to_vec(),
+    };
+
+    let digest = haneul_event.digest();
+
+    Ok(EventCommitment::new(
+        checkpoint,
+        transaction_idx,
+        event_idx,
+        digest,
+    ))
+}
+
+fn get_event_stream_head_object_id(
+    stream_id: haneul_types::base_types::HaneulAddress,
+) -> Result<haneul_types::base_types::ObjectID, String> {
     let key = ar::AccumulatorKey { owner: stream_id };
     let type_tag = move_core_types::language_storage::TypeTag::Struct(Box::new(StructTag {
         address: HANEUL_FRAMEWORK_ADDRESS,
@@ -559,7 +473,7 @@ fn get_event_stream_head_object_id(stream_id: HaneulAddress) -> Result<ObjectID,
 async fn get_committee_for_epoch_via_api(
     ledger_client: &mut LedgerServiceClient<tonic::transport::Channel>,
     epoch: u64,
-) -> Result<Committee, String> {
+) -> Result<haneul_types::committee::Committee, String> {
     let response = ledger_client
         .get_epoch(GetEpochRequest::new(epoch).with_read_mask(FieldMask::from_paths(["committee"])))
         .await
@@ -579,7 +493,7 @@ async fn get_committee_for_epoch_via_api(
         )
     })?;
 
-    Ok(Committee::from(sdk_committee))
+    Ok(haneul_types::committee::Committee::from(sdk_committee))
 }
 
 async fn get_last_checkpoint_of_epoch(
@@ -705,87 +619,15 @@ async fn build_epoch_cache(
     Ok(EpochCache { committees })
 }
 
-fn proto_node_to_local(
-    proto: &haneul_rpc::proto::haneul::rpc::v2alpha::MerkleNode,
-) -> Result<fastcrypto::merkle::Node, String> {
-    use haneul_rpc::proto::haneul::rpc::v2alpha::merkle_node;
-    let node = proto.node.as_ref().ok_or("MerkleNode missing oneof")?;
-    match node {
-        merkle_node::Node::Empty(_) => Ok(fastcrypto::merkle::Node::Empty),
-        merkle_node::Node::Digest(bytes) => {
-            let arr: [u8; 32] = bytes
-                .as_ref()
-                .try_into()
-                .map_err(|_| format!("Invalid digest length: {}", bytes.len()))?;
-            Ok(fastcrypto::merkle::Node::Digest(arr))
-        }
-        _ => Err("Unknown MerkleNode variant".to_string()),
-    }
-}
-
-fn proto_inclusion_proof_to_local(
-    proto: &haneul_rpc::proto::haneul::rpc::v2alpha::OcsInclusionProof,
-) -> Result<haneul_light_client::proof::ocs::OCSInclusionProof, String> {
-    let merkle_proof_proto = proto.merkle_proof.as_ref().ok_or("Missing merkle_proof")?;
-    let nodes = merkle_proof_proto
-        .path
-        .iter()
-        .map(proto_node_to_local)
-        .collect::<Result<Vec<_>, _>>()?;
-    let merkle_proof = fastcrypto::merkle::MerkleProof::new(&nodes);
-    let leaf_index = proto.leaf_index.ok_or("Missing leaf_index")? as usize;
-    let tree_root_bytes = proto.tree_root.as_ref().ok_or("Missing tree_root")?;
-    let tree_root_arr: [u8; 32] = tree_root_bytes
-        .as_ref()
-        .try_into()
-        .map_err(|_| format!("Invalid tree_root length: {}", tree_root_bytes.len()))?;
-    let tree_root = haneul_types::digests::Digest::new(tree_root_arr);
-
-    Ok(haneul_light_client::proof::ocs::OCSInclusionProof {
-        merkle_proof,
-        leaf_index,
-        tree_root,
-    })
-}
-
-fn proto_object_ref_to_haneul_object_ref(
-    object_ref_proto: &haneul_rpc::proto::haneul::rpc::v2::ObjectReference,
-) -> Result<haneul_types::base_types::ObjectRef, String> {
-    let object_id_str = object_ref_proto
-        .object_id
-        .as_ref()
-        .ok_or("Missing object_id")?;
-    let object_id =
-        ObjectID::from_str(object_id_str).map_err(|e| format!("Invalid object_id: {}", e))?;
-
-    let version = haneul_types::base_types::SequenceNumber::from_u64(
-        object_ref_proto.version.ok_or("Missing version")?,
-    );
-
-    let digest_str = object_ref_proto.digest.as_ref().ok_or("Missing digest")?;
-    let digest = haneul_types::digests::ObjectDigest::from_str(digest_str)
-        .map_err(|e| format!("Invalid digest: {}", e))?;
-
-    Ok((object_id, version, digest))
-}
-
-fn verify_ocs_inclusion_proof(
+async fn verify_ocs_inclusion_proof(
     epoch_cache: &EpochCache,
     checkpoint_summary: &haneul_types::messages_checkpoint::CertifiedCheckpointSummary,
-    response: &GetCheckpointObjectProofResponse,
+    object_ref_proto: &haneul_rpc::proto::haneul::rpc::v2::ObjectReference,
+    grpc_proof: &haneul_rpc_api::grpc::alpha::proof_service_proto::OcsInclusionProof,
     checkpoint_seq: u64,
 ) -> Result<(), String> {
-    let proof = response.proof.as_ref().ok_or("Missing proof")?;
-    let inclusion_proof = match proof {
-        get_checkpoint_object_proof_response::Proof::Inclusion(p) => p,
-        _ => return Err("Expected inclusion proof".to_string()),
-    };
-    let object_ref_proto = inclusion_proof
-        .object_ref
-        .as_ref()
-        .ok_or("Missing object_ref")?;
     let object_ref = proto_object_ref_to_haneul_object_ref(object_ref_proto)?;
-    let ocs_inclusion_proof = proto_inclusion_proof_to_local(inclusion_proof)?;
+    let ocs_inclusion_proof = proto_ocs_inclusion_proof_to_light_client_proof(grpc_proof)?;
 
     let target = OCSTarget::new_inclusion_target(object_ref);
 
@@ -813,29 +655,17 @@ async fn fetch_and_verify_event_stream_head(
     object_id: ObjectID,
     checkpoint: u64,
 ) -> Field<ar::AccumulatorKey, ar::EventStreamHead> {
-    let request = GetCheckpointObjectProofRequest::default()
-        .with_object_id(object_id.to_string())
-        .with_checkpoint(checkpoint);
+    let mut req = GetObjectInclusionProofRequest::default();
+    req.object_id = Some(object_id.to_string());
+    req.checkpoint = Some(checkpoint);
 
     let response = proof_client
-        .get_checkpoint_object_proof(request)
+        .get_object_inclusion_proof(req)
         .await
         .unwrap()
         .into_inner();
 
-    let proof = response.proof.as_ref().expect("proof should be present");
-    let inclusion_proof = match proof {
-        get_checkpoint_object_proof_response::Proof::Inclusion(p) => p,
-        get_checkpoint_object_proof_response::Proof::NonInclusion(_) => {
-            panic!("expected inclusion proof at checkpoint {checkpoint}");
-        }
-        _ => panic!("unknown proof variant"),
-    };
-
-    let object_ref = inclusion_proof
-        .object_ref
-        .as_ref()
-        .expect("object_ref should be present");
+    let object_ref = response.object_ref.expect("object_ref should be present");
 
     assert!(
         object_ref.object_id.is_some(),
@@ -850,6 +680,10 @@ async fn fetch_and_verify_event_stream_head(
         "digest should be present in object_ref"
     );
 
+    let inclusion_proof = response
+        .inclusion_proof
+        .expect("inclusion_proof should be present");
+
     assert!(
         inclusion_proof.merkle_proof.is_some(),
         "merkle_proof should be present"
@@ -859,13 +693,10 @@ async fn fetch_and_verify_event_stream_head(
         "tree_root should be present"
     );
 
-    let object_data_bytes = inclusion_proof
-        .object_data
-        .as_ref()
-        .expect("object_data should be present");
+    let object_data_bytes = response.object_data.expect("object_data should be present");
 
     let object: Object =
-        bcs::from_bytes(object_data_bytes).expect("should deserialize object from BCS");
+        bcs::from_bytes(&object_data_bytes).expect("should deserialize object from BCS");
 
     let move_obj = object.data.try_as_move().expect("should be move object");
     let stream_head: Field<ar::AccumulatorKey, ar::EventStreamHead> = move_obj
@@ -894,8 +725,15 @@ async fn fetch_and_verify_event_stream_head(
         .try_into()
         .expect("Failed to convert checkpoint");
 
-    verify_ocs_inclusion_proof(epoch_cache, &checkpoint_data.summary, &response, checkpoint)
-        .expect("OCS inclusion proof verification failed");
+    verify_ocs_inclusion_proof(
+        epoch_cache,
+        &checkpoint_data.summary,
+        &object_ref,
+        &inclusion_proof,
+        checkpoint,
+    )
+    .await
+    .expect("EventStreamHead inclusion proof should verify with committee");
 
     stream_head
 }
@@ -908,7 +746,7 @@ async fn list_authenticated_events_end_to_end() {
             cfg
         });
 
-    let rpc_config = create_rpc_config_with_ledger_history();
+    let rpc_config = create_rpc_config_with_authenticated_events();
 
     let test_cluster = TestClusterBuilder::new()
         .disable_fullnode_pruning()
@@ -930,62 +768,86 @@ async fn list_authenticated_events_end_to_end() {
         emit_test_event(&test_cluster, package_id, sender, 100 + i).await;
     }
 
-    let stream_id = HaneulAddress::from(package_id);
-    let all_events = list_authenticated_events(test_cluster.rpc_url(), stream_id, 0, None).await;
+    let all_events =
+        list_authenticated_events(test_cluster.rpc_url(), &package_id.to_string(), 0, None).await;
 
     let count = all_events.len();
     assert_eq!(count, 10, "expected 10 authenticated events, got {count}");
 
-    assert!(
-        all_events
-            .iter()
-            .any(|event| !event.event.contents.is_empty()),
-        "expected non-empty event contents"
-    );
+    let found = all_events.iter().any(|event| match &event.event {
+        Some(Event {
+            contents: Some(bcs),
+            ..
+        }) => bcs.value.as_ref().is_some_and(|v| !v.is_empty()),
+        _ => false,
+    });
+    assert!(found, "expected authenticated event for the stream");
 
     verify_events_with_stream_head(&test_cluster, package_id, &all_events, 10).await;
 }
 
 #[sim_test]
-async fn list_authenticated_events_start_beyond_highest() {
-    let rpc_config = create_rpc_config_with_ledger_history();
+async fn list_authenticated_events_page_size_validation() {
+    let rpc_config = create_rpc_config_with_authenticated_events();
 
-    let test_cluster = TestClusterBuilder::new()
+    let test_cluster = test_cluster::TestClusterBuilder::new()
         .with_rpc_config(rpc_config)
         .build()
         .await;
     let sender = test_cluster.wallet.config.keystore.addresses()[0];
 
-    // Probe the ledger so we have some indexed history to bound against,
-    // then request a far-future checkpoint. The server should report no
-    // matching events without erroring.
-    let _ = query_authenticated_events(test_cluster.rpc_url(), sender, 0, Some(1))
-        .await
-        .unwrap();
-
     let response =
-        query_authenticated_events(test_cluster.rpc_url(), sender, u64::MAX / 2, Some(10))
+        query_authenticated_events(test_cluster.rpc_url(), &sender.to_string(), 0, Some(1500))
             .await
             .unwrap();
 
-    assert!(response.is_empty());
+    assert!(response.events.is_empty());
 }
 
 #[sim_test]
-async fn list_authenticated_events_no_events_for_stream() {
-    let rpc_config = create_rpc_config_with_ledger_history();
+async fn list_authenticated_events_start_beyond_highest() {
+    let rpc_config = create_rpc_config_with_authenticated_events();
 
-    let test_cluster = TestClusterBuilder::new()
+    let test_cluster = test_cluster::TestClusterBuilder::new()
         .with_rpc_config(rpc_config)
         .build()
         .await;
     let sender = test_cluster.wallet.config.keystore.addresses()[0];
 
-    let response = query_authenticated_events(test_cluster.rpc_url(), sender, 0, Some(10))
-        .await
-        .unwrap();
+    let probe_response =
+        query_authenticated_events(test_cluster.rpc_url(), &sender.to_string(), 0, Some(1))
+            .await
+            .unwrap();
+    let highest = probe_response.highest_indexed_checkpoint.unwrap_or(0);
 
-    assert!(response.is_empty());
+    let response = query_authenticated_events(
+        test_cluster.rpc_url(),
+        &sender.to_string(),
+        highest + 1000,
+        Some(10),
+    )
+    .await
+    .unwrap();
+
+    assert!(response.events.is_empty());
+}
+
+#[sim_test]
+async fn list_authenticated_events_pruned_checkpoint_error() {
+    let rpc_config = create_rpc_config_with_authenticated_events();
+
+    let test_cluster = test_cluster::TestClusterBuilder::new()
+        .with_rpc_config(rpc_config)
+        .build()
+        .await;
+    let sender = test_cluster.wallet.config.keystore.addresses()[0];
+
+    let response =
+        query_authenticated_events(test_cluster.rpc_url(), &sender.to_string(), 0, Some(10))
+            .await
+            .unwrap();
+
+    assert!(response.events.is_empty());
 }
 
 #[sim_test]
@@ -996,21 +858,23 @@ async fn authenticated_events_disabled_test() {
             cfg
         });
 
-    // No `ledger_history_indexing` enabled — the v2alpha ListEvents endpoint
-    // should reject the request with `Unimplemented`.
-    let test_cluster = TestClusterBuilder::new().build().await;
+    let test_cluster = test_cluster::TestClusterBuilder::new().build().await;
     let sender = test_cluster.wallet.config.keystore.addresses()[0];
 
-    let result = query_authenticated_events(test_cluster.rpc_url(), sender, 0, Some(10)).await;
+    let result =
+        query_authenticated_events(test_cluster.rpc_url(), &sender.to_string(), 0, Some(10)).await;
 
-    let error = result.expect_err("ListEvents should fail when ledger history indexing is off");
+    assert!(
+        result.is_err(),
+        "Expected error when authenticated events indexing is disabled"
+    );
+
+    let error = result.unwrap_err();
     assert_eq!(error.code(), tonic::Code::Unimplemented);
     assert!(
         error
             .message()
-            .contains("ledger history indexing is disabled"),
-        "got: {}",
-        error.message()
+            .contains("Authenticated events indexing is disabled")
     );
 }
 
@@ -1023,7 +887,7 @@ async fn authenticated_events_backfill_test() {
         });
 
     let rpc_config = haneul_config::RpcConfig {
-        ledger_history_indexing: Some(false),
+        authenticated_events_indexing: Some(false),
         enable_indexing: Some(true),
         ..Default::default()
     };
@@ -1048,7 +912,7 @@ async fn authenticated_events_backfill_test() {
 
         if let Some(ref mut rpc_config) = new_fullnode_config.rpc {
             rpc_config.enable_indexing = Some(true);
-            rpc_config.ledger_history_indexing = Some(true);
+            rpc_config.authenticated_events_indexing = Some(true);
         }
 
         let new_fullnode_handle = test_cluster
@@ -1058,30 +922,31 @@ async fn authenticated_events_backfill_test() {
         new_fullnode_handle.rpc_url.clone()
     };
 
-    let stream_id = HaneulAddress::from(package_id);
     let start = tokio::time::Instant::now();
-    let events = loop {
-        let events = list_authenticated_events(&rpc_url_with_indexing, stream_id, 0, None).await;
+    let response = loop {
+        let response =
+            query_authenticated_events(&rpc_url_with_indexing, &package_id.to_string(), 0, None)
+                .await
+                .unwrap();
 
-        if events.len() == 5 {
-            break events;
+        if response.events.len() == 5 {
+            break response;
         }
 
         if start.elapsed() > tokio::time::Duration::from_secs(30) {
             panic!(
                 "Timeout waiting for backfill to complete. Found {} events, expected 5",
-                events.len()
+                response.events.len()
             );
         }
 
         tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
     };
 
+    let count = response.events.len();
     assert_eq!(
-        events.len(),
-        5,
-        "expected 5 authenticated events after backfill, got {}",
-        events.len()
+        count, 5,
+        "expected 5 authenticated events after backfill, got {count}"
     );
 }
 
@@ -1093,7 +958,7 @@ async fn authenticated_events_multiple_events_per_transaction() {
             cfg
         });
 
-    let rpc_config = create_rpc_config_with_ledger_history();
+    let rpc_config = create_rpc_config_with_authenticated_events();
 
     let test_cluster = TestClusterBuilder::new()
         .disable_fullnode_pruning()
@@ -1106,10 +971,21 @@ async fn authenticated_events_multiple_events_per_transaction() {
 
     let _response = emit_multiple_test_events(&test_cluster, package_id, sender, 100, 3).await;
 
-    let stream_id = HaneulAddress::from(package_id);
-    let events = list_authenticated_events(test_cluster.rpc_url(), stream_id, 0, None).await;
+    let mut event_client =
+        connect_with_retry(|| EventServiceClient::connect(test_cluster.rpc_url().to_owned())).await;
 
-    let count = events.len();
+    let mut req = ListAuthenticatedEventsRequest::default();
+    req.stream_id = Some(package_id.to_string());
+    req.start_checkpoint = Some(0);
+    req.page_size = None;
+    req.page_token = None;
+    let response = event_client
+        .list_authenticated_events(req)
+        .await
+        .unwrap()
+        .into_inner();
+
+    let count = response.events.len();
     assert_eq!(
         count, 3,
         "expected 3 authenticated events (all from one transaction), got {count}"
@@ -1120,12 +996,17 @@ async fn authenticated_events_multiple_events_per_transaction() {
         value: u64,
     }
 
-    let values: Vec<u64> = events
+    let values: Vec<u64> = response
+        .events
         .iter()
         .filter_map(|event| {
-            bcs::from_bytes::<E>(&event.event.contents)
-                .ok()
-                .map(|e| e.value)
+            event.event.as_ref().and_then(|e| {
+                e.contents.as_ref().and_then(|c| {
+                    c.value
+                        .as_ref()
+                        .and_then(|v| bcs::from_bytes::<E>(v).ok().map(|e| e.value))
+                })
+            })
         })
         .collect();
 
@@ -1134,13 +1015,14 @@ async fn authenticated_events_multiple_events_per_transaction() {
     assert!(values.contains(&101), "should contain event with value 101");
     assert!(values.contains(&102), "should contain event with value 102");
 
-    let tx_offsets: std::collections::HashSet<u64> = events
+    let tx_indices: std::collections::HashSet<u32> = response
+        .events
         .iter()
-        .map(|event| event.transaction_offset)
+        .filter_map(|event| event.transaction_idx)
         .collect();
 
     assert_eq!(
-        tx_offsets.len(),
+        tx_indices.len(),
         1,
         "all events should be from the same transaction"
     );
@@ -1154,7 +1036,7 @@ async fn test_pagination() {
             cfg
         });
 
-    let rpc_config = create_rpc_config_with_ledger_history();
+    let rpc_config = create_rpc_config_with_authenticated_events();
 
     let test_cluster = TestClusterBuilder::new()
         .disable_fullnode_pruning()
@@ -1169,8 +1051,9 @@ async fn test_pagination() {
         emit_multiple_test_events(&test_cluster, package_id, sender, i * 5, 5).await;
     }
 
-    let stream_id = HaneulAddress::from(package_id);
-    let all_events = list_authenticated_events(test_cluster.rpc_url(), stream_id, 0, Some(7)).await;
+    let all_events =
+        list_authenticated_events(test_cluster.rpc_url(), &package_id.to_string(), 0, Some(7))
+            .await;
 
     assert_eq!(
         all_events.len(),
@@ -1182,17 +1065,15 @@ async fn test_pagination() {
     verify_events_with_stream_head(&test_cluster, package_id, &all_events, 25).await;
 }
 
-/// When the requested checkpoint did not modify the EventStreamHead, the
-/// server returns a non-inclusion proof rather than an inclusion proof.
 #[sim_test]
-async fn test_object_inclusion_proof_returns_non_inclusion() {
+async fn test_object_inclusion_proof_error_code() {
     let _guard: haneul_protocol_config::OverrideGuard =
         ProtocolConfig::apply_overrides_for_testing(|_, mut cfg| {
             cfg.enable_authenticated_event_streams_for_testing();
             cfg
         });
 
-    let rpc_config = create_rpc_config_with_ledger_history();
+    let rpc_config = create_rpc_config_with_authenticated_events();
 
     let test_cluster = TestClusterBuilder::new()
         .disable_fullnode_pruning()
@@ -1201,7 +1082,7 @@ async fn test_object_inclusion_proof_returns_non_inclusion() {
         .await;
 
     let package_id = publish_test_package(&test_cluster).await;
-    let stream_id = HaneulAddress::from(package_id);
+    let stream_id = haneul_types::base_types::HaneulAddress::from(package_id);
     let event_stream_head_id = get_event_stream_head_object_id(stream_id).unwrap();
 
     let highest_checkpoint = test_cluster.fullnode_handle.haneul_node.with(|node| {
@@ -1215,24 +1096,99 @@ async fn test_object_inclusion_proof_returns_non_inclusion() {
     let mut proof_client =
         connect_with_retry(|| ProofServiceClient::connect(test_cluster.rpc_url().to_owned())).await;
 
-    let request = GetCheckpointObjectProofRequest::default()
-        .with_object_id(event_stream_head_id.to_string())
-        .with_checkpoint(highest_checkpoint);
+    let mut req = GetObjectInclusionProofRequest::default();
+    req.object_id = Some(event_stream_head_id.to_string());
+    req.checkpoint = Some(highest_checkpoint);
 
-    let response = proof_client
-        .get_checkpoint_object_proof(request)
+    let result = proof_client.get_object_inclusion_proof(req).await;
+
+    assert!(
+        result.is_err(),
+        "Should fail to get inclusion proof at checkpoint where object was not modified"
+    );
+
+    let error = result.unwrap_err();
+    assert_eq!(
+        error.code(),
+        tonic::Code::FailedPrecondition,
+        "Expected FailedPrecondition error code, got {:?}",
+        error.code()
+    );
+
+    assert!(
+        error.message().contains("was not written at checkpoint"),
+        "Error message should explain object was not written at checkpoint. Got: {}",
+        error.message()
+    );
+}
+
+#[sim_test]
+async fn test_size_based_pagination() {
+    let _guard: haneul_protocol_config::OverrideGuard =
+        ProtocolConfig::apply_overrides_for_testing(|_, mut cfg| {
+            cfg.enable_authenticated_event_streams_for_testing();
+            cfg
+        });
+
+    let rpc_config = create_rpc_config_with_authenticated_events();
+
+    let test_cluster = TestClusterBuilder::new()
+        .disable_fullnode_pruning()
+        .with_rpc_config(rpc_config)
+        .build()
+        .await;
+
+    let package_id = publish_test_package(&test_cluster).await;
+    let sender = test_cluster.wallet.config.keystore.addresses()[0];
+
+    emit_large_test_event(&test_cluster, package_id, sender, 1, 200_000).await;
+    emit_large_test_event(&test_cluster, package_id, sender, 2, 200_000).await;
+    emit_large_test_event(&test_cluster, package_id, sender, 3, 200_000).await;
+    emit_large_test_event(&test_cluster, package_id, sender, 4, 200_000).await;
+
+    let mut event_client =
+        connect_with_retry(|| EventServiceClient::connect(test_cluster.rpc_url().to_owned())).await;
+
+    let mut req = ListAuthenticatedEventsRequest::default();
+    req.stream_id = Some(package_id.to_string());
+    req.start_checkpoint = Some(0);
+    req.page_size = Some(10);
+    req.page_token = None;
+
+    let first_response = event_client
+        .list_authenticated_events(req)
         .await
-        .expect("non-inclusion proof should succeed")
+        .unwrap()
         .into_inner();
 
-    let proof = response.proof.expect("proof should be present");
     assert!(
-        matches!(
-            proof,
-            get_checkpoint_object_proof_response::Proof::NonInclusion(_)
-        ),
-        "expected non-inclusion proof at a checkpoint that did not modify the EventStreamHead"
+        first_response.events.len() < 4,
+        "Should get fewer than 4 events due to size limit (512 KiB). Got {} events",
+        first_response.events.len()
     );
+
+    assert!(
+        !first_response.events.is_empty(),
+        "Should get at least 1 event (forward progress guarantee)"
+    );
+
+    assert!(
+        first_response.next_page_token.is_some(),
+        "Should have next_page_token since not all events were returned"
+    );
+
+    let all_events =
+        list_authenticated_events(test_cluster.rpc_url(), &package_id.to_string(), 0, Some(10))
+            .await;
+
+    assert_eq!(
+        all_events.len(),
+        4,
+        "expected 4 total events across all pages, got {}",
+        all_events.len()
+    );
+
+    verify_events_with_stream_head(&test_cluster, package_id, &all_events, 4).await;
 }
 
 #[sim_test]
@@ -1249,7 +1205,7 @@ async fn authenticated_events_multiple_commits_per_checkpoint() {
             cfg
         });
 
-    let rpc_config = create_rpc_config_with_ledger_history();
+    let rpc_config = create_rpc_config_with_authenticated_events();
 
     let test_cluster = TestClusterBuilder::new()
         .disable_fullnode_pruning()
@@ -1286,7 +1242,9 @@ async fn authenticated_events_multiple_commits_per_checkpoint() {
         vec![coin, recipient_arg],
     );
     let deposit_tx = TransactionData::new(
-        haneul_types::transaction::TransactionKind::ProgrammableTransaction(deposit_builder.finish()),
+        haneul_types::transaction::TransactionKind::ProgrammableTransaction(
+            deposit_builder.finish(),
+        ),
         sender,
         gas_for_deposit,
         10_000_000,
@@ -1308,26 +1266,28 @@ async fn authenticated_events_multiple_commits_per_checkpoint() {
                 vec![val],
             );
 
-            haneul_types::transaction::TransactionData::V1(haneul_types::transaction::TransactionDataV1 {
-                kind: haneul_types::transaction::TransactionKind::ProgrammableTransaction(
-                    ptb.finish(),
-                ),
-                sender,
-                gas_data: haneul_types::transaction::GasData {
-                    payment: vec![],
-                    owner: sender,
-                    price: rgp,
-                    budget: 50_000_000_000,
+            haneul_types::transaction::TransactionData::V1(
+                haneul_types::transaction::TransactionDataV1 {
+                    kind: haneul_types::transaction::TransactionKind::ProgrammableTransaction(
+                        ptb.finish(),
+                    ),
+                    sender,
+                    gas_data: haneul_types::transaction::GasData {
+                        payment: vec![],
+                        owner: sender,
+                        price: rgp,
+                        budget: 50_000_000_000,
+                    },
+                    expiration: haneul_types::transaction::TransactionExpiration::ValidDuring {
+                        min_epoch: Some(0),
+                        max_epoch: Some(0),
+                        min_timestamp: None,
+                        max_timestamp: None,
+                        chain: chain_id,
+                        nonce: i,
+                    },
                 },
-                expiration: haneul_types::transaction::TransactionExpiration::ValidDuring {
-                    min_epoch: Some(0),
-                    max_epoch: Some(0),
-                    min_timestamp: None,
-                    max_timestamp: None,
-                    chain: chain_id,
-                    nonce: i,
-                },
-            })
+            )
         })
         .collect();
 
@@ -1347,70 +1307,39 @@ async fn authenticated_events_multiple_commits_per_checkpoint() {
         .collect();
     futures::future::try_join_all(bundle_tasks).await.unwrap();
 
-    let stream_id = HaneulAddress::from(package_id);
+    let all_events =
+        list_authenticated_events(test_cluster.rpc_url(), &package_id.to_string(), 0, None).await;
 
-    // The ledger history index runs behind execution; poll until every event
-    // is indexed (or fail after a timeout).
-    let deadline = tokio::time::Instant::now() + tokio::time::Duration::from_secs(30);
-    let all_events = loop {
-        let events = list_authenticated_events(test_cluster.rpc_url(), stream_id, 0, None).await;
-        if events.len() == event_count as usize {
-            break events;
-        }
-        if tokio::time::Instant::now() >= deadline {
-            panic!(
-                "Timed out waiting for {} indexed events; only saw {}",
-                event_count,
-                events.len()
-            );
-        }
-        tokio::time::sleep(tokio::time::Duration::from_millis(200)).await;
-    };
+    assert_eq!(
+        all_events.len(),
+        event_count as usize,
+        "expected all events, got {}",
+        all_events.len()
+    );
 
-    // With many transactions packed into few checkpoints, at least one
-    // checkpoint should carry events from multiple distinct transactions.
     let mut events_by_checkpoint: std::collections::HashMap<u64, std::collections::HashSet<u64>> =
         std::collections::HashMap::new();
     for event in &all_events {
-        events_by_checkpoint
-            .entry(event.checkpoint)
-            .or_default()
-            .insert(event.transaction_offset);
+        if let (Some(checkpoint), Some(accumulator_version)) =
+            (event.checkpoint, event.accumulator_version)
+        {
+            events_by_checkpoint
+                .entry(checkpoint)
+                .or_default()
+                .insert(accumulator_version);
+        }
     }
+
+    let checkpoint_with_multiple_versions = events_by_checkpoint
+        .iter()
+        .find(|(_, versions)| versions.len() > 1);
+
     assert!(
-        events_by_checkpoint.values().any(|txs| txs.len() > 1),
-        "expected at least one checkpoint with events from multiple transactions, got: {:?}",
+        checkpoint_with_multiple_versions.is_some(),
+        "Expected at least one checkpoint with multiple accumulator versions (multiple commits), but found none. Events by checkpoint: {:?}",
         events_by_checkpoint
     );
 
-    // Events must be ordered (checkpoint asc, transaction_offset asc,
-    // event_index asc) — this is what the v2alpha contract guarantees and
-    // what downstream MMR consumers depend on.
-    for window in all_events.windows(2) {
-        let prev = (
-            window[0].checkpoint,
-            window[0].transaction_offset,
-            window[0].event_index,
-        );
-        let next = (
-            window[1].checkpoint,
-            window[1].transaction_offset,
-            window[1].event_index,
-        );
-        assert!(
-            prev < next,
-            "events must be strictly ordered; got {:?} then {:?}",
-            prev,
-            next,
-        );
-    }
-
-    // Replay the on-chain MMR with per-settlement bucketing. Multiple
-    // consensus commits in one checkpoint produce multiple `settle_events`
-    // calls per stream (each its own MMR fold), so reconstructing the
-    // chain head needs settlement boundaries — which
-    // `verify_events_with_stream_head` pulls via
-    // `ListTransactions(affected_object = event_stream_head)`.
     verify_events_with_stream_head(
         &test_cluster,
         package_id,

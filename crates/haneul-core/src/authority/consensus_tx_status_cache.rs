@@ -4,12 +4,12 @@
 use std::collections::BTreeMap;
 
 use consensus_types::block::Round;
-use haneullabs_common::sync::notify_read::NotifyRead;
-use parking_lot::RwLock;
 use haneul_types::{
     error::{HaneulErrorKind, HaneulResult},
     messages_consensus::ConsensusPosition,
 };
+use haneullabs_common::sync::notify_read::NotifyRead;
+use parking_lot::RwLock;
 use tokio::sync::watch;
 use tracing::debug;
 
@@ -173,7 +173,10 @@ impl ConsensusTxStatusCache {
     }
 
     /// Returns true if the position is too far ahead of the last committed round.
-    pub(crate) fn check_position_too_ahead(&self, position: &ConsensusPosition) -> HaneulResult<()> {
+    pub(crate) fn check_position_too_ahead(
+        &self,
+        position: &ConsensusPosition,
+    ) -> HaneulResult<()> {
         if let Some(last_committed_leader_round) = *self.last_committed_leader_round_rx.borrow()
             && position.block.round
                 > last_committed_leader_round + CONSENSUS_STATUS_RETENTION_ROUNDS

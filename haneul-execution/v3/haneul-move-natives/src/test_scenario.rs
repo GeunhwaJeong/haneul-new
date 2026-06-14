@@ -6,6 +6,18 @@ use crate::{
     object_runtime::{ObjectRuntime, RuntimeResults, object_store::ChildObjectEffects},
 };
 use better_any::{Tid, TidAble};
+use haneul_types::{
+    TypeTag,
+    base_types::{HaneulAddress, MoveObjectType, ObjectID, SequenceNumber},
+    config,
+    digests::{ObjectDigest, TransactionDigest},
+    dynamic_field::DynamicFieldInfo,
+    execution::DynamicallyLoadedObjectMetadata,
+    id::UID,
+    in_memory_storage::InMemoryStorage,
+    object::{MoveObject, Object, Owner},
+    storage::ChildObjectResolver,
+};
 use indexmap::{IndexMap, IndexSet};
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_core_types::{
@@ -27,18 +39,6 @@ use std::{
     borrow::Borrow,
     cell::RefCell,
     collections::{BTreeMap, BTreeSet, VecDeque},
-};
-use haneul_types::{
-    TypeTag,
-    base_types::{MoveObjectType, ObjectID, SequenceNumber, HaneulAddress},
-    config,
-    digests::{ObjectDigest, TransactionDigest},
-    dynamic_field::DynamicFieldInfo,
-    execution::DynamicallyLoadedObjectMetadata,
-    id::UID,
-    in_memory_storage::InMemoryStorage,
-    object::{MoveObject, Object, Owner},
-    storage::ChildObjectResolver,
 };
 
 const E_COULD_NOT_GENERATE_EFFECTS: u64 = 0;
@@ -239,9 +239,6 @@ pub fn end_transaction(
                     .entry(ty)
                     .or_default()
                     .insert(id);
-            }
-            Owner::Party { .. } => {
-                unimplemented!("Party does not exist for this execution version")
             }
         }
     }
@@ -872,9 +869,6 @@ fn transaction_effects(
             Owner::Immutable => frozen.push(id),
             Owner::ConsensusAddressOwner { owner, .. } => {
                 transferred_to_account.push((pack_id(id), Value::address(owner.into())))
-            }
-            Owner::Party { .. } => {
-                unimplemented!("Party does not exist for this execution version")
             }
         }
     }

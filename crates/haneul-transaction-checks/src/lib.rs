@@ -7,33 +7,33 @@ pub use checked::*;
 
 #[haneul_macros::with_checked_arithmetic]
 mod checked {
-    use std::collections::{BTreeMap, HashSet};
-    use std::sync::Arc;
     use haneul_config::verifier_signing_config::VerifierSigningConfig;
     use haneul_protocol_config::ProtocolConfig;
     use haneul_types::base_types::{ObjectID, ObjectRef};
     use haneul_types::error::{HaneulResult, UserInputError, UserInputResult};
     use haneul_types::executable_transaction::VerifiedExecutableTransaction;
     use haneul_types::metrics::BytecodeVerifierMetrics;
-    use haneul_types::object::ObjectPermission;
     use haneul_types::transaction::{
         CheckedInputObjects, InputObjectKind, InputObjects, ObjectReadResult, ObjectReadResultKind,
         ReceivingObjectReadResult, ReceivingObjects, SharedObjectMutability, TransactionData,
         TransactionDataAPI, TransactionKind,
     };
     use haneul_types::{
-        HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_ADDRESS_ALIAS_STATE_OBJECT_ID, HANEUL_BRIDGE_OBJECT_ID,
-        HANEUL_CLOCK_OBJECT_ID, HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_DENY_LIST_OBJECT_ID,
-        HANEUL_DISPLAY_REGISTRY_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
+        HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_ADDRESS_ALIAS_STATE_OBJECT_ID,
+        HANEUL_BRIDGE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_COIN_REGISTRY_OBJECT_ID,
+        HANEUL_DENY_LIST_OBJECT_ID, HANEUL_DISPLAY_REGISTRY_OBJECT_ID,
+        HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
     };
     use haneul_types::{
-        base_types::{SequenceNumber, HaneulAddress},
+        base_types::{HaneulAddress, SequenceNumber},
         coin_reservation::ParsedDigest,
         error::HaneulError,
         fp_bail, fp_ensure,
         gas::HaneulGasStatus,
         object::{Object, Owner},
     };
+    use std::collections::{BTreeMap, HashSet};
+    use std::sync::Arc;
     use tracing::error;
     use tracing::instrument;
 
@@ -368,9 +368,7 @@ mod checked {
                             .into()
                         )
                     }
-                    Owner::Shared { .. }
-                    | Owner::ConsensusAddressOwner { .. }
-                    | Owner::Party { .. } => {
+                    Owner::Shared { .. } | Owner::ConsensusAddressOwner { .. } => {
                         fp_bail!(UserInputError::NotSharedObjectError.into())
                     }
                     Owner::Immutable => fp_bail!(
@@ -536,13 +534,6 @@ mod checked {
         object: &Object,
         system_transaction: bool,
     ) -> UserInputResult {
-        // Defense-in-depth: Owner::Party is not yet supported.
-        if matches!(object.owner, Owner::Party { .. }) {
-            return Err(UserInputError::Unsupported(
-                "Party-owned objects are not yet supported".to_string(),
-            ));
-        }
-
         match object_kind {
             InputObjectKind::MovePackage(package_id) => {
                 fp_ensure!(
@@ -603,9 +594,7 @@ mod checked {
                             parent_id: owner.into(),
                         });
                     }
-                    Owner::Shared { .. }
-                    | Owner::ConsensusAddressOwner { .. }
-                    | Owner::Party { .. } => {
+                    Owner::Shared { .. } | Owner::ConsensusAddressOwner { .. } => {
                         // This object is a mutable consensus object. However the transaction
                         // specifies it as an owned object. This is inconsistent.
                         return Err(UserInputError::NotOwnedObjectError);
@@ -683,48 +672,6 @@ mod checked {
                             }
                         )
                     }
-
-                    Owner::Party {
-                        start_version: actual_initial_shared_version,
-                        permissions,
-                    } => {
-                        fp_ensure!(
-                            input_initial_shared_version == *actual_initial_shared_version,
-                            UserInputError::SharedObjectStartingVersionMismatch
-                        );
-                        // Check the owner has permissions for this kind of mutability
-                        let sender_permissions = permissions.permissions_for(owner);
-                        match mutability {
-                            SharedObjectMutability::Immutable => {
-                                // TODO better error kind here
-                                fp_ensure!(
-                                    sender_permissions.can_use_immutably(),
-                                    UserInputError::IncorrectUserSignature {
-                                        error: format!(
-                                            "Sender address {owner:?} does not have immutable access permissions for object {object_id:?} with party ownership. The required permission is {}, but the permissions for the sender for this object are {sender_permissions}",
-                                            ObjectPermission::ImmutableUsage,
-                                        ),
-                                    }
-                                )
-                            }
-                            SharedObjectMutability::Mutable => {
-                                // TODO better error kind here
-                                fp_ensure!(
-                                    sender_permissions.can_use_mutably(),
-                                    UserInputError::IncorrectUserSignature {
-                                        error: format!(
-                                            "Sender address {owner:?} does not have mutable access permissions for object {object_id:?} with party ownership. The required permission is {}, but the permissions for the sender for this object are {sender_permissions}",
-                                            ObjectPermission::MutableUsage,
-                                        ),
-                                    }
-                                )
-                            }
-                            SharedObjectMutability::NonExclusiveWrite => {
-                                // TODO(Party WIP)
-                                todo!("Party WIP")
-                            }
-                        }
-                    }
                 }
             }
         };
@@ -749,10 +696,7 @@ mod checked {
             }
             match object.owner() {
                 Owner::AddressOwner(_) | Owner::ConsensusAddressOwner { .. } => (),
-                Owner::Immutable
-                | Owner::Shared { .. }
-                | Owner::ObjectOwner(_)
-                | Owner::Party { .. } => {
+                Owner::Immutable | Owner::Shared { .. } | Owner::ObjectOwner(_) => {
                     return Err(UserInputError::Unsupported(
                         "Gasless transactions only support owned object inputs".to_string(),
                     ));

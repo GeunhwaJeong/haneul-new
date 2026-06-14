@@ -4,10 +4,10 @@
 use std::sync::{Arc, Mutex};
 
 use arc_swap::ArcSwapOption;
-use haneullabs_network::Multiaddr;
-use serde::{Deserialize, Serialize};
 use haneul_types::crypto::{NetworkPublicKey, ToFromBytes};
 use haneul_types::error::HaneulResult;
+use haneullabs_network::Multiaddr;
+use serde::{Deserialize, Serialize};
 use tap::TapFallible;
 use tracing::{info, warn};
 
@@ -162,8 +162,8 @@ pub enum AddressSource {
 mod tests {
     use super::*;
     use fastcrypto::traits::KeyPair;
-    use std::sync::{Arc, Mutex};
     use haneul_types::crypto::{NetworkKeyPair, get_key_pair};
+    use std::sync::{Arc, Mutex};
 
     type UpdateEntry = (NetworkPublicKey, Vec<Multiaddr>);
     // Mock consensus address updater for testing

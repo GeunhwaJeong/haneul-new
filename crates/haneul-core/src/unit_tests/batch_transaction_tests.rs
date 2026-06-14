@@ -4,19 +4,19 @@
 use super::*;
 use crate::authority::authority_tests::init_state_with_ids_and_object_basics;
 use bcs;
-use haneullabs_common::ZipDebugEqIteratorExt;
 use haneul_types::{
     base_types::FullObjectRef, execution_status::ExecutionStatus,
     programmable_transaction_builder::ProgrammableTransactionBuilder,
     utils::to_sender_signed_transaction,
 };
+use haneullabs_common::ZipDebugEqIteratorExt;
 
 use authority_tests::submit_and_execute;
-use move_core_types::{account_address::AccountAddress, ident_str};
 use haneul_types::{
     crypto::{AccountKeyPair, get_key_pair},
     object::Owner,
 };
+use move_core_types::{account_address::AccountAddress, ident_str};
 
 #[tokio::test]
 async fn test_batch_transaction_ok() -> anyhow::Result<()> {
@@ -42,6 +42,7 @@ async fn test_batch_transaction_ok() -> anyhow::Result<()> {
                 FullObjectRef::from_fastpath_ref(
                     authority_state
                         .get_object(obj_id)
+                        .await
                         .unwrap()
                         .compute_object_reference(),
                 ),
@@ -67,6 +68,7 @@ async fn test_batch_transaction_ok() -> anyhow::Result<()> {
         vec![
             authority_state
                 .get_object(&all_ids[N])
+                .await
                 .unwrap()
                 .compute_object_reference(),
         ],
@@ -126,6 +128,7 @@ async fn test_batch_transaction_last_one_fail() -> anyhow::Result<()> {
                 FullObjectRef::from_fastpath_ref(
                     authority_state
                         .get_object(obj_id)
+                        .await
                         .unwrap()
                         .compute_object_reference(),
                 ),
@@ -146,6 +149,7 @@ async fn test_batch_transaction_last_one_fail() -> anyhow::Result<()> {
         vec![
             authority_state
                 .get_object(&all_ids[N])
+                .await
                 .unwrap()
                 .compute_object_reference(),
         ],
@@ -180,7 +184,9 @@ async fn test_batch_insufficient_gas_balance() -> anyhow::Result<()> {
         sender,
         49999, // We need 50000
     );
-    authority_state.insert_genesis_object(gas_object.clone());
+    authority_state
+        .insert_genesis_object(gas_object.clone())
+        .await;
 
     const N: usize = 10;
     let mut builder = ProgrammableTransactionBuilder::new();

@@ -5,13 +5,10 @@ use bytes::Bytes;
 use fastcrypto::traits::ToFromBytes;
 use futures::stream::Stream;
 use futures::stream::TryStreamExt;
-use prost_types::FieldMask;
-use prost_types::value::Kind as ProtoValueKind;
-use std::time::Duration;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::TryFromProtoError;
 use haneul_rpc::proto::haneul::rpc::v2::{self as proto, GetServiceInfoRequest};
-use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID, SequenceNumber};
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
@@ -21,6 +18,9 @@ use haneul_types::object::Object;
 use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::Transaction;
 use haneul_types::transaction::TransactionData;
+use prost_types::FieldMask;
+use prost_types::value::Kind as ProtoValueKind;
+use std::time::Duration;
 use tap::Pipe;
 use tonic::Status;
 use tonic::metadata::MetadataMap;
@@ -565,7 +565,9 @@ impl Client {
     pub async fn get_system_state_summary(
         &self,
         epoch: Option<u64>,
-    ) -> Result<haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary> {
+    ) -> Result<
+        haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary,
+    > {
         let system_state = self.get_system_state(epoch).await?;
         system_state
             .as_ref()

@@ -4,14 +4,14 @@
 use crate::data_store::cached_package_store::CachedPackageStore;
 use crate::data_store::legacy::linkage_view::LinkageView;
 use crate::programmable_transactions::context::load_type_from_struct;
-use move_core_types::annotated_value as A;
-use move_core_types::language_storage::StructTag;
-use move_vm_runtime::move_vm::MoveVM;
 use haneul_types::base_types::ObjectID;
 use haneul_types::error::{HaneulErrorKind, HaneulResult};
 use haneul_types::execution::TypeLayoutStore;
 use haneul_types::storage::{BackingPackageStore, PackageObject};
 use haneul_types::{error::HaneulError, layout_resolver::LayoutResolver};
+use move_core_types::annotated_value as A;
+use move_core_types::language_storage::StructTag;
+use move_vm_runtime::move_vm::MoveVM;
 
 /// Retrieve a `MoveStructLayout` from a `Type`.
 /// Invocation into the `Session` to leverage the `LinkageView` implementation

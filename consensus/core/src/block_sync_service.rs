@@ -133,7 +133,10 @@ impl BlockSyncService {
                     .min(missing_ancestors.len());
                 if selected_num_blocks > 0 {
                     let selected_ancestor_refs = missing_ancestors
-                        .choose_multiple(&mut haneullabs_common::random::get_rng(), selected_num_blocks)
+                        .choose_multiple(
+                            &mut haneullabs_common::random::get_rng(),
+                            selected_num_blocks,
+                        )
                         .copied()
                         .collect::<Vec<_>>();
                     let ancestor_blocks = self

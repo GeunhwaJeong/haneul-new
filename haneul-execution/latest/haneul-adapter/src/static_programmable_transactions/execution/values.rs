@@ -3,9 +3,12 @@
 
 use std::collections::BTreeMap;
 
-use crate::{
-    execution_mode::ExecutionMode,
-    static_programmable_transactions::{env::Env, typing::ast::Type},
+use crate::static_programmable_transactions::{env::Env, typing::ast::Type};
+use haneul_types::{
+    base_types::{ObjectID, SequenceNumber},
+    digests::TransactionDigest,
+    error::ExecutionError,
+    move_package::{UpgradeCap, UpgradeReceipt, UpgradeTicket},
 };
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_core_types::account_address::AccountAddress;
@@ -16,12 +19,6 @@ use move_vm_runtime::shared::views::ValueVisitor;
 use move_vm_runtime::{
     execution::values::{self, Struct, VMValueCast, Value as VMValue, VectorSpecialization},
     shared::views::ValueView,
-};
-use haneul_types::{
-    base_types::{ObjectID, SequenceNumber},
-    digests::TransactionDigest,
-    error::ExecutionError,
-    move_package::{UpgradeCap, UpgradeReceipt, UpgradeTicket},
 };
 pub enum InputValue<'a> {
     Bytes(&'a ByteValue),
@@ -181,11 +178,7 @@ impl Value {
         self.0.cast().map_err(iv("cast"))
     }
 
-    pub fn deserialize<Mode: ExecutionMode>(
-        env: &Env<Mode>,
-        bytes: &[u8],
-        ty: Type,
-    ) -> Result<Value, Mode::Error> {
+    pub fn deserialize(env: &Env, bytes: &[u8], ty: Type) -> Result<Value, ExecutionError> {
         let layout = env.runtime_layout(&ty)?;
         let Some(value) = VMValue::simple_deserialize(bytes, &layout) else {
             // we already checked the layout of pure bytes during typing

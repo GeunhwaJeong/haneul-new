@@ -10,19 +10,19 @@ use haneullabs_common::debug_fatal;
 use serde::{Deserialize, Serialize};
 use shared_crypto::intent::IntentScope;
 use std::{
-    collections::{BTreeMap, HashMap, HashSet},
+    collections::{BTreeMap, HashMap},
     path::PathBuf,
     sync::{Arc, RwLock},
     time::{Duration, Instant},
 };
 
 use crate::endpoint_manager::{AddressSource, EndpointId, EndpointManager};
-use store::{load_stored_peers, save_stored_peers};
 use haneul_config::p2p::{AccessType, DiscoveryConfig, P2pConfig};
 use haneul_types::crypto::{NetworkKeyPair, NetworkPublicKey, Signer, ToFromBytes, VerifyingKey};
 use haneul_types::digests::Digest;
 use haneul_types::message_envelope::{Envelope, Message, VerifiedEnvelope};
 use haneul_types::multiaddr::Multiaddr;
+use store::{load_stored_peers, save_stored_peers};
 use tap::{Pipe, TapFallible};
 use tokio::sync::broadcast::error::RecvError;
 use tokio::sync::mpsc;
@@ -68,9 +68,9 @@ pub enum DiscoveryMessage {
     ReceivedNodeInfo {
         peer_info: Box<SignedVersionedNodeInfo>,
     },
-    /// A spawned peer-query task discovered updated info for a trusted peer,
+    /// A spawned peer-query task discovered updated info for a configured peer,
     /// signaling the event loop to update the stored peer addresses.
-    TrustedPeersUpdated,
+    ConfiguredPeersUpdated,
     /// A peer has been reported as continuously failing, triggering disconnect and cooldown.
     PeerFailureReport { peer_id: PeerId },
 }
@@ -346,7 +346,6 @@ struct DiscoveryEventLoop {
     config: P2pConfig,
     discovery_config: Arc<DiscoveryConfig>,
     configured_peers: Arc<HashMap<PeerId, PeerInfo>>,
-    chain_peers: Arc<RwLock<HashSet<PeerId>>>,
     unidentified_seed_peers: Vec<anemo::types::Address>,
     network: Network,
     keypair: NetworkKeyPair,
@@ -431,14 +430,13 @@ impl DiscoveryEventLoop {
                     self.metrics.clone(),
                     vec![*peer_info],
                     self.configured_peers.clone(),
-                    &self.chain_peers,
                     &self.endpoint_manager,
                 );
                 if changed {
                     self.save_stored_peers();
                 }
             }
-            DiscoveryMessage::TrustedPeersUpdated => {
+            DiscoveryMessage::ConfiguredPeersUpdated => {
                 self.save_stored_peers();
             }
             DiscoveryMessage::PeerFailureReport { peer_id } => {
@@ -448,8 +446,8 @@ impl DiscoveryEventLoop {
     }
 
     fn handle_peer_failure_report(&mut self, peer_id: PeerId) {
-        if self.is_trusted_peer(&peer_id) {
-            info!(?peer_id, "ignoring failure report for trusted peer");
+        if self.configured_peers.contains_key(&peer_id) {
+            info!(?peer_id, "ignoring failure report for configured peer");
             return;
         }
         let min_peers = self.discovery_config.min_peers_for_disconnect();
@@ -572,15 +570,6 @@ impl DiscoveryEventLoop {
             "Received peer address change"
         );
 
-        // Update set of trusted peers from on-chain validator configs.
-        if source == AddressSource::Chain {
-            if addresses.is_empty() {
-                self.chain_peers.write().unwrap().remove(&peer_id);
-            } else {
-                self.chain_peers.write().unwrap().insert(peer_id);
-            }
-        }
-
         // Update stored addresses.
         {
             let mut state = self.state.write().unwrap();
@@ -593,37 +582,6 @@ impl DiscoveryEventLoop {
                 }
             } else {
                 source_map.insert(source, addresses);
-            }
-
-            // When a Chain address arrives, check if there are cached Discovery
-            // P2P addresses in known_peers_v2 that should take priority. This
-            // handles the startup race where cached NodeInfo is loaded before
-            // chain_peers is populated (so update_known_peers_versioned couldn't
-            // forward the Discovery addresses at load time).
-            if source == AddressSource::Chain
-                && !state
-                    .peer_addresses
-                    .get(&peer_id)
-                    .is_some_and(|s| s.contains_key(&AddressSource::Discovery))
-                && let Some(addrs) = state
-                    .known_peers_v2
-                    .get(&peer_id)
-                    .and_then(|info| match info.data() {
-                        VersionedNodeInfo::V2(v2) => Some(v2.p2p_addresses()),
-                        _ => None,
-                    })
-            {
-                let anemo_addrs: Vec<_> = addrs
-                    .iter()
-                    .filter_map(|a| a.to_anemo_address().ok())
-                    .collect();
-                if !anemo_addrs.is_empty() {
-                    state
-                        .peer_addresses
-                        .entry(peer_id)
-                        .or_default()
-                        .insert(AddressSource::Discovery, anemo_addrs);
-                }
             }
         }
 
@@ -691,7 +649,6 @@ impl DiscoveryEventLoop {
             self.metrics.clone(),
             entries,
             self.configured_peers.clone(),
-            &self.chain_peers,
             &self.endpoint_manager,
         );
 
@@ -710,7 +667,7 @@ impl DiscoveryEventLoop {
         let peers_to_save: Vec<SignedVersionedNodeInfo> = state
             .known_peers_v2
             .iter()
-            .filter(|(pid, _)| self.is_trusted_peer(pid))
+            .filter(|(pid, _)| self.configured_peers.contains_key(pid))
             .map(|(_, verified)| verified.inner().clone())
             .collect();
         drop(state);
@@ -734,7 +691,6 @@ impl DiscoveryEventLoop {
                         self.state.clone(),
                         self.metrics.clone(),
                         self.configured_peers.clone(),
-                        self.chain_peers.clone(),
                         self.endpoint_manager.clone(),
                         self.mailbox_sender(),
                     ));
@@ -764,13 +720,12 @@ impl DiscoveryEventLoop {
                 self.state.clone(),
                 self.metrics.clone(),
                 self.configured_peers.clone(),
-                self.chain_peers.clone(),
                 self.endpoint_manager.clone(),
                 self.mailbox_sender(),
             ));
 
         // Cull old peers older than a day
-        let mut culled_trusted_peers = Vec::new();
+        let mut culled_configured_peers = Vec::new();
         {
             let mut state = self.state.write().unwrap();
             state
@@ -778,16 +733,16 @@ impl DiscoveryEventLoop {
                 .retain(|_k, v| now_unix.saturating_sub(v.timestamp_ms) < ONE_DAY_MILLISECONDS);
             state.known_peers_v2.retain(|k, v| {
                 let keep = now_unix.saturating_sub(v.timestamp_ms()) < ONE_DAY_MILLISECONDS;
-                if !keep && self.is_trusted_peer(k) {
-                    culled_trusted_peers.push(*k);
+                if !keep && self.configured_peers.contains_key(k) {
+                    culled_configured_peers.push(*k);
                 }
                 keep
             });
         }
 
-        // Clear Discovery-sourced addresses for trusted peers whose
+        // Clear Discovery-sourced addresses for configured peers whose
         // signed info expired, allowing fallback to lower-priority sources.
-        for peer_id in culled_trusted_peers {
+        for peer_id in culled_configured_peers {
             self.endpoint_manager
                 .clear_source(peer_id, AddressSource::Discovery);
         }
@@ -819,7 +774,6 @@ impl DiscoveryEventLoop {
                 && !info.addresses.is_empty()
                 && !state.connected_peers.contains_key(peer_id)
                 && !self.pending_dials.contains_key(peer_id)
-                && !state.peer_addresses.contains_key(peer_id)
             {
                 if self.peer_cooldowns.contains_key(peer_id) {
                     cooldown_peers.insert(*peer_id, info.data().clone());
@@ -834,7 +788,6 @@ impl DiscoveryEventLoop {
                 && !p2p_addresses.is_empty()
                 && !state.connected_peers.contains_key(peer_id)
                 && !self.pending_dials.contains_key(peer_id)
-                && !state.peer_addresses.contains_key(peer_id)
             {
                 let node_info = NodeInfo {
                     peer_id: *peer_id,
@@ -907,10 +860,6 @@ impl DiscoveryEventLoop {
 
             self.dial_seed_peers_task = Some(abort_handle);
         }
-    }
-
-    fn is_trusted_peer(&self, peer_id: &PeerId) -> bool {
-        is_trusted_peer(peer_id, &self.configured_peers, &self.chain_peers)
     }
 
     fn mailbox_sender(&self) -> mpsc::Sender<DiscoveryMessage> {
@@ -1021,7 +970,6 @@ async fn query_peer_for_their_known_peers(
     state: Arc<RwLock<State>>,
     metrics: Metrics,
     configured_peers: Arc<HashMap<PeerId, PeerInfo>>,
-    chain_peers: Arc<RwLock<HashSet<PeerId>>>,
     endpoint_manager: EndpointManager,
     mailbox_tx: mpsc::Sender<DiscoveryMessage>,
 ) {
@@ -1061,7 +1009,6 @@ async fn query_peer_for_their_known_peers(
                     metrics.clone(),
                     found_peers,
                     configured_peers.clone(),
-                    &chain_peers,
                 );
             }
             if let Some(found_peers) = found_peers_v3 {
@@ -1070,11 +1017,10 @@ async fn query_peer_for_their_known_peers(
                     metrics,
                     found_peers,
                     configured_peers,
-                    &chain_peers,
                     &endpoint_manager,
                 );
                 if changed {
-                    let _ = mailbox_tx.try_send(DiscoveryMessage::TrustedPeersUpdated);
+                    let _ = mailbox_tx.try_send(DiscoveryMessage::ConfiguredPeersUpdated);
                 }
             }
             return;
@@ -1083,7 +1029,7 @@ async fn query_peer_for_their_known_peers(
 
     // V3 not enabled or our_info_v2 not available - just run V2
     if let Some(found_peers) = query_peer_for_known_peers_v2(peer).await {
-        update_known_peers(state, metrics, found_peers, configured_peers, &chain_peers);
+        update_known_peers(state, metrics, found_peers, configured_peers);
     }
 }
 
@@ -1093,7 +1039,6 @@ async fn query_connected_peers_for_their_known_peers(
     state: Arc<RwLock<State>>,
     metrics: Metrics,
     configured_peers: Arc<HashMap<PeerId, PeerInfo>>,
-    chain_peers: Arc<RwLock<HashSet<PeerId>>>,
     endpoint_manager: EndpointManager,
     mailbox_tx: mpsc::Sender<DiscoveryMessage>,
 ) {
@@ -1190,18 +1135,16 @@ async fn query_connected_peers_for_their_known_peers(
                 metrics.clone(),
                 found_peers_v2,
                 configured_peers.clone(),
-                &chain_peers,
             );
             let changed = update_known_peers_versioned(
                 state,
                 metrics,
                 found_peers_v3,
                 configured_peers,
-                &chain_peers,
                 &endpoint_manager,
             );
             if changed {
-                let _ = mailbox_tx.try_send(DiscoveryMessage::TrustedPeersUpdated);
+                let _ = mailbox_tx.try_send(DiscoveryMessage::ConfiguredPeersUpdated);
             }
             return;
         }
@@ -1209,13 +1152,7 @@ async fn query_connected_peers_for_their_known_peers(
 
     // V3 not enabled or our_info_v2 not available - just run V2
     let found_peers_v2 = v2_query.await;
-    update_known_peers(
-        state,
-        metrics,
-        found_peers_v2,
-        configured_peers,
-        &chain_peers,
-    );
+    update_known_peers(state, metrics, found_peers_v2, configured_peers);
 }
 
 fn update_known_peers(
@@ -1223,7 +1160,6 @@ fn update_known_peers(
     metrics: Metrics,
     found_peers: Vec<SignedNodeInfo>,
     configured_peers: Arc<HashMap<PeerId, PeerInfo>>,
-    chain_peers: &Arc<RwLock<HashSet<PeerId>>>,
 ) {
     use std::collections::hash_map::Entry;
 
@@ -1245,11 +1181,12 @@ fn update_known_peers(
             continue;
         }
 
+        // If Peer is Private or Trusted, and not in our configured peers, skip it.
         let is_restricted = match peer_info.access_type {
             AccessType::Public => false,
             AccessType::Private | AccessType::Trusted => true,
         };
-        if is_restricted && !is_trusted_peer(&peer_info.peer_id, &configured_peers, chain_peers) {
+        if is_restricted && !configured_peers.contains_key(&peer_info.peer_id) {
             continue;
         }
 
@@ -1307,13 +1244,12 @@ fn update_known_peers(
     }
 }
 
-/// Returns true if any trusted peer was inserted or updated.
+/// Returns true if any configured peer was inserted or updated.
 fn update_known_peers_versioned(
     state: Arc<RwLock<State>>,
     metrics: Metrics,
     found_peers: Vec<SignedVersionedNodeInfo>,
     configured_peers: Arc<HashMap<PeerId, PeerInfo>>,
-    chain_peers: &Arc<RwLock<HashSet<PeerId>>>,
     endpoint_manager: &EndpointManager,
 ) -> bool {
     use std::collections::hash_map::Entry;
@@ -1326,7 +1262,7 @@ fn update_known_peers_versioned(
         .as_ref()
         .and_then(|info| info.peer_id());
     let known_peers_v2 = &mut state.write().unwrap().known_peers_v2;
-    let mut trusted_peer_changed = false;
+    let mut configured_peer_changed = false;
 
     for peer_info in found_peers.into_iter().take(MAX_PEERS_TO_SEND + 1) {
         let timestamp_ms = peer_info.timestamp_ms();
@@ -1349,8 +1285,7 @@ fn update_known_peers_versioned(
             AccessType::Public => false,
             AccessType::Private | AccessType::Trusted => true,
         };
-        let is_trusted = is_trusted_peer(&peer_id, &configured_peers, chain_peers);
-        if is_restricted && !is_trusted {
+        if is_restricted && !configured_peers.contains_key(&peer_id) {
             continue;
         }
 
@@ -1362,8 +1297,9 @@ fn update_known_peers_versioned(
             }
         };
 
-        // Forward discovered addresses for trusted peers to EndpointManager.
-        if is_trusted && let VersionedNodeInfo::V2(info_v2) = peer_info.data() {
+        // Forward discovered addresses for configured peers to EndpointManager.
+        let is_configured = configured_peers.contains_key(&peer_id);
+        if is_configured && let VersionedNodeInfo::V2(info_v2) = peer_info.data() {
             for (endpoint_id, addrs) in &info_v2.addresses {
                 if !addrs.is_empty() {
                     let _ = endpoint_manager.update_endpoint(
@@ -1388,8 +1324,8 @@ fn update_known_peers_versioned(
                         metrics.dec_num_peers_with_external_address();
                     }
                     o.insert(peer);
-                    if is_trusted {
-                        trusted_peer_changed = true;
+                    if is_configured {
+                        configured_peer_changed = true;
                     }
                 }
             }
@@ -1398,24 +1334,14 @@ fn update_known_peers_versioned(
                     metrics.inc_num_peers_with_external_address();
                 }
                 v.insert(peer);
-                if is_trusted {
-                    trusted_peer_changed = true;
+                if is_configured {
+                    configured_peer_changed = true;
                 }
             }
         }
     }
 
-    trusted_peer_changed
-}
-
-/// A trusted peer is one that appears in the static configured_peers (seed/allowlisted)
-/// or was dynamically added via on-chain validator info (chain_peers).
-pub(super) fn is_trusted_peer(
-    peer_id: &PeerId,
-    configured_peers: &HashMap<PeerId, PeerInfo>,
-    chain_peers: &Arc<RwLock<HashSet<PeerId>>>,
-) -> bool {
-    configured_peers.contains_key(peer_id) || chain_peers.read().unwrap().contains(peer_id)
+    configured_peer_changed
 }
 
 pub(super) fn now_unix() -> u64 {

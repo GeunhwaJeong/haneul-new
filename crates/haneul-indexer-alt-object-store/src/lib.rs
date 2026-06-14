@@ -9,13 +9,6 @@ use std::time::UNIX_EPOCH;
 use anyhow::Context;
 use async_trait::async_trait;
 use bytes::Bytes;
-use object_store::Error as ObjectStoreError;
-use object_store::ObjectStoreExt as _;
-use object_store::PutMode;
-use object_store::PutPayload;
-use object_store::path::Path as ObjectPath;
-use serde::Deserialize;
-use serde::Serialize;
 use haneul_indexer_alt_framework_store_traits::CommitterWatermark;
 use haneul_indexer_alt_framework_store_traits::ConcurrentConnection;
 use haneul_indexer_alt_framework_store_traits::ConcurrentStore;
@@ -24,6 +17,13 @@ use haneul_indexer_alt_framework_store_traits::InitWatermark;
 use haneul_indexer_alt_framework_store_traits::PrunerWatermark;
 use haneul_indexer_alt_framework_store_traits::ReaderWatermark;
 use haneul_indexer_alt_framework_store_traits::Store;
+use object_store::Error as ObjectStoreError;
+use object_store::ObjectStoreExt as _;
+use object_store::PutMode;
+use object_store::PutPayload;
+use object_store::path::Path as ObjectPath;
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Clone)]
 pub struct ObjectStore {
@@ -402,10 +402,10 @@ pub async fn accepts_chain_id(
 
 #[cfg(test)]
 mod tests {
-    use object_store::memory::InMemory;
     use haneul_indexer_alt_framework_store_traits::concurrent_connection_tests;
     use haneul_indexer_alt_framework_store_traits::connection_tests;
     use haneul_indexer_alt_framework_store_traits::testing::Harness;
+    use object_store::memory::InMemory;
 
     use super::*;
 

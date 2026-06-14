@@ -2,9 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use anyhow::anyhow;
-use move_binary_format::file_format::Ability;
-use move_binary_format::file_format::AbilitySet;
-use move_binary_format::file_format::Visibility;
 use haneul_json_rpc_types::HaneulMoveAbility;
 use haneul_json_rpc_types::HaneulMoveAbilitySet;
 use haneul_json_rpc_types::HaneulMoveNormalizedFunction;
@@ -16,6 +13,9 @@ use haneul_package_resolver::OpenSignatureBody;
 use haneul_package_resolver::Reference;
 use haneul_types::Identifier;
 use haneul_types::base_types::ObjectID;
+use move_binary_format::file_format::Ability;
+use move_binary_format::file_format::AbilitySet;
+use move_binary_format::file_format::Visibility;
 
 use crate::api::move_utils::error::Error;
 use crate::context::Context;
@@ -104,8 +104,8 @@ fn normalized_signature(sig: &OpenSignature) -> HaneulMoveNormalizedType {
 }
 
 fn normalized_type(sig: &OpenSignatureBody) -> HaneulMoveNormalizedType {
-    use OpenSignatureBody as S;
     use HaneulMoveNormalizedType as T;
+    use OpenSignatureBody as S;
     match sig {
         S::Address => T::Address,
         S::Bool => T::Bool,

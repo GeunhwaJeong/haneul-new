@@ -983,13 +983,13 @@ async fn test_resolve_handles_coin_reservation_in_ptb_input() {
 
 #[sim_test]
 async fn test_estimated_budget_excludes_mock_gas_coin_storage_for_address_balance() {
-    use shared_crypto::intent::Intent;
     use haneul_keys::keystore::AccountKeystore;
     use haneul_rpc::proto::haneul::rpc::v2::transaction_execution_service_client::TransactionExecutionServiceClient;
     use haneul_rpc::proto::haneul::rpc::v2::{
         Argument, Command, GasPayment, Input, ProgrammableTransaction, SimulateTransactionRequest,
         Transaction, TransactionKind, TransferObjects,
     };
+    use shared_crypto::intent::Intent;
 
     let test_env = TestEnvBuilder::new().build().await;
 
@@ -1089,7 +1089,11 @@ async fn test_estimated_budget_excludes_mock_gas_coin_storage_for_address_balanc
         .wallet
         .config
         .keystore
-        .sign_secure(&sponsor, &resolved_transaction, Intent::haneul_transaction())
+        .sign_secure(
+            &sponsor,
+            &resolved_transaction,
+            Intent::haneul_transaction(),
+        )
         .await
         .unwrap();
     let signed = haneul_types::transaction::Transaction::from_data(

@@ -12,10 +12,8 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use tracing::info;
 
-use simulacrum::SimulatorStore;
 use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::error::HaneulError;
-use haneul_types::error::HaneulErrorKind;
+use haneul_types::error::{HaneulError, HaneulErrorKind};
 use haneul_types::storage::get_transaction_input_objects;
 use haneul_types::storage::get_transaction_output_objects;
 use haneul_types::transaction::TransactionData;
@@ -27,6 +25,7 @@ use haneul_types::transaction_driver_types::TransactionSubmissionError;
 use haneul_types::transaction_executor::SimulateTransactionResult;
 use haneul_types::transaction_executor::TransactionChecks;
 use haneul_types::transaction_executor::TransactionExecutor;
+use simulacrum::SimulatorStore;
 
 use crate::context::Context;
 
@@ -152,10 +151,12 @@ fn into_submission_error(e: anyhow::Error) -> TransactionSubmissionError {
         Ok(haneul_error) if is_signature_error(&haneul_error) => {
             TransactionSubmissionError::InvalidUserSignature(haneul_error)
         }
-        Ok(haneul_error) => TransactionSubmissionError::TransactionDriverInternalError(haneul_error),
-        Err(other) => TransactionSubmissionError::TransactionDriverInternalError(HaneulError::from(
-            format!("forked execution failed: {other}"),
-        )),
+        Ok(haneul_error) => {
+            TransactionSubmissionError::TransactionDriverInternalError(haneul_error)
+        }
+        Err(other) => TransactionSubmissionError::TransactionDriverInternalError(
+            HaneulError::from(format!("forked execution failed: {other}")),
+        ),
     }
 }
 

@@ -5,7 +5,6 @@ use std::str::FromStr;
 
 use fastcrypto::encoding::Base58;
 use fastcrypto::encoding::Encoding;
-use haneul_types::digests::CheckpointDigest;
 use haneul_types::digests::TransactionDigest;
 
 use crate::api::scalars::impl_string_input;
@@ -27,12 +26,6 @@ pub(crate) enum Error {
 impl_string_input!(Digest);
 
 impl From<Digest> for TransactionDigest {
-    fn from(digest: Digest) -> Self {
-        digest.0.into()
-    }
-}
-
-impl From<Digest> for CheckpointDigest {
     fn from(digest: Digest) -> Self {
         digest.0.into()
     }

@@ -16,8 +16,6 @@ use std::sync::Arc;
 
 use anyhow::{Context, Result, anyhow, ensure};
 use fastcrypto::traits::Signer;
-use prost::Message;
-use rand::rngs::OsRng;
 use haneul_config::verifier_signing_config::VerifierSigningConfig;
 use haneul_config::{genesis, transaction_deny_config::TransactionDenyConfig};
 use haneul_framework_snapshot::load_bytecode_snapshot;
@@ -32,11 +30,11 @@ use haneul_types::base_types::{AuthorityName, ObjectID, ObjectRef, SequenceNumbe
 use haneul_types::crypto::{AccountKeyPair, AuthoritySignature, get_account_key_pair};
 use haneul_types::digests::{ChainIdentifier, ConsensusCommitDigest};
 use haneul_types::effects::TransactionEffectsAPI;
+use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use haneul_types::messages_consensus::ConsensusDeterminedVersionAssignments;
 use haneul_types::object::{Object, Owner};
 use haneul_types::storage::ObjectKey;
 use haneul_types::storage::{ChildObjectResolver, ObjectStore, ReadStore, RpcStateReader};
-use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use haneul_types::transaction::EndOfEpochTransactionKind;
 use haneul_types::{
     base_types::{EpochId, HaneulAddress},
@@ -49,14 +47,16 @@ use haneul_types::{
     signature::VerifyParams,
     transaction::{Transaction, VerifiedTransaction},
 };
+use prost::Message;
+use rand::rngs::OsRng;
 
 pub use self::epoch_state::EpochState;
 pub use self::store::SimulatorStore;
 pub use self::store::in_mem_store::InMemoryStore;
 use self::store::in_mem_store::KeyStore;
 use haneul_core::mock_checkpoint_builder::{MockCheckpointBuilder, ValidatorKeypairProvider};
-use haneul_types::messages_checkpoint::{CheckpointContents, CheckpointSequenceNumber};
 use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::messages_checkpoint::{CheckpointContents, CheckpointSequenceNumber};
 pub use haneul_types::transaction_executor::TransactionChecks;
 use haneul_types::{
     gas_coin::GasCoin,
@@ -582,7 +582,11 @@ impl<R, S: store::SimulatorStore> Simulacrum<R, S> {
     /// // ...
     /// # }
     /// ```
-    pub fn request_gas(&mut self, address: HaneulAddress, amount: u64) -> Result<TransactionEffects> {
+    pub fn request_gas(
+        &mut self,
+        address: HaneulAddress,
+        amount: u64,
+    ) -> Result<TransactionEffects> {
         // For right now we'll just use the first account as the `faucet` account. We may want to
         // explicitly cordon off the faucet account from the rest of the accounts though.
         let (sender, key) = self.keystore().accounts().next().unwrap();
@@ -605,7 +609,8 @@ impl<R, S: store::SimulatorStore> Simulacrum<R, S> {
 
         let pt = {
             let mut builder =
-                haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder::new();
+                haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder::new(
+                );
             builder.transfer_haneul(address, Some(amount));
             builder.finish()
         };
@@ -782,8 +787,9 @@ impl<T, V: store::SimulatorStore> ReadStore for Simulacrum<T, V> {
 
     fn get_lowest_available_checkpoint(
         &self,
-    ) -> haneul_types::storage::error::Result<haneul_types::messages_checkpoint::CheckpointSequenceNumber>
-    {
+    ) -> haneul_types::storage::error::Result<
+        haneul_types::messages_checkpoint::CheckpointSequenceNumber,
+    > {
         // TODO wire this up to the underlying sim store, for now this will work since we never
         // prune the sim store
         Ok(0)
@@ -889,8 +895,9 @@ impl<T: Send + Sync, V: store::SimulatorStore + Send + Sync> RpcStateReader for 
         &self,
         _: &move_core_types::language_storage::StructTag,
         _overlay: &haneul_types::full_checkpoint_content::ObjectSet,
-    ) -> haneul_types::storage::error::Result<Option<move_core_types::annotated_value::MoveTypeLayout>>
-    {
+    ) -> haneul_types::storage::error::Result<
+        Option<move_core_types::annotated_value::MoveTypeLayout>,
+    > {
         Ok(None)
     }
 }
@@ -935,11 +942,11 @@ impl Simulacrum {
 mod tests {
     use std::time::Duration;
 
-    use rand::{SeedableRng, rngs::StdRng};
     use haneul_types::{
         base_types::HaneulAddress, effects::TransactionEffectsAPI, gas_coin::GasCoin,
         transaction::TransactionDataAPI,
     };
+    use rand::{SeedableRng, rngs::StdRng};
 
     use super::*;
 

@@ -12,7 +12,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tokio::task::JoinHandle;
 
-use prost_types::FieldMask;
 use haneul_config::local_ip_utils;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_keys::keystore::Keystore;
@@ -21,8 +20,8 @@ use haneul_rosetta::types::{
     AccountBalanceRequest, AccountBalanceResponse, AccountIdentifier, ConstructionCombineRequest,
     ConstructionCombineResponse, ConstructionMetadataRequest, ConstructionMetadataResponse,
     ConstructionPayloadsRequest, ConstructionPayloadsResponse, ConstructionPreprocessRequest,
-    ConstructionPreprocessResponse, ConstructionSubmitRequest, Currencies, NetworkIdentifier,
-    PreprocessMetadata, Signature, SignatureType, SubAccount, SubAccountType, HaneulEnv,
+    ConstructionPreprocessResponse, ConstructionSubmitRequest, Currencies, HaneulEnv,
+    NetworkIdentifier, PreprocessMetadata, Signature, SignatureType, SubAccount, SubAccountType,
     TransactionIdentifierResponse,
 };
 use haneul_rosetta::{RosettaOfflineServer, RosettaOnlineServer};
@@ -32,6 +31,7 @@ use haneul_rpc::proto::haneul::rpc::v2::GetCheckpointRequest;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::HaneulSignature;
 use haneul_types::digests::{ChainIdentifier, CheckpointDigest};
+use prost_types::FieldMask;
 
 pub async fn start_rosetta_test_server(
     mut client: GrpcClient,

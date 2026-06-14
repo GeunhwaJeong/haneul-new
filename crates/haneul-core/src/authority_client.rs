@@ -4,20 +4,20 @@
 
 use anyhow::anyhow;
 use async_trait::async_trait;
-use haneullabs_network::config::Config;
-use std::collections::BTreeMap;
-use std::net::SocketAddr;
-use std::time::Duration;
 use haneul_network::{api::ValidatorClient, tonic};
 use haneul_types::base_types::AuthorityName;
 use haneul_types::committee::CommitteeWithNetworkMetadata;
 use haneul_types::crypto::NetworkPublicKey;
 use haneul_types::error::{HaneulError, HaneulResult};
+use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::messages_checkpoint::{
     CheckpointRequest, CheckpointRequestV2, CheckpointResponse, CheckpointResponseV2,
 };
 use haneul_types::multiaddr::Multiaddr;
-use haneul_types::haneul_system_state::HaneulSystemState;
+use haneullabs_network::config::Config;
+use std::collections::BTreeMap;
+use std::net::SocketAddr;
+use std::time::Duration;
 use tap::TapFallible;
 
 use crate::authority_client::tonic::IntoRequest;

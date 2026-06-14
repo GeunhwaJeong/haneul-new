@@ -96,7 +96,10 @@ async fn main() -> Result<(), anyhow::Error> {
     // Object with options
     let object_with_options = haneul
         .read_api()
-        .get_object_with_options(haneul_get_past_object_request.object_id, haneul_data_options)
+        .get_object_with_options(
+            haneul_get_past_object_request.object_id,
+            haneul_data_options,
+        )
         .await?;
 
     println!(" *** Object with Options *** ");

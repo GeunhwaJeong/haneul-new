@@ -7,8 +7,8 @@
 //! (mainnet, testnet, or custom) and provides URL resolution for both
 //! GraphQL and JSON-RPC endpoints.
 
-use std::str::FromStr;
 use haneul_types::supported_protocol_versions::Chain;
+use std::str::FromStr;
 
 /// GraphQL endpoint for Haneul mainnet.
 pub const MAINNET_GQL_URL: &str = "https://graphql.mainnet.haneul.io/graphql";

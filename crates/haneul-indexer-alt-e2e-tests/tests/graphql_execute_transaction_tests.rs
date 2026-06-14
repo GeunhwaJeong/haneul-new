@@ -6,12 +6,6 @@ use std::net::Ipv4Addr;
 use std::net::SocketAddr;
 
 use anyhow::Context;
-use itertools::Itertools;
-use prometheus::Registry;
-use reqwest::Client;
-use serde::Deserialize;
-use serde_json::Value;
-use serde_json::json;
 use haneul_futures::service::Service;
 use haneul_indexer_alt_graphql::RpcArgs as GraphQlArgs;
 use haneul_indexer_alt_graphql::args::SubscriptionArgs;
@@ -29,6 +23,12 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::transaction::ObjectArg;
 use haneul_types::transaction::SharedObjectMutability;
+use itertools::Itertools;
+use prometheus::Registry;
+use reqwest::Client;
+use serde::Deserialize;
+use serde_json::Value;
+use serde_json::json;
 use test_cluster::TestCluster;
 use test_cluster::TestClusterBuilder;
 use url::Url;
@@ -184,9 +184,12 @@ async fn test_execute_transaction_mutation_schema() {
 
     // Create a simple transfer transaction for testing
     let recipient = HaneulAddress::random_for_testing_only();
-    let signed_tx =
-        make_transfer_haneul_transaction(&validator_cluster.wallet, Some(recipient), Some(1_000_000))
-            .await;
+    let signed_tx = make_transfer_haneul_transaction(
+        &validator_cluster.wallet,
+        Some(recipient),
+        Some(1_000_000),
+    )
+    .await;
     let (tx_bytes, signatures) = signed_tx.to_tx_bytes_and_signatures();
 
     let result = graphql_cluster
@@ -357,12 +360,18 @@ async fn test_execute_transaction_grpc_errors() {
     let recipient1 = HaneulAddress::random_for_testing_only();
     let recipient2 = HaneulAddress::random_for_testing_only();
 
-    let signed_tx1 =
-        make_transfer_haneul_transaction(&validator_cluster.wallet, Some(recipient1), Some(1_000_000))
-            .await;
-    let signed_tx2 =
-        make_transfer_haneul_transaction(&validator_cluster.wallet, Some(recipient2), Some(2_000_000))
-            .await;
+    let signed_tx1 = make_transfer_haneul_transaction(
+        &validator_cluster.wallet,
+        Some(recipient1),
+        Some(1_000_000),
+    )
+    .await;
+    let signed_tx2 = make_transfer_haneul_transaction(
+        &validator_cluster.wallet,
+        Some(recipient2),
+        Some(2_000_000),
+    )
+    .await;
 
     let (tx1_bytes, _) = signed_tx1.to_tx_bytes_and_signatures();
     let (_, tx2_signatures) = signed_tx2.to_tx_bytes_and_signatures();
@@ -479,7 +488,10 @@ async fn test_execute_transaction_unchanged_consensus_objects() {
     assert_eq!(first_edge.node.typename, "ConsensusObjectRead");
 
     let object = first_edge.node.object.as_ref().unwrap();
-    assert_eq!(object.address, haneul_types::HANEUL_CLOCK_OBJECT_ID.to_string());
+    assert_eq!(
+        object.address,
+        haneul_types::HANEUL_CLOCK_OBJECT_ID.to_string()
+    );
     assert!(object.version > 0, "Version should be greater than 0");
 }
 
@@ -490,9 +502,12 @@ async fn test_execute_transaction_object_changes_input_output() {
 
     // Create a transfer transaction that will modify objects
     let recipient = HaneulAddress::random_for_testing_only();
-    let signed_tx =
-        make_transfer_haneul_transaction(&validator_cluster.wallet, Some(recipient), Some(1_000_000))
-            .await;
+    let signed_tx = make_transfer_haneul_transaction(
+        &validator_cluster.wallet,
+        Some(recipient),
+        Some(1_000_000),
+    )
+    .await;
     let (tx_bytes, signatures) = signed_tx.to_tx_bytes_and_signatures();
 
     let result = graphql_cluster
@@ -636,9 +651,12 @@ async fn test_execute_transaction_effects_json() {
 
     // Create a transfer transaction
     let recipient = HaneulAddress::random_for_testing_only();
-    let signed_tx =
-        make_transfer_haneul_transaction(&validator_cluster.wallet, Some(recipient), Some(1_000_000))
-            .await;
+    let signed_tx = make_transfer_haneul_transaction(
+        &validator_cluster.wallet,
+        Some(recipient),
+        Some(1_000_000),
+    )
+    .await;
     let (tx_bytes, signatures) = signed_tx.to_tx_bytes_and_signatures();
 
     let result = graphql_cluster
@@ -743,9 +761,12 @@ async fn test_execute_transaction_transaction_json() {
 
     // Create a transfer transaction
     let recipient = HaneulAddress::random_for_testing_only();
-    let signed_tx =
-        make_transfer_haneul_transaction(&validator_cluster.wallet, Some(recipient), Some(1_000_000))
-            .await;
+    let signed_tx = make_transfer_haneul_transaction(
+        &validator_cluster.wallet,
+        Some(recipient),
+        Some(1_000_000),
+    )
+    .await;
     let (tx_bytes, signatures) = signed_tx.to_tx_bytes_and_signatures();
 
     let result = graphql_cluster

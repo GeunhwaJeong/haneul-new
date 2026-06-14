@@ -25,9 +25,9 @@ use serde_json::{Number, Value as JsonValue, json};
 
 use haneul_types::MOVE_STDLIB_ADDRESS;
 use haneul_types::base_types::{
-    ObjectID, RESOLVED_ASCII_STR, RESOLVED_STD_OPTION, RESOLVED_UTF8_STR, STD_ASCII_MODULE_NAME,
-    STD_ASCII_STRUCT_NAME, STD_OPTION_MODULE_NAME, STD_OPTION_STRUCT_NAME, STD_UTF8_MODULE_NAME,
-    STD_UTF8_STRUCT_NAME, HaneulAddress, TxContext, TxContextKind, is_primitive_type_tag,
+    HaneulAddress, ObjectID, RESOLVED_ASCII_STR, RESOLVED_STD_OPTION, RESOLVED_UTF8_STR,
+    STD_ASCII_MODULE_NAME, STD_ASCII_STRUCT_NAME, STD_OPTION_MODULE_NAME, STD_OPTION_STRUCT_NAME,
+    STD_UTF8_MODULE_NAME, STD_UTF8_STRUCT_NAME, TxContext, TxContextKind, is_primitive_type_tag,
     move_ascii_str_layout, move_utf8_str_layout,
 };
 use haneul_types::id::{self, ID, RESOLVED_HANEUL_ID};
@@ -511,7 +511,9 @@ pub fn check_valid_homogeneous(val: &JsonValue) -> Result<(), HaneulJsonValueErr
 
 /// Check via BFS
 /// The invariant is that all types at a given level must be the same or be empty
-fn check_valid_homogeneous_rec(curr_q: &mut VecDeque<&JsonValue>) -> Result<(), HaneulJsonValueError> {
+fn check_valid_homogeneous_rec(
+    curr_q: &mut VecDeque<&JsonValue>,
+) -> Result<(), HaneulJsonValueError> {
     if curr_q.is_empty() {
         // Nothing to do
         return Ok(());
@@ -684,7 +686,10 @@ fn resolve_object_arg(idx: usize, arg: &JsonValue) -> Result<ObjectID, anyhow::E
     }
 }
 
-fn resolve_object_vec_arg(idx: usize, arg: &HaneulJsonValue) -> Result<Vec<ObjectID>, anyhow::Error> {
+fn resolve_object_vec_arg(
+    idx: usize,
+    arg: &HaneulJsonValue,
+) -> Result<Vec<ObjectID>, anyhow::Error> {
     // Every elem has to be a string convertible to a ObjectID
     match arg.to_json_value() {
         JsonValue::Array(a) => {

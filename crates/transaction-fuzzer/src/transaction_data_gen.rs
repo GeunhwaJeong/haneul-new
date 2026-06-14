@@ -6,8 +6,8 @@ use proptest::arbitrary::*;
 use proptest::prelude::*;
 
 use crate::type_arg_fuzzer::{gen_type_tag, pt_for_tags};
+use haneul_types::base_types::{HaneulAddress, ObjectID, ObjectRef, SequenceNumber};
 use proptest::collection::vec;
-use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
 
 use haneul_types::digests::{ChainIdentifier, ObjectDigest};
 use haneul_types::transaction::{

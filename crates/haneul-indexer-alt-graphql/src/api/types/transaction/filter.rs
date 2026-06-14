@@ -211,10 +211,13 @@ impl TransactionFilter {
         // The indexed path uses object_changes() which includes deleted/wrapped
         // objects, while all_changed_objects() excludes them.
         if let Some(affected_object) = &self.affected_object {
-            let has_match = effects
-                .all_changed_objects()
-                .iter()
-                .any(|((object_id, _, _), _, _)| HaneulAddress::from(*object_id) == *affected_object);
+            let has_match =
+                effects
+                    .all_changed_objects()
+                    .iter()
+                    .any(|((object_id, _, _), _, _)| {
+                        HaneulAddress::from(*object_id) == *affected_object
+                    });
             if !has_match {
                 return false;
             }

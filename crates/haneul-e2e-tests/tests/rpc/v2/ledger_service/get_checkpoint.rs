@@ -7,7 +7,9 @@ use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::GetTransactionRequest;
 use haneul_rpc::proto::haneul::rpc::v2::get_checkpoint_request::CheckpointId;
 use haneul_rpc::proto::haneul::rpc::v2::ledger_service_client::LedgerServiceClient;
-use haneul_rpc::proto::haneul::rpc::v2::{Checkpoint, ExecutedTransaction, GetCheckpointRequest, Object};
+use haneul_rpc::proto::haneul::rpc::v2::{
+    Checkpoint, ExecutedTransaction, GetCheckpointRequest, Object,
+};
 use test_cluster::TestClusterBuilder;
 
 use crate::{stake_with_validator, transfer_coin};

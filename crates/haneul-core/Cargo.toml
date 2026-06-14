@@ -45,7 +45,6 @@ rand.workspace = true
 roaring.workspace = true
 rayon.workspace = true
 reqwest.workspace = true
-rustc-hash.workspace = true
 scopeguard.workspace = true
 serde.workspace = true
 serde_json.workspace = true
@@ -87,7 +86,6 @@ haneul-execution.workspace = true
 haneul-framework.workspace = true
 haneul-swarm-config.workspace = true
 haneul-genesis-builder.workspace = true
-haneul-inverted-index.workspace = true
 haneul-json-rpc-types.workspace = true
 haneul-macros.workspace = true
 haneul-network.workspace = true
@@ -136,5 +134,9 @@ prost-build.workspace = true
 protox.workspace = true
 
 [[bench]]
-name = "verified_digest_cache_bench"
+name = "verified_cert_cache_bench"
+harness = false
+
+[[bench]]
+name = "batch_verification_bench"
 harness = false

@@ -4,8 +4,8 @@
 use std::collections::HashMap;
 
 use async_graphql::dataloader::Loader;
-use haneullabs_common::ZipDebugEqIteratorExt;
 use haneul_sdk_types::Address;
+use haneullabs_common::ZipDebugEqIteratorExt;
 
 use crate::error::Error;
 use crate::fullnode_client::FullnodeClient;

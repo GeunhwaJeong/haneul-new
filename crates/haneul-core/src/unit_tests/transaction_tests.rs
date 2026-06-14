@@ -5,15 +5,12 @@ use crate::authority::AuthorityState;
 use crate::authority::test_authority_builder::TestAuthorityBuilder;
 use fastcrypto::{ed25519::Ed25519KeyPair, traits::KeyPair};
 use fastcrypto_zkp::bn254::zk_login::{OIDCProvider, ZkLoginInputs, parse_jwks};
-use move_core_types::{ident_str, identifier::Identifier};
-use rand::{SeedableRng, rngs::StdRng};
-use shared_crypto::intent::{Intent, IntentMessage};
-use haneul_types::crypto::{PublicKey, HaneulSignature, ToFromBytes, ZkLoginPublicIdentifier};
+use haneul_types::crypto::{HaneulSignature, PublicKey, ToFromBytes, ZkLoginPublicIdentifier};
 use haneul_types::utils::get_one_zklogin_inputs;
 use haneul_types::{
     authenticator_state::ActiveJwk,
     base_types::{FullObjectRef, dbg_addr},
-    crypto::{AccountKeyPair, Signature, HaneulKeyPair, get_key_pair},
+    crypto::{AccountKeyPair, HaneulKeyPair, Signature, get_key_pair},
     error::{HaneulResult, UserInputError},
     messages_consensus::ConsensusDeterminedVersionAssignments,
     multisig::{MultiSig, MultiSigPublicKey},
@@ -27,6 +24,9 @@ use haneul_types::{
     zk_login_authenticator::ZkLoginAuthenticator,
     zk_login_util::DEFAULT_JWK_BYTES,
 };
+use move_core_types::{ident_str, identifier::Identifier};
+use rand::{SeedableRng, rngs::StdRng};
+use shared_crypto::intent::{Intent, IntentMessage};
 
 use crate::authority::authority_tests::{call_move_, create_gas_objects, publish_object_basics};
 use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
@@ -480,12 +480,12 @@ async fn do_transaction_test_impl(
         })
         .collect();
     let authority_state = init_state_with_ids(init_state_input).await;
-    authority_state.insert_genesis_object(input_object);
+    authority_state.insert_genesis_object(input_object).await;
     let rgp = authority_state.reference_gas_price_for_testing().unwrap();
-    let object = authority_state.get_object(&input_object_id).unwrap();
+    let object = authority_state.get_object(&input_object_id).await.unwrap();
     let mut gas_objects = Vec::new();
     for id in gas_object_ids {
-        gas_objects.push(authority_state.get_object(&id).unwrap());
+        gas_objects.push(authority_state.get_object(&id).await.unwrap());
     }
 
     // Execute the test with two transactions, one transfer and one move call.
@@ -917,13 +917,14 @@ async fn do_zklogin_transaction_test(
 
 async fn check_locks(authority_state: Arc<AuthorityState>, object_ids: Vec<ObjectID>) {
     for object_id in object_ids {
-        let object = authority_state.get_object(&object_id).unwrap();
+        let object = authority_state.get_object(&object_id).await.unwrap();
         assert!(
             authority_state
                 .get_transaction_lock(
                     &object.compute_object_reference(),
                     &authority_state.epoch_store_for_testing()
                 )
+                .await
                 .unwrap()
                 .is_none()
         );
@@ -1049,10 +1050,11 @@ async fn init_zklogin_transfer(
     pre_sign_mutations: impl FnOnce(&mut TransactionData),
     ephemeral_key: &Ed25519KeyPair,
     zklogin: &ZkLoginInputs,
-) -> haneul_types::message_envelope::Envelope<SenderSignedData, haneul_types::crypto::EmptySignInfo> {
+) -> haneul_types::message_envelope::Envelope<SenderSignedData, haneul_types::crypto::EmptySignInfo>
+{
     let rgp = authority_state.reference_gas_price_for_testing().unwrap();
-    let object = authority_state.get_object(&object_id).unwrap();
-    let gas_object = authority_state.get_object(&gas_object_id).unwrap();
+    let object = authority_state.get_object(&object_id).await.unwrap();
+    let gas_object = authority_state.get_object(&gas_object_id).await.unwrap();
     let full_object_ref = object.compute_full_object_reference();
     let gas_object_ref = gas_object.compute_object_reference();
     let gas_budget = rgp * TEST_ONLY_GAS_UNIT_FOR_TRANSFER;
@@ -1091,10 +1093,11 @@ async fn sign_with_zklogin_inside_multisig(
     zklogin: &ZkLoginInputs,
     max_epoch: u64,
     multisig_pk: MultiSigPublicKey,
-) -> haneul_types::message_envelope::Envelope<SenderSignedData, haneul_types::crypto::EmptySignInfo> {
+) -> haneul_types::message_envelope::Envelope<SenderSignedData, haneul_types::crypto::EmptySignInfo>
+{
     let rgp = authority_state.reference_gas_price_for_testing().unwrap();
-    let object = authority_state.get_object(&object_id).unwrap();
-    let gas_object = authority_state.get_object(&gas_object_id).unwrap();
+    let object = authority_state.get_object(&object_id).await.unwrap();
+    let gas_object = authority_state.get_object(&gas_object_id).await.unwrap();
     let full_object_ref = object.compute_full_object_reference();
     let gas_object_ref = gas_object.compute_object_reference();
     let gas_budget = rgp * TEST_ONLY_GAS_UNIT_FOR_TRANSFER;
@@ -1237,8 +1240,8 @@ async fn zk_multisig_test() {
     });
 
     let rgp = authority_state.reference_gas_price_for_testing().unwrap();
-    let object = authority_state.get_object(&object_id).unwrap();
-    let gas_object = authority_state.get_object(&gas_object_id).unwrap();
+    let object = authority_state.get_object(&object_id).await.unwrap();
+    let gas_object = authority_state.get_object(&gas_object_id).await.unwrap();
 
     let data = TransactionData::new_transfer(
         recipient,
@@ -1391,7 +1394,7 @@ async fn test_shared_object_v2_denied() {
         .await;
 
     // Insert genesis objects
-    authority.insert_genesis_objects(&gas_objects);
+    authority.insert_genesis_objects(&gas_objects).await;
 
     // Publish the object_basics package
     let (authority, package) = publish_object_basics(authority).await;
@@ -1416,7 +1419,7 @@ async fn test_shared_object_v2_denied() {
 
         effects.status().unwrap();
         let shared_object_id = effects.created()[0].0.0;
-        authority.get_object(&shared_object_id).unwrap()
+        authority.get_object(&shared_object_id).await.unwrap()
     };
 
     let initial_shared_version = shared_object.version();
@@ -1545,8 +1548,6 @@ async fn test_shared_object_v2_denied() {
 
 mod gasless_input_tests {
     use super::*;
-    use move_core_types::account_address::AccountAddress;
-    use move_core_types::language_storage::TypeTag;
     use haneul_types::HANEUL_FRAMEWORK_PACKAGE_ID;
     use haneul_types::base_types::{ObjectDigest, SequenceNumber};
     use haneul_types::digests::ChainIdentifier;
@@ -1554,6 +1555,8 @@ mod gasless_input_tests {
         FundsWithdrawalArg, GasData, ProgrammableMoveCall, TransactionDataV1, TransactionExpiration,
     };
     use haneul_types::type_input::TypeInput;
+    use move_core_types::account_address::AccountAddress;
+    use move_core_types::language_storage::TypeTag;
 
     fn test_token() -> TypeTag {
         TypeTag::Struct(Box::new(move_core_types::language_storage::StructTag {

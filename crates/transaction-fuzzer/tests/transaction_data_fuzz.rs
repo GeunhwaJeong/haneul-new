@@ -1,8 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use proptest::prelude::*;
 use haneul_types::utils::to_sender_signed_transaction;
+use proptest::prelude::*;
 
 use proptest::strategy::ValueTree;
 use transaction_fuzzer::account_universe::AccountCurrent;

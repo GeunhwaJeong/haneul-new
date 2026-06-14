@@ -17,24 +17,12 @@ use fastcrypto_tbls::nodes::PartyId;
 use fastcrypto_zkp::bn254::zk_login::{JWK, JwkId, OIDCProvider};
 use fastcrypto_zkp::bn254::zk_login_api::ZkLoginEnv;
 use futures::future::{Either, join_all};
-use itertools::Itertools;
-use moka::sync::SegmentedCache as MokaCache;
-use move_bytecode_utils::module_cache::SyncModuleCache;
-use haneullabs_common::ZipDebugEqIteratorExt;
-use haneullabs_common::assert_reachable;
-use haneullabs_common::random_util::randomize_cache_capacity_in_tests;
-use haneullabs_common::sync::notify_once::NotifyOnce;
-use haneullabs_common::sync::notify_read::NotifyRead;
-use haneullabs_common::{debug_fatal, fatal, in_test_configuration};
-use haneullabs_metrics::monitored_scope;
-use nonempty::NonEmpty;
-use parking_lot::RwLock;
-use parking_lot::{Mutex, RwLockReadGuard, RwLockWriteGuard};
-use serde::{Deserialize, Serialize};
 use haneul_config::node::ExpensiveSafetyCheckConfig;
 use haneul_execution::{self, Executor};
 use haneul_macros::fail_point;
-use haneul_protocol_config::{Chain, PerObjectCongestionControlMode, ProtocolConfig, ProtocolVersion};
+use haneul_protocol_config::{
+    Chain, PerObjectCongestionControlMode, ProtocolConfig, ProtocolVersion,
+};
 use haneul_storage::mutex_table::{MutexGuard, MutexTable};
 use haneul_types::authenticator_state::{ActiveJwk, get_authenticator_state};
 use haneul_types::base_types::{
@@ -55,6 +43,10 @@ use haneul_types::executable_transaction::{
 };
 use haneul_types::execution::{ExecutionTimeObservationKey, ExecutionTiming};
 use haneul_types::global_state_hash::GlobalStateHash;
+use haneul_types::haneul_system_state::epoch_start_haneul_system_state::{
+    EpochStartSystemState, EpochStartSystemStateTrait,
+};
+use haneul_types::haneul_system_state::{self, HaneulSystemState};
 use haneul_types::message_envelope::TrustedEnvelope;
 use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointSequenceNumber, CheckpointSummary,
@@ -64,19 +56,28 @@ use haneul_types::messages_consensus::{
     ConsensusTransaction, ConsensusTransactionKey, ConsensusTransactionKind, TimestampMs,
     VersionedDkgConfirmation, check_total_jwk_size,
 };
-use haneul_types::node_role::{FullNodeSyncMode, NodeRole};
 use haneul_types::signature::GenericSignature;
 use haneul_types::storage::{BackingPackageStore, InputKey, ObjectStore};
-use haneul_types::haneul_system_state::epoch_start_haneul_system_state::{
-    EpochStartSystemState, EpochStartSystemStateTrait,
-};
-use haneul_types::haneul_system_state::{self, HaneulSystemState};
 use haneul_types::transaction::{
     AuthenticatorStateUpdate, CertifiedTransaction, DeprecatedWithAliases, InputObjectKind,
     ProgrammableTransaction, SenderSignedData, StoredExecutionTimeObservations, Transaction,
     TransactionData, TransactionDataAPI, TransactionKey, TransactionKind, TxValidityCheckContext,
     VerifiedSignedTransaction, VerifiedTransaction, VerifiedTransactionWithAliases, WithAliases,
 };
+use haneullabs_common::ZipDebugEqIteratorExt;
+use haneullabs_common::assert_reachable;
+use haneullabs_common::random_util::randomize_cache_capacity_in_tests;
+use haneullabs_common::sync::notify_once::NotifyOnce;
+use haneullabs_common::sync::notify_read::NotifyRead;
+use haneullabs_common::{debug_fatal, fatal, in_test_configuration};
+use haneullabs_metrics::monitored_scope;
+use itertools::Itertools;
+use moka::sync::SegmentedCache as MokaCache;
+use move_bytecode_utils::module_cache::SyncModuleCache;
+use nonempty::NonEmpty;
+use parking_lot::RwLock;
+use parking_lot::{Mutex, RwLockReadGuard, RwLockWriteGuard};
+use serde::{Deserialize, Serialize};
 use tap::TapOptional;
 use tokio::sync::{OnceCell, mpsc, oneshot};
 use tokio::time::Instant;
@@ -473,10 +474,6 @@ pub struct AuthorityPerEpochStore {
     /// Waiters for barrier transactions. Used by execution scheduler to wait for
     /// barrier transaction (keyed by the same AccumulatorSettlement key as settlements).
     barrier_registrations: Arc<Mutex<HashMap<TransactionKey, BarrierRegistration>>>,
-
-    /// The node's role for this epoch, derived from committee membership and
-    /// the configured sync mode. Computed once at construction.
-    node_role: NodeRole,
 }
 enum SettlementRegistration {
     Ready(Vec<VerifiedExecutableTransaction>),
@@ -514,9 +511,7 @@ pub struct AuthorityEpochTables {
     /// to disk.
     signed_effects_digests: DBMap<TransactionDigest, TransactionEffectsDigest>,
 
-    /// No longer used.
-    #[allow(dead_code)]
-    #[deprecated(note = "column family retained only for backward DB compatibility")]
+    /// Signatures of transaction certificates that are executed locally.
     transaction_cert_signatures: DBMap<TransactionDigest, AuthorityStrongQuorumSignInfo>,
 
     /// Next available shared object versions for each shared object.
@@ -626,7 +621,6 @@ pub struct AuthorityEpochTables {
         DBMap<DeferralKey, Vec<DeprecatedWithAliases<TrustedExecutableTransaction>>>,
     deferred_transactions_with_aliases_v3:
         DBMap<DeferralKey, Vec<TrustedExecutableTransactionWithAliases>>,
-    pub(crate) dkg_output_v2: DBMap<u64, Option<dkg_v1::Output<PkG, EncG>>>,
 }
 
 fn signed_transactions_table_default_config() -> DBOptions {
@@ -893,10 +887,6 @@ impl AuthorityEpochTables {
                 "execution_time_observations".to_string(),
                 ThConfig::new(8 + 4, mutexes, uniform_key),
             ),
-            (
-                "dkg_output_v2".to_string(),
-                ThConfig::new(8, 1, KeyType::uniform(1)),
-            ),
         ];
         Self::open_tables_read_write(
             path.to_path_buf(),
@@ -1084,7 +1074,6 @@ impl AuthorityPerEpochStore {
         highest_executed_checkpoint: CheckpointSequenceNumber,
         previous_epoch_last_checkpoint: CheckpointSequenceNumber,
         submitted_transaction_cache_metrics: Arc<SubmittedTransactionCacheMetrics>,
-        fullnode_sync_mode: Option<FullNodeSyncMode>,
     ) -> HaneulResult<Arc<Self>> {
         let current_time = Instant::now();
         let epoch_id = committee.epoch;
@@ -1291,7 +1280,6 @@ impl AuthorityPerEpochStore {
             finalized_transactions_cache,
             settlement_registrations: Default::default(),
             barrier_registrations: Default::default(),
-            node_role: NodeRole::from_committee(&committee, &name, fullnode_sync_mode),
         });
 
         s.update_buffer_stake_metric();
@@ -1347,7 +1335,6 @@ impl AuthorityPerEpochStore {
         mut randomness_manager: RandomnessManager,
     ) -> HaneulResult<()> {
         let reporter = randomness_manager.reporter();
-
         let result = randomness_manager.start_dkg().await;
         if self
             .randomness_manager
@@ -1358,19 +1345,10 @@ impl AuthorityPerEpochStore {
                 "BUG: `set_randomness_manager` called more than once; this should never happen"
             );
         }
-        match reporter {
-            Some(reporter) => {
-                if self.randomness_reporter.set(reporter).is_err() {
-                    debug_fatal!(
-                        "BUG: `set_randomness_manager` called more than once; this should never happen"
-                    );
-                }
-            }
-            None => {
-                if self.node_role.is_validator() {
-                    debug_fatal!("expected a RandomnessReporter for a validator");
-                }
-            }
+        if self.randomness_reporter.set(reporter).is_err() {
+            debug_fatal!(
+                "BUG: `set_randomness_manager` called more than once; this should never happen"
+            );
         }
         result
     }
@@ -1470,7 +1448,6 @@ impl AuthorityPerEpochStore {
         object_store: Arc<dyn ObjectStore + Send + Sync>,
         expensive_safety_check_config: &ExpensiveSafetyCheckConfig,
         epoch_last_checkpoint: CheckpointSequenceNumber,
-        fullnode_sync_mode: Option<FullNodeSyncMode>,
     ) -> HaneulResult<Arc<Self>> {
         assert_eq!(self.epoch() + 1, new_committee.epoch);
         self.record_reconfig_halt_duration_metric();
@@ -1493,7 +1470,6 @@ impl AuthorityPerEpochStore {
             epoch_last_checkpoint,
             epoch_last_checkpoint,
             self.submitted_transaction_cache.metrics(),
-            fullnode_sync_mode,
         )
     }
 
@@ -1518,7 +1494,6 @@ impl AuthorityPerEpochStore {
             object_store,
             expensive_safety_check_config,
             epoch_last_checkpoint,
-            None,
         )
         .expect("failed to create new authority per epoch store")
     }
@@ -1758,8 +1733,8 @@ impl AuthorityPerEpochStore {
         }
 
         // Load stored execution time observations from the HaneulSystemState object.
-        let system_state =
-            haneul_system_state::get_haneul_system_state(object_store).expect("System state must exist");
+        let system_state = haneul_system_state::get_haneul_system_state(object_store)
+            .expect("System state must exist");
         let system_state = match system_state {
             HaneulSystemState::V2(system_state) => system_state,
             HaneulSystemState::V1(_) => {
@@ -1889,7 +1864,10 @@ impl AuthorityPerEpochStore {
         Ok(())
     }
 
-    pub fn insert_signed_transaction(&self, transaction: VerifiedSignedTransaction) -> HaneulResult {
+    pub fn insert_signed_transaction(
+        &self,
+        transaction: VerifiedSignedTransaction,
+    ) -> HaneulResult {
         Ok(self
             .tables()?
             .signed_transactions
@@ -1925,6 +1903,18 @@ impl AuthorityPerEpochStore {
             .signed_transactions
             .get(tx_digest)?
             .map(|t| t.into()))
+    }
+
+    #[instrument(level = "trace", skip_all)]
+    pub fn insert_tx_cert_sig(
+        &self,
+        tx_digest: &TransactionDigest,
+        cert_sig: &AuthorityStrongQuorumSignInfo,
+    ) -> HaneulResult {
+        let tables = self.tables()?;
+        Ok(tables
+            .transaction_cert_signatures
+            .insert(tx_digest, cert_sig)?)
     }
 
     /// Record that a transaction has been executed in the current epoch.
@@ -1965,7 +1955,10 @@ impl AuthorityPerEpochStore {
         self.executed_digests_notify_read.notify(&key, &digest);
     }
 
-    pub fn tx_key_to_digest(&self, key: &TransactionKey) -> HaneulResult<Option<TransactionDigest>> {
+    pub fn tx_key_to_digest(
+        &self,
+        key: &TransactionKey,
+    ) -> HaneulResult<Option<TransactionDigest>> {
         let tables = self.tables()?;
         if let TransactionKey::Digest(digest) = key {
             Ok(Some(*digest))
@@ -2127,6 +2120,13 @@ impl AuthorityPerEpochStore {
             }
         }
         Ok(cached)
+    }
+
+    pub fn get_transaction_cert_sig(
+        &self,
+        tx_digest: &TransactionDigest,
+    ) -> HaneulResult<Option<AuthorityStrongQuorumSignInfo>> {
+        Ok(self.tables()?.transaction_cert_signatures.get(tx_digest)?)
     }
 
     /// Gets owned object locks, checking quarantine first then falling back to DB.
@@ -3805,7 +3805,11 @@ impl AuthorityPerEpochStore {
             .set_transaction_status(position, status);
     }
 
-    pub(crate) fn set_rejection_vote_reason(&self, position: ConsensusPosition, reason: &HaneulError) {
+    pub(crate) fn set_rejection_vote_reason(
+        &self,
+        position: ConsensusPosition,
+        reason: &HaneulError,
+    ) {
         self.tx_reject_reason_cache
             .set_rejection_vote_reason(position, reason);
     }
@@ -3850,14 +3854,9 @@ impl AuthorityPerEpochStore {
             .get_observations()
     }
 
-    /// Returns the role of this node for the current epoch.
-    pub fn node_role(&self) -> NodeRole {
-        self.node_role
-    }
-
     /// Whether this node is a validator in this epoch.
     pub fn is_validator(&self) -> bool {
-        self.node_role().is_validator()
+        self.committee.authority_exists(&self.name)
     }
 }
 

@@ -11,16 +11,12 @@ use crate::authority::epoch_start_configuration::EpochStartConfiguration;
 use crate::global_state_hasher::GlobalStateHashStore;
 use crate::transaction_outputs::TransactionOutputs;
 use either::Either;
-use itertools::Itertools;
-use haneullabs_common::ZipDebugEqIteratorExt;
 use haneul_types::accumulator_event::AccumulatorEvent;
 use haneul_types::bridge::Bridge;
+use haneullabs_common::ZipDebugEqIteratorExt;
+use itertools::Itertools;
 
 use futures::{FutureExt, future::BoxFuture};
-use prometheus::Registry;
-use std::collections::HashSet;
-use std::path::Path;
-use std::sync::Arc;
 use haneul_config::ExecutionCacheConfig;
 use haneul_protocol_config::ProtocolVersion;
 use haneul_types::base_types::{FullObjectID, VerifiedExecutionData};
@@ -28,19 +24,23 @@ use haneul_types::digests::{TransactionDigest, TransactionEffectsDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::error::{HaneulError, HaneulErrorKind, HaneulResult, UserInputError};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
+use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::object::Object;
 use haneul_types::storage::{
     BackingPackageStore, BackingStore, ChildObjectResolver, FullObjectKey, MarkerValue, ObjectKey,
     ObjectOrTombstone, ObjectStore, PackageObject, ParentSync,
 };
-use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::transaction::VerifiedTransaction;
 use haneul_types::{
     base_types::{EpochId, ObjectID, ObjectRef, SequenceNumber},
     object::Owner,
     storage::InputKey,
 };
+use prometheus::Registry;
+use std::collections::HashSet;
+use std::path::Path;
+use std::sync::Arc;
 use tracing::instrument;
 use typed_store::rocks::DBBatch;
 
@@ -155,18 +155,6 @@ pub type Batch = (Vec<Arc<TransactionOutputs>>, DBBatch);
 pub trait ExecutionCacheCommit: Send + Sync {
     /// Build a DBBatch containing the given transaction outputs.
     fn build_db_batch(&self, epoch: EpochId, digests: &[TransactionDigest]) -> Batch;
-
-    /// Stage the highest-committed-checkpoint watermark into `batch` so it is
-    /// written atomically with that checkpoint's transaction outputs. Called by
-    /// CheckpointExecutor between [`Self::build_db_batch`] and
-    /// [`Self::commit_transaction_outputs`]. Unlike the checkpoint store's
-    /// separately-bumped `highest_executed` watermark, this stays consistent
-    /// with the durable object set across an unclean stop.
-    fn set_highest_committed_checkpoint_in_batch(
-        &self,
-        batch: &mut Batch,
-        checkpoint: CheckpointSequenceNumber,
-    );
 
     /// Durably commit the outputs of the given transactions to the database.
     /// Will be called by CheckpointExecutor to ensure that transaction outputs are
@@ -340,7 +328,11 @@ pub trait ObjectCacheRead: Send + Sync {
         version: SequenceNumber,
     ) -> Option<Object>;
 
-    fn get_lock(&self, obj_ref: ObjectRef, epoch_store: &AuthorityPerEpochStore) -> HaneulLockResult;
+    fn get_lock(
+        &self,
+        obj_ref: ObjectRef,
+        epoch_store: &AuthorityPerEpochStore,
+    ) -> HaneulLockResult;
 
     // This method is considered "private" - only used by multi_get_objects_with_more_accurate_error_return
     fn _get_live_objref(&self, object_id: ObjectID) -> HaneulResult<ObjectRef>;
@@ -597,7 +589,9 @@ pub trait TransactionCacheRead: Send + Sync {
                 .zip_debug_eq(digests)
                 .map(|(e, digest)| {
                     e.ok_or_else(|| {
-                        HaneulError::from(HaneulErrorKind::TransactionEffectsNotFound { digest: *digest })
+                        HaneulError::from(HaneulErrorKind::TransactionEffectsNotFound {
+                            digest: *digest,
+                        })
                     })
                 })
                 .collect()

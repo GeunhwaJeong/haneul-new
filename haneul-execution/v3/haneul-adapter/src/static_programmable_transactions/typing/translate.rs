@@ -11,10 +11,6 @@ use crate::{
         typing::ast::BytesConstraint,
     },
 };
-use indexmap::{IndexMap, IndexSet};
-use move_binary_format::file_format::{Ability, AbilitySet};
-use move_core_types::account_address::AccountAddress;
-use std::rc::Rc;
 use haneul_types::{
     balance::RESOLVED_BALANCE_STRUCT,
     base_types::{ObjectID, ObjectRef, TxContextKind},
@@ -23,6 +19,10 @@ use haneul_types::{
     execution_status::{CommandArgumentError, ExecutionErrorKind},
     funds_accumulator::RESOLVED_WITHDRAWAL_STRUCT,
 };
+use indexmap::{IndexMap, IndexSet};
+use move_binary_format::file_format::{Ability, AbilitySet};
+use move_core_types::account_address::AccountAddress;
+use std::rc::Rc;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum SplatLocation {
@@ -1198,8 +1198,8 @@ mod scope_references {
 //**************************************************************************************************
 
 mod unused_results {
-    use indexmap::IndexSet;
     use haneul_types::error::ExecutionError;
+    use indexmap::IndexSet;
 
     use crate::{sp, static_programmable_transactions::typing::ast as T};
 

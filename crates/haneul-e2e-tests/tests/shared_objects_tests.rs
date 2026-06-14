@@ -3,9 +3,6 @@
 
 use futures::future::join_all;
 use futures::join;
-use rand::distributions::Distribution;
-use std::net::SocketAddr;
-use std::time::{Duration, SystemTime};
 use haneul_macros::{register_fail_point_async, sim_test};
 use haneul_swarm_config::genesis_config::{AccountConfig, DEFAULT_GAS_AMOUNT};
 use haneul_test_transaction_builder::{
@@ -20,6 +17,9 @@ use haneul_types::execution_status::{
 };
 use haneul_types::messages_grpc::WaitForEffectsResponse;
 use haneul_types::transaction::{CallArg, ObjectArg, SharedObjectMutability};
+use rand::distributions::Distribution;
+use std::net::SocketAddr;
+use std::time::{Duration, SystemTime};
 use test_cluster::TestClusterBuilder;
 use tokio::time::sleep;
 use tracing::info;

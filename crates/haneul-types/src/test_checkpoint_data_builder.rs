@@ -1,19 +1,19 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
+use haneul_sdk_types::CheckpointTimestamp;
 use move_core_types::{
     ident_str,
     language_storage::{StructTag, TypeTag},
 };
 use std::collections::{BTreeMap, BTreeSet, HashMap};
-use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
-use haneul_sdk_types::CheckpointTimestamp;
 
 use crate::messages_checkpoint::CheckpointCommitment;
 use crate::{
     HANEUL_SYSTEM_ADDRESS,
     base_types::{
-        ExecutionDigests, ObjectID, ObjectRef, SequenceNumber, HaneulAddress, dbg_addr,
+        ExecutionDigests, HaneulAddress, ObjectID, ObjectRef, SequenceNumber, dbg_addr,
         random_object_ref,
     },
     committee::Committee,

@@ -151,7 +151,7 @@ mod tests {
     use bytes::Bytes;
     use haneul_types::TypeTag;
     use haneul_types::balance_change::BalanceChange;
-    use haneul_types::base_types::{ObjectID, HaneulAddress};
+    use haneul_types::base_types::{HaneulAddress, ObjectID};
     use haneul_types::effects::TestEffectsBuilder;
     use haneul_types::object::Object;
     use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;

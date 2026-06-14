@@ -5,11 +5,11 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use clap::Parser;
-use prometheus::Registry;
 use haneul_futures::service::Error;
 use haneul_indexer_alt_framework::IndexerArgs;
 use haneul_indexer_alt_framework::ingestion::ClientArgs;
 use haneul_indexer_alt_metrics::MetricsArgs;
+use prometheus::Registry;
 use tracing::info;
 
 use haneul_analytics_indexer::IndexerConfig;

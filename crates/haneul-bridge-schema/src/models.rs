@@ -7,13 +7,13 @@ use diesel::pg::{Pg, PgValue};
 use diesel::serialize::{Output, ToSql};
 use diesel::sql_types::Text;
 use diesel::{AsExpression, FromSqlRow, Identifiable, Insertable, Queryable, Selectable};
+use haneul_field_count::FieldCount;
 use std::str::FromStr;
 use strum_macros::{AsRefStr, EnumString};
-use haneul_field_count::FieldCount;
 
 use crate::schema::{
-    governance_actions, progress_store, haneul_error_transactions, haneul_progress_store, token_transfer,
-    token_transfer_data,
+    governance_actions, haneul_error_transactions, haneul_progress_store, progress_store,
+    token_transfer, token_transfer_data,
 };
 
 #[derive(Queryable, Selectable, Insertable, Identifiable, Debug)]

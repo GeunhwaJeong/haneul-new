@@ -4,7 +4,7 @@
 use std::{collections::HashSet, sync::Arc};
 
 use haneul_types::{
-    base_types::{FullObjectRef, ObjectID, ObjectRef, SequenceNumber, HaneulAddress},
+    base_types::{FullObjectRef, HaneulAddress, ObjectID, ObjectRef, SequenceNumber},
     crypto::{AccountKeyPair, get_key_pair},
     digests::ObjectDigest,
     effects::{TransactionEffects, TransactionEffectsAPI},
@@ -87,7 +87,7 @@ impl TestRunner {
         for _ in 0..num {
             let gas_object_id = ObjectID::random();
             let gas_object = Object::with_id_owner_for_testing(gas_object_id, sender);
-            authority_state.insert_genesis_object(gas_object);
+            authority_state.insert_genesis_object(gas_object).await;
             gas_object_ids.push(gas_object_id);
         }
 

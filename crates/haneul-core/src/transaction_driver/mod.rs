@@ -21,10 +21,6 @@ use std::{
 
 use arc_swap::ArcSwap;
 use effects_certifier::*;
-use haneullabs_common::backoff::ExponentialBackoff;
-use haneullabs_metrics::{monitored_future, spawn_logged_monitored_task};
-use parking_lot::Mutex;
-use rand::Rng;
 use haneul_config::NodeConfig;
 use haneul_types::{
     committee::EpochId,
@@ -32,6 +28,10 @@ use haneul_types::{
     messages_grpc::{SubmitTxRequest, SubmitTxResult, TxType},
     transaction::TransactionDataAPI as _,
 };
+use haneullabs_common::backoff::ExponentialBackoff;
+use haneullabs_metrics::{monitored_future, spawn_logged_monitored_task};
+use parking_lot::Mutex;
+use rand::Rng;
 use tokio::{
     task::JoinSet,
     time::{interval, sleep},

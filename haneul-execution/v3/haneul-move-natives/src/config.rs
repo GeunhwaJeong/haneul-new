@@ -5,6 +5,7 @@ use crate::{
     NativesCostTable, abstract_size, get_extension, get_extension_mut,
     object_runtime::ObjectRuntime,
 };
+use haneul_types::{TypeTag, base_types::MoveObjectType};
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_core_types::{
     account_address::AccountAddress, gas_algebra::InternalGas, language_storage::StructTag,
@@ -20,7 +21,6 @@ use move_vm_types::{
 };
 use smallvec::smallvec;
 use std::collections::VecDeque;
-use haneul_types::{TypeTag, base_types::MoveObjectType};
 use tracing::{error, instrument};
 
 const E_BCS_SERIALIZATION_FAILURE: u64 = 2;

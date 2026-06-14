@@ -5,21 +5,21 @@ external_keys:
   External: "config/external.keystore"
 envs:
   - alias: testnet
-    rpc: "http://bogus.invalid/"
+    rpc: "https://fullnode.testnet.haneul.io:443"
     ws: ~
     basic_auth: ~
     chain_id: 4c78adac
   - alias: mainnet
-    rpc: "http://bogus.invalid/"
+    rpc: "https://fullnode.mainnet.haneul.io:443"
     ws: ~
     basic_auth: ~
     chain_id: 35834a8a
   - alias: devnet
-    rpc: "http://bogus.invalid/"
+    rpc: "https://fullnode.devnet.haneul.io:443"
     ws: ~
     basic_auth: ~
   - alias: local
-    rpc: "http://bogus.invalid/"
+    rpc: "http://127.0.0.1:9000"
     ws: ~
     basic_auth: ~
 active_env: testnet

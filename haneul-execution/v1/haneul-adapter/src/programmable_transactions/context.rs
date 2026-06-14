@@ -22,6 +22,27 @@ mod checked {
     use crate::programmable_transactions::linkage_view::LinkageView;
     use crate::type_resolver::TypeTagResolver;
     use crate::{adapter::new_native_extensions, gas_meter::HaneulGasMeter};
+    use haneul_move_natives::object_runtime::{
+        self, get_all_uids, max_event_error, LoadedRuntimeObject, ObjectRuntime, RuntimeResults,
+    };
+    use haneul_protocol_config::ProtocolConfig;
+    use haneul_types::execution::ExecutionResults;
+    use haneul_types::storage::PackageObject;
+    use haneul_types::{
+        balance::Balance,
+        base_types::{HaneulAddress, MoveObjectType, ObjectID, TxContext},
+        coin::Coin,
+        error::ExecutionError,
+        event::Event,
+        execution::ExecutionResultsV2,
+        execution_status::ExecutionErrorKind,
+        metrics::ExecutionMetrics,
+        move_package::MovePackage,
+        object::{Data, MoveObject, Object, ObjectInner, Owner},
+        storage::BackingPackageStore,
+        transaction::{Argument, CallArg, ObjectArg},
+    };
+    use haneul_types::{error::command_argument_error, execution_status::CommandArgumentError};
     use move_binary_format::{
         errors::{Location, PartialVMError, PartialVMResult, VMError, VMResult},
         file_format::{CodeOffset, FunctionDefinitionIndex, TypeParameterIndex},
@@ -41,27 +62,6 @@ mod checked {
     };
     use move_vm_types::data_store::DataStore;
     use move_vm_types::loaded_data::runtime_types::Type;
-    use haneul_move_natives::object_runtime::{
-        self, get_all_uids, max_event_error, LoadedRuntimeObject, ObjectRuntime, RuntimeResults,
-    };
-    use haneul_protocol_config::ProtocolConfig;
-    use haneul_types::execution::ExecutionResults;
-    use haneul_types::storage::PackageObject;
-    use haneul_types::{
-        balance::Balance,
-        base_types::{MoveObjectType, ObjectID, HaneulAddress, TxContext},
-        coin::Coin,
-        error::ExecutionError,
-        event::Event,
-        execution::ExecutionResultsV2,
-        execution_status::ExecutionErrorKind,
-        metrics::ExecutionMetrics,
-        move_package::MovePackage,
-        object::{Data, MoveObject, Object, ObjectInner, Owner},
-        storage::BackingPackageStore,
-        transaction::{Argument, CallArg, ObjectArg},
-    };
-    use haneul_types::{error::command_argument_error, execution_status::CommandArgumentError};
     use tracing::instrument;
 
     /// Maintains all runtime state specific to programmable transactions
@@ -776,8 +776,8 @@ mod checked {
 
         /// Special case errors for type arguments to Move functions
         pub fn convert_type_argument_error(&self, idx: usize, error: VMError) -> ExecutionError {
-            use move_core_types::vm_status::StatusCode;
             use haneul_types::execution_status::TypeArgumentError;
+            use move_core_types::vm_status::StatusCode;
             match error.major_status() {
                 StatusCode::NUMBER_OF_TYPE_ARGUMENTS_MISMATCH => {
                     ExecutionErrorKind::TypeArityMismatch.into()
@@ -1153,9 +1153,6 @@ mod checked {
             }
             Owner::ConsensusAddressOwner { .. } => {
                 unimplemented!("ConsensusAddressOwner does not exist for this execution version")
-            }
-            Owner::Party { .. } => {
-                unimplemented!("Party does not exist for this execution version")
             }
         };
         let owner = obj.owner.clone();

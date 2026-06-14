@@ -10,13 +10,6 @@ use crate::epoch::randomness::SINGLETON_KEY;
 use dashmap::DashMap;
 use fastcrypto_tbls::{dkg_v1, nodes::PartyId};
 use fastcrypto_zkp::bn254::zk_login::{JWK, JwkId};
-use moka::policy::EvictionPolicy;
-use moka::sync::SegmentedCache as MokaCache;
-use haneullabs_common::ZipDebugEqIteratorExt;
-use haneullabs_common::fatal;
-use haneullabs_common::random_util::randomize_cache_capacity_in_tests;
-use parking_lot::Mutex;
-use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque, hash_map};
 use haneul_types::authenticator_state::ActiveJwk;
 use haneul_types::base_types::{AuthorityName, ObjectRef, SequenceNumber};
 use haneul_types::crypto::RandomnessRound;
@@ -33,6 +26,13 @@ use haneul_types::{
     messages_consensus::{Round, TimestampMs, VersionedDkgConfirmation},
     signature::GenericSignature,
 };
+use haneullabs_common::ZipDebugEqIteratorExt;
+use haneullabs_common::fatal;
+use haneullabs_common::random_util::randomize_cache_capacity_in_tests;
+use moka::policy::EvictionPolicy;
+use moka::sync::SegmentedCache as MokaCache;
+use parking_lot::Mutex;
+use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque, hash_map};
 use tracing::{debug, info};
 use typed_store::Map;
 use typed_store::rocks::DBBatch;
@@ -78,7 +78,7 @@ pub(crate) struct ConsensusCommitOutput {
     dkg_confirmations: BTreeMap<PartyId, VersionedDkgConfirmation>,
     dkg_processed_messages: BTreeMap<PartyId, VersionedProcessedMessage>,
     dkg_used_message: Option<VersionedUsedProcessedMessages>,
-    dkg_output: Option<Option<dkg_v1::Output<PkG, EncG>>>,
+    dkg_output: Option<dkg_v1::Output<PkG, EncG>>,
 
     // jwk state
     pending_jwks: BTreeSet<(AuthorityName, JwkId, JWK)>,
@@ -257,7 +257,7 @@ impl ConsensusCommitOutput {
         self.dkg_used_message = Some(used_messages);
     }
 
-    pub fn set_dkg_output(&mut self, output: Option<dkg_v1::Output<PkG, EncG>>) {
+    pub fn set_dkg_output(&mut self, output: dkg_v1::Output<PkG, EncG>) {
         self.dkg_output = Some(output);
     }
 
@@ -386,7 +386,7 @@ impl ConsensusCommitOutput {
                 .map(|used_msgs| (SINGLETON_KEY, used_msgs)),
         )?;
         if let Some(output) = self.dkg_output {
-            batch.insert_batch(&tables.dkg_output_v2, [(SINGLETON_KEY, output)])?;
+            batch.insert_batch(&tables.dkg_output, [(SINGLETON_KEY, output)])?;
         }
 
         batch.insert_batch(

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 use anyhow::Result;
 use clap::Parser;
-use std::env;
 use haneul_proxy::config::ProxyConfig;
 use haneul_proxy::{
     admin::{
@@ -13,6 +12,7 @@ use haneul_proxy::{
     histogram_relay, metrics,
 };
 use haneul_tls::TlsAcceptor;
+use std::env;
 use telemetry_subscribers::TelemetryConfig;
 use tracing::info;
 

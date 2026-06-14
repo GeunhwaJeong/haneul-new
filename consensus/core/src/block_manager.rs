@@ -8,9 +8,9 @@ use std::{
 };
 
 use consensus_types::block::{BlockRef, Round};
-use itertools::Itertools as _;
 use haneullabs_common::ZipDebugEqIteratorExt;
 use haneullabs_metrics::monitored_scope;
+use itertools::Itertools as _;
 use parking_lot::RwLock;
 use tracing::{debug, trace, warn};
 

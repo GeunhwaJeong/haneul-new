@@ -7,10 +7,10 @@ use std::str::FromStr;
 
 use anyhow::Context;
 use bincode::serde::Compat;
-use haneullabs_common::ZipDebugEqIteratorExt;
 use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha as grpc;
 use haneul_indexer_alt_framework::types::TypeTag;
 use haneul_indexer_alt_framework::types::base_types::HaneulAddress;
+use haneullabs_common::ZipDebugEqIteratorExt;
 
 use crate::rpc::consistent_service::State;
 use crate::rpc::error::RpcError;

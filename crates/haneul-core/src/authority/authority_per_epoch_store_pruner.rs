@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 use crate::authority::authority_per_epoch_store::EPOCH_DB_PREFIX;
+use haneul_config::node::AuthorityStorePruningConfig;
 use itertools::Itertools;
 use std::fs;
 use std::path::PathBuf;
 use std::time::Duration;
-use haneul_config::node::AuthorityStorePruningConfig;
 use tokio::sync::oneshot;
 use tracing::log::{info, warn};
 use typed_store::rocks::safe_drop_db;

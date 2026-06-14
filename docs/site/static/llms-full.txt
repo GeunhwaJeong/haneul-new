@@ -397,6 +397,7 @@
 - [Mdx Components](https://docs.haneul.io/references/contribute/mdx-components.md)
 - [Style Guide](https://docs.haneul.io/references/contribute/style-guide.md)
 - [Haneul Environment](https://docs.haneul.io/references/contribute/haneul-environment.md)
+- [Exchange Integration Guide](https://docs.haneul.io/references/exchange-integration-guide.md)
 - [Framework](https://docs.haneul.io/references/framework.md)
 
 ### References/Framework/Haneul Bridge

@@ -14,12 +14,12 @@ use once_cell::sync::Lazy;
 use tokio::sync::Mutex;
 use tracing::info;
 
-use prost_types::FieldMask;
 use haneul_rpc::client::Client;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::{GetCoinInfoRequest, GetEpochRequest};
 use haneul_sdk_types::{StructTag, TypeTag as SDKTypeTag};
 use haneul_types::digests::ChainIdentifier;
+use prost_types::FieldMask;
 
 use crate::errors::Error;
 use crate::errors::Error::MissingMetadata;

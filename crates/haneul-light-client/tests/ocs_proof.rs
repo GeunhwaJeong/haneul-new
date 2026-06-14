@@ -1,10 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_config::genesis::Genesis;
 use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
-use haneul_config::genesis::Genesis;
 
 use haneul_light_client::{
     base::{Proof, ProofTarget, ProofVerifier},

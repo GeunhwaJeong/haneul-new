@@ -1,8 +1,6 @@
 name: nightly
 
 on:
-  schedule:
-    - cron: '0 0 * * *'  # every day at midnight
   workflow_dispatch:
 
 env:
@@ -31,20 +29,8 @@ jobs:
   release:
     name: Build Release Binaries
     runs-on: [ubuntu-ghcloud]
-    permissions:
-      contents: read
-      id-token: write # mint the OIDC token to assume the sccache role
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # pin@v6.0.2
-      - uses: ./.github/actions/setup-sccache
-        with:
-          # OIDC on main (scheduled / dispatch from main). The role trusts only the
-          # protected branches, so an off-ref workflow_dispatch passes an empty role
-          # and setup-sccache falls back to a local cache instead of failing.
-          role-to-assume: ${{ github.ref == 'refs/heads/main' && 'arn:aws:iam::011083325127:role/haneul-sccache-rw-github' || '' }}
-          key-prefix: ubuntu-ghcloud
-      - name: Register cargo problem matcher
-        run: echo "::add-matcher::.github/matchers/cargo.json"
       - name: cargo build
         run: cargo build --all-targets --all-features --release
 

@@ -8,27 +8,27 @@ pub mod policies;
 
 use dashmap::DashMap;
 use fs::File;
+use haneul_types::error::{HaneulError, HaneulErrorKind};
 use haneullabs_common::fatal;
 use prometheus::IntGauge;
 use std::fs;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::ops::Add;
 use std::sync::Arc;
-use haneul_types::error::{HaneulError, HaneulErrorKind};
 
 use self::metrics::TrafficControllerMetrics;
 use crate::traffic_controller::nodefw_client::{BlockAddress, BlockAddresses, NodeFWClient};
 use crate::traffic_controller::policies::{
     Policy, PolicyResponse, TrafficControlPolicy, TrafficTally,
 };
+use haneul_types::traffic_control::{
+    PolicyConfig, PolicyType, RemoteFirewallConfig, TrafficControlReconfigParams, Weight,
+};
 use haneullabs_metrics::spawn_monitored_task;
 use parking_lot::Mutex as ParkingLotMutex;
 use rand::Rng;
 use std::fmt::Debug;
 use std::time::{Duration, Instant, SystemTime};
-use haneul_types::traffic_control::{
-    PolicyConfig, PolicyType, RemoteFirewallConfig, TrafficControlReconfigParams, Weight,
-};
 use tokio::sync::mpsc::error::TrySendError;
 use tokio::sync::{Mutex, RwLock, mpsc};
 use tracing::{debug, error, info, trace, warn};
@@ -343,54 +343,37 @@ impl TrafficController {
     /// Handle check with dry-run mode considered
     pub async fn check(&self, client: &Option<IpAddr>, proxied_client: &Option<IpAddr>) -> bool {
         let policy_config = { self.policy_config.read().await.clone() };
-
-        let allowed = match &self.acl {
-            Acl::Allowlist(allowlist) => client.is_none() || allowlist.contains(&client.unwrap()),
-            Acl::Blocklists(blocklists) => {
-                self.check_blocklists(blocklists, client, proxied_client)
-                    .await
+        let check_with_dry_run_maybe = |allowed| -> bool {
+            match (allowed, policy_config.dry_run) {
+                // request allowed
+                (true, _) => true,
+                // request blocked while in dry-run mode
+                (false, true) => {
+                    debug!("Dry run mode: Blocked request from client {:?}", client);
+                    self.metrics.num_dry_run_blocked_requests.inc();
+                    true
+                }
+                // request blocked
+                (false, false) => {
+                    debug!("Blocked request from client {:?}", client);
+                    self.metrics.requests_blocked_at_protocol.inc();
+                    false
+                }
             }
         };
 
-        match (allowed, policy_config.dry_run) {
-            // request allowed
-            (true, _) => true,
-            // request blocked while in dry-run mode
-            (false, true) => {
-                debug!("Dry run mode: Blocked request from client {:?}", client);
-                self.record_blocked_request(client, true);
-                true
+        match &self.acl {
+            Acl::Allowlist(allowlist) => {
+                let allowed = client.is_none() || allowlist.contains(&client.unwrap());
+                check_with_dry_run_maybe(allowed)
             }
-            // request blocked
-            (false, false) => {
-                debug!("Blocked request from client {:?}", client);
-                self.record_blocked_request(client, false);
-                false
+            Acl::Blocklists(blocklists) => {
+                let allowed = self
+                    .check_blocklists(blocklists, client, proxied_client)
+                    .await;
+                check_with_dry_run_maybe(allowed)
             }
         }
-    }
-
-    fn record_blocked_request(&self, client: &Option<IpAddr>, dry_run: bool) {
-        let dry_run_str = if dry_run { "true" } else { "false" };
-
-        // Hash IP to bucket to limit cardinality (100 buckets: bucket_0 through bucket_99)
-        let ip_label = if let Some(ip) = client {
-            let bucket = ip
-                .to_string()
-                .bytes()
-                .fold(0u8, |acc, b| acc.wrapping_add(b))
-                % 100;
-            let bucket_label = format!("bucket_{}", bucket);
-            trace!("IP {} maps to {}", ip, bucket_label);
-            bucket_label
-        } else {
-            "unknown".to_string()
-        };
-
-        self.metrics
-            .requests_blocked_at_protocol
-            .with_label_values(&[dry_run_str, &ip_label])
-            .inc();
     }
 
     /// Returns true if the connection is in blocklist, false otherwise
@@ -490,14 +473,9 @@ async fn run_tally_loop(
     loop {
         tokio::select! {
             received = receiver.recv() => {
+                metrics.tallies.inc();
                 match received {
                     Some(tally) => {
-                        // Track tallies by method
-                        let method = tally.method.as_deref().unwrap_or("unknown");
-                        metrics.tallies
-                            .with_label_values(&[method])
-                            .inc();
-
                         // TODO: spawn a task to handle tallying concurrently
                         if let Err(err) = handle_spam_tally(
                             spam_policy.clone(),

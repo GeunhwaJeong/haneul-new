@@ -4,9 +4,8 @@
 use crate::authority::AuthorityState;
 use crate::authority::authority_tests::{init_state_with_committee, submit_and_execute};
 use crate::authority::test_authority_builder::TestAuthorityBuilder;
-use std::collections::HashMap;
-use std::sync::Arc;
-use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
+use futures::future::join_all;
+use haneul_types::base_types::{HaneulAddress, ObjectID, ObjectRef};
 use haneul_types::crypto::AccountKeyPair;
 use haneul_types::effects::{SignedTransactionEffects, TransactionEffectsAPI};
 use haneul_types::error::{HaneulErrorKind, UserInputError};
@@ -17,6 +16,8 @@ use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuild
 use haneul_types::transaction::TransactionData;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{base_types::dbg_addr, crypto::get_key_pair, error::HaneulError};
+use std::collections::HashMap;
+use std::sync::Arc;
 
 #[tokio::test]
 async fn test_pay_haneul_failure_empty_recipients() {
@@ -168,9 +169,21 @@ async fn test_pay_haneul_success_one_input_coin() -> anyhow::Result<()> {
     let created_obj_id1 = effects.created()[0].0.0;
     let created_obj_id2 = effects.created()[1].0.0;
     let created_obj_id3 = effects.created()[2].0.0;
-    let created_obj1 = res.authority_state.get_object(&created_obj_id1).unwrap();
-    let created_obj2 = res.authority_state.get_object(&created_obj_id2).unwrap();
-    let created_obj3 = res.authority_state.get_object(&created_obj_id3).unwrap();
+    let created_obj1 = res
+        .authority_state
+        .get_object(&created_obj_id1)
+        .await
+        .unwrap();
+    let created_obj2 = res
+        .authority_state
+        .get_object(&created_obj_id2)
+        .await
+        .unwrap();
+    let created_obj3 = res
+        .authority_state
+        .get_object(&created_obj_id3)
+        .await
+        .unwrap();
 
     let addr1 = effects.created()[0].1.get_owner_address()?;
     let addr2 = effects.created()[1].1.get_owner_address()?;
@@ -196,7 +209,7 @@ async fn test_pay_haneul_success_one_input_coin() -> anyhow::Result<()> {
         sender
     );
     let gas_used = effects.gas_cost_summary().net_gas_usage() as u64;
-    let gas_object = res.authority_state.get_object(&object_id).unwrap();
+    let gas_object = res.authority_state.get_object(&object_id).await.unwrap();
     assert_eq!(
         GasCoin::try_from(&gas_object)?.value(),
         coin_amount - 100 - 200 - 300 - gas_used,
@@ -235,8 +248,16 @@ async fn test_pay_haneul_success_multiple_input_coins() -> anyhow::Result<()> {
     assert_eq!(effects.created().len(), 2);
     let created_obj_id1 = effects.created()[0].0.0;
     let created_obj_id2 = effects.created()[1].0.0;
-    let created_obj1 = res.authority_state.get_object(&created_obj_id1).unwrap();
-    let created_obj2 = res.authority_state.get_object(&created_obj_id2).unwrap();
+    let created_obj1 = res
+        .authority_state
+        .get_object(&created_obj_id1)
+        .await
+        .unwrap();
+    let created_obj2 = res
+        .authority_state
+        .get_object(&created_obj_id2)
+        .await
+        .unwrap();
     let addr1 = effects.created()[0].1.get_owner_address()?;
     let addr2 = effects.created()[1].1.get_owner_address()?;
     let coin_val1 = *recipient_amount_map
@@ -255,7 +276,7 @@ async fn test_pay_haneul_success_multiple_input_coins() -> anyhow::Result<()> {
         sender
     );
     let gas_used = effects.gas_cost_summary().net_gas_usage() as u64;
-    let gas_object = res.authority_state.get_object(&object_id1).unwrap();
+    let gas_object = res.authority_state.get_object(&object_id1).await.unwrap();
     assert_eq!(
         GasCoin::try_from(&gas_object)?.value(),
         5002000 - 500 - 1500 - gas_used,
@@ -324,7 +345,7 @@ async fn test_pay_all_haneul_success_one_input_coin() -> anyhow::Result<()> {
     );
 
     let gas_used = effects.gas_cost_summary().gas_used();
-    let gas_object = res.authority_state.get_object(&object_id).unwrap();
+    let gas_object = res.authority_state.get_object(&object_id).await.unwrap();
     assert_eq!(GasCoin::try_from(&gas_object)?.value(), 3000000 - gas_used,);
     Ok(())
 }
@@ -359,7 +380,7 @@ async fn test_pay_all_haneul_success_multiple_input_coins() -> anyhow::Result<()
     );
 
     let gas_used = effects.gas_cost_summary().gas_used();
-    let gas_object = res.authority_state.get_object(&object_id1).unwrap();
+    let gas_object = res.authority_state.get_object(&object_id1).await.unwrap();
     assert_eq!(GasCoin::try_from(&gas_object)?.value(), 3002000 - gas_used,);
     Ok(())
 }
@@ -383,9 +404,11 @@ async fn execute_pay_haneul(
         .iter()
         .map(|coin_obj| coin_obj.compute_object_reference())
         .collect();
-    for obj in input_coin_objects {
-        authority_state.insert_genesis_object(obj);
-    }
+    let handles: Vec<_> = input_coin_objects
+        .into_iter()
+        .map(|obj| authority_state.insert_genesis_object(obj))
+        .collect();
+    join_all(handles).await;
     let rgp = authority_state.reference_gas_price_for_testing().unwrap();
 
     let mut builder = ProgrammableTransactionBuilder::new();

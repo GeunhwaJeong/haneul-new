@@ -9,15 +9,6 @@ use clap::*;
 use fastcrypto::encoding::Encoding;
 use fastcrypto::encoding::Hex;
 use fastcrypto::hash::{HashFunction, Keccak256};
-use move_core_types::ident_str;
-use haneullabs_common::ZipDebugEqIteratorExt;
-use serde::{Deserialize, Serialize};
-use serde_with::serde_as;
-use shared_crypto::intent::Intent;
-use shared_crypto::intent::IntentMessage;
-use std::path::PathBuf;
-use std::str::FromStr;
-use std::sync::Arc;
 use haneul_bridge::abi::EthBridgeCommittee;
 use haneul_bridge::abi::{EthHaneulBridge, eth_haneul_bridge};
 use haneul_bridge::crypto::BridgeAuthorityPublicKeyBytes;
@@ -25,9 +16,9 @@ use haneul_bridge::encoding::TOKEN_TRANSFER_MESSAGE_VERSION_V2;
 use haneul_bridge::haneul_client::HaneulBridgeClient;
 use haneul_bridge::types::BridgeAction;
 use haneul_bridge::types::{
-    AddTokensOnEvmAction, AddTokensOnHaneulAction, AssetPriceUpdateAction, BlocklistCommitteeAction,
-    BlocklistType, EmergencyAction, EmergencyActionType, EvmContractUpgradeAction,
-    LimitUpdateAction,
+    AddTokensOnEvmAction, AddTokensOnHaneulAction, AssetPriceUpdateAction,
+    BlocklistCommitteeAction, BlocklistType, EmergencyAction, EmergencyActionType,
+    EvmContractUpgradeAction, LimitUpdateAction,
 };
 use haneul_bridge::utils::{EthSignerProvider, get_eth_signer_provider};
 use haneul_config::Config;
@@ -38,11 +29,20 @@ use haneul_rpc_api::Client;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::{ObjectID, ObjectRef};
 use haneul_types::bridge::{BRIDGE_MODULE_NAME, BridgeChainId};
-use haneul_types::crypto::{Signature, HaneulKeyPair};
+use haneul_types::crypto::{HaneulKeyPair, Signature};
 use haneul_types::gas_coin::{GAS, GasCoin};
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{CallArg, ObjectArg, Transaction, TransactionData};
 use haneul_types::{BRIDGE_PACKAGE_ID, TypeTag};
+use haneullabs_common::ZipDebugEqIteratorExt;
+use move_core_types::ident_str;
+use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
+use shared_crypto::intent::Intent;
+use shared_crypto::intent::IntentMessage;
+use std::path::PathBuf;
+use std::str::FromStr;
+use std::sync::Arc;
 use tracing::info;
 
 pub const SEPOLIA_BRIDGE_PROXY_ADDR: &str = "0xAE68F87938439afEEDd6552B0E83D2CbC2473623";
@@ -467,13 +467,15 @@ impl LoadedBridgeCliConfig {
             cli_config.eth_bridge_proxy_address,
             eth_signer_provider.clone(),
         );
-        let eth_bridge_committee_proxy_address: EthAddress = haneul_bridge.committee().call().await?;
+        let eth_bridge_committee_proxy_address: EthAddress =
+            haneul_bridge.committee().call().await?;
         let eth_bridge_limiter_proxy_address: EthAddress = haneul_bridge.limiter().call().await?;
         let eth_committee = EthBridgeCommittee::new(
             eth_bridge_committee_proxy_address,
             eth_signer_provider.clone(),
         );
-        let eth_bridge_committee_proxy_address: EthAddress = haneul_bridge.committee().call().await?;
+        let eth_bridge_committee_proxy_address: EthAddress =
+            haneul_bridge.committee().call().await?;
         let eth_bridge_config_proxy_address: EthAddress = eth_committee.config().call().await?;
 
         let eth_address = eth_signer_provider.default_signer_address();
@@ -634,7 +636,9 @@ impl BridgeClientCommands {
                 seq_num,
                 source_chain,
                 dry_run,
-            } => claim_on_haneul(seq_num, source_chain, config, haneul_bridge_client, dry_run).await,
+            } => {
+                claim_on_haneul(seq_num, source_chain, config, haneul_bridge_client, dry_run).await
+            }
         }
     }
 }
@@ -988,7 +992,8 @@ mod tests {
     #[tokio::test]
     async fn test_encode_call_data() {
         let abi_json =
-            std::fs::read_to_string("../haneul-bridge/abi/tests/mock_haneul_bridge_v2.json").unwrap();
+            std::fs::read_to_string("../haneul-bridge/abi/tests/mock_haneul_bridge_v2.json")
+                .unwrap();
         let abi: JsonAbi = serde_json::from_str(&abi_json).unwrap();
 
         let function_selector = "initializeV2Params(uint256,bool,string)";

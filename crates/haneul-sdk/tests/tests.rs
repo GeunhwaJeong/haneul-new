@@ -3,7 +3,6 @@
 use tempfile::TempDir;
 
 use fastcrypto::ed25519::Ed25519KeyPair;
-use shared_crypto::intent::{Intent, IntentMessage, PersonalMessage};
 use haneul_config::{Config, HANEUL_CLIENT_CONFIG};
 use haneul_keys::key_derive::generate_new_key;
 use haneul_keys::key_identity::KeyIdentity;
@@ -16,7 +15,7 @@ use haneul_sdk::{
 };
 use haneul_types::base_types::{HaneulAddress, random_object_ref};
 use haneul_types::crypto::{Ed25519HaneulSignature, HaneulKeyPair, HaneulSignature};
-use haneul_types::crypto::{SignatureScheme, HaneulSignatureInner};
+use haneul_types::crypto::{HaneulSignatureInner, SignatureScheme};
 use haneul_types::multisig::{MultiSig, MultiSigPublicKey};
 use haneul_types::transaction::{ProgrammableTransaction, TransactionData, TransactionKind};
 use haneul_types::{
@@ -24,6 +23,7 @@ use haneul_types::{
     signature::GenericSignature,
     utils::sign_zklogin_personal_msg,
 };
+use shared_crypto::intent::{Intent, IntentMessage, PersonalMessage};
 use test_cluster::TestClusterBuilder;
 
 #[tokio::test]

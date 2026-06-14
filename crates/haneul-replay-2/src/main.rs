@@ -4,13 +4,13 @@
 use anyhow::{Result, anyhow};
 use clap::*;
 use core::panic;
-use std::str::FromStr;
 use haneul_replay_2::{
     Command, Config, handle_replay_config, load_config_file, merge_configs,
     package_tools::{extract_package, overwrite_package, rebuild_package},
     print_effects_or_fork,
 };
 use haneul_types::base_types::ObjectID;
+use std::str::FromStr;
 
 // Define the `GIT_REVISION` and `VERSION` consts
 bin_version::bin_version!();
@@ -80,9 +80,7 @@ async fn main() -> Result<()> {
     let output_root =
         handle_replay_config(&stable_config, &config.replay_experimental, VERSION).await?;
 
-    if let Some(digest) = &stable_config.digest
-        && !stable_config.skip_artifacts
-    {
+    if let Some(digest) = &stable_config.digest {
         print_effects_or_fork(
             digest,
             &output_root,

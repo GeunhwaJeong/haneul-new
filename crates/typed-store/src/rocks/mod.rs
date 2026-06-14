@@ -27,6 +27,7 @@ use crate::{
 };
 use backoff::backoff::Backoff;
 use fastcrypto::hash::{Digest, HashFunction};
+use haneul_macros::{fail_point, nondeterministic};
 use haneullabs_common::debug_fatal;
 use haneullabs_metrics::RegistryID;
 use prometheus::{Histogram, HistogramTimer};
@@ -47,7 +48,6 @@ use std::{
     time::Duration,
 };
 use std::{collections::HashSet, ffi::CStr};
-use haneul_macros::{fail_point, nondeterministic};
 #[cfg(tidehunter)]
 use tidehunter::{db::Db as TideHunterDb, key_shape::KeySpace};
 use tokio::sync::oneshot;
@@ -61,8 +61,9 @@ const ROCKSDB_PROPERTY_TOTAL_BLOB_FILES_SIZE: &CStr =
 static WRITE_SYNC_ENABLED: OnceLock<bool> = OnceLock::new();
 
 fn write_sync_enabled() -> bool {
-    *WRITE_SYNC_ENABLED
-        .get_or_init(|| std::env::var("HANEUL_DB_SYNC_TO_DISK").is_ok_and(|v| v == "1" || v == "true"))
+    *WRITE_SYNC_ENABLED.get_or_init(|| {
+        std::env::var("HANEUL_DB_SYNC_TO_DISK").is_ok_and(|v| v == "1" || v == "true")
+    })
 }
 
 /// Initialize the write sync setting from config.
@@ -259,14 +260,15 @@ impl Database {
                 .map(|r| Ok(r.map(GetResult::InMemory)))
                 .collect(),
             #[cfg(tidehunter)]
-            (Storage::TideHunter(db), ColumnFamily::TideHunter((ks, prefix))) => keys
-                .into_iter()
-                .map(|k| {
+            (Storage::TideHunter(db), ColumnFamily::TideHunter((ks, prefix))) => {
+                let res = keys.into_iter().map(|k| {
                     db.get(*ks, &transform_th_key(k.as_ref(), prefix))
                         .map_err(typed_store_error_from_th_error)
-                        .map(|item| item.map(|bytes| GetResult::TideHunter(bytes.into_owned())))
-                })
-                .collect(),
+                });
+                res.into_iter()
+                    .map(|r| r.map(|item| item.map(GetResult::TideHunter)))
+                    .collect()
+            }
             _ => unreachable!("typed store invariant violation"),
         }
     }
@@ -422,29 +424,6 @@ impl Database {
         Ok(())
     }
 
-    /// Wait for tidehunter background threads to finish.
-    ///
-    /// Consumes the `Arc<Database>`. Caller must ensure no other clones of this
-    /// `Arc<Database>` (e.g. via `DBMap::db`) are alive — otherwise the inner
-    /// `Arc<TideHunterDb>` strong count will not reach zero and the wait will
-    /// poll until it panics.
-    #[cfg(tidehunter)]
-    pub fn wait_for_tidehunter_background_threads(self: Arc<Self>) {
-        let strong = Arc::strong_count(&self);
-        if strong != 1 {
-            println!(
-                "WARNING: wait_for_tidehunter_background_threads called with Arc<Database> strong_count={} (expected 1); other clones will keep the inner tidehunter Db alive and the wait may panic on timeout",
-                strong,
-            );
-        }
-        let Storage::TideHunter(th_arc) = &self.storage else {
-            return;
-        };
-        let th_arc = th_arc.clone();
-        drop(self);
-        th_arc.wait_for_background_threads_to_finish();
-    }
-
     #[cfg(tidehunter)]
     pub fn drop_cells_in_range(
         &self,
@@ -547,9 +526,6 @@ pub struct MetricConf {
     pub read_sample_interval: SamplingInterval,
     pub write_sample_interval: SamplingInterval,
     pub iter_sample_interval: SamplingInterval,
-    /// When true and the database is opened with the tidehunter backend, each
-    /// committed `WriteBatch` is written as a single lz4-compressed WAL entry.
-    pub enable_th_batch_compression: bool,
 }
 
 impl MetricConf {
@@ -562,18 +538,16 @@ impl MetricConf {
             read_sample_interval: SamplingInterval::default(),
             write_sample_interval: SamplingInterval::default(),
             iter_sample_interval: SamplingInterval::default(),
-            enable_th_batch_compression: false,
         }
     }
 
-    pub fn with_sampling(mut self, read_interval: SamplingInterval) -> Self {
-        self.read_sample_interval = read_interval;
-        self
-    }
-
-    pub fn with_th_batch_compression(mut self) -> Self {
-        self.enable_th_batch_compression = true;
-        self
+    pub fn with_sampling(self, read_interval: SamplingInterval) -> Self {
+        Self {
+            db_name: self.db_name,
+            read_sample_interval: read_interval,
+            write_sample_interval: SamplingInterval::default(),
+            iter_sample_interval: SamplingInterval::default(),
+        }
     }
 }
 const CF_METRICS_REPORT_PERIOD_SECS: u64 = 30;

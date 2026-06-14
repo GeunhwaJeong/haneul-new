@@ -8,6 +8,9 @@ use std::sync::Arc;
 
 use crate::upgrade_compatibility::{FormattedField, compare_packages, missing_module_diag};
 
+use haneul_move_build::BuildConfig;
+use haneul_move_build::CompiledPackage;
+use haneul_types::move_package::UpgradePolicy;
 use move_binary_format::CompiledModule;
 use move_binary_format::normalized::{Field, Type};
 use move_command_line_common::files::FileHash;
@@ -15,9 +18,6 @@ use move_compiler::diagnostics::report_diagnostics_to_buffer;
 use move_compiler::shared::files::{FileName, FilesSourceText};
 use move_core_types::account_address::AccountAddress;
 use move_core_types::identifier::Identifier;
-use haneul_move_build::BuildConfig;
-use haneul_move_build::CompiledPackage;
-use haneul_types::move_package::UpgradePolicy;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn test_all() {

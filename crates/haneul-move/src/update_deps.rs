@@ -3,9 +3,9 @@
 
 use clap::Parser;
 
+use haneul_sdk::wallet_context::WalletContext;
 use move_cli::base::{reroot_path, update_deps};
 use move_package_alt_compilation::build_config::BuildConfig;
-use haneul_sdk::wallet_context::WalletContext;
 
 use std::path::Path;
 

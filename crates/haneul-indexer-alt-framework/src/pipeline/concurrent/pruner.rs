@@ -332,9 +332,9 @@ mod tests {
     use std::time::UNIX_EPOCH;
 
     use async_trait::async_trait;
-    use prometheus::Registry;
     use haneul_indexer_alt_framework_store_traits::testing::mock_store::MockWatermark;
     use haneul_types::full_checkpoint_content::Checkpoint;
+    use prometheus::Registry;
     use tokio::time::Duration;
 
     use crate::FieldCount;

@@ -7,16 +7,12 @@ use crate::events::HaneulBridgeEvent;
 use crate::metrics::BridgeMetrics;
 use crate::retry_with_max_elapsed_time;
 use crate::types::BridgeActionStatus;
-use crate::types::ParsedTokenTransferMessage;
 use crate::types::HaneulEvents;
+use crate::types::ParsedTokenTransferMessage;
 use crate::types::{BridgeAction, BridgeAuthority, BridgeCommittee};
 use async_trait::async_trait;
 use core::panic;
 use fastcrypto::traits::ToFromBytes;
-use std::collections::HashMap;
-use std::str::from_utf8;
-use std::sync::Arc;
-use std::time::Duration;
 use haneul_json_rpc_types::BcsEvent;
 use haneul_json_rpc_types::HaneulEvent;
 use haneul_json_rpc_types::HaneulExecutionStatus;
@@ -28,8 +24,8 @@ use haneul_rpc::proto::haneul::rpc::v2::{
 };
 use haneul_sdk_types::Address;
 use haneul_types::BRIDGE_PACKAGE_ID;
-use haneul_types::Identifier;
 use haneul_types::HANEUL_BRIDGE_OBJECT_ID;
+use haneul_types::Identifier;
 use haneul_types::TypeTag;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::ObjectRef;
@@ -51,6 +47,10 @@ use haneul_types::parse_haneul_type_tag;
 use haneul_types::transaction::ObjectArg;
 use haneul_types::transaction::SharedObjectMutability;
 use haneul_types::transaction::Transaction;
+use std::collections::HashMap;
+use std::str::from_utf8;
+use std::sync::Arc;
+use std::time::Duration;
 use tokio::sync::OnceCell;
 use tracing::{error, warn};
 
@@ -627,8 +627,10 @@ impl HaneulClientInner for haneul_rpc_api::Client {
             })
             .await?;
 
-        let bridge_inner_id = bridge_version_id
-            .derive_dynamic_child_id(&haneul_sdk_types::TypeTag::U64, &bcs::to_bytes(&1u64).unwrap());
+        let bridge_inner_id = bridge_version_id.derive_dynamic_child_id(
+            &haneul_sdk_types::TypeTag::U64,
+            &bcs::to_bytes(&1u64).unwrap(),
+        );
 
         let field_bcs = self
             .clone()
@@ -683,9 +685,9 @@ impl HaneulClientInner for haneul_rpc_api::Client {
         &self,
         tx: Transaction,
     ) -> Result<ExecuteTransactionResult, BridgeError> {
-        use move_core_types::language_storage::StructTag;
         use haneul_rpc::proto::haneul::rpc::v2::ExecutedTransaction as ProtoExecutedTransaction;
         use haneul_sdk_types::SignedTransaction;
+        use move_core_types::language_storage::StructTag;
 
         let signed_tx: SignedTransaction = tx.try_into().map_err(|e| {
             BridgeError::HaneulTxFailureGeneric(format!("Failed to convert transaction: {:?}", e))
@@ -715,7 +717,9 @@ impl HaneulClientInner for haneul_rpc_api::Client {
             .execution_client()
             .execute_transaction(request)
             .await
-            .map_err(|e| BridgeError::HaneulTxFailureGeneric(format!("gRPC execute failed: {:?}", e)))?
+            .map_err(|e| {
+                BridgeError::HaneulTxFailureGeneric(format!("gRPC execute failed: {:?}", e))
+            })?
             .into_inner();
 
         let executed_tx = response.transaction();
@@ -745,7 +749,8 @@ impl HaneulClientInner for haneul_rpc_api::Client {
             .filter_map(|event| {
                 let package_id: ObjectID = event.package_id().parse().ok()?;
                 let module = event.module().to_string();
-                let sender: haneul_types::base_types::HaneulAddress = event.sender().parse().ok()?;
+                let sender: haneul_types::base_types::HaneulAddress =
+                    event.sender().parse().ok()?;
 
                 let event_type_tag: haneul_types::TypeTag =
                     parse_haneul_type_tag(event.event_type()).ok()?;
@@ -899,9 +904,10 @@ impl HaneulClientInner for haneul_rpc_api::Client {
                     .into_inner();
 
                 let obj = resp.object();
-                let object: haneul_types::object::Object = obj.bcs().deserialize().map_err(|e| {
-                    BridgeError::Generic(format!("Failed to deserialize object from BCS: {e}"))
-                })?;
+                let object: haneul_types::object::Object =
+                    obj.bcs().deserialize().map_err(|e| {
+                        BridgeError::Generic(format!("Failed to deserialize object from BCS: {e}"))
+                    })?;
 
                 let object_ref = object.compute_object_reference();
                 let owner = object.owner().clone();
@@ -1085,18 +1091,18 @@ mod tests {
         events::{EmittedHaneulToEthTokenBridgeV1, MoveTokenDepositedEvent},
         haneul_mock_client::HaneulMockClient,
         test_utils::{
-            approve_action_with_validator_secrets, bridge_token, get_test_eth_to_haneul_bridge_action,
-            get_test_haneul_to_eth_bridge_action,
+            approve_action_with_validator_secrets, bridge_token,
+            get_test_eth_to_haneul_bridge_action, get_test_haneul_to_eth_bridge_action,
         },
     };
     use alloy::primitives::Address as EthAddress;
-    use move_core_types::account_address::AccountAddress;
-    use serde::{Deserialize, Serialize};
-    use std::str::FromStr;
     use haneul_json_rpc_types::BcsEvent;
     use haneul_types::base_types::HaneulAddress;
     use haneul_types::bridge::{BridgeChainId, TOKEN_ID_HANEUL, TOKEN_ID_USDC};
     use haneul_types::crypto::get_key_pair;
+    use move_core_types::account_address::AccountAddress;
+    use serde::{Deserialize, Serialize};
+    use std::str::FromStr;
 
     use super::*;
     use crate::events::{HaneulToEthTokenBridgeV1, init_all_struct_tags};
@@ -1251,7 +1257,8 @@ mod tests {
         let id_token_map = haneul_client.get_token_id_map().await.unwrap();
 
         // 1. Create a Eth -> Haneul Transfer (recipient is sender address), approve with validator secrets and assert its status to be Claimed
-        let action = get_test_eth_to_haneul_bridge_action(None, Some(usdc_amount), Some(sender), None);
+        let action =
+            get_test_eth_to_haneul_bridge_action(None, Some(usdc_amount), Some(sender), None);
         let usdc_object_ref = approve_action_with_validator_secrets(
             context,
             bridge_object_arg,

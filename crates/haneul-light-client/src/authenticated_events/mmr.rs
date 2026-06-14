@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use fastcrypto::hash::{Blake2b256, HashFunction};
-use move_core_types::u256::U256;
 use haneul_types::accumulator_root::{EventCommitment, EventStreamHead, build_event_merkle_root};
+use move_core_types::u256::U256;
 
 const U256_ZERO: U256 = U256::zero();
 
@@ -68,8 +68,8 @@ pub fn apply_stream_updates(
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
     use haneul_types::digests::Digest;
+    use std::str::FromStr;
 
     use super::*;
 

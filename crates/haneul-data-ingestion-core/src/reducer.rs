@@ -5,8 +5,8 @@ use crate::{MAX_CHECKPOINTS_IN_PROGRESS, Reducer, Worker};
 use anyhow::Result;
 use async_trait::async_trait;
 use futures::StreamExt;
-use std::collections::HashMap;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
+use std::collections::HashMap;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 

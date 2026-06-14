@@ -9,14 +9,14 @@ use super::{
 use crate::discovery;
 use anemo::codegen::InboundRequestLayer;
 use anemo_tower::{inflight_limit, rate_limit};
-use std::{
-    collections::HashMap,
-    sync::{Arc, RwLock},
-};
 use haneul_config::node::ArchiveReaderConfig;
 use haneul_config::p2p::StateSyncConfig;
 use haneul_types::messages_checkpoint::VerifiedCheckpoint;
 use haneul_types::storage::WriteStore;
+use std::{
+    collections::HashMap,
+    sync::{Arc, RwLock},
+};
 use tap::Pipe;
 use tokio::{
     sync::{broadcast, mpsc},

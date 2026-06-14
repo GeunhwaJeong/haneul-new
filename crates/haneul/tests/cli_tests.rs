@@ -13,8 +13,6 @@ use std::str::FromStr;
 use expect_test::expect;
 use fastcrypto::encoding::{Base64, Encoding};
 use futures::TryStreamExt;
-use move_package_alt_compilation::build_config::BuildConfig as MoveBuildConfig;
-use serde_json::json;
 use haneul::client_commands::{
     GasDataArgs, PaymentArgs, PublishArgs, TestPublishArgs, TxProcessingArgs, UpgradeArgs,
 };
@@ -32,14 +30,10 @@ use haneul_types::transaction::{
     TEST_ONLY_GAS_UNIT_FOR_PUBLISH, TEST_ONLY_GAS_UNIT_FOR_SPLIT_COIN,
     TEST_ONLY_GAS_UNIT_FOR_TRANSFER, TransactionData, TransactionDataAPI, TransactionKind,
 };
+use move_package_alt_compilation::build_config::BuildConfig as MoveBuildConfig;
+use serde_json::json;
 use tokio::time::sleep;
 
-use move_package_alt::schema::{Environment, ParsedPublishedFile};
-use haneullabs_common::random_util::TempDir;
-use haneullabs_common::tempdir;
-use std::fs::OpenOptions;
-use std::path::Path;
-use std::{fs, io};
 use haneul::{
     client_commands::{
         HaneulClientCommandResult, HaneulClientCommands, SwitchResponse, estimate_gas_budget,
@@ -47,8 +41,9 @@ use haneul::{
     haneul_commands::{HaneulCommand, parse_host_port},
 };
 use haneul_config::{
-    PersistedConfig, HANEUL_CLIENT_CONFIG, HANEUL_FULLNODE_CONFIG, HANEUL_GENESIS_FILENAME,
+    HANEUL_CLIENT_CONFIG, HANEUL_FULLNODE_CONFIG, HANEUL_GENESIS_FILENAME,
     HANEUL_KEYSTORE_ALIASES_FILENAME, HANEUL_KEYSTORE_FILENAME, HANEUL_NETWORK_CONFIG,
+    PersistedConfig,
 };
 use haneul_json::HaneulJsonValue;
 use haneul_keys::keystore::AccountKeystore;
@@ -61,10 +56,17 @@ use haneul_swarm_config::genesis_config::{AccountConfig, GenesisConfig};
 use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{
-    Ed25519HaneulSignature, Secp256k1HaneulSignature, SignatureScheme, HaneulKeyPair, HaneulSignatureInner,
+    Ed25519HaneulSignature, HaneulKeyPair, HaneulSignatureInner, Secp256k1HaneulSignature,
+    SignatureScheme,
 };
 use haneul_types::move_package::{MovePackage, UpgradeInfo};
 use haneul_types::{base_types::ObjectID, crypto::get_key_pair, gas_coin::GasCoin};
+use haneullabs_common::random_util::TempDir;
+use haneullabs_common::tempdir;
+use move_package_alt::schema::{Environment, ParsedPublishedFile};
+use std::fs::OpenOptions;
+use std::path::Path;
+use std::{fs, io};
 use test_cluster::{TestCluster, TestClusterBuilder};
 
 const TEST_DATA_DIR: &str = "tests/data/";
@@ -1311,7 +1313,8 @@ async fn test_delete_shared_object() -> Result<(), anyhow::Error> {
     .execute(context)
     .await?;
 
-    let shared_id = if let HaneulClientCommandResult::TransactionBlock(response) = start_call_result {
+    let shared_id = if let HaneulClientCommandResult::TransactionBlock(response) = start_call_result
+    {
         response.effects.created()[0].0.0
     } else {
         unreachable!("Invalid response");
@@ -2308,7 +2311,8 @@ async fn test_native_transfer() -> Result<(), anyhow::Error> {
     resp.print(true);
 
     // Get the mutated objects
-    let (_mut_obj1, _mut_obj2) = if let HaneulClientCommandResult::TransactionBlock(response) = resp {
+    let (_mut_obj1, _mut_obj2) = if let HaneulClientCommandResult::TransactionBlock(response) = resp
+    {
         (
             response.effects.mutated().first().unwrap().0.0,
             response.effects.mutated().get(1).unwrap().0.0,
@@ -2484,7 +2488,9 @@ async fn test_active_address_command() -> Result<(), anyhow::Error> {
     let addr1 = context.active_address()?;
 
     // Run a command with address omitted
-    let os = HaneulClientCommands::ActiveAddress {}.execute(context).await?;
+    let os = HaneulClientCommands::ActiveAddress {}
+        .execute(context)
+        .await?;
 
     let a = if let HaneulClientCommandResult::ActiveAddress(Some(v)) = os {
         v
@@ -2922,7 +2928,8 @@ async fn test_serialize_tx() -> Result<(), anyhow::Error> {
     .execute(context)
     .await?;
 
-    let HaneulClientCommandResult::SerializedSignedTransaction(sender_signed_data) = forking_mode_tx
+    let HaneulClientCommandResult::SerializedSignedTransaction(sender_signed_data) =
+        forking_mode_tx
     else {
         panic!("Expected SerializedSignedTransaction result");
     };
@@ -2960,11 +2967,17 @@ async fn test_serialize_tx() -> Result<(), anyhow::Error> {
     let mut args = ptb_args.clone();
     args.push("--serialize-signed-transaction".to_string());
     let ptb = PTB { args };
-    HaneulClientCommands::PTB(ptb).execute(context).await.unwrap();
+    HaneulClientCommands::PTB(ptb)
+        .execute(context)
+        .await
+        .unwrap();
     let mut args = ptb_args.clone();
     args.push("--serialize-unsigned-transaction".to_string());
     let ptb = PTB { args };
-    HaneulClientCommands::PTB(ptb).execute(context).await.unwrap();
+    HaneulClientCommands::PTB(ptb)
+        .execute(context)
+        .await
+        .unwrap();
 
     Ok(())
 }
@@ -3230,7 +3243,9 @@ async fn test_dry_run() -> Result<(), anyhow::Error> {
     // === PAY === //
     let pay_dry_run = HaneulClientCommands::Pay {
         input_coins: vec![object_id],
-        recipients: vec![KeyIdentity::Address(HaneulAddress::random_for_testing_only())],
+        recipients: vec![KeyIdentity::Address(
+            HaneulAddress::random_for_testing_only(),
+        )],
         amounts: vec![1],
         payment: PaymentArgs::default(),
         gas_data: GasDataArgs {
@@ -3259,7 +3274,9 @@ async fn test_dry_run() -> Result<(), anyhow::Error> {
     let gas_coin_id = object_refs.items.last().unwrap().id();
     let pay_dry_run = HaneulClientCommands::Pay {
         input_coins: vec![object_id],
-        recipients: vec![KeyIdentity::Address(HaneulAddress::random_for_testing_only())],
+        recipients: vec![KeyIdentity::Address(
+            HaneulAddress::random_for_testing_only(),
+        )],
         amounts: vec![1],
         payment: PaymentArgs {
             gas: vec![gas_coin_id],
@@ -3281,7 +3298,9 @@ async fn test_dry_run() -> Result<(), anyhow::Error> {
     // === PAY HANEUL === //
     let pay_haneul_dry_run = HaneulClientCommands::PayHaneul {
         input_coins: vec![object_id],
-        recipients: vec![KeyIdentity::Address(HaneulAddress::random_for_testing_only())],
+        recipients: vec![KeyIdentity::Address(
+            HaneulAddress::random_for_testing_only(),
+        )],
         amounts: vec![1],
         gas_data: GasDataArgs {
             gas_budget: Some(rgp * TEST_ONLY_GAS_UNIT_FOR_TRANSFER),
@@ -4281,67 +4300,6 @@ async fn test_tree_shaking_package_with_direct_dependency() -> Result<(), anyhow
     assert!(
         linkage_table_b.contains_key(&package_a_id),
         "Package B should depend on A"
-    );
-
-    Ok(())
-}
-
-#[sim_test]
-async fn test_tree_shaking_package_with_duplicate_dependency_names() -> Result<(), anyhow::Error> {
-    let mut test = TreeShakingTest::new().await?;
-
-    // Publish two packages with the same declared package name. The package system disambiguates
-    // them with package graph IDs like `a` and `a_1`; tree shaking needs to use that same key space.
-    let (package_a_id, _) = test.test_publish_package("A", false).await?;
-    let (package_a_alt_id, _) = test.test_publish_package("A_ALT", false).await?;
-
-    // `DuplicateDirect` declares both packages and references both. Tree shaking needs to keep
-    // both package graph IDs, even though both packages have the same declared package name.
-    let (package_duplicate_id, _) = test.test_publish_package("DuplicateDirect", false).await?;
-    let linkage_table = test.fetch_linkage_table(package_duplicate_id).await;
-
-    assert!(
-        linkage_table.contains_key(&package_a_id),
-        "Package DuplicateDirect should depend on A"
-    );
-    assert!(
-        linkage_table.contains_key(&package_a_alt_id),
-        "Package DuplicateDirect should depend on A_ALT"
-    );
-    assert_eq!(
-        linkage_table.len(),
-        2,
-        "Package DuplicateDirect should have exactly two dependencies"
-    );
-
-    Ok(())
-}
-
-#[sim_test]
-async fn test_tree_shaking_package_with_duplicate_dependency_names_drops_unused()
--> Result<(), anyhow::Error> {
-    let mut test = TreeShakingTest::new().await?;
-
-    // Publish two packages with the same declared package name. `DuplicateSingle` declares both
-    // dependencies but references only A, so A_ALT must be dropped after tree shaking.
-    let (package_a_id, _) = test.test_publish_package("A", false).await?;
-    let (package_a_alt_id, _) = test.test_publish_package("A_ALT", false).await?;
-
-    let (package_duplicate_id, _) = test.test_publish_package("DuplicateSingle", false).await?;
-    let linkage_table = test.fetch_linkage_table(package_duplicate_id).await;
-
-    assert!(
-        linkage_table.contains_key(&package_a_id),
-        "Package DuplicateSingle should depend on A"
-    );
-    assert!(
-        !linkage_table.contains_key(&package_a_alt_id),
-        "Package DuplicateSingle should tree shake the unused A_ALT dependency"
-    );
-    assert_eq!(
-        linkage_table.len(),
-        1,
-        "Package DuplicateSingle should have exactly one dependency"
     );
 
     Ok(())

@@ -1,9 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_bytecode_verifier_meter::Scope;
-use prometheus::Registry;
-use std::{path::Path, sync::Arc, time::Instant};
 use haneul_adapter::adapter::run_metered_move_bytecode_verifier;
 use haneul_config::verifier_signing_config::VerifierSigningConfig;
 use haneul_framework::BuiltInFramework;
@@ -11,6 +8,9 @@ use haneul_move_build::CompiledPackage;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::{error::HaneulErrorKind, metrics::BytecodeVerifierMetrics};
 use haneul_verifier::meter::HaneulVerifierMeter;
+use move_bytecode_verifier_meter::Scope;
+use prometheus::Registry;
+use std::{path::Path, sync::Arc, time::Instant};
 
 use crate::setup_examples;
 

@@ -14,9 +14,9 @@ backoff.workspace = true
 bytes.workspace = true
 chrono.workspace = true
 clap = { workspace = true, features = ["env"] }
-diesel = { workspace = true, features = ["chrono"], optional = true }
-diesel-async = { workspace = true, features = ["bb8", "postgres", "async-connection-wrapper"], optional = true }
-diesel_migrations = { workspace = true, optional = true }
+diesel = { workspace = true, features = ["chrono"] }
+diesel-async = { workspace = true, features = ["bb8", "postgres", "async-connection-wrapper"] }
+diesel_migrations.workspace = true
 futures.workspace = true
 http.workspace = true
 haneullabs-network.workspace = true
@@ -52,6 +52,7 @@ haneul-pg-db = { workspace = true, optional = true }
 [dev-dependencies]
 telemetry-subscribers.workspace = true
 wiremock.workspace = true
+haneul-pg-db.workspace = true
 dashmap.workspace = true
 
 haneul-indexer-alt-framework-store-traits = { workspace = true, features = ["testing"] }
@@ -60,9 +61,4 @@ haneul-synthetic-ingestion.workspace = true
 [features]
 default = ["cluster"]
 cluster = ["dep:tracing-subscriber", "postgres"]
-postgres = [
-    "dep:haneul-pg-db",
-    "dep:diesel",
-    "dep:diesel-async",
-    "dep:diesel_migrations",
-]
+postgres = ["dep:haneul-pg-db"]

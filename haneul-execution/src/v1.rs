@@ -3,9 +3,6 @@
 
 use std::sync::Arc;
 
-use move_binary_format::CompiledModule;
-use move_trace_format::format::MoveTraceBuilder;
-use move_vm_config::verifier::{MeterConfig, VerifierConfig};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::execution::ExecutionTiming;
 use haneul_types::execution_params::ExecutionOrEarlyError;
@@ -24,9 +21,10 @@ use haneul_types::{
     metrics::{BytecodeVerifierMetrics, ExecutionMetrics},
     transaction::{CheckedInputObjects, ProgrammableTransaction, TransactionKind},
 };
+use move_binary_format::CompiledModule;
+use move_trace_format::format::MoveTraceBuilder;
+use move_vm_config::verifier::{MeterConfig, VerifierConfig};
 
-use move_bytecode_verifier_meter::Meter;
-use move_vm_runtime_v1::move_vm::MoveVM;
 use haneul_adapter_v1::adapter::{new_move_vm, run_metered_move_bytecode_verifier};
 use haneul_adapter_v1::execution_engine::{
     execute_genesis_state_update, execute_transaction_to_effects,
@@ -35,6 +33,8 @@ use haneul_adapter_v1::type_layout_resolver::TypeLayoutResolver;
 use haneul_move_natives_v1::all_natives;
 use haneul_types::storage::BackingStore;
 use haneul_verifier_v1::meter::HaneulVerifierMeter;
+use move_bytecode_verifier_meter::Meter;
+use move_vm_runtime_v1::move_vm::MoveVM;
 
 use crate::executor;
 use crate::verifier;
@@ -105,9 +105,6 @@ impl executor::Executor for Executor {
                 enable_expensive_checks,
                 execution_params,
             );
-        if let Err(error) = &result {
-            log_execution_error(transaction_digest, error);
-        }
         // note: old versions do not report timings.
         (
             inner_temp_store,
@@ -142,7 +139,7 @@ impl executor::Executor for Executor {
         Result<Vec<ExecutionResult>, ExecutionError>,
     ) {
         let gas_coins = gas.payment;
-        let (inner_temp_store, gas_status, effects, result) = if skip_all_checks {
+        if skip_all_checks {
             execute_transaction_to_effects::<execution_mode::DevInspect<true>>(
                 store,
                 input_objects,
@@ -176,11 +173,7 @@ impl executor::Executor for Executor {
                 enable_expensive_checks,
                 execution_params,
             )
-        };
-        if let Err(error) = &result {
-            log_execution_error(transaction_digest, error);
         }
-        (inner_temp_store, gas_status, effects, result)
     }
 
     fn execute_transaction_to_effects_and_execution_error(
@@ -225,9 +218,6 @@ impl executor::Executor for Executor {
                 enable_expensive_checks,
                 execution_params,
             );
-        if let Err(error) = &result {
-            log_execution_error(transaction_digest, error);
-        }
         (inner_temp_store, gas_status, effects, vec![], result)
     }
 
@@ -291,37 +281,5 @@ impl verifier::Verifier for Verifier<'_> {
         meter: &mut dyn Meter,
     ) -> HaneulResult<()> {
         run_metered_move_bytecode_verifier(modules, &self.config, meter, self.metrics)
-    }
-}
-
-fn log_execution_error(transaction_digest: TransactionDigest, error: &ExecutionError) {
-    use haneul_types::execution_status::ExecutionErrorKind as K;
-
-    match error.kind() {
-        K::InvariantViolation | K::VMInvariantViolation => {
-            tracing::error!(
-                kind = ?error.kind(),
-                tx_digest = ?transaction_digest,
-                "INVARIANT VIOLATION! Source: {:?}",
-                error.source(),
-            );
-        }
-        K::HaneulMoveVerificationError | K::VMVerificationOrDeserializationError => {
-            tracing::debug!(
-                kind = ?error.kind(),
-                tx_digest = ?transaction_digest,
-                "Verification Error. Source: {:?}",
-                error.source(),
-            );
-        }
-        K::PublishUpgradeMissingDependency | K::PublishUpgradeDependencyDowngrade => {
-            tracing::debug!(
-                kind = ?error.kind(),
-                tx_digest = ?transaction_digest,
-                "Publish/Upgrade Error. Source: {:?}",
-                error.source(),
-            );
-        }
-        _ => (),
     }
 }

@@ -3,17 +3,17 @@
 
 use crate::error::{AggregateError, Error};
 use futures::future;
+use haneul_move_build::CompiledPackage;
+use haneul_rpc_api::Client;
+use haneul_types::base_types::ObjectID;
+use haneul_types::move_package::MovePackage;
+use haneullabs_common::ZipDebugEqIteratorExt;
 use move_binary_format::CompiledModule;
 use move_compiler::compiled_unit::NamedCompiledModule;
 use move_core_types::account_address::AccountAddress;
 use move_package_alt::schema::Environment;
 use move_symbol_pool::Symbol;
-use haneullabs_common::ZipDebugEqIteratorExt;
 use std::collections::{HashMap, HashSet};
-use haneul_move_build::CompiledPackage;
-use haneul_rpc_api::Client;
-use haneul_types::base_types::ObjectID;
-use haneul_types::move_package::MovePackage;
 use toolchain::units_for_toolchain;
 
 pub mod error;
@@ -413,7 +413,9 @@ impl<'a> BytecodeSourceVerifier<'a> {
 
         match &obj.data {
             haneul_types::object::Data::Package(pkg) => Ok(pkg.to_owned()),
-            haneul_types::object::Data::Move(_) => Err(Error::ObjectFoundWhenPackageExpected(obj_id)),
+            haneul_types::object::Data::Move(_) => {
+                Err(Error::ObjectFoundWhenPackageExpected(obj_id))
+            }
         }
     }
 }
@@ -446,9 +448,5 @@ fn substitute_root_address(
 
 /// The on-chain addresses for a source package's dependencies
 fn dependency_addresses(package: &CompiledPackage) -> impl Iterator<Item = AccountAddress> + '_ {
-    package
-        .dependency_ids
-        .published
-        .values()
-        .map(|dep| AccountAddress::from(dep.published_at))
+    package.dependency_ids.published.values().map(|id| **id)
 }

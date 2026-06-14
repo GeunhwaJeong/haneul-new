@@ -20,10 +20,10 @@ use fastcrypto::{
     traits::{RecoverableSigner, ToFromBytes, VerifyRecoverable},
 };
 use fastcrypto::{hash::Keccak256, traits::KeyPair};
+use haneul_types::{base_types::ConciseableName, message_envelope::VerifiedEnvelope};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::fmt::{Display, Formatter};
-use haneul_types::{base_types::ConciseableName, message_envelope::VerifiedEnvelope};
 use tap::TapFallible;
 pub type BridgeAuthorityKeyPair = Secp256k1KeyPair;
 pub type BridgeAuthorityPublicKey = Secp256k1PublicKey;
@@ -190,13 +190,13 @@ mod tests {
     use crate::types::{BridgeAction, BridgeAuthority, HaneulToEthBridgeAction};
     use alloy::primitives::Address as EthAddress;
     use fastcrypto::traits::{KeyPair, ToFromBytes};
-    use prometheus::Registry;
-    use std::str::FromStr;
-    use std::sync::Arc;
     use haneul_types::base_types::HaneulAddress;
     use haneul_types::bridge::{BridgeChainId, TOKEN_ID_ETH};
     use haneul_types::crypto::get_key_pair;
     use haneul_types::digests::TransactionDigest;
+    use prometheus::Registry;
+    use std::str::FromStr;
+    use std::sync::Arc;
 
     use super::*;
 
@@ -214,8 +214,15 @@ mod tests {
 
         let committee = BridgeCommittee::new(vec![authority1.clone(), authority2.clone()]).unwrap();
 
-        let action: BridgeAction =
-            get_test_haneul_to_eth_bridge_action(None, Some(1), Some(1), Some(100), None, None, None);
+        let action: BridgeAction = get_test_haneul_to_eth_bridge_action(
+            None,
+            Some(1),
+            Some(1),
+            Some(100),
+            None,
+            None,
+            None,
+        );
 
         let sig = BridgeAuthoritySignInfo::new(&action, &secret);
 
@@ -248,8 +255,15 @@ mod tests {
         ));
 
         // Signature is invalid (signed over different message), verification should fail
-        let action2: BridgeAction =
-            get_test_haneul_to_eth_bridge_action(None, Some(3), Some(5), Some(77), None, None, None);
+        let action2: BridgeAction = get_test_haneul_to_eth_bridge_action(
+            None,
+            Some(3),
+            Some(5),
+            Some(77),
+            None,
+            None,
+            None,
+        );
 
         let invalid_sig = BridgeAuthoritySignInfo::new(&action2, &secret);
         let signed_action = SignedBridgeAction::new_from_data_and_sig(action.clone(), invalid_sig);

@@ -81,7 +81,7 @@ function computeRouteFromFile(docsRootAbs, fileAbs) {
 // ---------- plugin ----------
 const descriptionPlugin = (context, options) => {
   return {
-    name: "haneul-description-plugin",
+    name: "sui-description-plugin",
 
     async loadContent() {
       // Find classic preset options robustly

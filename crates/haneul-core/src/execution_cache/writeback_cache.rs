@@ -41,7 +41,7 @@ use crate::accumulators::funds_read::AccountFundsRead;
 use crate::authority::AuthorityStore;
 use crate::authority::authority_per_epoch_store::AuthorityPerEpochStore;
 use crate::authority::authority_store::{
-    ExecutionLockWriteGuard, LockDetailsDeprecated, ObjectLockStatus, HaneulLockResult,
+    ExecutionLockWriteGuard, HaneulLockResult, LockDetailsDeprecated, ObjectLockStatus,
 };
 use crate::authority::authority_store_tables::LiveObject;
 use crate::authority::backpressure::BackpressureManager;
@@ -53,17 +53,6 @@ use crate::transaction_outputs::TransactionOutputs;
 use dashmap::DashMap;
 use dashmap::mapref::entry::Entry as DashMapEntry;
 use futures::{FutureExt, future::BoxFuture};
-use moka::sync::SegmentedCache as MokaCache;
-use haneullabs_common::ZipDebugEqIteratorExt;
-use haneullabs_common::debug_fatal;
-use haneullabs_common::random_util::randomize_cache_capacity_in_tests;
-use haneullabs_common::sync::notify_read::NotifyRead;
-use parking_lot::Mutex;
-use rayon::prelude::*;
-use std::collections::{BTreeMap, HashSet};
-use std::hash::Hash;
-use std::sync::Arc;
-use std::sync::atomic::AtomicU64;
 use haneul_config::ExecutionCacheConfig;
 use haneul_macros::fail_point;
 use haneul_protocol_config::ProtocolVersion;
@@ -79,14 +68,25 @@ use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::error::{HaneulError, HaneulErrorKind, HaneulResult, UserInputError};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::global_state_hash::GlobalStateHash;
+use haneul_types::haneul_system_state::{HaneulSystemState, get_haneul_system_state};
 use haneul_types::message_envelope::Message;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::object::Object;
 use haneul_types::storage::{
     FullObjectKey, InputKey, MarkerValue, ObjectKey, ObjectOrTombstone, ObjectStore, PackageObject,
 };
-use haneul_types::haneul_system_state::{HaneulSystemState, get_haneul_system_state};
 use haneul_types::transaction::{TransactionDataAPI, VerifiedTransaction};
+use haneullabs_common::ZipDebugEqIteratorExt;
+use haneullabs_common::debug_fatal;
+use haneullabs_common::random_util::randomize_cache_capacity_in_tests;
+use haneullabs_common::sync::notify_read::NotifyRead;
+use moka::sync::SegmentedCache as MokaCache;
+use parking_lot::Mutex;
+use rayon::prelude::*;
+use std::collections::{BTreeMap, HashSet};
+use std::hash::Hash;
+use std::sync::Arc;
+use std::sync::atomic::AtomicU64;
 use tap::TapOptional;
 use tracing::{debug, info, instrument, trace, warn};
 
@@ -1060,8 +1060,9 @@ impl WritebackCache {
         // cache before removing from the dirty set.
         db_batch.write().expect("db error");
 
-        let _metrics_guard =
-            haneullabs_metrics::monitored_scope("WritebackCache::commit_transaction_outputs::flush");
+        let _metrics_guard = haneullabs_metrics::monitored_scope(
+            "WritebackCache::commit_transaction_outputs::flush",
+        );
         // Parallel phase: tx-level metadata is keyed by unique tx_digest/effects_digest,
         // so there are no cross-transaction ordering constraints.
         all_outputs.par_iter().with_min_len(16).for_each(|outputs| {
@@ -1382,23 +1383,8 @@ impl WritebackCache {
     }
 }
 
-fn account_amount_from_object(account_obj: &Object) -> u128 {
-    let (_, AccumulatorValue::U128(value)) =
-        account_obj.data.try_as_move().unwrap().try_into().unwrap();
-    value.value
-}
-
 impl AccountFundsRead for WritebackCache {
-    fn get_latest_account_amount(&self, account_id: &AccumulatorObjId) -> u128 {
-        ObjectCacheRead::get_object(self, account_id.inner())
-            .map(|account_obj| account_amount_from_object(&account_obj))
-            .unwrap_or(0)
-    }
-
-    fn get_consistent_latest_account_amount_and_version(
-        &self,
-        account_id: &AccumulatorObjId,
-    ) -> (u128, SequenceNumber) {
+    fn get_latest_account_amount(&self, account_id: &AccumulatorObjId) -> (u128, SequenceNumber) {
         // Settlement is not atomic. A settlement transaction writes the accumulator
         // objects at version V+1 first, and then a later barrier transaction bumps the
         // root from V to V+1. A reader that observes the state in between sees
@@ -1412,9 +1398,8 @@ impl AccountFundsRead for WritebackCache {
         //    By construction of the settlement/barrier ordering, every account object's
         //    version is <= the root version after the corresponding barrier runs, so
         //    capping at the captured root strips away any newer-settlement writes that
-        //    have raced ahead of the barrier. The returned amount is the balance at or
-        //    before the captured root version, even if the account object has a newer
-        //    latest version by the time this method returns.
+        //    have raced ahead of the barrier — we get the balance consistent with the
+        //    root version we captured.
         //
         // 2. Root-version stability check (pre == post). `get_account_amount_at_version`
         //    is only safe to call when the target version has not been pruned. Pruning
@@ -1429,7 +1414,6 @@ impl AccountFundsRead for WritebackCache {
                 .version();
         let mut loop_iter = 0;
         loop {
-            loop_iter += 1;
             // Safe because of (1) and (2) above: the stability check below bounds the
             // lifetime of `pre_root_version` to a window in which no pruning happens.
             let value = self.get_account_amount_at_version(account_id, pre_root_version);
@@ -1438,12 +1422,6 @@ impl AccountFundsRead for WritebackCache {
                     .unwrap()
                     .version();
             if pre_root_version == post_root_version {
-                if loop_iter > 3 {
-                    debug_fatal!(
-                        "Root version stabilized after {} iterations during MVCC read",
-                        loop_iter
-                    );
-                }
                 return (value, pre_root_version);
             }
             debug!(
@@ -1451,6 +1429,10 @@ impl AccountFundsRead for WritebackCache {
                 pre_root_version, post_root_version
             );
             pre_root_version = post_root_version;
+            loop_iter += 1;
+            if loop_iter >= 3 {
+                debug_fatal!("Unable to get a stable version after 3 iterations");
+            }
         }
     }
 
@@ -1460,9 +1442,13 @@ impl AccountFundsRead for WritebackCache {
         version: SequenceNumber,
     ) -> u128 {
         let account_obj = self.find_object_lt_or_eq_version(*account_id.inner(), version);
-        account_obj
-            .map(|account_obj| account_amount_from_object(&account_obj))
-            .unwrap_or(0)
+        if let Some(account_obj) = account_obj {
+            let (_, AccumulatorValue::U128(value)) =
+                account_obj.data.try_as_move().unwrap().try_into().unwrap();
+            value.value
+        } else {
+            0
+        }
     }
 }
 
@@ -1471,17 +1457,6 @@ impl ExecutionCacheAPI for WritebackCache {}
 impl ExecutionCacheCommit for WritebackCache {
     fn build_db_batch(&self, epoch: EpochId, digests: &[TransactionDigest]) -> Batch {
         self.build_db_batch(epoch, digests)
-    }
-
-    fn set_highest_committed_checkpoint_in_batch(
-        &self,
-        batch: &mut Batch,
-        checkpoint: CheckpointSequenceNumber,
-    ) {
-        self.store
-            .perpetual_tables
-            .set_highest_committed_checkpoint(&mut batch.1, checkpoint)
-            .expect("db error");
     }
 
     fn commit_transaction_outputs(
@@ -1899,7 +1874,11 @@ impl ObjectCacheRead for WritebackCache {
         }
     }
 
-    fn get_lock(&self, obj_ref: ObjectRef, epoch_store: &AuthorityPerEpochStore) -> HaneulLockResult {
+    fn get_lock(
+        &self,
+        obj_ref: ObjectRef,
+        epoch_store: &AuthorityPerEpochStore,
+    ) -> HaneulLockResult {
         let cur_epoch = epoch_store.epoch();
         match self.get_object_by_id_cache_only("lock", &obj_ref.0) {
             CacheResult::Hit((_, obj)) => {

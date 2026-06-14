@@ -8,19 +8,9 @@ use std::str;
 use async_trait::async_trait;
 use base64::engine::Engine;
 use chrono::DateTime;
-use move_core_types::account_address::AccountAddress;
-use move_core_types::annotated_value as A;
-use move_core_types::annotated_value::MoveTypeLayout;
-use move_core_types::language_storage::StructTag;
-use move_core_types::language_storage::TypeTag;
-use move_core_types::u256::U256;
-use serde::Serialize;
-use serde::ser::SerializeSeq as _;
-use serde::ser::SerializeTuple as _;
-use serde::ser::SerializeTupleVariant;
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::RESOLVED_UTF8_STR;
-use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::move_ascii_str_layout;
 use haneul_types::base_types::move_utf8_str_layout;
 use haneul_types::base_types::type_name_layout;
@@ -32,6 +22,16 @@ use haneul_types::id::ID;
 use haneul_types::id::UID;
 use haneul_types::object::rpc_visitor as RV;
 use haneul_types::object::rpc_visitor::Meter as _;
+use move_core_types::account_address::AccountAddress;
+use move_core_types::annotated_value as A;
+use move_core_types::annotated_value::MoveTypeLayout;
+use move_core_types::language_storage::StructTag;
+use move_core_types::language_storage::TypeTag;
+use move_core_types::u256::U256;
+use serde::Serialize;
+use serde::ser::SerializeSeq as _;
+use serde::ser::SerializeTuple as _;
+use serde::ser::SerializeTupleVariant;
 
 use crate::v2::error::FormatError;
 use crate::v2::parser::Base64Modifier;
@@ -215,7 +215,10 @@ impl Value<'_> {
 
     /// Treat this value as a derived object key and derive the corresponding object ID under the
     /// given parent address.
-    pub fn derive_object_id(&self, parent: impl Into<HaneulAddress>) -> Result<ObjectID, FormatError> {
+    pub fn derive_object_id(
+        &self,
+        parent: impl Into<HaneulAddress>,
+    ) -> Result<ObjectID, FormatError> {
         let bytes = bcs::to_bytes(self)?;
         let type_ = self.type_();
 
@@ -911,14 +914,6 @@ pub(crate) mod tests {
     use std::str::FromStr;
     use std::sync::atomic::AtomicUsize;
 
-    use itertools::Itertools;
-    use move_core_types::annotated_value::MoveEnumLayout;
-    use move_core_types::annotated_value::MoveFieldLayout;
-    use move_core_types::annotated_value::MoveStructLayout;
-    use move_core_types::annotated_value::MoveTypeLayout as L;
-    use move_core_types::identifier::Identifier;
-    use serde_json::Value as Json;
-    use serde_json::json;
     use haneul_types::MOVE_STDLIB_ADDRESS;
     use haneul_types::base_types::STD_ASCII_MODULE_NAME;
     use haneul_types::base_types::STD_ASCII_STRUCT_NAME;
@@ -928,6 +923,14 @@ pub(crate) mod tests {
     use haneul_types::dynamic_field::derive_dynamic_field_id;
     use haneul_types::id::ID;
     use haneul_types::id::UID;
+    use itertools::Itertools;
+    use move_core_types::annotated_value::MoveEnumLayout;
+    use move_core_types::annotated_value::MoveFieldLayout;
+    use move_core_types::annotated_value::MoveStructLayout;
+    use move_core_types::annotated_value::MoveTypeLayout as L;
+    use move_core_types::identifier::Identifier;
+    use serde_json::Value as Json;
+    use serde_json::json;
 
     use super::*;
 

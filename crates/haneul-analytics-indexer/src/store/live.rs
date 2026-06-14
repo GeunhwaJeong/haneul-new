@@ -6,12 +6,12 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use object_store::ObjectStore;
-use object_store::ObjectStoreExt as _;
-use object_store::path::Path as ObjectPath;
 use haneul_indexer_alt_framework_store_traits::CommitterWatermark;
 use haneul_storage::object_store::util::find_all_dirs_with_epoch_prefix;
 use haneul_storage::object_store::util::find_all_files_with_epoch_prefix;
+use object_store::ObjectStore;
+use object_store::ObjectStoreExt as _;
+use object_store::path::Path as ObjectPath;
 use tracing::info;
 
 use crate::config::BatchSizeConfig;

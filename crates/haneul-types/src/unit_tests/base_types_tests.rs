@@ -12,14 +12,14 @@ use move_binary_format::file_format;
 
 use crate::crypto::bcs_signable_test::{Bar, Foo};
 use crate::crypto::{
-    AccountKeyPair, AuthorityKeyPair, AuthoritySignature, Signature, HaneulAuthoritySignature,
-    HaneulSignature, get_key_pair, get_key_pair_from_bytes,
+    AccountKeyPair, AuthorityKeyPair, AuthoritySignature, HaneulAuthoritySignature,
+    HaneulSignature, Signature, get_key_pair, get_key_pair_from_bytes,
 };
 use crate::digests::Digest;
 use crate::id::{ID, UID};
 use crate::{HANEUL_FRAMEWORK_ADDRESS, gas_coin::GasCoin, object::Object};
-use shared_crypto::intent::{Intent, IntentMessage, IntentScope};
 use haneul_protocol_config::ProtocolConfig;
+use shared_crypto::intent::{Intent, IntentMessage, IntentScope};
 
 use super::*;
 
@@ -83,7 +83,10 @@ fn test_signatures() {
 fn test_signatures_serde() {
     let (_, sec1): (_, AccountKeyPair) = get_key_pair();
     let foo = Foo("hello".into());
-    let s = Signature::new_secure(&IntentMessage::new(Intent::haneul_transaction(), foo), &sec1);
+    let s = Signature::new_secure(
+        &IntentMessage::new(Intent::haneul_transaction(), foo),
+        &sec1,
+    );
 
     let serialized = bcs::to_bytes(&s).unwrap();
     println!("{:?}", serialized);

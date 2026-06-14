@@ -4,12 +4,12 @@
 use crate::executor::MAX_CHECKPOINTS_IN_PROGRESS;
 use crate::reducer::reduce;
 use crate::{Reducer, Worker};
+use haneul_types::full_checkpoint_content::CheckpointData;
+use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneullabs_metrics::spawn_monitored_task;
 use std::collections::{BTreeSet, VecDeque};
 use std::sync::Arc;
 use std::time::Instant;
-use haneul_types::full_checkpoint_content::CheckpointData;
-use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use tokio::sync::mpsc;
 use tokio::sync::oneshot;
 use tracing::info;

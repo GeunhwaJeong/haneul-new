@@ -1,13 +1,13 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
+use haneul_types::haneul_serde::HaneulTypeTag;
+use haneul_types::object::Owner;
 use move_core_types::language_storage::TypeTag;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::DisplayFromStr;
 use serde_with::serde_as;
 use std::fmt::{Display, Formatter, Result};
-use haneul_types::object::Owner;
-use haneul_types::haneul_serde::HaneulTypeTag;
 
 #[serde_as]
 #[derive(Debug, Clone, Deserialize, Serialize, JsonSchema, PartialEq, Eq)]

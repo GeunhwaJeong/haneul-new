@@ -9,14 +9,23 @@ use arc_swap::ArcSwapOption;
 use async_trait::async_trait;
 use consensus_config::{
     ChainType, Committee, ConsensusProtocolConfig, NetworkKeyPair,
-    NetworkPublicKey as ConsensusNetworkPublicKey, Parameters, ProtocolKeyPair, Stake,
+    NetworkPublicKey as ConsensusNetworkPublicKey, Parameters, ProtocolKeyPair,
 };
 use consensus_core::{
     Clock, CommitConsumerArgs, CommitConsumerMonitor, CommitIndex, ConsensusAuthority, NetworkType,
-    RandomnessSignatureHandler, storage::rocksdb_store::RocksDBStore,
 };
 use core::panic;
 use fastcrypto::traits::KeyPair as _;
+use haneul_config::{ConsensusConfig, NodeConfig};
+use haneul_network::endpoint_manager::ConsensusAddressUpdater;
+use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
+use haneul_types::crypto::NetworkPublicKey;
+use haneul_types::error::{HaneulErrorKind, HaneulResult};
+use haneul_types::messages_consensus::{ConsensusPosition, ConsensusTransaction};
+use haneul_types::{
+    committee::EpochId,
+    haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait,
+};
 use haneullabs_metrics::{RegistryID, RegistryService};
 use haneullabs_network::Multiaddr;
 use prometheus::{IntGauge, Registry, register_int_gauge_with_registry};
@@ -24,16 +33,6 @@ use std::collections::BTreeMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use haneul_config::{ConsensusConfig, NodeConfig};
-use haneul_network::endpoint_manager::ConsensusAddressUpdater;
-use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
-use haneul_types::crypto::NetworkPublicKey;
-use haneul_types::error::{HaneulErrorKind, HaneulResult};
-use haneul_types::messages_consensus::{ConsensusPosition, ConsensusTransaction};
-use haneul_types::node_role::NodeRole;
-use haneul_types::{
-    committee::EpochId, haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait,
-};
 use tokio::sync::{Mutex, broadcast};
 use tokio::time::{sleep, timeout};
 use tracing::{error, info};
@@ -119,32 +118,6 @@ impl AddressOverridesMap {
     }
 }
 
-/// Rebuilds the consensus `Committee` with Mysticeti v3 threshold parameters.
-/// `malicious_stake` and `crash_stake` come from env vars with reference-budget
-/// defaults (`f = c = 1250`); the nominal `threshold_total_stake = 5f + 3c + 1`
-/// is derived inside `Committee::new_v3`. This is a temporary iteration knob
-/// until the thresholds are promoted into `ProtocolConfig`.
-fn apply_v3_threshold_overrides(committee: Committee) -> Committee {
-    let malicious_stake: Stake = std::env::var("HANEUL_CONSENSUS_V3_MALICIOUS_STAKE")
-        .ok()
-        .and_then(|s| s.parse().ok())
-        .unwrap_or(1_250);
-    let crash_stake: Stake = std::env::var("HANEUL_CONSENSUS_V3_CRASH_STAKE")
-        .ok()
-        .and_then(|s| s.parse().ok())
-        .unwrap_or(1_250);
-    info!(
-        "consensus_manager: applying v3 committee thresholds \
-         (malicious_stake={malicious_stake}, crash_stake={crash_stake})"
-    );
-    Committee::new_v3(
-        committee.epoch(),
-        committee.authorities_slice().to_vec(),
-        malicious_stake,
-        crash_stake,
-    )
-}
-
 fn to_consensus_protocol_config(config: &ProtocolConfig, chain: Chain) -> ConsensusProtocolConfig {
     let chain_type = match chain {
         Chain::Mainnet => ChainType::Mainnet,
@@ -162,16 +135,13 @@ fn to_consensus_protocol_config(config: &ProtocolConfig, chain: Chain) -> Consen
         config.mysticeti_num_leaders_per_round(),
         config.consensus_bad_nodes_stake_threshold(),
         /* enable_v3 */ false,
-        /* leader_schedule_window_size */ 300,
-        /* leader_schedule_update_interval */ 12,
     )
 }
 
-/// Used by Haneul to start consensus protocol for each epoch.
-/// Supports both validator mode (with protocol keypair) and observer mode (without).
+/// Used by Haneul validator to start consensus protocol for each epoch.
 pub struct ConsensusManager {
     consensus_config: ConsensusConfig,
-    protocol_keypair: Option<ProtocolKeyPair>,
+    protocol_keypair: ProtocolKeyPair,
     network_keypair: NetworkKeyPair,
     storage_base_path: PathBuf,
     metrics: Arc<ConsensusManagerMetrics>,
@@ -209,21 +179,15 @@ impl ConsensusManager {
         consensus_config: &ConsensusConfig,
         registry_service: &RegistryService,
         consensus_client: Arc<UpdatableConsensusClient>,
-        node_role: NodeRole,
     ) -> Self {
         let metrics = Arc::new(ConsensusManagerMetrics::new(
             &registry_service.default_registry(),
         ));
         let client = Arc::new(LazyMysticetiClient::new());
         let (consumer_monitor_sender, _) = broadcast::channel(1);
-        let protocol_keypair = if node_role.is_validator() {
-            Some(ProtocolKeyPair::new(node_config.worker_key_pair().copy()))
-        } else {
-            None
-        };
         Self {
             consensus_config: consensus_config.clone(),
-            protocol_keypair,
+            protocol_keypair: ProtocolKeyPair::new(node_config.worker_key_pair().copy()),
             network_keypair: NetworkKeyPair::new(node_config.network_key_pair().copy()),
             storage_base_path: consensus_config.db_path().to_path_buf(),
             metrics,
@@ -246,18 +210,11 @@ impl ConsensusManager {
         epoch_store: Arc<AuthorityPerEpochStore>,
         consensus_handler_initializer: ConsensusHandlerInitializer,
         tx_validator: HaneulTxValidator,
-        randomness_signature_handler: Option<Arc<dyn RandomnessSignatureHandler>>,
     ) {
+        let system_state = epoch_store.epoch_start_state();
+        let committee: Committee = system_state.get_consensus_committee();
         let epoch = epoch_store.epoch();
         let protocol_config = epoch_store.protocol_config();
-        let consensus_protocol_config =
-            to_consensus_protocol_config(protocol_config, epoch_store.get_chain());
-        let system_state = epoch_store.epoch_start_state();
-        let committee = if consensus_protocol_config.enable_v3() {
-            apply_v3_threshold_overrides(system_state.get_consensus_committee())
-        } else {
-            system_state.get_consensus_committee()
-        };
 
         // Ensure start() is not called twice.
         let start_time = Instant::now();
@@ -301,15 +258,12 @@ impl ConsensusManager {
             CommitConsumerArgs::new(replay_after_commit_index, last_processed_commit_index);
         let monitor = commit_consumer.monitor();
 
-        let node_role = epoch_store.node_role();
-
         // Spin up the new Mysticeti consensus handler to listen for committed sub dags, before starting authority.
         let handler = MysticetiConsensusHandler::new(
             last_processed_commit_index,
             consensus_handler,
             commit_receiver,
             monitor.clone(),
-            node_role,
         );
         let mut consensus_handler = self.consensus_handler.lock().await;
         *consensus_handler = Some(handler);
@@ -343,15 +297,14 @@ impl ConsensusManager {
             epoch_store.epoch_start_config().epoch_start_timestamp_ms(),
             committee.clone(),
             parameters.clone(),
-            consensus_protocol_config,
-            self.protocol_keypair.clone(),
+            to_consensus_protocol_config(protocol_config, epoch_store.get_chain()),
+            Some(self.protocol_keypair.clone()),
             self.network_keypair.clone(),
             Arc::new(Clock::default()),
             Arc::new(tx_validator.clone()),
             commit_consumer,
             registry.clone(),
             *boot_counter,
-            randomness_signature_handler,
         )
         .await;
         let client = authority.transaction_client();
@@ -453,10 +406,6 @@ impl ConsensusManager {
 
     pub fn get_storage_base_path(&self) -> PathBuf {
         self.consensus_config.db_path().to_path_buf()
-    }
-
-    pub fn consensus_store(&self) -> Option<Arc<RocksDBStore>> {
-        self.authority.load().as_ref().map(|a| a.0.store())
     }
 
     fn get_store_path(&self, epoch: EpochId) -> PathBuf {

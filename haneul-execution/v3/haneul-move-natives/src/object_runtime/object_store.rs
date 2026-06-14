@@ -2,16 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::object_runtime::{fingerprint::ObjectFingerprint, get_all_uids};
-use move_binary_format::errors::{PartialVMError, PartialVMResult};
-use move_core_types::{annotated_value as A, runtime_value as R, vm_status::StatusCode};
-use move_vm_types::{
-    effects::Op,
-    values::{GlobalValue, StructRef, Value},
-};
-use std::{
-    collections::{BTreeMap, btree_map},
-    sync::Arc,
-};
 use haneul_protocol_config::{LimitThresholdCrossed, ProtocolConfig, check_limit_by_meter};
 use haneul_types::{
     base_types::{MoveObjectType, ObjectID, SequenceNumber},
@@ -21,6 +11,16 @@ use haneul_types::{
     metrics::ExecutionMetrics,
     object::{Data, MoveObject, Object, Owner},
     storage::ChildObjectResolver,
+};
+use move_binary_format::errors::{PartialVMError, PartialVMResult};
+use move_core_types::{annotated_value as A, runtime_value as R, vm_status::StatusCode};
+use move_vm_types::{
+    effects::Op,
+    values::{GlobalValue, StructRef, Value},
+};
+use std::{
+    collections::{BTreeMap, btree_map},
+    sync::Arc,
 };
 
 pub(super) struct ChildObject {
@@ -172,9 +172,6 @@ macro_rules! fetch_child_object_unbounded {
                             $child, $parent
                         ),
                     ));
-                }
-                Owner::Party { .. } => {
-                    unimplemented!("Party does not exist for this execution version")
                 }
             };
             match &object.data {

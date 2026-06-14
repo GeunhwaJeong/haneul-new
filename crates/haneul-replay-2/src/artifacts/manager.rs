@@ -3,12 +3,12 @@
 
 use crate::artifacts::{MoveCallInfo, ReplayCacheSummary};
 use anyhow::{Result, anyhow, bail};
+use haneul_types::{effects::TransactionEffects, gas::GasUsageReport};
 use move_trace_format::format::{MoveTrace, MoveTraceReader};
 use std::{
     io::Write,
     path::{Path, PathBuf},
 };
-use haneul_types::{effects::TransactionEffects, gas::GasUsageReport};
 
 pub const ARTIFACTS_ENCODING_EXT: &str = "json";
 pub const ARTIFACTS_ENCODING_COMPRESSION_EXT: &str = "json.zst";
@@ -48,11 +48,6 @@ pub enum EncodingType {
 pub struct ArtifactManager<'a> {
     pub base_path: &'a Path,
     pub overrides_allowed: bool,
-    /// When true, all write operations (`serialize_artifact`, `serialize_move_trace`,
-    /// `try_remove_artifact`) become no-ops and the base directory is not created.
-    /// Reads still work if the base directory already exists. Used for performance
-    /// profiling where artifact serialization would otherwise dominate the trace.
-    pub skip_writes: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -75,28 +70,15 @@ impl EncodingType {
 impl<'b> ArtifactManager<'b> {
     /// Creates a new `ArtifactManager` with the given base path and whether overrides are allowed.
     pub fn new(base_path: &'b Path, overrides_allowed: bool) -> Result<Self> {
-        Self::new_with_options(base_path, overrides_allowed, false)
-    }
-
-    /// Creates a new `ArtifactManager` and allows opting out of writes. When `skip_writes` is
-    /// true the base directory is not created and all serialize/remove operations are no-ops.
-    pub fn new_with_options(
-        base_path: &'b Path,
-        overrides_allowed: bool,
-        skip_writes: bool,
-    ) -> Result<Self> {
-        if !skip_writes {
-            std::fs::create_dir_all(base_path).map_err(|e| {
-                anyhow!(
-                    "Failed to create base path for replay artifacts at {}: {e}",
-                    base_path.display()
-                )
-            })?;
-        }
+        std::fs::create_dir_all(base_path).map_err(|e| {
+            anyhow!(
+                "Failed to create base path for replay artifacts at {}: {e}",
+                base_path.display()
+            )
+        })?;
         Ok(ArtifactManager {
             base_path,
             overrides_allowed,
-            skip_writes,
         })
     }
 
@@ -263,10 +245,6 @@ impl ArtifactMember<'_, '_> {
             return None;
         }
 
-        if self.manager.skip_writes {
-            return Some(Ok(()));
-        }
-
         if !self.manager.overrides_allowed && self.artifact_path.exists() {
             return Some(Err(anyhow!(
                 "Trace file already exists at {}",
@@ -287,10 +265,6 @@ impl ArtifactMember<'_, '_> {
     pub fn serialize_artifact(&self, data: &impl serde::Serialize) -> Option<Result<()>> {
         if self.artifact_type == Artifact::Trace {
             return None;
-        }
-
-        if self.manager.skip_writes {
-            return Some(Ok(()));
         }
 
         if !self.manager.overrides_allowed && self.artifact_path.exists() {
@@ -337,9 +311,6 @@ impl ArtifactMember<'_, '_> {
     }
 
     pub fn try_remove_artifact(&self) -> Result<()> {
-        if self.manager.skip_writes {
-            return Ok(());
-        }
         if self.manager.overrides_allowed
             && let Err(e) = std::fs::remove_file(&self.artifact_path)
             && e.kind() != std::io::ErrorKind::NotFound

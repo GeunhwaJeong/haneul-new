@@ -1,17 +1,17 @@
 ---
 title: Haneul CLI
-description: Haneul provides command line tools to interact with the network, its features, and the Move programming language. Individual command groups and utilities are referred to as Haneul Client CLI, Haneul Keytool CLI, Haneul Move CLI, Haneul Completion CLI, and Haneul Validator CLI.
-keywords: [ Haneul Client CLI, Haneul Keytool CLI, Haneul Move CLI, Haneul Completion CLI, Haneul Validator CLI, haneul cli, update cli, haneul cli commands, haneul client PTB CLI, haneul PTB CLI ] 
+description: Haneul provides command line tools to interact with the network, its features, and the Move programming language. Individual command groups are referred to as Haneul Client CLI, Haneul Keytool CLI, Haneul Move CLI, and Haneul Validator CLI.
+keywords: [ Haneul Client CLI, Haneul Keytool CLI, Haneul Move CLI, Haneul Validator CLI, haneul cli, update cli, haneul cli commands, haneul client PTB CLI, haneul PTB CLI ] 
 pagination_prev: null
 ---
 
-Haneul provides a command line interface (CLI) tool to interact with the Haneul network, its features, and the Move programming language. The complete suite of tools is called the Haneul CLI, with commands grouped together by feature. Each group of commands is commonly referred to by its top-level command or utility: Haneul Client CLI, Haneul Keytool CLI, Haneul Move CLI, Haneul Completion CLI, and Haneul Validator CLI.
+Haneul provides a command line interface (CLI) tool to interact with the Haneul network, its features, and the Move programming language. The complete suite of tools is called the Haneul CLI, with commands grouped together by feature. Each group of commands is commonly referred to by its top-level command: Haneul Client CLI, Haneul Keytool CLI, Haneul Move CLI, and Haneul Validator CLI.
 
 <ImportContent source="cli-check-install" mode="snippet" />
 
 ## Update CLI
 
-The recommended way to manage Haneul CLI installations and versions is through `haneulup`: https://github.com/GeunhwaJeong/haneulup.
+The recommended way to manage Haneul CLI installations and versions is through `haneulup`: https://github.com/GeunhwaJeongLabs/haneulup.
 
 :::info
 
@@ -21,12 +21,10 @@ The `tracing` feature is important because it adds Move test coverage and debugg
 
 ## Haneul CLI commands
 
-There are a number of top-level commands available. Use the `help` flag for the commands that are not documented yet. For example, `haneul validator --help`.
+There are a number of top-level commands available, but the six most useful to users are the following. Use the `help` flag for the commands that are not documented yet. For example, `haneul validator --help`.
 
 - **[Haneul Client CLI](/references/cli/client):** Use the `haneul client` commands to interact with the Haneul network.
 - **[Haneul Client PTB CLI](/references/cli/ptb):** Use the `haneul client ptb` command to build and execute PTBs.
-- **[Haneul Completion CLI](/references/cli/completion):** Use the `haneul completion` command to generate shell completion scripts.
-- **[Haneul External Keys CLI](/references/cli/external-signers):** Use the `haneul external-keys` commands to manage keys on external hardware signers (Ledger, YubiKey).
 - **[Haneul Keytool CLI](/references/cli/keytool):** Use the `haneul keytool` commands to access cryptography utilities.
 - **[Haneul Move CLI](/references/cli/move):** Use the `haneul move` commands to work with the Move programming language.
 - **[Haneul Replay CLI](/references/cli/replay):** Use the `haneul replay` command to replay a transaction and generate transaction traces for the Move Debugger and trace analysis tools.

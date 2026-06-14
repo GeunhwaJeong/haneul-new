@@ -1,8 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_types::{
+    base_types::ObjectRef, full_checkpoint_content::CheckpointData, object::Object,
+};
 use serde::{Deserialize, Serialize};
-use haneul_types::{base_types::ObjectRef, full_checkpoint_content::CheckpointData, object::Object};
 
 use crate::proof::{
     base::{Proof, ProofBuilder, ProofContents, ProofTarget},

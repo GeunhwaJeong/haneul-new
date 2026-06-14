@@ -7,9 +7,9 @@ use crate::{
         ResolutionTable, VersionConstraint, add_and_unify, get_package,
     },
 };
+use haneul_types::{base_types::ObjectID, error::ExecutionError};
 use move_core_types::account_address::AccountAddress;
 use std::{collections::BTreeMap, rc::Rc};
-use haneul_types::{base_types::ObjectID, error::ExecutionError};
 
 #[derive(Clone, Debug)]
 pub struct RootedLinkage {

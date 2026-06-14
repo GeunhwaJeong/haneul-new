@@ -7,10 +7,10 @@ use std::sync::Arc;
 
 use anyhow::Context;
 use diesel_migrations::EmbeddedMigrations;
-use prometheus::Registry;
 use haneul_futures::service::Service;
 use haneul_indexer_alt_metrics::MetricsArgs;
 use haneul_indexer_alt_metrics::MetricsService;
+use prometheus::Registry;
 use url::Url;
 
 use crate::Indexer;

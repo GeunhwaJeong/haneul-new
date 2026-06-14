@@ -7,11 +7,11 @@ use crate::{
         linkage::resolved_linkage::ResolvedLinkage, loading::ast as L, spanned::Spanned,
     },
 };
+use haneul_types::base_types::{ObjectID, ObjectRef};
 use indexmap::{IndexMap, IndexSet};
 use move_core_types::{account_address::AccountAddress, u256::U256};
 use move_vm_runtime::execution::values::VectorSpecialization;
 use std::cell::OnceCell;
-use haneul_types::base_types::{ObjectID, ObjectRef};
 
 //**************************************************************************************************
 // AST Nodes
@@ -119,10 +119,9 @@ pub struct Command_ {
     /// checker to remove unused references to allow potentially reuse of parent references.
     /// The value at result `j` is unused and can be dropped if `drop_value[j]` is true.
     pub drop_values: Vec</* drop value */ bool>,
-    /// Marks if the command consumes by value either a legacy shared object, or a party object with
-    /// post-execution checks. A party object has post-execution checks if it is used with mutable
-    /// usage and is missing one of the mutable permissions.
-    pub incurs_post_execution_checks: bool,
+    /// The set of object shared object IDs that are consumed by this command.
+    /// After this command is executed, these objects must be either reshared or deleted.
+    pub consumed_shared_objects: Vec<ObjectID>,
 }
 
 #[derive(Debug)]

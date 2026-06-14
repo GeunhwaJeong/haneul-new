@@ -11,7 +11,6 @@ pub mod logging;
 pub mod moving_window;
 pub mod random;
 pub mod random_util;
-pub mod rpc_format;
 pub mod sync;
 pub mod zip_debug_eq;
 

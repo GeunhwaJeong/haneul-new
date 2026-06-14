@@ -43,9 +43,9 @@
 //! We can't prevent this completely, but we can at least make the right way the easy way.
 
 use super::HaneulNode;
+use haneul_core::authority::AuthorityState;
 use std::future::Future;
 use std::sync::Arc;
-use haneul_core::authority::AuthorityState;
 
 /// Wrap HaneulNode to allow correct access to HaneulNode in simulator tests.
 pub struct HaneulNodeHandle {

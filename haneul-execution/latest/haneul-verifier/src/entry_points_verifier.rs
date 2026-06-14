@@ -1,12 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_binary_format::{
-    CompiledModule,
-    file_format::{AbilitySet, Bytecode, FunctionDefinition, SignatureToken, Visibility},
-};
-use move_bytecode_utils::format_signature_token;
-use move_vm_config::verifier::VerifierConfig;
 use haneul_types::randomness_state::is_mutable_random;
 use haneul_types::{
     HANEUL_FRAMEWORK_ADDRESS,
@@ -17,6 +11,12 @@ use haneul_types::{
     move_package::{FnInfoMap, is_test_fun},
     transfer::Receiving,
 };
+use move_binary_format::{
+    CompiledModule,
+    file_format::{AbilitySet, Bytecode, FunctionDefinition, SignatureToken, Visibility},
+};
+use move_bytecode_utils::format_signature_token;
+use move_vm_config::verifier::VerifierConfig;
 
 use crate::{INIT_FN_NAME, verification_failure};
 

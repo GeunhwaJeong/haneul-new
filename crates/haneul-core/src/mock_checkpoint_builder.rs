@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use fastcrypto::traits::Signer;
-use std::mem;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::{AuthorityName, VerifiedExecutionData};
 use haneul_types::committee::Committee;
@@ -16,6 +15,7 @@ use haneul_types::messages_checkpoint::{
 };
 use haneul_types::object::OBJECT_START_VERSION;
 use haneul_types::transaction::{Transaction, VerifiedTransaction};
+use std::mem;
 
 use crate::accumulators::{self, AccumulatorSettlementTxBuilder};
 use crate::checkpoints::CheckpointHeight;

@@ -4,10 +4,10 @@
 use anyhow::Context;
 use bincode::Decode;
 use bincode::Encode;
-use serde::Serialize;
-use serde::de::DeserializeOwned;
 use haneul_default_config::DefaultConfig;
 use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::End;
+use serde::Serialize;
+use serde::de::DeserializeOwned;
 
 use crate::db::iter::FwdIter;
 use crate::db::iter::RevIter;

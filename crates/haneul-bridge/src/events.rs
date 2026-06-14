@@ -17,10 +17,6 @@ use crate::types::HaneulToEthTokenTransferV2;
 use alloy::primitives::Address as EthAddress;
 use fastcrypto::encoding::Encoding;
 use fastcrypto::encoding::Hex;
-use move_core_types::language_storage::StructTag;
-use once_cell::sync::OnceCell;
-use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 use haneul_json_rpc_types::HaneulEvent;
 use haneul_types::BRIDGE_PACKAGE_ID;
 use haneul_types::TypeTag;
@@ -33,6 +29,10 @@ use haneul_types::collection_types::VecMap;
 use haneul_types::crypto::ToFromBytes;
 use haneul_types::event::Event;
 use haneul_types::parse_haneul_type_tag;
+use move_core_types::language_storage::StructTag;
+use once_cell::sync::OnceCell;
+use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 // `TokendDepositedEvent` emitted in bridge.move
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -515,15 +515,17 @@ impl HaneulBridgeEvent {
                     amount_haneul_adjusted,
                 } = event;
 
-                Some(BridgeAction::HaneulToEthTokenTransfer(HaneulToEthTokenTransfer {
-                    nonce,
-                    haneul_chain_id,
-                    eth_chain_id,
-                    haneul_address,
-                    eth_address,
-                    token_id,
-                    amount_adjusted: amount_haneul_adjusted,
-                }))
+                Some(BridgeAction::HaneulToEthTokenTransfer(
+                    HaneulToEthTokenTransfer {
+                        nonce,
+                        haneul_chain_id,
+                        eth_chain_id,
+                        haneul_address,
+                        eth_address,
+                        token_id,
+                        amount_adjusted: amount_haneul_adjusted,
+                    },
+                ))
             }
             HaneulBridgeEvent::HaneulToEthTokenBridgeV2(event) => Some(
                 BridgeAction::HaneulToEthTokenTransferV2(HaneulToEthTokenTransferV2 {
@@ -568,8 +570,8 @@ pub mod tests {
     use haneul_json_rpc_types::BcsEvent;
     use haneul_json_rpc_types::HaneulEvent;
     use haneul_types::Identifier;
-    use haneul_types::base_types::ObjectID;
     use haneul_types::base_types::HaneulAddress;
+    use haneul_types::base_types::ObjectID;
     use haneul_types::bridge::BridgeChainId;
     use haneul_types::bridge::TOKEN_ID_HANEUL;
     use haneul_types::crypto::get_key_pair;

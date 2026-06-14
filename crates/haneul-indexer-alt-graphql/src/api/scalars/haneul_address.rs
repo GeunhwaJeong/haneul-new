@@ -9,11 +9,11 @@ use async_graphql::InputValueResult;
 use async_graphql::Scalar;
 use async_graphql::ScalarType;
 use async_graphql::Value;
+use haneul_types::base_types::HaneulAddress as NativeHaneulAddress;
+use haneul_types::base_types::ObjectID;
 use move_core_types::account_address::AccountAddress;
 use serde::Deserialize;
 use serde::Serialize;
-use haneul_types::base_types::ObjectID;
-use haneul_types::base_types::HaneulAddress as NativeHaneulAddress;
 
 const HANEUL_ADDRESS_LENGTH: usize = 32;
 

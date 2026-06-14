@@ -9,6 +9,13 @@ use crate::{
 };
 use anyhow::{Result, anyhow, bail};
 use clap::{Parser, ValueEnum};
+use haneul_config::haneul_config_dir;
+use haneul_data_store::{
+    Node, ReadDataStore, SetupStore, StoreSummary,
+    stores::{DataStore, FileSystemStore, InMemoryStore, ReadThroughStore},
+};
+use haneul_json_rpc_types::HaneulTransactionBlockEffects;
+use haneul_types::effects::TransactionEffects;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use move_package_alt::schema::EnvironmentName;
 use serde::Deserialize;
@@ -19,13 +26,6 @@ use std::{
     path::{Path, PathBuf},
     time::Duration,
 };
-use haneul_config::haneul_config_dir;
-use haneul_data_store::{
-    Node, ReadDataStore, SetupStore, StoreSummary,
-    stores::{DataStore, FileSystemStore, InMemoryStore, ReadThroughStore},
-};
-use haneul_json_rpc_types::HaneulTransactionBlockEffects;
-use haneul_types::effects::TransactionEffects;
 // Disambiguate external tracing crate from local `crate::tracing` module using absolute path.
 use ::tracing::{Instrument, debug, error, info_span, warn};
 
@@ -152,12 +152,6 @@ pub struct ReplayConfigStable {
     /// should be overwritten or an error raised if they already exist.
     #[arg(long = "overwrite", num_args = 0, default_missing_value = "true")]
     pub overwrite: Option<bool>,
-
-    /// Skip writing replay artifacts (transaction data, effects, gas report, cache summary,
-    /// move call info, trace) to disk. Useful for performance profiling where artifact
-    /// serialization would otherwise dominate the trace.
-    #[arg(long = "skip-artifacts", num_args = 0, default_missing_value = "true")]
-    pub skip_artifacts: Option<bool>,
 }
 
 /// Arguments for replay used for internal processing
@@ -171,7 +165,6 @@ pub struct ReplayConfigStableInternal {
     pub output_dir: Option<PathBuf>,
     pub show_effects: bool,
     pub overwrite: bool,
-    pub skip_artifacts: bool,
 }
 
 impl Default for ReplayConfigStableInternal {
@@ -188,7 +181,6 @@ impl Default for ReplayConfigStableInternal {
             output_dir: None,
             show_effects: true,
             overwrite: false,
-            skip_artifacts: false,
         }
     }
 }
@@ -326,11 +318,6 @@ pub fn merge_configs(
             .overwrite
             .or(file_config.overwrite)
             .unwrap_or(default_config.overwrite),
-
-        skip_artifacts: cli_config
-            .skip_artifacts
-            .or(file_config.skip_artifacts)
-            .unwrap_or(default_config.skip_artifacts),
     }
 }
 
@@ -347,7 +334,6 @@ pub async fn handle_replay_config(
         output_dir,
         show_effects: _, // used in the caller
         overwrite: overwrite_existing,
-        skip_artifacts,
     } = &stable_config;
     let mut terminate_early = *terminate_early;
 
@@ -418,7 +404,6 @@ pub async fn handle_replay_config(
                 terminate_early,
                 *track_time,
                 *cache_executor,
-                *skip_artifacts,
             )
             .await?;
         }
@@ -439,7 +424,6 @@ pub async fn handle_replay_config(
                 terminate_early,
                 *track_time,
                 *cache_executor,
-                *skip_artifacts,
             )
             .await?;
         }
@@ -457,7 +441,6 @@ pub async fn handle_replay_config(
                 terminate_early,
                 *track_time,
                 *cache_executor,
-                *skip_artifacts,
             )
             .await?;
         }
@@ -477,7 +460,6 @@ pub async fn handle_replay_config(
                 terminate_early,
                 *track_time,
                 *cache_executor,
-                *skip_artifacts,
             )
             .await?;
         }
@@ -500,7 +482,6 @@ pub async fn handle_replay_config(
                 terminate_early,
                 *track_time,
                 *cache_executor,
-                *skip_artifacts,
             )
             .await?;
         }
@@ -520,7 +501,6 @@ async fn run_replay<S>(
     terminate_early: bool,
     track_time: bool,
     cache_executor: bool,
-    skip_artifacts: bool,
 ) -> Result<()>
 where
     S: ReadDataStore + StoreSummary + SetupStore,
@@ -541,8 +521,7 @@ where
 
     for tx_digest in digests {
         let tx_dir = output_root_dir.join(tx_digest);
-        let artifact_manager =
-            ArtifactManager::new_with_options(&tx_dir, overwrite_existing, skip_artifacts)?;
+        let artifact_manager = ArtifactManager::new(&tx_dir, overwrite_existing)?;
         let span = info_span!("replay", tx_digest = %tx_digest);
 
         tx_spinner.set_message(format!("Executing transaction {}", tx_digest));

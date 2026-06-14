@@ -5,9 +5,6 @@ use std::path::PathBuf;
 use std::time::Duration;
 use std::{num::NonZeroUsize, path::Path, sync::Arc};
 
-use haneullabs_common::ZipDebugEqIteratorExt;
-use haneullabs_common::in_test_configuration;
-use rand::rngs::OsRng;
 use haneul_config::ExecutionCacheConfig;
 use haneul_config::genesis::{TokenAllocation, TokenDistributionScheduleBuilder};
 use haneul_config::node::AuthorityOverloadConfig;
@@ -23,16 +20,14 @@ use haneul_types::crypto::{
 use haneul_types::object::Object;
 use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 use haneul_types::traffic_control::{PolicyConfig, RemoteFirewallConfig};
-
-use consensus_config::ObserverParameters;
+use haneullabs_common::ZipDebugEqIteratorExt;
+use haneullabs_common::in_test_configuration;
+use rand::rngs::OsRng;
 
 use crate::genesis_config::{AccountConfig, DEFAULT_GAS_AMOUNT, ValidatorGenesisConfigBuilder};
 use crate::genesis_config::{GenesisConfig, ValidatorGenesisConfig};
 use crate::network_config::NetworkConfig;
 use crate::node_config_builder::ValidatorConfigBuilder;
-
-pub type ValidatorObserverConfigCallback =
-    Arc<dyn Fn(usize) -> Option<ObserverParameters> + Send + Sync + 'static>;
 
 pub struct KeyPairWrapper {
     pub account_key_pair: AccountKeyPair,
@@ -116,7 +111,6 @@ pub struct ConfigBuilder<R = OsRng> {
     state_sync_config: Option<haneul_config::p2p::StateSyncConfig>,
     #[cfg(msim)]
     execution_time_observer_config: Option<ExecutionTimeObserverConfig>,
-    validator_observer_config: Option<ValidatorObserverConfigCallback>,
 }
 
 impl ConfigBuilder {
@@ -161,7 +155,6 @@ impl ConfigBuilder {
             state_sync_config: None,
             #[cfg(msim)]
             execution_time_observer_config: None,
-            validator_observer_config: None,
         }
     }
 
@@ -340,11 +333,6 @@ impl<R> ConfigBuilder<R> {
         self
     }
 
-    pub fn with_validator_observer_config(mut self, c: ValidatorObserverConfigCallback) -> Self {
-        self.validator_observer_config = Some(c);
-        self
-    }
-
     pub fn with_authority_overload_config(mut self, c: AuthorityOverloadConfig) -> Self {
         self.authority_overload_config = Some(c);
         self
@@ -387,7 +375,6 @@ impl<R> ConfigBuilder<R> {
             state_sync_config: self.state_sync_config,
             #[cfg(msim)]
             execution_time_observer_config: self.execution_time_observer_config,
-            validator_observer_config: self.validator_observer_config,
         }
     }
 
@@ -602,11 +589,6 @@ impl<R: rand::RngCore + rand::CryptoRng> ConfigBuilder<R> {
                     };
                     builder = builder.with_funds_withdraw_scheduler_type(scheduler_type);
                 }
-                if let Some(observer_config_fn) = &self.validator_observer_config
-                    && let Some(observer_config) = observer_config_fn(idx)
-                {
-                    builder = builder.with_observer_config(observer_config);
-                }
                 if let Some(num_unpruned_validators) = self.num_unpruned_validators
                     && idx < num_unpruned_validators
                 {
@@ -673,16 +655,16 @@ mod tests {
 
 #[cfg(test)]
 mod test {
-    use std::sync::Arc;
     use haneul_config::genesis::Genesis;
     use haneul_protocol_config::{Chain, ProtocolConfig, ProtocolVersion};
     use haneul_types::epoch_data::EpochData;
     use haneul_types::execution_params::ExecutionOrEarlyError;
     use haneul_types::gas::HaneulGasStatus;
+    use haneul_types::haneul_system_state::HaneulSystemStateTrait;
     use haneul_types::in_memory_storage::InMemoryStorage;
     use haneul_types::metrics::ExecutionMetrics;
-    use haneul_types::haneul_system_state::HaneulSystemStateTrait;
     use haneul_types::transaction::CheckedInputObjects;
+    use std::sync::Arc;
 
     #[test]
     fn roundtrip() {
@@ -702,7 +684,8 @@ mod test {
         let builder = crate::network_config_builder::ConfigBuilder::new_with_temp_dir();
         let network_config = builder.build();
         let genesis = network_config.genesis;
-        let protocol_version = ProtocolVersion::new(genesis.haneul_system_object().protocol_version());
+        let protocol_version =
+            ProtocolVersion::new(genesis.haneul_system_object().protocol_version());
         let protocol_config = ProtocolConfig::get_for_version(protocol_version, Chain::Unknown);
 
         let genesis_transaction = genesis.transaction().clone();
@@ -729,7 +712,7 @@ mod test {
                 &protocol_config,
                 metrics,
                 expensive_checks,
-                ExecutionOrEarlyError::ok(None),
+                ExecutionOrEarlyError::Ok(()),
                 &epoch.epoch_id(),
                 epoch.epoch_start_timestamp(),
                 input_objects,

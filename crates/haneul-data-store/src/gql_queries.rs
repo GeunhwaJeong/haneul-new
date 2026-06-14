@@ -136,7 +136,14 @@ pub(crate) mod txn_query {
     pub(crate) async fn query(
         digest: String,
         data_store: &DataStore,
-    ) -> Result<Option<(TransactionData, haneul_types::effects::TransactionEffects, u64)>, Error> {
+    ) -> Result<
+        Option<(
+            TransactionData,
+            haneul_types::effects::TransactionEffects,
+            u64,
+        )>,
+        Error,
+    > {
         let query = Query::build(TransactionDataArgs {
             digest: digest.clone(),
         });

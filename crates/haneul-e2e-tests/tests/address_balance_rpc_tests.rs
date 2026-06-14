@@ -5,17 +5,17 @@
 // The rpc_client is deprecated but we need it to test JSON-RPC endpoints.
 #![allow(deprecated)]
 
-use jsonrpsee::core::client::ClientT;
-use jsonrpsee::rpc_params;
 use haneul_json_rpc_types::{
     Balance as RpcBalance, CoinPage, HaneulData, HaneulObjectDataOptions, HaneulObjectResponse,
 };
 use haneul_macros::*;
 use haneul_types::error::HaneulObjectResponseError;
 use haneul_types::{
-    base_types::{ObjectID, HaneulAddress},
+    base_types::{HaneulAddress, ObjectID},
     coin_reservation::ParsedDigest,
 };
+use jsonrpsee::core::client::ClientT;
+use jsonrpsee::rpc_params;
 use test_cluster::addr_balance_test_env::{CoinTypeConfig, TestEnv, TestEnvBuilder};
 
 /// A test scenario specifying the coin setup for HANEUL and optionally a custom coin type.
@@ -38,7 +38,11 @@ impl TestScenario {
     /// Calculate expected counts for getCoins (HANEUL only).
     fn expected_haneul_counts(&self, base_haneul_coins: usize) -> ExpectedCounts {
         let real = base_haneul_coins + self.haneul.real_coins;
-        let fake = if self.haneul.has_address_balance { 1 } else { 0 };
+        let fake = if self.haneul.has_address_balance {
+            1
+        } else {
+            0
+        };
         ExpectedCounts {
             real_coins: real,
             fake_coins: fake,
@@ -56,7 +60,11 @@ impl TestScenario {
     /// Calculate expected counts for getAllCoins (all types).
     fn expected_all_counts(&self, base_haneul_coins: usize) -> ExpectedCounts {
         let mut real = base_haneul_coins + self.haneul.real_coins;
-        let mut fake = if self.haneul.has_address_balance { 1 } else { 0 };
+        let mut fake = if self.haneul.has_address_balance {
+            1
+        } else {
+            0
+        };
 
         if let Some(ref custom) = self.custom_coin {
             real += custom.real_coins;
@@ -378,7 +386,8 @@ async fn run_scenario(scenario: TestScenario) {
     let expected_haneul = scenario.expected_haneul_counts(base_haneul_coins);
 
     // Check if address balance feature is actually working (may be disabled by mainnet config)
-    let address_balance_working = !scenario.haneul.has_address_balance || haneul_counts.fake_coins > 0;
+    let address_balance_working =
+        !scenario.haneul.has_address_balance || haneul_counts.fake_coins > 0;
 
     if address_balance_working {
         assert_eq!(

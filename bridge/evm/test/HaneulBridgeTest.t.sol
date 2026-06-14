@@ -638,10 +638,10 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
     function testTransferHaneulToEthRegressionTest() public {
         address[] memory _committeeList = new address[](4);
         uint16[] memory _stake = new uint16[](4);
-        _committeeList[0] = 0x68B43fD906C0B8F024a18C56e06744F7c6157c65;
-        _committeeList[1] = 0xaCAEf39832CB995c4E049437A3E2eC6a7bad1Ab5;
-        _committeeList[2] = 0x8061f127910e8eF56F16a2C411220BaD25D61444;
-        _committeeList[3] = 0x508F3F1ff45F4ca3D8e86CDCC91445F00aCC59fC;
+        _committeeList[0] = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+        _committeeList[1] = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8;
+        _committeeList[2] = 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC;
+        _committeeList[3] = 0x90F79bf6EB2c4f870365E785982E1f101E93b906;
         _stake[0] = 2500;
         _stake[1] = 2500;
         _stake[2] = 2500;
@@ -736,16 +736,16 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
         });
         bytes memory encodedMessage = BridgeUtils.encodeMessage(message);
         bytes memory expectedEncodedMessage =
-            hex"5355495f4252494447455f4d45535341474500010000000000000001012080ab1ee086210a3a37355300ca24672e81062fcdb5ced6618dab203f6a3b291c0b14b18f79fe671db47393315ffdb377da4ea1b7af960200000000000186a0";
+            hex"48414e45554c5f4252494447455f4d45535341474500010000000000000001012080ab1ee086210a3a37355300ca24672e81062fcdb5ced6618dab203f6a3b291c0b14b18f79fe671db47393315ffdb377da4ea1b7af960200000000000186a0";
 
         assertEq(encodedMessage, expectedEncodedMessage);
 
         bytes[] memory signatures = new bytes[](2);
 
         signatures[0] =
-            hex"e1cf11b380855ff1d4a451ebc2fd68477cf701b7d4ec88da3082709fe95201a5061b4b60cf13815a80ba9dfead23e220506aa74c4a863ba045d95715b4cc6b6e00";
+            hex"b0242a5c8a294128fe269a006597bc4b64d2d3ee3018537d28ef9e5e0de9c6b554704c3ef28584101b742fe8b79d53cc936372139a73f3f430afce2dfc6e896301";
         signatures[1] =
-            hex"8ba9ec92c2d5a44ecc123182f689b901a93921fd35f581354fea20b25a0ded6d055b96a64bdda77dd5a62b93d29abe93640aa3c1a136348093cd7a2418c6bfa301";
+            hex"758a5a4714e646446e772b46624c5a3a09882f39fbe102b417338cc10941b6890d4fb6e4b3a1d4982014fc20841e1bfc029d66b21bf647a46a7388f3ed8c107a00";
 
         uint256 aBalance = recipientAddress.balance;
         committee.verifySignatures(signatures, message);
@@ -847,7 +847,7 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
         });
         bytes memory encodedMessage = BridgeUtils.encodeMessage(message);
         bytes memory expectedEncodedMessage =
-            hex"5355495f4252494447455f4d455353414745020100000000000000370200";
+            hex"48414e45554c5f4252494447455f4d455353414745020100000000000000370200";
 
         assertEq(encodedMessage, expectedEncodedMessage);
     }
@@ -855,10 +855,10 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
     // An e2e emergency op regression test covering message ser/de and signature verification
     function testEmergencyOpRegressionTestWithSigVerification() public {
         address[] memory _committeeList = new address[](4);
-        _committeeList[0] = 0x68B43fD906C0B8F024a18C56e06744F7c6157c65;
-        _committeeList[1] = 0xaCAEf39832CB995c4E049437A3E2eC6a7bad1Ab5;
-        _committeeList[2] = 0x8061f127910e8eF56F16a2C411220BaD25D61444;
-        _committeeList[3] = 0x508F3F1ff45F4ca3D8e86CDCC91445F00aCC59fC;
+        _committeeList[0] = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+        _committeeList[1] = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8;
+        _committeeList[2] = 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC;
+        _committeeList[3] = 0x90F79bf6EB2c4f870365E785982E1f101E93b906;
         uint16[] memory _stake = new uint16[](4);
         _stake[0] = 2500;
         _stake[1] = 2500;
@@ -932,14 +932,14 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
         });
         bytes memory encodedMessage = BridgeUtils.encodeMessage(message);
         bytes memory expectedEncodedMessage =
-            hex"5355495f4252494447455f4d455353414745020100000000000000000b00";
+            hex"48414e45554c5f4252494447455f4d455353414745020100000000000000000b00";
 
         assertEq(encodedMessage, expectedEncodedMessage);
 
         bytes[] memory signatures = new bytes[](1);
 
         signatures[0] =
-            hex"859db4dff22e43821b9b451e88bc7489aec3381d3e4fb5d8cbf025a84d34964a2bd556e0a86e13cb5b2d0fa52f08d02e4b62b9e6d9e07d8f8451d4c19430806d01";
+            hex"fd7da4e286392d1def66510b4715d1b107d70f483aede82fc8f5b210c86e3588169f3aa2df0e172c1e4ddecb90460cc79728dede96f5815710dd3d2aa9bc077100";
 
         bridge.executeEmergencyOpWithSignatures(signatures, message);
         assertTrue(bridge.paused());
@@ -954,18 +954,18 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
             payload: payload
         });
         encodedMessage = BridgeUtils.encodeMessage(message);
-        expectedEncodedMessage = hex"5355495f4252494447455f4d455353414745020100000000000000010b01";
+        expectedEncodedMessage = hex"48414e45554c5f4252494447455f4d455353414745020100000000000000010b01";
 
         assertEq(encodedMessage, expectedEncodedMessage);
 
         signatures = new bytes[](3);
 
         signatures[0] =
-            hex"de5ca964c5aa1aa323cc480cd6de46eae980a1670a5fe8e12e31f724d0bcec6516e54b516737bb6ed6ccad775370c14d46f2e10100e9d16851d2050bf2349c6401";
+            hex"b12fc3b158e18e734cec9490fc9f1f1e29b98e1c2060e14559e8f18d72cc699774e087da88b305e75c0112c171a5a58d53b35aa780d975c641ea95915744239801";
         signatures[1] =
-            hex"fe8006e2013eaa7b8af0e5ac9f2890c2b2bd375d343684b2604ac6acd4142ccf5c9ec1914bce53a005232ef880bf0f597eed319d41d80e92d035c8314e1198ff00";
+            hex"951f9c5680f555eef100c35201fc9df8d2fc59fb97c87c1fa8e5687d927b72fa1f6fee4cd37476d27209d30e5cb71203ed83a18d51c7a8d448fa4a99447f1b1501";
         signatures[2] =
-            hex"f5749ac37e11f22da0622082c9e63a91dc7b5c59cfdaa86438d9f6a53bbacf6b763126f1a20a826d7dff73252cf2fd68da67b9caec4d3c24a07fbd566a7a6bec00";
+            hex"f0306e6d3002cf4eab64938f13000398a0c6566926e8bc50dbba44aa8551f15c36b2eb30980c3b96bc5ddcfa818de1a9e2643a833bbdd9372ad030a9aafa1ba900";
 
         bridge.executeEmergencyOpWithSignatures(signatures, message);
         assertFalse(bridge.paused());
@@ -983,7 +983,7 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
         signatures = new bytes[](1);
 
         signatures[0] =
-            hex"859db4dff22e43821b9b451e88bc7489aec3381d3e4fb5d8cbf025a84d34964a2bd556e0a86e13cb5b2d0fa52f08d02e4b62b9e6d9e07d8f8451d4c19430806d01";
+            hex"fd7da4e286392d1def66510b4715d1b107d70f483aede82fc8f5b210c86e3588169f3aa2df0e172c1e4ddecb90460cc79728dede96f5815710dd3d2aa9bc077100";
 
         vm.expectRevert(bytes("MessageVerifier: Invalid nonce"));
         bridge.executeEmergencyOpWithSignatures(signatures, message);
@@ -1088,7 +1088,7 @@ contract HaneulBridgeTest is BridgeBaseTest, IHaneulBridge {
         });
         bytes memory encodedMessage = BridgeUtils.encodeMessage(message);
         bytes memory expectedEncodedMessage =
-            hex"5355495f4252494447455f4d4553534147450501000000000000007b0c00000000000000000000000006060606060606060606060606060606060606060000000000000000000000000909090909090909090909090909090909090909000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000045cd8a76b00000000000000000000000000000000000000000000000000000000";
+            hex"48414e45554c5f4252494447455f4d4553534147450501000000000000007b0c00000000000000000000000006060606060606060606060606060606060606060000000000000000000000000909090909090909090909090909090909090909000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000045cd8a76b00000000000000000000000000000000000000000000000000000000";
 
         assertEq(encodedMessage, expectedEncodedMessage);
 

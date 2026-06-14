@@ -3,12 +3,12 @@
 
 use crate::error::{BridgeError, BridgeResult};
 use crate::types::{BridgeAction, BridgeActionDigest};
+use haneul_types::Identifier;
+use haneul_types::event::EventID;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
-use haneul_types::Identifier;
-use haneul_types::event::EventID;
 use typed_store::DBMapUtils;
 use typed_store::Map;
 use typed_store::rocks::{DBMap, MetricConf};
@@ -115,9 +115,11 @@ impl BridgeOrchestratorTables {
         &self,
         identifiers: &[Identifier],
     ) -> BridgeResult<Vec<Option<EventID>>> {
-        self.haneul_syncer_cursors.multi_get(identifiers).map_err(|e| {
-            BridgeError::StorageError(format!("Couldn't get haneul_syncer_cursors: {:?}", e))
-        })
+        self.haneul_syncer_cursors
+            .multi_get(identifiers)
+            .map_err(|e| {
+                BridgeError::StorageError(format!("Couldn't get haneul_syncer_cursors: {:?}", e))
+            })
     }
 
     pub fn get_haneul_sequence_number_cursor(&self) -> BridgeResult<Option<u64>> {

@@ -10,8 +10,6 @@ use std::{
 use async_trait::async_trait;
 use fullnode_reconfig_observer::FullNodeReconfigObserver;
 use futures::TryStreamExt;
-use haneullabs_common::{fatal, random::get_rng};
-use rand::{Rng, seq::IteratorRandom};
 use haneul_config::genesis::Genesis;
 use haneul_core::{
     authority_aggregator::{AuthorityAggregator, AuthorityAggregatorBuilder},
@@ -57,7 +55,11 @@ use haneul_types::{
     effects::{TransactionEffectsAPI, TransactionEvents},
     execution_status::{ExecutionErrorKind, ExecutionFailure, ExecutionStatus},
 };
-use haneul_types::{gas_coin::GAS, haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary};
+use haneul_types::{
+    gas_coin::GAS, haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary,
+};
+use haneullabs_common::{fatal, random::get_rng};
+use rand::{Rng, seq::IteratorRandom};
 use tokio::time::sleep;
 use tracing::{debug, info, instrument, warn};
 
@@ -156,36 +158,13 @@ impl ExecutionEffects {
         }
     }
 
-    /// Find the post-execution `ObjectRef` of a specific tracked object — typically the
-    /// gas coin a workload is chaining transactions off. Prefer this over `gas_object()`
-    /// in code paths that may see the IFFW short-circuit: those transactions return
-    /// `effects.gas_object() == None` (the executor never builds gas-charge metadata),
-    /// but the input gas coin is still version-bumped via `ensure_active_inputs_mutated`
-    /// and shows up in `mutated()`.
-    pub fn updated_gas(&self, prev_id: ObjectID) -> Option<ObjectRef> {
-        if let Some((obj_ref, _)) = match self {
-            ExecutionEffects::FinalizedTransactionEffects(effects, ..) => {
-                effects.data().gas_object()
-            }
-            ExecutionEffects::ExecutedTransaction(txn) => txn.effects.gas_object(),
-        } && obj_ref.0 == prev_id
-        {
-            return Some(obj_ref);
-        }
-        self.mutated()
-            .into_iter()
-            .find(|(obj_ref, _)| obj_ref.0 == prev_id)
-            .map(|(obj_ref, _)| obj_ref)
-    }
-
     pub fn sender(&self) -> HaneulAddress {
         match self.gas_object().1 {
             Owner::AddressOwner(a) => a,
             Owner::ObjectOwner(_)
             | Owner::Shared { .. }
             | Owner::Immutable
-            | Owner::ConsensusAddressOwner { .. }
-            | Owner::Party { .. } => unreachable!(), // owner of gas object is always an address
+            | Owner::ConsensusAddressOwner { .. } => unreachable!(), // owner of gas object is always an address
         }
     }
 
@@ -342,14 +321,19 @@ impl ExecutionEffects {
 pub trait ValidatorProxy {
     async fn get_object(&self, object_id: ObjectID) -> Result<Object, anyhow::Error>;
 
-    async fn get_haneul_address_balance(&self, address: HaneulAddress) -> Result<u64, anyhow::Error>;
+    async fn get_haneul_address_balance(
+        &self,
+        address: HaneulAddress,
+    ) -> Result<u64, anyhow::Error>;
 
     async fn get_owned_objects(
         &self,
         account_address: HaneulAddress,
     ) -> Result<Vec<(u64, Object)>, anyhow::Error>;
 
-    async fn get_latest_system_state_object(&self) -> Result<HaneulSystemStateSummary, anyhow::Error>;
+    async fn get_latest_system_state_object(
+        &self,
+    ) -> Result<HaneulSystemStateSummary, anyhow::Error>;
 
     async fn execute_transaction_block(&self, tx: Transaction) -> anyhow::Result<ExecutionEffects>;
 
@@ -551,7 +535,9 @@ impl ValidatorProxy for LocalValidatorAggregatorProxy {
         unimplemented!("Not available for local proxy");
     }
 
-    async fn get_latest_system_state_object(&self) -> Result<HaneulSystemStateSummary, anyhow::Error> {
+    async fn get_latest_system_state_object(
+        &self,
+    ) -> Result<HaneulSystemStateSummary, anyhow::Error> {
         let auth_agg = self.td.authority_aggregator().load();
         Ok(auth_agg
             .get_latest_system_state_object_for_testing()
@@ -948,8 +934,14 @@ fn is_retryable_sdk_error(err: &impl std::fmt::Debug) -> bool {
 
 #[async_trait]
 impl ValidatorProxy for FullNodeProxy {
-    async fn get_haneul_address_balance(&self, address: HaneulAddress) -> Result<u64, anyhow::Error> {
-        let balance = self.haneul_client.get_balance(address, &GAS::type_()).await?;
+    async fn get_haneul_address_balance(
+        &self,
+        address: HaneulAddress,
+    ) -> Result<u64, anyhow::Error> {
+        let balance = self
+            .haneul_client
+            .get_balance(address, &GAS::type_())
+            .await?;
 
         Ok(balance.address_balance())
     }
@@ -982,7 +974,9 @@ impl ValidatorProxy for FullNodeProxy {
         Ok(values_objects)
     }
 
-    async fn get_latest_system_state_object(&self) -> Result<HaneulSystemStateSummary, anyhow::Error> {
+    async fn get_latest_system_state_object(
+        &self,
+    ) -> Result<HaneulSystemStateSummary, anyhow::Error> {
         Ok(self.haneul_client.get_system_state_summary(None).await?)
     }
 

@@ -6,6 +6,12 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use clap::Parser;
+use haneul_indexer_alt_framework::Indexer;
+use haneul_indexer_alt_framework::IndexerArgs;
+use haneul_indexer_alt_framework::ingestion::ClientArgs;
+use haneul_indexer_alt_framework::service::Error;
+use haneul_indexer_alt_metrics::MetricsArgs;
+use haneul_indexer_alt_object_store::ObjectStore;
 use object_store::ClientOptions;
 use object_store::RetryConfig;
 use object_store::aws::{AmazonS3Builder, S3ConditionalPut};
@@ -16,12 +22,6 @@ use object_store::local::LocalFileSystem;
 use reqwest::header::HeaderMap;
 use reqwest::header::HeaderName;
 use reqwest::header::HeaderValue;
-use haneul_indexer_alt_framework::Indexer;
-use haneul_indexer_alt_framework::IndexerArgs;
-use haneul_indexer_alt_framework::ingestion::ClientArgs;
-use haneul_indexer_alt_framework::service::Error;
-use haneul_indexer_alt_metrics::MetricsArgs;
-use haneul_indexer_alt_object_store::ObjectStore;
 use tracing::info;
 use url::Url;
 

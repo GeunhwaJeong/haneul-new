@@ -10,6 +10,22 @@ use crate::object_runtime::object_store::{CacheMetadata, ChildObjectEffect};
 use self::object_store::{ChildObjectEffects, ObjectResult};
 use super::get_object_id;
 use better_any::{Tid, TidAble};
+use haneul_protocol_config::{LimitThresholdCrossed, ProtocolConfig, check_limit_by_meter};
+use haneul_types::{
+    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_ADDRESS_ALIAS_STATE_OBJECT_ID,
+    HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_BRIDGE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID,
+    HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_DENY_LIST_OBJECT_ID, HANEUL_DISPLAY_REGISTRY_OBJECT_ID,
+    HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID, TypeTag,
+    base_types::{HaneulAddress, MoveObjectType, ObjectID, SequenceNumber},
+    committee::EpochId,
+    error::{ExecutionError, VMMemoryLimitExceededSubStatusCode},
+    execution::DynamicallyLoadedObjectMetadata,
+    execution_status::ExecutionErrorKind,
+    id::UID,
+    metrics::ExecutionMetrics,
+    object::{MoveObject, Owner},
+    storage::ChildObjectResolver,
+};
 use indexmap::map::IndexMap;
 use indexmap::set::IndexSet;
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
@@ -28,22 +44,6 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     sync::Arc,
 };
-use haneul_protocol_config::{LimitThresholdCrossed, ProtocolConfig, check_limit_by_meter};
-use haneul_types::{
-    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_ADDRESS_ALIAS_STATE_OBJECT_ID,
-    HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_BRIDGE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID,
-    HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_DENY_LIST_OBJECT_ID, HANEUL_DISPLAY_REGISTRY_OBJECT_ID,
-    HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID, TypeTag,
-    base_types::{MoveObjectType, ObjectID, SequenceNumber, HaneulAddress},
-    committee::EpochId,
-    error::{ExecutionError, VMMemoryLimitExceededSubStatusCode},
-    execution::DynamicallyLoadedObjectMetadata,
-    execution_status::ExecutionErrorKind,
-    id::UID,
-    metrics::ExecutionMetrics,
-    object::{MoveObject, Owner},
-    storage::ChildObjectResolver,
-};
 use tracing::error;
 
 pub use accumulator::*;
@@ -61,7 +61,8 @@ type Set<K> = IndexSet<K>;
 pub(crate) struct TestInventories {
     pub(crate) objects: BTreeMap<ObjectID, Value>,
     // address inventories. Most recent objects are at the back of the set
-    pub(crate) address_inventories: BTreeMap<HaneulAddress, BTreeMap<MoveObjectType, Set<ObjectID>>>,
+    pub(crate) address_inventories:
+        BTreeMap<HaneulAddress, BTreeMap<MoveObjectType, Set<ObjectID>>>,
     // global inventories.Most recent objects are at the back of the set
     pub(crate) shared_inventory: BTreeMap<MoveObjectType, Set<ObjectID>>,
     pub(crate) immutable_inventory: BTreeMap<MoveObjectType, Set<ObjectID>>,
@@ -306,7 +307,7 @@ impl<'a> ObjectRuntime<'a> {
             TransferResult::New
         } else if let Some(prev_owner) = self.state.input_objects.get(&id) {
             match (&owner, prev_owner) {
-                // don't use == for dummy values in Shared, ConsensusAddressOwner, or Party
+                // don't use == for dummy values in Shared or ConsensusAddressOwner
                 (Owner::Shared { .. }, Owner::Shared { .. }) => TransferResult::SameOwner,
                 (
                     Owner::ConsensusAddressOwner {
@@ -316,23 +317,7 @@ impl<'a> ObjectRuntime<'a> {
                         owner: old_owner, ..
                     },
                 ) if new_owner == old_owner => TransferResult::SameOwner,
-                (
-                    Owner::Party {
-                        permissions: new_permissions,
-                        ..
-                    },
-                    Owner::Party {
-                        permissions: old_permissions,
-                        ..
-                    },
-                ) if new_permissions == old_permissions => TransferResult::SameOwner,
-                (new @ Owner::AddressOwner(_), old)
-                | (new @ Owner::ObjectOwner(_), old)
-                | (new @ Owner::Immutable, old)
-                    if new == old =>
-                {
-                    TransferResult::SameOwner
-                }
+                (new, old) if new == old => TransferResult::SameOwner,
                 _ => TransferResult::OwnerChanged,
             }
         } else if is_framework_obj {
@@ -915,8 +900,7 @@ fn check_circular_ownership(
             Owner::AddressOwner(_)
             | Owner::Shared { .. }
             | Owner::Immutable
-            | Owner::ConsensusAddressOwner { .. }
-            | Owner::Party { .. } => (),
+            | Owner::ConsensusAddressOwner { .. } => (),
             Owner::ObjectOwner(new_owner) => {
                 let new_owner: ObjectID = new_owner.into();
                 let mut cur = new_owner;

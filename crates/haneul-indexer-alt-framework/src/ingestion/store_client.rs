@@ -5,6 +5,7 @@ use std::sync::Arc;
 
 use anyhow::Context;
 use bytes::Bytes;
+use haneul_types::digests::ChainIdentifier;
 use object_store::Error;
 use object_store::ObjectStore;
 use object_store::ObjectStoreExt;
@@ -12,7 +13,6 @@ use object_store::RetryConfig;
 use object_store::path::Path as ObjectPath;
 use prometheus::IntCounter;
 use serde::de::DeserializeOwned;
-use haneul_types::digests::ChainIdentifier;
 
 use crate::ingestion::decode;
 use crate::ingestion::ingestion_client::CheckpointError;

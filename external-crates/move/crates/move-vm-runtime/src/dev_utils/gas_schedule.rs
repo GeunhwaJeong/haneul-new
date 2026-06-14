@@ -28,6 +28,7 @@ use move_core_types::{
         AbstractMemorySize, GasQuantity, InternalGas, InternalGasPerAbstractMemoryUnit,
         InternalGasUnit, NumArgs, NumBytes, ToUnit, ToUnitFractional,
     },
+    language_storage::ModuleId,
     u256,
 };
 use serde::{Deserialize, Serialize};
@@ -291,6 +292,8 @@ impl GasMeter for GasStatus<'_> {
 
     fn charge_call(
         &mut self,
+        _module_id: &ModuleId,
+        _func_name: &str,
         args: impl ExactSizeIterator<Item = impl ValueView>,
         _num_locals: NumArgs,
     ) -> PartialVMResult<()> {
@@ -299,6 +302,8 @@ impl GasMeter for GasStatus<'_> {
 
     fn charge_call_generic(
         &mut self,
+        _module_id: &ModuleId,
+        _func_name: &str,
         args: impl ExactSizeIterator<Item = impl ValueView>,
         _num_locals: NumArgs,
     ) -> PartialVMResult<()> {

@@ -4,12 +4,12 @@
 use crate::execution_mode::ExecutionMode;
 use crate::sp;
 use crate::static_programmable_transactions::{env::Env, loading::ast::Type, typing::ast as T};
+use haneul_types::error::ExecutionError;
+use haneul_types::execution_status::ExecutionErrorKind;
+use haneul_verifier::private_generics_verifier_v2;
 use move_binary_format::file_format::Visibility;
 use move_core_types::identifier::IdentStr;
 use move_core_types::language_storage::ModuleId;
-use haneul_types::error::ExecutionErrorTrait;
-use haneul_types::execution_status::ExecutionErrorKind;
-use haneul_verifier::private_generics_verifier_v2;
 
 /// Checks the following
 /// - valid visibility for move function calls
@@ -18,25 +18,19 @@ use haneul_verifier::private_generics_verifier_v2;
 /// - no references returned from move calls
 ///    - Can be disabled under certain execution modes
 ///    - Can be disabled via a feature flag
-pub fn verify<Mode: ExecutionMode>(
-    env: &Env<Mode>,
-    txn: &T::Transaction,
-) -> Result<(), Mode::Error> {
+pub fn verify<Mode: ExecutionMode>(env: &Env, txn: &T::Transaction) -> Result<(), ExecutionError> {
     for c in &txn.commands {
         command::<Mode>(env, c).map_err(|e| e.with_command_index(c.idx as usize))?;
     }
     Ok(())
 }
 
-fn command<Mode: ExecutionMode>(
-    env: &Env<Mode>,
-    sp!(_, c): &T::Command,
-) -> Result<(), Mode::Error> {
+fn command<Mode: ExecutionMode>(env: &Env, sp!(_, c): &T::Command) -> Result<(), ExecutionError> {
     let T::Command_ {
         command,
         result_type: _,
         drop_values: _,
-        incurs_post_execution_checks: _,
+        consumed_shared_objects: _,
     } = c;
     match command {
         T::Command__::MoveCall(call) => move_call::<Mode>(env, call)?,
@@ -54,7 +48,7 @@ fn command<Mode: ExecutionMode>(
 /// - valid signature (no references in return type)
 /// - valid visibility
 /// - private generics rules
-fn move_call<Mode: ExecutionMode>(env: &Env<Mode>, call: &T::MoveCall) -> Result<(), Mode::Error> {
+fn move_call<Mode: ExecutionMode>(env: &Env, call: &T::MoveCall) -> Result<(), ExecutionError> {
     let T::MoveCall {
         function,
         arguments: _,
@@ -66,17 +60,17 @@ fn move_call<Mode: ExecutionMode>(env: &Env<Mode>, call: &T::MoveCall) -> Result
 }
 
 fn check_signature<Mode: ExecutionMode>(
-    env: &Env<Mode>,
+    env: &Env,
     function: &T::LoadedFunction,
-) -> Result<(), Mode::Error> {
-    fn check_return_type<Mode: ExecutionMode, E: ExecutionErrorTrait>(
+) -> Result<(), ExecutionError> {
+    fn check_return_type<Mode: ExecutionMode>(
         idx: usize,
         return_type: &T::Type,
-    ) -> Result<(), E> {
+    ) -> Result<(), ExecutionError> {
         if let Type::Reference(_, _) = return_type
             && !Mode::allow_arbitrary_values()
         {
-            return Err(E::from_kind(
+            return Err(ExecutionError::from_kind(
                 ExecutionErrorKind::InvalidPublicFunctionReturnType {
                     idx: checked_as!(idx, u16)?,
                 },
@@ -90,15 +84,15 @@ fn check_signature<Mode: ExecutionMode>(
     }
 
     for (idx, ty) in function.signature.return_.iter().enumerate() {
-        check_return_type::<Mode, Mode::Error>(idx, ty)?;
+        check_return_type::<Mode>(idx, ty)?;
     }
     Ok(())
 }
 
 fn check_visibility<Mode: ExecutionMode>(
-    _env: &Env<Mode>,
+    _env: &Env,
     function: &T::LoadedFunction,
-) -> Result<(), Mode::Error> {
+) -> Result<(), ExecutionError> {
     let visibility = function.visibility;
     let is_entry = function.is_entry;
     match (visibility, is_entry) {
@@ -111,7 +105,7 @@ fn check_visibility<Mode: ExecutionMode>(
         // cannot call private or friend if not entry
         (Visibility::Private | Visibility::Friend, false) => {
             if !Mode::allow_arbitrary_function_calls() {
-                return Err(Mode::Error::new_with_source(
+                return Err(ExecutionError::new_with_source(
                     ExecutionErrorKind::NonEntryFunctionInvoked,
                     "Can only call `entry` or `public` functions",
                 ));
@@ -121,10 +115,10 @@ fn check_visibility<Mode: ExecutionMode>(
     Ok(())
 }
 
-fn check_private_generics_v2<E: ExecutionErrorTrait>(
+fn check_private_generics_v2(
     callee_package: &ModuleId,
     callee_function: &IdentStr,
-) -> Result<(), E> {
+) -> Result<(), ExecutionError> {
     let callee_address = *callee_package.address();
     let callee_module = callee_package.name();
     let callee = (callee_address, callee_module, callee_function);
@@ -152,7 +146,7 @@ fn check_private_generics_v2<E: ExecutionErrorTrait>(
                  only be instantiated with types defined within the caller's module.{}",
         callee_package_name, callee_module, callee_function, internal_idx, help,
     );
-    Err(E::new_with_source(
+    Err(ExecutionError::new_with_source(
         ExecutionErrorKind::NonEntryFunctionInvoked,
         msg,
     ))

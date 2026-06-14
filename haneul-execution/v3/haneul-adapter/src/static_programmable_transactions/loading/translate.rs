@@ -10,13 +10,13 @@ use crate::{
         metering::{self, translation_meter::TranslationMeter},
     },
 };
-use move_core_types::{account_address::AccountAddress, language_storage::StructTag, u256::U256};
 use haneul_types::{
     base_types::{ObjectID, TxContext},
     error::ExecutionError,
     object::Owner,
     transaction::{self as P, CallArg, FundsWithdrawalArg, ObjectArg, SharedObjectMutability},
 };
+use move_core_types::{account_address::AccountAddress, language_storage::StructTag, u256::U256};
 
 pub fn transaction<Mode: ExecutionMode>(
     meter: &mut TranslationMeter<'_, '_>,
@@ -103,9 +103,6 @@ fn input<Mode: ExecutionMode>(
                     );
                     L::ObjectArg::OwnedObject(oref)
                 }
-                Owner::Party { .. } => {
-                    unimplemented!("Party does not exist for this execution version")
-                }
             };
             (L::InputArg::Object(arg), L::InputType::Fixed(ty))
         }
@@ -131,9 +128,6 @@ fn input<Mode: ExecutionMode>(
                 }
                 Owner::Shared { .. } => L::SharedObjectKind::Legacy,
                 Owner::ConsensusAddressOwner { .. } => L::SharedObjectKind::Party,
-                Owner::Party { .. } => {
-                    unimplemented!("Party does not exist for this execution version")
-                }
             };
             (
                 L::InputArg::Object(L::ObjectArg::SharedObject {

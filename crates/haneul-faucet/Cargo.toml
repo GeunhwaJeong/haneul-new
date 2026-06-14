@@ -23,7 +23,6 @@ tracing.workspace = true
 haneul-sdk.workspace = true
 haneul-rpc-api.workspace = true
 haneul-config.workspace = true
-haneul-futures.workspace = true
 haneul-keys.workspace = true
 shared-crypto.workspace = true
 

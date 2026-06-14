@@ -2,20 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use futures::{StreamExt, future::join_all};
-use jsonrpsee::http_client::{HttpClient, HttpClientBuilder};
-use haneullabs_common::ZipDebugEqIteratorExt;
-use haneullabs_common::fatal;
-use rand::{Rng, distributions::*, rngs::OsRng, seq::SliceRandom};
-use std::net::SocketAddr;
-use std::num::NonZeroUsize;
-use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
-use std::time::Duration;
 use haneul_config::genesis::Genesis;
 use haneul_config::node::FundsWithdrawSchedulerType;
 use haneul_config::node::{AuthorityOverloadConfig, DBCheckpointConfig, RunWithRange};
 use haneul_config::{Config, ExecutionCacheConfig, HANEUL_CLIENT_CONFIG, HANEUL_NETWORK_CONFIG};
-use haneul_config::{NodeConfig, PersistedConfig, HANEUL_KEYSTORE_FILENAME};
+use haneul_config::{HANEUL_KEYSTORE_FILENAME, NodeConfig, PersistedConfig};
 use haneul_core::authority_aggregator::AuthorityAggregator;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_json_rpc_types::{HaneulTransactionBlockEffectsAPI, TransactionFilter};
@@ -35,32 +26,42 @@ use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_swarm_config::network_config_builder::{
     FundsWithdrawSchedulerTypeConfig, GlobalStateHashV2EnabledCallback,
     GlobalStateHashV2EnabledConfig, ProtocolVersionsConfig, SupportedProtocolVersionsCallback,
-    ValidatorObserverConfigCallback,
 };
 use haneul_swarm_config::node_config_builder::{FullnodeConfigBuilder, ValidatorConfigBuilder};
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::authenticator_state::get_authenticator_state;
 use haneul_types::base_types::ConciseableName;
-use haneul_types::base_types::{AuthorityName, ObjectID, ObjectRef, HaneulAddress};
+use haneul_types::base_types::{AuthorityName, HaneulAddress, ObjectID, ObjectRef};
 use haneul_types::committee::CommitteeTrait;
 use haneul_types::committee::{Committee, EpochId};
-use haneul_types::crypto::KeypairTraits;
 use haneul_types::crypto::HaneulKeyPair;
+use haneul_types::crypto::KeypairTraits;
 use haneul_types::digests::{ChainIdentifier, TransactionDigest};
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
 use haneul_types::error::{HaneulErrorKind, HaneulResult};
+use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::haneul_system_state::HaneulSystemStateTrait;
+use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::messages_grpc::{
     RawSubmitTxRequest, SubmitTxRequest, SubmitTxResult, SubmitTxType, WaitForEffectsRequest,
     WaitForEffectsResponse,
 };
 use haneul_types::object::Object;
-use haneul_types::haneul_system_state::HaneulSystemState;
-use haneul_types::haneul_system_state::HaneulSystemStateTrait;
-use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 use haneul_types::traffic_control::{PolicyConfig, RemoteFirewallConfig};
-use haneul_types::transaction::{Transaction, TransactionData, TransactionDataAPI, TransactionKind};
+use haneul_types::transaction::{
+    Transaction, TransactionData, TransactionDataAPI, TransactionKind,
+};
+use haneullabs_common::ZipDebugEqIteratorExt;
+use haneullabs_common::fatal;
+use jsonrpsee::http_client::{HttpClient, HttpClientBuilder};
+use rand::{Rng, distributions::*, rngs::OsRng, seq::SliceRandom};
+use std::net::SocketAddr;
+use std::num::NonZeroUsize;
+use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
+use std::time::Duration;
 use tokio::sync::broadcast;
 use tokio::time::{Instant, timeout};
 use tokio::{task::JoinHandle, time::sleep};
@@ -86,7 +87,10 @@ impl FullNodeHandle {
         let rpc_url = format!("http://{}", json_rpc_address);
         let rpc_client = HttpClientBuilder::default().build(&rpc_url).unwrap();
 
-        let haneul_client = HaneulClientBuilder::default().build(&rpc_url).await.unwrap();
+        let haneul_client = HaneulClientBuilder::default()
+            .build(&rpc_url)
+            .await
+            .unwrap();
         let grpc_client = Client::new(&rpc_url).unwrap();
 
         Self {
@@ -266,7 +270,7 @@ impl TestCluster {
     pub async fn get_object_from_fullnode_store(&self, object_id: &ObjectID) -> Option<Object> {
         self.fullnode_handle
             .haneul_node
-            .with_async(|node| async { node.state().get_object(object_id) })
+            .with_async(|node| async { node.state().get_object(object_id).await })
             .await
     }
 
@@ -535,36 +539,40 @@ impl TestCluster {
     pub async fn wait_for_authenticator_state_update(&self) {
         timeout(
             Duration::from_secs(60),
-            self.fullnode_handle.haneul_node.with_async(|node| async move {
-                let state = node.state();
-                let mut txns = state.subscription_handler.subscribe_transactions(
-                    TransactionFilter::ChangedObject(ObjectID::from_hex_literal("0x7").unwrap()),
-                );
+            self.fullnode_handle
+                .haneul_node
+                .with_async(|node| async move {
+                    let state = node.state();
+                    let mut txns = state.subscription_handler.subscribe_transactions(
+                        TransactionFilter::ChangedObject(
+                            ObjectID::from_hex_literal("0x7").unwrap(),
+                        ),
+                    );
 
-                // Check if the state was already updated before subscribe_transactions was called
-                // above (after trigger_reconfiguration completes, the AuthenticatorStateUpdate
-                // transaction may have already been committed).
-                let has_active_jwks = get_authenticator_state(state.get_object_store())
-                    .ok()
-                    .flatten()
-                    .is_some_and(|state| !state.active_jwks.is_empty());
-                if has_active_jwks {
-                    return;
-                }
-
-                while let Some(tx) = txns.next().await {
-                    let digest = *tx.transaction_digest();
-                    let tx = state
-                        .get_transaction_cache_reader()
-                        .get_transaction_block(&digest)
-                        .unwrap();
-                    match &tx.data().intent_message().value.kind() {
-                        TransactionKind::EndOfEpochTransaction(_) => (),
-                        TransactionKind::AuthenticatorStateUpdate(_) => break,
-                        _ => panic!("{:?}", tx),
+                    // Check if the state was already updated before subscribe_transactions was called
+                    // above (after trigger_reconfiguration completes, the AuthenticatorStateUpdate
+                    // transaction may have already been committed).
+                    let has_active_jwks = get_authenticator_state(state.get_object_store())
+                        .ok()
+                        .flatten()
+                        .is_some_and(|state| !state.active_jwks.is_empty());
+                    if has_active_jwks {
+                        return;
                     }
-                }
-            }),
+
+                    while let Some(tx) = txns.next().await {
+                        let digest = *tx.transaction_digest();
+                        let tx = state
+                            .get_transaction_cache_reader()
+                            .get_transaction_block(&digest)
+                            .unwrap();
+                        match &tx.data().intent_message().value.kind() {
+                            TransactionKind::EndOfEpochTransaction(_) => (),
+                            TransactionKind::AuthenticatorStateUpdate(_) => break,
+                            _ => panic!("{:?}", tx),
+                        }
+                    }
+                }),
         )
         .await
         .expect("Timed out waiting for authenticator state update");
@@ -996,7 +1004,9 @@ impl TestCluster {
                     .into()
                 })
                 .into()),
-            WaitForEffectsResponse::Expired { .. } => Err(HaneulErrorKind::TransactionExpired.into()),
+            WaitForEffectsResponse::Expired { .. } => {
+                Err(HaneulErrorKind::TransactionExpired.into())
+            }
         }
     }
 
@@ -1151,8 +1161,6 @@ pub struct TestClusterBuilder {
 
     execution_time_observer_config: Option<haneul_config::node::ExecutionTimeObserverConfig>,
 
-    validator_observer_config: Option<ValidatorObserverConfigCallback>,
-
     state_sync_config: Option<haneul_config::p2p::StateSyncConfig>,
 
     #[cfg(msim)]
@@ -1198,7 +1206,6 @@ impl TestClusterBuilder {
                 })),
             rpc_config: None,
             execution_time_observer_config: None,
-            validator_observer_config: None,
             state_sync_config: None,
             #[cfg(msim)]
             inject_synthetic_execution_time: false,
@@ -1215,11 +1222,6 @@ impl TestClusterBuilder {
         config: haneul_config::node::ExecutionTimeObserverConfig,
     ) -> Self {
         self.execution_time_observer_config = Some(config);
-        self
-    }
-
-    pub fn with_validator_observer_config(mut self, c: ValidatorObserverConfigCallback) -> Self {
-        self.validator_observer_config = Some(c);
         self
     }
 
@@ -1585,10 +1587,6 @@ impl TestClusterBuilder {
 
         if self.disable_fullnode_pruning {
             builder = builder.with_disable_fullnode_pruning();
-        }
-
-        if let Some(validator_observer_config) = self.validator_observer_config.take() {
-            builder = builder.with_validator_observer_config(validator_observer_config);
         }
 
         #[cfg(msim)]

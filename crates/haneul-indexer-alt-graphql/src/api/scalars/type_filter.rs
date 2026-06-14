@@ -5,15 +5,15 @@ use std::fmt;
 use std::str::FromStr;
 
 use async_graphql::*;
-use move_core_types::language_storage::StructTag;
 use haneul_types::TypeTag;
 use haneul_types::parse_haneul_address;
 use haneul_types::parse_haneul_module_id;
 use haneul_types::parse_haneul_struct_tag;
 use haneul_types::parse_haneul_type_tag;
+use move_core_types::language_storage::StructTag;
 
-use crate::api::scalars::impl_string_input;
 use crate::api::scalars::haneul_address::HaneulAddress;
+use crate::api::scalars::impl_string_input;
 
 /// A GraphQL scalar for accepting a type as input (exact type with all type parameters).
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -256,7 +256,8 @@ mod tests {
         let pkg = TypeFilter::from_str("0x2").unwrap();
         let module = TypeFilter::from_str("0x2::coin").unwrap();
         let type_no_params = TypeFilter::from_str("0x2::coin::Coin").unwrap();
-        let type_with_params = TypeFilter::from_str("0x2::coin::Coin<0x2::haneul::HANEUL>").unwrap();
+        let type_with_params =
+            TypeFilter::from_str("0x2::coin::Coin<0x2::haneul::HANEUL>").unwrap();
 
         // Package intersect with module in same package
         assert!(matches!(

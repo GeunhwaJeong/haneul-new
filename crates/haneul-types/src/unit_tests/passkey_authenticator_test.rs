@@ -8,7 +8,7 @@ use crate::crypto::DefaultHash;
 use crate::error::HaneulErrorKind;
 use crate::passkey_authenticator::{PasskeyAuthenticator, RawPasskeyAuthenticator};
 use crate::{
-    base_types::{ObjectID, HaneulAddress, dbg_addr},
+    base_types::{HaneulAddress, ObjectID, dbg_addr},
     crypto::{PublicKey, Signature, SignatureScheme},
     error::HaneulError,
     object::Object,
@@ -353,9 +353,10 @@ async fn test_passkey_fails_wrong_client_data_type() {
 #[tokio::test]
 async fn test_real_passkey_output() {
     // response from a real passkey authenticator created in iCloud, from typescript client: https://passkey-example.vercel.app/ (repo: https://github.com/GeunhwaJeong/passkey-example)
-    let address =
-        HaneulAddress::from_str("0x9c0c00e929f08431583dad0e9409b5afb20cdbae0043fa5577f2577dbe88a0db")
-            .unwrap();
+    let address = HaneulAddress::from_str(
+        "0x9c0c00e929f08431583dad0e9409b5afb20cdbae0043fa5577f2577dbe88a0db",
+    )
+    .unwrap();
     let sig = GenericSignature::from_bytes(&Base64::decode("BiUL6eJ3+l0jTWmL4buH5lE8Vxe1+ge6xSU0oczBPpmt+h0AAAAAkwF7InR5cGUiOiJ3ZWJhdXRobi5nZXQiLCJjaGFsbGVuZ2UiOiJ5TzEtb3VBczFBRUsyOWd0X1dJTGM4ZndDdlFjMkhEQmEwX2dTU3RpU1FzIiwib3JpZ2luIjoiaHR0cHM6Ly9wYXNza2V5LWV4YW1wbGUudmVyY2VsLmFwcCIsImNyb3NzT3JpZ2luIjpmYWxzZX1iAu0JsgVDVgBZQJhsl9MUZmUfUkNTh1qCg0zNWFrXfTx3NKuakm8Wqaa3qnfo+s9K2KvfYp8jT8BazhK7bi9YSmsCATpOyeWH387SdhY7+172wODmilJnXx5QcaUnR+3QlEM=").unwrap()).unwrap();
     let tx_data: TransactionData = bcs::from_bytes(&Base64::decode("AAAAAJwMAOkp8IQxWD2tDpQJta+yDNuuAEP6VXfyV32+iKDbARrKzR59iiRcEIbBEBlB283cnWUBeUeKCiMa3UKM6NURNRHQFAAAAAAgVLos3IwH9g4OHDSWiKyUZCvixybPtnDQIeML1f+ErGOcDADpKfCEMVg9rQ6UCbWvsgzbrgBD+lV38ld9voig2+gDAAAAAAAAgIQeAAAAAAAA").unwrap()).unwrap();
     let res = sig.verify_authenticator(

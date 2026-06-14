@@ -9,6 +9,7 @@ use bincode::{
     serde::BorrowCompat,
 };
 use fastcrypto::encoding::{Base58, Encoding as _};
+use haneul_types::{base_types::ObjectID, digests::Digest};
 use move_core_types::{
     account_address::AccountAddress,
     identifier::Identifier,
@@ -19,7 +20,6 @@ use serde::{
     Serialize,
     ser::{SerializeSeq, SerializeTuple},
 };
-use haneul_types::{base_types::ObjectID, digests::Digest};
 use winnow::{
     Parser,
     ascii::{hex_digit1, multispace0},
@@ -429,8 +429,9 @@ mod tests {
 
     #[test]
     fn test_struct_tag() {
-        let tag = StructTag::from_str("0x2::table::Table<address, 0x2::coin::Coin<0x2::haneul::HANEUL>>")
-            .unwrap();
+        let tag =
+            StructTag::from_str("0x2::table::Table<address, 0x2::coin::Coin<0x2::haneul::HANEUL>>")
+                .unwrap();
         let (bcs, bin) = expect(tag);
 
         assert_eq!(

@@ -10,7 +10,7 @@ use crate::{
         AbilitySet, DottedUsage, Fields, Friend, ModuleAccess_, ModuleIdent, ModuleIdent_,
         Mutability, Value_, Visibility,
     },
-    ice, ice_assert,
+    haneul_mode, ice, ice_assert,
     naming::ast::{
         self as N, ANYTHING_TYPE, BlockLabel, DatatypeTypeParameter, Function, IndexSyntaxMethods,
         ResolvedUseFuns, TParam, TParamID, Type, Type_, TypeInner as TI, TypeName, TypeName_,
@@ -31,7 +31,6 @@ use crate::{
         unique_map::UniqueMap,
         *,
     },
-    haneul_mode,
     typing::{
         ast::{self as T},
         core::{
@@ -4840,25 +4839,12 @@ fn expand_macro(
             let use_funs = N::UseFuns::new(context.current_call_color());
             let block = TE::Block((use_funs, seq));
             if context.env().ide_mode() {
-                // The first stack entry is the outermost macro call. Argument
-                // frames can appear inside that call stack, but never as the
-                // root.
-                let root_expansion = context.macro_expansion.first();
-                debug_assert!(
-                    matches!(root_expansion, Some(core::MacroExpansion::Call(_))),
-                    "macro expansion stack root should be a call"
-                );
-                let root_call_loc = match root_expansion {
-                    Some(core::MacroExpansion::Call(c)) => c.invocation,
-                    Some(core::MacroExpansion::Argument { .. }) | None => call_loc,
-                };
                 let macro_call_info = MacroCallInfo {
                     module: m,
                     name: f,
                     method_name,
                     type_arguments: type_args.clone(),
                     by_value_args,
-                    root_call_loc,
                 };
                 let info = IDEAnnotation::MacroCallInfo(Box::new(macro_call_info));
                 context.add_ide_info(call_loc, info);

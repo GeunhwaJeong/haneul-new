@@ -4,13 +4,13 @@
 use std::fmt::{Display, Formatter};
 
 use anyhow::Result;
+use haneul_macros::EnumVariantOrder;
 use move_core_types::{
     account_address::AccountAddress,
     identifier::Identifier,
     language_storage::{StructTag, TypeTag},
 };
 use serde::{Deserialize, Serialize};
-use haneul_macros::EnumVariantOrder;
 
 use crate::base_types::MoveObjectType;
 

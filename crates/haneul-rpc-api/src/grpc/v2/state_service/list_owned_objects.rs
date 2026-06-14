@@ -5,8 +5,6 @@ use crate::Result;
 use crate::RpcError;
 use crate::RpcService;
 use bytes::Bytes;
-use prost::Message;
-use prost_types::FieldMask;
 use haneul_rpc::field::FieldMaskTree;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
@@ -17,11 +15,13 @@ use haneul_rpc::proto::haneul::rpc::v2::Object;
 use haneul_sdk_types::Address;
 use haneul_types::full_checkpoint_content::ObjectSet;
 use haneul_types::storage::OwnedObjectInfo;
+use prost::Message;
+use prost_types::FieldMask;
 
 const MAX_PAGE_SIZE: usize = 1000;
 const DEFAULT_PAGE_SIZE: usize = 50;
 const MAX_PAGE_SIZE_BYTES: usize = 512 * 1024; // 512KiB
-const READ_MASK_DEFAULT: &str = crate::read_mask_defaults::OWNED_OBJECT;
+const READ_MASK_DEFAULT: &str = "object_id,version,object_type";
 
 #[tracing::instrument(skip(service))]
 pub fn list_owned_objects(

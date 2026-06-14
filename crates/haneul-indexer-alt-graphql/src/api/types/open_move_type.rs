@@ -5,11 +5,11 @@ use std::fmt;
 
 use async_graphql::Object;
 use async_graphql::scalar;
-use serde::Deserialize;
-use serde::Serialize;
 use haneul_package_resolver::OpenSignature;
 use haneul_package_resolver::OpenSignatureBody;
 use haneul_package_resolver::Reference;
+use serde::Deserialize;
+use serde::Serialize;
 
 pub(crate) struct OpenMoveType {
     signature: OpenMoveTypeSignature,
@@ -231,10 +231,10 @@ impl fmt::Display for OpenMoveTypeSignatureBody {
 mod tests {
     use std::str::FromStr;
 
-    use insta::assert_snapshot;
-    use move_core_types::language_storage::StructTag;
     use haneul_package_resolver::DatatypeKey;
     use haneul_package_resolver::DatatypeRef;
+    use insta::assert_snapshot;
+    use move_core_types::language_storage::StructTag;
 
     use super::*;
 

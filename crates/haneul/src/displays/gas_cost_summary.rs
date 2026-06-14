@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::displays::Pretty;
-use std::fmt::{Display, Formatter};
 use haneul_types::gas::GasCostSummary;
+use std::fmt::{Display, Formatter};
 
 impl Display for Pretty<'_, GasCostSummary> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

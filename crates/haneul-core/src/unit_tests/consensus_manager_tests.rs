@@ -5,13 +5,12 @@ use std::{sync::Arc, time::Duration};
 
 use fastcrypto::traits::KeyPair;
 use futures::FutureExt;
+use haneul_swarm_config::network_config_builder::ConfigBuilder;
+use haneul_types::messages_checkpoint::{
+    CertifiedCheckpointSummary, CheckpointContents, CheckpointSummary,
+};
 use haneullabs_metrics::RegistryService;
 use prometheus::Registry;
-use haneul_swarm_config::network_config_builder::ConfigBuilder;
-use haneul_types::{
-    messages_checkpoint::{CertifiedCheckpointSummary, CheckpointContents, CheckpointSummary},
-    node_role::NodeRole,
-};
 use tokio::{sync::mpsc, time::sleep};
 
 use crate::{
@@ -22,9 +21,9 @@ use crate::{
     consensus_validator::{HaneulTxValidator, HaneulTxValidatorMetrics},
     global_state_hasher::GlobalStateHasher,
 };
-use haneullabs_network::Multiaddr;
 use haneul_network::endpoint_manager::{AddressSource, ConsensusAddressUpdater};
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
+use haneullabs_network::Multiaddr;
 
 pub fn checkpoint_service_for_testing(state: Arc<AuthorityState>) -> Arc<CheckpointService> {
     let (output, _result) = mpsc::channel::<(CheckpointContents, CheckpointSummary)>(10);
@@ -80,7 +79,6 @@ async fn test_consensus_manager() {
         consensus_config,
         &registry_service,
         consensus_client,
-        haneul_types::node_role::NodeRole::Validator,
     );
 
     let boot_counter = *manager.boot_counter.lock().await;
@@ -104,7 +102,6 @@ async fn test_consensus_manager() {
                     Arc::new(CheckpointServiceNoop {}),
                     HaneulTxValidatorMetrics::new(&Registry::new()),
                 ),
-                None,
             )
             .await;
 
@@ -165,7 +162,6 @@ async fn test_consensus_manager_address_update() {
         consensus_config,
         &registry_service,
         consensus_client,
-        NodeRole::Validator,
     ));
 
     // Start consensus
@@ -185,7 +181,6 @@ async fn test_consensus_manager_address_update() {
                 Arc::new(CheckpointServiceNoop {}),
                 HaneulTxValidatorMetrics::new(&Registry::new()),
             ),
-            None,
         )
         .await;
 
@@ -250,7 +245,6 @@ async fn test_consensus_manager_address_update() {
                 Arc::new(CheckpointServiceNoop {}),
                 HaneulTxValidatorMetrics::new(&Registry::new()),
             ),
-            None,
         )
         .await;
 

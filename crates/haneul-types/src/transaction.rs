@@ -19,11 +19,11 @@ use crate::coin_reservation::{
 use crate::committee::{Committee, EpochId, ProtocolVersion};
 use crate::crypto::{
     AuthoritySignInfo, AuthoritySignInfoTrait, AuthoritySignature, AuthorityStrongQuorumSignInfo,
-    DefaultHash, Ed25519HaneulSignature, EmptySignInfo, RandomnessRound, Signature, Signer,
-    HaneulSignatureInner, ToFromBytes, default_hash,
+    DefaultHash, Ed25519HaneulSignature, EmptySignInfo, HaneulSignatureInner, RandomnessRound,
+    Signature, Signer, ToFromBytes, default_hash,
 };
-use crate::digests::{AdditionalConsensusStateDigest, SenderSignedDataDigest};
-use crate::digests::{ChainIdentifier, ConsensusCommitDigest};
+use crate::digests::{AdditionalConsensusStateDigest, CertificateDigest, SenderSignedDataDigest};
+use crate::digests::{ChainIdentifier, ConsensusCommitDigest, ZKLoginInputsDigest};
 use crate::execution::{ExecutionTimeObservationKey, SharedInput};
 use crate::funds_accumulator::{FUNDS_ACCUMULATOR_MODULE_NAME, WITHDRAWAL_SPLIT_FUNC_NAME};
 use crate::gas_coin::GAS;
@@ -43,19 +43,20 @@ use crate::signature_verification::{
 };
 use crate::type_input::TypeInput;
 use crate::{
-    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID,
-    HANEUL_CLOCK_OBJECT_SHARED_VERSION, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID,
-    HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
+    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_AUTHENTICATOR_STATE_OBJECT_ID,
+    HANEUL_CLOCK_OBJECT_ID, HANEUL_CLOCK_OBJECT_SHARED_VERSION, HANEUL_FRAMEWORK_ADDRESS,
+    HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
     HANEUL_SYSTEM_STATE_OBJECT_SHARED_VERSION,
 };
 use enum_dispatch::enum_dispatch;
 use fastcrypto::{encoding::Base64, hash::HashFunction};
+use haneul_protocol_config::{PerObjectCongestionControlMode, ProtocolConfig};
+use haneullabs_common::{ZipDebugEqIteratorExt, assert_reachable, debug_fatal};
 use itertools::{Either, Itertools};
 use move_core_types::account_address::AccountAddress;
 use move_core_types::identifier::IdentStr;
 use move_core_types::{ident_str, identifier};
 use move_core_types::{identifier::Identifier, language_storage::TypeTag};
-use haneullabs_common::{ZipDebugEqIteratorExt, assert_reachable, debug_fatal};
 use nonempty::{NonEmpty, nonempty};
 use serde::{Deserialize, Serialize};
 use shared_crypto::intent::{Intent, IntentMessage, IntentScope};
@@ -70,7 +71,6 @@ use std::{
     iter,
 };
 use strum::IntoStaticStr;
-use haneul_protocol_config::{PerObjectCongestionControlMode, ProtocolConfig};
 use tap::Pipe;
 use tracing::trace;
 
@@ -1321,7 +1321,10 @@ impl ProgrammableMoveCall {
             (HANEUL_BALANCE_REDEEM_FUNDS, &[Some(FundType)]),
             (HANEUL_BALANCE_SPLIT, &[Some(FundType)]),
             (HANEUL_BALANCE_ZERO, &[Some(FundType)]),
-            (HANEUL_FUNDS_ACCUMULATOR_WITHDRAWAL_SPLIT, &[Some(BalanceType)]),
+            (
+                HANEUL_FUNDS_ACCUMULATOR_WITHDRAWAL_SPLIT,
+                &[Some(BalanceType)],
+            ),
             (HANEUL_COIN_INTO_BALANCE, &[Some(FundType)]),
             (HANEUL_COIN_REDEEM_FUNDS, &[Some(FundType)]),
             (HANEUL_COIN_SEND_FUNDS, &[Some(FundType)]),
@@ -1948,9 +1951,9 @@ impl TransactionKind {
     /// It covers both Call and ChangeEpoch transaction kind, because both makes Move calls.
     pub fn shared_input_objects(&self) -> impl Iterator<Item = SharedInputObject> + '_ {
         match &self {
-            Self::ChangeEpoch(_) => {
-                Either::Left(Either::Left(iter::once(SharedInputObject::HANEUL_SYSTEM_OBJ)))
-            }
+            Self::ChangeEpoch(_) => Either::Left(Either::Left(iter::once(
+                SharedInputObject::HANEUL_SYSTEM_OBJ,
+            ))),
 
             Self::ConsensusCommitPrologue(_)
             | Self::ConsensusCommitPrologueV2(_)
@@ -2459,7 +2462,11 @@ impl TransactionData {
         })
     }
 
-    pub fn new_with_gas_data(kind: TransactionKind, sender: HaneulAddress, gas_data: GasData) -> Self {
+    pub fn new_with_gas_data(
+        kind: TransactionKind,
+        sender: HaneulAddress,
+        gas_data: GasData,
+    ) -> Self {
         TransactionData::V1(TransactionDataV1 {
             kind,
             sender,
@@ -2705,10 +2712,6 @@ impl TransactionData {
                 | Owner::ConsensusAddressOwner {
                     start_version: initial_shared_version,
                     ..
-                }
-                | Owner::Party {
-                    start_version: initial_shared_version,
-                    ..
                 } => ObjectArg::SharedObject {
                     id: upgrade_capability.0,
                     initial_shared_version,
@@ -2919,6 +2922,8 @@ pub trait TransactionDataAPI {
     ) -> Vec<ParsedObjectRefWithdrawal>;
 
     fn validity_check(&self, context: &TxValidityCheckContext<'_>) -> HaneulResult;
+
+    fn validity_check_no_gas_check(&self, config: &ProtocolConfig) -> UserInputResult;
 
     /// Check if the transaction is compliant with sponsorship.
     fn check_sponsorship(&self) -> UserInputResult;
@@ -3448,6 +3453,13 @@ impl TransactionDataAPI for TransactionDataV1 {
             }
         }
 
+        self.validity_check_no_gas_check(config)?;
+        Ok(())
+    }
+
+    // Keep all the logic for validity here, we need this for dry run where the gas
+    // may not be provided and created "on the fly"
+    fn validity_check_no_gas_check(&self, config: &ProtocolConfig) -> UserInputResult {
         self.kind().validity_check(config)?;
 
         if config.enable_gasless() && self.is_gasless_transaction() {
@@ -3455,14 +3467,12 @@ impl TransactionDataAPI for TransactionDataV1 {
                 debug_fatal!("gasless transaction is not a ProgrammableTransaction");
                 return Err(UserInputError::Unsupported(
                     "Gasless transactions must be programmable transactions".to_string(),
-                )
-                .into());
+                ));
             };
             pt.validate_gasless_transaction(config)?;
         }
 
-        self.check_sponsorship()?;
-        Ok(())
+        self.check_sponsorship()
     }
 
     /// Check if the transaction is sponsored (namely gas owner != sender)
@@ -3873,7 +3883,10 @@ impl SenderSignedData {
 
     /// Validate untrusted user transaction, including its size, input count, command count, etc.
     /// Returns the certificate serialised bytes size.
-    pub fn validity_check(&self, context: &TxValidityCheckContext<'_>) -> Result<usize, HaneulError> {
+    pub fn validity_check(
+        &self,
+        context: &TxValidityCheckContext<'_>,
+    ) -> Result<usize, HaneulError> {
         // Check that the features used by the user signatures are enabled on the network.
         self.check_user_signature_protocol_compatibility(context.config)?;
 
@@ -4289,8 +4302,58 @@ impl SignedTransaction {
 pub type CertifiedTransaction = Envelope<SenderSignedData, AuthorityStrongQuorumSignInfo>;
 
 impl CertifiedTransaction {
+    pub fn certificate_digest(&self) -> CertificateDigest {
+        let mut digest = DefaultHash::default();
+        bcs::serialize_into(&mut digest, self).expect("serialization should not fail");
+        let hash = digest.finalize();
+        CertificateDigest::new(hash.into())
+    }
+
     pub fn gas_price(&self) -> u64 {
         self.data().transaction_data().gas_price()
+    }
+
+    // TODO: Eventually we should remove all calls to verify_signature
+    // and make sure they all call verify to avoid repeated verifications.
+    pub fn verify_signatures_authenticated(
+        &self,
+        committee: &Committee,
+        verify_params: &VerifyParams,
+        zklogin_inputs_cache: Arc<VerifiedDigestCache<ZKLoginInputsDigest>>,
+    ) -> HaneulResult {
+        verify_sender_signed_data_message_signatures(
+            self.data(),
+            committee.epoch(),
+            verify_params,
+            zklogin_inputs_cache,
+            vec![],
+        )?;
+        self.auth_sig().verify_secure(
+            self.data(),
+            Intent::haneul_app(IntentScope::SenderSignedTransaction),
+            committee,
+        )
+    }
+
+    pub fn try_into_verified_for_testing(
+        self,
+        committee: &Committee,
+        verify_params: &VerifyParams,
+    ) -> HaneulResult<VerifiedCertificate> {
+        self.verify_signatures_authenticated(
+            committee,
+            verify_params,
+            Arc::new(VerifiedDigestCache::new_empty()),
+        )?;
+        Ok(VerifiedCertificate::new_from_verified(self))
+    }
+
+    pub fn verify_committee_sigs_only(&self, committee: &Committee) -> HaneulResult {
+        self.auth_sig().verify_secure(
+            self.data(),
+            Intent::haneul_app(IntentScope::SenderSignedTransaction),
+            committee,
+        )
     }
 }
 

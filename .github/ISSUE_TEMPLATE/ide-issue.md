@@ -13,10 +13,10 @@ Describe your setup:
 * IDE/editor: <specify IDE/editor version>
 * Move analyzer version: <specify `move-analyzer` version>
 
-When using Move VS Code [extension](https://marketplace.visualstudio.com/items?itemName=haneullabs.move), make sure to use the most recent version of both VS Code (or equivalent editor, such as Cursor) and the Move VS Code extension. Additionally, provide the content of the **Move Client** tab. To access this data, select **View** -> **Output** from the main menu and open the appropriate tab from the drop down menu. The output should look similar to the following:
+When using Move VS Code extension, make sure to use the most recent version of both VS Code (or equivalent editor, such as Cursor) and the Move VS Code extension. Additionally, provide the content of the **Move Client** tab. To access this data, select **View** -> **Output** from the main menu and open the appropriate tab from the drop down menu. The output should look similar to the following:
 
 ``` shell
-INFO [10/21/2025, 10:16:14 AM]: haneullabs.move version 1.0.33
+INFO [10/21/2025, 10:16:14 AM]: haneul.move version 1.0.33
 INFO [10/21/2025, 10:16:14 AM]: Creating extension context
 INFO [10/21/2025, 10:16:14 AM]: configuration: {"auto-imports":true,"force-bundled":false,"inlay-hints":{"type":false,"param":false},"lint":"default","server":{"path":null},"haneul":{"path":"/opt/homebrew/bin/haneul"},"trace":{"server":"off"}}
 INFO [10/21/2025, 10:16:14 AM]: Installing language server
@@ -59,7 +59,7 @@ No on-hover information was displayed when hovering over <construct> on line <li
 
 ## Editor Logs
 
-Upon encountering and issue, capture `move-analyzer` logs that may help diagnosing the issue. 
+Upon encountering and issue, capture `move-analyzer` logs that may help diagnosing the issue.
 
 When using the Move VS Code extension, provide the content of the **Move** tab. To access this data, select **View** -> **Output** from the main menu and open the appropriate tab from the drop down menu. Beginning of the log should look similar to the following:
 
@@ -82,9 +82,9 @@ symbolicating "~/deepbookv3/packages/deepbook"
 on_document_symbol_request: "~/deepbookv3/packages/deepbook/sources/balance_manager.move"
 no cached deps for "~/deepbookv3/packages/deepbook"
 pre-compiling dep MoveStdlib
-inserting new dep into cache for "~/.move/https___github_com_HaneulLabs_haneul_git_framework__mainnet/crates/haneul-framework/packages/move-stdlib"
+inserting new dep into cache for "~/.move/https___github_com_GeunhwaJeong_haneul_git_framework__mainnet/crates/haneul-framework/packages/move-stdlib"
 pre-compiling dep Haneul
-inserting new dep into cache for "~/.move/https___github_com_HaneulLabs_haneul_git_framework__mainnet/crates/haneul-framework/packages/haneul-framework"
+inserting new dep into cache for "~/.move/https___github_com_GeunhwaJeong_haneul_git_framework__mainnet/crates/haneul-framework/packages/haneul-framework"
 pre-compiling dep token
 inserting new dep into cache for "~/deepbookv3/packages/deepbook/../token"
 compiled to parsed AST

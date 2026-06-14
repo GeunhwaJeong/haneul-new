@@ -972,13 +972,6 @@ Owner:
               TYPENAME: SequenceNumber
           - owner:
               TYPENAME: HaneulAddress
-    5:
-      Party:
-        STRUCT:
-          - start_version:
-              TYPENAME: SequenceNumber
-          - permissions:
-              TYPENAME: RawPartySerde
 PackageUpgradeError:
   ENUM:
     0:
@@ -1066,14 +1059,6 @@ RandomnessStateUpdate:
         SEQ: U8
     - randomness_obj_initial_shared_version:
         TYPENAME: SequenceNumber
-RawPartySerde:
-  STRUCT:
-    - default_permissions: U64
-    - members:
-        SEQ:
-          TUPLE:
-            - TYPENAME: HaneulAddress
-            - U64
 Reservation:
   ENUM:
     0:

@@ -7,7 +7,6 @@ use std::{
 };
 
 use crate::{TestCluster, TestClusterBuilder};
-use move_core_types::identifier::Identifier;
 use haneul_keys::keystore::AccountKeystore;
 use haneul_protocol_config::{OverrideGuard, ProtocolConfig, ProtocolVersion};
 use haneul_test_transaction_builder::{FundSource, TestTransactionBuilder};
@@ -16,7 +15,7 @@ use haneul_types::{
     accumulator_metadata::get_accumulator_object_count,
     accumulator_root::{AccumulatorValue, U128},
     balance::Balance,
-    base_types::{FullObjectRef, ObjectID, ObjectRef, SequenceNumber, HaneulAddress},
+    base_types::{FullObjectRef, HaneulAddress, ObjectID, ObjectRef, SequenceNumber},
     coin_reservation::ParsedObjectRefWithdrawal,
     digests::{ChainIdentifier, TransactionDigest},
     effects::{TransactionEffects, TransactionEffectsAPI},
@@ -30,6 +29,7 @@ use haneul_types::{
         TransactionExpiration, TransactionKind,
     },
 };
+use move_core_types::identifier::Identifier;
 
 // TODO: Some of this code may be useful for tests other than address balance tests,
 // we might want to rename it and expand its usage.
@@ -631,7 +631,9 @@ impl TestEnv {
                     .cluster
                     .fullnode_handle
                     .haneul_node
-                    .with_async(|node| async move { node.state().get_object(&obj_ref.0).unwrap() })
+                    .with_async(
+                        |node| async move { node.state().get_object(&obj_ref.0).await.unwrap() },
+                    )
                     .await;
                 if object.type_().unwrap().name().as_str() == "TreasuryCap" {
                     treasury_cap = Some(obj_ref);
@@ -701,7 +703,12 @@ impl TestEnv {
     }
 
     /// Transfer HANEUL from sender's gas to recipient.
-    pub async fn transfer_haneul(&mut self, sender: HaneulAddress, recipient: HaneulAddress, amount: u64) {
+    pub async fn transfer_haneul(
+        &mut self,
+        sender: HaneulAddress,
+        recipient: HaneulAddress,
+        amount: u64,
+    ) {
         let tx = self
             .tx_builder(sender)
             .transfer_haneul(Some(amount), recipient)
@@ -798,10 +805,14 @@ pub fn get_balance(
     owner: HaneulAddress,
     coin_type: TypeTag,
 ) -> u64 {
-    haneul_core::accumulators::balances::get_balance(owner, child_object_resolver, coin_type).unwrap()
+    haneul_core::accumulators::balances::get_balance(owner, child_object_resolver, coin_type)
+        .unwrap()
 }
 
-pub fn get_haneul_balance(child_object_resolver: &dyn ChildObjectResolver, owner: HaneulAddress) -> u64 {
+pub fn get_haneul_balance(
+    child_object_resolver: &dyn ChildObjectResolver,
+    owner: HaneulAddress,
+) -> u64 {
     get_balance(child_object_resolver, owner, GAS::type_tag())
 }
 

@@ -21,7 +21,7 @@ use crate::workloads::{Gas, GasCoinConfig, WorkloadBuilderInfo, WorkloadParams};
 use crate::{ExecutionEffects, ValidatorProxy};
 use haneul_core::test_utils::make_transfer_object_transaction;
 use haneul_types::{
-    base_types::{ObjectRef, HaneulAddress},
+    base_types::{HaneulAddress, ObjectRef},
     crypto::{AccountKeyPair, get_key_pair},
     transaction::Transaction,
 };

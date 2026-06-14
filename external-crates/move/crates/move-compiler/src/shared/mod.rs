@@ -18,6 +18,7 @@ use crate::{
     },
     editions::{Edition, FeatureGate, Flavor, check_feature_or_error, feature_edition_error_msg},
     expansion::ast::{self as E, ModuleIdent},
+    haneul_mode,
     hlir::ast as H,
     naming::ast::{self as N, Function, UseFuns},
     parser::ast::{self as P, FunctionName},
@@ -26,7 +27,6 @@ use crate::{
         ide::IDEInfo,
         unique_map::UniqueMap,
     },
-    haneul_mode,
     typing::{
         ast as T,
         visitor::{TypingVisitor, TypingVisitorObj},

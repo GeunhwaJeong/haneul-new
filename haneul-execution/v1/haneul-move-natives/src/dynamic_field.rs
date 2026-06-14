@@ -6,6 +6,7 @@ use crate::{
     object_runtime::{object_store::ObjectResult, ObjectRuntime},
     NativesCostTable,
 };
+use haneul_types::{base_types::MoveObjectType, dynamic_field::derive_dynamic_field_id};
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_core_types::{
     account_address::AccountAddress,
@@ -23,7 +24,6 @@ use move_vm_types::{
 };
 use smallvec::smallvec;
 use std::collections::VecDeque;
-use haneul_types::{base_types::MoveObjectType, dynamic_field::derive_dynamic_field_id};
 use tracing::instrument;
 
 const E_KEY_DOES_NOT_EXIST: u64 = 1;

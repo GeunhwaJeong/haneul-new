@@ -6,6 +6,10 @@ use fastcrypto::encoding::Base64;
 use fastcrypto::encoding::Encoding;
 use fastcrypto::traits::ToFromBytes;
 use futures::stream::{self, StreamExt};
+use haneul_tls::Allower;
+use haneul_types::base_types::HaneulAddress;
+use haneul_types::bridge::BridgeSummary;
+use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 use once_cell::sync::Lazy;
 use prometheus::{CounterVec, HistogramVec};
 use prometheus::{register_counter_vec, register_histogram_vec};
@@ -16,10 +20,6 @@ use std::{
     sync::{Arc, RwLock},
     time::Duration,
 };
-use haneul_tls::Allower;
-use haneul_types::base_types::HaneulAddress;
-use haneul_types::bridge::BridgeSummary;
-use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
 use tracing::{debug, error, info, warn};
 use url::Url;
 
@@ -541,12 +541,12 @@ fn append_path_segment(mut url: Url, segment: &str) -> Option<Url> {
 mod tests {
     use super::*;
     use crate::admin::{CertKeyPair, generate_self_cert};
-    use serde::Serialize;
     use haneul_types::base_types::HaneulAddress;
     use haneul_types::bridge::{BridgeCommitteeSummary, BridgeSummary, MoveTypeCommitteeMember};
     use haneul_types::haneul_system_state::haneul_system_state_summary::{
         HaneulSystemStateSummary, HaneulValidatorSummary,
     };
+    use serde::Serialize;
 
     /// creates a test that binds our proxy use case to the structure in haneul_getLatestHaneulSystemState
     /// most of the fields are garbage, but we will send the results of the serde process to a private decode

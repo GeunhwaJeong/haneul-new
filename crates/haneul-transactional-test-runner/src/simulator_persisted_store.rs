@@ -3,13 +3,6 @@
 
 use std::{collections::BTreeMap, path::PathBuf, sync::Arc, time::Duration};
 
-use move_binary_format::CompiledModule;
-use move_bytecode_utils::module_cache::GetModule;
-use move_core_types::account_address::AccountAddress;
-use move_core_types::resolver::SerializedPackage;
-use move_core_types::{language_storage::ModuleId, resolver::ModuleResolver};
-use simulacrum::Simulacrum;
-use std::num::NonZeroUsize;
 use haneul_config::genesis;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_swarm_config::genesis_config::AccountConfig;
@@ -17,7 +10,7 @@ use haneul_swarm_config::network_config_builder::{ConfigBuilder, KeyPairWrapper}
 use haneul_types::error::HaneulErrorKind;
 use haneul_types::storage::{ReadStore, RpcStateReader};
 use haneul_types::{
-    base_types::{ObjectID, SequenceNumber, HaneulAddress, VersionNumber},
+    base_types::{HaneulAddress, ObjectID, SequenceNumber, VersionNumber},
     committee::{Committee, EpochId},
     digests::{ObjectDigest, TransactionDigest},
     effects::{TransactionEffects, TransactionEffectsAPI, TransactionEvents},
@@ -33,6 +26,13 @@ use haneul_types::{
     },
     transaction::VerifiedTransaction,
 };
+use move_binary_format::CompiledModule;
+use move_bytecode_utils::module_cache::GetModule;
+use move_core_types::account_address::AccountAddress;
+use move_core_types::resolver::SerializedPackage;
+use move_core_types::{language_storage::ModuleId, resolver::ModuleResolver};
+use simulacrum::Simulacrum;
+use std::num::NonZeroUsize;
 use tempfile::tempdir;
 use typed_store::DBMapUtils;
 use typed_store::Map;
@@ -56,7 +56,8 @@ pub struct PersistedStoreInnerReadOnlyWrapper {
 #[derive(Debug, DBMapUtils)]
 pub struct PersistedStoreInner {
     // Checkpoint data
-    checkpoints: DBMap<CheckpointSequenceNumber, haneul_types::messages_checkpoint::TrustedCheckpoint>,
+    checkpoints:
+        DBMap<CheckpointSequenceNumber, haneul_types::messages_checkpoint::TrustedCheckpoint>,
     checkpoint_digest_to_sequence_number: DBMap<CheckpointDigest, CheckpointSequenceNumber>,
     checkpoint_contents: DBMap<CheckpointContentsDigest, CheckpointContents>,
 
@@ -256,7 +257,8 @@ impl SimulatorStore for PersistedStore {
     }
 
     fn get_system_state(&self) -> haneul_types::haneul_system_state::HaneulSystemState {
-        haneul_types::haneul_system_state::get_haneul_system_state(self).expect("system state must exist")
+        haneul_types::haneul_system_state::get_haneul_system_state(self)
+            .expect("system state must exist")
     }
 
     fn get_clock(&self) -> haneul_types::clock::Clock {
@@ -742,8 +744,9 @@ impl RpcStateReader for PersistedStoreInnerReadOnlyWrapper {
         &self,
         _: &move_core_types::language_storage::StructTag,
         _overlay: &haneul_types::full_checkpoint_content::ObjectSet,
-    ) -> haneul_types::storage::error::Result<Option<move_core_types::annotated_value::MoveTypeLayout>>
-    {
+    ) -> haneul_types::storage::error::Result<
+        Option<move_core_types::annotated_value::MoveTypeLayout>,
+    > {
         Ok(None)
     }
 }

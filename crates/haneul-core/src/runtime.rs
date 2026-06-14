@@ -24,6 +24,9 @@ impl HaneulRuntimes {
             .build()
             .unwrap();
 
-        Self { haneul_node, metrics }
+        Self {
+            haneul_node,
+            metrics,
+        }
     }
 }

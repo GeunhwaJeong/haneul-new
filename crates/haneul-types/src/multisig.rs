@@ -151,13 +151,11 @@ impl AuthenticatorTrait for MultiSig {
         // Verify each signature against its corresponding signature scheme and public key.
         // TODO: further optimization can be done because multiple Ed25519 signatures can be batch verified.
         for (sig, i) in self.sigs.iter().zip_debug_eq(as_indices(self.bitmap)?) {
-            let (subsig_pubkey, weight) =
-                self.multisig_pk
-                    .pk_map
-                    .get(i as usize)
-                    .ok_or(HaneulErrorKind::InvalidSignature {
-                        error: "Invalid public keys index".to_string(),
-                    })?;
+            let (subsig_pubkey, weight) = self.multisig_pk.pk_map.get(i as usize).ok_or(
+                HaneulErrorKind::InvalidSignature {
+                    error: "Invalid public keys index".to_string(),
+                },
+            )?;
             let res = match sig {
                 CompressedSignature::Ed25519(s) => {
                     if verify_params.additional_multisig_checks
@@ -179,9 +177,10 @@ impl AuthenticatorTrait for MultiSig {
                         })?;
                     pk.verify(
                         &digest,
-                        &s.try_into().map_err(|_| HaneulErrorKind::InvalidSignature {
-                            error: "Invalid ed25519 signature bytes".to_string(),
-                        })?,
+                        &s.try_into()
+                            .map_err(|_| HaneulErrorKind::InvalidSignature {
+                                error: "Invalid ed25519 signature bytes".to_string(),
+                            })?,
                     )
                 }
                 CompressedSignature::Secp256k1(s) => {
@@ -204,9 +203,10 @@ impl AuthenticatorTrait for MultiSig {
                         })?;
                     pk.verify(
                         &digest,
-                        &s.try_into().map_err(|_| HaneulErrorKind::InvalidSignature {
-                            error: "Invalid k1 signature bytes".to_string(),
-                        })?,
+                        &s.try_into()
+                            .map_err(|_| HaneulErrorKind::InvalidSignature {
+                                error: "Invalid k1 signature bytes".to_string(),
+                            })?,
                     )
                 }
                 CompressedSignature::Secp256r1(s) => {
@@ -229,9 +229,10 @@ impl AuthenticatorTrait for MultiSig {
                         })?;
                     pk.verify(
                         &digest,
-                        &s.try_into().map_err(|_| HaneulErrorKind::InvalidSignature {
-                            error: "Invalid r1 signature bytes".to_string(),
-                        })?,
+                        &s.try_into()
+                            .map_err(|_| HaneulErrorKind::InvalidSignature {
+                                error: "Invalid r1 signature bytes".to_string(),
+                            })?,
                     )
                 }
                 CompressedSignature::ZkLogin(z) => {

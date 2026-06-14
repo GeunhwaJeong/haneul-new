@@ -41,7 +41,7 @@ use thiserror::Error;
 
 use crate::{
     accumulator_root::{AccumulatorKey, AccumulatorValue},
-    base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress},
+    base_types::{HaneulAddress, ObjectID, ObjectRef, SequenceNumber},
     committee::EpochId,
     digests::{ChainIdentifier, ObjectDigest},
     error::{UserInputError, UserInputResult},

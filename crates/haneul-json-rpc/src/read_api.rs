@@ -12,6 +12,13 @@ use backoff::future::retry;
 use fastcrypto::encoding::Base64;
 use fastcrypto_zkp::bn254::zk_login_api::ZkLoginEnv;
 use futures::future::join_all;
+use haneul_display::v1::Format;
+use haneul_json_rpc_types::ZkLoginIntentScope;
+use haneul_types::base_types::HaneulAddress;
+use haneul_types::signature::{GenericSignature, VerifyParams};
+use haneul_types::signature_verification::VerifiedDigestCache;
+use haneul_types::storage::ObjectKey;
+use haneullabs_common::ZipDebugEqIteratorExt;
 use im::hashmap::HashMap as ImHashMap;
 use indexmap::map::IndexMap;
 use itertools::Itertools;
@@ -21,20 +28,12 @@ use move_bytecode_utils::module_cache::GetModule;
 use move_core_types::account_address::AccountAddress;
 use move_core_types::annotated_value::{MoveStructLayout, MoveTypeLayout};
 use move_core_types::language_storage::StructTag;
-use haneullabs_common::ZipDebugEqIteratorExt;
 use once_cell::sync::Lazy;
 use serde_json::Value as Json;
 use shared_crypto::intent::{IntentMessage, PersonalMessage};
-use haneul_display::v1::Format;
-use haneul_json_rpc_types::ZkLoginIntentScope;
-use haneul_types::base_types::HaneulAddress;
-use haneul_types::signature::{GenericSignature, VerifyParams};
-use haneul_types::signature_verification::VerifiedDigestCache;
-use haneul_types::storage::ObjectKey;
 use tap::TapFallible;
 use tracing::{debug, error, info, instrument, trace, warn};
 
-use haneullabs_metrics::add_server_timing;
 use haneul_core::authority::AuthorityState;
 use haneul_json_rpc_api::{
     JsonRpcMetrics, QUERY_MAX_RESULT_LIMIT, QUERY_MAX_RESULT_LIMIT_CHECKPOINTS, ReadApiOpenRpc,
@@ -42,9 +41,10 @@ use haneul_json_rpc_api::{
 };
 use haneul_json_rpc_types::{
     BalanceChange, Checkpoint, CheckpointId, CheckpointPage, DisplayFieldsResponse, EventFilter,
-    ObjectChange, ProtocolConfigResponse, HaneulEvent, HaneulGetPastObjectRequest, HaneulObjectDataOptions,
-    HaneulObjectResponse, HaneulPastObjectResponse, HaneulTransactionBlock, HaneulTransactionBlockEvents,
-    HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
+    HaneulEvent, HaneulGetPastObjectRequest, HaneulObjectDataOptions, HaneulObjectResponse,
+    HaneulPastObjectResponse, HaneulTransactionBlock, HaneulTransactionBlockEvents,
+    HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions, ObjectChange,
+    ProtocolConfigResponse,
 };
 use haneul_open_rpc::Module;
 use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
@@ -55,25 +55,26 @@ use haneul_types::display::DisplayVersionUpdatedEvent;
 use haneul_types::display_registry;
 use haneul_types::effects::{TransactionEffects, TransactionEffectsAPI, TransactionEvents};
 use haneul_types::error::{HaneulError, HaneulObjectResponseError};
+use haneul_types::haneul_serde::BigInt;
 use haneul_types::messages_checkpoint::{
     CheckpointContents, CheckpointSequenceNumber, CheckpointSummary, CheckpointTimestamp,
 };
 use haneul_types::object::{Object, ObjectRead, PastObjectRead};
-use haneul_types::haneul_serde::BigInt;
 use haneul_types::transaction::TransactionDataAPI;
 use haneul_types::transaction::{Transaction, TransactionData};
+use haneullabs_metrics::add_server_timing;
 
 use crate::authority_state::{StateRead, StateReadError, StateReadResult};
-use crate::error::{Error, RpcInterimResult, HaneulRpcInputError};
-use crate::{ObjectProvider, with_tracing};
+use crate::error::{Error, HaneulRpcInputError, RpcInterimResult};
 use crate::{
-    ObjectProviderCache, HaneulRpcModule, get_balance_changes_from_effect, get_object_changes,
+    HaneulRpcModule, ObjectProviderCache, get_balance_changes_from_effect, get_object_changes,
 };
+use crate::{ObjectProvider, with_tracing};
 use fastcrypto::encoding::Encoding;
 use fastcrypto::traits::ToFromBytes;
-use shared_crypto::intent::Intent;
 use haneul_json_rpc_types::ZkLoginVerifyResult;
 use haneul_types::authenticator_state::{ActiveJwk, get_authenticator_state};
+use shared_crypto::intent::Intent;
 
 /// Default max depth used while converting rendered Display values to JSON.
 const DEFAULT_MAX_DISPLAY_MOVE_VALUE_DEPTH: usize = 32;
@@ -1016,7 +1017,10 @@ impl ReadApiServer for ReadApi {
     }
 
     #[instrument(skip(self))]
-    async fn get_events(&self, transaction_digest: TransactionDigest) -> RpcResult<Vec<HaneulEvent>> {
+    async fn get_events(
+        &self,
+        transaction_digest: TransactionDigest,
+    ) -> RpcResult<Vec<HaneulEvent>> {
         with_tracing!(async move {
             let state = self.state.clone();
             let transaction_kv_store = self.transaction_kv_store.clone();
@@ -1355,68 +1359,30 @@ async fn get_display_fields(
         return Err(ObjectDisplayError::MoveObject);
     };
 
-    let display: Vec<(String, Result<Json, anyhow::Error>)> =
-        if let Some(display_object) = get_display_object_v2_by_type(fullnode_api, type_)? {
-            let root = haneul_display::v2::OwnedSlice::new(layout, move_object.contents().to_owned());
-            let store = DisplayStore::new(fullnode_api.state.as_ref());
-            let interpreter = haneul_display::v2::Interpreter::new(root, store);
-            let limits = haneul_display::v2::Limits {
-                max_depth: *MAX_DISPLAY_FIELD_DEPTH,
-                max_nodes: *MAX_DISPLAY_FORMAT_NODES,
-                max_loads: *MAX_DISPLAY_OBJECT_LOADS,
-            };
+    let display: Vec<(String, Result<Json, anyhow::Error>)> = if let Some(display_object) =
+        get_display_object_v2_by_type(fullnode_api, type_)?
+    {
+        let root = haneul_display::v2::OwnedSlice::new(layout, move_object.contents().to_owned());
+        let store = DisplayStore::new(fullnode_api.state.as_ref());
+        let interpreter = haneul_display::v2::Interpreter::new(root, store);
+        let limits = haneul_display::v2::Limits {
+            max_depth: *MAX_DISPLAY_FIELD_DEPTH,
+            max_nodes: *MAX_DISPLAY_FORMAT_NODES,
+            max_loads: *MAX_DISPLAY_OBJECT_LOADS,
+        };
 
-            match haneul_display::v2::Display::parse(limits, display_object.fields()) {
-                Ok(display) => match display
-                    .display::<Json>(
-                        *MAX_DISPLAY_MOVE_VALUE_DEPTH,
-                        *MAX_DISPLAY_OUTPUT_SIZE,
-                        &interpreter,
-                    )
-                    .await
-                {
-                    Ok(fields) => fields
-                        .into_iter()
-                        .map(|(field, value)| (field, value.map_err(anyhow::Error::from)))
-                        .collect(),
-                    Err(e) => {
-                        return Ok(DisplayFieldsResponse {
-                            data: None,
-                            error: Some(HaneulObjectResponseError::DisplayError {
-                                error: e.to_string(),
-                            }),
-                        });
-                    }
-                },
-
-                Err(e) => {
-                    return Ok(DisplayFieldsResponse {
-                        data: None,
-                        error: Some(HaneulObjectResponseError::DisplayError {
-                            error: e.to_string(),
-                        }),
-                    });
-                }
-            }
-        } else if let Some(display_object) =
-            get_display_object_v1_by_type(kv_store, fullnode_api, type_).await?
-        {
-            let format = match Format::parse(*MAX_DISPLAY_FIELD_DEPTH, &display_object.fields) {
-                Ok(format) => format,
-                Err(e) => {
-                    return Ok(DisplayFieldsResponse {
-                        data: None,
-                        error: Some(HaneulObjectResponseError::DisplayError {
-                            error: e.to_string(),
-                        }),
-                    });
-                }
-            };
-
-            match format.display(*MAX_DISPLAY_OUTPUT_SIZE, move_object.contents(), &layout) {
+        match haneul_display::v2::Display::parse(limits, display_object.fields()) {
+            Ok(display) => match display
+                .display::<Json>(
+                    *MAX_DISPLAY_MOVE_VALUE_DEPTH,
+                    *MAX_DISPLAY_OUTPUT_SIZE,
+                    &interpreter,
+                )
+                .await
+            {
                 Ok(fields) => fields
                     .into_iter()
-                    .map(|(field, value)| (field, value.map(Json::String)))
+                    .map(|(field, value)| (field, value.map_err(anyhow::Error::from)))
                     .collect(),
                 Err(e) => {
                     return Ok(DisplayFieldsResponse {
@@ -1426,13 +1392,52 @@ async fn get_display_fields(
                         }),
                     });
                 }
+            },
+
+            Err(e) => {
+                return Ok(DisplayFieldsResponse {
+                    data: None,
+                    error: Some(HaneulObjectResponseError::DisplayError {
+                        error: e.to_string(),
+                    }),
+                });
             }
-        } else {
-            return Ok(DisplayFieldsResponse {
-                data: None,
-                error: None,
-            });
+        }
+    } else if let Some(display_object) =
+        get_display_object_v1_by_type(kv_store, fullnode_api, type_).await?
+    {
+        let format = match Format::parse(*MAX_DISPLAY_FIELD_DEPTH, &display_object.fields) {
+            Ok(format) => format,
+            Err(e) => {
+                return Ok(DisplayFieldsResponse {
+                    data: None,
+                    error: Some(HaneulObjectResponseError::DisplayError {
+                        error: e.to_string(),
+                    }),
+                });
+            }
         };
+
+        match format.display(*MAX_DISPLAY_OUTPUT_SIZE, move_object.contents(), &layout) {
+            Ok(fields) => fields
+                .into_iter()
+                .map(|(field, value)| (field, value.map(Json::String)))
+                .collect(),
+            Err(e) => {
+                return Ok(DisplayFieldsResponse {
+                    data: None,
+                    error: Some(HaneulObjectResponseError::DisplayError {
+                        error: e.to_string(),
+                    }),
+                });
+            }
+        }
+    } else {
+        return Ok(DisplayFieldsResponse {
+            data: None,
+            error: None,
+        });
+    };
 
     let mut fields = BTreeMap::new();
     let mut errors = vec![];

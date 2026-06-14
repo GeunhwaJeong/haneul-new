@@ -7,13 +7,13 @@ use crate::workloads::payload::Payload;
 use crate::workloads::{Gas, GasCoinConfig};
 use anyhow::anyhow;
 use async_trait::async_trait;
+use haneul_types::gas_coin::GEUNHWA_PER_HANEUL;
 use rand::Rng;
 use rand::distributions::{Distribution, Standard};
 use std::str::FromStr;
 use std::sync::Arc;
 use strum::{EnumCount, IntoEnumIterator};
 use strum_macros::{EnumCount as EnumCountMacro, EnumIter};
-use haneul_types::gas_coin::GEUNHWA_PER_HANEUL;
 
 // This is the maximum gas we will transfer from primary coin into any gas coin
 // for running the benchmark

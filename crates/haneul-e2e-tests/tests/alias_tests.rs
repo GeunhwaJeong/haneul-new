@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::sync::Arc;
 use haneul_core::authority_client::NetworkAuthorityClient;
 use haneul_core::safe_client::SafeClient;
 use haneul_keys::keystore::AccountKeystore;
@@ -17,6 +16,7 @@ use haneul_types::messages_grpc::{
 };
 use haneul_types::transaction::{CallArg, ObjectArg, Transaction};
 use haneul_types::{HANEUL_ADDRESS_ALIAS_STATE_OBJECT_ID, HANEUL_FRAMEWORK_PACKAGE_ID};
+use std::sync::Arc;
 use test_cluster::TestClusterBuilder;
 
 async fn submit_and_wait_for_effects(

@@ -6,12 +6,6 @@ use crate::{DataIngestionMetrics, FileProgressStore, IndexerExecutor, WorkerPool
 use crate::{ReaderOptions, Worker};
 use anyhow::Result;
 use async_trait::async_trait;
-use prometheus::Registry;
-use prost::Message;
-use rand::SeedableRng;
-use rand::prelude::StdRng;
-use std::path::PathBuf;
-use std::time::Duration;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_rpc::field::FieldMask;
 use haneul_rpc::field::FieldMaskUtil;
@@ -25,6 +19,12 @@ use haneul_types::messages_checkpoint::{
     SignedCheckpointSummary,
 };
 use haneul_types::utils::make_committee_key;
+use prometheus::Registry;
+use prost::Message;
+use rand::SeedableRng;
+use rand::prelude::StdRng;
+use std::path::PathBuf;
+use std::time::Duration;
 use tempfile::NamedTempFile;
 use tokio::sync::oneshot;
 

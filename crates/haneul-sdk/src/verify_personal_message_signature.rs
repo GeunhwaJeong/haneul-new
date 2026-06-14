@@ -4,7 +4,6 @@
 use std::sync::Arc;
 
 use crate::error::Error;
-use shared_crypto::intent::{Intent, IntentMessage, PersonalMessage};
 use haneul_rpc::Client;
 use haneul_rpc::proto::haneul::rpc::v2::{Bcs, UserSignature, VerifySignatureRequest};
 use haneul_types::{
@@ -12,6 +11,7 @@ use haneul_types::{
     signature::{AuthenticatorTrait, GenericSignature, VerifyParams},
     signature_verification::VerifiedDigestCache,
 };
+use shared_crypto::intent::{Intent, IntentMessage, PersonalMessage};
 
 /// Verify a signature against a personal message bytes and the haneul address.
 /// HaneulClient is required to pass in if zkLogin signature is supplied.

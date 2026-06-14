@@ -3,13 +3,13 @@
 
 use crate::mock_account::Account;
 use crate::tx_generator::TxGenerator;
-use move_core_types::identifier::Identifier;
-use std::sync::atomic::{AtomicU32, Ordering};
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::HANEUL_FRAMEWORK_PACKAGE_ID;
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::gas_coin::GAS;
 use haneul_types::transaction::{DEFAULT_VALIDATOR_GAS_PRICE, FundsWithdrawalArg, Transaction};
+use move_core_types::identifier::Identifier;
+use std::sync::atomic::{AtomicU32, Ordering};
 
 pub struct SendFundsTxGenerator {
     chain_identifier: ChainIdentifier,
@@ -32,7 +32,8 @@ impl SendFundsTxGenerator {
 impl TxGenerator for SendFundsTxGenerator {
     fn generate_tx(&self, account: Account) -> Transaction {
         let nonce = self.nonce_counter.fetch_add(1, Ordering::Relaxed);
-        let (recipient, _) = haneul_types::crypto::get_key_pair::<haneul_types::crypto::AccountKeyPair>();
+        let (recipient, _) =
+            haneul_types::crypto::get_key_pair::<haneul_types::crypto::AccountKeyPair>();
 
         let mut tx_builder = TestTransactionBuilder::new_with_address_balance_gas(
             account.sender,

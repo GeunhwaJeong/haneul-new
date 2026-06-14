@@ -7,10 +7,10 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use cached::SizedCache;
 use cached::proc_macro::cached;
+use haneul_core::jsonrpc_index::TotalBalance;
 use jsonrpsee::RpcModule;
 use jsonrpsee::core::RpcResult;
 use move_core_types::language_storage::{StructTag, TypeTag};
-use haneul_core::jsonrpc_index::TotalBalance;
 use tap::TapFallible;
 use tracing::instrument;
 
@@ -21,7 +21,7 @@ use haneul_json_rpc_types::{CoinPage, HaneulCoinMetadata};
 use haneul_open_rpc::Module;
 use haneul_storage::key_value_store::TransactionKeyValueStore;
 use haneul_types::balance::Supply;
-use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID};
 use haneul_types::coin::{CoinMetadata, TreasuryCap};
 use haneul_types::coin_registry::{Currency, SupplyState};
 use haneul_types::effects::TransactionEffectsAPI;
@@ -34,7 +34,7 @@ use haneul_types::storage::ObjectStore;
 use mockall::automock;
 
 use crate::authority_state::StateRead;
-use crate::error::{Error, RpcInterimResult, HaneulRpcInputError};
+use crate::error::{Error, HaneulRpcInputError, RpcInterimResult};
 use crate::{HaneulRpcModule, with_tracing};
 
 pub fn parse_to_struct_tag(coin_type: &str) -> Result<StructTag, HaneulRpcInputError> {
@@ -135,9 +135,10 @@ impl CoinReadApiServer for CoinReadApi {
                     })?;
 
                     if coin_type_tag.to_string() != decoded.coin_type {
-                        return Err(
-                            HaneulRpcInputError::GenericInvalid("invalid cursor".to_string()).into(),
-                        );
+                        return Err(HaneulRpcInputError::GenericInvalid(
+                            "invalid cursor".to_string(),
+                        )
+                        .into());
                     }
                     (
                         decoded.coin_type,
@@ -523,17 +524,13 @@ mod tests {
     use super::*;
     use crate::authority_state::{MockStateRead, StateReadError};
     use expect_test::expect;
-    use mockall::mock;
-    use mockall::predicate;
-    use move_core_types::account_address::AccountAddress;
-    use move_core_types::language_storage::StructTag;
     use haneul_json_rpc_types::Coin;
     use haneul_storage::key_value_store::{
         KVStoreCheckpointData, KVStoreTransactionData, TransactionKeyValueStoreTrait,
     };
     use haneul_storage::key_value_store_metrics::KeyValueStoreMetrics;
     use haneul_types::balance::Supply;
-    use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
+    use haneul_types::base_types::{HaneulAddress, ObjectID, SequenceNumber};
     use haneul_types::coin::TreasuryCap;
     use haneul_types::digests::{ObjectDigest, TransactionDigest};
     use haneul_types::effects::{TransactionEffects, TransactionEvents};
@@ -546,6 +543,10 @@ mod tests {
     use haneul_types::object::Owner;
     use haneul_types::utils::create_fake_transaction;
     use haneul_types::{TypeTag, parse_haneul_struct_tag};
+    use mockall::mock;
+    use mockall::predicate;
+    use move_core_types::account_address::AccountAddress;
+    use move_core_types::language_storage::StructTag;
 
     mock! {
         pub KeyValueStore {}
@@ -907,8 +908,9 @@ mod tests {
             .encode();
             let limit = 2;
 
-            let coin_type_tag =
-                TypeTag::Struct(Box::new(parse_haneul_struct_tag(&coins[0].coin_type).unwrap()));
+            let coin_type_tag = TypeTag::Struct(Box::new(
+                parse_haneul_struct_tag(&coins[0].coin_type).unwrap(),
+            ));
             let mut mock_state = MockStateRead::new();
             mock_state
                 .expect_get_owned_coins()
@@ -1429,8 +1431,8 @@ mod tests {
     mod get_coin_metadata_tests {
         use super::super::*;
         use super::*;
-        use mockall::predicate;
         use haneul_types::id::UID;
+        use mockall::predicate;
 
         // Success scenarios
         #[tokio::test]
@@ -1636,8 +1638,8 @@ mod tests {
     mod get_total_supply_tests {
         use super::super::*;
         use super::*;
-        use mockall::predicate;
         use haneul_types::id::UID;
+        use mockall::predicate;
 
         #[tokio::test]
         async fn test_success_response_for_gas_coin() {

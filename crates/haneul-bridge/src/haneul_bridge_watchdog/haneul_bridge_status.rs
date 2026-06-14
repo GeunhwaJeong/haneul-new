@@ -19,7 +19,10 @@ pub struct HaneulBridgeStatus {
 
 impl HaneulBridgeStatus {
     pub fn new(haneul_client: Arc<HaneulBridgeClient>, metric: IntGauge) -> Self {
-        Self { haneul_client, metric }
+        Self {
+            haneul_client,
+            metric,
+        }
     }
 }
 

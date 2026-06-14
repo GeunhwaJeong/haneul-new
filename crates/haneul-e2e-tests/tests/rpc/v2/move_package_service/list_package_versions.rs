@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use move_core_types::ident_str;
 use haneul_macros::sim_test;
 use haneul_move_build::BuildConfig;
 use haneul_rpc::proto::haneul::rpc::v2::{
@@ -13,6 +12,7 @@ use haneul_types::{
     programmable_transaction_builder::ProgrammableTransactionBuilder,
     transaction::{ObjectArg, TEST_ONLY_GAS_UNIT_FOR_PUBLISH, TransactionData},
 };
+use move_core_types::ident_str;
 use test_cluster::TestClusterBuilder;
 
 #[sim_test]

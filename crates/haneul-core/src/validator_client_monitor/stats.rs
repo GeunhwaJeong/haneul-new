@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::validator_client_monitor::{OperationFeedback, OperationType};
+use haneul_config::validator_client_monitor_config::ValidatorClientMonitorConfig;
+use haneul_types::base_types::AuthorityName;
+use haneul_types::committee::Committee;
 use haneullabs_common::moving_window::MovingWindow;
 use std::collections::btree_map::Entry;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::time::Duration;
-use haneul_config::validator_client_monitor_config::ValidatorClientMonitorConfig;
-use haneul_types::base_types::AuthorityName;
-use haneul_types::committee::Committee;
 use tracing::debug;
 
 // TODO: A few optimization to consider:

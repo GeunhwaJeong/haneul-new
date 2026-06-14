@@ -3,11 +3,11 @@
 
 use std::sync::Arc;
 
-use rand::{Rng, seq::SliceRandom};
 use haneul_macros::sim_test;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_test_transaction_builder::FundSource;
 use haneul_types::{effects::TransactionEffectsAPI, gas_coin::GEUNHWA_PER_HANEUL};
+use rand::{Rng, seq::SliceRandom};
 use test_cluster::TestClusterBuilder;
 
 #[sim_test]

@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::time::Duration;
 use haneul_macros::sim_test;
 use haneul_protocol_config::ProtocolConfig;
+use std::time::Duration;
 use test_cluster::TestClusterBuilder;
 use tracing::info;
 

@@ -8,9 +8,9 @@ use crate::{
     diag,
     diagnostics::codes::{DiagnosticInfo, Severity, custom},
     expansion::ast::ModuleIdent,
+    haneul_mode::HANEUL_ADDR_VALUE,
     naming::ast as N,
     parser::ast::DatatypeName,
-    haneul_mode::HANEUL_ADDR_VALUE,
     typing::{ast as T, visitor::simple_visitor},
 };
 

@@ -31,7 +31,10 @@ async fn main() -> Result<(), anyhow::Error> {
     println!(" *** Committee Info ***\n");
 
     // Latest Haneul System State
-    let haneul_system_state = haneul.governance_api().get_latest_haneul_system_state().await?;
+    let haneul_system_state = haneul
+        .governance_api()
+        .get_latest_haneul_system_state()
+        .await?;
 
     println!(" *** Haneul System State ***");
     println!("{:?}", haneul_system_state);

@@ -175,9 +175,13 @@ Create a `Move.toml` that references the deployed CTF package:
 ```toml title='Move.toml'
 [package]
 name = "exploit"
+edition = "2024"
 
 [dependencies]
 ctf = { git = "https://github.com/GeunhwaJeong/CTF.git", subdir = "contracts", rev = "main" }
+
+[addresses]
+exploit = "0x0"
 ```
 
 ##### Step 4: Write the wrapper module

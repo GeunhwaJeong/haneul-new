@@ -2,16 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use clap::Parser;
+use haneul_package_alt::HaneulFlavor;
+use haneul_types::{
+    base_types::ObjectID,
+    move_package::{TypeOrigin, UpgradeInfo},
+};
 use move_cli::base::summary;
 use move_package_alt_compilation::build_config::BuildConfig;
 use std::{
     collections::BTreeMap,
     path::{Path, PathBuf},
-};
-use haneul_package_alt::HaneulFlavor;
-use haneul_types::{
-    base_types::ObjectID,
-    move_package::{TypeOrigin, UpgradeInfo},
 };
 
 #[derive(Parser)]

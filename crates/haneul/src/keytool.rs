@@ -22,20 +22,6 @@ use fastcrypto_zkp::bn254::utils::{
 use fastcrypto_zkp::bn254::zk_login::{JWK, JwkId};
 use fastcrypto_zkp::bn254::zk_login::{OIDCProvider, ZkLoginInputs, fetch_jwks};
 use fastcrypto_zkp::bn254::zk_login_api::ZkLoginEnv;
-use im::hashmap::HashMap as ImHashMap;
-use json_to_table::{Orientation, json_to_table};
-use haneullabs_common::ZipDebugEqIteratorExt;
-use num_bigint::BigUint;
-use rand::Rng;
-use rand::SeedableRng;
-use rand::rngs::StdRng;
-use serde::Serialize;
-use serde_json::json;
-use shared_crypto::intent::{Intent, IntentMessage, IntentScope, PersonalMessage};
-use std::fmt::{Debug, Display, Formatter};
-use std::fs;
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
 use haneul_keys::key_derive::generate_new_key;
 use haneul_keys::key_identity::KeyIdentity;
 use haneul_keys::keypair_file::{
@@ -48,7 +34,7 @@ use haneul_types::base_types::HaneulAddress;
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::{DefaultHash, PublicKey};
 use haneul_types::crypto::{
-    EncodeDecodeBase64, Signature, SignatureScheme, HaneulKeyPair, ZkLoginPublicIdentifier,
+    EncodeDecodeBase64, HaneulKeyPair, Signature, SignatureScheme, ZkLoginPublicIdentifier,
     get_authority_key_pair,
 };
 use haneul_types::error::HaneulResult;
@@ -58,6 +44,20 @@ use haneul_types::signature::{GenericSignature, VerifyParams};
 use haneul_types::signature_verification::VerifiedDigestCache;
 use haneul_types::transaction::{TransactionData, TransactionDataAPI};
 use haneul_types::zk_login_authenticator::ZkLoginAuthenticator;
+use haneullabs_common::ZipDebugEqIteratorExt;
+use im::hashmap::HashMap as ImHashMap;
+use json_to_table::{Orientation, json_to_table};
+use num_bigint::BigUint;
+use rand::Rng;
+use rand::SeedableRng;
+use rand::rngs::StdRng;
+use serde::Serialize;
+use serde_json::json;
+use shared_crypto::intent::{Intent, IntentMessage, IntentScope, PersonalMessage};
+use std::fmt::{Debug, Display, Formatter};
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use tabled::builder::Builder;
 use tabled::settings::Rotate;
 use tabled::settings::{Modify, Width, object::Rows};
@@ -964,8 +964,9 @@ impl KeyToolCommand {
                 let intent_msg = IntentMessage::new(Intent::personal_message(), msg.clone());
 
                 // set up keypair, nonce with max_epoch
-                let skp =
-                    HaneulKeyPair::Ed25519(Ed25519KeyPair::generate(&mut StdRng::from_seed([0; 32])));
+                let skp = HaneulKeyPair::Ed25519(Ed25519KeyPair::generate(&mut StdRng::from_seed(
+                    [0; 32],
+                )));
                 let jwt_randomness = BigUint::from_bytes_be(&[0; 32]).to_string();
                 let mut eph_pk_bytes = vec![0x00];
                 eph_pk_bytes.extend(skp.public().as_ref());
@@ -1030,7 +1031,9 @@ impl KeyToolCommand {
                 sign_with_sk,
             } => {
                 let skp = if fixed {
-                    HaneulKeyPair::Ed25519(Ed25519KeyPair::generate(&mut StdRng::from_seed([0; 32])))
+                    HaneulKeyPair::Ed25519(Ed25519KeyPair::generate(&mut StdRng::from_seed(
+                        [0; 32],
+                    )))
                 } else {
                     HaneulKeyPair::Ed25519(Ed25519KeyPair::generate(&mut rand::thread_rng()))
                 };
@@ -1330,7 +1333,10 @@ impl KeyToolCommand {
 
                                 let sig = GenericSignature::ZkLoginAuthenticator(zk.clone());
                                 let res = sig.verify_authenticator(
-                                    &IntentMessage::new(Intent::haneul_transaction(), tx_data.clone()),
+                                    &IntentMessage::new(
+                                        Intent::haneul_transaction(),
+                                        tx_data.clone(),
+                                    ),
                                     tx_data.execution_parts().1,
                                     cur_epoch.unwrap(),
                                     &verify_params,

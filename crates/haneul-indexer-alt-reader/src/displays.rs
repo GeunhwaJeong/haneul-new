@@ -7,10 +7,10 @@ use anyhow::Context;
 use async_graphql::dataloader::Loader;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
-use move_core_types::language_storage::StructTag;
-use haneullabs_common::ZipDebugEqIteratorExt;
 use haneul_indexer_alt_schema::displays::StoredDisplay;
 use haneul_indexer_alt_schema::schema::sum_displays;
+use haneullabs_common::ZipDebugEqIteratorExt;
+use move_core_types::language_storage::StructTag;
 
 use crate::error::Error;
 use crate::pg_reader::PgReader;

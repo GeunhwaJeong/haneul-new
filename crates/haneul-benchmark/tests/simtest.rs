@@ -3,17 +3,6 @@
 
 #[cfg(msim)]
 mod test {
-    use haneullabs_common::{random::get_rng, register_debug_fatal_handler};
-    use prost::Message;
-    use rand::{Rng, distributions::uniform::SampleRange, thread_rng};
-    use std::collections::BTreeMap;
-    use std::collections::HashSet;
-    use std::num::NonZeroUsize;
-    use std::path::PathBuf;
-    use std::str::FromStr;
-    use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
-    use std::sync::{Arc, Mutex};
-    use std::time::{Duration, Instant};
     use haneul_benchmark::BenchmarkProxyMetrics;
     use haneul_benchmark::bank::BenchmarkBank;
     use haneul_benchmark::system_state_observer::SystemStateObserver;
@@ -55,7 +44,7 @@ mod test {
     use haneul_swarm_config::network_config_builder::ConfigBuilder;
     use haneul_types::HANEUL_ACCUMULATOR_ROOT_OBJECT_ID;
     use haneul_types::base_types::{
-        AuthorityName, ConciseableName, ObjectID, SequenceNumber, HaneulAddress,
+        AuthorityName, ConciseableName, HaneulAddress, ObjectID, SequenceNumber,
     };
     use haneul_types::committee::CommitteeTrait;
     use haneul_types::digests::TransactionDigest;
@@ -64,6 +53,17 @@ mod test {
     use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
     use haneul_types::traffic_control::{FreqThresholdConfig, PolicyConfig, PolicyType};
     use haneul_types::transaction::{TransactionDataAPI, TransactionKind};
+    use haneullabs_common::{random::get_rng, register_debug_fatal_handler};
+    use prost::Message;
+    use rand::{Rng, distributions::uniform::SampleRange, thread_rng};
+    use std::collections::BTreeMap;
+    use std::collections::HashSet;
+    use std::num::NonZeroUsize;
+    use std::path::PathBuf;
+    use std::str::FromStr;
+    use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+    use std::sync::{Arc, Mutex};
+    use std::time::{Duration, Instant};
     use test_cluster::{TestCluster, TestClusterBuilder};
     use tracing::{error, info, trace};
     use typed_store::traits::Map;
@@ -405,14 +405,6 @@ mod test {
     async fn test_simulated_load_reconfig_with_crashes_and_delays() {
         haneul_protocol_config::ProtocolConfig::poison_get_for_min_version();
 
-        // Use a short DKG timeout so that if DKG is prevented from completing (e.g. by the
-        // rb-dkg fail point below), DKG failure is declared quickly rather than at round 3000.
-        // This ensures the epoch transition completes within the surfer's 120s window.
-        let _dkg_timeout_guard = ProtocolConfig::apply_overrides_for_testing(|_, mut config| {
-            config.set_random_beacon_dkg_timeout_round_for_testing(50);
-            config
-        });
-
         register_fail_point_if("select-random-cache", || true);
 
         let test_cluster = Arc::new(
@@ -506,10 +498,6 @@ mod test {
         });
         register_fail_point_async("consensus-delay", || delay_failpoint(10..20, 0.001));
         register_fail_point_async("randomness-delay", || delay_failpoint(10..1000, 0.5));
-
-        // Cause DKG to fail ~5% of the time. With 4 validators and crashes reducing the active
-        // quorum, empirically ~6% per-validator skip rate produces ~5% DKG failure per epoch.
-        register_fail_point_if("rb-dkg", || thread_rng().gen_bool(0.06));
 
         test_simulated_load(test_cluster, 120).await;
     }
@@ -1710,12 +1698,7 @@ mod test {
             assert!(metrics_sum.success_count > 150);
             assert!(metrics_sum.permanent_failure_count > 50);
         }
-        // Congestion-induced cancellations vary seed-to-seed in a narrow band that
-        // can dip just below 100 (observed ~98-121 over a 200-seed sweep), making a
-        // `> 100` bar flake ~3% of the time. A `> 50` bar still asserts that
-        // shared-object congestion control actually kicked in, with comfortable
-        // margin below the observed floor.
-        assert!(metrics_sum.cancellation_count > 50);
+        assert!(metrics_sum.cancellation_count > 100);
 
         if address_aliases_enabled {
             let alias_add_stats = metrics
@@ -2155,145 +2138,6 @@ mod test {
         async_indexes
             .tables()
             .check_databases_equal(sync_indexes.tables());
-    }
-
-    /// Test that Observer nodes can connect to validators and stream consensus
-    #[sim_test(config = "test_config()")]
-    async fn test_network_with_observer_node() {
-        use consensus_config::{NetworkPublicKey, ObserverParameters, PeerRecord};
-        use haneul_types::crypto::KeypairTraits;
-
-        haneul_protocol_config::ProtocolConfig::poison_get_for_min_version();
-
-        info!("Setting up 4-validator network for Observer node test");
-
-        // Build a 4-node validator network with observer server enabled on all validators
-        let mut test_cluster = init_test_cluster_builder(4, 40_000)
-            .with_authority_overload_config(AuthorityOverloadConfig {
-                check_system_overload_at_execution: false,
-                check_system_overload_at_signing: false,
-                ..Default::default()
-            })
-            .with_validator_observer_config(Arc::new(|_idx| Some(ObserverParameters::default())))
-            .build()
-            .await;
-
-        info!("Creating Observer node configuration");
-
-        // Find the validator that has the observer server enabled
-        let observer_peers = {
-            let validator = test_cluster
-                .swarm
-                .validator_nodes()
-                .find(|v| {
-                    v.config()
-                        .consensus_config
-                        .as_ref()
-                        .and_then(|c| c.parameters.as_ref())
-                        .and_then(|p| p.observer.server_port)
-                        .is_some()
-                })
-                .expect("At least one validator should have observer server enabled");
-            let validator_config = validator.config();
-            let consensus_config = validator_config.consensus_config.as_ref().unwrap();
-
-            let observer_port = consensus_config
-                .parameters
-                .as_ref()
-                .and_then(|p| p.observer.server_port)
-                .unwrap();
-
-            let network_public_key =
-                NetworkPublicKey::new(validator_config.network_key_pair().public().clone());
-
-            let validator_host = validator_config
-                .network_address
-                .to_socket_addr()
-                .unwrap()
-                .ip()
-                .to_string();
-
-            let observer_address: haneul_types::multiaddr::Multiaddr =
-                format!("/ip4/{}/udp/{}/http", validator_host, observer_port)
-                    .parse()
-                    .unwrap();
-
-            info!(
-                "Connecting Observer to validator at {} with observer port {}",
-                observer_address, observer_port
-            );
-
-            vec![PeerRecord {
-                public_key: network_public_key,
-                address: observer_address,
-            }]
-        };
-
-        info!(
-            "Creating Observer node with {} configured peers",
-            observer_peers.len()
-        );
-
-        let observer_config = test_cluster
-            .fullnode_config_builder()
-            .with_observer_config(ObserverParameters {
-                peers: observer_peers,
-                ..Default::default()
-            })
-            .build(&mut get_rng(), test_cluster.swarm.config());
-
-        info!("Starting Observer node with consensus enabled");
-
-        // Start the Observer node
-        let observer_handle = test_cluster
-            .start_fullnode_from_config(observer_config)
-            .await;
-        let observer_node_id = observer_handle.haneul_node.with(|n| n.get_sim_node_id());
-        let observer_state = observer_handle.haneul_node.state();
-
-        info!(
-            "Observer node started with node_id: {:?}, node_role: {:?}, runs_consensus: {}",
-            observer_node_id,
-            observer_state.epoch_store_for_testing().node_role(),
-            observer_state
-                .epoch_store_for_testing()
-                .node_role()
-                .runs_consensus()
-        );
-
-        // Let the Observer node stabilize
-        tokio::time::sleep(Duration::from_secs(5)).await;
-
-        info!("Running network for a period to verify Observer node doesn't crash");
-
-        // Let the network run for a while to ensure the Observer node is stable
-        // Submit a few transactions to generate some network activity
-        let sender = test_cluster.get_address_0();
-        let rgp = test_cluster.get_reference_gas_price().await;
-
-        for i in 0..5 {
-            info!("Submitting transaction {}", i);
-            // Fund an address to generate some transaction activity
-            let _ = test_cluster
-                .fund_address_and_return_gas(rgp, None, sender)
-                .await;
-            tokio::time::sleep(Duration::from_secs(2)).await;
-        }
-
-        info!("Waiting for the network to advance...");
-
-        // Let the network run longer to verify Observer stability
-        tokio::time::sleep(Duration::from_secs(40)).await;
-
-        // Check that the Observer node is still running and has the correct role
-        let final_node_role = observer_state.epoch_store_for_testing().node_role();
-        info!(
-            "Observer node final check - node_role: {:?}, runs_consensus: {}",
-            final_node_role,
-            final_node_role.runs_consensus()
-        );
-
-        info!("Observer node test completed successfully - node ran without crashing");
     }
 
     /// Finds the most recent protocol version that uses an older execution version

@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use std::ops::Not;
 use std::str::FromStr;
 use std::vec;
@@ -20,156 +20,33 @@ use haneul_rpc::proto::haneul::rpc::v2::ExecutedTransaction;
 use haneul_rpc::proto::haneul::rpc::v2::Input;
 use haneul_rpc::proto::haneul::rpc::v2::MoveCall;
 use haneul_rpc::proto::haneul::rpc::v2::ProgrammableTransaction;
-use haneul_rpc::proto::haneul::rpc::v2::Transaction as ProtoTransaction;
 use haneul_rpc::proto::haneul::rpc::v2::TransactionKind;
 use haneul_rpc::proto::haneul::rpc::v2::argument::ArgumentKind;
 use haneul_rpc::proto::haneul::rpc::v2::command::Command;
 use haneul_rpc::proto::haneul::rpc::v2::input::InputKind;
 use haneul_rpc::proto::haneul::rpc::v2::transaction_kind::Data as TransactionKindData;
 use haneul_rpc::proto::haneul::rpc::v2::transaction_kind::Kind::ProgrammableTransaction as ProgrammableTransactionKind;
-use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID, SequenceNumber};
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::governance::{ADD_STAKE_FUN_NAME, WITHDRAW_STAKE_FUN_NAME};
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
 use haneul_types::{
-    HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_ADDRESS, HANEUL_SYSTEM_PACKAGE_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
+    HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_ADDRESS, HANEUL_SYSTEM_PACKAGE_ID,
+    HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
 
-#[cfg(test)]
-use crate::types::RedeemPlan;
 use crate::types::internal_operation::{
-    ConsolidateAllStakedHaneulToFungible, MergeAndRedeemFungibleStakedHaneul, PayCoin, PayHaneul, Stake,
-    WithdrawStake,
+    ConsolidateAllStakedHaneulToFungible, MergeAndRedeemFungibleStakedHaneul, PayCoin, PayHaneul,
+    Stake, WithdrawStake,
 };
 use crate::types::{
-    AccountIdentifier, Amount, AuxData, CoinAction, CoinChange, CoinID, CoinIdentifier, Currency,
+    AccountIdentifier, Amount, CoinAction, CoinChange, CoinID, CoinIdentifier, Currency,
     InternalOperation, OperationIdentifier, OperationStatus, OperationType, RedeemMode,
 };
 use crate::{CoinMetadataCache, Error, HANEUL};
 
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
 pub struct Operations(Vec<Operation>);
-
-/// Which currency labels a payment-shaped PTB's operations, decided by the
-/// caller and applied by the parser. The parser cannot compute this itself — the
-/// coin type isn't in the PTB; it comes from the `/parse` annotation or from
-/// `balance_changes`.
-#[derive(Clone, Debug)]
-pub(crate) enum PaymentCurrency {
-    /// No non-HANEUL coin → PayHaneul ops.
-    Haneul,
-    /// Exactly one resolved non-HANEUL coin → PayCoin(_) ops.
-    NonHaneul(Currency),
-    /// A non-HANEUL coin is involved but we can't pin it to one known currency —
-    /// its metadata didn't resolve, or two-plus non-HANEUL coins were present →
-    /// generic_op.
-    Unresolvable,
-}
-
-/// The currencies a transaction touches, resolved once from `balance_changes`.
-#[derive(Debug)]
-struct TxCurrencies {
-    /// `coin_type → Currency` for every resolved coin; drives the per-coin
-    /// balance-change reporting in the reconciliation pass.
-    by_coin_type: BTreeMap<String, Currency>,
-    /// How to label the payment ops (`Unresolvable` → generic_op).
-    payment: PaymentCurrency,
-}
-
-/// Resolve every coin in `balance_changes` to its `Currency` and, in the same
-/// pass, decide which currency labels the payment. See [`TxCurrencies`] for the
-/// two outputs.
-///
-/// The `payment` label is:
-/// - 0 non-HANEUL coins → `Haneul`
-/// - exactly 1 resolved non-HANEUL coin → `NonHaneul`
-/// - ≥2 resolved non-HANEUL coins, or any coin with no usable metadata →
-///   `Unresolvable` (rosetta's `pay_coin_pt` produces exactly one non-HANEUL
-///   balance change, so anything else means we can't trust a PayCoin label and
-///   fall through to generic_op rather than guess)
-///
-/// For a non-HANEUL coin we degrade to `Unresolvable` only when it genuinely has no
-/// usable metadata (empty symbol / NotFound / missing); every other (transient)
-/// failure returns a retriable error so `/block` stalls and retries rather than
-/// baking a generic_op into a block that should have been PayCoin (by-hash
-/// idempotency).
-async fn resolve_tx_currencies(
-    balance_changes: &[BalanceChange],
-    cache: &CoinMetadataCache,
-) -> Result<TxCurrencies, Error> {
-    let mut currencies: BTreeMap<String, Currency> = BTreeMap::new();
-    let mut any_unresolvable = false;
-    for balance_change in balance_changes {
-        let coin_type = balance_change.coin_type();
-        // HANEUL's metadata is fixed and known — insert it directly rather than
-        // spending an RPC per transaction. It stays in the map so HANEUL balance
-        // changes survive the reconciliation filter; the non-HANEUL count below
-        // ignores it.
-        if coin_type == HANEUL.metadata.coin_type {
-            currencies.insert(coin_type.to_string(), HANEUL.clone());
-            continue;
-        }
-        let type_tag = haneul_types::TypeTag::from_str(coin_type)
-            .map_err(|e| anyhow!("Invalid coin type: {}", e))?;
-        // `get_currency` surfaces "this coin has no usable metadata" in three
-        // different shapes, depending on what the upstream node returned and
-        // where it short-circuited: an `Ok` whose symbol is empty (metadata
-        // present but blank), `Err(MissingMetadata)` (response came back but the
-        // symbol/decimals fields were absent), or `Err(HaneulRpcError(NotFound))`
-        // (the node answered the lookup with a NotFound status — the common one).
-        // All three mean the same thing to us, so the next three arms collapse
-        // them into the same "degrade to generic_op" outcome.
-        match cache.get_currency(&type_tag).await {
-            Ok(currency) if !currency.symbol.is_empty() => {
-                currencies.insert(coin_type.to_string(), currency);
-            }
-            Ok(_) | Err(Error::MissingMetadata) => {
-                tracing::debug!(coin_type, "non-HANEUL coin metadata unresolved; generic_op");
-                any_unresolvable = true;
-            }
-            Err(Error::HaneulRpcError(status)) if status.code() == tonic::Code::NotFound => {
-                tracing::debug!(coin_type, "non-HANEUL coin metadata not found; generic_op");
-                any_unresolvable = true;
-            }
-            // Any other error — transient (Unavailable/DeadlineExceeded/...) or an
-            // anomaly like InvalidArgument (we sent a type we'd already validated,
-            // so this shouldn't happen) — is not a clean "no metadata" signal.
-            // Surface it as retriable rather than silently degrading to generic_op.
-            Err(e) => {
-                return Err(Error::CoinMetadataUnavailable(format!(
-                    "resolving coin metadata for {coin_type}: {e}"
-                )));
-            }
-        }
-    }
-
-    let non_haneul: Vec<&Currency> = currencies
-        .values()
-        .filter(|c| c.metadata.coin_type != HANEUL.metadata.coin_type)
-        .collect();
-    let payment = if any_unresolvable {
-        PaymentCurrency::Unresolvable
-    } else {
-        match non_haneul.as_slice() {
-            [] => PaymentCurrency::Haneul,
-            [c] => PaymentCurrency::NonHaneul((*c).clone()),
-            many => {
-                // /block indexes the entire chain history, not just rosetta txns,
-                // so multi-coin txns (swaps, multi-sends) are expected.
-                tracing::debug!(
-                    non_haneul_count = many.len(),
-                    "multiple non-HANEUL currencies in balance changes; emitting \
-                     generic_op rather than guessing PayCoin label"
-                );
-                PaymentCurrency::Unresolvable
-            }
-        }
-    };
-    Ok(TxCurrencies {
-        by_coin_type: currencies,
-        payment,
-    })
-}
 
 impl FromIterator<Operation> for Operations {
     fn from_iter<T: IntoIterator<Item = Operation>>(iter: T) -> Self {
@@ -410,7 +287,9 @@ impl Operations {
             ));
         };
         let validator = validator.ok_or_else(|| {
-            Error::MissingInput("validator required for ConsolidateAllStakedHaneulToFungible".into())
+            Error::MissingInput(
+                "validator required for ConsolidateAllStakedHaneulToFungible".into(),
+            )
         })?;
         Ok(InternalOperation::ConsolidateAllStakedHaneulToFungible(
             ConsolidateAllStakedHaneulToFungible { sender, validator },
@@ -451,7 +330,9 @@ impl Operations {
             Error::MissingInput("validator required for MergeAndRedeemFungibleStakedHaneul".into())
         })?;
         let redeem_mode = redeem_mode.ok_or_else(|| {
-            Error::MissingInput("redeem_mode required for MergeAndRedeemFungibleStakedHaneul".into())
+            Error::MissingInput(
+                "redeem_mode required for MergeAndRedeemFungibleStakedHaneul".into(),
+            )
         })?;
         let amount = match &redeem_mode {
             RedeemMode::All => None,
@@ -480,18 +361,17 @@ impl Operations {
         ))
     }
 
-    pub(crate) fn from_transaction(
+    pub fn from_transaction(
         tx: TransactionKind,
         sender: HaneulAddress,
         status: Option<OperationStatus>,
-        currency: PaymentCurrency,
     ) -> Result<Vec<Operation>, Error> {
         let TransactionKind { data, kind, .. } = tx;
         Ok(match data {
             Some(TransactionKindData::ProgrammableTransaction(pt))
                 if status != Some(OperationStatus::Failure) =>
             {
-                Self::parse_programmable_transaction(sender, status, pt, currency)?
+                Self::parse_programmable_transaction(sender, status, pt)?
             }
             data => {
                 let mut tx = TransactionKind::default();
@@ -506,7 +386,6 @@ impl Operations {
         sender: HaneulAddress,
         status: Option<OperationStatus>,
         pt: ProgrammableTransaction,
-        currency: PaymentCurrency,
     ) -> Result<Vec<Operation>, Error> {
         #[derive(Debug)]
         enum KnownValue {
@@ -752,6 +631,7 @@ impl Operations {
         let mut needs_generic = false;
         let mut operations = vec![];
         let mut stake_ids = vec![];
+        let mut currency: Option<Currency> = None;
 
         // Detect FSS consolidation/redemption PTBs by signature MoveCalls.
         // Order matters: a PTB with `redeem_fss` is always MergeAndRedeem (Consolidate
@@ -863,41 +743,39 @@ impl Operations {
             }
         }
 
-        // Drop the address-balance "change" artifact. A payment funded from
-        // address balance withdraws a coin, splits off the amount paid, and
-        // transfers the leftover back to the sender. The parser models the
-        // withdrawn coin as value 0 (it derives the sender's debit from the
-        // recipient totals instead), so that leftover transfer shows up as a
-        // meaningless `(sender, 0)` self-payment. Drop it.
-        aggregated_recipients.retain(|recipient, amount| !(*recipient == sender && *amount == 0));
-
-        if !needs_generic
-            && !matches!(currency, PaymentCurrency::Unresolvable)
-            && !aggregated_recipients.is_empty()
-        {
+        if !needs_generic && !aggregated_recipients.is_empty() {
             let total_paid: u64 = aggregated_recipients.values().copied().sum();
             operations.extend(
                 aggregated_recipients
                     .into_iter()
                     .map(|(recipient, amount)| {
-                        match &currency {
-                            PaymentCurrency::NonHaneul(c) => Operation::pay_coin(
+                        currency = inputs.iter().last().and_then(|input| {
+                            if input.kind() == InputKind::Pure {
+                                let bytes = input.pure();
+                                bcs::from_bytes::<String>(bytes).ok().and_then(|json_str| {
+                                    serde_json::from_str::<Currency>(&json_str).ok()
+                                })
+                            } else {
+                                None
+                            }
+                        });
+                        match currency {
+                            Some(_) => Operation::pay_coin(
                                 status,
                                 recipient,
                                 amount.into(),
-                                Some(c.clone()),
+                                currency.clone(),
                             ),
-                            // Haneul; Unresolvable is gated out by the `if` above.
-                            _ => Operation::pay_haneul(status, recipient, amount.into()),
+                            None => Operation::pay_haneul(status, recipient, amount.into()),
                         }
                     }),
             );
-            match &currency {
-                PaymentCurrency::NonHaneul(c) => operations.push(Operation::pay_coin(
+            match currency {
+                Some(_) => operations.push(Operation::pay_coin(
                     status,
                     sender,
                     -(total_paid as i128),
-                    Some(c.clone()),
+                    currency.clone(),
                 )),
                 _ => operations.push(Operation::pay_haneul(status, sender, -(total_paid as i128))),
             }
@@ -1061,31 +939,16 @@ impl Operations {
 
     /// Parse a PTB that represents `MergeAndRedeemFungibleStakedHaneul`.
     ///
-    /// Recognized shapes (all produced by `merge_and_redeem_fss_pt`):
-    /// 1. `All`: `[join_fss]*, redeem_fss, coin::from_balance<HANEUL>, TransferObjects`
-    /// 2. Partial without guard: `[join_fss]*, split_fss, redeem_fss, coin::from_balance<HANEUL>, TransferObjects`
-    /// 3. `AtLeast`: `[join_fss]*, split_fss, redeem_fss, balance::split<HANEUL>, balance::join<HANEUL>, coin::from_balance<HANEUL>, TransferObjects`
+    /// Strict shape produced by `merge_and_redeem_fss_pt`:
+    ///   `[join_fss]*, [split_fss]?, redeem_fss, coin::from_balance<HANEUL>, TransferObjects`
+    /// where:
+    /// - `[join_fss]*` means zero or more joins (N-1 joins for N FSS inputs)
+    /// - `[split_fss]?` is present only for partial redemption (AtLeast/AtMost modes)
+    /// - exactly one `redeem_fss`, `from_balance<HANEUL>`, and trailing `TransferObjects`
     ///
-    /// The `balance::split + balance::join` pair after `redeem_fss` is the AtLeast
-    /// runtime guard: the chain-side `balance::split(min_haneul)` aborts if the
-    /// redeemed balance is below `min_haneul`, then the join restores the original
-    /// balance for `coin::from_balance` to consume in full. The parser also
-    /// verifies that this guard's arguments are wired to the actual redeem
-    /// result (not an unrelated `Balance<HANEUL>`) — see `is_result_of`.
-    ///
-    /// Emits:
-    /// * `Some(All)` when no `split_fungible_staked_haneul` is present.
-    /// * `Some(AtLeast)` + `metadata.amount = Some(min_haneul)` when a
-    ///   `split_fungible_staked_haneul` plus correctly-wired `balance::split +
-    ///   balance::join` guard pair are present. `min_haneul` is decoded from the
-    ///   pure u64 input to `balance::split`.
-    /// * `redeem_mode = None` when a `split_fungible_staked_haneul` is present
-    ///   without the balance guard. This corresponds to a partial redeem whose
-    ///   user-facing intent (`AtMost(max_haneul)` vs older builders that didn't
-    ///   add a guard) cannot be recovered from PTB bytes alone — only the
-    ///   token count is encoded, not the original `max_haneul` cap.
-    ///
-    /// Returns `None` on any shape mismatch, causing fall-through to generic op.
+    /// Emits `redeem_mode = Some(All)` when no split is present, `None` when split is
+    /// present (AtLeast vs AtMost are indistinguishable from PTB bytes). Returns `None`
+    /// on any shape mismatch, causing fall-through to generic op.
     fn parse_merge_and_redeem(
         sender: HaneulAddress,
         inputs: &[Input],
@@ -1103,8 +966,6 @@ impl Operations {
             Joins,
             AfterSplit,
             AfterRedeem,
-            AfterBalanceSplit,
-            AfterBalanceJoin,
             AfterFromBalance,
             Done,
         }
@@ -1112,16 +973,7 @@ impl Operations {
         let mut phase = Phase::Joins;
         let mut fss_indices: Vec<u32> = Vec::new();
         let mut fss_seen: BTreeSet<u32> = BTreeSet::new();
-        let mut has_split_fss = false;
-        let mut has_balance_guard = false;
-        let mut min_haneul_recovered: Option<u64> = None;
-        // Command indices used to verify the AtLeast guard wires correctly:
-        // balance::split must consume the redeem result, balance::join must
-        // consume the redeem result and the split result, and the final
-        // coin::from_balance must consume the redeem result.
-        let mut redeem_cmd_idx: Option<u32> = None;
-        let mut balance_split_cmd_idx: Option<u32> = None;
-        let mut coin_from_balance_cmd_idx: Option<u32> = None;
+        let mut has_split = false;
 
         for (idx, command) in commands.iter().enumerate() {
             if phase == Phase::Done {
@@ -1155,6 +1007,7 @@ impl Operations {
                     if m.arguments.len() != 2 {
                         return None;
                     }
+                    // First arg = the FSS being split (Input or Result from prior joins).
                     let first = &m.arguments[0];
                     match first.kind() {
                         ArgumentKind::Input => {
@@ -1166,6 +1019,8 @@ impl Operations {
                         ArgumentKind::Result => {}
                         _ => return None,
                     }
+                    // Second arg must be a pure u64 split amount. We don't decode it for
+                    // metadata, but we verify the input kind is Pure (not an object ref).
                     if m.arguments[1].kind() != ArgumentKind::Input {
                         return None;
                     }
@@ -1173,7 +1028,7 @@ impl Operations {
                     if inputs.get(amount_idx).map(|i| i.kind()) != Some(InputKind::Pure) {
                         return None;
                     }
-                    has_split_fss = true;
+                    has_split = true;
                     phase = Phase::AfterSplit;
                 }
                 Some(Command::MoveCall(m)) if Self::is_redeem_fss_call(m) => {
@@ -1183,6 +1038,7 @@ impl Operations {
                     if m.arguments.len() != 2 {
                         return None;
                     }
+                    // arguments[0] must reference inputs[0] (HANEUL_SYSTEM_STATE, verified above).
                     if m.arguments[0].kind() != ArgumentKind::Input || m.arguments[0].input() != 0 {
                         return None;
                     }
@@ -1197,69 +1053,12 @@ impl Operations {
                         ArgumentKind::Result => {}
                         _ => return None,
                     }
-                    redeem_cmd_idx = Some(idx as u32);
                     phase = Phase::AfterRedeem;
                 }
-                Some(Command::MoveCall(m)) if Self::is_balance_split_haneul_call(m) => {
+                Some(Command::MoveCall(m)) if Self::is_coin_from_balance_haneul_call(m) => {
                     if phase != Phase::AfterRedeem {
                         return None;
                     }
-                    if m.arguments.len() != 2 {
-                        return None;
-                    }
-                    // arg[0] must be the redeem result we just produced.
-                    if !Self::is_result_of(&m.arguments[0], redeem_cmd_idx) {
-                        return None;
-                    }
-                    // arg[1] must be a Pure u64 split amount.
-                    if m.arguments[1].kind() != ArgumentKind::Input {
-                        return None;
-                    }
-                    let amount_idx = m.arguments[1].input() as usize;
-                    let pure_input = inputs.get(amount_idx)?;
-                    if pure_input.kind() != InputKind::Pure {
-                        return None;
-                    }
-                    // Decode min_haneul from the Pure u64 input. Failure here means
-                    // the PTB carries a malformed split amount; fall through.
-                    let min_haneul = bcs::from_bytes::<u64>(pure_input.pure()).ok()?;
-                    min_haneul_recovered = Some(min_haneul);
-                    balance_split_cmd_idx = Some(idx as u32);
-                    phase = Phase::AfterBalanceSplit;
-                }
-                Some(Command::MoveCall(m)) if Self::is_balance_join_haneul_call(m) => {
-                    if phase != Phase::AfterBalanceSplit {
-                        return None;
-                    }
-                    if m.arguments.len() != 2 {
-                        return None;
-                    }
-                    // arg[0] must be the redeem result; arg[1] must be the
-                    // balance::split result. Otherwise the guard isn't actually
-                    // protecting the redeemed balance — could be a different
-                    // sub-balance, which means the parser cannot claim AtLeast.
-                    if !Self::is_result_of(&m.arguments[0], redeem_cmd_idx) {
-                        return None;
-                    }
-                    if !Self::is_result_of(&m.arguments[1], balance_split_cmd_idx) {
-                        return None;
-                    }
-                    has_balance_guard = true;
-                    phase = Phase::AfterBalanceJoin;
-                }
-                Some(Command::MoveCall(m)) if Self::is_coin_from_balance_haneul_call(m) => {
-                    if phase != Phase::AfterRedeem && phase != Phase::AfterBalanceJoin {
-                        return None;
-                    }
-                    if m.arguments.len() != 1 {
-                        return None;
-                    }
-                    // The Coin<HANEUL> handed to TransferObjects must be derived
-                    // from the redeem result, not from some other Balance.
-                    if !Self::is_result_of(&m.arguments[0], redeem_cmd_idx) {
-                        return None;
-                    }
-                    coin_from_balance_cmd_idx = Some(idx as u32);
                     phase = Phase::AfterFromBalance;
                 }
                 Some(Command::TransferObjects(transfer)) => {
@@ -1269,12 +1068,7 @@ impl Operations {
                     if transfer.objects.len() != 1 {
                         return None;
                     }
-                    // The single transferred object must be the Coin<HANEUL>
-                    // produced by `coin::from_balance` — anything else means
-                    // the chain redeemed but the user's wallet doesn't get
-                    // those funds, so this PTB is not a recognizable
-                    // MergeAndRedeem operation.
-                    if !Self::is_result_of(&transfer.objects[0], coin_from_balance_cmd_idx) {
+                    if transfer.objects[0].kind() != ArgumentKind::Result {
                         return None;
                     }
                     let addr_arg = transfer.address();
@@ -1308,28 +1102,10 @@ impl Operations {
         }
 
         let fss_ids = Self::input_indices_to_object_ids(inputs, &fss_indices)?;
-        // PTB → metadata mapping:
-        //   no split, no guard         → All (amount = None) — could also be
-        //                                full-redeem AtMost since `max_haneul` isn't
-        //                                encoded in PTB bytes; reporting All is
-        //                                acceptable because the user got "at most
-        //                                everything they had".
-        //   split + balance guard      → AtLeast, amount = min_haneul from balance::split
-        //   no split + balance guard   → full-redeem AtLeast (binary search picked
-        //                                exactly total_tokens, so the PTB skips
-        //                                `split_fungible_staked_haneul` to avoid
-        //                                leaving zero-value FSS dust). Still
-        //                                emits AtLeast + recovered min_haneul.
-        //   split, no guard            → unknown partial mode (None) — the PTB only
-        //                                encodes token_count, not max_haneul, so we
-        //                                cannot round-trip an AtMost cap from bytes.
-        let (redeem_mode, amount) = match (has_split_fss, has_balance_guard) {
-            (false, false) => (Some(RedeemMode::All), None),
-            (true, true) | (false, true) => (
-                Some(RedeemMode::AtLeast),
-                min_haneul_recovered.map(|v| v.to_string()),
-            ),
-            (true, false) => (None, None),
+        let redeem_mode = if has_split {
+            None
+        } else {
+            Some(RedeemMode::All)
         };
 
         Some(vec![Operation {
@@ -1341,7 +1117,7 @@ impl Operations {
             coin_change: None,
             metadata: Some(OperationMetadata::MergeAndRedeemFungibleStakedHaneul {
                 validator: None,
-                amount,
+                amount: None,
                 redeem_mode,
                 fss_ids,
             }),
@@ -1368,27 +1144,6 @@ impl Operations {
             return false;
         };
         oid == HANEUL_SYSTEM_STATE_OBJECT_ID
-    }
-
-    /// Returns true iff `arg` is exactly `Result(expected_idx)` — *not*
-    /// `NestedResult(expected_idx, j)`. Used to verify dataflow linkage in
-    /// `parse_merge_and_redeem` — for example, that `balance::split` actually
-    /// consumes the result of `redeem_fss` rather than some unrelated
-    /// `Balance<HANEUL>` that happens to be in scope.
-    ///
-    /// Both `Argument::Result` and `Argument::NestedResult` map to
-    /// `ArgumentKind::Result` in the proto encoding (see
-    /// `haneul-types/src/rpc_proto_conversions.rs:2811-2826`); only the
-    /// `subresult` field distinguishes them. A crafted PTB using
-    /// `NestedResult(redeem_idx, 1)` would otherwise slip past kind/result
-    /// checks even though chain execution would reject it.
-    fn is_result_of(arg: &Argument, expected_idx: Option<u32>) -> bool {
-        let Some(expected) = expected_idx else {
-            return false;
-        };
-        arg.kind() == ArgumentKind::Result
-            && arg.result() == expected
-            && arg.subresult_opt().is_none()
     }
 
     /// Resolves a list of input indices to ObjectIDs. Returns None if any index is
@@ -1548,40 +1303,6 @@ impl Operations {
         parsed == expected
     }
 
-    /// Recognizes `balance::split<HANEUL>` calls used as the AtLeast runtime guard
-    /// in `merge_and_redeem_fss_pt`.
-    fn is_balance_split_haneul_call(tx: &MoveCall) -> bool {
-        Self::is_balance_op_haneul_call(tx, "split")
-    }
-
-    /// Recognizes `balance::join<HANEUL>` calls that pair with the AtLeast guard
-    /// to put the split-off sub-balance back into the original.
-    fn is_balance_join_haneul_call(tx: &MoveCall) -> bool {
-        Self::is_balance_op_haneul_call(tx, "join")
-    }
-
-    fn is_balance_op_haneul_call(tx: &MoveCall, function: &str) -> bool {
-        let Ok(package_id) = ObjectID::from_str(tx.package()) else {
-            return false;
-        };
-        if package_id != HANEUL_FRAMEWORK_PACKAGE_ID {
-            return false;
-        }
-        if tx.module() != "balance" || tx.function() != function {
-            return false;
-        }
-        if tx.type_arguments.len() != 1 {
-            return false;
-        }
-        let Ok(parsed) = haneul_types::TypeTag::from_str(&tx.type_arguments[0]) else {
-            return false;
-        };
-        let Ok(expected) = haneul_types::TypeTag::from_str("0x2::haneul::HANEUL") else {
-            return false;
-        };
-        parsed == expected
-    }
-
     /// Recognizes `coin::redeem_funds<T>` calls used for address-balance withdrawals.
     fn is_coin_redeem_funds_call(tx: &MoveCall) -> bool {
         let package_id = match ObjectID::from_str(tx.package()) {
@@ -1656,8 +1377,10 @@ impl Operations {
                 .fold(balances, |mut balances, (balance_change, ccy)| {
                     if let (Some(addr_str), Some(amount_str)) =
                         (&balance_change.address, &balance_change.amount)
-                        && let (Ok(owner), Ok(amount)) =
-                            (HaneulAddress::from_str(addr_str), i128::from_str(amount_str))
+                        && let (Ok(owner), Ok(amount)) = (
+                            HaneulAddress::from_str(addr_str),
+                            i128::from_str(amount_str),
+                        )
                     {
                         *balances.entry((owner, ccy.clone())).or_default() += amount;
                     }
@@ -1733,8 +1456,10 @@ impl Operations {
                 .fold(balances, |mut balances, (balance_change, ccy)| {
                     if let (Some(addr_str), Some(amount_str)) =
                         (&balance_change.address, &balance_change.amount)
-                        && let (Ok(owner), Ok(amount)) =
-                            (HaneulAddress::from_str(addr_str), i128::from_str(amount_str))
+                        && let (Ok(owner), Ok(amount)) = (
+                            HaneulAddress::from_str(addr_str),
+                            i128::from_str(amount_str),
+                        )
                     {
                         *balances.entry((owner, ccy.clone())).or_default() += amount;
                     }
@@ -1853,20 +1578,16 @@ impl Operations {
 
         let sender = HaneulAddress::from_str(transaction.sender())?;
 
-        // Post-execution owner of the gas coin. This is empty when the gas coin no
-        // longer exists after execution: a `coin::send_funds` that moves the entire
-        // gas coin into an address balance (gasless / free-tier transfers) deletes
-        // the gas object, so its effects carry no output owner.
-        let gas_output_owner = effects.gas_object().output_owner().address();
-        let gas_owner = if !gas_output_owner.is_empty() {
-            HaneulAddress::from_str(gas_output_owner)?
+        let gas_owner = if effects.gas_object.is_some() {
+            let gas_object = effects.gas_object();
+            let owner = gas_object.output_owner();
+            HaneulAddress::from_str(owner.address())?
         } else if sender == HaneulAddress::ZERO {
             // System transactions don't have a gas_object.
             sender
         } else {
-            // No gas coin output owner: either gas was paid from the sender's address
-            // balance (no gas coin object) or the gas coin was fully consumed/deleted.
-            // Either way the gas payment owner is the account that paid for the txn.
+            // Address-balance gas payment: gas is paid from the sender's address balance,
+            // not from an explicit gas coin object. Use gas_payment owner from tx data.
             HaneulAddress::from_str(transaction.gas_payment().owner())?
         };
 
@@ -1883,15 +1604,7 @@ impl Operations {
             .kind
             .ok_or_else(|| Error::DataError("Transaction missing kind".to_string()))?;
         let is_gascoin_transfer = Self::is_gascoin_transfer(&tx_kind);
-
-        // Resolve coins to currencies and pick the payment's currency in one pass.
-        // `by_coin_type` is reused by the reconciliation pass below
-        // (`balance_changes_with_currency`); `payment` is handed to the parser.
-        let TxCurrencies {
-            by_coin_type: currencies,
-            payment,
-        } = resolve_tx_currencies(&balance_changes, cache).await?;
-        let ops = Self::new(Self::from_transaction(tx_kind, sender, status, payment)?);
+        let ops = Self::new(Self::from_transaction(tx_kind, sender, status)?);
         let ops = ops.into_iter();
 
         // We will need to subtract the operation amounts from the actual balance
@@ -1937,8 +1650,12 @@ impl Operations {
             }
         }
         let staking_balance = if principal_amounts != 0 {
-            *accounted_balances.entry((sender, HANEUL.clone())).or_default() -= principal_amounts;
-            *accounted_balances.entry((sender, HANEUL.clone())).or_default() -= reward_amounts;
+            *accounted_balances
+                .entry((sender, HANEUL.clone()))
+                .or_default() -= principal_amounts;
+            *accounted_balances
+                .entry((sender, HANEUL.clone()))
+                .or_default() -= reward_amounts;
             vec![
                 Operation::stake_principle(status, sender, principal_amounts),
                 Operation::stake_reward(status, sender, reward_amounts),
@@ -1947,16 +1664,19 @@ impl Operations {
             vec![]
         };
 
-        // Reuse the currencies map built above instead of a second
-        // `cache.get_currency` pass per balance change.
-        let balance_changes_with_currency: Vec<_> = balance_changes
-            .iter()
-            .filter_map(|bc| {
-                currencies
-                    .get(bc.coin_type())
-                    .map(|c| (bc.clone(), c.clone()))
-            })
-            .collect();
+        let mut balance_changes_with_currency = vec![];
+
+        for balance_change in &balance_changes {
+            let coin_type = balance_change.coin_type();
+            let type_tag = haneul_types::TypeTag::from_str(coin_type)
+                .map_err(|e| anyhow!("Invalid coin type: {}", e))?;
+
+            if let Ok(currency) = cache.get_currency(&type_tag).await
+                && !currency.symbol.is_empty()
+            {
+                balance_changes_with_currency.push((balance_change.clone(), currency));
+            }
+        }
 
         // Extract coin change operations from balance changes
         let mut coin_change_operations = Self::process_balance_change(
@@ -2208,155 +1928,17 @@ impl Operation {
     }
 }
 
-/// Reconstruct Rosetta `Operations` from a proto `Transaction`, applying the
-/// out-of-band `AuxData`. Shared by `/parse` and `/payloads`.
-///
-/// The aux data carries the few labels the PTB cannot encode (PayCoin
-/// currency, FSS validator / redeem-mode / cap), populated in `/metadata` and
-/// carried in the wrapper; it is not cryptographically bound to the signature.
-/// The PayCoin currency — the one label whose correctness affects fund routing
-/// — is verified online against the simulated balance changes in `/submit`; FSS
-/// labels are display-only (the signed PTB determines execution, and `/block`
-/// re-derives the truth from chain). `apply_aux` still rejects aux data whose
-/// family disagrees with the parsed transaction family.
-///
-/// Steps:
-/// 1. Reconstruct operations from the transaction via the shared parser
-///    (`from_transaction`), seeding the currency map from a `PayCoin` label so
-///    payments are labelled correctly.
-/// 2. Decorate FSS ops with the validator / redeem-mode / cap the PTB cannot
-///    encode, asserting the parsed family matches the aux-data family.
-pub fn reconstruct_operations(
-    proto: &ProtoTransaction,
-    aux: &AuxData,
-    status: Option<OperationStatus>,
-) -> Result<Operations, Error> {
-    let sender = HaneulAddress::from_str(proto.sender())
-        .map_err(|e| Error::DataError(format!("invalid transaction sender: {e}")))?;
-    let tx_kind = proto
-        .kind
-        .clone()
-        .ok_or_else(|| Error::DataError("Transaction missing kind".to_string()))?;
-
-    // The PayCoin label is the only currency the PTB cannot encode; everything
-    // else reconstructs as HANEUL. This path never produces `Unresolvable`.
-    let payment_currency = match aux {
-        AuxData::PayCoin { currency } => PaymentCurrency::NonHaneul(currency.clone()),
-        _ => PaymentCurrency::Haneul,
-    };
-    let mut ops = Operations::from_transaction(tx_kind, sender, status, payment_currency)?;
-
-    // Apply the labels the PTB cannot encode.
-    apply_aux(&mut ops, aux)?;
-    Ok(Operations::new(ops))
-}
-
-/// Overlay the non-reconstructable labels from `aux` onto the parsed `ops`,
-/// rejecting if the parsed operation family disagrees with the aux-data family.
-fn apply_aux(ops: &mut [Operation], aux: &AuxData) -> Result<(), Error> {
-    match aux {
-        AuxData::None => {}
-        AuxData::PayCoin { .. } => {
-            // The currency map already drove the parser to label payments as
-            // PayCoin; just assert the parsed family is a payment family so a
-            // PayCoin label over e.g. a Stake PTB is rejected.
-            let is_payment = ops
-                .iter()
-                .all(|op| matches!(op.type_, OperationType::PayCoin | OperationType::PayHaneul));
-            if ops.is_empty() || !is_payment {
-                return Err(Error::DataError(
-                    "envelope inconsistency: PayCoin aux data over a non-payment transaction"
-                        .to_string(),
-                ));
-            }
-        }
-        AuxData::Consolidate { validator } => {
-            let op = single_op(ops, OperationType::ConsolidateAllStakedHaneulToFungible)?;
-            match &mut op.metadata {
-                Some(OperationMetadata::ConsolidateAllStakedHaneulToFungible {
-                    validator: v, ..
-                }) => {
-                    *v = Some(*validator);
-                }
-                _ => {
-                    return Err(Error::DataError(
-                        "envelope inconsistency: Consolidate aux data but parsed op lacks \
-                         Consolidate metadata"
-                            .to_string(),
-                    ));
-                }
-            }
-        }
-        AuxData::MergeAndRedeem {
-            validator,
-            redeem_mode,
-            amount,
-        } => {
-            // Minimal sanity check (replaces the removed
-            // `InternalOperation::validate`): AtLeast/AtMost must carry a
-            // positive amount; All must carry none. Guards against a server
-            // building structurally invalid aux data.
-            match redeem_mode {
-                RedeemMode::All if amount.is_some() => {
-                    return Err(Error::DataError(
-                        "MergeAndRedeem All must carry no amount".to_string(),
-                    ));
-                }
-                RedeemMode::AtLeast | RedeemMode::AtMost if !matches!(amount, Some(a) if *a > 0) => {
-                    return Err(Error::DataError(format!(
-                        "MergeAndRedeem {redeem_mode:?} must carry a positive amount"
-                    )));
-                }
-                _ => {}
-            }
-            let op = single_op(ops, OperationType::MergeAndRedeemFungibleStakedHaneul)?;
-            match &mut op.metadata {
-                Some(OperationMetadata::MergeAndRedeemFungibleStakedHaneul {
-                    validator: v,
-                    amount: a,
-                    redeem_mode: m,
-                    ..
-                }) => {
-                    // Override: the parser cannot distinguish AtMost from
-                    // All/unknown-partial, so the aux data is authoritative
-                    // for the user-declared mode + cap.
-                    *v = Some(*validator);
-                    *m = Some(redeem_mode.clone());
-                    *a = amount.map(|amount| amount.to_string());
-                }
-                _ => {
-                    return Err(Error::DataError(
-                        "envelope inconsistency: MergeAndRedeem aux data but parsed op lacks \
-                         MergeAndRedeem metadata"
-                            .to_string(),
-                    ));
-                }
-            }
-        }
-    }
-    Ok(())
-}
-
-/// Return the single operation of `expected` type, rejecting if the parsed
-/// family does not match the aux-data family.
-fn single_op(ops: &mut [Operation], expected: OperationType) -> Result<&mut Operation, Error> {
-    match ops {
-        [op] if op.type_ == expected => Ok(op),
-        _ => Err(Error::DataError(format!(
-            "envelope inconsistency: aux data expects a single {expected:?} operation, \
-             but the transaction parsed to a different shape"
-        ))),
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::HANEUL;
     use crate::types::ConstructionMetadata;
     use crate::types::internal_operation::{consolidate_to_fungible_pt, merge_and_redeem_fss_pt};
     use haneul_rpc::proto::haneul::rpc::v2::Transaction;
     use haneul_types::Identifier;
-    use haneul_types::base_types::{ObjectDigest, ObjectID, ObjectRef, SequenceNumber, HaneulAddress};
+    use haneul_types::base_types::{
+        HaneulAddress, ObjectDigest, ObjectID, ObjectRef, SequenceNumber,
+    };
     use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
     use haneul_types::transaction::{
         CallArg, Command as NativeCommand, ObjectArg, ProgrammableTransaction,
@@ -2385,8 +1967,7 @@ mod tests {
         );
         let proto_tx: Transaction = data.into();
         let tx_kind = proto_tx.kind.expect("tx missing kind");
-        Operations::from_transaction(tx_kind, sender, None, PaymentCurrency::Haneul)
-            .expect("parse failed")
+        Operations::from_transaction(tx_kind, sender, None).expect("parse failed")
     }
 
     #[tokio::test]
@@ -2422,7 +2003,6 @@ mod tests {
                 .ok_or_else(|| Error::DataError("Transaction missing kind".to_string()))?,
             sender,
             None,
-            PaymentCurrency::Haneul,
         )?);
         ops.0
             .iter()
@@ -2442,8 +2022,6 @@ mod tests {
             chain_id: None,
             fss_object_count: None,
             redeem_token_amount: None,
-            redeem_plan: None,
-            bind_epoch: None,
         };
         let parsed_data = ops.into_internal()?.try_into_data(metadata)?;
         assert_eq!(data, parsed_data);
@@ -2451,65 +2029,8 @@ mod tests {
         Ok(())
     }
 
-    /// Stake operations must survive a parse round-trip: ops → internal → data →
-    /// proto → `from_transaction` → ops. This is a pure data round-trip (no chain
-    /// state), so it lives in-crate rather than forcing `from_transaction` /
-    /// `PaymentCurrency` into the public API for an integration test.
-    #[test]
-    fn test_stake_parse_round_trip() -> Result<(), anyhow::Error> {
-        use haneul_types::transaction::TEST_ONLY_GAS_UNIT_FOR_STAKING;
-
-        let sender = HaneulAddress::random_for_testing_only();
-        let validator = HaneulAddress::random_for_testing_only();
-        let gas = random_object_ref();
-        let gas_price = 10;
-
-        let ops: Operations = serde_json::from_value(serde_json::json!([{
-            "operation_identifier": {"index": 0},
-            "type": "Stake",
-            "account": {"address": sender.to_string()},
-            "amount": {"value": "-100000", "currency": {"symbol": "HANEUL", "decimals": 9}},
-            "metadata": {"Stake": {"validator": validator.to_string()}}
-        }]))?;
-
-        let metadata = ConstructionMetadata {
-            sender,
-            gas_coins: vec![gas],
-            extra_gas_coins: vec![],
-            objects: vec![],
-            party_objects: vec![],
-            total_coin_value: 0,
-            gas_price,
-            budget: gas_price * TEST_ONLY_GAS_UNIT_FOR_STAKING,
-            currency: None,
-            address_balance_withdrawal: 0,
-            epoch: None,
-            chain_id: None,
-            fss_object_count: None,
-            redeem_token_amount: None,
-            redeem_plan: None,
-            bind_epoch: None,
-        };
-        let parsed_data = ops.clone().into_internal()?.try_into_data(metadata)?;
-
-        let proto_tx: Transaction = parsed_data.clone().into();
-        let parsed_ops = Operations::new(Operations::from_transaction(
-            proto_tx
-                .kind
-                .ok_or_else(|| Error::DataError("Transaction missing kind".to_string()))?,
-            sender,
-            None,
-            PaymentCurrency::Haneul,
-        )?);
-
-        assert_eq!(ops, parsed_ops, "expected {ops:#?}, got: {parsed_ops:#?}");
-        Ok(())
-    }
-
-    /// Build a `pay_coin_pt`-shaped PTB (SplitCoins + TransferObjects) and parse
-    /// it under the given payment currency. Shared by the currency→label tests.
-    fn parse_payment_pt(payment: PaymentCurrency) -> Result<Vec<Operation>, anyhow::Error> {
-        use crate::HANEUL;
+    #[tokio::test]
+    async fn test_operation_data_parsing_pay_coin() -> Result<(), anyhow::Error> {
         use crate::types::internal_operation::pay_coin_pt;
 
         let gas = (
@@ -2517,14 +2038,25 @@ mod tests {
             SequenceNumber::new(),
             ObjectDigest::random(),
         );
+
         let coin = (
             ObjectID::random(),
             SequenceNumber::new(),
             ObjectDigest::random(),
         );
+
         let sender = HaneulAddress::random_for_testing_only();
         let recipient = HaneulAddress::random_for_testing_only();
-        let pt = pay_coin_pt(sender, vec![recipient], vec![10_000], &[coin], &[], 0, &HANEUL)?;
+
+        let pt = pay_coin_pt(
+            sender,
+            vec![recipient],
+            vec![10000],
+            &[coin],
+            &[],
+            0,
+            &HANEUL,
+        )?;
         let gas_price = 10;
         let data = TransactionData::new_programmable(
             sender,
@@ -2533,237 +2065,36 @@ mod tests {
             TEST_ONLY_GAS_UNIT_FOR_TRANSFER * gas_price,
             gas_price,
         );
-        let proto_tx: Transaction = data.into();
-        let tx_kind = proto_tx.kind.unwrap();
-        Ok(Operations::from_transaction(
-            tx_kind, sender, None, payment,
-        )?)
-    }
 
-    /// The parser is a dumb applier: `PaymentCurrency::Unresolvable` must emit
-    /// neither PayHaneul nor PayCoin — it falls through to `generic_op`. This is
-    /// what the indexing caller hands over when `balance_changes` shows a non-HANEUL
-    /// coin it couldn't resolve (or two or more non-HANEUL coins).
-    #[test]
-    fn test_parse_unresolvable_emits_generic_op() -> Result<(), anyhow::Error> {
-        let ops = parse_payment_pt(PaymentCurrency::Unresolvable)?;
-        assert!(
-            !ops.iter().any(|op| op.type_ == OperationType::PayHaneul),
-            "Unresolvable must not silently fall back to PayHaneul: {ops:?}"
-        );
-        assert!(
-            !ops.iter().any(|op| op.type_ == OperationType::PayCoin),
-            "Unresolvable must not produce PayCoin (we don't know the currency): {ops:?}"
-        );
-        assert!(
-            ops.iter()
-                .any(|op| matches!(op.metadata, Some(OperationMetadata::GenericTransaction(_)))),
-            "Unresolvable must fall through to generic_op: {ops:?}"
-        );
-        Ok(())
-    }
-
-    /// `PaymentCurrency::NonHaneul(c)` must label every payment leg as PayCoin
-    /// carrying exactly `c`, and never PayHaneul.
-    #[test]
-    fn test_parse_nonhaneul_emits_pay_coin() -> Result<(), anyhow::Error> {
-        use crate::types::CurrencyMetadata;
-
-        let usdc = Currency {
-            symbol: "USDC".to_string(),
-            decimals: 6,
-            metadata: CurrencyMetadata {
-                coin_type: "0xaaa::usdc::USDC".to_string(),
-            },
-        };
-        let ops = parse_payment_pt(PaymentCurrency::NonHaneul(usdc.clone()))?;
-        assert!(
-            !ops.iter().any(|op| op.type_ == OperationType::PayHaneul),
-            "NonHaneul must not produce PayHaneul: {ops:?}"
-        );
-        let pay_coins: Vec<_> = ops
-            .iter()
-            .filter(|op| op.type_ == OperationType::PayCoin)
-            .collect();
-        assert!(
-            !pay_coins.is_empty(),
-            "NonHaneul must produce PayCoin: {ops:?}"
-        );
-        for op in pay_coins {
-            assert_eq!(
-                op.amount.as_ref().map(|a| &a.currency),
-                Some(&usdc),
-                "PayCoin op must carry the NonHaneul currency: {op:?}"
-            );
-        }
-        Ok(())
-    }
-
-    /// A cache backed by a client that never connects, so every non-HANEUL coin
-    /// lookup fails with a transport (transient) error.
-    fn unreachable_cache() -> CoinMetadataCache {
-        use std::num::NonZeroUsize;
-        use haneul_rpc::client::Client;
-        CoinMetadataCache::new(
-            Client::new("http://127.0.0.1:1").unwrap(),
-            NonZeroUsize::new(1).unwrap(),
-        )
-    }
-
-    fn balance_change(coin_type: &str) -> BalanceChange {
-        let mut bc = BalanceChange::default();
-        bc.coin_type = Some(coin_type.to_string());
-        bc
-    }
-
-    /// HANEUL takes no metadata RPC: even with an unreachable cache, a HANEUL-only
-    /// transaction resolves to a `Haneul` payment (with HANEUL inserted directly into
-    /// the map for the reconciliation pass), never a retriable error.
-    #[tokio::test]
-    async fn test_resolve_haneul_needs_no_lookup() {
-        let cache = unreachable_cache();
-        let resolved = resolve_tx_currencies(&[balance_change(&HANEUL.metadata.coin_type)], &cache)
-            .await
-            .expect("HANEUL must resolve without an RPC");
-        assert!(matches!(resolved.payment, PaymentCurrency::Haneul));
-        assert_eq!(
-            resolved.by_coin_type.get(&HANEUL.metadata.coin_type),
-            Some(&*HANEUL)
-        );
-    }
-
-    /// Part 2 / idempotency: a transient failure resolving a non-HANEUL coin must
-    /// surface as a retriable error so `/block` stalls and retries, rather than
-    /// degrading to a generic_op and baking it into the block.
-    #[tokio::test]
-    async fn test_resolve_transient_non_haneul_is_retriable() {
-        let cache = unreachable_cache();
-        let err = resolve_tx_currencies(&[balance_change("0xaaa::usdc::USDC")], &cache)
-            .await
-            .expect_err("a transient non-HANEUL lookup failure must surface as an error");
-        assert!(
-            matches!(err, Error::CoinMetadataUnavailable(_)),
-            "transient failure must map to CoinMetadataUnavailable: {err:?}"
-        );
-        // The Mesh error response must carry `retriable: true`.
-        let json = serde_json::to_value(&err).expect("error serializes");
-        assert_eq!(
-            json.get("retriable"),
-            Some(&serde_json::Value::Bool(true)),
-            "CoinMetadataUnavailable must serialize as retriable: {json}"
-        );
-    }
-
-    /// `pay_coin_pt` must not append a trailing `Pure` input whose bytes
-    /// BCS-decode as a String that JSON-decodes as `Currency`. Any future
-    /// builder change that reintroduces that shape would re-couple
-    /// downstream parsing to a brittle "scan last input" invariant.
-    #[test]
-    fn test_pay_coin_pt_has_no_currency_bearer() -> Result<(), anyhow::Error> {
-        use crate::HANEUL;
-        use crate::types::internal_operation::pay_coin_pt;
-
-        let sender = HaneulAddress::random_for_testing_only();
-        let recipient = HaneulAddress::random_for_testing_only();
-        let coin = (
-            ObjectID::random(),
-            SequenceNumber::new(),
-            ObjectDigest::random(),
-        );
-
-        let pt = pay_coin_pt(sender, vec![recipient], vec![10_000], &[coin], &[], 0, &HANEUL)?;
-
-        for input in &pt.inputs {
-            if let CallArg::Pure(bytes) = input
-                && let Ok(s) = bcs::from_bytes::<String>(bytes)
-                && serde_json::from_str::<Currency>(&s).is_ok()
-            {
-                panic!(
-                    "pay_coin_pt produced a Pure input that decodes as a Currency JSON string: {:?}",
-                    s
-                );
-            }
-        }
-        Ok(())
-    }
-
-    /// Regression test for the gas coin being fully consumed during execution.
-    /// A `coin::send_funds` that moves the entire gas coin into an address balance
-    /// (gasless / free-tier transfers) deletes the gas object, so its effects carry
-    /// a `ChangedObject` with no `output_owner`. Previously `try_from_executed_transaction`
-    /// fed the resulting empty owner string to `HaneulAddress::from_str`, which produced
-    /// `FastCryptoError::InvalidInput` ("Invalid value was given to the function") and
-    /// failed the whole `/block` request. It must instead fall back to the gas payment
-    /// owner and attribute gas to it.
-    #[tokio::test]
-    async fn test_try_from_executed_transaction_deleted_gas_coin() -> Result<(), anyhow::Error> {
-        use std::num::NonZeroUsize;
-        use haneul_rpc::client::Client;
-        use haneul_rpc::proto::haneul::rpc::v2::changed_object::OutputObjectState;
-        use haneul_rpc::proto::haneul::rpc::v2::{
-            ChangedObject, ExecutedTransaction, ExecutionStatus, GasCostSummary, TransactionEffects,
-        };
-
-        let sender = HaneulAddress::random_for_testing_only();
-        let recipient = HaneulAddress::random_for_testing_only();
-
-        let pt = {
-            let mut builder = ProgrammableTransactionBuilder::new();
-            builder.pay_haneul(vec![recipient], vec![1000]).unwrap();
-            builder.finish()
-        };
-        let gas_price = 10;
-        let data = TransactionData::new_programmable(
+        let proto_tx: Transaction = data.clone().into();
+        let ops = Operations::new(Operations::from_transaction(
+            proto_tx
+                .kind
+                .ok_or_else(|| Error::DataError("Transaction missing kind".to_string()))?,
             sender,
-            vec![random_object_ref()],
-            pt,
-            TEST_ONLY_GAS_UNIT_FOR_TRANSFER * gas_price,
-            gas_price,
-        );
-        let transaction: Transaction = data.into();
-
-        // The gas object is present in effects but was deleted (consumed), so it has
-        // no output owner. (Proto structs are #[non_exhaustive], so build by mutation.)
-        let mut gas_object = ChangedObject::default();
-        gas_object.object_id = Some(ObjectID::random().to_string());
-        gas_object.output_state = Some(OutputObjectState::DoesNotExist as i32);
-        gas_object.output_owner = None;
-
-        let mut status = ExecutionStatus::default();
-        status.success = Some(true);
-
-        let mut gas_used = GasCostSummary::default();
-        gas_used.computation_cost = Some(1000);
-        gas_used.storage_cost = Some(0);
-        gas_used.storage_rebate = Some(0);
-        gas_used.non_refundable_storage_fee = Some(0);
-
-        let mut effects = TransactionEffects::default();
-        effects.status = Some(status);
-        effects.gas_used = Some(gas_used);
-        effects.gas_object = Some(gas_object);
-
-        let mut executed_tx = ExecutedTransaction::default();
-        executed_tx.transaction = Some(transaction);
-        executed_tx.effects = Some(effects);
-        executed_tx.events = None;
-        executed_tx.balance_changes = vec![];
-
-        // balance_changes is empty, so the coin metadata cache is never queried and a
-        // client that never connects is sufficient.
-        let cache = CoinMetadataCache::new(
-            Client::new("http://127.0.0.1:1").unwrap(),
-            NonZeroUsize::new(1).unwrap(),
-        );
-
-        let ops = Operations::try_from_executed_transaction(executed_tx, &cache).await?;
-
-        let gas_op = ops
-            .0
+            None,
+        )?);
+        ops.0
             .iter()
-            .find(|op| op.type_ == OperationType::Gas)
-            .expect("expected a Gas operation");
-        assert_eq!(gas_op.account.as_ref().map(|a| a.address), Some(sender));
+            .for_each(|op| assert_eq!(op.type_, OperationType::PayCoin));
+        let metadata = ConstructionMetadata {
+            sender,
+            gas_coins: vec![gas],
+            extra_gas_coins: vec![],
+            objects: vec![coin],
+            party_objects: vec![],
+            total_coin_value: 0,
+            gas_price,
+            budget: TEST_ONLY_GAS_UNIT_FOR_TRANSFER * gas_price,
+            currency: Some(HANEUL.clone()),
+            address_balance_withdrawal: 0,
+            epoch: None,
+            chain_id: None,
+            fss_object_count: None,
+            redeem_token_amount: None,
+        };
+        let parsed_data = ops.into_internal()?.try_into_data(metadata)?;
+        assert_eq!(data, parsed_data);
 
         Ok(())
     }
@@ -2866,7 +2197,10 @@ mod tests {
     ) {
         assert_eq!(ops.len(), 1);
         let op = &ops[0];
-        assert_eq!(op.type_, OperationType::ConsolidateAllStakedHaneulToFungible);
+        assert_eq!(
+            op.type_,
+            OperationType::ConsolidateAllStakedHaneulToFungible
+        );
         assert_eq!(
             op.account.as_ref().map(|a| a.address),
             Some(expected_sender)
@@ -3169,7 +2503,10 @@ mod tests {
             ops[0].type_,
             OperationType::ConsolidateAllStakedHaneulToFungible
         );
-        assert_ne!(ops[0].type_, OperationType::MergeAndRedeemFungibleStakedHaneul);
+        assert_ne!(
+            ops[0].type_,
+            OperationType::MergeAndRedeemFungibleStakedHaneul
+        );
     }
 
     // Tests #38 (garbage bytes) and #39 (truncated tx data) are HTTP-level and belong in
@@ -3222,7 +2559,11 @@ mod tests {
             "validator must be omitted when None"
         );
         assert_eq!(
-            obj.get("staked_haneul_ids").unwrap().as_array().unwrap().len(),
+            obj.get("staked_haneul_ids")
+                .unwrap()
+                .as_array()
+                .unwrap()
+                .len(),
             1
         );
         assert_eq!(obj.get("fss_ids").unwrap().as_array().unwrap().len(), 1);
@@ -3265,22 +2606,6 @@ mod tests {
         expected_fss: &[ObjectID],
         expected_mode: Option<RedeemMode>,
     ) {
-        assert_merge_redeem_ops_with_amount(
-            ops,
-            expected_sender,
-            expected_fss,
-            expected_mode,
-            None,
-        );
-    }
-
-    fn assert_merge_redeem_ops_with_amount(
-        ops: &[Operation],
-        expected_sender: HaneulAddress,
-        expected_fss: &[ObjectID],
-        expected_mode: Option<RedeemMode>,
-        expected_amount: Option<&str>,
-    ) {
         assert_eq!(ops.len(), 1);
         let op = &ops[0];
         assert_eq!(op.type_, OperationType::MergeAndRedeemFungibleStakedHaneul);
@@ -3299,10 +2624,9 @@ mod tests {
             panic!("wrong metadata variant: {:?}", op.metadata);
         };
         assert!(validator.is_none(), "validator must be None on parse");
-        assert_eq!(
-            amount.as_deref(),
-            expected_amount,
-            "metadata.amount mismatch"
+        assert!(
+            amount.is_none(),
+            "amount must be None on parse (not in PTB)"
         );
         assert_eq!(redeem_mode, expected_mode);
         assert_eq!(fss_ids, expected_fss);
@@ -3312,7 +2636,7 @@ mod tests {
     fn test_parse_merge_redeem_single_all() {
         let sender = HaneulAddress::random_for_testing_only();
         let fss = random_object_ref();
-        let pt = merge_and_redeem_fss_pt(sender, vec![fss], &RedeemPlan::All).expect("pt");
+        let pt = merge_and_redeem_fss_pt(sender, vec![fss], None).expect("pt");
         assert_merge_redeem_ops(
             &parse_pt(sender, pt),
             sender,
@@ -3325,88 +2649,8 @@ mod tests {
     fn test_parse_merge_redeem_single_partial() {
         let sender = HaneulAddress::random_for_testing_only();
         let fss = random_object_ref();
-        let pt = merge_and_redeem_fss_pt(
-            sender,
-            vec![fss],
-            &RedeemPlan::AtMost {
-                token_amount: Some(500_000_000),
-                max_haneul: 0,
-            },
-        )
-        .expect("pt");
+        let pt = merge_and_redeem_fss_pt(sender, vec![fss], Some(500_000_000)).expect("pt");
         assert_merge_redeem_ops(&parse_pt(sender, pt), sender, &[fss.0], None);
-    }
-
-    #[test]
-    fn test_parse_merge_redeem_atleast_with_balance_guard() {
-        let sender = HaneulAddress::random_for_testing_only();
-        let fss = random_object_ref();
-        let pt = merge_and_redeem_fss_pt(
-            sender,
-            vec![fss],
-            &RedeemPlan::AtLeast {
-                token_amount: Some(500_000_000),
-                min_haneul: 1_000_000,
-            },
-        )
-        .expect("pt");
-        assert_merge_redeem_ops_with_amount(
-            &parse_pt(sender, pt),
-            sender,
-            &[fss.0],
-            Some(RedeemMode::AtLeast),
-            Some("1000000"),
-        );
-    }
-
-    #[test]
-    fn test_parse_merge_redeem_atleast_three_fss() {
-        let sender = HaneulAddress::random_for_testing_only();
-        let a = random_object_ref();
-        let b = random_object_ref();
-        let c = random_object_ref();
-        let pt = merge_and_redeem_fss_pt(
-            sender,
-            vec![a, b, c],
-            &RedeemPlan::AtLeast {
-                token_amount: Some(500_000_000),
-                min_haneul: 1_000_000,
-            },
-        )
-        .expect("pt");
-        assert_merge_redeem_ops_with_amount(
-            &parse_pt(sender, pt),
-            sender,
-            &[a.0, b.0, c.0],
-            Some(RedeemMode::AtLeast),
-            Some("1000000"),
-        );
-    }
-
-    #[test]
-    fn test_parse_merge_redeem_full_atleast_no_split() {
-        // Full-redeem AtLeast: token_amount = None → no `split_fungible_staked_haneul`.
-        // The PTB still has the balance::split + balance::join guard, so the
-        // parser must recognize this shape as AtLeast (with min_haneul recovered)
-        // rather than emitting `redeem_mode = None` because there's no FSS split.
-        let sender = HaneulAddress::random_for_testing_only();
-        let fss = random_object_ref();
-        let pt = merge_and_redeem_fss_pt(
-            sender,
-            vec![fss],
-            &RedeemPlan::AtLeast {
-                token_amount: None,
-                min_haneul: 1_000_000,
-            },
-        )
-        .expect("pt");
-        assert_merge_redeem_ops_with_amount(
-            &parse_pt(sender, pt),
-            sender,
-            &[fss.0],
-            Some(RedeemMode::AtLeast),
-            Some("1000000"),
-        );
     }
 
     #[test]
@@ -3414,7 +2658,7 @@ mod tests {
         let sender = HaneulAddress::random_for_testing_only();
         let a = random_object_ref();
         let b = random_object_ref();
-        let pt = merge_and_redeem_fss_pt(sender, vec![a, b], &RedeemPlan::All).expect("pt");
+        let pt = merge_and_redeem_fss_pt(sender, vec![a, b], None).expect("pt");
         assert_merge_redeem_ops(
             &parse_pt(sender, pt),
             sender,
@@ -3428,15 +2672,7 @@ mod tests {
         let sender = HaneulAddress::random_for_testing_only();
         let a = random_object_ref();
         let b = random_object_ref();
-        let pt = merge_and_redeem_fss_pt(
-            sender,
-            vec![a, b],
-            &RedeemPlan::AtMost {
-                token_amount: Some(500_000_000),
-                max_haneul: 0,
-            },
-        )
-        .expect("pt");
+        let pt = merge_and_redeem_fss_pt(sender, vec![a, b], Some(500_000_000)).expect("pt");
         assert_merge_redeem_ops(&parse_pt(sender, pt), sender, &[a.0, b.0], None);
     }
 
@@ -3446,7 +2682,7 @@ mod tests {
         let a = random_object_ref();
         let b = random_object_ref();
         let c = random_object_ref();
-        let pt = merge_and_redeem_fss_pt(sender, vec![a, b, c], &RedeemPlan::All).expect("pt");
+        let pt = merge_and_redeem_fss_pt(sender, vec![a, b, c], None).expect("pt");
         assert_merge_redeem_ops(
             &parse_pt(sender, pt),
             sender,
@@ -3461,15 +2697,7 @@ mod tests {
         let a = random_object_ref();
         let b = random_object_ref();
         let c = random_object_ref();
-        let pt = merge_and_redeem_fss_pt(
-            sender,
-            vec![a, b, c],
-            &RedeemPlan::AtMost {
-                token_amount: Some(500_000_000),
-                max_haneul: 0,
-            },
-        )
-        .expect("pt");
+        let pt = merge_and_redeem_fss_pt(sender, vec![a, b, c], Some(500_000_000)).expect("pt");
         assert_merge_redeem_ops(&parse_pt(sender, pt), sender, &[a.0, b.0, c.0], None);
     }
 
@@ -3477,7 +2705,7 @@ mod tests {
     fn test_parse_merge_redeem_five_all() {
         let sender = HaneulAddress::random_for_testing_only();
         let refs: Vec<_> = (0..5).map(|_| random_object_ref()).collect();
-        let pt = merge_and_redeem_fss_pt(sender, refs.clone(), &RedeemPlan::All).expect("pt");
+        let pt = merge_and_redeem_fss_pt(sender, refs.clone(), None).expect("pt");
         let expected: Vec<_> = refs.iter().map(|r| r.0).collect();
         assert_merge_redeem_ops(
             &parse_pt(sender, pt),
@@ -3494,7 +2722,7 @@ mod tests {
         let a = random_object_ref();
         let b = random_object_ref();
         let c = random_object_ref();
-        let pt = merge_and_redeem_fss_pt(sender, vec![a, b, c], &RedeemPlan::All).expect("pt");
+        let pt = merge_and_redeem_fss_pt(sender, vec![a, b, c], None).expect("pt");
         let ops = parse_pt(sender, pt);
         let Some(OperationMetadata::MergeAndRedeemFungibleStakedHaneul { fss_ids, .. }) =
             ops[0].metadata.clone()
@@ -3508,7 +2736,7 @@ mod tests {
     fn test_parse_merge_redeem_sender_account() {
         let sender = HaneulAddress::random_for_testing_only();
         let fss = random_object_ref();
-        let pt = merge_and_redeem_fss_pt(sender, vec![fss], &RedeemPlan::All).expect("pt");
+        let pt = merge_and_redeem_fss_pt(sender, vec![fss], None).expect("pt");
         let ops = parse_pt(sender, pt);
         assert_eq!(ops[0].account.as_ref().unwrap().address, sender);
     }
@@ -3517,15 +2745,7 @@ mod tests {
     fn test_parse_merge_redeem_no_amount_in_metadata() {
         let sender = HaneulAddress::random_for_testing_only();
         let fss = random_object_ref();
-        let pt = merge_and_redeem_fss_pt(
-            sender,
-            vec![fss],
-            &RedeemPlan::AtMost {
-                token_amount: Some(500_000_000),
-                max_haneul: 0,
-            },
-        )
-        .expect("pt");
+        let pt = merge_and_redeem_fss_pt(sender, vec![fss], Some(500_000_000)).expect("pt");
         let ops = parse_pt(sender, pt);
         let Some(OperationMetadata::MergeAndRedeemFungibleStakedHaneul { amount, .. }) =
             ops[0].metadata.clone()
@@ -3539,7 +2759,7 @@ mod tests {
     fn test_parse_merge_redeem_no_validator_in_metadata() {
         let sender = HaneulAddress::random_for_testing_only();
         let fss = random_object_ref();
-        let pt = merge_and_redeem_fss_pt(sender, vec![fss], &RedeemPlan::All).expect("pt");
+        let pt = merge_and_redeem_fss_pt(sender, vec![fss], None).expect("pt");
         let ops = parse_pt(sender, pt);
         let Some(OperationMetadata::MergeAndRedeemFungibleStakedHaneul { validator, .. }) =
             ops[0].metadata.clone()
@@ -4017,254 +3237,6 @@ mod tests {
     }
 
     // ==============================================================================
-    // AtLeast guard dataflow linkage tests
-    //
-    // The AtLeast PTB shape is:
-    //   redeem_fss → balance::split<HANEUL> → balance::join<HANEUL> → coin::from_balance<HANEUL>
-    // and the parser must verify that the guard operates on the redeem result
-    // (not on some unrelated Balance<HANEUL>) — otherwise a malformed PTB could be
-    // misclassified as a typed AtLeast op even though the chain wouldn't enforce
-    // the guarantee on the redeemed balance.
-    // ==============================================================================
-
-    /// Build a malformed AtLeast PTB where the AtLeast guard operates on a
-    /// freshly-created `Balance<HANEUL>` (via `balance::zero<HANEUL>`) rather than
-    /// on the redeem result. Type-checks on chain (the chain doesn't care if
-    /// the guard runs against a different balance), but the parser must NOT
-    /// emit `Some(AtLeast)` for this PTB because the balance::split is not
-    /// gating the redeemed balance.
-    ///
-    /// NOTE: chain validation might still reject the resulting PTB for other
-    /// reasons (orphaned redeem result), but as far as the parser shape match
-    /// goes we want it to fall through to a generic op.
-    fn build_malformed_atleast_ptb(
-        sender: HaneulAddress,
-        fss: ObjectRef,
-        wire_split_to_redeem: bool,
-        wire_join_to_redeem: bool,
-        wire_join_arg1_to_split: bool,
-        wire_from_balance_to_redeem: bool,
-    ) -> ProgrammableTransaction {
-        use haneul_types::transaction::Argument;
-        let mut builder = ProgrammableTransactionBuilder::new();
-        let sys = builder.input(CallArg::HANEUL_SYSTEM_MUT).unwrap();
-        let fss_arg = builder.obj(ObjectArg::ImmOrOwnedObject(fss)).unwrap();
-        let split_amt = builder.pure(100u64).unwrap();
-        // Split fss to make the shape AtLeast/AtMost-like (with split_fss before redeem).
-        let split_fss = builder.command(NativeCommand::move_call(
-            HANEUL_SYSTEM_PACKAGE_ID,
-            Identifier::new("staking_pool").unwrap(),
-            Identifier::new("split_fungible_staked_haneul").unwrap(),
-            vec![],
-            vec![fss_arg, split_amt],
-        ));
-        let redeem_balance = builder.command(NativeCommand::move_call(
-            HANEUL_SYSTEM_PACKAGE_ID,
-            Identifier::new("haneul_system").unwrap(),
-            Identifier::new("redeem_fungible_staked_haneul").unwrap(),
-            vec![],
-            vec![sys, split_fss],
-        ));
-        // Make a separate Balance<HANEUL> via `balance::zero<HANEUL>` to have a
-        // distinct Balance<HANEUL> Result available for the malformed wiring.
-        let zero_balance = builder.command(NativeCommand::move_call(
-            HANEUL_FRAMEWORK_PACKAGE_ID,
-            Identifier::new("balance").unwrap(),
-            Identifier::new("zero").unwrap(),
-            vec![haneul_types::TypeTag::from_str("0x2::haneul::HANEUL").unwrap()],
-            vec![],
-        ));
-        let min_arg = builder.pure(0u64).unwrap();
-        let split_arg0 = if wire_split_to_redeem {
-            redeem_balance
-        } else {
-            zero_balance
-        };
-        let split_result = builder.command(NativeCommand::move_call(
-            HANEUL_FRAMEWORK_PACKAGE_ID,
-            Identifier::new("balance").unwrap(),
-            Identifier::new("split").unwrap(),
-            vec![haneul_types::TypeTag::from_str("0x2::haneul::HANEUL").unwrap()],
-            vec![split_arg0, min_arg],
-        ));
-        let join_arg0 = if wire_join_to_redeem {
-            redeem_balance
-        } else {
-            zero_balance
-        };
-        let join_arg1 = if wire_join_arg1_to_split {
-            split_result
-        } else {
-            // Use a fresh zero<HANEUL> result so it's a Balance<HANEUL> Result that
-            // is not the prior balance::split's output.
-            builder.command(NativeCommand::move_call(
-                HANEUL_FRAMEWORK_PACKAGE_ID,
-                Identifier::new("balance").unwrap(),
-                Identifier::new("zero").unwrap(),
-                vec![haneul_types::TypeTag::from_str("0x2::haneul::HANEUL").unwrap()],
-                vec![],
-            ))
-        };
-        builder.command(NativeCommand::move_call(
-            HANEUL_FRAMEWORK_PACKAGE_ID,
-            Identifier::new("balance").unwrap(),
-            Identifier::new("join").unwrap(),
-            vec![haneul_types::TypeTag::from_str("0x2::haneul::HANEUL").unwrap()],
-            vec![join_arg0, join_arg1],
-        ));
-        let from_balance_arg = if wire_from_balance_to_redeem {
-            redeem_balance
-        } else {
-            zero_balance
-        };
-        let coin = builder.command(NativeCommand::move_call(
-            HANEUL_FRAMEWORK_PACKAGE_ID,
-            Identifier::new("coin").unwrap(),
-            Identifier::new("from_balance").unwrap(),
-            vec![haneul_types::TypeTag::from_str("0x2::haneul::HANEUL").unwrap()],
-            vec![from_balance_arg],
-        ));
-        let sender_arg = builder.pure(sender).unwrap();
-        builder.command(NativeCommand::TransferObjects(vec![coin], sender_arg));
-        let _ = Argument::GasCoin; // silence Argument unused warning when not needed
-        builder.finish()
-    }
-
-    #[test]
-    fn test_parse_falls_through_atleast_split_arg_not_redeem_result() {
-        let sender = HaneulAddress::random_for_testing_only();
-        let fss = random_object_ref();
-        // balance::split arg[0] points at zero<HANEUL>, not at redeem result.
-        let pt = build_malformed_atleast_ptb(sender, fss, false, true, true, true);
-        assert_falls_through_to_generic(&parse_pt(sender, pt));
-    }
-
-    #[test]
-    fn test_parse_falls_through_atleast_join_arg0_not_redeem_result() {
-        let sender = HaneulAddress::random_for_testing_only();
-        let fss = random_object_ref();
-        // balance::join arg[0] points at zero<HANEUL>, not at redeem result.
-        let pt = build_malformed_atleast_ptb(sender, fss, true, false, true, true);
-        assert_falls_through_to_generic(&parse_pt(sender, pt));
-    }
-
-    #[test]
-    fn test_parse_falls_through_atleast_join_arg1_not_split_result() {
-        let sender = HaneulAddress::random_for_testing_only();
-        let fss = random_object_ref();
-        // balance::join arg[1] points at a different zero<HANEUL>, not at split result.
-        let pt = build_malformed_atleast_ptb(sender, fss, true, true, false, true);
-        assert_falls_through_to_generic(&parse_pt(sender, pt));
-    }
-
-    #[test]
-    fn test_parse_falls_through_atleast_from_balance_arg_not_redeem_result() {
-        let sender = HaneulAddress::random_for_testing_only();
-        let fss = random_object_ref();
-        // coin::from_balance arg[0] points at zero<HANEUL>, not at redeem result.
-        let pt = build_malformed_atleast_ptb(sender, fss, true, true, true, false);
-        assert_falls_through_to_generic(&parse_pt(sender, pt));
-    }
-
-    /// Hand-build a PTB whose `balance::split` argument is `NestedResult(redeem_idx, 0)`
-    /// rather than a plain `Result(redeem_idx)`. Both proto-encode as
-    /// `ArgumentKind::Result` (only `subresult` differs) so a parser that
-    /// only checks kind+result would slip past — `is_result_of` must also
-    /// require `subresult` is unset.
-    #[test]
-    fn test_parse_falls_through_atleast_split_arg_is_nested_result() {
-        use haneul_types::transaction::Argument;
-        let sender = HaneulAddress::random_for_testing_only();
-        let fss = random_object_ref();
-        let mut builder = ProgrammableTransactionBuilder::new();
-        let sys = builder.input(CallArg::HANEUL_SYSTEM_MUT).unwrap();
-        let fss_arg = builder.obj(ObjectArg::ImmOrOwnedObject(fss)).unwrap();
-        let split_amt = builder.pure(100u64).unwrap();
-        let split_fss = builder.command(NativeCommand::move_call(
-            HANEUL_SYSTEM_PACKAGE_ID,
-            Identifier::new("staking_pool").unwrap(),
-            Identifier::new("split_fungible_staked_haneul").unwrap(),
-            vec![],
-            vec![fss_arg, split_amt],
-        ));
-        let _redeem = builder.command(NativeCommand::move_call(
-            HANEUL_SYSTEM_PACKAGE_ID,
-            Identifier::new("haneul_system").unwrap(),
-            Identifier::new("redeem_fungible_staked_haneul").unwrap(),
-            vec![],
-            vec![sys, split_fss],
-        ));
-        // The redeem result is at command index 1 (split is 0). Construct
-        // NestedResult(1, 0) by hand — it shares ArgumentKind::Result with
-        // a plain Result(1), distinguished only by `subresult`.
-        let nested = Argument::NestedResult(1, 0);
-        let min_arg = builder.pure(0u64).unwrap();
-        let split_balance = builder.command(NativeCommand::move_call(
-            HANEUL_FRAMEWORK_PACKAGE_ID,
-            Identifier::new("balance").unwrap(),
-            Identifier::new("split").unwrap(),
-            vec![haneul_types::TypeTag::from_str("0x2::haneul::HANEUL").unwrap()],
-            vec![nested, min_arg],
-        ));
-        builder.command(NativeCommand::move_call(
-            HANEUL_FRAMEWORK_PACKAGE_ID,
-            Identifier::new("balance").unwrap(),
-            Identifier::new("join").unwrap(),
-            vec![haneul_types::TypeTag::from_str("0x2::haneul::HANEUL").unwrap()],
-            vec![nested, split_balance],
-        ));
-        let coin = builder.command(NativeCommand::move_call(
-            HANEUL_FRAMEWORK_PACKAGE_ID,
-            Identifier::new("coin").unwrap(),
-            Identifier::new("from_balance").unwrap(),
-            vec![haneul_types::TypeTag::from_str("0x2::haneul::HANEUL").unwrap()],
-            vec![nested],
-        ));
-        let sender_arg = builder.pure(sender).unwrap();
-        builder.command(NativeCommand::TransferObjects(vec![coin], sender_arg));
-        assert_falls_through_to_generic(&parse_pt(sender, builder.finish()));
-    }
-
-    /// TransferObjects must move the `coin::from_balance` result, not some
-    /// unrelated `Result`. Build a PTB that has the right shape up to and
-    /// including `coin::from_balance` but then transfers a different coin.
-    #[test]
-    fn test_parse_falls_through_transfer_not_from_balance_result() {
-        let sender = HaneulAddress::random_for_testing_only();
-        let fss = random_object_ref();
-        let mut builder = ProgrammableTransactionBuilder::new();
-        let sys = builder.input(CallArg::HANEUL_SYSTEM_MUT).unwrap();
-        let fss_arg = builder.obj(ObjectArg::ImmOrOwnedObject(fss)).unwrap();
-        let redeem = builder.command(NativeCommand::move_call(
-            HANEUL_SYSTEM_PACKAGE_ID,
-            Identifier::new("haneul_system").unwrap(),
-            Identifier::new("redeem_fungible_staked_haneul").unwrap(),
-            vec![],
-            vec![sys, fss_arg],
-        ));
-        let _from_balance = builder.command(NativeCommand::move_call(
-            HANEUL_FRAMEWORK_PACKAGE_ID,
-            Identifier::new("coin").unwrap(),
-            Identifier::new("from_balance").unwrap(),
-            vec![haneul_types::TypeTag::from_str("0x2::haneul::HANEUL").unwrap()],
-            vec![redeem],
-        ));
-        // Construct a different Coin<HANEUL> via `coin::zero<HANEUL>` and transfer
-        // *that* instead of the from_balance result. The PTB shape up to here
-        // matches a recognized All-mode redeem, but the transfer target is wrong.
-        let other_coin = builder.command(NativeCommand::move_call(
-            HANEUL_FRAMEWORK_PACKAGE_ID,
-            Identifier::new("coin").unwrap(),
-            Identifier::new("zero").unwrap(),
-            vec![haneul_types::TypeTag::from_str("0x2::haneul::HANEUL").unwrap()],
-            vec![],
-        ));
-        let sender_arg = builder.pure(sender).unwrap();
-        builder.command(NativeCommand::TransferObjects(vec![other_coin], sender_arg));
-        assert_falls_through_to_generic(&parse_pt(sender, builder.finish()));
-    }
-
-    // ==============================================================================
     // PR 2: Metadata serialization compat (4 tests)
     // ==============================================================================
 
@@ -4417,166 +3389,5 @@ mod tests {
             .into_internal()
             .expect_err("should fail without redeem_mode");
         assert!(format!("{err}").contains("redeem_mode"));
-    }
-
-    // ---- reconstruct_operations tests -----------------------------------------
-
-    use crate::types::CurrencyMetadata;
-    use crate::types::internal_operation::pay_coin_pt;
-
-    fn sample_currency() -> Currency {
-        Currency {
-            symbol: "USDC".to_string(),
-            decimals: 6,
-            metadata: CurrencyMetadata {
-                coin_type: "0x5::usdc::USDC".to_string(),
-            },
-        }
-    }
-
-    fn data_with_pt(sender: HaneulAddress, pt: ProgrammableTransaction) -> TransactionData {
-        let gas_price = 1000;
-        TransactionData::new_programmable(
-            sender,
-            vec![random_object_ref()],
-            pt,
-            TEST_ONLY_GAS_UNIT_FOR_TRANSFER * gas_price,
-            gas_price,
-        )
-    }
-
-    /// Mirror `/parse`: encode the structured proto (clearing `bcs`) then decode
-    /// it back, so `reconstruct_operations` sees exactly what the endpoint sees.
-    fn proto_clean(data: &TransactionData) -> Transaction {
-        use crate::types::transaction_envelope::{decode_inner_proto, encode_inner_proto};
-        decode_inner_proto(&encode_inner_proto(data)).unwrap()
-    }
-
-    /// PayCoin currency from the aux data labels the reconstructed payment ops.
-    #[test]
-    fn test_reconstruct_pay_coin_currency() {
-        let sender = HaneulAddress::random_for_testing_only();
-        let recipient = HaneulAddress::random_for_testing_only();
-        let coin = random_object_ref();
-        let currency = sample_currency();
-        let aux = AuxData::PayCoin {
-            currency: currency.clone(),
-        };
-        let pt = pay_coin_pt(
-            sender,
-            vec![recipient],
-            vec![10_000],
-            &[coin],
-            &[],
-            0,
-            &currency,
-        )
-        .unwrap();
-        let proto = proto_clean(&data_with_pt(sender, pt));
-
-        let ops = reconstruct_operations(&proto, &aux, None).expect("reconstruct ok");
-        assert!(ops.0.iter().any(|op| op.type_ == OperationType::PayCoin));
-        let recip_amount = ops
-            .0
-            .iter()
-            .find(|o| o.account.as_ref().map(|a| a.address) == Some(recipient))
-            .and_then(|o| o.amount.clone())
-            .expect("recipient op");
-        assert_eq!(
-            recip_amount.currency.metadata.coin_type,
-            currency.metadata.coin_type
-        );
-    }
-
-    /// Family-mismatch guard: PayCoin aux data applied to a non-payment
-    /// (Consolidate) transaction is rejected by `apply_aux`'s family
-    /// assertion, regardless of the currency map.
-    #[test]
-    fn test_reconstruct_family_mismatch_rejected() {
-        let sender = HaneulAddress::random_for_testing_only();
-        let pay_aux = AuxData::PayCoin {
-            currency: sample_currency(),
-        };
-        let pt = consolidate_to_fungible_pt(
-            sender,
-            vec![random_object_ref()],
-            vec![random_object_ref()],
-        )
-        .unwrap();
-        let proto = proto_clean(&data_with_pt(sender, pt));
-        let err = reconstruct_operations(&proto, &pay_aux, None)
-            .expect_err("family mismatch must be rejected");
-        assert!(format!("{err:?}").contains("non-payment"));
-    }
-
-    /// FSS decoration: Consolidate validator is recovered from the aux data.
-    #[test]
-    fn test_reconstruct_consolidate_validator_decorated() {
-        let sender = HaneulAddress::random_for_testing_only();
-        let validator = HaneulAddress::random_for_testing_only();
-        let aux = AuxData::Consolidate { validator };
-        let pt = consolidate_to_fungible_pt(
-            sender,
-            vec![random_object_ref()],
-            vec![random_object_ref()],
-        )
-        .unwrap();
-        let proto = proto_clean(&data_with_pt(sender, pt));
-        let ops = reconstruct_operations(&proto, &aux, None).unwrap();
-        let Some(OperationMetadata::ConsolidateAllStakedHaneulToFungible { validator: v, .. }) =
-            ops.0[0].metadata.clone()
-        else {
-            panic!("expected Consolidate metadata");
-        };
-        assert_eq!(v, Some(validator));
-    }
-
-    /// FSS decoration: MergeAndRedeem AtMost — the parser alone cannot
-    /// distinguish AtMost, so the aux-data override must report it, with the
-    /// validator + cap recovered.
-    #[test]
-    fn test_reconstruct_merge_redeem_atmost_decorated() {
-        let sender = HaneulAddress::random_for_testing_only();
-        let validator = HaneulAddress::random_for_testing_only();
-        let aux = AuxData::MergeAndRedeem {
-            validator,
-            redeem_mode: RedeemMode::AtMost,
-            amount: Some(1_000_000),
-        };
-        let plan = RedeemPlan::AtMost {
-            token_amount: Some(500_000_000),
-            max_haneul: 0,
-        };
-        let pt = merge_and_redeem_fss_pt(sender, vec![random_object_ref()], &plan).unwrap();
-        let proto = proto_clean(&data_with_pt(sender, pt));
-        let ops = reconstruct_operations(&proto, &aux, None).unwrap();
-        let Some(OperationMetadata::MergeAndRedeemFungibleStakedHaneul {
-            validator: v,
-            amount,
-            redeem_mode,
-            ..
-        }) = ops.0[0].metadata.clone()
-        else {
-            panic!("expected MergeAndRedeem metadata");
-        };
-        assert_eq!(v, Some(validator));
-        assert_eq!(redeem_mode, Some(RedeemMode::AtMost));
-        assert_eq!(amount, Some("1000000".to_string()));
-    }
-
-    /// PayHaneul reconstructs cleanly with `None` aux data.
-    #[test]
-    fn test_reconstruct_pay_haneul_none_ok() {
-        let sender = HaneulAddress::random_for_testing_only();
-        let recipient = HaneulAddress::random_for_testing_only();
-        let pt = {
-            let mut b = ProgrammableTransactionBuilder::new();
-            b.pay_haneul(vec![recipient], vec![10_000]).unwrap();
-            b.finish()
-        };
-        let proto = proto_clean(&data_with_pt(sender, pt));
-        let ops = reconstruct_operations(&proto, &AuxData::None, None)
-            .expect("PayHaneul reconstructs with no aux data");
-        assert!(ops.0.iter().any(|op| op.type_ == OperationType::PayHaneul));
     }
 }

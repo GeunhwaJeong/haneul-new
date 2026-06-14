@@ -13,21 +13,9 @@ use consensus_config::Committee as ConsensusCommittee;
 use consensus_core::{CommitConsumerMonitor, CommitIndex, CommitRef};
 use consensus_types::block::TransactionIndex;
 use fastcrypto_zkp::bn254::zk_login::{JWK, JwkId};
-use lru::LruCache;
-use haneullabs_common::{
-    assert_reachable, assert_sometimes, debug_fatal, random_util::randomize_cache_capacity_in_tests,
-};
-use haneullabs_metrics::{
-    monitored_future,
-    monitored_mpsc::{self, UnboundedReceiver},
-    monitored_scope, spawn_monitored_task,
-};
-use nonempty::NonEmpty;
-use parking_lot::RwLockWriteGuard;
-use serde::{Deserialize, Serialize};
 use haneul_config::node::CongestionLogConfig;
 use haneul_macros::{fail_point, fail_point_arg, fail_point_if};
-use haneul_protocol_config::{Chain, PerObjectCongestionControlMode, ProtocolConfig};
+use haneul_protocol_config::{PerObjectCongestionControlMode, ProtocolConfig};
 use haneul_types::{
     HANEUL_RANDOMNESS_STATE_OBJECT_ID,
     authenticator_state::ActiveJwk,
@@ -41,6 +29,7 @@ use haneul_types::{
         TrustedExecutableTransaction, VerifiedExecutableTransaction,
         VerifiedExecutableTransactionWithAliases,
     },
+    haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait,
     messages_checkpoint::{
         CheckpointSequenceNumber, CheckpointSignatureMessage, CheckpointTimestamp,
     },
@@ -49,13 +38,23 @@ use haneul_types::{
         ConsensusPosition, ConsensusTransaction, ConsensusTransactionKey, ConsensusTransactionKind,
         ExecutionTimeObservation,
     },
-    node_role::NodeRole,
-    haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait,
     transaction::{
         InputObjectKind, SenderSignedData, TransactionDataAPI, TransactionKey, VerifiedTransaction,
         WithAliases,
     },
 };
+use haneullabs_common::{
+    assert_reachable, assert_sometimes, debug_fatal, random_util::randomize_cache_capacity_in_tests,
+};
+use haneullabs_metrics::{
+    monitored_future,
+    monitored_mpsc::{self, UnboundedReceiver},
+    monitored_scope, spawn_monitored_task,
+};
+use lru::LruCache;
+use nonempty::NonEmpty;
+use parking_lot::RwLockWriteGuard;
+use serde::{Deserialize, Serialize};
 use tokio::task::JoinSet;
 use tracing::{debug, error, info, instrument, trace, warn};
 
@@ -2449,21 +2448,7 @@ impl<C: CheckpointServiceNotify + Send + Sync> ConsensusHandler<C> {
             randomness_dkg_confirmations,
         );
 
-        // Keep advancing the DKG state machine until it is resolved, regardless of
-        // whether new messages/confirmations were processed this commit. Preserve
-        // the mainnet epoch fallback until the protocol flag is active everywhere.
-        let always_advance_dkg_to_resolution = (self
-            .epoch_store
-            .protocol_config()
-            .always_advance_dkg_to_resolution()
-            || (self.epoch_store.get_chain() == Chain::Mainnet
-                && self.epoch_store.epoch() >= 1143))
-            && randomness_manager.dkg_status() == DkgStatus::Pending;
-
-        if randomness_dkg_updates
-            || randomness_dkg_confirmation_updates
-            || always_advance_dkg_to_resolution
-        {
+        if randomness_dkg_updates || randomness_dkg_confirmation_updates {
             randomness_manager
                 .advance_dkg(&mut state.output, commit_info.round)
                 .await
@@ -3266,7 +3251,6 @@ impl MysticetiConsensusHandler {
         mut consensus_handler: ConsensusHandler<CheckpointService>,
         mut commit_receiver: UnboundedReceiver<consensus_core::CommittedSubDag>,
         commit_consumer_monitor: Arc<CommitConsumerMonitor>,
-        node_role: NodeRole,
     ) -> Self {
         debug!(
             last_processed_commit_at_startup,
@@ -3277,12 +3261,7 @@ impl MysticetiConsensusHandler {
             // TODO: pause when execution is overloaded, so consensus can detect the backpressure.
             while let Some(consensus_commit) = commit_receiver.recv().await {
                 let commit_index = consensus_commit.commit_ref.index;
-                if !node_role.process_consensus_commits() {
-                    debug!(
-                        commit_index,
-                        "Observer skipping consensus commit processing"
-                    );
-                } else if commit_index <= last_processed_commit_at_startup {
+                if commit_index <= last_processed_commit_at_startup {
                     consensus_handler.handle_prior_consensus_commit(consensus_commit);
                 } else {
                     consensus_handler
@@ -3604,11 +3583,10 @@ mod tests {
         BlockAPI, CommitDigest, CommitRef, CommittedSubDag, TestBlock, Transaction, VerifiedBlock,
     };
     use futures::pin_mut;
-    use prometheus::Registry;
     use haneul_protocol_config::{ConsensusTransactionOrdering, ProtocolConfig};
     use haneul_types::{
         base_types::ExecutionDigests,
-        base_types::{AuthorityName, FullObjectRef, ObjectID, HaneulAddress, random_object_ref},
+        base_types::{AuthorityName, FullObjectRef, HaneulAddress, ObjectID, random_object_ref},
         committee::Committee,
         crypto::deterministic_random_account_key,
         gas::GasCostSummary,
@@ -3623,6 +3601,7 @@ mod tests {
             CertifiedTransaction, TransactionData, TransactionDataAPI, VerifiedCertificate,
         },
     };
+    use prometheus::Registry;
 
     use super::*;
     use crate::{

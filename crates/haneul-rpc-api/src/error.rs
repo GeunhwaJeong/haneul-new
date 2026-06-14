@@ -50,17 +50,6 @@ impl RpcError {
     }
 }
 
-impl std::fmt::Display for RpcError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match &self.message {
-            Some(m) => write!(f, "{}: {}", self.code, m),
-            None => write!(f, "{}", self.code),
-        }
-    }
-}
-
-impl std::error::Error for RpcError {}
-
 impl From<RpcError> for tonic::Status {
     fn from(value: RpcError) -> Self {
         use prost::Message;
@@ -123,9 +112,9 @@ impl From<bcs::Error> for RpcError {
 
 impl From<haneul_types::transaction_driver_types::TransactionSubmissionError> for RpcError {
     fn from(error: haneul_types::transaction_driver_types::TransactionSubmissionError) -> Self {
-        use itertools::Itertools;
         use haneul_types::error::HaneulErrorKind;
         use haneul_types::transaction_driver_types::TransactionSubmissionError::*;
+        use itertools::Itertools;
 
         match error {
             InvalidUserSignature(err) => {

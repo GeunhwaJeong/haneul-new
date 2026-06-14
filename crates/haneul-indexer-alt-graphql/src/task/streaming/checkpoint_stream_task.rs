@@ -56,13 +56,13 @@
 //! the recovery target, the next live message is itself a gap, and detection
 //! fires again.
 
+use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Context as _;
 use backoff::ExponentialBackoff;
 use futures::StreamExt;
-use move_core_types::account_address::AccountAddress;
 use haneul_futures::service::Service;
 use haneul_indexer_alt_reader::kv_loader::TransactionContents as NativeTransactionContents;
 use haneul_indexer_alt_reader::ledger_grpc_reader::LedgerGrpcReader;
@@ -73,17 +73,22 @@ use haneul_rpc::proto::haneul::rpc::v2::Checkpoint as ProtoCheckpoint;
 use haneul_rpc::proto::haneul::rpc::v2::ExecutedTransaction as ProtoExecutedTransaction;
 use haneul_rpc::proto::haneul::rpc::v2::SubscribeCheckpointsRequest;
 use haneul_rpc::proto::haneul::rpc::v2::SubscribeCheckpointsResponse;
+use haneul_rpc::proto::haneul::rpc::v2::changed_object::OutputObjectState;
 use haneul_rpc::proto::haneul::rpc::v2::subscription_service_client::SubscriptionServiceClient;
 use haneul_sdk_types::ValidatorAggregatedSignature;
+use haneul_types::base_types::ObjectID;
+use haneul_types::base_types::SequenceNumber;
 use haneul_types::crypto::AuthorityStrongQuorumSignInfo;
 use haneul_types::crypto::ToFromBytes;
 use haneul_types::effects::TransactionEffects;
+use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::effects::TransactionEvents;
 use haneul_types::messages_checkpoint::CheckpointContents;
 use haneul_types::messages_checkpoint::CheckpointSummary;
 use haneul_types::object::Object as NativeObject;
 use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::TransactionData;
+use move_core_types::account_address::AccountAddress;
 use tokio::sync::broadcast;
 use tokio::sync::mpsc::UnboundedSender;
 use tokio::sync::watch;
@@ -94,6 +99,7 @@ use tracing::info;
 use tracing::warn;
 
 use crate::config::SubscriptionConfig;
+use crate::scope::ExecutionObjectMap;
 use crate::task::watermark::Watermarks;
 
 use super::StreamingPackageStore;
@@ -101,18 +107,6 @@ use super::SubscriptionReadiness;
 use super::gap_recovery::recover_gap;
 use super::processed_checkpoint::ProcessedCheckpoint;
 use super::processed_checkpoint::ProcessedTransaction;
-
-#[cfg(feature = "staging")]
-mod staging {
-    pub(super) use std::collections::BTreeMap;
-
-    pub(super) use haneul_rpc::proto::haneul::rpc::v2::changed_object::OutputObjectState;
-    pub(super) use haneul_types::base_types::ObjectID;
-    pub(super) use haneul_types::base_types::SequenceNumber;
-}
-
-#[cfg(feature = "staging")]
-use staging::*;
 
 // TODO: Make these configurable via SubscriptionConfig.
 const MAX_GRPC_MESSAGE_SIZE_BYTES: usize = 128 * 1024 * 1024;
@@ -406,43 +400,34 @@ pub(super) fn process_checkpoint(
     let timestamp_ms = summary.timestamp_ms;
     let cp_sequence_number = sequence_number;
     let tx_lo = summary.network_total_transactions - checkpoint.transactions.len() as u64;
-    #[cfg(feature = "staging")]
     let checkpoint_objects = deserialize_checkpoint_objects(&checkpoint)?;
-
-    // Seed the checkpoint-wide execution-objects map with every existing object version
-    // carried by the proto. Tombstones for deleted/wrapped outputs are added below from each
-    // transaction's effects because the proto doesn't carry deleted-object payloads.
-    #[cfg(feature = "staging")]
-    let mut execution_objects: BTreeMap<(ObjectID, SequenceNumber), Option<NativeObject>> =
-        checkpoint_objects
-            .iter()
-            .map(|(k, v)| (*k, Some(v.clone())))
-            .collect();
-
-    let mut transactions = Vec::with_capacity(checkpoint.transactions.len());
-    for (i, proto) in checkpoint.transactions.iter().enumerate() {
-        #[cfg(feature = "staging")]
-        add_tombstones(&mut execution_objects, proto)?;
-        transactions.push(process_transaction(
-            proto,
-            timestamp_ms,
-            cp_sequence_number,
-            tx_lo + i as u64,
-        )?);
-    }
+    let transactions = checkpoint
+        .transactions
+        .iter()
+        .enumerate()
+        .map(|(i, proto)| {
+            process_transaction(
+                proto,
+                &checkpoint_objects,
+                timestamp_ms,
+                cp_sequence_number,
+                tx_lo + i as u64,
+            )
+        })
+        .collect::<anyhow::Result<Vec<_>>>()?;
 
     Ok(ProcessedCheckpoint {
+        sequence_number,
         summary,
         contents,
         signature,
         transactions,
-        #[cfg(feature = "staging")]
-        execution_objects: Arc::new(execution_objects),
     })
 }
 
 fn process_transaction(
     proto: &ProtoExecutedTransaction,
+    checkpoint_objects: &BTreeMap<(ObjectID, SequenceNumber), NativeObject>,
     timestamp_ms: u64,
     cp_sequence_number: u64,
     tx_sequence_number: u64,
@@ -491,6 +476,10 @@ fn process_transaction(
         })
         .collect::<anyhow::Result<_>>()?;
 
+    let digest = *effects.transaction_digest();
+
+    let execution_objects = build_execution_objects(checkpoint_objects, proto)?;
+
     let contents = NativeTransactionContents::ExecutedTransaction(
         haneul_indexer_alt_reader::kv_loader::ExecutedTransactionData {
             effects: Box::new(effects),
@@ -507,7 +496,9 @@ fn process_transaction(
 
     Ok(ProcessedTransaction {
         tx_sequence_number,
-        contents: Arc::new(contents),
+        digest,
+        contents,
+        execution_objects,
     })
 }
 
@@ -535,7 +526,6 @@ fn extract_packages(checkpoint: &ProtoCheckpoint) -> Vec<Arc<Package>> {
 }
 
 /// Deserialize all objects from the checkpoint-level ObjectSet.
-#[cfg(feature = "staging")]
 fn deserialize_checkpoint_objects(
     checkpoint: &ProtoCheckpoint,
 ) -> anyhow::Result<BTreeMap<(ObjectID, SequenceNumber), NativeObject>> {
@@ -553,37 +543,48 @@ fn deserialize_checkpoint_objects(
     Ok(map)
 }
 
-/// Add tombstones (`None` entries) to a checkpoint-wide execution-objects map for any
-/// `DoesNotExist` outputs in this transaction's effects. The proto's `objects` field doesn't
-/// carry payloads for deleted/wrapped objects, so tombstones must come from effects; without
-/// them, `execution_output_object_latest` would return the pre-deletion version of an object
-/// that no longer exists at end-of-checkpoint.
-#[cfg(feature = "staging")]
-fn add_tombstones(
-    map: &mut BTreeMap<(ObjectID, SequenceNumber), Option<NativeObject>>,
+/// Build an ExecutionObjectMap for a single transaction by filtering checkpoint-level objects
+/// using the transaction's `changed_objects` from effects.
+///
+/// Includes both input objects (previous version) and output objects (new version) so that
+/// both `inputState` and `outputState` can resolve from streaming.
+/// Objects with `DoesNotExist` output state become tombstones (None).
+fn build_execution_objects(
+    checkpoint_objects: &BTreeMap<(ObjectID, SequenceNumber), NativeObject>,
     proto_tx: &ProtoExecutedTransaction,
-) -> anyhow::Result<()> {
-    let Some(effects) = &proto_tx.effects else {
-        return Ok(());
-    };
+) -> anyhow::Result<ExecutionObjectMap> {
+    let mut map = BTreeMap::new();
 
-    let lamport_version = SequenceNumber::from_u64(
-        effects
-            .lamport_version
-            .context("Effects should have lamport_version")?,
-    );
+    if let Some(effects) = &proto_tx.effects {
+        let lamport_version = SequenceNumber::from_u64(
+            effects
+                .lamport_version
+                .context("Effects should have lamport_version")?,
+        );
 
-    for changed_obj in &effects.changed_objects {
-        if changed_obj.output_state() != OutputObjectState::DoesNotExist {
-            continue;
+        for changed_obj in &effects.changed_objects {
+            let object_id: ObjectID = changed_obj
+                .object_id
+                .as_ref()
+                .and_then(|id| id.parse().ok())
+                .context("ChangedObject should have valid object_id")?;
+
+            // Input object (previous version, before the transaction).
+            if let Some(input_version) = changed_obj.input_version {
+                let input_version = SequenceNumber::from_u64(input_version);
+                if let Some(obj) = checkpoint_objects.get(&(object_id, input_version)) {
+                    map.insert((object_id, input_version), Some(obj.clone()));
+                }
+            }
+
+            // Output object (new version, after the transaction).
+            if changed_obj.output_state() == OutputObjectState::DoesNotExist {
+                map.insert((object_id, lamport_version), None);
+            } else if let Some(obj) = checkpoint_objects.get(&(object_id, lamport_version)) {
+                map.insert((object_id, lamport_version), Some(obj.clone()));
+            }
         }
-        let object_id: ObjectID = changed_obj
-            .object_id
-            .as_ref()
-            .and_then(|id| id.parse().ok())
-            .context("ChangedObject should have valid object_id")?;
-        map.insert((object_id, lamport_version), None);
     }
 
-    Ok(())
+    Ok(Arc::new(map))
 }

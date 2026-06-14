@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_types::base_types::RESOLVED_STD_OPTION;
+use haneul_types::object::option_visitor::OptionVisitor;
 use move_core_types::account_address::AccountAddress;
 use move_core_types::annotated_value as A;
 use move_core_types::annotated_visitor as AV;
 use move_core_types::u256::U256;
-use haneul_types::base_types::RESOLVED_STD_OPTION;
-use haneul_types::object::option_visitor::OptionVisitor;
 
 use crate::v2::error::FormatError;
 use crate::v2::value::Accessor;

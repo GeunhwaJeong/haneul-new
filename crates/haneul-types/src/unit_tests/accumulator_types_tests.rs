@@ -3,13 +3,13 @@
 
 use crate::accumulator_root::{AccumulatorKey, U128};
 use crate::balance::Balance;
-use crate::base_types::{MoveObjectType, SequenceNumber, HaneulAddress};
+use crate::base_types::{HaneulAddress, MoveObjectType, SequenceNumber};
 use crate::dynamic_field::{DynamicFieldInfo, DynamicFieldKey};
 use crate::gas_coin::GAS;
 use crate::object::MoveObject;
 use crate::{
-    MoveTypeTagTrait, MoveTypeTagTraitGeneric, HANEUL_ACCUMULATOR_ROOT_OBJECT_ID,
-    HANEUL_FRAMEWORK_ADDRESS,
+    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, MoveTypeTagTrait,
+    MoveTypeTagTraitGeneric,
 };
 use move_core_types::language_storage::{StructTag, TypeTag};
 
@@ -495,7 +495,8 @@ fn test_is_method_non_haneul_balance_accumulator_field() {
     // Should not match HANEUL accumulator field
     let haneul_balance = Balance::type_tag(GAS::type_tag());
     let haneul_key_type = AccumulatorKey::get_type_tag(&[haneul_balance]);
-    let haneul_field_type = DynamicFieldInfo::dynamic_field_type(haneul_key_type, U128::get_type_tag());
+    let haneul_field_type =
+        DynamicFieldInfo::dynamic_field_type(haneul_key_type, U128::get_type_tag());
     assert!(!move_type.is(&haneul_field_type));
 
     assert_eq!(StructTag::from(move_type), field_type);

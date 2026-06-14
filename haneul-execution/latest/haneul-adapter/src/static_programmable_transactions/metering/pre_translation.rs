@@ -3,7 +3,7 @@
 
 use crate::static_programmable_transactions::metering::translation_meter::TranslationMeter;
 use haneul_types::{
-    error::ExecutionErrorTrait,
+    error::ExecutionError,
     transaction::{CallArg, Command, ProgrammableTransaction},
 };
 
@@ -13,10 +13,10 @@ use haneul_types::{
 /// - number of commands and their arguments
 /// - for Move calls, count arguments to the function (both value and type arguments) as the
 ///   "arguments" to charge for for the command.
-pub fn meter<E: ExecutionErrorTrait>(
+pub fn meter(
     meter: &mut TranslationMeter,
     transaction: &ProgrammableTransaction,
-) -> Result<(), E> {
+) -> Result<(), ExecutionError> {
     meter.charge_base_inputs(transaction.inputs.len())?;
 
     for input in &transaction.inputs {

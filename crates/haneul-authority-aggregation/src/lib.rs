@@ -5,11 +5,11 @@ use futures::Future;
 use futures::{StreamExt, future::BoxFuture, stream::FuturesUnordered};
 use haneullabs_metrics::monitored_future;
 
+use haneul_types::base_types::ConciseableName;
+use haneul_types::committee::{CommitteeTrait, StakeUnit};
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use haneul_types::base_types::ConciseableName;
-use haneul_types::committee::{CommitteeTrait, StakeUnit};
 
 use tokio::time::timeout;
 

@@ -180,7 +180,9 @@ impl AccumulatorWriteV1 {
                     if let AccumulatorValue::EventDigest(digests) = &write.value {
                         event_digests.extend(digests.iter().copied());
                     } else {
-                        haneullabs_common::fatal!("mismatched accumulator value types for same object");
+                        haneullabs_common::fatal!(
+                            "mismatched accumulator value types for same object"
+                        );
                     }
                 }
                 (
@@ -228,7 +230,9 @@ mod tests {
     fn test_accumulator_address() -> AccumulatorAddress {
         AccumulatorAddress::new(
             HaneulAddress::random_for_testing_only(),
-            "0x2::balance::Balance<0x2::haneul::HANEUL>".parse().unwrap(),
+            "0x2::balance::Balance<0x2::haneul::HANEUL>"
+                .parse()
+                .unwrap(),
         )
     }
 
@@ -453,7 +457,9 @@ mod tests {
         let addr = HaneulAddress::random_for_testing_only();
         let addr1 = AccumulatorAddress::new(
             addr,
-            "0x2::balance::Balance<0x2::haneul::HANEUL>".parse().unwrap(),
+            "0x2::balance::Balance<0x2::haneul::HANEUL>"
+                .parse()
+                .unwrap(),
         );
         let addr2 = AccumulatorAddress::new(
             addr,

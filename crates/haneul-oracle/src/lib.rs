@@ -3,15 +3,6 @@
 
 use chrono::{DateTime, Utc};
 use config::{DownloadFeedConfigs, UploadFeedConfig, UploadParameters};
-use metrics::OracleMetrics;
-use haneullabs_metrics::monitored_scope;
-use once_cell::sync::OnceCell;
-use prometheus::Registry;
-use std::ops::Add;
-use std::str::FromStr;
-use std::sync::Arc;
-use std::time::{Duration, SystemTime};
-use std::{collections::HashMap, time::Instant};
 use haneul_rpc_api::Client;
 use haneul_rpc_api::client::ExecutedTransaction;
 use haneul_types::Identifier;
@@ -27,6 +18,15 @@ use haneul_types::{
     base_types::HaneulAddress,
     transaction::{CallArg, TransactionData},
 };
+use haneullabs_metrics::monitored_scope;
+use metrics::OracleMetrics;
+use once_cell::sync::OnceCell;
+use prometheus::Registry;
+use std::ops::Add;
+use std::str::FromStr;
+use std::sync::Arc;
+use std::time::{Duration, SystemTime};
+use std::{collections::HashMap, time::Instant};
 use tap::tap::TapFallible;
 
 use haneul_sdk::wallet_context::WalletContext;
@@ -697,10 +697,6 @@ async fn get_object_arg(
             initial_shared_version,
         }
         | Owner::ConsensusAddressOwner {
-            start_version: initial_shared_version,
-            ..
-        }
-        | Owner::Party {
             start_version: initial_shared_version,
             ..
         } => ObjectArg::SharedObject {

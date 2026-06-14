@@ -13,7 +13,7 @@ use haneul_keys::keystore::{
     ALIASES_FILE_EXTENSION, AccountKeystore, Alias, FileBasedKeystore, GenerateOptions,
     GeneratedKey, InMemKeystore, Keystore,
 };
-use haneul_types::crypto::{DefaultHash, SignatureScheme, HaneulSignatureInner};
+use haneul_types::crypto::{DefaultHash, HaneulSignatureInner, SignatureScheme};
 use haneul_types::{
     base_types::{HANEUL_ADDRESS_LENGTH, HaneulAddress},
     crypto::Ed25519HaneulSignature,
@@ -251,8 +251,9 @@ async fn mnemonic_test() {
 #[tokio::test]
 async fn haneul_wallet_address_mnemonic_test() -> Result<(), anyhow::Error> {
     let phrase = "result crisp session latin must fruit genuine question prevent start coconut brave speak student dismiss";
-    let expected_address =
-        HaneulAddress::from_str("0x936accb491f0facaac668baaedcf4d0cfc6da1120b66f77fa6a43af718669973")?;
+    let expected_address = HaneulAddress::from_str(
+        "0x936accb491f0facaac668baaedcf4d0cfc6da1120b66f77fa6a43af718669973",
+    )?;
 
     let temp_dir = TempDir::new().unwrap();
     let keystore_path = temp_dir.path().join("haneul.keystore");

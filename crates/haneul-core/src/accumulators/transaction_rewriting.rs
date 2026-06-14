@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use haneul_types::base_types::{SequenceNumber, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, SequenceNumber};
 use haneul_types::coin_reservation::{CoinReservationResolverTrait, ParsedObjectRefWithdrawal};
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::error::UserInputResult;

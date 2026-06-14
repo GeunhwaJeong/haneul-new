@@ -4,11 +4,6 @@
 use std::collections::BTreeMap;
 use std::iter;
 
-use move_core_types::ident_str;
-use move_core_types::u256::U256;
-use prometheus::Registry;
-use rand::rngs::OsRng;
-use simulacrum::Simulacrum;
 use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::CHECKPOINT_HEIGHT_METADATA;
 use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::ListOwnedObjectsRequest;
 use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::Owner;
@@ -17,8 +12,8 @@ use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::owner::O
 use haneul_types::HANEUL_FRAMEWORK_PACKAGE_ID;
 use haneul_types::TypeTag;
 use haneul_types::base_types::FullObjectRef;
-use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::ObjectRef;
 use haneul_types::crypto::Signature;
 use haneul_types::crypto::Signer;
 use haneul_types::crypto::get_account_key_pair;
@@ -30,6 +25,11 @@ use haneul_types::transaction::Argument;
 use haneul_types::transaction::Command;
 use haneul_types::transaction::Transaction;
 use haneul_types::transaction::TransactionData;
+use move_core_types::ident_str;
+use move_core_types::u256::U256;
+use prometheus::Registry;
+use rand::rngs::OsRng;
+use simulacrum::Simulacrum;
 
 use haneul_indexer_alt_e2e_tests::FullCluster;
 use haneul_indexer_alt_e2e_tests::find;
@@ -767,7 +767,12 @@ fn freeze_coin(cluster: &mut FullCluster, amount: u64) -> ObjectRef {
 /// Run a transaction on `cluster` signed by a fresh funded account that creates a `Bag`
 /// owned by `owner` with `size` many elements. The purpose of this is to create an object that
 /// isn't a coin. `ty` can be any numeric Move type.
-fn create_bag(cluster: &mut FullCluster, owner: HaneulAddress, ty: TypeTag, size: u64) -> ObjectRef {
+fn create_bag(
+    cluster: &mut FullCluster,
+    owner: HaneulAddress,
+    ty: TypeTag,
+    size: u64,
+) -> ObjectRef {
     let (sender, kp, gas) = cluster
         .funded_account(DEFAULT_GAS_BUDGET)
         .expect("Failed to fund account");
@@ -824,7 +829,12 @@ fn create_bag(cluster: &mut FullCluster, owner: HaneulAddress, ty: TypeTag, size
 /// Run a transaction on `cluster` signed by a fresh funded account that creates a `Table<ty, ty>`
 /// owned by `owner` with `size` many elements. The purpose of this is to create an object that
 /// isn't a coin. `ty` can be any numeric Move type.
-fn create_table(cluster: &mut FullCluster, owner: HaneulAddress, ty: TypeTag, size: u64) -> ObjectRef {
+fn create_table(
+    cluster: &mut FullCluster,
+    owner: HaneulAddress,
+    ty: TypeTag,
+    size: u64,
+) -> ObjectRef {
     let (sender, kp, gas) = cluster
         .funded_account(DEFAULT_GAS_BUDGET)
         .expect("Failed to fund account");

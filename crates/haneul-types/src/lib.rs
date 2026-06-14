@@ -7,7 +7,7 @@
     rust_2021_compatibility
 )]
 
-use base_types::{SequenceNumber, HaneulAddress};
+use base_types::{HaneulAddress, SequenceNumber};
 use move_binary_format::CompiledModule;
 use move_binary_format::file_format::{AbilitySet, SignatureToken};
 use move_bytecode_utils::resolve_struct;
@@ -63,6 +63,9 @@ pub mod gas_coin;
 pub mod gas_model;
 pub mod global_state_hash;
 pub mod governance;
+pub mod haneul_sdk_types_conversions;
+pub mod haneul_serde;
+pub mod haneul_system_state;
 pub mod id;
 pub mod in_memory_storage;
 pub mod inner_temporary_store;
@@ -77,7 +80,6 @@ pub mod move_package;
 pub mod multisig;
 pub mod multisig_legacy;
 pub mod nitro_attestation;
-pub mod node_role;
 pub mod object;
 pub mod passkey_authenticator;
 pub mod programmable_transaction_builder;
@@ -87,9 +89,6 @@ pub mod rpc_proto_conversions;
 pub mod signature;
 pub mod signature_verification;
 pub mod storage;
-pub mod haneul_sdk_types_conversions;
-pub mod haneul_serde;
-pub mod haneul_system_state;
 pub mod supported_protocol_versions;
 pub mod test_checkpoint_data_builder;
 pub mod traffic_control;
@@ -391,8 +390,9 @@ mod tests {
         let expected = expect!["0x2::haneul::HANEUL"];
         expected.assert_eq(&result.to_string());
 
-        let expected =
-            expect!["0x0000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL"];
+        let expected = expect![
+            "0x0000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL"
+        ];
         expected.assert_eq(&result.to_canonical_string(/* with_prefix */ true));
     }
 
@@ -406,15 +406,16 @@ mod tests {
         let expected = expect!["0x2::haneul::HANEUL"];
         expected.assert_eq(&result.to_string());
 
-        let expected =
-            expect!["0x0000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL"];
+        let expected = expect![
+            "0x0000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL"
+        ];
         expected.assert_eq(&result.to_canonical_string(/* with_prefix */ true));
     }
 
     #[test]
     fn test_parse_haneul_struct_with_type_param_short_addr() {
-        let result =
-            parse_haneul_struct_tag("0x2::coin::COIN<0x2::haneul::HANEUL>").expect("should not error");
+        let result = parse_haneul_struct_tag("0x2::coin::COIN<0x2::haneul::HANEUL>")
+            .expect("should not error");
 
         let expected = expect!["0x2::coin::COIN<0x2::haneul::HANEUL>"];
         expected.assert_eq(&result.to_string());
@@ -441,11 +442,13 @@ mod tests {
 
     #[test]
     fn test_complex_struct_tag_with_short_addr() {
-        let result =
-            parse_haneul_struct_tag("0xe7::vec_coin::VecCoin<vector<0x2::coin::Coin<0x2::haneul::HANEUL>>>")
-                .expect("should not error");
+        let result = parse_haneul_struct_tag(
+            "0xe7::vec_coin::VecCoin<vector<0x2::coin::Coin<0x2::haneul::HANEUL>>>",
+        )
+        .expect("should not error");
 
-        let expected = expect!["0xe7::vec_coin::VecCoin<vector<0x2::coin::Coin<0x2::haneul::HANEUL>>>"];
+        let expected =
+            expect!["0xe7::vec_coin::VecCoin<vector<0x2::coin::Coin<0x2::haneul::HANEUL>>>"];
         expected.assert_eq(&result.to_string());
 
         let expected = expect![
@@ -459,7 +462,8 @@ mod tests {
         let result = parse_haneul_struct_tag("0x00000000000000000000000000000000000000000000000000000000000000e7::vec_coin::VecCoin<vector<0x0000000000000000000000000000000000000000000000000000000000000002::coin::Coin<0x0000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL>>>")
             .expect("should not error");
 
-        let expected = expect!["0xe7::vec_coin::VecCoin<vector<0x2::coin::Coin<0x2::haneul::HANEUL>>>"];
+        let expected =
+            expect!["0xe7::vec_coin::VecCoin<vector<0x2::coin::Coin<0x2::haneul::HANEUL>>>"];
         expected.assert_eq(&result.to_string());
 
         let expected = expect![

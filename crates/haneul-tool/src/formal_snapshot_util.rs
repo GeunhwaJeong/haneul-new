@@ -4,11 +4,11 @@
 use anyhow::Result;
 use anyhow::anyhow;
 use futures::{StreamExt, TryStreamExt};
-use std::sync::Arc;
-use std::sync::atomic::{AtomicU64, Ordering};
 use haneul_storage::object_store::util::{build_object_store, fetch_checkpoint};
 use haneul_types::messages_checkpoint::{CheckpointSequenceNumber, VerifiedCheckpoint};
 use haneul_types::storage::WriteStore;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 pub(crate) async fn read_summaries_for_list_no_verify<S>(
     ingestion_url: String,

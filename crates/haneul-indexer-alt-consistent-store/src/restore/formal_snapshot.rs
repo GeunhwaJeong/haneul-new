@@ -8,14 +8,14 @@ use anyhow::Context as _;
 use anyhow::bail;
 use anyhow::ensure;
 use bytes::Bytes;
+use haneul_indexer_alt_framework::ingestion::store_client::StoreIngestionClient;
+use haneul_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 use object_store::ClientOptions;
 use object_store::aws::AmazonS3Builder;
 use object_store::azure::MicrosoftAzureBuilder;
 use object_store::gcp::GoogleCloudStorageBuilder;
 use object_store::http::HttpBuilder;
 use object_store::local::LocalFileSystem;
-use haneul_indexer_alt_framework::ingestion::store_client::StoreIngestionClient;
-use haneul_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 use tracing::info;
 use url::Url;
 
@@ -51,7 +51,7 @@ pub struct FormalSnapshotArgs {
 
     /// Fetch formal snapshot from local filesystem. Provide the path to the snapshot directory.
     #[arg(long, group = "source")]
-    pub local: Option<PathBuf>,
+    pub path: Option<PathBuf>,
 
     /// URL of the remote checkpoint store. Used to fetch the mapping between epochs and
     /// checkpoints.
@@ -59,18 +59,8 @@ pub struct FormalSnapshotArgs {
     pub remote_store_url: Url,
 
     /// The epoch to restore from. Restores from the latest epoch if not specified.
-    /// Required when `--path` is set, since the per-prefix layout may not include
-    /// a `MANIFEST` to discover the latest epoch.
     #[arg(long)]
     pub epoch: Option<u64>,
-
-    /// Path prefix within the storage source containing per-epoch subdirectories.
-    /// When supplied, the tool looks for `<path>/epoch_<N>/` (with `<N>` from
-    /// `--epoch`) and skips reading the root `MANIFEST` and the per-epoch
-    /// `_SUCCESS` marker — the operator vouches for the snapshot being complete.
-    /// Requires `--epoch`.
-    #[arg(long, requires = "epoch")]
-    pub path: Option<String>,
 }
 
 /// Interface over a formal snapshot at a specific epoch.
@@ -79,20 +69,14 @@ pub(super) struct FormalSnapshot {
     /// The source of files related to the formal snapshot.
     source: Arc<dyn Storage + Send + Sync + 'static>,
 
-    epoch_dir: String,
-
     /// The point in time this snapshot is from.
     watermark: Watermark,
 }
 
 impl FormalSnapshot {
-    /// Establish a connection to a formal snapshot for a specific epoch.
-    ///
-    /// When `--path` is supplied, the epoch directory is taken to be
-    /// `<path>/epoch_<epoch>` and the root `MANIFEST` / `_SUCCESS` checks are
-    /// skipped. Otherwise the source's root `MANIFEST` is consulted to validate
-    /// the epoch and a `_SUCCESS` marker is checked; if no epoch is supplied,
-    /// the latest in the manifest is used.
+    /// Establish a connection to a formal snapshot source, and validate that it can serve data for
+    /// a formal snapshot at the specified epoch (or the latest available epoch if none is
+    /// specified).
     pub(super) async fn new(
         snapshot_args: FormalSnapshotArgs,
         connection_args: StorageConnectionArgs,
@@ -124,49 +108,42 @@ impl FormalSnapshot {
         } else if let Some(endpoint) = snapshot_args.http {
             info!(endpoint = %endpoint, "HTTP storage");
             HttpStorage::new(endpoint, connection_args).map(Arc::new)?
-        } else if let Some(path) = snapshot_args.local {
+        } else if let Some(path) = snapshot_args.path {
             info!(path = %path.display(), "Directory storage");
             LocalFileSystem::new_with_prefix(path).map(Arc::new)?
         } else {
             bail!("No formal snapshot source provided");
         };
 
-        let (epoch, epoch_dir) = if let Some(path) = snapshot_args.path {
-            let epoch = snapshot_args
-                .epoch
-                .expect("clap requires --epoch when --path is set");
-            (epoch, format!("{path}/epoch_{epoch}"))
-        } else {
-            let root_manifest = RootManifest::read(
-                store
-                    .get("MANIFEST".into())
-                    .await
-                    .context("Failed to fetch root manifest")?
-                    .as_ref(),
-            )?;
-
-            let epoch = snapshot_args
-                .epoch
-                .or_else(|| root_manifest.latest())
-                .context("No epochs available in the snapshot store")?;
-
-            ensure!(
-                root_manifest.contains(epoch),
-                "Requested epoch {epoch} is not available in the snapshot store",
-            );
-
-            let epoch_dir = format!("epoch_{epoch}");
-            let is_complete = store
-                .get(format!("{epoch_dir}/_SUCCESS").into())
+        // Fetch details about all the epochs it has available, and use that to confirm and
+        // validate the epoch to restore from (it is available and complete at the source).
+        let root_manifest = RootManifest::read(
+            store
+                .get("MANIFEST".into())
                 .await
-                .is_ok();
+                .context("Failed to fetch root manifest")?
+                .as_ref(),
+        )?;
 
-            ensure!(is_complete, "Snapshot for epoch {epoch} is not complete");
+        // If an epoch has not been specified, restore from the latest available epoch.
+        let epoch = snapshot_args
+            .epoch
+            .or_else(|| root_manifest.latest())
+            .context("No epochs available in the snapshot store")?;
 
-            (epoch, epoch_dir)
-        };
+        ensure!(
+            root_manifest.contains(epoch),
+            "Requested epoch {epoch} is not available in the snapshot store",
+        );
 
-        info!(epoch, epoch_dir, "Connected to valid formal snapshot");
+        let is_complete = store
+            .get(format!("epoch_{epoch}/_SUCCESS").into())
+            .await
+            .is_ok();
+
+        ensure!(is_complete, "Snapshot for epoch {epoch} is not complete");
+
+        info!(epoch, "Connected to valid formal snapshot");
 
         // Use the remote store to associate the epoch with a watermark pointing to its last
         // transaction. We only use `end_of_epoch_checkpoints` here, so no byte counter is needed.
@@ -211,7 +188,6 @@ impl FormalSnapshot {
 
         Ok(Self {
             source: store,
-            epoch_dir,
             watermark,
         })
     }
@@ -223,7 +199,7 @@ impl FormalSnapshot {
 
     /// Load the manifest for this snapshot, detailing all its files.
     pub(super) async fn manifest(&self) -> anyhow::Result<Bytes> {
-        let path = format!("{}/MANIFEST", self.epoch_dir);
+        let path = format!("epoch_{}/MANIFEST", self.watermark.epoch_hi_inclusive);
 
         self.source
             .get(path.into())
@@ -239,8 +215,8 @@ impl FormalSnapshot {
         };
 
         let path = format!(
-            "{}/{}_{}.{ext}",
-            self.epoch_dir, metadata.bucket, metadata.partition
+            "epoch_{}/{}_{}.{ext}",
+            self.watermark.epoch_hi_inclusive, metadata.bucket, metadata.partition
         );
 
         self.source

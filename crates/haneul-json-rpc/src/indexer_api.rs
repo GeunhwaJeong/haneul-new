@@ -6,14 +6,6 @@ use std::sync::Arc;
 use anyhow::bail;
 use async_trait::async_trait;
 use futures::{Stream, StreamExt, future};
-use jsonrpsee::{
-    PendingSubscriptionSink, RpcModule,
-    core::{RpcResult, SubscriptionResult},
-};
-use move_bytecode_utils::layout::TypeLayoutBuilder;
-use move_core_types::language_storage::TypeTag;
-use haneullabs_metrics::spawn_monitored_task;
-use serde::Serialize;
 use haneul_core::authority::AuthorityState;
 use haneul_json::HaneulJsonValue;
 use haneul_json_rpc_api::{
@@ -21,20 +13,28 @@ use haneul_json_rpc_api::{
     cap_page_limit, validate_limit,
 };
 use haneul_json_rpc_types::{
-    DynamicFieldPage, EventFilter, EventPage, ObjectsPage, Page, HaneulObjectDataOptions,
-    HaneulObjectResponse, HaneulObjectResponseQuery, HaneulTransactionBlockResponse,
-    HaneulTransactionBlockResponseQuery, TransactionBlocksPage, TransactionFilter,
+    DynamicFieldPage, EventFilter, EventPage, HaneulObjectDataOptions, HaneulObjectResponse,
+    HaneulObjectResponseQuery, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseQuery,
+    ObjectsPage, Page, TransactionBlocksPage, TransactionFilter,
 };
 use haneul_name_service::{Domain, NameRecord, NameServiceConfig, NameServiceError};
 use haneul_open_rpc::Module;
 use haneul_storage::key_value_store::TransactionKeyValueStore;
 use haneul_types::{
-    base_types::{ObjectID, HaneulAddress},
+    base_types::{HaneulAddress, ObjectID},
     digests::TransactionDigest,
     dynamic_field::{DynamicFieldName, Field},
     error::HaneulObjectResponseError,
     event::EventID,
 };
+use haneullabs_metrics::spawn_monitored_task;
+use jsonrpsee::{
+    PendingSubscriptionSink, RpcModule,
+    core::{RpcResult, SubscriptionResult},
+};
+use move_bytecode_utils::layout::TypeLayoutBuilder;
+use move_core_types::language_storage::TypeTag;
+use serde::Serialize;
 use tokio::sync::{OwnedSemaphorePermit, Semaphore};
 use tracing::{instrument, warn};
 
@@ -159,8 +159,8 @@ impl<R: ReadApiServer> IndexerApiServer for IndexerApi<R> {
         limit: Option<usize>,
     ) -> RpcResult<ObjectsPage> {
         with_tracing!(async move {
-            let limit =
-                validate_limit(limit, *QUERY_MAX_RESULT_LIMIT).map_err(HaneulRpcInputError::from)?;
+            let limit = validate_limit(limit, *QUERY_MAX_RESULT_LIMIT)
+                .map_err(HaneulRpcInputError::from)?;
             self.metrics.get_owned_objects_limit.observe(limit as f64);
             let HaneulObjectResponseQuery { filter, options } = query.unwrap_or_default();
             let options = options.unwrap_or_default();

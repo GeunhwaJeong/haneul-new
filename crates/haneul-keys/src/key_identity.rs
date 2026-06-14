@@ -3,8 +3,8 @@
 
 use std::{fmt::Display, str::FromStr};
 
-use serde::Serialize;
 use haneul_types::base_types::HaneulAddress;
+use serde::Serialize;
 
 /// An address or an alias associated with a key in the wallet
 /// This is used to distinguish between an address or an alias,

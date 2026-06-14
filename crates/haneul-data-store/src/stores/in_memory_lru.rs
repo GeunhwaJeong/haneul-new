@@ -13,6 +13,12 @@ use crate::{
     node::Node,
 };
 use anyhow::{Error, Result};
+use haneul_types::{
+    base_types::ObjectID,
+    committee::ProtocolVersion,
+    object::Object,
+    supported_protocol_versions::{Chain, ProtocolConfig},
+};
 use lru::LruCache;
 use std::{
     num::NonZeroUsize,
@@ -20,12 +26,6 @@ use std::{
         RwLock,
         atomic::{AtomicU64, Ordering},
     },
-};
-use haneul_types::{
-    base_types::ObjectID,
-    committee::ProtocolVersion,
-    object::Object,
-    supported_protocol_versions::{Chain, ProtocolConfig},
 };
 
 /// Default cache capacities

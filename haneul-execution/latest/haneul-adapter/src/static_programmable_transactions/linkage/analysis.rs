@@ -14,14 +14,14 @@ use crate::{
         loading::ast::Type,
     },
 };
+use haneul_protocol_config::ProtocolConfig;
+use haneul_types::{
+    base_types::ObjectID, error::ExecutionError, execution_status::ExecutionErrorKind,
+    transaction::ProgrammableTransaction,
+};
 use move_binary_format::file_format::Visibility;
 use move_core_types::identifier::IdentStr;
 use move_vm_runtime::validation::verification::ast::Package as VerifiedPackage;
-use haneul_protocol_config::ProtocolConfig;
-use haneul_types::{
-    base_types::ObjectID, error::ExecutionErrorTrait, execution_status::ExecutionErrorKind,
-    transaction::ProgrammableTransaction,
-};
 
 #[derive(Debug)]
 pub struct LinkageAnalyzer {
@@ -29,7 +29,9 @@ pub struct LinkageAnalyzer {
 }
 
 impl LinkageAnalyzer {
-    pub fn new<Mode: ExecutionMode>(protocol_config: &ProtocolConfig) -> Result<Self, Mode::Error> {
+    pub fn new<Mode: ExecutionMode>(
+        protocol_config: &ProtocolConfig,
+    ) -> Result<Self, ExecutionError> {
         let always_include_system_packages = !Mode::packages_are_predefined();
         let linkage_config = LinkageConfig::new(
             protocol_config
@@ -43,14 +45,14 @@ impl LinkageAnalyzer {
         })
     }
 
-    pub fn compute_call_linkage<E: ExecutionErrorTrait>(
+    pub fn compute_call_linkage(
         &self,
         package: &ObjectID,
         module_name: &IdentStr,
         function_name: &IdentStr,
         type_args: &[Type],
         store: &dyn PackageStore,
-    ) -> Result<ExecutableLinkage, E> {
+    ) -> Result<ExecutableLinkage, ExecutionError> {
         Ok(ExecutableLinkage::new(
             ResolvedLinkage::from_resolution_table(self.compute_call_linkage_(
                 package,
@@ -62,11 +64,11 @@ impl LinkageAnalyzer {
         ))
     }
 
-    pub fn compute_publication_linkage<E: ExecutionErrorTrait>(
+    pub fn compute_publication_linkage(
         &self,
         deps: &[ObjectID],
         store: &dyn PackageStore,
-    ) -> Result<ResolvedLinkage, E> {
+    ) -> Result<ResolvedLinkage, ExecutionError> {
         Ok(ResolvedLinkage::from_resolution_table(
             self.compute_publication_linkage_(deps, store)?,
         ))
@@ -76,12 +78,12 @@ impl LinkageAnalyzer {
         &self.internal
     }
 
-    pub fn compute_input_type_resolution_linkage<E: ExecutionErrorTrait>(
+    pub fn compute_input_type_resolution_linkage(
         &self,
         tx: &ProgrammableTransaction,
         package_store: &dyn PackageStore,
         object_store: &dyn ExecutionState,
-    ) -> Result<ExecutableLinkage, E> {
+    ) -> Result<ExecutableLinkage, ExecutionError> {
         input_type_resolution_analysis::compute_resolution_linkage(
             self,
             tx,
@@ -90,23 +92,23 @@ impl LinkageAnalyzer {
         )
     }
 
-    fn compute_call_linkage_<E: ExecutionErrorTrait>(
+    fn compute_call_linkage_(
         &self,
         package: &ObjectID,
         module_name: &IdentStr,
         function_name: &IdentStr,
         type_args: &[Type],
         store: &dyn PackageStore,
-    ) -> Result<ResolutionTable, E> {
+    ) -> Result<ResolutionTable, ExecutionError> {
         let mut resolution_table = self.internal.resolution_table_with_native_packages(store)?;
 
-        fn add_package<E: ExecutionErrorTrait>(
+        fn add_package(
             object_id: &ObjectID,
             store: &dyn PackageStore,
             resolution_table: &mut ResolutionTable,
             self_resolution_fn: fn(&VerifiedPackage) -> Option<VersionConstraint>,
             dep_resolution_fn: fn(&VerifiedPackage) -> Option<VersionConstraint>,
-        ) -> Result<(), E> {
+        ) -> Result<(), ExecutionError> {
             let pkg = get_package(object_id, store)?;
             let transitive_deps = resolution_table
                 .config
@@ -121,8 +123,8 @@ impl LinkageAnalyzer {
         }
 
         let pkg = get_package(package, store)?;
-        let fn_not_found_err = || -> E {
-            E::new_with_source(
+        let fn_not_found_err = || {
+            ExecutionError::new_with_source(
                 ExecutionErrorKind::FunctionNotFound,
                 format!(
                     "Could not resolve function '{}' in module '{}::{}'",
@@ -168,11 +170,11 @@ impl LinkageAnalyzer {
     }
 
     /// Compute the linkage for a publish or upgrade command. This is a special case because
-    fn compute_publication_linkage_<E: ExecutionErrorTrait>(
+    fn compute_publication_linkage_(
         &self,
         deps: &[ObjectID],
         store: &dyn PackageStore,
-    ) -> Result<ResolutionTable, E> {
+    ) -> Result<ResolutionTable, ExecutionError> {
         let mut resolution_table = self.internal.resolution_table_with_native_packages(store)?;
         for id in deps {
             add_and_unify(id, store, &mut resolution_table, VersionConstraint::exact)?;
@@ -191,10 +193,9 @@ mod input_type_resolution_analysis {
             resolved_linkage::{ExecutableLinkage, ResolvedLinkage},
         },
     };
-    use move_core_types::language_storage::StructTag;
     use haneul_types::{
         base_types::ObjectID,
-        error::ExecutionErrorTrait,
+        error::ExecutionError,
         execution_status::ExecutionErrorKind,
         transaction::{
             CallArg, Command, FundsWithdrawalArg, ObjectArg, ProgrammableMoveCall,
@@ -202,13 +203,14 @@ mod input_type_resolution_analysis {
         },
         type_input::TypeInput,
     };
+    use move_core_types::language_storage::StructTag;
 
-    pub(super) fn compute_resolution_linkage<E: ExecutionErrorTrait>(
+    pub(super) fn compute_resolution_linkage(
         analyzer: &LinkageAnalyzer,
         tx: &ProgrammableTransaction,
         package_store: &dyn PackageStore,
         object_store: &dyn ExecutionState,
-    ) -> Result<ExecutableLinkage, E> {
+    ) -> Result<ExecutableLinkage, ExecutionError> {
         let ProgrammableTransaction { inputs, commands } = tx;
 
         let mut resolution_table = analyzer
@@ -227,12 +229,12 @@ mod input_type_resolution_analysis {
         ))
     }
 
-    fn input<E: ExecutionErrorTrait>(
+    fn input(
         resolution_table: &mut ResolutionTable,
         arg: &CallArg,
         package_store: &dyn PackageStore,
         object_store: &dyn ExecutionState,
-    ) -> Result<(), E> {
+    ) -> Result<(), ExecutionError> {
         match arg {
             CallArg::Pure(_) | CallArg::Object(ObjectArg::Receiving(_)) => (),
             CallArg::Object(
@@ -265,14 +267,14 @@ mod input_type_resolution_analysis {
         Ok(())
     }
 
-    fn command<E: ExecutionErrorTrait>(
+    fn command(
         resolution_table: &mut ResolutionTable,
         command: &Command,
         package_store: &dyn PackageStore,
-    ) -> Result<(), E> {
-        let mut add_ty_input = |ty: &TypeInput| -> Result<(), E> {
+    ) -> Result<(), ExecutionError> {
+        let mut add_ty_input = |ty: &TypeInput| {
             let tag = ty.to_type_tag().map_err(|e| {
-                E::new_with_source(
+                ExecutionError::new_with_source(
                     ExecutionErrorKind::InvalidLinkage,
                     format!("Invalid type tag in move call argument: {:?}", e),
                 )

@@ -5,9 +5,9 @@ pub mod cached_package_store;
 pub mod legacy;
 pub mod linked_data_store;
 
+use haneul_types::{base_types::ObjectID, error::HaneulResult, move_package::MovePackage};
 use move_core_types::identifier::IdentStr;
 use std::rc::Rc;
-use haneul_types::{base_types::ObjectID, error::HaneulResult, move_package::MovePackage};
 
 // A unifying trait that allows us to resolve a type to its defining ID as well as load packages.
 // Some move packages that can be "loaded" via this may not be objects just yet (e.g., if

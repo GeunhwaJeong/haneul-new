@@ -5,7 +5,7 @@ use super::{MultiSigPublicKey, ThresholdUnit, WeightUnit};
 use crate::{
     base_types::HaneulAddress,
     crypto::{
-        Ed25519HaneulSignature, PublicKey, Signature, HaneulKeyPair, HaneulSignatureInner,
+        Ed25519HaneulSignature, HaneulKeyPair, HaneulSignatureInner, PublicKey, Signature,
         ZkLoginPublicIdentifier, get_key_pair, get_key_pair_from_rng,
     },
     multisig::{MAX_SIGNER_IN_MULTISIG, MultiSig, as_indices},
@@ -193,8 +193,10 @@ fn test_multisig_address() {
         MultiSigPublicKey::new(vec![pk1, pk2, pk3], vec![w1, w2, w3], threshold).unwrap();
     let address: HaneulAddress = (&multisig_pk).into();
     assert_eq!(
-        HaneulAddress::from_str("0xe35c69eb504de34afdbd9f307fb3ca152646c92d549fea00065d26fc422109ea")
-            .unwrap(),
+        HaneulAddress::from_str(
+            "0xe35c69eb504de34afdbd9f307fb3ca152646c92d549fea00065d26fc422109ea"
+        )
+        .unwrap(),
         address
     );
 }
@@ -363,8 +365,10 @@ fn multisig_zklogin_scenarios() {
     let multisig_addr = HaneulAddress::from(&multisig_pk);
     assert_eq!(
         multisig_addr,
-        HaneulAddress::from_str("0xb9c0780a3943cde13a2409bf1a6f06ae60b0dff2b2f373260cf627aa4f43a588")
-            .unwrap()
+        HaneulAddress::from_str(
+            "0xb9c0780a3943cde13a2409bf1a6f06ae60b0dff2b2f373260cf627aa4f43a588"
+        )
+        .unwrap()
     );
 
     let (_, envelop, zklogin_sig) = make_zklogin_tx(multisig_addr, false);
@@ -516,8 +520,10 @@ fn test_derive_multisig_address() {
     let multisig_addr = HaneulAddress::from(&multisig_pk);
     assert_eq!(
         multisig_addr,
-        HaneulAddress::from_str("0x77a9fbf3c695d78dd83449a81a9e70aa79a77dbfd6fb72037bf09201c12052cd")
-            .unwrap()
+        HaneulAddress::from_str(
+            "0x77a9fbf3c695d78dd83449a81a9e70aa79a77dbfd6fb72037bf09201c12052cd"
+        )
+        .unwrap()
     );
 }
 

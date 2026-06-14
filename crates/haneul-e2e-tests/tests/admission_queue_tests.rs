@@ -1,9 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::num::NonZeroUsize;
-use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
 use haneul_config::node::AuthorityOverloadConfig;
 use haneul_core::authority_client::{
     AuthorityAPI, make_network_authority_clients_with_network_config,
@@ -14,6 +11,9 @@ use haneul_swarm_config::network_config_builder::ConfigBuilder;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::messages_grpc::SubmitTxRequest;
 use haneul_types::transaction::Transaction;
+use std::num::NonZeroUsize;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use test_cluster::TestClusterBuilder;
 
 async fn make_transfer_tx_with_gas_price(

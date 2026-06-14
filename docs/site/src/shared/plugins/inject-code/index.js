@@ -7,7 +7,7 @@ const path = require("path");
 
 const injectCode = (context, opts) => {
   return {
-    name: "haneul-inject-code-plugin",
+    name: "sui-inject-code-plugin",
 
     configureWebpack(config, _isServer, _utils) {
       const pluginContentDocsPath = path.join(

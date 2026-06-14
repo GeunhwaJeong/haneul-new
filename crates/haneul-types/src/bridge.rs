@@ -7,10 +7,10 @@ use crate::base_types::SequenceNumber;
 use crate::collection_types::LinkedTableNode;
 use crate::dynamic_field::{Field, get_dynamic_field_from_store};
 use crate::error::{HaneulError, HaneulErrorKind, HaneulResult};
-use crate::object::Owner;
-use crate::storage::ObjectStore;
 use crate::haneul_serde::BigInt;
 use crate::haneul_serde::Readable;
+use crate::object::Owner;
+use crate::storage::ObjectStore;
 use crate::versioned::Versioned;
 use crate::{
     base_types::HaneulAddress,
@@ -97,7 +97,9 @@ impl BridgeChainId {
     pub fn is_haneul_chain(&self) -> bool {
         matches!(
             self,
-            BridgeChainId::HaneulMainnet | BridgeChainId::HaneulTestnet | BridgeChainId::HaneulCustom
+            BridgeChainId::HaneulMainnet
+                | BridgeChainId::HaneulTestnet
+                | BridgeChainId::HaneulCustom
         )
     }
 }
@@ -202,7 +204,9 @@ pub fn get_bridge_wrapper(object_store: &dyn ObjectStore) -> Result<BridgeWrappe
             HaneulErrorKind::HaneulBridgeReadError("BridgeWrapper object not found".to_owned())
         })?;
     let move_object = wrapper.data.try_as_move().ok_or_else(|| {
-        HaneulErrorKind::HaneulBridgeReadError("BridgeWrapper object must be a Move object".to_owned())
+        HaneulErrorKind::HaneulBridgeReadError(
+            "BridgeWrapper object must be a Move object".to_owned(),
+        )
     })?;
     let result = bcs::from_bytes::<BridgeWrapper>(move_object.contents())
         .map_err(|err| HaneulErrorKind::HaneulBridgeReadError(err.to_string()))?;

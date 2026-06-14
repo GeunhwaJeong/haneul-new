@@ -6,9 +6,6 @@ use anemo::{Request, Response, Result, rpc::Status, types::response::StatusCode}
 use bytes::Bytes;
 use dashmap::DashMap;
 use futures::future::BoxFuture;
-use serde::{Deserialize, Serialize};
-use std::sync::{Arc, RwLock};
-use std::task::{Context, Poll};
 use haneul_types::messages_checkpoint::VersionedFullCheckpointContents;
 use haneul_types::{
     digests::{CheckpointContentsDigest, CheckpointDigest},
@@ -18,6 +15,9 @@ use haneul_types::{
     },
     storage::WriteStore,
 };
+use serde::{Deserialize, Serialize};
+use std::sync::{Arc, RwLock};
+use std::task::{Context, Poll};
 use tokio::sync::{OwnedSemaphorePermit, Semaphore, mpsc};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]

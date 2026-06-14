@@ -10,8 +10,8 @@ use crate::payload::{
 use async_trait::async_trait;
 use futures::future::join_all;
 use haneul_json_rpc_types::{
-    Page, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
-    HaneulTransactionBlockResponseQuery, TransactionBlocksPage, TransactionFilter,
+    HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
+    HaneulTransactionBlockResponseQuery, Page, TransactionBlocksPage, TransactionFilter,
 };
 use haneul_sdk::HaneulClient;
 use haneul_types::base_types::TransactionDigest;

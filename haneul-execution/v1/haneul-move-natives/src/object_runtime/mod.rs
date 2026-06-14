@@ -2,6 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use better_any::{Tid, TidAble};
+use haneul_protocol_config::{check_limit_by_meter, LimitThresholdCrossed, ProtocolConfig};
+use haneul_types::{
+    base_types::{HaneulAddress, MoveObjectType, ObjectID, SequenceNumber},
+    committee::EpochId,
+    error::{ExecutionError, VMMemoryLimitExceededSubStatusCode},
+    execution::DynamicallyLoadedObjectMetadata,
+    execution_status::ExecutionErrorKind,
+    id::UID,
+    metrics::ExecutionMetrics,
+    object::{MoveObject, Owner},
+    storage::ChildObjectResolver,
+    HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
+};
 use linked_hash_map::LinkedHashMap;
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_core_types::{
@@ -20,19 +33,6 @@ use move_vm_types::{
 use std::{
     collections::{BTreeMap, BTreeSet},
     sync::Arc,
-};
-use haneul_protocol_config::{check_limit_by_meter, LimitThresholdCrossed, ProtocolConfig};
-use haneul_types::{
-    base_types::{MoveObjectType, ObjectID, SequenceNumber, HaneulAddress},
-    committee::EpochId,
-    error::{ExecutionError, VMMemoryLimitExceededSubStatusCode},
-    execution::DynamicallyLoadedObjectMetadata,
-    execution_status::ExecutionErrorKind,
-    id::UID,
-    metrics::ExecutionMetrics,
-    object::{MoveObject, Owner},
-    storage::ChildObjectResolver,
-    HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
 
 pub(crate) mod object_store;
@@ -667,9 +667,6 @@ fn check_circular_ownership(
             }
             Owner::ConsensusAddressOwner { .. } => {
                 unimplemented!("ConsensusAddressOwner does not exist for this execution version")
-            }
-            Owner::Party { .. } => {
-                unimplemented!("Party does not exist for this execution version")
             }
         }
     }

@@ -26,12 +26,12 @@ use crate::{
         Diagnostic, Diagnostics,
         codes::{DiagnosticInfo, Severity, custom},
     },
+    haneul_mode::HANEUL_ADDR_VALUE,
     hlir::ast::{
         BaseType_, Label, ModuleCall, SingleType, SingleType_, Type, Type_, TypeName_, Var,
     },
     parser::ast::Ability_,
     shared::Identifier,
-    haneul_mode::HANEUL_ADDR_VALUE,
 };
 use std::collections::BTreeMap;
 

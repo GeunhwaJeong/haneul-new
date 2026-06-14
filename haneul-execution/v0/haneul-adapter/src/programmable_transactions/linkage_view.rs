@@ -8,13 +8,6 @@ use std::{
 };
 
 use crate::execution_value::HaneulResolver;
-use move_core_types::{
-    account_address::AccountAddress,
-    identifier::{IdentStr, Identifier},
-    language_storage::ModuleId,
-    resolver::{ModuleResolver, SerializedPackage},
-};
-use move_vm_types::data_store::LinkageResolver;
 use haneul_types::storage::{get_module, PackageObject};
 use haneul_types::{
     base_types::ObjectID,
@@ -22,6 +15,13 @@ use haneul_types::{
     move_package::{MovePackage, TypeOrigin, UpgradeInfo},
     storage::BackingPackageStore,
 };
+use move_core_types::{
+    account_address::AccountAddress,
+    identifier::{IdentStr, Identifier},
+    language_storage::ModuleId,
+    resolver::{ModuleResolver, SerializedPackage},
+};
+use move_vm_types::data_store::LinkageResolver;
 
 /// Exposes module and linkage resolution to the Move runtime.  The first by delegating to
 /// `resolver` and the second via linkage information that is loaded from a move package.

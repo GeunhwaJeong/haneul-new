@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::fuzz::TransactionKindMutator;
-use rand::seq::SliceRandom;
 use haneul_types::transaction::{Command, TransactionKind};
+use rand::seq::SliceRandom;
 use tracing::info;
 
 pub struct ShuffleTypes {

@@ -12,11 +12,11 @@ use bincode::error::DecodeError;
 use bincode::error::EncodeError;
 use bincode::serde::BorrowCompat;
 use bincode::serde::Compat;
-use move_core_types::language_storage::StructTag;
-use haneul_indexer_alt_framework::types::base_types::ObjectID;
 use haneul_indexer_alt_framework::types::base_types::HaneulAddress;
+use haneul_indexer_alt_framework::types::base_types::ObjectID;
 use haneul_indexer_alt_framework::types::object::Object;
 use haneul_indexer_alt_framework::types::object::Owner;
+use move_core_types::language_storage::StructTag;
 
 /// Key for the index that supports fetching an owner's objects, optionally filtering by object
 /// type.
@@ -84,8 +84,6 @@ impl OwnerKind {
             Owner::Shared { .. } => OwnerKind::Shared,
             Owner::Immutable => OwnerKind::Immutable,
             Owner::ConsensusAddressOwner { owner, .. } => OwnerKind::AddressOwner(*owner),
-            // TODO(Party WIP)
-            Owner::Party { .. } => todo!("Party WIP"),
         }
     }
 }

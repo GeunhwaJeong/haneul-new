@@ -4,9 +4,6 @@
 use super::execution_time_estimator::ExecutionTimeEstimator;
 use crate::authority::transaction_deferral::DeferralKey;
 use crate::consensus_handler::{ConsensusCommitInfo, IndirectStateObserver};
-use haneullabs_common::fatal;
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use haneul_protocol_config::{
     ExecutionTimeEstimateParams, PerObjectCongestionControlMode, ProtocolConfig,
 };
@@ -14,6 +11,9 @@ use haneul_types::base_types::{ObjectID, TransactionDigest};
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::messages_consensus::Round;
 use haneul_types::transaction::SharedInputObject;
+use haneullabs_common::fatal;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use tracing::{debug, trace};
 
 #[derive(PartialEq, Eq, Clone, Debug)]
@@ -310,13 +310,15 @@ pub struct FinishedCommitData {
 mod object_cost_tests {
     use super::*;
 
-    use std::time::Duration;
     use haneul_protocol_config::ExecutionTimeEstimateParams;
     use haneul_test_transaction_builder::TestTransactionBuilder;
     use haneul_types::Identifier;
     use haneul_types::base_types::{SequenceNumber, random_object_ref};
     use haneul_types::crypto::{AccountKeyPair, get_key_pair};
-    use haneul_types::transaction::{CallArg, ObjectArg, SharedObjectMutability, VerifiedTransaction};
+    use haneul_types::transaction::{
+        CallArg, ObjectArg, SharedObjectMutability, VerifiedTransaction,
+    };
+    use std::time::Duration;
 
     fn default_params() -> ExecutionTimeEstimateParams {
         ExecutionTimeEstimateParams {

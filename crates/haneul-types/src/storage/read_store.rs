@@ -4,7 +4,7 @@
 use super::ObjectStore;
 use super::error::Result;
 use crate::balance_change::{BalanceChange, derive_balance_changes};
-use crate::base_types::{EpochId, ObjectID, ObjectType, SequenceNumber, HaneulAddress};
+use crate::base_types::{EpochId, HaneulAddress, ObjectID, ObjectType, SequenceNumber};
 use crate::committee::Committee;
 use crate::digests::{
     ChainIdentifier, CheckpointContentsDigest, CheckpointDigest, TransactionDigest,
@@ -19,10 +19,10 @@ use crate::messages_checkpoint::{
 use crate::object::Object;
 use crate::storage::ObjectKey;
 use crate::transaction::{TransactionData, VerifiedTransaction};
+use haneullabs_common::ZipDebugEqIteratorExt;
 use move_core_types::annotated_value::MoveTypeLayout;
 use move_core_types::language_storage::StructTag;
 use move_core_types::language_storage::TypeTag;
-use haneullabs_common::ZipDebugEqIteratorExt;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::{BTreeSet, HashMap};
@@ -32,6 +32,7 @@ use typed_store_error::TypedStoreError;
 pub type BalanceIterator<'a> = Box<dyn Iterator<Item = Result<(StructTag, BalanceInfo)>> + 'a>;
 pub type PackageVersionsIterator<'a> =
     Box<dyn Iterator<Item = Result<(u64, ObjectID), TypedStoreError>> + 'a>;
+pub type AuthenticatedEventRecord = (u64, u64, u32, u32, crate::event::Event);
 
 pub trait ReadStore: ObjectStore {
     //
@@ -667,27 +668,6 @@ pub trait RpcStateReader:
 }
 
 pub type DynamicFieldIteratorItem = Result<DynamicFieldKey, TypedStoreError>;
-pub type LedgerTxSeqDigestIterator<'a> =
-    Box<dyn Iterator<Item = Result<LedgerTxSeqDigest, TypedStoreError>> + 'a>;
-pub type LedgerBitmapBucketIterator<'a> =
-    Box<dyn Iterator<Item = Result<LedgerBitmapBucket, TypedStoreError>> + 'a>;
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct LedgerTxSeqDigest {
-    pub tx_sequence_number: u64,
-    pub digest: TransactionDigest,
-    pub event_count: u32,
-    /// Zero-based position of this transaction within its checkpoint.
-    pub tx_offset: u32,
-    pub checkpoint_number: CheckpointSequenceNumber,
-}
-
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct LedgerBitmapBucket {
-    pub bucket_id: u64,
-    pub bitmap: roaring::RoaringBitmap,
-}
-
 pub trait RpcIndexes: Send + Sync {
     fn get_epoch_info(&self, epoch: EpochId) -> Result<Option<EpochInfo>>;
 
@@ -706,8 +686,11 @@ pub trait RpcIndexes: Send + Sync {
 
     fn get_coin_info(&self, coin_type: &StructTag) -> Result<Option<CoinInfo>>;
 
-    fn get_balance(&self, owner: &HaneulAddress, coin_type: &StructTag)
-    -> Result<Option<BalanceInfo>>;
+    fn get_balance(
+        &self,
+        owner: &HaneulAddress,
+        coin_type: &StructTag,
+    ) -> Result<Option<BalanceInfo>>;
 
     fn balance_iter(
         &self,
@@ -724,40 +707,16 @@ pub trait RpcIndexes: Send + Sync {
     fn get_highest_indexed_checkpoint_seq_number(&self)
     -> Result<Option<CheckpointSequenceNumber>>;
 
-    fn ledger_tx_seq_digest(&self, tx_seq: u64) -> Result<Option<LedgerTxSeqDigest>>;
-
-    fn ledger_tx_seq_digest_multi_get(
+    fn authenticated_event_iter(
         &self,
-        tx_seqs: &[u64],
-    ) -> Result<Vec<Option<LedgerTxSeqDigest>>> {
-        tx_seqs
-            .iter()
-            .map(|tx_seq| self.ledger_tx_seq_digest(*tx_seq))
-            .collect()
-    }
-
-    fn ledger_tx_seq_digest_iter(
-        &self,
-        start: u64,
-        end_exclusive: u64,
-        descending: bool,
-    ) -> Result<LedgerTxSeqDigestIterator<'_>>;
-
-    fn transaction_bitmap_bucket_iter(
-        &self,
-        dimension_key: Vec<u8>,
-        start_bucket: u64,
-        end_bucket_exclusive: u64,
-        descending: bool,
-    ) -> Result<LedgerBitmapBucketIterator<'_>>;
-
-    fn event_bitmap_bucket_iter(
-        &self,
-        dimension_key: Vec<u8>,
-        start_bucket: u64,
-        end_bucket_exclusive: u64,
-        descending: bool,
-    ) -> Result<LedgerBitmapBucketIterator<'_>>;
+        stream_id: HaneulAddress,
+        start_checkpoint: u64,
+        start_accumulator_version: Option<u64>,
+        start_transaction_idx: Option<u32>,
+        start_event_idx: Option<u32>,
+        end_checkpoint: u64,
+        limit: u32,
+    ) -> Result<Box<dyn Iterator<Item = Result<AuthenticatedEventRecord, TypedStoreError>> + '_>>;
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]

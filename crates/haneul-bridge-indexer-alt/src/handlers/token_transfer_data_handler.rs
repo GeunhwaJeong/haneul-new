@@ -4,8 +4,6 @@ use crate::handlers::{BRIDGE, TOKEN_DEPOSITED_EVENT, TOKEN_DEPOSITED_EVENT_V2, i
 use crate::struct_tag;
 use async_trait::async_trait;
 use diesel_async::RunQueryDsl;
-use move_core_types::language_storage::StructTag;
-use std::sync::Arc;
 use haneul_bridge::events::{MoveTokenDepositedEvent, MoveTokenDepositedEventV2};
 use haneul_bridge_schema::models::TokenTransferData;
 use haneul_bridge_schema::schema::token_transfer_data;
@@ -14,6 +12,8 @@ use haneul_indexer_alt_framework::postgres::Connection;
 use haneul_indexer_alt_framework::postgres::handler::Handler;
 use haneul_indexer_alt_framework::types::BRIDGE_ADDRESS;
 use haneul_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
+use move_core_types::language_storage::StructTag;
+use std::sync::Arc;
 use tracing::info;
 
 pub struct TokenTransferDataHandler {

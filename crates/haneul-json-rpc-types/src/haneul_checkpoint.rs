@@ -3,20 +3,20 @@
 
 use crate::Page;
 use fastcrypto::encoding::Base64;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-use serde_with::serde_as;
 use haneul_types::base_types::TransactionDigest;
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::AggregateAuthoritySignature;
 use haneul_types::digests::CheckpointDigest;
 use haneul_types::gas::GasCostSummary;
+use haneul_types::haneul_serde::BigInt;
 use haneul_types::message_envelope::Message;
 use haneul_types::messages_checkpoint::{
     CheckpointCommitment, CheckpointContents, CheckpointSequenceNumber, CheckpointSummary,
     CheckpointTimestamp, EndOfEpochData,
 };
-use haneul_types::haneul_serde::BigInt;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 pub type CheckpointPage = Page<Checkpoint, BigInt<u64>>;
 
 #[serde_as]

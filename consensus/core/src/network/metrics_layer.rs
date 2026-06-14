@@ -67,7 +67,7 @@ impl MetricsCallbackMaker {
 
         MetricsResponseCallback {
             metrics: self.metrics.clone(),
-            _timer: timer,
+            timer,
             route,
             excessive_message_size: self.excessive_message_size,
         }
@@ -77,7 +77,8 @@ impl MetricsCallbackMaker {
 pub(crate) struct MetricsResponseCallback {
     metrics: Arc<NetworkRouteMetrics>,
     // The timer is held on to and "observed" once dropped
-    _timer: HistogramTimer,
+    #[allow(unused)]
+    timer: HistogramTimer,
     route: String,
     excessive_message_size: usize,
 }

@@ -20,25 +20,25 @@ use diesel::query_builder::BoxedSelectStatement;
 use diesel::query_builder::FromClause;
 use diesel::query_builder::QueryFragment;
 use diesel::sql_types::BigInt as SqlBigInt;
-use schemars::JsonSchema;
-use serde::Deserialize;
-use serde::Serialize;
-use serde_with::serde_as;
 use haneul_indexer_alt_reader::tx_digests::TxDigestKey;
 use haneul_indexer_alt_schema::schema::tx_affected_addresses;
 use haneul_indexer_alt_schema::schema::tx_affected_objects;
 use haneul_indexer_alt_schema::schema::tx_calls;
 use haneul_indexer_alt_schema::schema::tx_digests;
 use haneul_indexer_alt_schema::transactions::StoredTxDigest;
-use haneul_json_rpc_types::Page as PageResponse;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
+use haneul_json_rpc_types::Page as PageResponse;
 use haneul_sql_macro::sql;
-use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::ObjectID;
 use haneul_types::digests::TransactionDigest;
-use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::haneul_serde::BigInt;
 use haneul_types::haneul_serde::Readable;
+use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
+use schemars::JsonSchema;
+use serde::Deserialize;
+use serde::Serialize;
+use serde_with::serde_as;
 
 use crate::api::transactions::error::Error;
 use crate::context::Context;
@@ -81,7 +81,10 @@ pub(crate) enum TransactionFilter {
     /// Query by sender address.
     FromAddress(HaneulAddress),
     /// Query by sender and recipient address.
-    FromAndToAddress { from: HaneulAddress, to: HaneulAddress },
+    FromAndToAddress {
+        from: HaneulAddress,
+        to: HaneulAddress,
+    },
     /// Query transactions that have a given address as sender or recipient.
     FromOrToAddress { addr: HaneulAddress },
     /// Query by recipient address. On this RPC, this is an alias for `FromOrToAddress`.

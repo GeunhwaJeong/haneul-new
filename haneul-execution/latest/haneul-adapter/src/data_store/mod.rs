@@ -4,10 +4,10 @@
 pub mod cached_package_store;
 pub mod transaction_package_store;
 
+use haneul_types::{base_types::ObjectID, error::HaneulResult};
 use move_core_types::identifier::IdentStr;
 use move_vm_runtime::validation::verification::ast::Package as VerifiedPackage;
 use std::sync::Arc;
-use haneul_types::{base_types::ObjectID, error::HaneulResult};
 
 // A unifying trait that allows us to resolve a type to its defining ID as well as load packages.
 // Some move packages that can be "loaded" via this may not be objects just yet (e.g., if

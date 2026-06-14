@@ -6,10 +6,10 @@ use std::path::PathBuf;
 use anyhow::Context;
 use clap::Parser;
 use futures::TryFutureExt as _;
-use prometheus::Registry;
 use haneul_indexer_alt_framework::service::Error;
 use haneul_indexer_alt_metrics::MetricsService;
 use haneul_indexer_alt_metrics::uptime;
+use prometheus::Registry;
 use tokio::fs;
 
 use haneul_indexer_alt_consistent_store::args::Args;

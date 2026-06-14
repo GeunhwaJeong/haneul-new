@@ -1,11 +1,10 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-//! Fork manifest and seed resolution for lazy owned-object index initialization.
+//! Seed resolution for the initial owned-object index.
 //!
-//! The manifest is written for every initialized fork directory. Address and explicit object
-//! seeds resolve lightweight object-ref metadata at the fork checkpoint. Full object BCS is fetched
-//! later when an object read or lazy owned-object index initialization needs it.
+//! Address seeds resolve lightweight object metadata at the fork checkpoint, while
+//! explicit object seeds also cache the full object BCS through the existing object query path.
 
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
@@ -17,32 +16,44 @@ use serde::Deserialize;
 use serde::Serialize;
 use tracing::warn;
 
-use haneul_types::base_types::ObjectID;
-use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::ObjectID;
+use haneul_types::base_types::SequenceNumber;
+use haneul_types::digests::ObjectDigest;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
+use haneul_types::object::Object;
+use haneul_types::object::Owner;
+use move_core_types::language_storage::StructTag;
 
 use crate::DataStore;
+use crate::ObjectKey;
+use crate::ObjectRead as _;
+use crate::VersionQuery;
+use crate::filesystem::OwnedObjectEntry;
 use crate::gql::AddressOwnedObject;
 use crate::gql::GraphQLClient;
-use crate::gql::ObjectSeedMetadata;
 
 /// CLI seed input before it has been resolved against the upstream chain.
 #[derive(Clone, Debug, Default)]
 pub struct SeedInput {
-    /// Addresses whose owned objects should be recorded in the seed manifest.
+    /// Addresses whose owned objects should seed the initial owned-object index.
     pub addresses: Vec<HaneulAddress>,
-    /// Object IDs to fetch and seed when they are owned by an address.
+    /// Object IDs to fetch and seed when they are address-owned.
     pub object_ids: Vec<ObjectID>,
 }
 
-/// Object reference used to seed lazy owned-object index initialization.
+/// Object metadata used to seed the initial owned-object index.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct SeedEntry {
-    pub(crate) object_ref: ObjectRef,
+    pub(crate) object_id: ObjectID,
+    pub(crate) version: SequenceNumber,
+    pub(crate) digest: ObjectDigest,
+    pub(crate) owner: HaneulAddress,
+    pub(crate) object_type: StructTag,
+    pub(crate) balance: Option<u64>,
 }
 
-/// Durable manifest for fork metadata and optional pre-fork seed metadata.
+/// Durable manifest for pre-fork seed metadata.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct SeedManifest {
     pub(crate) network: String,
@@ -50,13 +61,20 @@ pub(crate) struct SeedManifest {
     pub(crate) entries: Vec<SeedEntry>,
 }
 
-impl SeedManifest {
-    fn empty(network: String, checkpoint: CheckpointSequenceNumber) -> Self {
-        Self {
-            network,
-            checkpoint,
-            entries: Vec::new(),
-        }
+impl SeedEntry {
+    fn from_object(object: &Object) -> Option<Self> {
+        let Owner::AddressOwner(owner) = &object.owner else {
+            return None;
+        };
+
+        Some(Self {
+            object_id: object.id(),
+            version: object.version(),
+            digest: object.digest(),
+            owner: *owner,
+            object_type: object.struct_tag()?,
+            balance: object.as_coin_maybe().map(|coin| coin.value()),
+        })
     }
 }
 
@@ -70,7 +88,24 @@ impl SeedInput {
 impl From<AddressOwnedObject> for SeedEntry {
     fn from(object: AddressOwnedObject) -> Self {
         Self {
-            object_ref: object.object_ref,
+            object_id: object.object_id,
+            version: object.version,
+            digest: object.digest,
+            owner: object.owner,
+            object_type: object.object_type,
+            balance: object.balance,
+        }
+    }
+}
+
+impl From<&SeedEntry> for OwnedObjectEntry {
+    fn from(entry: &SeedEntry) -> Self {
+        Self {
+            owner: entry.owner,
+            object_id: entry.object_id,
+            version: entry.version,
+            object_type: entry.object_type.clone(),
+            balance: entry.balance,
         }
     }
 }
@@ -86,31 +121,29 @@ pub(crate) fn ensure_seed_policy(data_store: &DataStore, input: &SeedInput) -> R
     Ok(())
 }
 
-/// Ensure an existing fork manifest matches the requested network and checkpoint.
-pub(crate) fn ensure_seed_manifest_matches(
+/// Initialize the durable owned-object index from the seed manifest when it is safe to do so.
+pub(crate) fn initialize_owned_index_from_seed(
+    data_store: &DataStore,
     manifest: &SeedManifest,
-    network: &str,
-    checkpoint: Option<CheckpointSequenceNumber>,
 ) -> Result<(), Error> {
-    if manifest.network != network {
-        bail!(
-            "Seed manifest network {} does not match requested network {}. Use a different --data-dir.",
-            manifest.network,
-            network,
-        );
+    if data_store.local().owned_object_index_exists() {
+        return Ok(());
     }
 
-    if let Some(checkpoint) = checkpoint
-        && manifest.checkpoint != checkpoint
+    if let Some(checkpoint) = data_store.get_highest_verified_checkpoint()?
+        && checkpoint.data().sequence_number > data_store.forked_at_checkpoint()
     {
         bail!(
-            "Seed manifest checkpoint {} does not match requested checkpoint {}. Use a different --data-dir.",
-            manifest.checkpoint,
-            checkpoint,
+            "seed manifest exists but the owned-object index is missing while local checkpoints have advanced past the fork checkpoint; refusing to rebuild stale seed state",
         );
     }
 
-    Ok(())
+    let entries: Vec<_> = manifest
+        .entries
+        .iter()
+        .map(OwnedObjectEntry::from)
+        .collect();
+    data_store.local().write_owned_object_entries(&entries)
 }
 
 /// Load or create the seed manifest for the current fork directory.
@@ -118,7 +151,7 @@ pub(crate) async fn prepare_seed_manifest(
     data_store: &DataStore,
     network: String,
     input: &SeedInput,
-) -> Result<SeedManifest, Error> {
+) -> Result<Option<SeedManifest>, Error> {
     if data_store.local().seed_manifest_exists() {
         if !input.is_empty() {
             bail!(
@@ -126,18 +159,16 @@ pub(crate) async fn prepare_seed_manifest(
                 data_store.local().seed_manifest_path().display(),
             );
         }
-        let manifest = data_store.local().read_seed_manifest()?;
-        ensure_seed_manifest_matches(&manifest, &network, Some(data_store.forked_at_checkpoint()))?;
-        return Ok(manifest);
+        return data_store.local().read_seed_manifest().map(Some);
     }
 
-    let manifest = if input.is_empty() {
-        SeedManifest::empty(network, data_store.forked_at_checkpoint())
-    } else {
-        resolve_seeds(input, network, data_store).await?
-    };
+    if input.is_empty() {
+        return Ok(None);
+    }
+
+    let manifest = resolve_seeds(input, network, data_store).await?;
     data_store.local().write_seed_manifest(&manifest)?;
-    Ok(manifest)
+    Ok(Some(manifest))
 }
 
 fn dedupe_addresses(addresses: &[HaneulAddress]) -> Vec<HaneulAddress> {
@@ -184,8 +215,8 @@ async fn resolve_address_seed(
         .collect())
 }
 
-async fn resolve_object_seeds(
-    gql: &GraphQLClient,
+fn resolve_object_seeds(
+    data_store: &DataStore,
     checkpoint: CheckpointSequenceNumber,
     object_ids: &[ObjectID],
 ) -> Result<Vec<SeedEntry>, Error> {
@@ -193,24 +224,30 @@ async fn resolve_object_seeds(
         return Ok(Vec::new());
     }
 
-    let objects = gql
-        .get_object_seed_metadata_at_checkpoint(object_ids, checkpoint)
-        .await?;
+    let keys: Vec<_> = object_ids
+        .iter()
+        .map(|object_id| ObjectKey {
+            object_id: *object_id,
+            version_query: VersionQuery::AtCheckpoint(checkpoint),
+        })
+        .collect();
+    let objects = data_store.gql().get_objects(&keys)?;
     let mut entries = Vec::new();
 
     for (object_id, object) in object_ids.iter().zip_eq(objects) {
-        match object {
-            ObjectSeedMetadata::Missing => {
-                warn!(%object_id, checkpoint, "object seed not found at fork checkpoint");
-            }
-            ObjectSeedMetadata::NonAddressOwned => {
-                warn!(
-                    %object_id,
-                    checkpoint,
-                    "object seed is not owned by an address and will not be added to the seed manifest",
-                );
-            }
-            ObjectSeedMetadata::AddressOwned(object) => entries.push(SeedEntry::from(object)),
+        let Some((object, _)) = object else {
+            warn!(%object_id, checkpoint, "object seed not found at fork checkpoint");
+            continue;
+        };
+        data_store.local().write_object(&object)?;
+        if let Some(entry) = SeedEntry::from_object(&object) {
+            entries.push(entry);
+        } else {
+            warn!(
+                %object_id,
+                checkpoint,
+                "object seed is not address-owned and will not be added to the owned-object index",
+            );
         }
     }
 
@@ -235,7 +272,7 @@ async fn resolve_seeds(
             warn!(%address, checkpoint, "address seed resolved no owned objects");
         }
         for entry in address_entries {
-            entries.insert(entry.object_ref.0, entry);
+            entries.insert(entry.object_id, entry);
         }
     }
 
@@ -243,8 +280,8 @@ async fn resolve_seeds(
         .into_iter()
         .filter(|object_id| !entries.contains_key(object_id))
         .collect();
-    for entry in resolve_object_seeds(data_store.gql(), checkpoint, &remaining_object_ids).await? {
-        entries.insert(entry.object_ref.0, entry);
+    for entry in resolve_object_seeds(data_store, checkpoint, &remaining_object_ids)? {
+        entries.insert(entry.object_id, entry);
     }
 
     Ok(SeedManifest {
@@ -256,59 +293,30 @@ async fn resolve_seeds(
 
 #[cfg(test)]
 mod tests {
+    use fastcrypto::encoding::Base64 as FastCryptoBase64;
+    use fastcrypto::encoding::Encoding as _;
     use serde_json::json;
-    use haneul_types::base_types::SequenceNumber;
-    use haneul_types::object::Object;
-    use haneul_types::object::Owner;
     use wiremock::Mock;
     use wiremock::MockServer;
     use wiremock::ResponseTemplate;
-    use wiremock::matchers::body_partial_json;
     use wiremock::matchers::method;
     use wiremock::matchers::path;
 
     use super::*;
 
-    fn object_seed_response_body(
-        object: &Object,
-        owner: HaneulAddress,
-        owner_type: &str,
-    ) -> serde_json::Value {
+    fn object_response_body(object: &Object) -> serde_json::Value {
         json!({
             "data": {
                 "multiGetObjects": [{
+                    "address": object.id().to_string(),
                     "version": object.version().value(),
-                    "digest": object.digest().to_string(),
-                    "owner": {
-                        "__typename": owner_type,
-                        "address": { "address": owner.to_string() },
-                    },
+                    "objectBcs": FastCryptoBase64::from_bytes(
+                        &bcs::to_bytes(object).expect("object should serialize"),
+                    )
+                    .encoded(),
                 }]
             }
         })
-    }
-
-    fn assert_object_seed_query_shape(query: &str) {
-        assert!(query.contains("multiGetObjects"));
-        assert!(query.contains("version"));
-        assert!(query.contains("digest"));
-        assert!(query.contains("... on AddressOwner"));
-        assert!(query.contains("... on ConsensusAddressOwner"));
-        assert!(!query.contains("objectBcs"));
-
-        let object_selection_before_owner = query
-            .split("multiGetObjects")
-            .nth(1)
-            .expect("query should include multiGetObjects")
-            .split("owner")
-            .next()
-            .expect("query should include owner");
-        assert!(
-            !object_selection_before_owner
-                .lines()
-                .any(|line| line.trim() == "address"),
-            "object seed query should not request Object.address",
-        );
     }
 
     fn available_range_response(
@@ -338,30 +346,6 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn prepare_seed_manifest_writes_empty_manifest_without_seed_input() {
-        let temp = tempfile::tempdir().expect("tempdir");
-        let store = DataStore::new_for_testing_with_remote(
-            temp.path().to_path_buf(),
-            "http://localhost:1".to_owned(),
-            11,
-        );
-
-        let manifest = prepare_seed_manifest(&store, "custom".to_owned(), &SeedInput::default())
-            .await
-            .expect("empty seed manifest should be written");
-
-        assert_eq!(
-            manifest,
-            SeedManifest {
-                network: "custom".to_owned(),
-                checkpoint: 11,
-                entries: Vec::new(),
-            }
-        );
-        assert_eq!(store.local().read_seed_manifest().unwrap(), manifest);
-    }
-
-    #[tokio::test]
     async fn prepare_seed_manifest_does_not_write_manifest_when_resolution_fails() {
         let server = MockServer::start().await;
         Mock::given(method("POST"))
@@ -384,17 +368,16 @@ mod tests {
         .await
         .expect_err("seed resolution should fail");
 
-        let err = format!("{err:?}");
         assert!(
-            err.contains("failed to query object seeds")
-                || err.contains("Failed to read response")
-                || err.contains("Missing data")
+            err.to_string().contains("Failed to read response")
+                || err.to_string().contains("Object bcs is None")
+                || err.to_string().contains("Missing data")
         );
         assert!(!store.local().seed_manifest_exists());
     }
 
     #[tokio::test]
-    async fn prepare_seed_manifest_fetches_explicit_object_metadata_without_caching_bcs() {
+    async fn prepare_seed_manifest_fetches_explicit_object_and_caches_bcs() {
         let server = MockServer::start().await;
         let owner = HaneulAddress::random_for_testing_only();
         let object = Object::with_id_owner_version_for_testing(
@@ -404,21 +387,7 @@ mod tests {
         );
         Mock::given(method("POST"))
             .and(path("/"))
-            .and(body_partial_json(json!({
-                "variables": {
-                    "keys": [{
-                        "address": object.id().to_string(),
-                        "atCheckpoint": 11,
-                    }]
-                }
-            })))
-            .respond_with(
-                ResponseTemplate::new(200).set_body_json(object_seed_response_body(
-                    &object,
-                    owner,
-                    "AddressOwner",
-                )),
-            )
+            .respond_with(ResponseTemplate::new(200).set_body_json(object_response_body(&object)))
             .mount(&server)
             .await;
 
@@ -434,94 +403,18 @@ mod tests {
             },
         )
         .await
-        .expect("seed manifest should resolve");
+        .expect("seed manifest should resolve")
+        .expect("manifest should exist");
 
         assert_eq!(manifest.entries.len(), 1);
+        assert_eq!(manifest.entries[0].object_id, object.id());
         assert_eq!(
-            manifest.entries[0].object_ref,
-            object.compute_object_reference()
-        );
-        assert!(
             store
                 .local()
                 .get_object_at_version(&object.id(), object.version().value())
                 .expect("local object lookup should not fail")
-                .is_none(),
-            "explicit object seeding should not cache BCS",
-        );
-
-        let requests = server
-            .received_requests()
-            .await
-            .expect("wiremock should record requests");
-        let request_body: serde_json::Value = requests[0]
-            .body_json()
-            .expect("request body should be json");
-        let query = request_body
-            .get("query")
-            .and_then(serde_json::Value::as_str)
-            .expect("query string should be present");
-        assert_object_seed_query_shape(query);
-    }
-
-    #[tokio::test]
-    async fn prepare_seed_manifest_fetches_explicit_consensus_address_owner_object() {
-        let server = MockServer::start().await;
-        let owner = HaneulAddress::random_for_testing_only();
-        let object = Object::with_id_owner_version_for_testing(
-            ObjectID::random(),
-            SequenceNumber::from_u64(3),
-            Owner::ConsensusAddressOwner {
-                start_version: SequenceNumber::from_u64(3),
-                owner,
-            },
-        );
-        Mock::given(method("POST"))
-            .and(path("/"))
-            .and(body_partial_json(json!({
-                "variables": {
-                    "keys": [{
-                        "address": object.id().to_string(),
-                        "atCheckpoint": 11,
-                    }]
-                }
-            })))
-            .respond_with(
-                ResponseTemplate::new(200).set_body_json(object_seed_response_body(
-                    &object,
-                    owner,
-                    "ConsensusAddressOwner",
-                )),
-            )
-            .mount(&server)
-            .await;
-
-        let temp = tempfile::tempdir().expect("tempdir");
-        let store =
-            DataStore::new_for_testing_with_remote(temp.path().to_path_buf(), server.uri(), 11);
-        let manifest = prepare_seed_manifest(
-            &store,
-            "custom".to_owned(),
-            &SeedInput {
-                addresses: vec![],
-                object_ids: vec![object.id()],
-            },
-        )
-        .await
-        .expect("seed manifest should resolve");
-
-        assert_eq!(manifest.entries.len(), 1);
-        assert_eq!(
-            manifest.entries[0].object_ref,
-            object.compute_object_reference()
-        );
-        assert!(
-            store
-                .local()
-                .get_object_at_version(&object.id(), object.version().value())
-                .expect("local object lookup should not fail")
-                .is_none(),
-            "explicit object seeding should not cache BCS",
+                .unwrap(),
+            object,
         );
     }
 

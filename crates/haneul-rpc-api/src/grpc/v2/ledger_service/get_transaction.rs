@@ -5,8 +5,6 @@ use crate::ErrorReason;
 use crate::RpcError;
 use crate::RpcService;
 use crate::TransactionNotFoundError;
-use haneullabs_common::ZipDebugEqIteratorExt;
-use prost_types::FieldMask;
 use haneul_rpc::field::FieldMaskTree;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::merge::Merge;
@@ -23,9 +21,11 @@ use haneul_rpc::proto::timestamp_ms_to_proto;
 use haneul_sdk_types::Digest;
 use haneul_types::balance_change::derive_balance_changes_2;
 use haneul_types::full_checkpoint_content::ObjectSet;
+use haneullabs_common::ZipDebugEqIteratorExt;
+use prost_types::FieldMask;
 
 pub const MAX_BATCH_REQUESTS: usize = 200;
-pub const READ_MASK_DEFAULT: &str = crate::read_mask_defaults::TRANSACTION;
+pub const READ_MASK_DEFAULT: &str = "digest";
 
 #[tracing::instrument(skip(service))]
 pub fn get_transaction(
@@ -165,7 +165,7 @@ pub fn batch_get_transactions(
     Ok(BatchGetTransactionsResponse::new(transactions))
 }
 
-pub(crate) fn render_executed_transaction(
+fn render_executed_transaction(
     service: &RpcService,
     crate::reader::TransactionRead {
         digest,

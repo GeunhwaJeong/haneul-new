@@ -1,19 +1,19 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use insta::assert_debug_snapshot;
-use move_core_types::language_storage::StructTag;
-use serde::Deserialize;
-use serde_json::json;
-use haneul_types::Identifier;
 use haneul_types::HANEUL_COIN_REGISTRY_ADDRESS;
+use haneul_types::Identifier;
+use haneul_types::base_types::HaneulAddress;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::SequenceNumber;
-use haneul_types::base_types::HaneulAddress;
 use haneul_types::coin::CoinMetadata;
 use haneul_types::coin::TreasuryCap;
 use haneul_types::deny_list_v2::DenyCapV2;
 use haneul_types::effects::TransactionEffectsAPI;
+use insta::assert_debug_snapshot;
+use move_core_types::language_storage::StructTag;
+use serde::Deserialize;
+use serde_json::json;
 
 use haneul_indexer_alt_e2e_tests::FullCluster;
 use haneul_indexer_alt_e2e_tests::coin_registry::LegacyCoinOutputs;

@@ -10,26 +10,25 @@ use async_graphql::connection::Connection;
 use fastcrypto::encoding::Base58;
 use fastcrypto::encoding::Encoding;
 use futures::future::try_join_all;
-use prost_types::FieldMask;
 use haneul_indexer_alt_reader::fullnode_client::Error::GrpcExecutionError;
 use haneul_indexer_alt_reader::fullnode_client::FullnodeClient;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2 as proto;
+use prost_types::FieldMask;
 use tonic::Code;
 
 use crate::api::mutation::TransactionInputError;
 use crate::api::scalars::base64::Base64;
 use crate::api::scalars::digest::Digest;
 use crate::api::scalars::domain::Domain;
+use crate::api::scalars::haneul_address::HaneulAddress;
 use crate::api::scalars::id::Id;
 use crate::api::scalars::json::Json;
-use crate::api::scalars::haneul_address::HaneulAddress;
 use crate::api::scalars::type_filter::TypeInput;
 use crate::api::scalars::uint53::UInt53;
 use crate::api::types::address;
 use crate::api::types::address::Address;
 use crate::api::types::address::AddressKey;
-use crate::api::types::checkpoint;
 use crate::api::types::checkpoint::CCheckpoint;
 use crate::api::types::checkpoint::Checkpoint;
 use crate::api::types::checkpoint::filter::CheckpointFilter;
@@ -199,29 +198,20 @@ impl Query {
         Ok(Base58::encode(chain_id.wait().await.as_bytes()))
     }
 
-    /// Fetch a checkpoint by its sequence number or digest, or the latest checkpoint if neither is provided.
-    ///
-    /// It is an error to specify both `sequenceNumber` and `digest`.
+    /// Fetch a checkpoint by its sequence number, or the latest checkpoint if no sequence number is provided.
     ///
     /// Returns `null` if the checkpoint does not exist in the store, either because it never existed or because it was pruned.
     async fn checkpoint(
         &self,
         ctx: &Context<'_>,
         sequence_number: Option<UInt53>,
-        digest: Option<Digest>,
-    ) -> Option<Result<Checkpoint, RpcError<checkpoint::Error>>> {
+    ) -> Option<Result<Checkpoint, RpcError>> {
         async {
             let scope = self.scope(ctx)?;
-            match (sequence_number, digest) {
-                (Some(_), Some(_)) => Err(bad_user_input(checkpoint::Error::BothBoundsSet)),
-                (None, Some(digest)) => Checkpoint::by_digest(ctx, scope, digest.into())
-                    .await
-                    .map_err(upcast),
-                (sequence_number, None) => Ok(Checkpoint::with_sequence_number(
-                    scope,
-                    sequence_number.map(|s| s.into()),
-                )),
-            }
+            Ok(Checkpoint::with_sequence_number(
+                scope,
+                sequence_number.map(|s| s.into()),
+            ))
         }
         .await
         .transpose()

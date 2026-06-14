@@ -3,15 +3,12 @@
 
 use crate::{
     data_store::PackageStore,
-    execution_mode::ExecutionMode,
     sp,
     static_programmable_transactions::{env, spanned::Spanned, typing::ast as T},
 };
+use haneul_types::error::ExecutionError;
 
-pub fn verify<Mode: ExecutionMode>(
-    env: &env::Env<Mode>,
-    tt: &T::Transaction,
-) -> Result<(), Mode::Error> {
+pub fn verify(env: &env::Env, tt: &T::Transaction) -> Result<(), ExecutionError> {
     let check_type = |ty| ensure_type_defining_id_based(env, ty);
     let check_arg = |sp!(_, (_, ty)): &Spanned<_>| ensure_type_defining_id_based(env, ty);
 
@@ -65,10 +62,7 @@ pub fn verify<Mode: ExecutionMode>(
     })
 }
 
-fn ensure_type_defining_id_based<Mode: ExecutionMode>(
-    env: &env::Env<Mode>,
-    ty: &T::Type,
-) -> Result<(), Mode::Error> {
+fn ensure_type_defining_id_based(env: &env::Env, ty: &T::Type) -> Result<(), ExecutionError> {
     match ty {
         T::Type::Bool
         | T::Type::U8

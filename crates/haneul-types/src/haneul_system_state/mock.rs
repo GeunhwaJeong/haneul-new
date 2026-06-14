@@ -5,16 +5,16 @@ use crate::balance::Balance;
 use crate::base_types::{MoveObjectType, TransactionDigest};
 use crate::collection_types::VecMap;
 use crate::dynamic_field::{derive_dynamic_field_id, serialize_dynamic_field};
-use crate::id::UID;
-use crate::object::{MoveObject, Object, Owner};
 use crate::haneul_system_state::haneul_system_state_inner_v1::{
-    StakeSubsidyV1, StorageFundV1, HaneulSystemStateInnerV1, SystemParametersV1, ValidatorSetV1,
+    HaneulSystemStateInnerV1, StakeSubsidyV1, StorageFundV1, SystemParametersV1, ValidatorSetV1,
 };
 use crate::haneul_system_state::haneul_system_state_inner_v2::{
     HaneulSystemStateInnerV2, SystemParametersV2,
 };
 use crate::haneul_system_state::{HaneulSystemState, HaneulSystemStateWrapper};
-use crate::{MoveTypeTagTrait, HANEUL_SYSTEM_STATE_OBJECT_ID};
+use crate::id::UID;
+use crate::object::{MoveObject, Object, Owner};
+use crate::{HANEUL_SYSTEM_STATE_OBJECT_ID, MoveTypeTagTrait};
 use haneul_protocol_config::ProtocolConfig;
 
 pub fn validator_set_v1() -> ValidatorSetV1 {
@@ -155,8 +155,12 @@ pub fn system_state_output_objects(haneul_system_state: HaneulSystemState) -> Ve
 
     let field_id = UID::new(system_state_object_id);
     let object_bytes = match haneul_system_state {
-        HaneulSystemState::V1(inner) => serialize_dynamic_field(&field_id, &dynamic_field_key, inner),
-        HaneulSystemState::V2(inner) => serialize_dynamic_field(&field_id, &dynamic_field_key, inner),
+        HaneulSystemState::V1(inner) => {
+            serialize_dynamic_field(&field_id, &dynamic_field_key, inner)
+        }
+        HaneulSystemState::V2(inner) => {
+            serialize_dynamic_field(&field_id, &dynamic_field_key, inner)
+        }
         #[cfg(msim)]
         HaneulSystemState::SimTestV1(_)
         | HaneulSystemState::SimTestShallowV2(_)

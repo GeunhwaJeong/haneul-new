@@ -9,6 +9,7 @@ use crate::crypto::{
 use crate::error::{HaneulErrorKind, HaneulResult};
 use crate::multiaddr::Multiaddr;
 use fastcrypto::traits::KeyPair;
+pub use haneul_protocol_config::ProtocolVersion;
 use itertools::Itertools;
 use once_cell::sync::OnceCell;
 use rand::rngs::{StdRng, ThreadRng};
@@ -19,7 +20,6 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fmt::Write;
 use std::fmt::{Display, Formatter};
 use std::hash::{Hash, Hasher};
-pub use haneul_protocol_config::ProtocolVersion;
 
 pub type EpochId = u64;
 

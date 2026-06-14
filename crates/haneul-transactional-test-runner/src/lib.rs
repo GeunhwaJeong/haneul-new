@@ -24,13 +24,7 @@ pub use move_transactional_test_runner::framework::{
 #[cfg(feature = "testing")]
 mod testing_imports {
     pub use super::simulator_persisted_store::PersistedStore;
-    pub use super::test_adapter::{PRE_COMPILED, HaneulTestAdapter};
-    pub use rand::rngs::StdRng;
-    pub use simulacrum::AdvanceEpochConfig;
-    pub use simulacrum::Simulacrum;
-    pub use simulacrum::SimulatorStore;
-    pub use std::path::Path;
-    pub use std::sync::Arc;
+    pub use super::test_adapter::{HaneulTestAdapter, PRE_COMPILED};
     pub use haneul_core::authority::AuthorityState;
     pub use haneul_core::authority::authority_per_epoch_store::CertLockGuard;
     pub use haneul_core::authority::authority_test_utils::submit_and_execute_with_error;
@@ -39,8 +33,8 @@ mod testing_imports {
     pub use haneul_json_rpc_types::EventFilter;
     pub use haneul_json_rpc_types::{DevInspectResults, DryRunTransactionBlockResponse};
     pub use haneul_storage::key_value_store::TransactionKeyValueStore;
-    pub use haneul_types::base_types::ObjectID;
     pub use haneul_types::base_types::HaneulAddress;
+    pub use haneul_types::base_types::ObjectID;
     pub use haneul_types::base_types::VersionNumber;
     pub use haneul_types::committee::EpochId;
     pub use haneul_types::digests::TransactionDigest;
@@ -53,16 +47,22 @@ mod testing_imports {
     pub use haneul_types::executable_transaction::{
         ExecutableTransaction, VerifiedExecutableTransaction,
     };
+    pub use haneul_types::haneul_system_state::HaneulSystemStateTrait;
+    pub use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
     pub use haneul_types::messages_checkpoint::CheckpointContentsDigest;
     pub use haneul_types::messages_checkpoint::VerifiedCheckpoint;
     pub use haneul_types::object::Object;
     pub use haneul_types::storage::ObjectStore;
     pub use haneul_types::storage::ReadStore;
-    pub use haneul_types::haneul_system_state::HaneulSystemStateTrait;
-    pub use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
     pub use haneul_types::transaction::Transaction;
     pub use haneul_types::transaction::TransactionKind;
     pub use haneul_types::transaction::{InputObjects, TransactionData};
+    pub use rand::rngs::StdRng;
+    pub use simulacrum::AdvanceEpochConfig;
+    pub use simulacrum::Simulacrum;
+    pub use simulacrum::SimulatorStore;
+    pub use std::path::Path;
+    pub use std::sync::Arc;
 }
 #[cfg(feature = "testing")]
 use testing_imports::*;
@@ -334,8 +334,9 @@ impl ReadStore for ValidatorWithFullnode {
 
     fn get_latest_checkpoint_sequence_number(
         &self,
-    ) -> haneul_types::storage::error::Result<haneul_types::messages_checkpoint::CheckpointSequenceNumber>
-    {
+    ) -> haneul_types::storage::error::Result<
+        haneul_types::messages_checkpoint::CheckpointSequenceNumber,
+    > {
         Ok(self.next_checkpoint_seq.saturating_sub(1))
     }
 
@@ -363,8 +364,9 @@ impl ReadStore for ValidatorWithFullnode {
 
     fn get_lowest_available_checkpoint(
         &self,
-    ) -> haneul_types::storage::error::Result<haneul_types::messages_checkpoint::CheckpointSequenceNumber>
-    {
+    ) -> haneul_types::storage::error::Result<
+        haneul_types::messages_checkpoint::CheckpointSequenceNumber,
+    > {
         todo!()
     }
 

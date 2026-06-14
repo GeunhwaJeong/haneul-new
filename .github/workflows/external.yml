@@ -33,12 +33,6 @@ env:
   RUST_BACKTRACE: short
   # RUSTFLAGS: -D warnings
   RUSTDOCFLAGS: -D warnings
-  # sccache RW role on trusted refs only. Empty elsewhere → setup-sccache falls
-  # back to static keys (same-repo PRs) or a local cache (forks). The extensions
-  # branch is deliberately not in the role trust (dormant; see
-  # AWS_OIDC_MIGRATION_INVENTORY.md). No workflow_dispatch here, so no
-  # override-ref clause. Keep in sync with the haneul-sccache-rw-github trust policy.
-  SCCACHE_ROLE: ${{ (contains(fromJSON('["refs/heads/main","refs/heads/devnet","refs/heads/testnet","refs/heads/mainnet"]'), github.ref) || (startsWith(github.ref, 'refs/heads/releases/haneul-') && endsWith(github.ref, '-release'))) && 'arn:aws:iam::011083325127:role/haneul-sccache-rw-github' || '' }}
 
 jobs:
   diff:
@@ -53,9 +47,6 @@ jobs:
         id: diff
 
   external-crates-test:
-    permissions:
-      contents: read
-      id-token: write # OIDC token to assume the sccache role on trusted refs
     needs: [diff, rustfmt, clippy]
     if: needs.diff.outputs.isRust == 'true'
     timeout-minutes: 45
@@ -68,21 +59,15 @@ jobs:
     strategy:
       matrix:
         os:
-          - [ubuntu-ghcloud]
+          - [ubuntu-latest]
       fail-fast: false
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # pin@v6.0.2
-      - uses: ./.github/actions/setup-sccache
-        with:
-          role-to-assume: ${{ env.SCCACHE_ROLE }}
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          key-prefix: ubuntu-ghcloud
       - uses: taiki-e/install-action@nextest
       - name: Set Swap Space
         uses: pierotofy/set-swap-space@fc79b3f67fa8a838184ce84a674ca12238d2c761 # pin@master
         with:
-          swap-size-gb: 256
+          swap-size-gb: 10
       - name: Install python dependencies
         run: |
           pip install pyopenssl --upgrade
@@ -102,27 +87,18 @@ jobs:
     strategy:
       matrix:
         os:
-          - [ubuntu-ghcloud]
-          - [windows-ghcloud]
+          - [ubuntu-latest]
+          - [windows-latest]
       fail-fast: false
     steps:
       - run: 'echo "No build required" '
 
   clippy:
-    permissions:
-      contents: read
-      id-token: write # OIDC token to assume the sccache role on trusted refs
     needs: diff
     if: needs.diff.outputs.isRust == 'true'
-    runs-on: [ubuntu-ghcloud]
+    runs-on: [ubuntu-latest]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # pin@v6.0.2
-      - uses: ./.github/actions/setup-sccache
-        with:
-          role-to-assume: ${{ env.SCCACHE_ROLE }}
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          key-prefix: ubuntu-ghcloud
       - run: rustup component add clippy
 
       # See '.cargo/config' for list of enabled/disappled clippy lints

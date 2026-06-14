@@ -11,10 +11,6 @@ use anyhow::Context as _;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
 use futures::future;
-use jsonrpsee::core::RpcResult;
-use jsonrpsee::proc_macros::rpc;
-use lru::LruCache;
-use move_core_types::language_storage::StructTag;
 use haneul_indexer_alt_reader::consistent_reader::proto::owner::OwnerKind;
 use haneul_indexer_alt_reader::governance::RewardsKey;
 use haneul_indexer_alt_reader::governance::ValidatorAddressKey;
@@ -30,21 +26,25 @@ use haneul_open_rpc_macros::open_rpc;
 use haneul_types::HANEUL_SYSTEM_ADDRESS;
 use haneul_types::HANEUL_SYSTEM_STATE_OBJECT_ID;
 use haneul_types::TypeTag;
-use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::ObjectID;
 use haneul_types::dynamic_field::Field;
 use haneul_types::dynamic_field::derive_dynamic_field_id;
 use haneul_types::governance::STAKED_HANEUL_STRUCT_NAME;
 use haneul_types::governance::STAKING_POOL_MODULE_NAME;
 use haneul_types::governance::StakedHaneul;
 use haneul_types::haneul_serde::BigInt;
-use haneul_types::haneul_system_state::PoolTokenExchangeRate;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::haneul_system_state::HaneulSystemStateWrapper;
+use haneul_types::haneul_system_state::PoolTokenExchangeRate;
 use haneul_types::haneul_system_state::haneul_system_state_inner_v1::HaneulSystemStateInnerV1;
 use haneul_types::haneul_system_state::haneul_system_state_inner_v2::HaneulSystemStateInnerV2;
 use haneul_types::haneul_system_state::haneul_system_state_summary::HaneulSystemStateSummary;
+use jsonrpsee::core::RpcResult;
+use jsonrpsee::proc_macros::rpc;
+use lru::LruCache;
+use move_core_types::language_storage::StructTag;
 use tokio::try_join;
 
 use crate::api::rpc_module::RpcModule;
@@ -214,9 +214,10 @@ async fn rgp_response(ctx: &Context) -> Result<BigInt<u64>, RpcError> {
 async fn latest_haneul_system_state_response(
     ctx: &Context,
 ) -> Result<HaneulSystemStateSummary, RpcError> {
-    let wrapper: HaneulSystemStateWrapper = load_live_deserialized(ctx, HANEUL_SYSTEM_STATE_OBJECT_ID)
-        .await
-        .context("Failed to fetch system state wrapper object")?;
+    let wrapper: HaneulSystemStateWrapper =
+        load_live_deserialized(ctx, HANEUL_SYSTEM_STATE_OBJECT_ID)
+            .await
+            .context("Failed to fetch system state wrapper object")?;
 
     let inner_id = derive_dynamic_field_id(
         HANEUL_SYSTEM_STATE_OBJECT_ID,

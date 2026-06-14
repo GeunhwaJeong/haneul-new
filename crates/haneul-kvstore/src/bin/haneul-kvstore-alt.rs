@@ -104,10 +104,6 @@ async fn main() -> Result<()> {
         .clone()
         .finish(config.bigtable_connection_pool_size);
 
-    let registry = prometheus::Registry::new();
-    let metrics_service =
-        haneul_indexer_alt_metrics::MetricsService::new(args.metrics_args, registry.clone());
-
     let client = BigTableClient::new_remote(
         args.instance_id,
         args.bigtable_project,
@@ -115,13 +111,17 @@ async fn main() -> Result<()> {
         channel_timeout,
         args.bigtable_max_decoding_message_size,
         "haneul-kvstore-alt".to_string(),
-        Some(&registry),
+        None,
         args.app_profile_id,
         pool_config,
     )
     .await?;
 
     let store = BigTableStore::new(client);
+
+    let registry = prometheus::Registry::new();
+    let metrics_service =
+        haneul_indexer_alt_metrics::MetricsService::new(args.metrics_args, registry.clone());
 
     let indexer_config = config.clone();
     let committer = config.committer.finish(CommitterConfig::default());
@@ -140,7 +140,7 @@ async fn main() -> Result<()> {
     .await?;
 
     let metrics_handle = metrics_service.run().await?;
-    let service = bigtable_indexer.run().await?;
+    let service = bigtable_indexer.indexer.run().await?;
 
     match service.attach(metrics_handle).main().await {
         Ok(()) => {}

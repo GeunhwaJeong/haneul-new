@@ -5,6 +5,11 @@ use crate::{
     get_nth_struct_field, legacy_test_cost,
     object_runtime::{ObjectRuntime, RuntimeResults},
 };
+use haneul_types::{
+    base_types::{HaneulAddress, ObjectID, SequenceNumber},
+    id::UID,
+    object::Owner,
+};
 use indexmap::{IndexMap, IndexSet};
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_core_types::{
@@ -24,11 +29,6 @@ use smallvec::smallvec;
 use std::{
     borrow::Borrow,
     collections::{BTreeMap, BTreeSet, VecDeque},
-};
-use haneul_types::{
-    base_types::{ObjectID, SequenceNumber, HaneulAddress},
-    id::UID,
-    object::Owner,
 };
 
 const E_COULD_NOT_GENERATE_EFFECTS: u64 = 0;
@@ -153,9 +153,6 @@ pub fn end_transaction(
             }
             Owner::ConsensusAddressOwner { .. } => {
                 unimplemented!("ConsensusAddressOwner does not exist for this execution version")
-            }
-            Owner::Party { .. } => {
-                unimplemented!("Party does not exist for this execution version")
             }
         }
     }
@@ -606,9 +603,6 @@ fn transaction_effects(
             Owner::Immutable => frozen.push(id),
             Owner::ConsensusAddressOwner { .. } => {
                 unimplemented!("ConsensusAddressOwner does not exist for this execution version")
-            }
-            Owner::Party { .. } => {
-                unimplemented!("Party does not exist for this execution version")
             }
         }
     }

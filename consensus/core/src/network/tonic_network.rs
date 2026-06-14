@@ -15,14 +15,14 @@ use consensus_config::{AuthorityIndex, NetworkKeyPair, NetworkPublicKey};
 use consensus_types::block::{BlockRef, Round};
 use fastcrypto::{encoding::Encoding, traits::ToFromBytes};
 use futures::{Stream, StreamExt as _, stream};
+use haneul_http::ServerHandle;
+use haneul_tls::AllowPublicKeys;
 use haneullabs_network::{
     Multiaddr,
     callback::{CallbackLayer, MakeCallbackHandler, ResponseHandler},
     multiaddr::Protocol,
 };
 use parking_lot::RwLock;
-use haneul_http::ServerHandle;
-use haneul_tls::AllowPublicKeys;
 use tokio_stream::{Iter, iter};
 use tonic::{Request, Response, Streaming, codec::CompressionEncoding};
 use tower_http::trace::{DefaultMakeSpan, DefaultOnFailure, TraceLayer};
@@ -758,6 +758,7 @@ pub(crate) struct TonicManager {
     network_keypair: NetworkKeyPair,
     own_address: SocketAddr,
     validator_client: Arc<TonicValidatorClient>,
+    #[allow(dead_code)]
     observer_client: Arc<TonicObserverClient>,
     server: Option<ServerHandle>,
     observer_server: Option<ServerHandle>,
@@ -921,7 +922,10 @@ impl TonicManager {
                     .on_failure(DefaultOnFailure::new().level(tracing::Level::DEBUG)),
             )
             .layer_fn(|service| {
-                haneullabs_network::grpc_timeout::GrpcTimeout::new(service, DEFAULT_GRPC_SERVER_TIMEOUT)
+                haneullabs_network::grpc_timeout::GrpcTimeout::new(
+                    service,
+                    DEFAULT_GRPC_SERVER_TIMEOUT,
+                )
             });
 
         let consensus_service_server = ConsensusServiceServer::new(service)
@@ -1052,7 +1056,10 @@ impl TonicManager {
                     .on_failure(DefaultOnFailure::new().level(tracing::Level::DEBUG)),
             )
             .layer_fn(|service| {
-                haneullabs_network::grpc_timeout::GrpcTimeout::new(service, DEFAULT_GRPC_SERVER_TIMEOUT)
+                haneullabs_network::grpc_timeout::GrpcTimeout::new(
+                    service,
+                    DEFAULT_GRPC_SERVER_TIMEOUT,
+                )
             });
 
         let observer_service = tonic::service::Routes::new(observer_service_server)

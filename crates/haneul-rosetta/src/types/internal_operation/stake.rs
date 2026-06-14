@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use async_trait::async_trait;
-use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 use haneul_rpc::client::Client;
 use haneul_rpc::proto::haneul::rpc::v2::{GetBalanceRequest, Object, owner::OwnerKind};
 use haneul_sdk_types::{Address, StructTag};
 use haneul_types::gas_coin::GAS;
+use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 use haneul_types::HANEUL_SYSTEM_PACKAGE_ID;
 use haneul_types::base_types::{ObjectID, ObjectRef, SequenceNumber};
 use haneul_types::governance::ADD_STAKE_FUN_NAME;
-use haneul_types::rpc_proto_conversions::ObjectReferenceExt;
 use haneul_types::haneul_system_state::HANEUL_SYSTEM_MODULE_NAME;
+use haneul_types::rpc_proto_conversions::ObjectReferenceExt;
 use haneul_types::transaction::{Argument, CallArg, Command, ObjectArg, ProgrammableTransaction};
 use haneul_types::{
     base_types::HaneulAddress, programmable_transaction_builder::ProgrammableTransactionBuilder,
@@ -27,7 +27,7 @@ use super::{
     withdraw_coin_from_address_balance,
 };
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Stake {
     pub sender: HaneulAddress,
     pub validator: HaneulAddress,
@@ -132,7 +132,8 @@ impl TryConstructTransaction for Stake {
         match sim_result {
             Ok((budget, gas_coin_objs)) if gas_coin_objs.is_empty() => {
                 // Path A succeeded with address-balance gas.
-                let total_haneul_balance = (coin_objects_balance as i128) + (address_balance as i128);
+                let total_haneul_balance =
+                    (coin_objects_balance as i128) + (address_balance as i128);
 
                 // Compute deficit for actual transaction:
                 // For specific amount: need max(0, amount - coins_total) from AB
@@ -151,8 +152,6 @@ impl TryConstructTransaction for Stake {
                     address_balance_withdrawal: actual_deficit,
                     fss_object_count: None,
                     redeem_token_amount: None,
-                    redeem_plan: None,
-                    bind_epoch: None,
                 })
             }
             _ => {
@@ -192,8 +191,6 @@ impl TryConstructTransaction for Stake {
                     address_balance_withdrawal,
                     fss_object_count: None,
                     redeem_token_amount: None,
-                    redeem_plan: None,
-                    bind_epoch: None,
                 })
             }
         }
@@ -256,7 +253,8 @@ pub(crate) fn stake_pt_ab_gas(
                             builder.obj(ObjectArg::SharedObject {
                                 id,
                                 initial_shared_version,
-                                mutability: haneul_types::transaction::SharedObjectMutability::Mutable,
+                                mutability:
+                                    haneul_types::transaction::SharedObjectMutability::Mutable,
                             })
                         })
                         .collect::<Result<Vec<Argument>, _>>()?;

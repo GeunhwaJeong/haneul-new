@@ -1,18 +1,18 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use inquire::Select;
-use std::collections::BTreeMap;
 use haneul_config::genesis::UnsignedGenesis;
 use haneul_types::haneul_system_state::HaneulValidatorGenesis;
 use haneul_types::{
     base_types::ObjectID,
     coin::CoinMetadata,
-    gas_coin::{GasCoin, GEUNHWA_PER_HANEUL, TOTAL_SUPPLY_GEUNHWA},
+    gas_coin::{GEUNHWA_PER_HANEUL, GasCoin, TOTAL_SUPPLY_GEUNHWA},
     governance::StakedHaneul,
     move_package::MovePackage,
     object::{MoveObject, Owner},
 };
+use inquire::Select;
+use std::collections::BTreeMap;
 
 const STR_ALL: &str = "All";
 const STR_EXIT: &str = "Exit";
@@ -91,7 +91,10 @@ pub(crate) fn examine_genesis_checkpoint(genesis: UnsignedGenesis) {
                     let entry = haneul_distribution
                         .entry(object.owner.to_string())
                         .or_default();
-                    entry.insert(object_id_str, (STR_STAKED_HANEUL, staked_haneul.principal()));
+                    entry.insert(
+                        object_id_str,
+                        (STR_STAKED_HANEUL, staked_haneul.principal()),
+                    );
                     // Assert pool id is associated with a knonw validator.
                     let validator = validator_pool_id_map.get(&staked_haneul.pool_id()).unwrap();
                     assert_eq!(validator.staking_pool.id, staked_haneul.pool_id());
@@ -115,7 +118,12 @@ pub(crate) fn examine_genesis_checkpoint(genesis: UnsignedGenesis) {
     examine_total_supply(&haneul_distribution, false);
 
     // Main loop for inspection
-    let main_options: Vec<&str> = vec![STR_HANEUL_DISTRIBUTION, STR_VALIDATORS, STR_OBJECTS, STR_EXIT];
+    let main_options: Vec<&str> = vec![
+        STR_HANEUL_DISTRIBUTION,
+        STR_VALIDATORS,
+        STR_OBJECTS,
+        STR_EXIT,
+    ];
     loop {
         let ans = Select::new(
             "Select one main category to examine ('Exit' to exit the program):",

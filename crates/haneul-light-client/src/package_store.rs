@@ -3,10 +3,10 @@
 
 use anyhow::Result;
 use async_trait::async_trait;
+use haneul_package_resolver::{Package, PackageStore, error::Error as PackageResolverError};
 use move_core_types::account_address::AccountAddress;
 use std::collections::HashMap;
 use std::sync::Arc;
-use haneul_package_resolver::{Package, PackageStore, error::Error as PackageResolverError};
 use tokio::sync::Mutex;
 use tracing::{error, info};
 

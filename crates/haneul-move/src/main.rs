@@ -5,11 +5,11 @@ use std::path::PathBuf;
 
 use clap::*;
 use colored::Colorize;
-use move_package_alt_compilation::build_config::BuildConfig as MoveBuildConfig;
 use haneul_config::{HANEUL_CLIENT_CONFIG, haneul_config_dir};
 use haneul_move::execute_move_command;
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_types::exit_main;
+use move_package_alt_compilation::build_config::BuildConfig as MoveBuildConfig;
 use tracing::debug;
 
 // Define the `GIT_REVISION` and `VERSION` consts

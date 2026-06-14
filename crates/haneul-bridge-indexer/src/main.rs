@@ -4,6 +4,12 @@
 use alloy::primitives::Address as EthAddress;
 use anyhow::Result;
 use clap::*;
+use haneul_bridge::eth_client::EthClient;
+use haneul_bridge::haneul_bridge_watchdog::Observable;
+use haneul_bridge::haneul_client::HaneulBridgeClient;
+use haneul_bridge::metered_eth_provider::new_metered_eth_provider;
+use haneul_bridge::utils::get_eth_contract_addresses;
+use haneul_config::Config;
 use prometheus::Registry;
 use std::collections::HashSet;
 use std::env;
@@ -12,25 +18,19 @@ use std::net::{Ipv4Addr, SocketAddr};
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::Arc;
-use haneul_bridge::eth_client::EthClient;
-use haneul_bridge::metered_eth_provider::new_metered_eth_provider;
-use haneul_bridge::haneul_bridge_watchdog::Observable;
-use haneul_bridge::haneul_client::HaneulBridgeClient;
-use haneul_bridge::utils::get_eth_contract_addresses;
-use haneul_config::Config;
 use tracing::info;
 
 use haneullabs_metrics::spawn_logged_monitored_task;
 use haneullabs_metrics::start_prometheus_server;
 
-use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge::haneul_bridge_watchdog::{
     BridgeWatchDog,
     eth_bridge_status::EthBridgeStatus,
     eth_vault_balance::{EthereumVaultBalance, VaultAsset},
-    metrics::WatchdogMetrics,
     haneul_bridge_status::HaneulBridgeStatus,
+    metrics::WatchdogMetrics,
 };
+use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge_indexer::config::IndexerConfig;
 use haneul_bridge_indexer::metrics::BridgeIndexerMetrics;
 use haneul_bridge_indexer::postgres_manager::get_connection_pool;
@@ -87,7 +87,8 @@ async fn main() -> Result<()> {
         )
         .await?,
     );
-    let eth_bridge_proxy_address = EthAddress::from_str(&config.eth_haneul_bridge_contract_address)?;
+    let eth_bridge_proxy_address =
+        EthAddress::from_str(&config.eth_haneul_bridge_contract_address)?;
     let mut tasks = vec![];
     // Start the eth subscription indexer
     let eth_subscription_indexer = create_eth_subscription_indexer(

@@ -1,8 +1,3 @@
----
-name: cherry-pick
-description: Cherry-pick a commit from main to a Haneul release branch, create the release PR, and report the PR URL.
----
-
 # Cherry-pick to Release Branch
 
 Cherry-picks a commit from main to a release branch and creates a PR.

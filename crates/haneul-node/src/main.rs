@@ -2,15 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use clap::{ArgGroup, Parser};
+use haneul_rpc_api::ServerVersion;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
-use haneul_rpc_api::ServerVersion;
 use tokio::sync::broadcast;
 use tokio::time::sleep;
 use tracing::{error, info};
 
-use haneullabs_common::sync::async_once_cell::AsyncOnceCell;
 use haneul_config::node::RunWithRange;
 use haneul_config::{Config, NodeConfig};
 use haneul_core::runtime::HaneulRuntimes;
@@ -20,6 +19,7 @@ use haneul_types::crypto::KeypairTraits;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::multiaddr::Multiaddr;
 use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
+use haneullabs_common::sync::async_once_cell::AsyncOnceCell;
 
 // Define the `GIT_REVISION` and `VERSION` consts
 bin_version::bin_version!();
@@ -118,7 +118,7 @@ fn main() {
         config.network_address = listen_address;
     }
 
-    let is_validator = config.intended_node_role().is_validator();
+    let is_validator = config.consensus_config().is_some();
 
     let admin_interface_port = config.admin_interface_port;
 

@@ -4,8 +4,6 @@
 use anyhow::Context;
 use anyhow::anyhow;
 use async_graphql::dataloader::DataLoader;
-use prometheus::Registry;
-use prost_types::FieldMask;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2 as proto;
 use haneul_rpc::proto::haneul::rpc::v2::transaction_execution_service_client::TransactionExecutionServiceClient;
@@ -13,6 +11,8 @@ use haneul_sdk_types::Address;
 use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::Transaction;
 use haneul_types::transaction::TransactionData;
+use prometheus::Registry;
+use prost_types::FieldMask;
 use tonic::transport::Channel;
 use tonic::transport::ClientTlsConfig;
 use tower::Layer;
@@ -161,7 +161,10 @@ impl FullnodeClient {
 
     /// Construct and dry run a PTB to calculate the rewards for a list of staked HANEUL objects.
     /// Returns a list of u64 guaranteed to match the order of the input staked HANEUL ids.
-    pub async fn calculate_rewards(&self, staked_haneul_ids: &[Address]) -> Result<Vec<u64>, Error> {
+    pub async fn calculate_rewards(
+        &self,
+        staked_haneul_ids: &[Address],
+    ) -> Result<Vec<u64>, Error> {
         let mut ptb = proto::ProgrammableTransaction::default()
             .with_inputs(vec![proto::Input::default().with_object_id("0x5")]);
         let system_object = proto::Argument::new_input(0);

@@ -10,13 +10,13 @@ use crate::crypto::{
     BridgeAuthorityKeyPair, BridgeAuthorityPublicKeyBytes, BridgeAuthoritySignInfo,
 };
 use crate::events::*;
-use crate::metrics::BridgeMetrics;
-use crate::node::run_bridge_node;
-use crate::server::BridgeNodePublicMetadata;
 use crate::haneul_client::{HaneulBridgeClient, HaneulClientInner};
 use crate::haneul_transaction_builder::{
     build_add_tokens_on_haneul_transaction, build_committee_register_transaction,
 };
+use crate::metrics::BridgeMetrics;
+use crate::node::run_bridge_node;
+use crate::server::BridgeNodePublicMetadata;
 use crate::types::{
     BridgeAction, BridgeActionStatus, BridgeCommitteeValiditySignInfo, CertifiedBridgeAction,
     HaneulToEthTokenTransfer, HaneulToEthTokenTransferV2, VerifiedCertifiedBridgeAction,
@@ -30,28 +30,12 @@ use alloy::rpc::types::TransactionReceipt;
 use anyhow::anyhow;
 use futures::Future;
 use futures::future::join_all;
-use move_core_types::ident_str;
-use move_core_types::language_storage::{StructTag, TypeTag};
-use haneullabs_common::ZipDebugEqIteratorExt;
-use prometheus::Registry;
-use rand::Rng;
-use rand::SeedableRng;
-use rand::rngs::SmallRng;
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap, HashSet};
-use std::fs;
-use std::fs::{DirBuilder, File};
-use std::io::{Read, Write};
-use std::path::{Path, PathBuf};
-use std::process::{Child, Command};
-use std::str::FromStr;
-use std::sync::Arc;
 use haneul_config::local_ip_utils::get_available_port;
 use haneul_rpc_api::Client;
 use haneul_rpc_api::client::ExecutedTransaction;
 use haneul_sdk::wallet_context::WalletContext;
 use haneul_test_transaction_builder::TestTransactionBuilder;
-use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID, ObjectRef};
 use haneul_types::bridge::{
     BRIDGE_MODULE_NAME, BridgeChainId, BridgeSummary, BridgeTrait, TOKEN_ID_BTC, TOKEN_ID_ETH,
     TOKEN_ID_USDC, TOKEN_ID_USDT, get_bridge, get_bridge_obj_initial_shared_version,
@@ -67,6 +51,22 @@ use haneul_types::transaction::{
     CallArg, ObjectArg, SharedObjectMutability, Transaction, TransactionData,
 };
 use haneul_types::{BRIDGE_PACKAGE_ID, HANEUL_BRIDGE_OBJECT_ID};
+use haneullabs_common::ZipDebugEqIteratorExt;
+use move_core_types::ident_str;
+use move_core_types::language_storage::{StructTag, TypeTag};
+use prometheus::Registry;
+use rand::Rng;
+use rand::SeedableRng;
+use rand::rngs::SmallRng;
+use serde::{Deserialize, Serialize};
+use std::collections::{BTreeMap, HashMap, HashSet};
+use std::fs;
+use std::fs::{DirBuilder, File};
+use std::io::{Read, Write};
+use std::path::{Path, PathBuf};
+use std::process::{Child, Command};
+use std::str::FromStr;
+use std::sync::Arc;
 use tap::TapFallible;
 use tempfile::tempdir;
 use test_cluster::{TestCluster, TestClusterBuilder};
@@ -297,7 +297,9 @@ impl BridgeTestCluster {
     }
 
     pub fn haneul_bridge_address(&self) -> String {
-        self.eth_environment.contracts().haneul_bridge_addrress_hex()
+        self.eth_environment
+            .contracts()
+            .haneul_bridge_addrress_hex()
     }
 
     pub fn wallet_mut(&mut self) -> &mut WalletContext {
@@ -440,7 +442,10 @@ impl BridgeTestCluster {
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            return Err(anyhow::anyhow!("Failed to deploy HaneulBridgeV2: {}", stderr));
+            return Err(anyhow::anyhow!(
+                "Failed to deploy HaneulBridgeV2: {}",
+                stderr
+            ));
         }
 
         let stdout = String::from_utf8_lossy(&output.stdout);
@@ -600,7 +605,7 @@ pub(crate) async fn deploy_sol_contract(
         ],
         supported_tokens: vec![], // this is set up in the deploy script
         token_ids: vec![],        // this is set up in the deploy script
-        haneul_decimals: vec![],     // this is set up in the deploy script
+        haneul_decimals: vec![],  // this is set up in the deploy script
         token_prices: vec![12800, 432518900, 25969600, 10000, 10000],
         weth: "".to_string(), // this is set up in the deploy script
     };
@@ -1472,7 +1477,8 @@ async fn initiate_bridge_haneul_to_eth_internal(
         .find(|action| {
             matches!(
                 action,
-                BridgeAction::HaneulToEthTokenTransfer(_) | BridgeAction::HaneulToEthTokenTransferV2(_)
+                BridgeAction::HaneulToEthTokenTransfer(_)
+                    | BridgeAction::HaneulToEthTokenTransferV2(_)
             )
         })
         .unwrap();
@@ -1484,7 +1490,10 @@ async fn initiate_bridge_haneul_to_eth_internal(
     match &bridge_action {
         BridgeAction::HaneulToEthTokenTransfer(action) => {
             assert_eq!(action.nonce, nonce);
-            assert_eq!(action.haneul_chain_id, bridge_test_cluster.haneul_chain_id());
+            assert_eq!(
+                action.haneul_chain_id,
+                bridge_test_cluster.haneul_chain_id()
+            );
             assert_eq!(action.eth_chain_id, bridge_test_cluster.eth_chain_id());
             assert_eq!(action.haneul_address, haneul_address);
             assert_eq!(action.eth_address, eth_address);
@@ -1493,7 +1502,10 @@ async fn initiate_bridge_haneul_to_eth_internal(
         }
         BridgeAction::HaneulToEthTokenTransferV2(action) => {
             assert_eq!(action.nonce, nonce);
-            assert_eq!(action.haneul_chain_id, bridge_test_cluster.haneul_chain_id());
+            assert_eq!(
+                action.haneul_chain_id,
+                bridge_test_cluster.haneul_chain_id()
+            );
             assert_eq!(action.eth_chain_id, bridge_test_cluster.eth_chain_id());
             assert_eq!(action.haneul_address, haneul_address);
             assert_eq!(action.eth_address, eth_address);
@@ -1673,8 +1685,9 @@ pub async fn initiate_bridge_erc20_to_haneul(
         .iter()
         .find_map(EthBridgeEvent::try_from_log)
         .unwrap();
-    let EthBridgeEvent::EthHaneulBridgeEvents(EthHaneulBridgeEvents::TokensDeposited(eth_bridge_event)) =
-        eth_bridge_event
+    let EthBridgeEvent::EthHaneulBridgeEvents(EthHaneulBridgeEvents::TokensDeposited(
+        eth_bridge_event,
+    )) = eth_bridge_event
     else {
         unreachable!();
     };

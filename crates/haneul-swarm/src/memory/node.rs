@@ -3,13 +3,13 @@
 
 use anyhow::Result;
 use anyhow::anyhow;
-use std::sync::Mutex;
-use std::sync::MutexGuard;
 use haneul_config::NodeConfig;
 use haneul_node::HaneulNodeHandle;
 use haneul_types::base_types::AuthorityName;
 use haneul_types::base_types::ConciseableName;
 use haneul_types::crypto::KeypairTraits;
+use std::sync::Mutex;
+use std::sync::MutexGuard;
 use tap::TapFallible;
 use tracing::{error, info};
 

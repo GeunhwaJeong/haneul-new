@@ -32,7 +32,6 @@
 use std::path::Path;
 use std::sync::Arc;
 
-use prometheus::Registry;
 use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::consistent_service_server::ConsistentServiceServer;
 use haneul_indexer_alt_consistent_api::proto::{self};
 use haneul_indexer_alt_framework::IndexerArgs;
@@ -40,6 +39,7 @@ use haneul_indexer_alt_framework::ingestion::ClientArgs;
 use haneul_indexer_alt_framework::pipeline::CommitterConfig;
 use haneul_indexer_alt_framework::pipeline::sequential::SequentialConfig;
 use haneul_indexer_alt_framework::service::Service;
+use prometheus::Registry;
 
 use crate::config::PipelineLayer;
 use crate::config::ServiceConfig;

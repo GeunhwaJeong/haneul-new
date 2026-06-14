@@ -3,7 +3,6 @@
 
 use std::path::PathBuf;
 
-use prost_types::FieldMask;
 use haneul_macros::sim_test;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::Bcs;
@@ -16,6 +15,7 @@ use haneul_sdk_types::BalanceChange;
 use haneul_test_transaction_builder::{TestTransactionBuilder, make_transfer_haneul_transaction};
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::transaction::TransactionDataAPI;
+use prost_types::FieldMask;
 use test_cluster::TestClusterBuilder;
 
 mod resolve;
@@ -188,7 +188,8 @@ async fn execute_transaction_too_many_signatures() {
         .unwrap();
 
     let txn =
-        make_transfer_haneul_transaction(&test_cluster.wallet, Some(HaneulAddress::ZERO), None).await;
+        make_transfer_haneul_transaction(&test_cluster.wallet, Some(HaneulAddress::ZERO), None)
+            .await;
 
     let signatures: Vec<UserSignature> = txn
         .tx_signatures()

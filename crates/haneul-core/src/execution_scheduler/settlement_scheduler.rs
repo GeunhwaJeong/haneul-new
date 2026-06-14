@@ -16,9 +16,6 @@ use crate::{
     execution_scheduler::funds_withdraw_scheduler::FundsSettlement,
 };
 use futures::stream::{FuturesUnordered, StreamExt};
-use haneullabs_metrics::{monitored_mpsc, spawn_monitored_task};
-use parking_lot::Mutex;
-use std::sync::Arc;
 use haneul_types::{
     HANEUL_ACCUMULATOR_ROOT_OBJECT_ID,
     base_types::TransactionDigest,
@@ -26,6 +23,9 @@ use haneul_types::{
     executable_transaction::VerifiedExecutableTransaction,
     transaction::{TransactionDataAPI, TransactionKey, VerifiedTransaction},
 };
+use haneullabs_metrics::{monitored_mpsc, spawn_monitored_task};
+use parking_lot::Mutex;
+use std::sync::Arc;
 use tracing::{debug, error};
 
 #[derive(Clone)]
@@ -383,11 +383,9 @@ impl SettlementScheduler {
                 fx.transaction_digest(),
                 fx
             );
-            if let Some(version) = fx
-                .mutated()
-                .iter()
-                .find_map(|(oref, _)| (oref.0 == HANEUL_ACCUMULATOR_ROOT_OBJECT_ID).then_some(oref.1))
-            {
+            if let Some(version) = fx.mutated().iter().find_map(|(oref, _)| {
+                (oref.0 == HANEUL_ACCUMULATOR_ROOT_OBJECT_ID).then_some(oref.1)
+            }) {
                 assert!(
                     next_accumulator_version.is_none(),
                     "Only one settlement transaction should mutate the accumulator root object"

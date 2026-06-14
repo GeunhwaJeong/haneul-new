@@ -15,16 +15,16 @@ mod consensus_tests {
     use consensus_simtests::node::{AuthorityNode, Config};
     use consensus_types::block::{BlockRef, TransactionIndex};
     use fastcrypto::traits::{KeyPair as _, ToFromBytes as _};
-    use haneullabs_metrics::RegistryService;
-    use haneullabs_network::{Multiaddr, multiaddr::Protocol};
-    use prometheus::Registry;
-    use rand::{Rng, SeedableRng as _, rngs::StdRng};
     use haneul_config::local_ip_utils;
     use haneul_macros::sim_test;
     use haneul_simulator::{
         SimConfig,
         configs::{bimodal_latency_ms, env_config, uniform_latency_ms},
     };
+    use haneullabs_metrics::RegistryService;
+    use haneullabs_network::{Multiaddr, multiaddr::Protocol};
+    use prometheus::Registry;
+    use rand::{Rng, SeedableRng as _, rngs::StdRng};
     use tempfile::TempDir;
     use tokio::task::JoinSet;
     use tokio::time::{sleep, timeout};

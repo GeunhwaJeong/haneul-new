@@ -6,9 +6,6 @@
 
 use crate::key_value_store_metrics::KeyValueStoreMetrics;
 use async_trait::async_trait;
-use haneullabs_common::ZipDebugEqIteratorExt;
-use std::sync::Arc;
-use std::time::Instant;
 use haneul_types::base_types::{ObjectID, SequenceNumber, VersionNumber};
 use haneul_types::digests::{CheckpointDigest, TransactionDigest};
 use haneul_types::effects::{TransactionEffects, TransactionEvents};
@@ -19,6 +16,9 @@ use haneul_types::messages_checkpoint::{
 use haneul_types::object::Object;
 use haneul_types::storage::ObjectKey;
 use haneul_types::transaction::Transaction;
+use haneullabs_common::ZipDebugEqIteratorExt;
+use std::sync::Arc;
+use std::time::Instant;
 use tracing::instrument;
 
 pub type KVStoreTransactionData = (Vec<Option<Transaction>>, Vec<Option<TransactionEffects>>);
@@ -391,7 +391,10 @@ pub trait TransactionKeyValueStoreTrait {
         version: SequenceNumber,
     ) -> HaneulResult<Option<Object>>;
 
-    async fn multi_get_objects(&self, object_keys: &[ObjectKey]) -> HaneulResult<Vec<Option<Object>>>;
+    async fn multi_get_objects(
+        &self,
+        object_keys: &[ObjectKey],
+    ) -> HaneulResult<Vec<Option<Object>>>;
 
     async fn multi_get_transaction_checkpoint(
         &self,
@@ -533,7 +536,10 @@ impl TransactionKeyValueStoreTrait for FallbackTransactionKVStore {
     }
 
     #[instrument(level = "trace", skip_all)]
-    async fn multi_get_objects(&self, object_keys: &[ObjectKey]) -> HaneulResult<Vec<Option<Object>>> {
+    async fn multi_get_objects(
+        &self,
+        object_keys: &[ObjectKey],
+    ) -> HaneulResult<Vec<Option<Object>>> {
         let mut res = self.primary.multi_get_objects(object_keys).await?;
 
         let (fallback, indices) = find_fallback(&res, object_keys);

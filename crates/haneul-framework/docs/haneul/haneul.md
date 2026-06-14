@@ -12,16 +12,7 @@ It has 9 decimals, and the smallest unit (10^-9) is called "geunhwa".
 -  [Function `transfer`](#haneul_haneul_transfer)
 
 
-<pre><code><b>use</b> <a href="../std/address.md#std_address">std::address</a>;
-<b>use</b> <a href="../std/ascii.md#std_ascii">std::ascii</a>;
-<b>use</b> <a href="../std/bcs.md#std_bcs">std::bcs</a>;
-<b>use</b> <a href="../std/internal.md#std_internal">std::internal</a>;
-<b>use</b> <a href="../std/option.md#std_option">std::option</a>;
-<b>use</b> <a href="../std/string.md#std_string">std::string</a>;
-<b>use</b> <a href="../std/type_name.md#std_type_name">std::type_name</a>;
-<b>use</b> <a href="../std/u128.md#std_u128">std::u128</a>;
-<b>use</b> <a href="../std/vector.md#std_vector">std::vector</a>;
-<b>use</b> <a href="../haneul/accumulator.md#haneul_accumulator">haneul::accumulator</a>;
+<pre><code><b>use</b> <a href="../haneul/accumulator.md#haneul_accumulator">haneul::accumulator</a>;
 <b>use</b> <a href="../haneul/accumulator_settlement.md#haneul_accumulator_settlement">haneul::accumulator_settlement</a>;
 <b>use</b> <a href="../haneul/address.md#haneul_address">haneul::address</a>;
 <b>use</b> <a href="../haneul/bag.md#haneul_bag">haneul::bag</a>;
@@ -46,6 +37,15 @@ It has 9 decimals, and the smallest unit (10^-9) is called "geunhwa".
 <b>use</b> <a href="../haneul/url.md#haneul_url">haneul::url</a>;
 <b>use</b> <a href="../haneul/vec_map.md#haneul_vec_map">haneul::vec_map</a>;
 <b>use</b> <a href="../haneul/vec_set.md#haneul_vec_set">haneul::vec_set</a>;
+<b>use</b> <a href="../std/address.md#std_address">std::address</a>;
+<b>use</b> <a href="../std/ascii.md#std_ascii">std::ascii</a>;
+<b>use</b> <a href="../std/bcs.md#std_bcs">std::bcs</a>;
+<b>use</b> <a href="../std/internal.md#std_internal">std::internal</a>;
+<b>use</b> <a href="../std/option.md#std_option">std::option</a>;
+<b>use</b> <a href="../std/string.md#std_string">std::string</a>;
+<b>use</b> <a href="../std/type_name.md#std_type_name">std::type_name</a>;
+<b>use</b> <a href="../std/u128.md#std_u128">std::u128</a>;
+<b>use</b> <a href="../std/vector.md#std_vector">std::vector</a>;
 </code></pre>
 
 

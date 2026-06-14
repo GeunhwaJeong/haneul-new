@@ -23,7 +23,7 @@ use std::sync::Arc;
 
 use crate::drivers::Interval;
 use crate::workloads::payload::Payload;
-use haneul_types::base_types::{ObjectRef, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectRef};
 use haneul_types::crypto::AccountKeyPair;
 use workload::*;
 

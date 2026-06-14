@@ -5,11 +5,11 @@ use std::collections::BTreeMap;
 
 use consensus_config::AuthorityIndex;
 use consensus_types::block::{BlockDigest, BlockRef, TransactionIndex};
-use haneullabs_metrics::monitored_scope;
-use parking_lot::RwLock;
 use haneul_types::committee::EpochId;
 use haneul_types::error::HaneulError;
 use haneul_types::messages_consensus::ConsensusPosition;
+use haneullabs_metrics::monitored_scope;
+use parking_lot::RwLock;
 use tracing::trace;
 
 use crate::authority::consensus_tx_status_cache::CONSENSUS_STATUS_RETENTION_ROUNDS;

@@ -2,14 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    execution_mode::ExecutionMode,
     sp,
     static_programmable_transactions::{env::Env, typing::ast as T},
 };
-use indexmap::IndexSet;
-use haneullabs_common::ZipDebugEqIteratorExt;
-use std::rc::Rc;
 use haneul_types::error::ExecutionError;
+use haneullabs_common::ZipDebugEqIteratorExt;
+use indexmap::IndexSet;
+use std::rc::Rc;
 
 /// A dot-star like extension, but with a unique identifier. Deltas can be compared between
 /// different Deltas of the same command, otherwise they behave like .* in the regex based
@@ -292,7 +291,7 @@ impl Location {
 }
 
 impl Context {
-    fn new<Mode: ExecutionMode>(_env: &Env<Mode>, txn: &T::Transaction) -> anyhow::Result<Self> {
+    fn new(_env: &Env, txn: &T::Transaction) -> anyhow::Result<Self> {
         let T::Transaction {
             gas_payment,
             bytes: _,
@@ -547,14 +546,11 @@ impl Context {
 /// Checks the following
 /// - Values are not used after being moved
 /// - Reference safety is upheld (no dangling references)
-pub fn verify<Mode: ExecutionMode>(
-    env: &Env<Mode>,
-    txn: &T::Transaction,
-) -> Result<(), Mode::Error> {
-    Ok(verify_(env, txn).map_err(|e| make_invariant_violation!("{}. Transaction {:?}", e, txn))?)
+pub fn verify(env: &Env, txn: &T::Transaction) -> Result<(), ExecutionError> {
+    verify_(env, txn).map_err(|e| make_invariant_violation!("{}. Transaction {:?}", e, txn))
 }
 
-fn verify_<Mode: ExecutionMode>(env: &Env<Mode>, txn: &T::Transaction) -> anyhow::Result<()> {
+fn verify_(env: &Env, txn: &T::Transaction) -> anyhow::Result<()> {
     let mut context = Context::new(env, txn)?;
     let T::Transaction {
         gas_payment: _,

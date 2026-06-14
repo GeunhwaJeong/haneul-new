@@ -1,7 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::path::PathBuf;
 use haneul_macros::sim_test;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_rpc::Client;
@@ -14,6 +13,7 @@ use haneul_types::gas_coin::GasCoin;
 use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
 use haneul_types::transaction::{Argument, CallArg, Command, ObjectArg, TransactionData};
 use haneul_types::{Identifier, base_types::HaneulAddress};
+use std::path::PathBuf;
 use test_cluster::TestClusterBuilder;
 
 const HANEUL_COIN_TYPE: &str =

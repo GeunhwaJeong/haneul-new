@@ -140,7 +140,10 @@ impl<F: MoveFlavor> Package<F> {
             dummy_addr,
         };
 
-        debug!("successfully loaded {}", result.dep_for_self);
+        debug!(
+            "successfully loaded {:?}",
+            result.dep_for_self.unfetched_path(&config.chain_id)
+        );
         Ok(result)
     }
 
@@ -329,12 +332,12 @@ pub async fn cache_package<F: MoveFlavor>(
 
     // convert to a combined dependency
     let combined =
-        CombinedDependency::from_default(toml_handle, package, env.name().clone(), default_dep)?;
+        CombinedDependency::from_default(toml_handle, package, env.name().clone(), default_dep);
 
     // pin
     let root = Pinned::Root(dummy_path.clone());
     let flavor = Arc::new(flavor);
-    let deps = PinnedDependency::pin(&root, vec![combined], env, &*flavor).await?;
+    let deps = PinnedDependency::pin(&root, vec![combined], env.id(), &*flavor).await?;
 
     // load
     let package = Package::<F>::load(
@@ -348,7 +351,6 @@ pub async fn cache_package<F: MoveFlavor>(
     // summarize
     Ok(CachedPackageInfo {
         name: package.name().clone(),
-        path: package.path().path().to_path_buf(),
         addresses: package.publication().map(|p| p.addresses.clone()),
         chain_id: env.id.clone(),
     })
@@ -595,19 +597,14 @@ mod tests {
             .add_published("a", OriginalID::from(1), PublishedID::from(2))
             .build();
 
-        let pkg_path = scenario.path_for("a");
+        let path = scenario.path_for("a");
         let env = default_environment();
-        let dep = &ManifestDependencyInfo::Local(LocalDepInfo {
-            local: pkg_path.clone(),
-        });
+        let dep = &ManifestDependencyInfo::Local(LocalDepInfo { local: path });
 
-        let info = cache_package::<Vanilla>(&env, dep, Vanilla::new())
-            .await
-            .unwrap();
+        let info = cache_package::<Vanilla>(&env, dep, Vanilla).await.unwrap();
 
         let CachedPackageInfo {
             name,
-            path,
             addresses,
             chain_id,
         } = info;
@@ -618,7 +615,6 @@ mod tests {
         } = addresses.unwrap();
 
         assert_eq!(name.as_str(), "a");
-        assert_eq!(path, pkg_path);
         assert_eq!(published_at, PublishedID::from(2));
         assert_eq!(original_id, OriginalID::from(1));
         assert_eq!(chain_id, DEFAULT_ENV_ID);

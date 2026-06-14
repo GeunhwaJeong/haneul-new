@@ -13,8 +13,6 @@ use fastcrypto::{
     secp256r1::Secp256r1KeyPair,
     traits::{EncodeDecodeBase64, KeyPair},
 };
-use rand::{SeedableRng, rngs::StdRng};
-use shared_crypto::intent::{Intent, IntentMessage};
 use haneul_sdk::{
     HaneulClientBuilder,
     rpc_types::HaneulTransactionBlockResponseOptions,
@@ -23,17 +21,19 @@ use haneul_sdk::{
         transaction::TransactionData,
     },
 };
-use haneul_types::crypto::Signer;
 use haneul_types::crypto::HaneulSignature;
+use haneul_types::crypto::Signer;
 use haneul_types::crypto::ToFromBytes;
 use haneul_types::signature::GenericSignature;
 use haneul_types::{
     base_types::HaneulAddress,
     crypto::{HaneulKeyPair, get_key_pair_from_rng},
 };
+use rand::{SeedableRng, rngs::StdRng};
+use shared_crypto::intent::{Intent, IntentMessage};
 
 /// This example walks through the Rust SDK use case described in
-/// https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/develop/transactions/transaction-auth/auth-overview.mdx
+/// https://github.com/GeunhwaJeong/haneul/blob/main/docs/content/guides/developer/haneul-101/sign-and-send-txn.mdx
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
     // set up haneul client for the desired network.

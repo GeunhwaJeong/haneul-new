@@ -1,8 +1,6 @@
 name: Split Cluster Check
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 jobs:
   validate-mainnet:
     runs-on: ubuntu-ghcloud

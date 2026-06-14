@@ -17,17 +17,17 @@ use strum_macros::EnumString;
 use anyhow::Result;
 use async_trait::async_trait;
 use core::default::Default;
-use std::time::Duration;
 use haneul_types::{
     base_types::HaneulAddress, digests::TransactionDigest,
     messages_checkpoint::CheckpointSequenceNumber,
 };
+use std::time::Duration;
 
 use crate::load_test::LoadTestConfig;
+use haneul_types::base_types::ObjectID;
 pub use rpc_command_processor::{
     RpcCommandProcessor, load_addresses_from_file, load_digests_from_file, load_objects_from_file,
 };
-use haneul_types::base_types::ObjectID;
 
 #[derive(Default, Clone)]
 pub struct SignerInfo {

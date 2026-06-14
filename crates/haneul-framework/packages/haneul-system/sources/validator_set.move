@@ -42,7 +42,6 @@ const ENotAPendingValidator: u64 = 12;
 const EValidatorSetEmpty: u64 = 13;
 const EInvalidCap: u64 = 101;
 const EInvalidValidatorSelector: u64 = 14;
-const EAlreadyValidator: u64 = 15;
 
 // same as in haneul_system
 const ACTIVE_VALIDATOR_ONLY: u8 = 1;
@@ -170,20 +169,14 @@ public(package) fun request_add_validator_candidate(
     validator: Validator,
     ctx: &mut TxContext,
 ) {
+    // The next assertions are not critical for the protocol, but they are here to catch problematic configs earlier.
+    assert!(
+        !self.is_duplicate_with_active_validator(&validator)
+            && !self.is_duplicate_with_pending_validator(&validator),
+        EDuplicateValidator,
+    );
     let validator_address = validator.haneul_address();
     assert!(!self.validator_candidates.contains(validator_address), EAlreadyValidatorCandidate);
-    assert!(
-        find_validator(&self.active_validators, validator_address).is_none(),
-        EAlreadyValidator,
-    );
-    assert!(
-        find_validator_from_table_vec(&self.pending_active_validators, validator_address).is_none(),
-        EAlreadyValidator,
-    );
-
-    // The next assertions are not critical for the protocol, but they are here
-    // to catch problematic configs earlier.
-    self.assert_no_pending_or_active_duplicates(&validator);
 
     assert!(validator.is_preactive(), EValidatorNotCandidate);
     // Add validator to the candidates mapping and the pool id mappings so that users can start
@@ -222,7 +215,11 @@ public(package) fun request_add_validator(self: &mut ValidatorSet, ctx: &TxConte
     let validator_address = ctx.sender();
     assert!(self.validator_candidates.contains(validator_address), ENotValidatorCandidate);
     let validator = self.validator_candidates.remove(validator_address).destroy();
-    self.assert_no_pending_or_active_duplicates(&validator);
+    assert!(
+        !self.is_duplicate_with_active_validator(&validator)
+            && !self.is_duplicate_with_pending_validator(&validator),
+        EDuplicateValidator,
+    );
     assert!(validator.is_preactive(), EValidatorNotCandidate);
     assert!(self.can_join(validator.total_stake(), ctx), EMinJoiningStakeNotReached);
 
@@ -262,8 +259,12 @@ public(package) fun assert_no_pending_or_active_duplicates(
     self: &ValidatorSet,
     validator: &Validator,
 ) {
-    assert!(!self.is_duplicate_with_active_validator(validator), EDuplicateValidator);
-    assert!(!self.is_duplicate_with_pending_validator(validator), EDuplicateValidator);
+    // Validator here must be active or pending, and thus must be identified as duplicate exactly once.
+    assert!(
+        count_duplicates_vec(&self.active_validators, validator) +
+            count_duplicates_tablevec(&self.pending_active_validators, validator) == 1,
+        EDuplicateValidator,
+    );
 }
 
 /// Called by `haneul_system`, to remove a validator.
@@ -451,11 +452,9 @@ public(package) fun advance_epoch(
         ctx,
     );
 
-    // Process the pending stake changes for each validator.
-    self.active_validators.do_mut!(|v| v.adjust_stake_and_gas_price());
+    adjust_stake_and_gas_price(&mut self.active_validators);
 
-    // Process all active validators' pending stake deposits and withdraws.
-    self.active_validators.do_mut!(|v| v.process_pending_stakes_and_withdraws(ctx));
+    process_pending_stakes_and_withdraws(&mut self.active_validators, ctx);
 
     // Emit events after we have processed all the rewards distribution and pending stakes.
     emit_validator_epoch_events(
@@ -480,7 +479,7 @@ public(package) fun advance_epoch(
 
     // At this point, self.active_validators are updated for next epoch.
     // Now we process the staged validator metadata.
-    self.active_validators.do_mut!(|v| v.effectuate_staged_metadata());
+    self.effectuate_staged_metadata();
 }
 
 /// This function does the following:
@@ -592,13 +591,23 @@ fun update_validator_positions_and_calculate_total_stake(
             // return validator object to the candidate pool. want to do this directly instead of
             // calling request_add_validator_candidate because staking_pool_mappings already has an
             // entry for this validator, and the duplicate checks are redundant
-            self.validator_candidates.add(validator.haneul_address(), validator.wrap_v1(ctx));
+            self
+                .validator_candidates
+                .add(
+                    validator.haneul_address(),
+                    validator.wrap_v1(ctx),
+                );
             total_removed_stake = total_removed_stake + validator_stake;
         }
     });
 
     // new total stake is the initial total minus the amount removed via validators we kicked out
     initial_total_stake - total_removed_stake
+}
+
+/// Effectuate pending next epoch metadata if they are staged.
+fun effectuate_staged_metadata(self: &mut ValidatorSet) {
+    self.active_validators.do_mut!(|v| v.effectuate_staged_metadata());
 }
 
 /// Called by `haneul_system` to derive reference gas price for the new epoch.
@@ -706,23 +715,34 @@ public(package) fun is_active_validator_by_haneul_address(
 /// Checks whether `new_validator` is duplicate with any currently active validators.
 /// It differs from `is_active_validator_by_haneul_address` in that the former checks
 /// only the haneul address but this function looks at more metadata.
-fun is_duplicate_with_active_validator(self: &ValidatorSet, search: &Validator): bool {
-    self
-        .active_validators
-        .any!(|v| v.haneul_address() != search.haneul_address() && v.is_duplicate(search))
+fun is_duplicate_with_active_validator(self: &ValidatorSet, new_validator: &Validator): bool {
+    is_duplicate_validator(&self.active_validators, new_validator)
+}
+
+public(package) fun is_duplicate_validator(
+    validators: &vector<Validator>,
+    new_validator: &Validator,
+): bool {
+    count_duplicates_vec(validators, new_validator) > 0
+}
+
+fun count_duplicates_vec(validators: &vector<Validator>, validator: &Validator): u64 {
+    validators.count!(|v| v.is_duplicate(validator))
 }
 
 /// Checks whether `new_validator` is duplicate with any currently pending validators.
-fun is_duplicate_with_pending_validator(self: &ValidatorSet, search: &Validator): bool {
-    'search: {
-        self.pending_active_validators.length().do!(|i| {
-            let v = &self.pending_active_validators[i];
-            if (v.haneul_address() != search.haneul_address() && v.is_duplicate(search)) {
-                return 'search true
-            };
-        });
-        false
-    }
+fun is_duplicate_with_pending_validator(self: &ValidatorSet, new_validator: &Validator): bool {
+    count_duplicates_tablevec(&self.pending_active_validators, new_validator) > 0
+}
+
+fun count_duplicates_tablevec(validators: &TableVec<Validator>, validator: &Validator): u64 {
+    let mut result = 0;
+    validators.length().do!(|i| {
+        if (validators[i].is_duplicate(validator)) {
+            result = result + 1;
+        };
+    });
+    result
 }
 
 /// Get mutable reference to either a candidate or an active validator by address.
@@ -751,15 +771,16 @@ fun find_validator_from_table_vec(
     validators: &TableVec<Validator>,
     validator_address: address,
 ): Option<u64> {
-    'search: {
-        validators.length().do!(|i| {
-            if (validators[i].haneul_address() == validator_address) {
-                return 'search option::some(i)
-            };
-        });
-
-        option::none()
-    }
+    let length = validators.length();
+    let mut i = 0;
+    while (i < length) {
+        let v = &validators[i];
+        if (v.haneul_address() == validator_address) {
+            return option::some(i)
+        };
+        i = i + 1;
+    };
+    option::none()
 }
 
 /// Given a vector of validator addresses, return their indices in the validator set.
@@ -768,9 +789,12 @@ fun get_validator_indices(
     validators: &vector<Validator>,
     validator_addresses: &vector<address>,
 ): vector<u64> {
-    validator_addresses.map_ref!(|addr| {
-        find_validator(validators, *addr).destroy_or!(abort ENotAValidator)
-    })
+    let mut res = vector[];
+    validator_addresses.do_ref!(|addr| {
+        let idx = find_validator(validators, *addr).destroy_or!(abort ENotAValidator);
+        res.push_back(idx);
+    });
+    res
 }
 
 // === Validator Accessors ===
@@ -921,11 +945,7 @@ fun process_pending_removals(
     validator_report_records: &mut VecMap<address, VecSet<address>>,
     ctx: &mut TxContext,
 ) {
-    // Pending removals needs to be sorted in ASC order. So we maintain the
-    // indexes after each validator's removal.
-    self.pending_removals.insertion_sort_by!(|a, b| *a <= *b);
-
-    // Drain pending removals and process validator's departure.
+    sort_removal_list(&mut self.pending_removals);
     self.pending_removals.length().do!(|_| {
         let index = self.pending_removals.pop_back();
         let validator = self.active_validators.remove(index);
@@ -968,7 +988,12 @@ fun process_validator_departure(
     // Deactivate the validator and its staking pool
     let removed_stake = validator.total_stake();
     validator.deactivate(new_epoch);
-    self.inactive_validators.add(validator_pool_id, validator.wrap_v1(ctx));
+    self
+        .inactive_validators
+        .add(
+            validator_pool_id,
+            validator.wrap_v1(ctx),
+        );
     removed_stake
 }
 
@@ -995,11 +1020,40 @@ fun clean_report_records_leaving_validator(
     });
 }
 
+/// Sort all the pending removal indexes.
+fun sort_removal_list(withdraw_list: &mut vector<u64>) {
+    let length = withdraw_list.length();
+    let mut i = 1;
+    while (i < length) {
+        let cur = withdraw_list[i];
+        let mut j = i;
+        while (j > 0) {
+            j = j - 1;
+            if (withdraw_list[j] > cur) {
+                withdraw_list.swap(j, j + 1);
+            } else {
+                break
+            };
+        };
+        i = i + 1;
+    };
+}
+
+/// Process all active validators' pending stake deposits and withdraws.
+fun process_pending_stakes_and_withdraws(validators: &mut vector<Validator>, ctx: &TxContext) {
+    validators.do_mut!(|v| v.process_pending_stakes_and_withdraws(ctx))
+}
+
 /// Calculate the total active validator stake.
 public(package) fun calculate_total_stakes(validators: &vector<Validator>): u64 {
     let mut stake = 0;
     validators.do_ref!(|v| stake = stake + v.total_stake());
     stake
+}
+
+/// Process the pending stake changes for each validator.
+fun adjust_stake_and_gas_price(validators: &mut vector<Validator>) {
+    validators.do_mut!(|v| v.adjust_stake_and_gas_price())
 }
 
 /// Compute both the individual reward adjustments and total reward adjustment for staking rewards

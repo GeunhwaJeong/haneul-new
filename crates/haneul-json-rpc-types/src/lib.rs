@@ -6,8 +6,6 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 pub use balance_changes::*;
-pub use object_changes::*;
-use serde_with::serde_as;
 pub use haneul_checkpoint::*;
 pub use haneul_coin::*;
 pub use haneul_event::*;
@@ -18,6 +16,8 @@ pub use haneul_object::*;
 pub use haneul_protocol::*;
 pub use haneul_transaction::*;
 use haneul_types::base_types::ObjectID;
+pub use object_changes::*;
+use serde_with::serde_as;
 
 #[cfg(test)]
 #[path = "unit_tests/rpc_types_tests.rs"]
@@ -25,7 +25,6 @@ mod rpc_types_tests;
 
 mod balance_changes;
 mod displays;
-mod object_changes;
 mod haneul_checkpoint;
 mod haneul_coin;
 mod haneul_event;
@@ -35,6 +34,7 @@ mod haneul_move;
 mod haneul_object;
 mod haneul_protocol;
 mod haneul_transaction;
+mod object_changes;
 
 pub type DynamicFieldPage = Page<DynamicFieldInfo, ObjectID>;
 /// `next_cursor` points to the last item in the page;

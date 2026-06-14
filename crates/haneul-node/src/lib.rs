@@ -14,6 +14,22 @@ use arc_swap::ArcSwap;
 use fastcrypto_zkp::bn254::zk_login::JwkId;
 use fastcrypto_zkp::bn254::zk_login::OIDCProvider;
 use futures::future::BoxFuture;
+use haneul_core::admission_queue::{
+    AdmissionQueueContext, AdmissionQueueManager, AdmissionQueueMetrics,
+};
+use haneul_core::authority::ExecutionEnv;
+use haneul_core::authority::RandomnessRoundReceiver;
+use haneul_core::authority::authority_store_tables::AuthorityPerpetualTablesOptions;
+use haneul_core::authority::backpressure::BackpressureManager;
+use haneul_core::authority::epoch_start_configuration::EpochFlag;
+use haneul_core::authority::execution_time_estimator::ExecutionTimeObserver;
+use haneul_core::consensus_adapter::ConsensusClient;
+use haneul_core::consensus_manager::UpdatableConsensusClient;
+use haneul_core::epoch::randomness::RandomnessManager;
+use haneul_core::execution_cache::build_execution_cache;
+use haneul_network::endpoint_manager::{AddressSource, EndpointId};
+use haneul_network::validator::server::HANEUL_TLS_SERVER_NAME;
+use haneul_types::full_checkpoint_content::Checkpoint;
 use haneullabs_common::in_test_configuration;
 use prometheus::Registry;
 use std::collections::{BTreeSet, HashMap, HashSet};
@@ -25,23 +41,6 @@ use std::str::FromStr;
 use std::sync::atomic::Ordering;
 use std::sync::{Arc, Weak};
 use std::time::Duration;
-use haneul_core::admission_queue::{
-    AdmissionQueueContext, AdmissionQueueManager, AdmissionQueueMetrics,
-};
-use haneul_core::authority::ExecutionEnv;
-use haneul_core::authority::authority_store_tables::AuthorityPerpetualTablesOptions;
-use haneul_core::authority::backpressure::BackpressureManager;
-use haneul_core::authority::epoch_start_configuration::EpochFlag;
-use haneul_core::authority::execution_time_estimator::ExecutionTimeObserver;
-use haneul_core::consensus_adapter::ConsensusClient;
-use haneul_core::consensus_manager::UpdatableConsensusClient;
-use haneul_core::epoch::randomness::RandomnessManager;
-use haneul_core::execution_cache::build_execution_cache;
-use haneul_core::randomness_round_receiver::{RandomnessRoundReceiver, RandomnessRoundReceiverHandle};
-use haneul_network::endpoint_manager::{AddressSource, EndpointId};
-use haneul_network::validator::server::HANEUL_TLS_SERVER_NAME;
-use haneul_types::full_checkpoint_content::Checkpoint;
-use haneul_types::node_role::NodeRole;
 
 use haneul_core::global_state_hasher::GlobalStateHashMetrics;
 use haneul_core::storage::RestReadStore;
@@ -56,8 +55,8 @@ use haneul_types::crypto::RandomnessRound;
 use haneul_types::digests::{
     ChainIdentifier, CheckpointDigest, TransactionDigest, TransactionEffectsDigest,
 };
-use haneul_types::messages_consensus::AuthorityCapabilitiesV2;
 use haneul_types::haneul_system_state::HaneulSystemState;
+use haneul_types::messages_consensus::AuthorityCapabilitiesV2;
 use tap::tap::TapFallible;
 use tokio::sync::oneshot;
 use tokio::sync::{Mutex, broadcast, mpsc};
@@ -81,8 +80,6 @@ macro_rules! jwk_log {
 
 use fastcrypto_zkp::bn254::zk_login::JWK;
 pub use handle::HaneulNodeHandle;
-use haneullabs_metrics::{RegistryService, spawn_monitored_task};
-use haneullabs_service::server_timing::server_timing_middleware;
 use haneul_config::node::{DBCheckpointConfig, RunWithRange};
 use haneul_config::node::{ForkCrashBehavior, ForkRecoveryConfig};
 use haneul_config::node_config_metrics::NodeConfigMetrics;
@@ -97,8 +94,8 @@ use haneul_core::authority_server::{ValidatorService, ValidatorServiceMetrics};
 use haneul_core::checkpoints::checkpoint_executor::metrics::CheckpointExecutorMetrics;
 use haneul_core::checkpoints::checkpoint_executor::{CheckpointExecutor, StopReason};
 use haneul_core::checkpoints::{
-    CheckpointMetrics, CheckpointOutput, CheckpointService, CheckpointStore, LogCheckpointOutput,
-    SendCheckpointToStateSync, SubmitCheckpointToConsensus,
+    CheckpointMetrics, CheckpointService, CheckpointStore, SendCheckpointToStateSync,
+    SubmitCheckpointToConsensus,
 };
 use haneul_core::consensus_adapter::{ConsensusAdapter, ConsensusAdapterMetrics};
 use haneul_core::consensus_manager::ConsensusManager;
@@ -147,23 +144,24 @@ use haneul_types::base_types::{AuthorityName, EpochId};
 use haneul_types::committee::Committee;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::error::{HaneulError, HaneulResult};
-use haneul_types::messages_consensus::{ConsensusTransaction, check_total_jwk_size};
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
+use haneul_types::messages_consensus::{ConsensusTransaction, check_total_jwk_size};
 use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
+use haneullabs_metrics::{RegistryService, spawn_monitored_task};
+use haneullabs_service::server_timing::server_timing_middleware;
 use typed_store::DBMetrics;
 use typed_store::rocks::default_db_options;
 
 use crate::metrics::{GrpcMetrics, HaneulNodeMetrics};
 
 pub mod admin;
-pub mod db_shell;
 mod handle;
 pub mod metrics;
 
 pub struct ValidatorComponents {
-    validator_server_handle: Option<SpawnOnce>,
+    validator_server_handle: SpawnOnce,
     validator_overload_monitor_handle: Option<JoinHandle<()>>,
     consensus_manager: Arc<ConsensusManager>,
     consensus_store_pruner: ConsensusStorePruner,
@@ -183,8 +181,8 @@ pub struct P2pComponents {
 
 #[cfg(msim)]
 mod simulator {
-    use std::sync::atomic::AtomicBool;
     use haneul_types::error::HaneulErrorKind;
+    use std::sync::atomic::AtomicBool;
 
     use super::*;
     pub(super) struct SimState {
@@ -235,14 +233,14 @@ mod simulator {
     }
 }
 
-#[cfg(msim)]
-pub use simulator::set_jwk_injector;
-#[cfg(msim)]
-use simulator::*;
 use haneul_core::authority::authority_store_pruner::PrunerWatermarks;
 use haneul_core::{
     consensus_handler::ConsensusHandlerInitializer, safe_client::SafeClientMetricsBase,
 };
+#[cfg(msim)]
+pub use simulator::set_jwk_injector;
+#[cfg(msim)]
+use simulator::*;
 
 const DEFAULT_GRPC_CONNECT_TIMEOUT: Duration = Duration::from_secs(60);
 
@@ -261,7 +259,8 @@ pub struct HaneulNode {
     checkpoint_metrics: Arc<CheckpointMetrics>,
 
     _discovery: discovery::Handle,
-    _connection_monitor_handle: haneullabs_network::anemo_connection_monitor::ConnectionMonitorHandle,
+    _connection_monitor_handle:
+        haneullabs_network::anemo_connection_monitor::ConnectionMonitorHandle,
     state_sync_handle: state_sync::Handle,
     randomness_handle: randomness::Handle,
     checkpoint_store: Arc<CheckpointStore>,
@@ -283,9 +282,6 @@ pub struct HaneulNode {
     _state_snapshot_uploader_handle: Option<broadcast::Sender<()>>,
     // Channel to allow signaling upstream to shutdown haneul-node
     shutdown_channel_tx: broadcast::Sender<Option<RunWithRange>>,
-
-    /// Handle shared with RandomnessManager and the consensus layer.
-    randomness_receiver_handle: Arc<RandomnessRoundReceiverHandle>,
 
     /// AuthorityAggregator of the network, created at start and beginning of each epoch.
     /// Use ArcSwap so that we could mutate it without taking mut reference.
@@ -470,11 +466,12 @@ impl HaneulNode {
         }
 
         let run_with_range = config.run_with_range;
+        let is_validator = config.consensus_config().is_some();
+        let is_full_node = !is_validator;
         let prometheus_registry = registry_service.default_registry();
-        let node_role = config.intended_node_role();
 
         info!(node =? config.protocol_public_key(),
-            "Initializing haneul-node listening on {} with role {:?}", config.network_address, node_role
+            "Initializing haneul-node listening on {}", config.network_address
         );
 
         // Initialize metrics to track db usage before creating any stores
@@ -506,33 +503,22 @@ impl HaneulNode {
         );
         let checkpoint_metrics = CheckpointMetrics::new(&registry_service.default_registry());
 
-        if node_role.runs_consensus() {
-            Self::check_and_recover_forks(
-                &checkpoint_store,
-                &checkpoint_metrics,
-                config.fork_recovery.as_ref(),
-            )
-            .await?;
-        }
+        Self::check_and_recover_forks(
+            &checkpoint_store,
+            &checkpoint_metrics,
+            is_validator,
+            config.fork_recovery.as_ref(),
+        )
+        .await?;
 
-        // By default, only enable write stall on nodes that run consensus.
-        let enable_write_stall = config
-            .enable_db_write_stall
-            .unwrap_or(node_role.runs_consensus());
-        // The tidehunter objects compactor retains only the latest version per
-        // ObjectID and is mutually exclusive with the object pruner. Enable it
-        // for validators (which always disable the pruner), and also for any
-        // node configured with `num_epochs_to_retain = 0` — that aggressive
-        // setting is what the compactor replaces. The pruner is force-disabled
-        // in `AuthorityStorePruner::new` whenever this is true.
-        let enable_objects_compactor = node_role.is_validator()
-            || config.authority_store_pruning_config.num_epochs_to_retain == 0;
+        // By default, only enable write stall on validators for perpetual db.
+        let enable_write_stall = config.enable_db_write_stall.unwrap_or(is_validator);
         let perpetual_tables_options = AuthorityPerpetualTablesOptions {
             enable_write_stall,
-            enable_objects_compactor,
+            is_validator,
         };
         let perpetual_tables = Arc::new(AuthorityPerpetualTables::open(
-            &config.db_store_path(),
+            &config.db_path().join("store"),
             Some(perpetual_tables_options),
             Some(pruner_watermarks.epoch_id.clone()),
         ));
@@ -598,7 +584,7 @@ impl HaneulNode {
         let epoch_store = AuthorityPerEpochStore::new(
             config.protocol_public_key(),
             committee.clone(),
-            &config.db_store_path(),
+            &config.db_path().join("store"),
             Some(epoch_options.options),
             EpochMetrics::new(&registry_service.default_registry()),
             epoch_start_configuration,
@@ -613,7 +599,6 @@ impl HaneulNode {
             Arc::new(SubmittedTransactionCacheMetrics::new(
                 &registry_service.default_registry(),
             )),
-            config.fullnode_sync_mode,
         )?;
 
         info!("created epoch store");
@@ -662,24 +647,21 @@ impl HaneulNode {
             checkpoint_store.clone(),
         );
 
-        let index_store =
-            if node_role.should_enable_index_processing() && config.enable_index_processing {
-                info!("creating jsonrpc index store");
-                Some(Arc::new(IndexStore::new(
-                    config.db_path().join("indexes"),
-                    &prometheus_registry,
-                    epoch_store
-                        .protocol_config()
-                        .max_move_identifier_len_as_option(),
-                    config.remove_deprecated_tables,
-                )))
-            } else {
-                None
-            };
+        let index_store = if is_full_node && config.enable_index_processing {
+            info!("creating jsonrpc index store");
+            Some(Arc::new(IndexStore::new(
+                config.db_path().join("indexes"),
+                &prometheus_registry,
+                epoch_store
+                    .protocol_config()
+                    .max_move_identifier_len_as_option(),
+                config.remove_deprecated_tables,
+            )))
+        } else {
+            None
+        };
 
-        let rpc_index = if node_role.should_enable_index_processing()
-            && config.rpc().is_some_and(|rpc| rpc.enable_indexing())
-        {
+        let rpc_index = if is_full_node && config.rpc().is_some_and(|rpc| rpc.enable_indexing()) {
             info!("creating rpc index store");
             Some(Arc::new(
                 RpcIndexStore::new(
@@ -688,6 +670,7 @@ impl HaneulNode {
                     &checkpoint_store,
                     &epoch_store,
                     &cache_traits.backing_package_store,
+                    pruner_watermarks.checkpoint_id.clone(),
                     config.rpc().cloned().unwrap_or_default(),
                 )
                 .await,
@@ -735,12 +718,7 @@ impl HaneulNode {
         }
 
         // Send initial peer addresses to the p2p network.
-        update_peer_addresses(
-            &config,
-            &endpoint_manager,
-            epoch_store.epoch_start_state(),
-            None,
-        );
+        update_peer_addresses(&config, &endpoint_manager, epoch_store.epoch_start_state());
 
         info!("start snapshot upload");
         // Start uploading state snapshot to remote store
@@ -804,21 +782,32 @@ impl HaneulNode {
                         haneul_types::executable_transaction::CertificateProof::Checkpoint(0, 0),
                     ),
                 );
-            let _enter = span.enter();
             state
                 .try_execute_immediately(&transaction, ExecutionEnv::new(), &epoch_store)
+                .instrument(span)
+                .await
                 .unwrap();
         }
 
         // Start the loop that receives new randomness and generates transactions for it.
-        // The returned is long-lived (node lifetime).
-        let randomness_receiver_handle =
-            RandomnessRoundReceiver::spawn(state.clone(), randomness_rx);
+        RandomnessRoundReceiver::spawn(state.clone(), randomness_rx);
+
+        if config
+            .expensive_safety_check_config
+            .enable_secondary_index_checks()
+            && let Some(indexes) = state.indexes.clone()
+        {
+            haneul_core::verify_indexes::verify_indexes(
+                state.get_global_state_hash_store().as_ref(),
+                indexes,
+            )
+            .expect("secondary indexes are inconsistent");
+        }
 
         let (end_of_epoch_channel, end_of_epoch_receiver) =
             broadcast::channel(config.end_of_epoch_broadcast_channel_capacity);
 
-        let transaction_orchestrator = if node_role.is_fullnode() && run_with_range.is_none() {
+        let transaction_orchestrator = if is_full_node && run_with_range.is_none() {
             Some(Arc::new(TransactionOrchestrator::new_with_auth_aggregator(
                 auth_agg.load_full(),
                 state.clone(),
@@ -838,7 +827,6 @@ impl HaneulNode {
             &config,
             &prometheus_registry,
             server_version,
-            node_role,
         )
         .await?;
 
@@ -847,10 +835,11 @@ impl HaneulNode {
             GlobalStateHashMetrics::new(&prometheus_registry),
         ));
 
-        let network_connection_metrics = haneullabs_network::quinn_metrics::QuinnConnectionMetrics::new(
-            "haneul",
-            &registry_service.default_registry(),
-        );
+        let network_connection_metrics =
+            haneullabs_network::quinn_metrics::QuinnConnectionMetrics::new(
+                "haneul",
+                &registry_service.default_registry(),
+            );
 
         let connection_monitor_handle =
             haneullabs_network::anemo_connection_monitor::AnemoConnectionMonitor::spawn(
@@ -859,7 +848,8 @@ impl HaneulNode {
                 known_peers,
             );
 
-        let haneul_node_metrics = Arc::new(HaneulNodeMetrics::new(&registry_service.default_registry()));
+        let haneul_node_metrics =
+            Arc::new(HaneulNodeMetrics::new(&registry_service.default_registry()));
 
         haneul_node_metrics
             .binary_max_protocol_version
@@ -868,8 +858,7 @@ impl HaneulNode {
             .configured_max_protocol_version
             .set(config.supported_protocol_versions.unwrap().max.as_u64() as i64);
 
-        let node_role = epoch_store.node_role();
-        let validator_components = if node_role.runs_consensus() {
+        let validator_components = if state.is_validator(&epoch_store) {
             let mut components = Self::construct_validator_components(
                 config.clone(),
                 state.clone(),
@@ -883,32 +872,18 @@ impl HaneulNode {
                 &registry_service,
                 haneul_node_metrics.clone(),
                 checkpoint_metrics.clone(),
-                node_role,
-                randomness_receiver_handle.clone(),
             )
             .await?;
 
-            if node_role.is_validator() {
-                components
-                    .consensus_adapter
-                    .recover_end_of_publish(&epoch_store);
+            components
+                .consensus_adapter
+                .recover_end_of_publish(&epoch_store);
 
-                // Start the gRPC server
-                components.validator_server_handle = Some(
-                    components
-                        .validator_server_handle
-                        .take()
-                        .unwrap()
-                        .start()
-                        .await,
-                );
+            // Start the gRPC server
+            components.validator_server_handle = components.validator_server_handle.start().await;
 
-                // Set the consensus address updater so that we can update the consensus peer addresses when requested.
-                endpoint_manager
-                    .set_consensus_address_updater(components.consensus_manager.clone());
-            } else {
-                info!("Starting node as Observer — connecting to configured peers");
-            }
+            // Set the consensus address updater so that we can update the consensus peer addresses when requested.
+            endpoint_manager.set_consensus_address_updater(components.consensus_manager.clone());
 
             Some(components)
         } else {
@@ -945,7 +920,6 @@ impl HaneulNode {
 
             _state_snapshot_uploader_handle: state_snapshot_handle,
             shutdown_channel_tx: shutdown_channel,
-            randomness_receiver_handle,
 
             auth_agg,
             subscription_service_checkpoint_sender,
@@ -1157,8 +1131,11 @@ impl HaneulNode {
                 .merge(state_sync_router);
             let routes = routes.merge(randomness_router);
 
-            let inbound_network_metrics =
-                haneullabs_network::metrics::NetworkMetrics::new("haneul", "inbound", prometheus_registry);
+            let inbound_network_metrics = haneullabs_network::metrics::NetworkMetrics::new(
+                "haneul",
+                "inbound",
+                prometheus_registry,
+            );
             let outbound_network_metrics = haneullabs_network::metrics::NetworkMetrics::new(
                 "haneul",
                 "outbound",
@@ -1284,14 +1261,12 @@ impl HaneulNode {
         registry_service: &RegistryService,
         haneul_node_metrics: Arc<HaneulNodeMetrics>,
         checkpoint_metrics: Arc<CheckpointMetrics>,
-        node_role: NodeRole,
-        randomness_receiver_handle: Arc<RandomnessRoundReceiverHandle>,
     ) -> Result<ValidatorComponents> {
         let mut config_clone = config.clone();
         let consensus_config = config_clone
             .consensus_config
             .as_mut()
-            .ok_or_else(|| anyhow!("Node is missing consensus config"))?;
+            .ok_or_else(|| anyhow!("Validator is missing consensus config"))?;
 
         let client = Arc::new(UpdatableConsensusClient::new());
         let inflight_slot_freed_notify = Arc::new(tokio::sync::Notify::new());
@@ -1304,13 +1279,11 @@ impl HaneulNode {
             checkpoint_store.clone(),
             inflight_slot_freed_notify.clone(),
         ));
-
         let consensus_manager = Arc::new(ConsensusManager::new(
             &config,
             consensus_config,
             registry_service,
             client,
-            node_role,
         ));
 
         // This only gets started up once, not on every epoch. (Make call to remove every epoch.)
@@ -1324,28 +1297,22 @@ impl HaneulNode {
         let haneul_tx_validator_metrics =
             HaneulTxValidatorMetrics::new(&registry_service.default_registry());
 
-        let (validator_server_handle, admission_queue) = if node_role.is_validator() {
-            let (handle, queue) = Self::start_grpc_validator_service(
-                &config,
-                state.clone(),
-                consensus_adapter.clone(),
-                epoch_store.clone(),
-                &registry_service.default_registry(),
-                inflight_slot_freed_notify,
-            )
-            .await?;
-            (Some(handle), queue)
-        } else {
-            (None, None)
-        };
+        let (validator_server_handle, admission_queue) = Self::start_grpc_validator_service(
+            &config,
+            state.clone(),
+            consensus_adapter.clone(),
+            epoch_store.clone(),
+            &registry_service.default_registry(),
+            inflight_slot_freed_notify,
+        )
+        .await?;
 
         // Starts an overload monitor that monitors the execution of the authority.
         // Don't start the overload monitor when max_load_shedding_percentage is 0.
-        let validator_overload_monitor_handle = if node_role.is_validator()
-            && config
-                .authority_overload_config
-                .max_load_shedding_percentage
-                > 0
+        let validator_overload_monitor_handle = if config
+            .authority_overload_config
+            .max_load_shedding_percentage
+            > 0
         {
             let authority_state = Arc::downgrade(&state);
             let overload_config = config.authority_overload_config.clone();
@@ -1366,7 +1333,6 @@ impl HaneulNode {
             epoch_store,
             state_sync_handle,
             randomness_handle,
-            randomness_receiver_handle,
             consensus_manager,
             consensus_store_pruner,
             global_state_hasher,
@@ -1377,7 +1343,6 @@ impl HaneulNode {
             haneul_node_metrics,
             haneul_tx_validator_metrics,
             admission_queue,
-            node_role,
         )
         .await
     }
@@ -1390,18 +1355,16 @@ impl HaneulNode {
         epoch_store: Arc<AuthorityPerEpochStore>,
         state_sync_handle: state_sync::Handle,
         randomness_handle: randomness::Handle,
-        randomness_receiver_handle: Arc<RandomnessRoundReceiverHandle>,
         consensus_manager: Arc<ConsensusManager>,
         consensus_store_pruner: ConsensusStorePruner,
         state_hasher: Weak<GlobalStateHasher>,
         backpressure_manager: Arc<BackpressureManager>,
-        validator_server_handle: Option<SpawnOnce>,
+        validator_server_handle: SpawnOnce,
         validator_overload_monitor_handle: Option<JoinHandle<()>>,
         checkpoint_metrics: Arc<CheckpointMetrics>,
         haneul_node_metrics: Arc<HaneulNodeMetrics>,
         haneul_tx_validator_metrics: Arc<HaneulTxValidatorMetrics>,
         admission_queue: Option<AdmissionQueueContext>,
-        node_role: NodeRole,
     ) -> Result<ValidatorComponents> {
         let checkpoint_service = Self::build_checkpoint_service(
             config,
@@ -1412,25 +1375,14 @@ impl HaneulNode {
             state_sync_handle,
             state_hasher,
             checkpoint_metrics.clone(),
-            node_role,
         );
 
-        // Clear the VSS public key from the previous epoch so any randomness round
-        // signatures buffer in the channel until the new DKG completes.
-        randomness_receiver_handle.clear_public_key();
-
-        if node_role.runs_consensus() && epoch_store.randomness_state_enabled() {
-            let authority_key_pair = if node_role.is_validator() {
-                Some(config.protocol_key_pair())
-            } else {
-                None
-            };
+        if epoch_store.randomness_state_enabled() {
             let randomness_manager = RandomnessManager::try_new(
                 Arc::downgrade(&epoch_store),
                 Box::new(consensus_adapter.clone()),
                 randomness_handle,
-                authority_key_pair,
-                randomness_receiver_handle.clone(),
+                config.protocol_key_pair(),
             )
             .await;
             if let Some(randomness_manager) = randomness_manager {
@@ -1440,16 +1392,14 @@ impl HaneulNode {
             }
         }
 
-        if node_role.is_validator() {
-            ExecutionTimeObserver::spawn(
-                epoch_store.clone(),
-                Box::new(consensus_adapter.clone()),
-                config
-                    .execution_time_observer_config
-                    .clone()
-                    .unwrap_or_default(),
-            );
-        }
+        ExecutionTimeObserver::spawn(
+            epoch_store.clone(),
+            Box::new(consensus_adapter.clone()),
+            config
+                .execution_time_observer_config
+                .clone()
+                .unwrap_or_default(),
+        );
 
         let throughput_calculator = Arc::new(ConsensusThroughputCalculator::new(
             None,
@@ -1486,7 +1436,6 @@ impl HaneulNode {
                         epoch_store,
                         consensus_handler_initializer,
                         haneul_tx_validator,
-                        Some(randomness_receiver_handle),
                     )
                     .await;
             }
@@ -1503,7 +1452,7 @@ impl HaneulNode {
             .spawn(epoch_store.clone(), replay_waiter)
             .await;
 
-        if node_role.is_validator() && epoch_store.authenticator_state_enabled() {
+        if epoch_store.authenticator_state_enabled() {
             Self::start_jwk_updater(
                 config,
                 haneul_node_metrics,
@@ -1538,7 +1487,6 @@ impl HaneulNode {
         state_sync_handle: state_sync::Handle,
         state_hasher: Weak<GlobalStateHasher>,
         checkpoint_metrics: Arc<CheckpointMetrics>,
-        node_role: NodeRole,
     ) -> Arc<CheckpointService> {
         let epoch_start_timestamp_ms = epoch_store.epoch_start_state().epoch_start_timestamp_ms();
         let epoch_duration_ms = epoch_store.epoch_start_state().epoch_duration_ms();
@@ -1549,19 +1497,13 @@ impl HaneulNode {
             epoch_start_timestamp_ms, epoch_duration_ms
         );
 
-        let checkpoint_output: Box<dyn CheckpointOutput> = if node_role.is_validator() {
-            Box::new(SubmitCheckpointToConsensus {
-                sender: consensus_adapter,
-                signer: state.secret.clone(),
-                authority: config.protocol_public_key(),
-                next_reconfiguration_timestamp_ms: epoch_start_timestamp_ms
-                    .checked_add(epoch_duration_ms)
-                    .expect("Overflow calculating next_reconfiguration_timestamp_ms"),
-                metrics: checkpoint_metrics.clone(),
-            })
-        } else {
-            LogCheckpointOutput::boxed()
-        };
+        let checkpoint_output = Box::new(SubmitCheckpointToConsensus {
+            sender: consensus_adapter,
+            signer: state.secret.clone(),
+            authority: config.protocol_public_key(),
+            next_reconfiguration_timestamp_ms: epoch_store.next_reconfiguration_timestamp_ms(),
+            metrics: checkpoint_metrics.clone(),
+        });
 
         let certified_checkpoint_output = SendCheckpointToStateSync::new(state_sync_handle);
         let max_tx_per_checkpoint = max_tx_per_checkpoint(epoch_store.protocol_config());
@@ -1673,17 +1615,6 @@ impl HaneulNode {
         self.state.clone()
     }
 
-    #[cfg(any(test, msim))]
-    pub fn connection_monitor_handle_for_testing(
-        &self,
-    ) -> &haneullabs_network::anemo_connection_monitor::ConnectionMonitorHandle {
-        &self._connection_monitor_handle
-    }
-
-    pub fn node_role(&self) -> NodeRole {
-        self.state.load_epoch_store_one_call_per_task().node_role()
-    }
-
     // Only used for testing because of how epoch store is loaded.
     pub fn reference_gas_price_for_testing(&self) -> Result<u64, anyhow::Error> {
         self.state.reference_gas_price_for_testing()
@@ -1693,24 +1624,11 @@ impl HaneulNode {
         self.state.committee_store().clone()
     }
 
-    pub fn clone_checkpoint_store(&self) -> Arc<CheckpointStore> {
-        self.checkpoint_store.clone()
-    }
-
+    /*
     pub fn clone_authority_store(&self) -> Arc<AuthorityStore> {
-        self.state.authority_store()
+        self.state.db()
     }
-
-    pub fn clone_consensus_store(
-        &self,
-    ) -> Option<Arc<consensus_core::storage::rocksdb_store::RocksDBStore>> {
-        self.validator_components
-            .try_lock()
-            .ok()?
-            .as_ref()?
-            .consensus_manager
-            .consensus_store()
-    }
+    */
 
     /// Clone an AuthorityAggregator currently used in this node, if the node is a fullnode.
     /// After reconfig, Transaction Driver builds a new AuthorityAggregator. The caller
@@ -1767,10 +1685,7 @@ impl HaneulNode {
                 .set(cur_epoch_store.protocol_config().version.as_u64() as i64);
 
             // Advertise capabilities to committee, if we are a validator.
-            // FullNodes that state sync via consensus will also have validator components, by they are not supposed to submit any capabilities.
-            if let Some(components) = &*self.validator_components.lock().await
-                && cur_epoch_store.is_validator()
-            {
+            if let Some(components) = &*self.validator_components.lock().await {
                 // TODO: without this sleep, the consensus message is not delivered reliably.
                 tokio::time::sleep(Duration::from_millis(1)).await;
 
@@ -1882,12 +1797,7 @@ impl HaneulNode {
 
             cur_epoch_store.record_epoch_reconfig_start_time_metric();
 
-            update_peer_addresses(
-                &self.config,
-                &self.endpoint_manager,
-                &new_epoch_start_state,
-                Some(cur_epoch_store.epoch_start_state()),
-            );
+            update_peer_addresses(&self.config, &self.endpoint_manager, &new_epoch_start_state);
 
             let mut validator_components_lock_guard = self.validator_components.lock().await;
 
@@ -1904,8 +1814,6 @@ impl HaneulNode {
                 )
                 .await;
 
-            let new_role = new_epoch_store.node_role();
-
             let new_validator_components = if let Some(ValidatorComponents {
                 validator_server_handle,
                 validator_overload_monitor_handle,
@@ -1917,7 +1825,7 @@ impl HaneulNode {
                 admission_queue,
             }) = validator_components_lock_guard.take()
             {
-                info!("Reconfiguring node (was running consensus).");
+                info!("Reconfiguring the validator.");
 
                 consensus_manager.shutdown().await;
                 info!("Consensus has shut down.");
@@ -1938,8 +1846,8 @@ impl HaneulNode {
 
                 consensus_store_pruner.prune(next_epoch).await;
 
-                if new_role.runs_consensus() {
-                    info!("Restarting consensus as {new_role}");
+                if self.state.is_validator(&new_epoch_store) {
+                    // Only restart consensus if this node is still a validator in the new epoch.
                     Some(
                         Self::start_epoch_specific_validator_components(
                             &self.config,
@@ -1949,7 +1857,6 @@ impl HaneulNode {
                             new_epoch_store.clone(),
                             self.state_sync_handle.clone(),
                             self.randomness_handle.clone(),
-                            self.randomness_receiver_handle.clone(),
                             consensus_manager,
                             consensus_store_pruner,
                             weak_hasher,
@@ -1960,14 +1867,11 @@ impl HaneulNode {
                             self.metrics.clone(),
                             haneul_tx_validator_metrics,
                             admission_queue,
-                            new_role,
                         )
                         .await?,
                     )
                 } else {
-                    info!(
-                        "This node has new role {new_role} and no longer runs consensus after reconfiguration"
-                    );
+                    info!("This node is no longer a validator after reconfiguration");
                     None
                 }
             } else {
@@ -1983,8 +1887,8 @@ impl HaneulNode {
                 let weak_hasher = Arc::downgrade(&new_hasher);
                 *hasher_guard = Some(new_hasher);
 
-                if new_role.runs_consensus() {
-                    info!("Promoting node to {new_role}, starting consensus components");
+                if self.state.is_validator(&new_epoch_store) {
+                    info!("Promoting the node from fullnode to validator, starting grpc server");
 
                     let mut components = Self::construct_validator_components(
                         self.config.clone(),
@@ -1999,24 +1903,15 @@ impl HaneulNode {
                         &self.registry_service,
                         self.metrics.clone(),
                         self.checkpoint_metrics.clone(),
-                        new_role,
-                        self.randomness_receiver_handle.clone(),
                     )
                     .await?;
 
-                    if new_role.is_validator() {
-                        components.validator_server_handle = Some(
-                            components
-                                .validator_server_handle
-                                .take()
-                                .unwrap()
-                                .start()
-                                .await,
-                        );
+                    components.validator_server_handle =
+                        components.validator_server_handle.start().await;
 
-                        self.endpoint_manager
-                            .set_consensus_address_updater(components.consensus_manager.clone());
-                    }
+                    // Set the consensus address updater as the full node got promoted now to a validator.
+                    self.endpoint_manager
+                        .set_consensus_address_updater(components.consensus_manager.clone());
 
                     Some(components)
                 } else {
@@ -2144,8 +2039,15 @@ impl HaneulNode {
     async fn check_and_recover_forks(
         checkpoint_store: &CheckpointStore,
         checkpoint_metrics: &CheckpointMetrics,
+        is_validator: bool,
         fork_recovery: Option<&ForkRecoveryConfig>,
     ) -> Result<()> {
+        // Fork detection and recovery is only relevant for validators
+        // Fullnodes should sync from validators and don't need fork checking
+        if !is_validator {
+            return Ok(());
+        }
+
         // Try to recover from forks if recovery config is provided
         if let Some(recovery) = fork_recovery {
             Self::try_recover_checkpoint_fork(checkpoint_store, recovery)?;
@@ -2426,42 +2328,22 @@ impl SpawnOnce {
     }
 }
 
-/// Updates trusted peer addresses in the p2p network (for nodes configured as validators).
-/// When `prev_epoch_start_state` is provided, validators that are no longer in the committee
-/// have their Chain addresses cleared.
+/// Updates trusted peer addresses in the p2p network.
 fn update_peer_addresses(
     config: &NodeConfig,
     endpoint_manager: &EndpointManager,
     epoch_start_state: &EpochStartSystemState,
-    prev_epoch_start_state: Option<&EpochStartSystemState>,
 ) {
-    if config.consensus_config().is_none() {
-        return;
-    }
-    let new_peers: HashSet<PeerId> = epoch_start_state
-        .get_validator_as_p2p_peers(config.protocol_public_key())
-        .into_iter()
-        .map(|(peer_id, address)| {
-            endpoint_manager
-                .update_endpoint(
-                    EndpointId::P2p(peer_id),
-                    AddressSource::Chain,
-                    vec![address],
-                )
-                .expect("Updating peer addresses should not fail");
-            peer_id
-        })
-        .collect();
-
-    // Clear Chain addresses for validators that left the committee.
-    if let Some(prev) = prev_epoch_start_state {
-        for (peer_id, _) in prev.get_validator_as_p2p_peers(config.protocol_public_key()) {
-            if !new_peers.contains(&peer_id) {
-                endpoint_manager
-                    .update_endpoint(EndpointId::P2p(peer_id), AddressSource::Chain, vec![])
-                    .expect("Clearing peer addresses should not fail");
-            }
-        }
+    for (peer_id, address) in
+        epoch_start_state.get_validator_as_p2p_peers(config.protocol_public_key())
+    {
+        endpoint_manager
+            .update_endpoint(
+                EndpointId::P2p(peer_id),
+                AddressSource::Chain,
+                vec![address],
+            )
+            .expect("Updating peer addresses should not fail");
     }
 }
 
@@ -2517,10 +2399,9 @@ async fn build_http_servers(
     config: &NodeConfig,
     prometheus_registry: &Registry,
     server_version: ServerVersion,
-    node_role: NodeRole,
 ) -> Result<(HttpServers, Option<tokio::sync::mpsc::Sender<Checkpoint>>)> {
     // Validators do not expose these APIs
-    if !node_role.should_run_rpc_servers() {
+    if config.consensus_config().is_some() {
         return Ok((HttpServers::default(), None));
     }
 
@@ -2611,7 +2492,6 @@ async fn build_http_servers(
         rpc_service.with_server_version(server_version);
 
         if let Some(config) = config.rpc.clone() {
-            config.validate()?;
             rpc_service.with_config(config);
         }
 
@@ -2705,11 +2585,11 @@ struct HttpServers {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use prometheus::Registry;
-    use std::collections::BTreeMap;
     use haneul_config::node::{ForkCrashBehavior, ForkRecoveryConfig};
     use haneul_core::checkpoints::{CheckpointMetrics, CheckpointStore};
     use haneul_types::digests::{CheckpointDigest, TransactionDigest, TransactionEffectsDigest};
+    use prometheus::Registry;
+    use std::collections::BTreeMap;
 
     #[tokio::test]
     async fn test_fork_error_and_recovery_both_paths() {
@@ -2732,6 +2612,7 @@ mod tests {
         let r = HaneulNode::check_and_recover_forks(
             &checkpoint_store,
             &checkpoint_metrics,
+            true,
             Some(&fork_recovery),
         )
         .await;
@@ -2752,6 +2633,7 @@ mod tests {
         let r = HaneulNode::check_and_recover_forks(
             &checkpoint_store,
             &checkpoint_metrics,
+            true,
             Some(&fork_recovery_with_override),
         )
         .await;
@@ -2779,6 +2661,7 @@ mod tests {
         let r = HaneulNode::check_and_recover_forks(
             &checkpoint_store,
             &checkpoint_metrics,
+            true,
             Some(&fork_recovery),
         )
         .await;
@@ -2799,6 +2682,7 @@ mod tests {
         let r = HaneulNode::check_and_recover_forks(
             &checkpoint_store,
             &checkpoint_metrics,
+            true,
             Some(&fork_recovery_with_override),
         )
         .await;

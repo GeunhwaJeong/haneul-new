@@ -2,24 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::HaneulNode;
-use crate::db_shell::{handle_delete, handle_ls, handle_read};
 use axum::{
     Router,
     extract::{Query, State},
     http::StatusCode,
-    routing::{delete, get, post},
+    routing::{get, post},
 };
 use base64::Engine;
 use fastcrypto::encoding::{Encoding, Hex};
 use fastcrypto::traits::ToFromBytes;
-use humantime::parse_duration;
-use haneullabs_network::Multiaddr;
-use serde::Deserialize;
-use std::sync::Arc;
-use std::{
-    net::{IpAddr, Ipv4Addr, SocketAddr},
-    str::FromStr,
-};
 use haneul_network::endpoint_manager::{AddressSource, EndpointId};
 use haneul_types::{
     base_types::AuthorityName,
@@ -27,6 +18,14 @@ use haneul_types::{
     digests::TransactionDigest,
     error::HaneulErrorKind,
     traffic_control::TrafficControlReconfigParams,
+};
+use haneullabs_network::Multiaddr;
+use humantime::parse_duration;
+use serde::Deserialize;
+use std::sync::Arc;
+use std::{
+    net::{IpAddr, Ipv4Addr, SocketAddr},
+    str::FromStr,
 };
 use telemetry_subscribers::TracingHandle;
 use tokio::sync::oneshot;
@@ -104,13 +103,10 @@ const GET_TX_COST_ROUTE: &str = "/get-tx-cost";
 const DUMP_CONSENSUS_TX_COST_ESTIMATES_ROUTE: &str = "/dump-consensus-tx-cost-estimates";
 const TRAFFIC_CONTROL: &str = "/traffic-control";
 const UPDATE_ENDPOINT: &str = "/update-endpoint";
-const DB_SHELL_LS: &str = "/db-shell/ls";
-const DB_SHELL_READ: &str = "/db-shell/read";
-const DB_SHELL_DELETE: &str = "/db-shell/delete";
 
-pub(crate) struct AppState {
-    pub(crate) node: Arc<HaneulNode>,
-    pub(crate) tracing_handle: Option<TracingHandle>,
+struct AppState {
+    node: Arc<HaneulNode>,
+    tracing_handle: Option<TracingHandle>,
 }
 
 pub async fn run_admin_server(
@@ -160,9 +156,6 @@ pub async fn run_admin_server(
         )
         .route(TRAFFIC_CONTROL, post(traffic_control))
         .route(UPDATE_ENDPOINT, post(update_endpoint))
-        .route(DB_SHELL_LS, get(handle_ls))
-        .route(DB_SHELL_READ, get(handle_read))
-        .route(DB_SHELL_DELETE, delete(handle_delete))
         .with_state(Arc::new(app_state));
 
     let socket_address = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), port);

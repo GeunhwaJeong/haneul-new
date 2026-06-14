@@ -289,8 +289,6 @@ public(package) fun convert_to_fungible_staked_haneul(
     );
 
     let pool_token_amount = exchange_rate_at_staking_epoch.get_token_amount(principal.value());
-    assert!(pool_token_amount > 0, EStakedHaneulBelowThreshold);
-
     let key = FungibleStakedHaneulDataKey {};
 
     if (!pool.extra_fields.contains(key)) {
@@ -375,12 +373,9 @@ fun process_pending_stake_withdraw(pool: &mut StakingPool) {
     pool.haneul_balance = if (pool.haneul_balance >= pool.pending_total_haneul_withdraw) {
         pool.haneul_balance - pool.pending_total_haneul_withdraw
     } else {
+        // the diff will be applied in the `process_pending_stake` function.
         let diff = pool.pending_total_haneul_withdraw - pool.haneul_balance;
-        // While this key is expected to be removed in the next call to `process_pending_stake`,
-        // we do not call `process_pending_stake` for inactive pools — skip the bookkeeping.
-        if (!pool.is_inactive()) {
-            pool.extra_fields.add(UnderflowHaneulBalance {}, diff);
-        };
+        pool.extra_fields.add(UnderflowHaneulBalance {}, diff);
         0
     };
 

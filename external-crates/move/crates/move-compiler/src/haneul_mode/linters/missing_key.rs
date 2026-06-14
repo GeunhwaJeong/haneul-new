@@ -9,9 +9,9 @@ use crate::parser::ast::DatatypeName;
 use crate::{
     diag,
     diagnostics::codes::{DiagnosticInfo, Severity, custom},
+    haneul_mode::{HANEUL_ADDR_VALUE, ID_FIELD_NAME, OBJECT_MODULE_NAME, UID_TYPE_NAME},
     naming::ast::{StructDefinition, StructFields},
     parser::ast::Ability_,
-    haneul_mode::{ID_FIELD_NAME, OBJECT_MODULE_NAME, HANEUL_ADDR_VALUE, UID_TYPE_NAME},
     typing::visitor::simple_visitor,
 };
 

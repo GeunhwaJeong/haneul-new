@@ -14,8 +14,8 @@ use tracing::{Instrument, error_span, info};
 
 pub mod eth_bridge_status;
 pub mod eth_vault_balance;
-pub mod metrics;
 pub mod haneul_bridge_status;
+pub mod metrics;
 pub mod total_supplies;
 
 pub struct BridgeWatchDog {

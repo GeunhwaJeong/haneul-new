@@ -5,8 +5,8 @@ use std::fs::{self, File, OpenOptions};
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
-use prost::Message;
 use haneul_config::node::CongestionLogConfig;
+use prost::Message;
 
 use crate::consensus_handler::ConsensusCommitInfo;
 
@@ -157,9 +157,9 @@ mod tests {
     use super::*;
     use std::collections::HashMap;
 
-    use prost::Message;
     use haneul_types::base_types::ObjectID;
     use haneul_types::digests::TransactionDigest;
+    use prost::Message;
 
     use super::super::shared_object_congestion_tracker::TransactionCostLogEntry;
 

@@ -241,19 +241,21 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::BTreeMap;
     use haneul_types::accumulator_root::AccumulatorValue as AccumulatorValueRoot;
     use haneul_types::balance::Balance;
-    use haneul_types::base_types::{ObjectID, SequenceNumber, HaneulAddress};
+    use haneul_types::base_types::{HaneulAddress, ObjectID, SequenceNumber};
     use haneul_types::digests::TransactionDigest;
     use haneul_types::effects::{
         AccumulatorAddress, AccumulatorOperation, AccumulatorValue, AccumulatorWriteV1,
         EffectsObjectChange,
     };
-    use haneul_types::execution_status::{ExecutionFailure, ExecutionFailureStatus, ExecutionStatus};
+    use haneul_types::execution_status::{
+        ExecutionFailure, ExecutionFailureStatus, ExecutionStatus,
+    };
     use haneul_types::gas::GasCostSummary;
     use haneul_types::gas_coin::GAS;
     use haneul_types::object::MoveObject;
+    use std::collections::BTreeMap;
 
     struct MockObjectProvider {
         objects: HashMap<(ObjectID, SequenceNumber), Object>,

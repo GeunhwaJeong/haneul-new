@@ -11,15 +11,15 @@ use crate::workloads::workload::{ExpectedFailureType, Workload, WorkloadBuilder}
 use crate::workloads::{Gas, GasCoinConfig, WorkloadBuilderInfo, WorkloadParams};
 use crate::{ExecutionEffects, ValidatorProxy};
 use async_trait::async_trait;
-use rand::seq::IteratorRandom;
-use std::sync::Arc;
-use std::time::Duration;
 use haneul_core::test_utils::make_transfer_haneul_transaction;
 use haneul_test_transaction_builder::TestTransactionBuilder;
-use haneul_types::base_types::{ObjectRef, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectRef};
 use haneul_types::crypto::{AccountKeyPair, get_key_pair};
 use haneul_types::gas_coin::GEUNHWA_PER_HANEUL;
 use haneul_types::transaction::Transaction;
+use rand::seq::IteratorRandom;
+use std::sync::Arc;
+use std::time::Duration;
 use tracing::{error, warn};
 
 #[derive(Debug)]
@@ -67,7 +67,6 @@ impl Payload for DelegationTestPayload {
                     .reference_gas_price,
             )
             .call_staking(coin, self.validator)
-            .ensure_unique()
             .build_and_sign(self.keypair.as_ref()),
             None => make_transfer_haneul_transaction(
                 self.gas,

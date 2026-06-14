@@ -3,8 +3,8 @@
 
 use haneul_default_config::DefaultConfig;
 use haneul_protocol_config::ProtocolConfig;
-use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::ObjectID;
 
 pub use haneul_name_service::NameServiceConfig;
 

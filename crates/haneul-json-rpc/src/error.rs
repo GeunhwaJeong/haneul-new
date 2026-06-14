@@ -3,12 +3,6 @@
 
 use crate::authority_state::StateReadError;
 use fastcrypto::error::FastCryptoError;
-use hyper::header::InvalidHeaderValue;
-use itertools::Itertools;
-use jsonrpsee::core::ClientError as RpcError;
-use jsonrpsee::types::error::INTERNAL_ERROR_CODE;
-use jsonrpsee::types::{ErrorObject, ErrorObjectOwned};
-use std::collections::BTreeMap;
 use haneul_json_rpc_api::{TRANSACTION_EXECUTION_CLIENT_ERROR_CODE, TRANSIENT_ERROR_CODE};
 use haneul_name_service::NameServiceError;
 use haneul_types::committee::{QUORUM_THRESHOLD, TOTAL_VOTING_POWER};
@@ -16,6 +10,12 @@ use haneul_types::error::{
     ErrorCategory, HaneulError, HaneulErrorKind, HaneulObjectResponseError, UserInputError,
 };
 use haneul_types::transaction_driver_types::TransactionSubmissionError;
+use hyper::header::InvalidHeaderValue;
+use itertools::Itertools;
+use jsonrpsee::core::ClientError as RpcError;
+use jsonrpsee::types::error::INTERNAL_ERROR_CODE;
+use jsonrpsee::types::{ErrorObject, ErrorObjectOwned};
+use std::collections::BTreeMap;
 use thiserror::Error;
 use tokio::task::JoinError;
 
@@ -82,7 +82,9 @@ impl From<HaneulErrorKind> for Error {
     fn from(e: HaneulErrorKind) -> Self {
         match e {
             HaneulErrorKind::UserInputError { error } => Self::UserInputError(error),
-            HaneulErrorKind::HaneulObjectResponseError { error } => Self::HaneulObjectResponseError(error),
+            HaneulErrorKind::HaneulObjectResponseError { error } => {
+                Self::HaneulObjectResponseError(error)
+            }
             HaneulErrorKind::UnsupportedFeatureError { error } => Self::UnsupportedFeature(error),
             HaneulErrorKind::IndexStoreNotAvailable => Self::UnsupportedFeature(
                 "Required indexes are not available on this node".to_string(),
@@ -361,7 +363,6 @@ impl From<HaneulRpcInputError> for ErrorObjectOwned {
 mod tests {
     use super::*;
     use expect_test::expect;
-    use jsonrpsee::types::ErrorObjectOwned;
     use haneul_types::base_types::AuthorityName;
     use haneul_types::base_types::ObjectID;
     use haneul_types::base_types::ObjectRef;
@@ -371,6 +372,7 @@ mod tests {
     use haneul_types::crypto::AuthorityPublicKeyBytes;
     use haneul_types::digests::ObjectDigest;
     use haneul_types::digests::TransactionDigest;
+    use jsonrpsee::types::ErrorObjectOwned;
 
     fn test_object_ref(id: u8) -> ObjectRef {
         (
@@ -594,7 +596,8 @@ mod tests {
                         vec![],
                     ),
                     (
-                        HaneulErrorKind::RpcError("Hello".to_string(), "Testing".to_string()).into(),
+                        HaneulErrorKind::RpcError("Hello".to_string(), "Testing".to_string())
+                            .into(),
                         0,
                         vec![],
                     ),

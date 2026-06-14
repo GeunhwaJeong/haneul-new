@@ -15,7 +15,6 @@ use move_package_alt::{
     },
 };
 
-use serde::{Deserialize, Serialize};
 use haneul_package_management::system_package_versions::{
     SYSTEM_GIT_REPO, latest_system_packages, system_packages_for_protocol,
 };
@@ -23,6 +22,7 @@ use haneul_protocol_config::ProtocolVersion;
 use haneul_rpc_api::Client as RpcClient;
 use haneul_sdk::types::{base_types::ObjectID, is_system_package};
 use haneul_sdk::wallet_context::WalletContext;
+use serde::{Deserialize, Serialize};
 use tokio::sync::OnceCell;
 use tracing::warn;
 
@@ -263,7 +263,7 @@ fn validate_modern_manifest_does_not_use_legacy_system_names(
     for name in dep_names {
         if legacy_names.contains_key(&name) {
             return Err(format!(
-                "Dependency `{name}` is a legacy system name and cannot be used. See https://docs.haneul.io/guides/developer/packages/move-package-management#system-dependencies"
+                "Dependency `{name}` is a legacy system name and cannot be used. See https://docs.haneul.io/guides/developer/haneul-101/move-package-management#system-dependencies"
             ));
         }
     }

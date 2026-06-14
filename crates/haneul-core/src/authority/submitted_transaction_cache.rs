@@ -1,6 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_types::digests::TransactionDigest;
+use haneul_types::traffic_control::Weight;
 use lru::LruCache;
 use parking_lot::RwLock;
 use prometheus::{
@@ -11,8 +13,6 @@ use std::collections::BTreeSet;
 use std::net::IpAddr;
 use std::num::NonZeroUsize;
 use std::sync::Arc;
-use haneul_types::digests::TransactionDigest;
-use haneul_types::traffic_control::Weight;
 use tracing::debug;
 
 pub(crate) const DEFAULT_CACHE_CAPACITY: usize = 100_000;

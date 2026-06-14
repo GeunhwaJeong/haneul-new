@@ -9,11 +9,6 @@ mod checked {
     use crate::execution_mode::{self, ExecutionMode};
     use crate::execution_value::HaneulResolver;
     use crate::gas_charger::PaymentMethod;
-    use move_binary_format::CompiledModule;
-    use move_trace_format::format::MoveTraceBuilder;
-    use move_vm_runtime::move_vm::MoveVM;
-    use std::collections::BTreeMap;
-    use std::{cell::RefCell, collections::HashSet, rc::Rc, sync::Arc};
     use haneul_types::accumulator_root::{ACCUMULATOR_ROOT_CREATE_FUNC, ACCUMULATOR_ROOT_MODULE};
     use haneul_types::balance::{
         BALANCE_CREATE_REWARDS_FUNCTION_NAME, BALANCE_DESTROY_REBATES_FUNCTION_NAME,
@@ -29,15 +24,22 @@ mod checked {
         RANDOMNESS_MODULE_NAME, RANDOMNESS_STATE_CREATE_FUNCTION_NAME,
         RANDOMNESS_STATE_UPDATE_FUNCTION_NAME,
     };
-    use haneul_types::{BRIDGE_ADDRESS, HANEUL_BRIDGE_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID};
+    use haneul_types::{
+        BRIDGE_ADDRESS, HANEUL_BRIDGE_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID,
+    };
+    use haneullabs_common::debug_fatal;
+    use move_binary_format::CompiledModule;
+    use move_trace_format::format::MoveTraceBuilder;
+    use move_vm_runtime::move_vm::MoveVM;
+    use std::collections::BTreeMap;
+    use std::{cell::RefCell, collections::HashSet, rc::Rc, sync::Arc};
     use tracing::{info, instrument, trace, warn};
 
     use crate::adapter::new_move_vm;
-    use crate::programmable_transactions;
     use crate::haneul_types::gas::HaneulGasStatusAPI;
+    use crate::programmable_transactions;
     use crate::type_layout_resolver::TypeLayoutResolver;
     use crate::{gas_charger::GasCharger, temporary_store::TemporaryStore};
-    use move_core_types::ident_str;
     use haneul_move_natives::all_natives;
     use haneul_protocol_config::{
         LimitThresholdCrossed, PerObjectCongestionControlMode, ProtocolConfig, check_limit_by_meter,
@@ -64,12 +66,14 @@ mod checked {
     use haneul_types::execution_status::{ExecutionErrorKind, ExecutionStatus};
     use haneul_types::gas::GasCostSummary;
     use haneul_types::gas::HaneulGasStatus;
+    #[cfg(msim)]
+    use haneul_types::haneul_system_state::advance_epoch_result_injection::maybe_modify_result;
+    use haneul_types::haneul_system_state::{
+        ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME, AdvanceEpochParams,
+    };
     use haneul_types::id::UID;
     use haneul_types::inner_temporary_store::InnerTemporaryStore;
     use haneul_types::storage::BackingStore;
-    #[cfg(msim)]
-    use haneul_types::haneul_system_state::advance_epoch_result_injection::maybe_modify_result;
-    use haneul_types::haneul_system_state::{ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME, AdvanceEpochParams};
     use haneul_types::transaction::{
         Argument, AuthenticatorStateExpire, AuthenticatorStateUpdate, CallArg, ChangeEpoch,
         Command, EndOfEpochTransactionKind, GasData, GenesisTransaction, ObjectArg,
@@ -78,12 +82,13 @@ mod checked {
     };
     use haneul_types::transaction::{CheckedInputObjects, RandomnessStateUpdate};
     use haneul_types::{
-        HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS, HANEUL_FRAMEWORK_PACKAGE_ID,
-        HANEUL_SYSTEM_PACKAGE_ID,
+        HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_FRAMEWORK_ADDRESS,
+        HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_PACKAGE_ID,
         base_types::{HaneulAddress, TransactionDigest, TxContext},
-        object::{Object, ObjectInner},
         haneul_system_state::{ADVANCE_EPOCH_FUNCTION_NAME, HANEUL_SYSTEM_MODULE_NAME},
+        object::{Object, ObjectInner},
     };
+    use move_core_types::ident_str;
 
     #[instrument(name = "tx_execute_to_effects", level = "debug", skip_all)]
     pub fn execute_transaction_to_effects<Mode: ExecutionMode>(
@@ -184,6 +189,50 @@ mod checked {
         );
 
         let status = if let Err(error) = &execution_result {
+            // Elaborate errors in logs if they are unexpected or their status is terse.
+            use ExecutionErrorKind as K;
+            match error.kind() {
+                K::InvariantViolation | K::VMInvariantViolation => {
+                    if protocol_config.debug_fatal_on_move_invariant_violation() {
+                        debug_fatal!(
+                            "INVARIANT VIOLATION! Txn Digest: {}, Source: {:?}",
+                            transaction_digest,
+                            error.source_ref(),
+                        );
+                    } else {
+                        #[skip_checked_arithmetic]
+                        tracing::error!(
+                            kind = ?error.kind(),
+                            tx_digest = ?transaction_digest,
+                            "INVARIANT VIOLATION! Source: {:?}",
+                            error.source_ref(),
+                        );
+                    }
+                }
+
+                K::HaneulMoveVerificationError | K::VMVerificationOrDeserializationError => {
+                    #[skip_checked_arithmetic]
+                    tracing::debug!(
+                        kind = ?error.kind(),
+                        tx_digest = ?transaction_digest,
+                        "Verification Error. Source: {:?}",
+                        error.source_ref(),
+                    );
+                }
+
+                K::PublishUpgradeMissingDependency | K::PublishUpgradeDependencyDowngrade => {
+                    #[skip_checked_arithmetic]
+                    tracing::debug!(
+                        kind = ?error.kind(),
+                        tx_digest = ?transaction_digest,
+                        "Publish/Upgrade Error. Source: {:?}",
+                        error.source_ref(),
+                    )
+                }
+
+                _ => (),
+            };
+
             ExecutionStatus::new_failure(error.to_execution_failure())
         } else {
             ExecutionStatus::Success
@@ -311,12 +360,11 @@ mod checked {
                     let mut execution_result: ResultWithTimings<
                         Mode::ExecutionResults,
                         ExecutionError,
-                    > = match execution_params.into_early_errors() {
-                        Some(early_execution_errors) => Err((
-                            ExecutionError::new(early_execution_errors.head, None),
-                            vec![],
-                        )),
-                        None => execution_loop::<Mode>(
+                    > = match execution_params {
+                        ExecutionOrEarlyError::Err(early_execution_error) => {
+                            Err((ExecutionError::new(early_execution_error, None), vec![]))
+                        }
+                        ExecutionOrEarlyError::Ok(()) => execution_loop::<Mode>(
                             store,
                             temporary_store,
                             transaction_kind,
@@ -1209,7 +1257,9 @@ mod checked {
         chain_id: ChainIdentifier,
     ) -> ProgrammableTransactionBuilder {
         let bridge_uid = builder
-            .input(CallArg::Pure(UID::new(HANEUL_BRIDGE_OBJECT_ID).to_bcs_bytes()))
+            .input(CallArg::Pure(
+                UID::new(HANEUL_BRIDGE_OBJECT_ID).to_bcs_bytes(),
+            ))
             .expect("Unable to create Bridge object UID!");
 
         let bridge_chain_id = if chain_id == get_mainnet_chain_identifier() {

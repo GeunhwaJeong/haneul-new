@@ -6,14 +6,14 @@ use std::sync::Arc;
 
 use axum::body::Body;
 use axum::http;
+use haneul_core::traffic_controller::TrafficController;
+use haneul_types::traffic_control::PolicyConfig;
 use hyper::Request;
 use jsonrpsee::RpcModule;
 use metrics::Metrics;
 use metrics::MetricsLayer;
 use prometheus::Registry;
 use std::time::Duration;
-use haneul_core::traffic_controller::TrafficController;
-use haneul_types::traffic_control::PolicyConfig;
 use tokio::runtime::Handle;
 use tokio_util::sync::CancellationToken;
 use tower::ServiceBuilder;
@@ -21,9 +21,9 @@ use tower_http::trace::TraceLayer;
 use tracing::info;
 
 pub use balance_changes::*;
-pub use object_changes::*;
 pub use haneul_config::node::ServerType;
 use haneul_open_rpc::{Module, Project};
+pub use object_changes::*;
 use traffic_control::TrafficControllerService;
 
 use crate::error::Error;

@@ -3,21 +3,24 @@
 
 use std::ops::DerefMut;
 
-use move_binary_format::errors::PartialVMResult;
-use move_core_types::gas_algebra::{AbstractMemorySize, InternalGas, NumArgs, NumBytes};
-use move_vm_runtime::{
-    execution::Type,
-    shared::{
-        gas::{GasMeter, SimpleInstruction},
-        views::{SizeConfig, ValueView},
-    },
-};
 use haneul_types::gas_model::{
     gas_predicates::{
         legacy_charge_native_pops_args, native_function_threshold_exceeded,
         use_legacy_abstract_size,
     },
     tables::{GasStatus, REFERENCE_SIZE, STRUCT_SIZE, VEC_SIZE},
+};
+use move_binary_format::errors::PartialVMResult;
+use move_core_types::{
+    gas_algebra::{AbstractMemorySize, InternalGas, NumArgs, NumBytes},
+    language_storage::ModuleId,
+};
+use move_vm_runtime::{
+    execution::Type,
+    shared::{
+        gas::{GasMeter, SimpleInstruction},
+        views::{SizeConfig, ValueView},
+    },
 };
 
 pub struct HaneulGasMeter<G: DerefMut<Target = GasStatus>>(pub G);
@@ -167,6 +170,8 @@ impl<G: DerefMut<Target = GasStatus>> GasMeter for HaneulGasMeter<G> {
 
     fn charge_call(
         &mut self,
+        _module_id: &ModuleId,
+        _func_name: &str,
         mut args: impl ExactSizeIterator<Item = impl ValueView>,
         _num_locals: NumArgs,
     ) -> PartialVMResult<()> {
@@ -183,6 +188,8 @@ impl<G: DerefMut<Target = GasStatus>> GasMeter for HaneulGasMeter<G> {
 
     fn charge_call_generic(
         &mut self,
+        _module_id: &ModuleId,
+        _func_name: &str,
         mut args: impl ExactSizeIterator<Item = impl ValueView>,
         _num_locals: NumArgs,
     ) -> PartialVMResult<()> {

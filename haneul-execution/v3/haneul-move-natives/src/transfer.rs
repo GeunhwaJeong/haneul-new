@@ -6,6 +6,10 @@ use crate::{
     NativesCostTable, get_extension, get_extension_mut, get_receiver_object_id,
     get_tag_and_layouts, object_runtime::object_store::ObjectResult,
 };
+use haneul_types::{
+    base_types::{MoveObjectType, ObjectID, SequenceNumber},
+    object::Owner,
+};
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_core_types::{
     account_address::AccountAddress, gas_algebra::InternalGas, language_storage::TypeTag,
@@ -17,10 +21,6 @@ use move_vm_types::{
 };
 use smallvec::smallvec;
 use std::collections::VecDeque;
-use haneul_types::{
-    base_types::{MoveObjectType, ObjectID, SequenceNumber},
-    object::Owner,
-};
 
 const E_SHARED_NON_NEW_OBJECT: u64 = 0;
 const E_BCS_SERIALIZATION_FAILURE: u64 = 1;

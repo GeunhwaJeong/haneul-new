@@ -3,12 +3,12 @@
 
 use std::sync::Arc;
 
-use move_core_types::account_address::AccountAddress;
 use haneul_kvstore::{BigTableClient, KeyValueStoreReader};
 use haneul_package_resolver::Package;
 use haneul_package_resolver::PackageStore;
 use haneul_package_resolver::error::Error;
 use haneul_types::base_types::ObjectID;
+use move_core_types::account_address::AccountAddress;
 
 const STORE: &str = "BigTable";
 

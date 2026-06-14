@@ -9,15 +9,6 @@ use std::{
 use consensus_core::{TransactionVerifier, ValidationError};
 use consensus_types::block::{BlockRef, TransactionIndex};
 use fastcrypto_tbls::dkg_v1;
-use itertools::Itertools;
-use haneullabs_common::ZipDebugEqIteratorExt;
-use haneullabs_common::assert_reachable;
-use haneullabs_metrics::monitored_scope;
-use nonempty::NonEmpty;
-use prometheus::{
-    IntCounter, IntCounterVec, Registry, register_int_counter_vec_with_registry,
-    register_int_counter_with_registry,
-};
 use haneul_macros::fail_point_arg;
 #[cfg(msim)]
 use haneul_types::base_types::AuthorityName;
@@ -25,7 +16,18 @@ use haneul_types::{
     base_types::{ObjectID, ObjectRef},
     error::{HaneulError, HaneulErrorKind, HaneulResult, UserInputError},
     messages_consensus::{ConsensusPosition, ConsensusTransaction, ConsensusTransactionKind},
-    transaction::{InputObjectKind, PlainTransactionWithClaims, TransactionDataAPI},
+    transaction::{
+        CertifiedTransaction, InputObjectKind, PlainTransactionWithClaims, TransactionDataAPI,
+    },
+};
+use haneullabs_common::ZipDebugEqIteratorExt;
+use haneullabs_common::assert_reachable;
+use haneullabs_metrics::monitored_scope;
+use itertools::Itertools;
+use nonempty::NonEmpty;
+use prometheus::{
+    IntCounter, IntCounterVec, Registry, register_int_counter_vec_with_registry,
+    register_int_counter_with_registry,
 };
 use tap::TapFallible;
 use tracing::{debug, info, instrument, warn};
@@ -66,6 +68,8 @@ impl HaneulTxValidator {
 
     fn validate_transactions(&self, txs: &[ConsensusTransactionKind]) -> Result<(), HaneulError> {
         let epoch_store = &self.epoch_store;
+        // cert_batch is always empty since CertifiedTransaction is rejected
+        let cert_batch: Vec<&CertifiedTransaction> = Vec::new();
         let mut ckpt_messages = Vec::new();
         let mut ckpt_batch = Vec::new();
         for tx in txs.iter() {
@@ -176,9 +180,13 @@ impl HaneulTxValidator {
             }
         }
 
+        // verify the certificate signatures as a batch
+        let cert_count = cert_batch.len();
         let ckpt_count = ckpt_batch.len();
 
-        crate::signature_verifier::batch_verify_checkpoints(epoch_store.committee(), &ckpt_batch)
+        epoch_store
+            .signature_verifier
+            .verify_certs_and_checkpoints(cert_batch, ckpt_batch)
             .tap_err(|e| warn!("batch verification error: {}", e))?;
 
         // All checkpoint sigs have been verified, forward them to the checkpoint service
@@ -186,6 +194,9 @@ impl HaneulTxValidator {
             self.checkpoint_service.notify_checkpoint_signature(ckpt)?;
         }
 
+        self.metrics
+            .certificate_signatures_verified
+            .inc_by(cert_count as u64);
         self.metrics
             .checkpoint_signatures_verified
             .inc_by(ckpt_count as u64);
@@ -274,17 +285,19 @@ impl HaneulTxValidator {
             {
                 // V2 format comparison
                 let Some(claimed_v2) = aliases_v2 else {
-                    return Err(
-                        HaneulErrorKind::InvalidRequest("missing address alias claim".into()).into(),
-                    );
+                    return Err(HaneulErrorKind::InvalidRequest(
+                        "missing address alias claim".into(),
+                    )
+                    .into());
                 };
                 *verified_tx.aliases() == claimed_v2
             } else {
                 // V1 format comparison: derive V1 from verified_tx and compare
                 let Some(claimed_v1) = aliases_v1 else {
-                    return Err(
-                        HaneulErrorKind::InvalidRequest("missing address alias claim".into()).into(),
-                    );
+                    return Err(HaneulErrorKind::InvalidRequest(
+                        "missing address alias claim".into(),
+                    )
+                    .into());
                 };
                 let computed_v1: Vec<_> = verified_tx
                     .tx()
@@ -466,6 +479,7 @@ impl TransactionVerifier for HaneulTxValidator {
 }
 
 pub struct HaneulTxValidatorMetrics {
+    certificate_signatures_verified: IntCounter,
     checkpoint_signatures_verified: IntCounter,
     transaction_reject_votes: IntCounterVec,
 }
@@ -473,6 +487,12 @@ pub struct HaneulTxValidatorMetrics {
 impl HaneulTxValidatorMetrics {
     pub fn new(registry: &Registry) -> Arc<Self> {
         Arc::new(Self {
+            certificate_signatures_verified: register_int_counter_with_registry!(
+                "tx_validator_certificate_signatures_verified",
+                "Number of certificates verified in consensus batch verifier",
+                registry
+            )
+            .unwrap(),
             checkpoint_signatures_verified: register_int_counter_with_registry!(
                 "tx_validator_checkpoint_signatures_verified",
                 "Number of checkpoint verified in consensus batch verifier",
@@ -588,10 +608,11 @@ mod tests {
                 // Create a transaction with an invalid signature
                 let aliases = tx.aliases().clone();
                 let mut signed_tx: Transaction = tx.into_tx().into();
-                signed_tx.tx_signatures_mut_for_testing()[0] =
-                    GenericSignature::Signature(haneul_types::crypto::Signature::Ed25519HaneulSignature(
+                signed_tx.tx_signatures_mut_for_testing()[0] = GenericSignature::Signature(
+                    haneul_types::crypto::Signature::Ed25519HaneulSignature(
                         Ed25519HaneulSignature::default(),
-                    ));
+                    ),
+                );
                 let tx_with_claims = PlainTransactionWithClaims::from_aliases(signed_tx, aliases);
                 bcs::to_bytes(&ConsensusTransaction::new_user_transaction_v2_message(
                     &name1,
@@ -1031,6 +1052,7 @@ mod tests {
             VerifiedExecutableTransaction::new_from_consensus(transaction.clone().into_tx(), 0);
         let (executed_effects, _) = state
             .try_execute_immediately(&cert, ExecutionEnv::new(), &state.epoch_store_for_testing())
+            .await
             .unwrap();
 
         // Verify the transaction is executed.

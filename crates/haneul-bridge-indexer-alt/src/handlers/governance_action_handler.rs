@@ -5,10 +5,6 @@ use crate::metrics::BridgeIndexerMetrics;
 use crate::struct_tag;
 use async_trait::async_trait;
 use diesel_async::RunQueryDsl;
-use move_core_types::ident_str;
-use move_core_types::identifier::IdentStr;
-use move_core_types::language_storage::StructTag;
-use std::sync::Arc;
 use haneul_bridge::events::{
     EmergencyOpEvent, MoveBlocklistValidatorEvent, MoveNewTokenEvent, MoveTokenRegistrationEvent,
     UpdateRouteLimitEvent, UpdateTokenPriceEvent,
@@ -21,6 +17,10 @@ use haneul_indexer_alt_framework::postgres::handler::Handler;
 use haneul_indexer_alt_framework::types::BRIDGE_ADDRESS;
 use haneul_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 use haneul_indexer_alt_framework::types::transaction::TransactionDataAPI;
+use move_core_types::ident_str;
+use move_core_types::identifier::IdentStr;
+use move_core_types::language_storage::StructTag;
+use std::sync::Arc;
 use tracing::info;
 
 const UPDATE_ROUTE_LIMIT_EVENT: &IdentStr = ident_str!("UpdateRouteLimitEvent");

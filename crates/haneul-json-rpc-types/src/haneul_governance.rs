@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_types::base_types::{AuthorityName, EpochId, HaneulAddress, ObjectID};
+use haneul_types::committee::{Committee, StakeUnit};
+use haneul_types::haneul_serde::BigInt;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use haneul_types::base_types::{AuthorityName, EpochId, ObjectID, HaneulAddress};
-use haneul_types::committee::{Committee, StakeUnit};
-use haneul_types::haneul_serde::BigInt;
 
 /// RPC representation of the [Committee] type.
 #[serde_as]

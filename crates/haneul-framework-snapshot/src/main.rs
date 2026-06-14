@@ -1,12 +1,12 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::env;
-use std::fs;
-use std::path::PathBuf;
 use haneul_framework::{BuiltInFramework, SystemPackage};
 use haneul_framework_snapshot::{SnapshotPackage, update_bytecode_snapshot_manifest};
 use haneul_protocol_config::ProtocolVersion;
+use std::env;
+use std::fs;
+use std::path::PathBuf;
 
 // Define the `GIT_FULL_SHA_REVISION` const
 bin_version::git_revision!();

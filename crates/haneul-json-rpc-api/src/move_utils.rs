@@ -7,8 +7,8 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee::proc_macros::rpc;
 
 use haneul_json_rpc_types::{
-    MoveFunctionArgType, HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule,
-    HaneulMoveNormalizedStruct,
+    HaneulMoveNormalizedFunction, HaneulMoveNormalizedModule, HaneulMoveNormalizedStruct,
+    MoveFunctionArgType,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::base_types::ObjectID;

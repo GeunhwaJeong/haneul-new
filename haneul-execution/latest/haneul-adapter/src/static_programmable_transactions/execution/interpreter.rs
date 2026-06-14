@@ -14,9 +14,18 @@ use crate::{
         typing::{ast as T, verify::input_arguments::is_coin_send_funds},
     },
 };
+use haneul_types::{
+    base_types::TxContext,
+    error::ExecutionError,
+    execution::{ExecutionTiming, ResultWithTimings},
+    execution_status::{ExecutionErrorKind, PackageUpgradeError},
+    metrics::ExecutionMetrics,
+    move_package::MovePackage,
+    object::Owner,
+};
+use haneullabs_common::ZipDebugEqIteratorExt;
 use move_core_types::account_address::AccountAddress;
 use move_trace_format::format::MoveTraceBuilder;
-use haneullabs_common::ZipDebugEqIteratorExt;
 use std::{
     cell::RefCell,
     collections::BTreeMap,
@@ -24,25 +33,16 @@ use std::{
     sync::Arc,
     time::{Duration, Instant},
 };
-use haneul_types::{
-    base_types::TxContext,
-    error::ExecutionErrorTrait,
-    execution::{ExecutionTiming, ResultWithTimings},
-    execution_status::{ExecutionErrorKind, PackageUpgradeError},
-    metrics::ExecutionMetrics,
-    move_package::MovePackage,
-    object::Owner,
-};
 use tracing::instrument;
 
 pub fn execute<'env, 'pc, 'vm, 'state, 'linkage, 'extension, Mode: ExecutionMode>(
-    env: &'env mut Env<'pc, 'vm, 'state, 'linkage, 'extension, Mode>,
+    env: &'env mut Env<'pc, 'vm, 'state, 'linkage, 'extension>,
     metrics: Arc<ExecutionMetrics>,
     tx_context: Rc<RefCell<TxContext>>,
     gas_charger: &mut GasCharger,
     ast: T::Transaction,
     trace_builder_opt: &mut Option<MoveTraceBuilder>,
-) -> ResultWithTimings<Mode::ExecutionResults, Mode::Error>
+) -> ResultWithTimings<Mode::ExecutionResults, ExecutionError>
 where
     'pc: 'state,
     'env: 'state,
@@ -77,13 +77,13 @@ where
 
 fn execute_inner<'env, 'pc, 'vm, 'state, 'linkage, 'extension, Mode: ExecutionMode>(
     timings: &mut IndexedExecutionTimings,
-    env: &'env mut Env<'pc, 'vm, 'state, 'linkage, 'extension, Mode>,
+    env: &'env mut Env<'pc, 'vm, 'state, 'linkage, 'extension>,
     metrics: Arc<ExecutionMetrics>,
     tx_context: Rc<RefCell<TxContext>>,
     gas_charger: &mut GasCharger,
     ast: T::Transaction,
     trace_builder_opt: &mut Option<MoveTraceBuilder>,
-) -> Result<Mode::ExecutionResults, Mode::Error>
+) -> Result<Mode::ExecutionResults, ExecutionError>
 where
     'pc: 'state,
 {
@@ -147,7 +147,7 @@ where
     let generated_object_ids = object_runtime!(context)?.generated_object_ids();
 
     // apply changes
-    let finished = context.finish();
+    let finished = context.finish::<Mode>();
     // Save loaded objects for debug. We dont want to lose the info
     env.state_view
         .save_loaded_runtime_objects(loaded_runtime_objects);
@@ -162,16 +162,16 @@ where
 /// Execute a single command
 #[instrument(level = "trace", skip_all)]
 fn execute_command<Mode: ExecutionMode>(
-    context: &mut Context<Mode>,
+    context: &mut Context,
     mode_results: &mut Mode::ExecutionResults,
     c: T::Command_,
     trace_builder_opt: &mut Option<MoveTraceBuilder>,
-) -> Result<(), Mode::Error> {
+) -> Result<(), ExecutionError> {
     let T::Command_ {
         command,
         result_type,
         drop_values,
-        incurs_post_execution_checks: _,
+        consumed_shared_objects: _,
     } = c;
     assert_invariant!(
         context.gas_charger.move_gas_status().stack_height_current() == 0,
@@ -253,7 +253,7 @@ fn execute_command<Mode: ExecutionMode>(
             let mut total: u64 = 0;
             for amount in &amount_values {
                 let Some(new_total) = total.checked_add(*amount) else {
-                    return Err(Mode::Error::from_kind(
+                    return Err(ExecutionError::from_kind(
                         ExecutionErrorKind::CoinBalanceOverflow,
                     ));
                 };
@@ -269,7 +269,7 @@ fn execute_command<Mode: ExecutionMode>(
             let coin_value = context.copy_value(&coin_ref)?.coin_ref_value()?;
             fp_ensure!(
                 coin_value >= total,
-                Mode::Error::new_with_source(
+                ExecutionError::new_with_source(
                     ExecutionErrorKind::InsufficientCoinBalance,
                     format!("balance: {coin_value} required: {total}")
                 )
@@ -321,7 +321,7 @@ fn execute_command<Mode: ExecutionMode>(
             let mut additional: u64 = 0;
             for amount in amounts {
                 let Some(new_additional) = additional.checked_add(amount) else {
-                    return Err(Mode::Error::from_kind(
+                    return Err(ExecutionError::from_kind(
                         ExecutionErrorKind::CoinBalanceOverflow,
                     ));
                 };
@@ -330,7 +330,7 @@ fn execute_command<Mode: ExecutionMode>(
             let target_value = context.copy_value(&target_ref)?.coin_ref_value()?;
             fp_ensure!(
                 target_value.checked_add(additional).is_some(),
-                Mode::Error::from_kind(ExecutionErrorKind::CoinBalanceOverflow,)
+                ExecutionError::from_kind(ExecutionErrorKind::CoinBalanceOverflow,)
             );
             target_ref.coin_ref_add_balance(additional)?;
             trace_utils::trace_merge_coins(
@@ -352,8 +352,12 @@ fn execute_command<Mode: ExecutionMode>(
             let modules =
                 context.deserialize_modules(&module_bytes, /* is upgrade */ false)?;
 
-            let original_id =
-                context.publish_and_init_package(modules, &dep_ids, linkage, trace_builder_opt)?;
+            let original_id = context.publish_and_init_package::<Mode>(
+                modules,
+                &dep_ids,
+                linkage,
+                trace_builder_opt,
+            )?;
 
             if <Mode>::packages_are_predefined() {
                 // no upgrade cap for genesis modules
@@ -375,7 +379,7 @@ fn execute_command<Mode: ExecutionMode>(
                 .into_upgrade_ticket()?;
             // Make sure the passed-in package ID matches the package ID in the `upgrade_ticket`.
             if current_package_id != upgrade_ticket.package.bytes {
-                return Err(Mode::Error::from_kind(
+                return Err(ExecutionError::from_kind(
                     ExecutionErrorKind::PackageUpgradeError {
                         upgrade_error: PackageUpgradeError::PackageIDDoesNotMatch {
                             package_id: current_package_id,
@@ -394,7 +398,7 @@ fn execute_command<Mode: ExecutionMode>(
             )
             .to_vec();
             if computed_digest != upgrade_ticket.digest {
-                return Err(Mode::Error::from_kind(
+                return Err(ExecutionError::from_kind(
                     ExecutionErrorKind::PackageUpgradeError {
                         upgrade_error: PackageUpgradeError::DigestDoesNotMatch {
                             digest: computed_digest,
@@ -417,7 +421,7 @@ fn execute_command<Mode: ExecutionMode>(
     if Mode::TRACK_EXECUTION {
         let argument_updates = context.argument_updates(args_to_update)?;
         let command_result = context.tracked_results(&result, &result_type)?;
-        Mode::finish_command(mode_results, argument_updates, command_result)?;
+        Mode::finish_command_v2(mode_results, argument_updates, command_result)?;
     }
     assert_invariant!(
         result.len() == drop_values.len(),

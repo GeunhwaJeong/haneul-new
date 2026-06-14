@@ -7,11 +7,11 @@ use bincode::Encode;
 use bincode::enc::Encoder;
 use bincode::error::EncodeError;
 use bincode::serde::BorrowCompat;
-use move_core_types::language_storage::StructTag;
 use haneul_indexer_alt_framework::types::base_types::HaneulAddress;
 use haneul_indexer_alt_framework::types::parse_haneul_address;
 use haneul_indexer_alt_framework::types::parse_haneul_module_id;
 use haneul_indexer_alt_framework::types::parse_haneul_struct_tag;
+use move_core_types::language_storage::StructTag;
 
 /// Structured form of a type filter that could be just a package, a module, an uninstantiated
 /// type, or a fully qualified type with generics.

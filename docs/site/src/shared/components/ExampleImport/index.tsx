@@ -16,7 +16,7 @@ require("prismjs/components/prism-rust");
 
 type LangExt = Language | "rust";
 
-const BASE = "https://raw.githubusercontent.com/HaneulLabs/haneul/main";
+const BASE = "https://raw.githubusercontent.com/MystenLabs/sui/main";
 
 export default function ExampleImport(props) {
   const [example, setExample] = useState(null);

@@ -10,6 +10,22 @@ use crate::object_runtime::object_store::{CacheMetadata, ChildObjectEffectV1};
 use self::object_store::{ChildObjectEffectV0, ChildObjectEffects, ObjectResult};
 use super::get_object_id;
 use better_any::{Tid, TidAble};
+use haneul_protocol_config::{LimitThresholdCrossed, ProtocolConfig, check_limit_by_meter};
+use haneul_types::{
+    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_ADDRESS_ALIAS_STATE_OBJECT_ID,
+    HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_BRIDGE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID,
+    HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_DENY_LIST_OBJECT_ID, HANEUL_DISPLAY_REGISTRY_OBJECT_ID,
+    HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID, TypeTag,
+    base_types::{HaneulAddress, MoveObjectType, ObjectID, SequenceNumber},
+    committee::EpochId,
+    error::{ExecutionError, VMMemoryLimitExceededSubStatusCode},
+    execution::DynamicallyLoadedObjectMetadata,
+    execution_status::ExecutionErrorKind,
+    id::UID,
+    metrics::ExecutionMetrics,
+    object::{MoveObject, Owner},
+    storage::ChildObjectResolver,
+};
 use indexmap::map::IndexMap;
 use indexmap::set::IndexSet;
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
@@ -31,22 +47,6 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     sync::Arc,
 };
-use haneul_protocol_config::{LimitThresholdCrossed, ProtocolConfig, check_limit_by_meter};
-use haneul_types::{
-    HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, HANEUL_ADDRESS_ALIAS_STATE_OBJECT_ID,
-    HANEUL_AUTHENTICATOR_STATE_OBJECT_ID, HANEUL_BRIDGE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID,
-    HANEUL_COIN_REGISTRY_OBJECT_ID, HANEUL_DENY_LIST_OBJECT_ID, HANEUL_DISPLAY_REGISTRY_OBJECT_ID,
-    HANEUL_RANDOMNESS_STATE_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID, TypeTag,
-    base_types::{MoveObjectType, ObjectID, SequenceNumber, HaneulAddress},
-    committee::EpochId,
-    error::{ExecutionError, VMMemoryLimitExceededSubStatusCode},
-    execution::DynamicallyLoadedObjectMetadata,
-    execution_status::ExecutionErrorKind,
-    id::UID,
-    metrics::ExecutionMetrics,
-    object::{MoveObject, Owner},
-    storage::ChildObjectResolver,
-};
 use tracing::error;
 
 pub use accumulator::*;
@@ -64,7 +64,8 @@ type Set<K> = IndexSet<K>;
 pub(crate) struct TestInventories {
     pub(crate) objects: BTreeMap<ObjectID, Value>,
     // address inventories. Most recent objects are at the back of the set
-    pub(crate) address_inventories: BTreeMap<HaneulAddress, BTreeMap<MoveObjectType, Set<ObjectID>>>,
+    pub(crate) address_inventories:
+        BTreeMap<HaneulAddress, BTreeMap<MoveObjectType, Set<ObjectID>>>,
     // global inventories.Most recent objects are at the back of the set
     pub(crate) shared_inventory: BTreeMap<MoveObjectType, Set<ObjectID>>,
     pub(crate) immutable_inventory: BTreeMap<MoveObjectType, Set<ObjectID>>,
@@ -951,9 +952,6 @@ fn check_circular_ownership(
                     }
                 }
                 object_owner_map.insert(id, new_owner);
-            }
-            Owner::Party { .. } => {
-                unimplemented!("Party does not exist for this execution version")
             }
         }
     }

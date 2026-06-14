@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use colored::Colorize;
+use haneul_macros::EnumVariantOrder;
 use itertools::Itertools;
 use move_binary_format::file_format::{Ability, AbilitySet, DatatypeTyParameter, Visibility};
 use move_binary_format::normalized::{
@@ -20,10 +21,9 @@ use std::collections::BTreeMap;
 use std::fmt;
 use std::fmt::{Display, Formatter, Write};
 use std::hash::Hash;
-use haneul_macros::EnumVariantOrder;
 use tracing::warn;
 
-use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID};
 use haneul_types::execution_status::MoveLocation;
 use haneul_types::haneul_serde::HaneulStructTag;
 
@@ -170,7 +170,10 @@ impl<S: std::hash::Hash + Eq + ToString> From<&NormalizedModule<S>> for HaneulMo
                 .structs
                 .iter()
                 .map(|(name, struct_)| {
-                    (name.to_string(), HaneulMoveNormalizedStruct::from(&**struct_))
+                    (
+                        name.to_string(),
+                        HaneulMoveNormalizedStruct::from(&**struct_),
+                    )
                 })
                 .collect::<BTreeMap<String, HaneulMoveNormalizedStruct>>(),
             enums: module
@@ -585,7 +588,8 @@ impl HaneulMoveStruct {
                 json!(values)
             }
             // We only care about values here, assuming struct type information is known at the client side.
-            HaneulMoveStruct::WithTypes { type_: _, fields } | HaneulMoveStruct::WithFields(fields) => {
+            HaneulMoveStruct::WithTypes { type_: _, fields }
+            | HaneulMoveStruct::WithFields(fields) => {
                 let fields = fields
                     .into_iter()
                     .map(|(key, value)| (key, value.to_json_value()))
@@ -686,7 +690,10 @@ fn indent<T: Display>(d: &T, indent: usize) -> String {
         .join("\n")
 }
 
-fn try_convert_type(type_: &StructTag, fields: &[(Identifier, MoveValue)]) -> Option<HaneulMoveValue> {
+fn try_convert_type(
+    type_: &StructTag,
+    fields: &[(Identifier, MoveValue)],
+) -> Option<HaneulMoveValue> {
     let struct_name = format!(
         "0x{}::{}::{}",
         type_.address.short_str_lossless(),

@@ -9,14 +9,18 @@ mod upgrade_compatibility_tests;
 use formatting::{FormattedField, format_list, format_param, singular_or_plural};
 
 use anyhow::{Context, Error, anyhow};
+use haneul_rpc_api::Client;
 use haneullabs_common::ZipDebugEqIteratorExt;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs;
 use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::Arc;
-use haneul_rpc_api::Client;
 
+use haneul_move_build::CompiledPackage;
+use haneul_protocol_config::ProtocolConfig;
+use haneul_types::base_types::ObjectID;
+use haneul_types::move_package::UpgradePolicy;
 use move_binary_format::file_format::{
     AbilitySet, DatatypeTyParameter, EnumDefinitionIndex, FunctionDefinitionIndex,
     StructDefinitionIndex, TableIndex,
@@ -46,10 +50,6 @@ use move_core_types::{
 };
 use move_ir_types::location::{ByteIndex, Loc};
 use move_package_alt_compilation::compiled_package::CompiledUnitWithSource;
-use haneul_move_build::CompiledPackage;
-use haneul_protocol_config::ProtocolConfig;
-use haneul_types::base_types::ObjectID;
-use haneul_types::move_package::UpgradePolicy;
 
 type Enum = normalized::Enum<normalized::RcIdentifier>;
 type Field = normalized::Field<normalized::RcIdentifier>;

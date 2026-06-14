@@ -16,23 +16,23 @@ use std::sync::Mutex;
 
 use clap::*;
 use fastcrypto::encoding::{Base58, Encoding, Hex};
+use haneul_protocol_config_macros::{
+    ProtocolConfigAccessors, ProtocolConfigFeatureFlagsGetters, ProtocolConfigOverride,
+};
+use haneullabs_common::in_integration_test;
 use move_binary_format::{
     binary_config::{BinaryConfig, TableConfig},
     file_format_common::VERSION_1,
 };
 use move_core_types::account_address::AccountAddress;
 use move_vm_config::verifier::VerifierConfig;
-use haneullabs_common::in_integration_test;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use haneul_protocol_config_macros::{
-    ProtocolConfigAccessors, ProtocolConfigFeatureFlagsGetters, ProtocolConfigOverride,
-};
 use tracing::{info, warn};
 
 /// The minimum and maximum protocol versions supported by this build.
 const MIN_PROTOCOL_VERSION: u64 = 1;
-const MAX_PROTOCOL_VERSION: u64 = 127;
+const MAX_PROTOCOL_VERSION: u64 = 117;
 
 const TESTNET_USDC: &str =
     "0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC";
@@ -350,11 +350,6 @@ const MAINNET_USDB: &str =
 //              and enable_gasless on mainnet to bring it in line with testnet.
 //              Configure mainnet gasless allowlist with stablecoin types and $0.01 minimum
 //              transfer per stable.
-// Version 125: Enable granular_post_execution_checks.
-//              Enable timestamp_based_epoch_close on testnet.
-// Version 126: Enable early_exit_on_iffw (gates the gas-underflow fix
-//              shipped to mainnet out-of-band in #26816).
-// Version 127: Enable always_advance_dkg_to_resolution.
 
 #[derive(Copy, Clone, Debug, Hash, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ProtocolVersion(u64);
@@ -953,10 +948,6 @@ struct FeatureFlags {
     #[serde(skip_serializing_if = "is_false")]
     cancel_for_failed_dkg_early: bool,
 
-    // If true, keep advancing the DKG state machine while DKG is pending.
-    #[serde(skip_serializing_if = "is_false")]
-    always_advance_dkg_to_resolution: bool,
-
     // Enable coin registry protocol
     #[serde(skip_serializing_if = "is_false")]
     enable_coin_registry: bool,
@@ -1122,14 +1113,6 @@ struct FeatureFlags {
     // runs but a violation panics so unexpected violations surface during rollout.
     #[serde(skip_serializing_if = "is_false")]
     enforce_address_balance_change_invariant: bool,
-
-    // Enables more granular post-execution checks.
-    #[serde(skip_serializing_if = "is_false")]
-    granular_post_execution_checks: bool,
-
-    // If true, exit early for IFWW transactions.
-    #[serde(skip_serializing_if = "is_false")]
-    early_exit_on_iffw: bool,
 }
 
 fn is_false(b: &bool) -> bool {
@@ -2007,6 +1990,7 @@ pub struct ProtocolConfig {
     gasless_max_computation_units: Option<u64>,
 
     /// Allowed token types for gasless transactions, with minimum transfer sizes per token.
+    #[skip_accessor]
     gasless_allowed_token_types: Option<Vec<(String, u64)>>,
 
     /// Maximum number of unused Pure inputs allowed in a gasless transaction.
@@ -2672,10 +2656,6 @@ impl ProtocolConfig {
         self.feature_flags.cancel_for_failed_dkg_early
     }
 
-    pub fn always_advance_dkg_to_resolution(&self) -> bool {
-        self.feature_flags.always_advance_dkg_to_resolution
-    }
-
     pub fn abstract_size_in_object_runtime(&self) -> bool {
         self.feature_flags.abstract_size_in_object_runtime
     }
@@ -2867,14 +2847,6 @@ impl ProtocolConfig {
 
     pub fn enforce_address_balance_change_invariant(&self) -> bool {
         self.feature_flags.enforce_address_balance_change_invariant
-    }
-
-    pub fn granular_post_execution_checks(&self) -> bool {
-        self.feature_flags.granular_post_execution_checks
-    }
-
-    pub fn early_exit_on_iffw(&self) -> bool {
-        self.feature_flags.early_exit_on_iffw
     }
 }
 
@@ -4893,12 +4865,14 @@ impl ProtocolConfig {
                     // Disabled while debugging
                     cfg.feature_flags.defer_unpaid_amplification = false;
                     cfg.feature_flags.enable_display_registry = true;
-                }
-                117 => {}
-                118 => {
                     cfg.feature_flags.use_coin_party_owner = true;
                 }
-                119 => {
+                117 => {
+                    // v117 consolidates upstream protocol versions 119-124.
+                    // (Version 117 had no upstream flags; the use_coin_party_owner
+                    // flag introduced at upstream v118 was folded into v116 in the
+                    // previous upgrade.)
+
                     // Enable new VM.
                     cfg.execution_version = Some(4);
                     cfg.feature_flags.address_balance_gas_reject_gas_coin_arg = false;
@@ -4918,11 +4892,9 @@ impl ProtocolConfig {
                     }
                     cfg.transfer_receive_object_cost_per_byte = Some(1);
                     cfg.transfer_receive_object_type_cost_per_byte = Some(2);
-                }
-                120 => {
+
                     cfg.feature_flags.disallow_jump_orphans = true;
-                }
-                121 => {
+
                     // Re-enable unpaid amplification deferral protection (testnet + devnet)
                     if chain != Chain::Mainnet {
                         cfg.feature_flags.defer_unpaid_amplification = true;
@@ -4930,8 +4902,7 @@ impl ProtocolConfig {
                     }
                     cfg.feature_flags
                         .early_return_receive_object_mismatched_type = true;
-                }
-                122 => {
+
                     // Enable unpaid amplification deferral on mainnet
                     cfg.feature_flags.defer_unpaid_amplification = true;
                     // Enable bulletproofs range proofs on devnet
@@ -4949,11 +4920,8 @@ impl ProtocolConfig {
                     cfg.gasless_max_tx_size_bytes = Some(16 * 1024);
                     cfg.gasless_max_tps = Some(300);
                     cfg.gasless_max_computation_units = Some(5_000);
-                }
-                123 => {
-                    cfg.gas_model_version = Some(13);
-                }
-                124 => {
+
+                    // v123's gas_model_version = Some(13) omitted — overwritten by v124's Some(14) below.
                     if chain != Chain::Mainnet && chain != Chain::Testnet {
                         cfg.feature_flags.timestamp_based_epoch_close = true;
                     }
@@ -4992,18 +4960,6 @@ impl ProtocolConfig {
                             (MAINNET_USDB.to_string(), 10_000),
                         ]);
                     }
-                }
-                125 => {
-                    cfg.feature_flags.granular_post_execution_checks = true;
-                    if chain != Chain::Mainnet {
-                        cfg.feature_flags.timestamp_based_epoch_close = true;
-                    }
-                }
-                126 => {
-                    cfg.feature_flags.early_exit_on_iffw = true;
-                }
-                127 => {
-                    cfg.feature_flags.always_advance_dkg_to_resolution = true;
                 }
                 // Use this template when making changes:
                 //
@@ -5412,6 +5368,10 @@ impl ProtocolConfig {
         self.gasless_allowed_token_types = None;
     }
 
+    pub fn set_gasless_allowed_token_types_for_testing(&mut self, types: Vec<(String, u64)>) {
+        self.gasless_allowed_token_types = Some(types);
+    }
+
     pub fn enable_multi_epoch_transaction_expiration_for_testing(&mut self) {
         self.feature_flags.enable_multi_epoch_transaction_expiration = true;
     }
@@ -5458,10 +5418,6 @@ impl ProtocolConfig {
 
     pub fn set_cancel_for_failed_dkg_early_for_testing(&mut self, val: bool) {
         self.feature_flags.cancel_for_failed_dkg_early = val;
-    }
-
-    pub fn set_always_advance_dkg_to_resolution_for_testing(&mut self, val: bool) {
-        self.feature_flags.always_advance_dkg_to_resolution = val;
     }
 
     pub fn set_use_mfp_txns_in_load_initial_object_debts_for_testing(&mut self, val: bool) {
@@ -5863,123 +5819,5 @@ mod test {
         let testnet = LazyLock::force(&TESTNET_LINKAGE_AMENDMENTS);
         assert!(!mainnet.is_empty(), "mainnet amendments must not be empty");
         assert!(!testnet.is_empty(), "testnet amendments must not be empty");
-    }
-
-    #[test]
-    fn render_scalar_fields_use_precision_safe_encoding() {
-        use haneullabs_common::rpc_format::Unmetered;
-
-        let config = ProtocolConfig::get_for_max_version_UNSAFE();
-        let rendered = config
-            .render::<serde_json::Value>(&mut Unmetered)
-            .expect("render should succeed");
-
-        let max_args = rendered
-            .get("max_arguments")
-            .expect("max_arguments set at max version");
-        assert!(
-            max_args.is_number(),
-            "u32 should render as number, got {max_args:?}",
-        );
-
-        let max_tx_size = rendered
-            .get("max_tx_size_bytes")
-            .expect("max_tx_size_bytes set at max version");
-        assert!(
-            max_tx_size.is_string(),
-            "u64 should render as string, got {max_tx_size:?}",
-        );
-    }
-
-    #[test]
-    fn render_includes_non_scalar_gasless_allowlist_as_json() {
-        use haneullabs_common::rpc_format::Unmetered;
-        use serde_json::json;
-
-        let mut config = ProtocolConfig::get_for_max_version_UNSAFE();
-        config.set_gasless_allowed_token_types_for_testing(vec![
-            ("0xa::usdc::USDC".to_string(), 10_000),
-            ("0xb::usdt::USDT".to_string(), 0),
-        ]);
-
-        let rendered = config
-            .render::<serde_json::Value>(&mut Unmetered)
-            .expect("render should succeed under Unmetered budget");
-        let allowlist = rendered
-            .get("gasless_allowed_token_types")
-            .expect("entry should be present after the testing setter");
-
-        // u64 values render as strings to preserve JS precision; the tuple becomes a 2-element
-        // JSON array.
-        assert_eq!(
-            allowlist,
-            &json!([["0xa::usdc::USDC", "10000"], ["0xb::usdt::USDT", "0"],]),
-        );
-    }
-
-    #[test]
-    fn render_targets_prost_value_for_grpc() {
-        use haneullabs_common::rpc_format::Unmetered;
-        use prost_types::value::Kind;
-
-        let mut config = ProtocolConfig::get_for_max_version_UNSAFE();
-        config.set_gasless_allowed_token_types_for_testing(vec![(
-            "0xa::usdc::USDC".to_string(),
-            10_000,
-        )]);
-
-        let rendered = config
-            .render::<prost_types::Value>(&mut Unmetered)
-            .expect("render to prost Value should succeed");
-        let allowlist = rendered
-            .get("gasless_allowed_token_types")
-            .expect("entry should be present after the testing setter");
-
-        // Outer ListValue with one inner ListValue carrying [coin_type_string, amount_string].
-        let Some(Kind::ListValue(outer)) = &allowlist.kind else {
-            panic!(
-                "expected ListValue at the top level, got {:?}",
-                allowlist.kind
-            );
-        };
-        assert_eq!(outer.values.len(), 1, "one allowlisted entry");
-        let Some(Kind::ListValue(entry)) = &outer.values[0].kind else {
-            panic!("expected each entry to be a ListValue");
-        };
-        assert_eq!(entry.values.len(), 2, "entry has (coin_type, amount)");
-
-        let Some(Kind::StringValue(coin_type)) = &entry.values[0].kind else {
-            panic!("expected coin_type as StringValue");
-        };
-        assert_eq!(coin_type, "0xa::usdc::USDC");
-
-        // u64 amount renders as a string, not a NumberValue — this is the precision-safe path.
-        let Some(Kind::StringValue(amount)) = &entry.values[1].kind else {
-            panic!(
-                "expected minimum_transfer_amount as StringValue (precision-safe u64); got {:?}",
-                entry.values[1].kind,
-            );
-        };
-        assert_eq!(amount, "10000");
-    }
-
-    #[test]
-    fn render_emits_null_for_unset_protocol_versions() {
-        use haneullabs_common::rpc_format::Unmetered;
-
-        let config = ProtocolConfig::get_for_version(1.into(), Chain::Unknown);
-        let rendered = config
-            .render::<serde_json::Value>(&mut Unmetered)
-            .expect("render should succeed");
-        // The gasless allowlist key is present in every version's keyset, but renders as JSON
-        // `null` for versions that predate the feature. This keeps the keyset stable across
-        // protocol versions so clients can distinguish "unknown key" from "present but unset".
-        let entry = rendered
-            .get("gasless_allowed_token_types")
-            .expect("key should be present for every protocol version");
-        assert!(
-            entry.is_null(),
-            "value should be null for pre-feature protocol version, got {entry:?}",
-        );
     }
 }

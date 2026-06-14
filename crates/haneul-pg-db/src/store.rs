@@ -13,9 +13,9 @@ use diesel::sql_types::SingleValue;
 use diesel::sql_types::SqlType;
 use diesel_async::AsyncConnection;
 use diesel_async::RunQueryDsl;
-use scoped_futures::ScopedBoxFuture;
 use haneul_indexer_alt_framework_store_traits as store;
 use haneul_sql_macro::sql;
+use scoped_futures::ScopedBoxFuture;
 
 use crate::Connection;
 use crate::Db;
@@ -247,7 +247,7 @@ impl store::SequentialStore for Db {
         ) -> ScopedBoxFuture<'a, 'r, anyhow::Result<R>>,
     {
         let mut conn = self.connect().await?;
-        AsyncConnection::transaction(&mut conn, async |conn| f(conn).await).await
+        AsyncConnection::transaction(&mut conn, |conn| f(conn)).await
     }
 }
 

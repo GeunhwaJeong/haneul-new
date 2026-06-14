@@ -10,9 +10,12 @@ use backoff::future::retry;
 use bytes::Bytes;
 use futures::StreamExt;
 use futures::TryStreamExt;
+use haneul_rpc::proto::haneul::rpc::v2 as proto;
+use haneul_types::full_checkpoint_content::Checkpoint;
+use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
+use haneullabs_common::ZipDebugEqIteratorExt;
 use indicatif::ProgressBar;
 use itertools::Itertools;
-use haneullabs_common::ZipDebugEqIteratorExt;
 use object_store::aws::{AmazonS3Builder, AmazonS3ConfigKey};
 use object_store::http::HttpBuilder;
 use object_store::local::LocalFileSystem;
@@ -30,9 +33,6 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::Arc;
 use std::time::Duration;
-use haneul_rpc::proto::haneul::rpc::v2 as proto;
-use haneul_types::full_checkpoint_content::Checkpoint;
-use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use tokio::time::Instant;
 use tracing::{error, warn};
 use url::Url;
@@ -540,10 +540,10 @@ mod tests {
     use crate::object_store::util::{
         MANIFEST_FILENAME, copy_recursively, delete_recursively, write_snapshot_manifest,
     };
+    use haneul_config::object_storage_config::{ObjectStoreConfig, ObjectStoreType};
     use object_store::path::Path;
     use std::fs;
     use std::num::NonZeroUsize;
-    use haneul_config::object_storage_config::{ObjectStoreConfig, ObjectStoreType};
     use tempfile::TempDir;
 
     #[tokio::test]

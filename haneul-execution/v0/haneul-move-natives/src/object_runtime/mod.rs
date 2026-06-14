@@ -2,6 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use better_any::{Tid, TidAble};
+use haneul_protocol_config::{check_limit_by_meter, LimitThresholdCrossed, ProtocolConfig};
+use haneul_types::{
+    base_types::{HaneulAddress, MoveObjectType, ObjectID, SequenceNumber},
+    error::{ExecutionError, VMMemoryLimitExceededSubStatusCode},
+    execution::DynamicallyLoadedObjectMetadata,
+    execution_status::ExecutionErrorKind,
+    id::UID,
+    metrics::ExecutionMetrics,
+    object::{MoveObject, Owner},
+    storage::{ChildObjectResolver, DeleteKind, WriteKind},
+    HANEUL_CLOCK_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
+};
 use linked_hash_map::LinkedHashMap;
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_core_types::{
@@ -16,18 +28,6 @@ use move_vm_types::{
 use std::{
     collections::{BTreeMap, BTreeSet},
     sync::Arc,
-};
-use haneul_protocol_config::{check_limit_by_meter, LimitThresholdCrossed, ProtocolConfig};
-use haneul_types::{
-    base_types::{MoveObjectType, ObjectID, SequenceNumber, HaneulAddress},
-    error::{ExecutionError, VMMemoryLimitExceededSubStatusCode},
-    execution::DynamicallyLoadedObjectMetadata,
-    execution_status::ExecutionErrorKind,
-    id::UID,
-    metrics::ExecutionMetrics,
-    object::{MoveObject, Owner},
-    storage::{ChildObjectResolver, DeleteKind, WriteKind},
-    HANEUL_CLOCK_OBJECT_ID, HANEUL_SYSTEM_STATE_OBJECT_ID,
 };
 
 pub(crate) mod object_store;
@@ -276,7 +276,8 @@ impl<'a> ObjectRuntime<'a> {
         // - Otherwise, check the input objects for the previous owner
         // - If it was not in the input objects, it must have been wrapped or must have been a
         //   child object
-        let is_framework_obj = [HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID].contains(&id);
+        let is_framework_obj =
+            [HANEUL_SYSTEM_STATE_OBJECT_ID, HANEUL_CLOCK_OBJECT_ID].contains(&id);
         let transfer_result = if self.state.new_ids.contains_key(&id) || is_framework_obj {
             TransferResult::New
         } else if let Some(prev_owner) = self.state.input_objects.get(&id) {
@@ -520,9 +521,6 @@ impl ObjectRuntimeState {
                         "ConsensusAddressOwner does not exist for this execution version"
                     )
                 }
-                Owner::Party { .. } => {
-                    unimplemented!("Party does not exist for this execution version")
-                }
             })
             .collect();
         // update the input owners with the new owners from transfers
@@ -621,9 +619,6 @@ fn update_owner_map(
             }
             Owner::ConsensusAddressOwner { .. } => {
                 unimplemented!("ConsensusAddressOwner does not exist for this execution version")
-            }
-            Owner::Party { .. } => {
-                unimplemented!("Party does not exist for this execution version")
             }
         }
     }

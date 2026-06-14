@@ -523,6 +523,9 @@ advance_epoch
 update_validator_positions_and_calculate_total_stake
 	fun
 	0x3::validator_set
+effectuate_staged_metadata
+	fun
+	0x3::validator_set
 derive_reference_gas_price
 	public fun
 	0x3::validator_set
@@ -562,7 +565,16 @@ is_active_validator_by_haneul_address
 is_duplicate_with_active_validator
 	fun
 	0x3::validator_set
+is_duplicate_validator
+	public(package) fun
+	0x3::validator_set
+count_duplicates_vec
+	fun
+	0x3::validator_set
 is_duplicate_with_pending_validator
+	fun
+	0x3::validator_set
+count_duplicates_tablevec
 	fun
 	0x3::validator_set
 get_candidate_or_active_validator_mut
@@ -619,8 +631,17 @@ process_validator_departure
 clean_report_records_leaving_validator
 	fun
 	0x3::validator_set
+sort_removal_list
+	fun
+	0x3::validator_set
+process_pending_stakes_and_withdraws
+	fun
+	0x3::validator_set
 calculate_total_stakes
 	public(package) fun
+	0x3::validator_set
+adjust_stake_and_gas_price
+	fun
 	0x3::validator_set
 compute_reward_adjustments
 	fun
@@ -667,21 +688,6 @@ get_active_validator_ref
 get_pending_validator_ref
 	public fun
 	0x3::validator_set
-StorageFund
-	public struct
-	0x3::storage_fund
-new
-	public(package) fun
-	0x3::storage_fund
-advance_epoch
-	public(package) fun
-	0x3::storage_fund
-total_object_storage_rebates
-	public fun
-	0x3::storage_fund
-total_balance
-	public fun
-	0x3::storage_fund
 StakeSubsidy
 	public struct
 	0x3::stake_subsidy
@@ -697,6 +703,21 @@ current_epoch_subsidy_amount
 get_distribution_counter
 	public(package) fun
 	0x3::stake_subsidy
+StorageFund
+	public struct
+	0x3::storage_fund
+new
+	public(package) fun
+	0x3::storage_fund
+advance_epoch
+	public(package) fun
+	0x3::storage_fund
+total_object_storage_rebates
+	public fun
+	0x3::storage_fund
+total_balance
+	public fun
+	0x3::storage_fund
 ExecutionTimeObservationChunkKey
 	public struct
 	0x3::haneul_system_state_inner

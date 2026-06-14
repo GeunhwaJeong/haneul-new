@@ -5,14 +5,14 @@ use std::collections::BTreeMap;
 
 use crate::base_types::{ExecutionData, ObjectID, ObjectRef};
 use crate::effects::{TransactionEffects, TransactionEffectsAPI, TransactionEvents};
+use crate::haneul_system_state::HaneulSystemStateTrait;
+use crate::haneul_system_state::get_haneul_system_state;
 use crate::messages_checkpoint::{CertifiedCheckpointSummary, CheckpointContents};
 use crate::object::Object;
 use crate::signature::GenericSignature;
 use crate::storage::ObjectKey;
 use crate::storage::error::Error as StorageError;
 use crate::storage::{BackingPackageStore, EpochInfo};
-use crate::haneul_system_state::HaneulSystemStateTrait;
-use crate::haneul_system_state::get_haneul_system_state;
 use crate::transaction::{Transaction, TransactionData, TransactionDataAPI, TransactionKind};
 use serde::{Deserialize, Serialize};
 use tap::Pipe;
@@ -83,8 +83,8 @@ impl CheckpointData {
             };
             (self.checkpoint_summary.sequence_number + 1, transaction)
         };
-        let system_state =
-            get_haneul_system_state(&transaction.output_objects.as_slice()).map_err(|e| {
+        let system_state = get_haneul_system_state(&transaction.output_objects.as_slice())
+            .map_err(|e| {
                 StorageError::custom(format!(
                     "Failed to find system state object output from end of epoch transaction: {e}"
                 ))

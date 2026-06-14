@@ -45,7 +45,9 @@ async fn main() -> Result<(), anyhow::Error> {
 
     // Get coins as a stream
     // Similar to the previous functions, except it returns the coins as a stream.
-    let coins_stream = haneul.coin_read_api().get_coins_stream(active_address, None);
+    let coins_stream = haneul
+        .coin_read_api()
+        .get_coins_stream(active_address, None);
 
     println!(" *** Coins Stream ***");
     coins_stream
@@ -76,7 +78,10 @@ async fn main() -> Result<(), anyhow::Error> {
 
     // Total balance
     // Returns the balance for each coin owned by this address
-    let total_balance = haneul.coin_read_api().get_all_balances(active_address).await?;
+    let total_balance = haneul
+        .coin_read_api()
+        .get_all_balances(active_address)
+        .await?;
     println!(" *** Balance + Total Balance *** ");
     println!("Balance: {:?}", balance);
     println!("Total Balance: {:?}", total_balance);

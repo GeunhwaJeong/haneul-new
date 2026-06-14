@@ -3,10 +3,8 @@
 
 use std::sync::Arc;
 
-use moka::sync::Cache as MokaCache;
-use move_core_types::language_storage::TypeTag;
 use haneul_types::{
-    base_types::{ObjectID, SequenceNumber, HaneulAddress},
+    base_types::{HaneulAddress, ObjectID, SequenceNumber},
     coin_reservation::{
         CoinReservationResolver, CoinReservationResolverTrait, ParsedObjectRefWithdrawal,
     },
@@ -14,6 +12,8 @@ use haneul_types::{
     storage::ChildObjectResolver,
     transaction::FundsWithdrawalArg,
 };
+use moka::sync::Cache as MokaCache;
+use move_core_types::language_storage::TypeTag;
 
 /// A caching wrapper around `CoinReservationResolver` that caches the lookup
 /// of (owner, type_tag) for each accumulator object ID.

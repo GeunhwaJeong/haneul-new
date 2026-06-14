@@ -27,4 +27,3 @@ rand.workspace = true
 
 [dev-dependencies]
 insta.workspace = true
-prost-types.workspace = true

@@ -4,10 +4,7 @@
 use crate::error::{BridgeError, BridgeResult};
 use crate::types::{BridgeAction, VerifiedCertifiedBridgeAction};
 use fastcrypto::traits::ToFromBytes;
-use move_core_types::ident_str;
-use std::collections::HashMap;
-use std::str::FromStr;
-use haneul_types::base_types::{ObjectRef, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectRef};
 use haneul_types::bridge::{
     BRIDGE_CREATE_ADD_TOKEN_ON_HANEUL_MESSAGE_FUNCTION_NAME,
     BRIDGE_EXECUTE_SYSTEM_MESSAGE_FUNCTION_NAME, BRIDGE_MESSAGE_MODULE_NAME, BRIDGE_MODULE_NAME,
@@ -16,6 +13,9 @@ use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuild
 use haneul_types::transaction::CallArg;
 use haneul_types::transaction::{ObjectArg, TransactionData};
 use haneul_types::{BRIDGE_PACKAGE_ID, Identifier, TypeTag};
+use move_core_types::ident_str;
+use std::collections::HashMap;
+use std::str::FromStr;
 
 pub fn build_haneul_transaction(
     client_address: HaneulAddress,
@@ -693,8 +693,8 @@ pub fn build_committee_update_url_transaction(
 mod tests {
     use crate::crypto::BridgeAuthorityKeyPair;
     use crate::e2e_tests::test_utils::TestClusterWrapperBuilder;
-    use crate::metrics::BridgeMetrics;
     use crate::haneul_client::HaneulClient;
+    use crate::metrics::BridgeMetrics;
     use crate::types::BridgeAction;
     use crate::types::EmergencyAction;
     use crate::types::EmergencyActionType;
@@ -702,16 +702,16 @@ mod tests {
     use crate::{
         crypto::BridgeAuthorityPublicKeyBytes,
         test_utils::{
-            approve_action_with_validator_secrets, bridge_token, get_test_eth_to_haneul_bridge_action,
-            get_test_haneul_to_eth_bridge_action,
+            approve_action_with_validator_secrets, bridge_token,
+            get_test_eth_to_haneul_bridge_action, get_test_haneul_to_eth_bridge_action,
         },
     };
     use alloy::primitives::Address as EthAddress;
-    use std::collections::HashMap;
-    use std::sync::Arc;
     use haneul_types::bridge::{BridgeChainId, TOKEN_ID_BTC, TOKEN_ID_USDC};
     use haneul_types::crypto::ToFromBytes;
     use haneul_types::crypto::get_key_pair;
+    use std::collections::HashMap;
+    use std::sync::Arc;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 8)]
     async fn test_build_haneul_transaction_for_token_transfer() {
@@ -747,7 +747,8 @@ mod tests {
         let id_token_map = haneul_client.get_token_id_map().await.unwrap();
 
         // 1. Test Eth -> Haneul Transfer approval
-        let action = get_test_eth_to_haneul_bridge_action(None, Some(usdc_amount), Some(sender), None);
+        let action =
+            get_test_eth_to_haneul_bridge_action(None, Some(usdc_amount), Some(sender), None);
         // `approve_action_with_validator_secrets` covers transaction building
         let usdc_object_ref = approve_action_with_validator_secrets(
             context,

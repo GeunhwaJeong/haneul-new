@@ -3,16 +3,16 @@
 
 use axum::extract::ConnectInfo;
 use futures::FutureExt;
+use haneul_core::traffic_controller::{TrafficController, parse_ip, policies::TrafficTally};
+use haneul_json_rpc_api::TRANSACTION_EXECUTION_CLIENT_ERROR_CODE;
+use haneul_types::traffic_control::ClientIdSource;
+use haneul_types::traffic_control::Weight;
 use jsonrpsee::MethodResponse;
 use jsonrpsee::server::middleware::rpc::RpcServiceT;
 use jsonrpsee::types::{ErrorCode, ErrorObject, Id};
 use std::net::IpAddr;
 use std::time::SystemTime;
 use std::{net::SocketAddr, sync::Arc};
-use haneul_core::traffic_controller::{TrafficController, parse_ip, policies::TrafficTally};
-use haneul_json_rpc_api::TRANSACTION_EXECUTION_CLIENT_ERROR_CODE;
-use haneul_types::traffic_control::ClientIdSource;
-use haneul_types::traffic_control::Weight;
 use tracing::error;
 
 const TOO_MANY_REQUESTS_MSG: &str = "Too many requests";
@@ -98,7 +98,6 @@ async fn handle_traffic_resp(
         // to provide a weight distribution based on the method being called.
         spam_weight: Weight::one(),
         timestamp: SystemTime::now(),
-        method: None,
     });
 }
 

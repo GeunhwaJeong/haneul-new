@@ -3,6 +3,7 @@
 
 use std::collections::VecDeque;
 
+use haneul_types::base_types::ObjectID;
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_core_types::{account_address::AccountAddress, u256::U256, vm_status::StatusCode};
 use move_vm_runtime::{native_charge_gas_early_exit, native_functions::NativeContext};
@@ -12,7 +13,6 @@ use move_vm_types::{
     values::{Struct, Value},
 };
 use smallvec::smallvec;
-use haneul_types::base_types::ObjectID;
 
 use crate::{
     NativesCostTable,

@@ -6,7 +6,6 @@ use std::sync::Arc;
 use anyhow::Context as _;
 use async_graphql::dataloader::DataLoader;
 use diesel::QueryDsl;
-use prometheus::Registry;
 use haneul_indexer_alt_reader::consistent_reader::ConsistentReader;
 use haneul_indexer_alt_reader::consistent_reader::ConsistentReaderArgs;
 use haneul_indexer_alt_reader::fullnode_client::FullnodeClient;
@@ -20,6 +19,7 @@ use haneul_indexer_alt_schema::schema::kv_genesis;
 use haneul_package_resolver::Resolver;
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::digests::CheckpointDigest;
+use prometheus::Registry;
 use url::Url;
 
 use crate::config::RpcConfig;

@@ -1,9 +1,0 @@
-[package]
-name = "generic_event"
-edition = "2024.beta"
-
-[dependencies]
-Haneul = { local = "../../../../haneul-framework/packages/haneul-framework" }
-
-[addresses]
-generic_event = "0x0"

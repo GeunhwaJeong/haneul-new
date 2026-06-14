@@ -15,8 +15,8 @@ use tokio::sync::OnceCell;
 
 use crate::api::scalars::base64::Base64;
 use crate::api::scalars::big_int::BigInt;
-use crate::api::scalars::id::Id;
 use crate::api::scalars::haneul_address::HaneulAddress;
+use crate::api::scalars::id::Id;
 use crate::api::scalars::type_filter::TypeInput;
 use crate::api::scalars::uint53::UInt53;
 use crate::api::types::address;

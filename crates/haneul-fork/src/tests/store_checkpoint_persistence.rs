@@ -7,16 +7,15 @@
 
 use std::num::NonZeroUsize;
 
+use haneul_swarm_config::network_config_builder::ConfigBuilder;
+use haneul_types::base_types::ObjectID;
+use haneul_types::messages_checkpoint::{CheckpointContents, VerifiedCheckpoint};
+use haneul_types::object::Object;
+use haneul_types::test_checkpoint_data_builder::TestCheckpointBuilder;
 use rand::rngs::OsRng;
 use simulacrum::Simulacrum;
 use simulacrum::store::SimulatorStore;
 use simulacrum::store::in_mem_store::KeyStore;
-use haneul_swarm_config::network_config_builder::ConfigBuilder;
-use haneul_types::base_types::ObjectID;
-use haneul_types::messages_checkpoint::CheckpointContents;
-use haneul_types::messages_checkpoint::VerifiedCheckpoint;
-use haneul_types::object::Object;
-use haneul_types::test_checkpoint_data_builder::TestCheckpointBuilder;
 
 use super::*;
 

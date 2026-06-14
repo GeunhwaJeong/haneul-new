@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::displays::Pretty;
-use std::fmt::{Display, Formatter};
 use haneul_types::gas::GasUsageReport;
+use std::fmt::{Display, Formatter};
 use tabled::{
     builder::Builder as TableBuilder,
     settings::{Style as TableStyle, style::HorizontalLine},

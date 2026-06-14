@@ -7,7 +7,7 @@ use haneul_config::{
     transaction_deny_config::TransactionDenyConfig,
 };
 use haneul_types::{
-    base_types::{ObjectRef, HaneulAddress},
+    base_types::{HaneulAddress, ObjectRef},
     error::{HaneulError, HaneulErrorKind, HaneulResult, UserInputError},
     signature::GenericSignature,
     storage::BackingPackageStore,

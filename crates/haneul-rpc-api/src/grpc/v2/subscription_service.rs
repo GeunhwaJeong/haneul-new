@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::RpcService;
-use haneullabs_common::ZipDebugEqIteratorExt;
 use haneul_rpc::field::FieldMaskTree;
 use haneul_rpc::merge::Merge;
 use haneul_rpc::proto::haneul::rpc::v2::Checkpoint;
@@ -10,6 +9,7 @@ use haneul_rpc::proto::haneul::rpc::v2::SubscribeCheckpointsRequest;
 use haneul_rpc::proto::haneul::rpc::v2::SubscribeCheckpointsResponse;
 use haneul_rpc::proto::haneul::rpc::v2::subscription_service_server::SubscriptionService;
 use haneul_types::balance_change::derive_balance_changes_2;
+use haneullabs_common::ZipDebugEqIteratorExt;
 use tonic::codegen::BoxStream;
 
 #[tonic::async_trait]

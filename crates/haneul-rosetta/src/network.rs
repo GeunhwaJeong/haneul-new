@@ -4,21 +4,21 @@
 use axum::extract::State;
 use axum::{Extension, Json};
 use axum_extra::extract::WithRejection;
+use haneul_rpc::field::FieldMaskUtil;
+use haneul_rpc::proto::haneul::rpc::v2::{GetCheckpointRequest, GetEpochRequest};
 use prost_types::FieldMask;
 use serde_json::json;
 use strum::IntoEnumIterator;
-use haneul_rpc::field::FieldMaskUtil;
-use haneul_rpc::proto::haneul::rpc::v2::{GetCheckpointRequest, GetEpochRequest};
 
 use fastcrypto::encoding::Hex;
-use haneul_types::base_types::{ObjectID, HaneulAddress};
+use haneul_types::base_types::{HaneulAddress, ObjectID};
 
 use crate::errors::{Error, ErrorType};
 use crate::types::{
     Allow, Case, NetworkIdentifier, NetworkListResponse, NetworkOptionsResponse, NetworkRequest,
     NetworkStatusResponse, OperationStatus, OperationType, Peer, SyncStatus, Version,
 };
-use crate::{OnlineServerContext, HaneulEnv};
+use crate::{HaneulEnv, OnlineServerContext};
 
 // This module implements the [Mesh Network API](https://docs.cdp.coinbase.com/mesh/mesh-api-spec/api-reference#network)
 

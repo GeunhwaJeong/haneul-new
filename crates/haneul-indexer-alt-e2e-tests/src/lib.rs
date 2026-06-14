@@ -15,11 +15,6 @@ use diesel::ExpressionMethods;
 use diesel::OptionalExtension;
 use diesel::QueryDsl;
 use diesel_async::RunQueryDsl;
-use prost::Message;
-use reqwest::Client;
-use serde_json::Value;
-use serde_json::json;
-use simulacrum::Simulacrum;
 use haneul_futures::service::Service;
 use haneul_indexer_alt::BootstrapGenesis;
 use haneul_indexer_alt::config::IndexerConfig;
@@ -69,14 +64,19 @@ use haneul_rpc::field::FieldMask;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::merge::Merge;
 use haneul_rpc::proto::haneul::rpc;
-use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::HaneulAddress;
+use haneul_types::base_types::ObjectRef;
 use haneul_types::crypto::AccountKeyPair;
 use haneul_types::effects::TransactionEffects;
 use haneul_types::error::ExecutionError;
 use haneul_types::full_checkpoint_content::Checkpoint;
 use haneul_types::messages_checkpoint::VerifiedCheckpoint;
 use haneul_types::transaction::Transaction;
+use prost::Message;
+use reqwest::Client;
+use serde_json::Value;
+use serde_json::json;
+use simulacrum::Simulacrum;
 use tempfile::TempDir;
 use tokio::time::error::Elapsed;
 use tokio::time::interval;
@@ -855,9 +855,8 @@ async fn start_archival(
     .await
     .context("Failed to create BigTable indexer")?;
 
-    // Use the BigTable wrapper, not the raw framework indexer, so bitmap
-    // committer background tasks are supervised for the duration of the test.
     let bt_indexer_service = bt_indexer
+        .indexer
         .run()
         .await
         .context("Failed to start BigTable indexer")?;
@@ -871,13 +870,7 @@ async fn start_archival(
     .await
     .context("Failed to create KvRpcServer")?;
     let kv_rpc_service = kv_rpc_server
-        .start_service(
-            kv_rpc_address,
-            haneul_kv_rpc::ServerConfig {
-                enable_experimental_query_apis: true,
-                ..Default::default()
-            },
-        )
+        .start_service(kv_rpc_address, haneul_kv_rpc::ServerConfig::default())
         .await
         .context("Failed to start kv-rpc server")?;
 

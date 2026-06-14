@@ -451,7 +451,10 @@ mod test {
         assert_eq!(Some(10500u16), multi_addr_ip4.port());
 
         let multi_addr_dns = Multiaddr(multiaddr!(Dns("haneullabs.haneul"), Tcp(10501u16)));
-        assert_eq!(Some("haneullabs.haneul".to_string()), multi_addr_dns.hostname());
+        assert_eq!(
+            Some("haneullabs.haneul".to_string()),
+            multi_addr_dns.hostname()
+        );
         assert_eq!(Some(10501u16), multi_addr_dns.port());
     }
 
@@ -495,7 +498,8 @@ mod test {
         assert_eq!(Some("::".to_string()), multi_addr_ip6.hostname());
         assert_eq!(Some(10500u16), multi_addr_ip6.port());
 
-        let multi_addr_dns = Multiaddr(multiaddr!(Dns("haneullabs.haneul"), Tcp(10501u16))).with_zero_ip();
+        let multi_addr_dns =
+            Multiaddr(multiaddr!(Dns("haneullabs.haneul"), Tcp(10501u16))).with_zero_ip();
         assert_eq!(Some("0.0.0.0".to_string()), multi_addr_dns.hostname());
         assert_eq!(Some(10501u16), multi_addr_dns.port());
     }

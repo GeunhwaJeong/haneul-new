@@ -4,19 +4,19 @@
 use anyhow::{Context, Result, anyhow};
 use clap::*;
 
+use haneul_protocol_config::Chain;
 use prometheus::Registry;
 use rand::Rng;
 use rand::seq::SliceRandom;
-use haneul_protocol_config::Chain;
 use tokio::time::sleep;
 
-use std::sync::Arc;
-use std::time::Duration;
 use haneul_benchmark::drivers::BenchmarkCmp;
 use haneul_benchmark::drivers::BenchmarkStats;
 use haneul_benchmark::drivers::bench_driver::BenchDriver;
 use haneul_benchmark::drivers::driver::Driver;
 use haneul_protocol_config::{ProtocolConfig, ProtocolVersion};
+use std::sync::Arc;
+use std::time::Duration;
 
 use haneul_benchmark::benchmark_setup::BenchmarkSetup;
 use haneul_benchmark::options::Opts;

@@ -1,26 +1,19 @@
-FROM rust:1.92-bullseye AS builder
-RUN apt-get update \
- && apt-get install -y --no-install-recommends cmake clang \
- && rm -rf /var/lib/apt/lists/*
+FROM rust:1.92-bullseye as build
+
 ARG PROFILE=release
 WORKDIR /work
 
-# COPYs ordered least- to most-frequently-changing for deeper layer cache hits.
-COPY rust-toolchain.toml ./
-COPY .cargo .cargo
+RUN apt-get update && apt-get install -y cmake clang
+
+COPY .git/ .git/
 COPY Cargo.toml Cargo.lock ./
-COPY external-crates external-crates
-COPY haneul-execution haneul-execution
 COPY consensus consensus
 COPY crates crates
+COPY haneul-execution haneul-execution
+COPY external-crates external-crates
 
-# haneul-kvstore-alt doesn't use GIT_REVISION at compile time, so we deliberately
-# don't declare ARG/ENV GIT_REVISION in the builder — keeps the cargo-build
-# layer cache key stable across commits when source content is unchanged.
-RUN cargo build --locked --profile ${PROFILE} --bin haneul-kvstore-alt
+RUN cargo build --profile ${PROFILE} --bin haneul-kvstore-alt
 
-FROM debian:12-slim AS deploy
-RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates libjemalloc-dev \
- && rm -rf /var/lib/apt/lists/*
-COPY --from=builder --chmod=755 /work/target/release/haneul-kvstore-alt /opt/haneul/bin/haneul-kvstore-alt
+FROM debian:12-slim as deploy
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates libjemalloc-dev
+COPY --from=build --chmod=755 /work/target/release/haneul-kvstore-alt /opt/haneul/bin/haneul-kvstore-alt

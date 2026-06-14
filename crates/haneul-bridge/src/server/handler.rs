@@ -10,9 +10,9 @@ use crate::types::{BridgeAction, SignedBridgeAction};
 use alloy::primitives::TxHash;
 use async_trait::async_trait;
 use axum::Json;
+use haneul_types::digests::TransactionDigest;
 use std::str::FromStr;
 use std::sync::Arc;
-use haneul_types::digests::TransactionDigest;
 use tap::TapFallible;
 use tracing::info;
 
@@ -178,11 +178,11 @@ mod tests {
     use super::*;
     use crate::{
         eth_mock_provider::EthMockService,
-        events::{MoveTokenDepositedEvent, HaneulToEthTokenBridgeV1, init_all_struct_tags},
+        events::{HaneulToEthTokenBridgeV1, MoveTokenDepositedEvent, init_all_struct_tags},
         haneul_mock_client::HaneulMockClient,
         test_utils::{
-            get_test_log_and_action, get_test_haneul_to_eth_bridge_action, make_transaction_receipt,
-            mock_last_finalized_block,
+            get_test_haneul_to_eth_bridge_action, get_test_log_and_action,
+            make_transaction_receipt, mock_last_finalized_block,
         },
         types::{EmergencyAction, EmergencyActionType, LimitUpdateAction},
     };
@@ -215,7 +215,12 @@ mod tests {
             Arc::new(eth_client),
             approved_actions,
         );
-        (handler, haneul_client_mock, eth_mock_service, contract_address)
+        (
+            handler,
+            haneul_client_mock,
+            eth_mock_service,
+            contract_address,
+        )
     }
 
     #[tokio::test]
@@ -235,7 +240,9 @@ mod tests {
         // Mock a cacheable error such as no bridge events in tx position (empty event list)
         haneul_client_mock.add_events_by_tx_digest(haneul_tx_digest, vec![]);
         assert!(matches!(
-            handler.verify_haneul((haneul_tx_digest, haneul_event_idx)).await,
+            handler
+                .verify_haneul((haneul_tx_digest, haneul_event_idx))
+                .await,
             Err(BridgeError::NoBridgeEventsInTxPosition)
         ));
 
@@ -279,7 +286,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_eth_verify() {
-        let (handler, _haneul_client_mock, eth_mock_service, contract_address) = test_handler(vec![]);
+        let (handler, _haneul_client_mock, eth_mock_service, contract_address) =
+            test_handler(vec![]);
 
         // Test `sign` Ok result
         let eth_tx_hash = TxHash::random();
@@ -354,7 +362,8 @@ mod tests {
         ));
 
         // Non governance action is not signable
-        let action_4 = get_test_haneul_to_eth_bridge_action(None, None, None, None, None, None, None);
+        let action_4 =
+            get_test_haneul_to_eth_bridge_action(None, None, None, None, None, None, None);
         assert!(matches!(
             verifier.verify(action_4.clone()).await.unwrap_err(),
             BridgeError::ActionIsNotGovernanceAction(..)

@@ -7,12 +7,12 @@ use std::time::Duration;
 
 use anyhow::Context;
 use anyhow::anyhow;
-use prometheus::Registry;
 use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::consistent_service_client::ConsistentServiceClient;
 use haneul_types::base_types::ObjectDigest;
 use haneul_types::base_types::ObjectID;
 use haneul_types::base_types::ObjectRef;
 use haneul_types::base_types::SequenceNumber;
+use prometheus::Registry;
 use tonic::transport::Channel;
 use tracing::instrument;
 use url::Url;

@@ -5,8 +5,8 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use backoff::ExponentialBackoff;
-use scoped_futures::ScopedFutureExt;
 use haneul_futures::service::Service;
+use scoped_futures::ScopedFutureExt;
 use tokio::sync::mpsc;
 use tracing::debug;
 use tracing::info;

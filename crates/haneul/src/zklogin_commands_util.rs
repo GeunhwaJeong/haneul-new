@@ -9,6 +9,15 @@ use fastcrypto::traits::{EncodeDecodeBase64, KeyPair};
 use fastcrypto_zkp::bn254::utils::get_proof;
 use fastcrypto_zkp::bn254::utils::{gen_address_seed, get_salt};
 use fastcrypto_zkp::bn254::zk_login::ZkLoginInputs;
+use haneul_keys::keystore::{AccountKeystore, Keystore};
+use haneul_types::base_types::HaneulAddress;
+use haneul_types::committee::EpochId;
+use haneul_types::crypto::{HaneulKeyPair, PublicKey};
+use haneul_types::gas_coin::GasCoin;
+use haneul_types::multisig::{MultiSig, MultiSigPublicKey};
+use haneul_types::signature::GenericSignature;
+use haneul_types::transaction::Transaction;
+use haneul_types::zk_login_authenticator::ZkLoginAuthenticator;
 use rand::SeedableRng;
 use rand::rngs::StdRng;
 use regex::Regex;
@@ -19,15 +28,6 @@ use std::io;
 use std::io::Write;
 use std::thread::sleep;
 use std::time::Duration;
-use haneul_keys::keystore::{AccountKeystore, Keystore};
-use haneul_types::base_types::HaneulAddress;
-use haneul_types::committee::EpochId;
-use haneul_types::crypto::{PublicKey, HaneulKeyPair};
-use haneul_types::gas_coin::GasCoin;
-use haneul_types::multisig::{MultiSig, MultiSigPublicKey};
-use haneul_types::signature::GenericSignature;
-use haneul_types::transaction::Transaction;
-use haneul_types::zk_login_authenticator::ZkLoginAuthenticator;
 
 /// Read a line from stdin, parse the id_token field and return.
 pub fn read_cli_line() -> Result<String, anyhow::Error> {

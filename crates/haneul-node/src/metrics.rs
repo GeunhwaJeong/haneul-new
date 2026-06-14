@@ -3,14 +3,14 @@
 
 use std::time::Duration;
 
+use haneul_network::api::KNOWN_VALIDATOR_GRPC_PATHS;
+use haneul_network::tonic::Code;
 use haneullabs_network::metrics::MetricsCallbackProvider;
 use prometheus::{
     HistogramVec, IntCounterVec, IntGauge, IntGaugeVec, Registry,
     register_histogram_vec_with_registry, register_int_counter_vec_with_registry,
     register_int_gauge_vec_with_registry, register_int_gauge_with_registry,
 };
-use haneul_network::api::KNOWN_VALIDATOR_GRPC_PATHS;
-use haneul_network::tonic::Code;
 
 pub struct HaneulNodeMetrics {
     pub jwk_requests: IntCounterVec,

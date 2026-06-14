@@ -61,7 +61,8 @@ impl BridgeClient {
                 "sign/bridge_tx/haneul/eth/{}/{}",
                 e.haneul_tx_digest, e.haneul_tx_event_index
             ),
-            BridgeAction::HaneulToEthTokenTransfer(_) | BridgeAction::HaneulToEthTokenTransferV2(_) => {
+            BridgeAction::HaneulToEthTokenTransfer(_)
+            | BridgeAction::HaneulToEthTokenTransferV2(_) => {
                 format!(
                     "sign/bridge_action/haneul/eth/{source_chain}/{message_type}/{bridge_seq_num}",
                     source_chain = event.chain_id() as u8,
@@ -297,10 +298,12 @@ mod tests {
     use alloy::sol_types::SolValue;
     use fastcrypto::hash::{HashFunction, Keccak256};
     use fastcrypto::traits::KeyPair;
-    use prometheus::Registry;
     use haneul_types::TypeTag;
     use haneul_types::bridge::{BridgeChainId, TOKEN_ID_BTC, TOKEN_ID_USDT};
-    use haneul_types::{base_types::HaneulAddress, crypto::get_key_pair, digests::TransactionDigest};
+    use haneul_types::{
+        base_types::HaneulAddress, crypto::get_key_pair, digests::TransactionDigest,
+    };
+    use prometheus::Registry;
 
     #[tokio::test]
     async fn test_bridge_client() {
@@ -310,8 +313,15 @@ mod tests {
 
         let pubkey_bytes = BridgeAuthorityPublicKeyBytes::from(&pubkey);
         let committee = Arc::new(BridgeCommittee::new(vec![authority.clone()]).unwrap());
-        let action =
-            get_test_haneul_to_eth_bridge_action(None, Some(1), Some(1), Some(100), None, None, None);
+        let action = get_test_haneul_to_eth_bridge_action(
+            None,
+            Some(1),
+            Some(1),
+            Some(100),
+            None,
+            None,
+            None,
+        );
 
         // Ok
         let client = BridgeClient::new(pubkey_bytes.clone(), committee).unwrap();
@@ -399,7 +409,12 @@ mod tests {
         );
         let sig = BridgeAuthoritySignInfo::new(&action, &secret);
         let signed_event = SignedBridgeAction::new_from_data_and_sig(action.clone(), sig.clone());
-        mock_handler.add_haneul_event_response(tx_digest, event_idx, Ok(signed_event.clone()), None);
+        mock_handler.add_haneul_event_response(
+            tx_digest,
+            event_idx,
+            Ok(signed_event.clone()),
+            None,
+        );
 
         // success
         client

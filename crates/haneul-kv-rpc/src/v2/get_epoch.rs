@@ -17,7 +17,7 @@ use haneul_rpc_api::{
 use haneul_sdk_types::ValidatorCommittee;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 
-pub const READ_MASK_DEFAULT: &str = haneul_rpc_api::read_mask_defaults::EPOCH;
+pub const READ_MASK_DEFAULT: &str = "epoch,first_checkpoint,last_checkpoint,start,end,reference_gas_price,protocol_config.protocol_version";
 
 pub async fn get_epoch(
     mut client: BigTableClient,

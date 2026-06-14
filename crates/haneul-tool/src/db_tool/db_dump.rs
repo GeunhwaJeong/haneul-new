@@ -4,12 +4,6 @@
 use anyhow::{Ok, anyhow};
 use clap::{Parser, ValueEnum};
 use comfy_table::{Cell, ContentArrangement, Row, Table};
-use prometheus::Registry;
-use std::collections::BTreeMap;
-use std::path::PathBuf;
-use std::str;
-use std::sync::Arc;
-use strum_macros::EnumString;
 use haneul_config::node::AuthorityStorePruningConfig;
 use haneul_core::authority::authority_per_epoch_store::AuthorityEpochTables;
 use haneul_core::authority::authority_store_pruner::{
@@ -22,6 +16,12 @@ use haneul_core::epoch::committee_store::CommitteeStoreTables;
 use haneul_core::jsonrpc_index::IndexStoreTables;
 use haneul_core::rpc_index::RpcIndexStore;
 use haneul_types::base_types::EpochId;
+use prometheus::Registry;
+use std::collections::BTreeMap;
+use std::path::PathBuf;
+use std::str;
+use std::sync::Arc;
+use strum_macros::EnumString;
 use tracing::info;
 use typed_store::rocks::{MetricConf, default_db_options};
 use typed_store::rocksdb::MultiThreaded;

@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_protocol_config::ProtocolConfig;
+use haneul_types::error::HaneulResult;
 use move_binary_format::CompiledModule;
 use move_bytecode_verifier_meter::Meter;
 use move_vm_config::verifier::MeterConfig;
-use haneul_protocol_config::ProtocolConfig;
-use haneul_types::error::HaneulResult;
 
 pub trait Verifier {
     /// Create a new bytecode verifier meter.

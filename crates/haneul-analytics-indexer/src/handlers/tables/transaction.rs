@@ -8,7 +8,7 @@ use std::sync::Arc;
 use anyhow::Result;
 use async_trait::async_trait;
 use haneul_indexer_alt_framework::pipeline::Processor;
-use haneul_types::base_types::{EpochId, ObjectID, SequenceNumber, HaneulAddress};
+use haneul_types::base_types::{EpochId, HaneulAddress, ObjectID, SequenceNumber};
 use haneul_types::digests::ObjectDigest;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::effects::TransactionEffectsAPI;

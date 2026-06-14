@@ -16,17 +16,18 @@ use crate::error::HaneulResult;
 use crate::full_checkpoint_content::{Checkpoint, CheckpointData};
 use crate::gas::GasCostSummary;
 use crate::global_state_hash::GlobalStateHash;
-use crate::message_envelope::{Envelope, Message, TrustedEnvelope, VerifiedEnvelope};
-use crate::signature::GenericSignature;
 use crate::haneul_serde::AsProtocolVersion;
 use crate::haneul_serde::BigInt;
 use crate::haneul_serde::Readable;
+use crate::message_envelope::{Envelope, Message, TrustedEnvelope, VerifiedEnvelope};
+use crate::signature::GenericSignature;
 use crate::transaction::{Transaction, TransactionData};
 use crate::{base_types::AuthorityName, committee::Committee, error::HaneulErrorKind};
 use anyhow::Result;
 use fastcrypto::hash::Blake2b256;
 use fastcrypto::hash::MultisetHash;
 use fastcrypto::merkle::MerkleTree;
+use haneul_protocol_config::ProtocolConfig;
 use haneullabs_common::ZipDebugEqIteratorExt;
 use haneullabs_metrics::histogram::Histogram as HaneullabsHistogram;
 use once_cell::sync::OnceCell;
@@ -39,7 +40,6 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::{Debug, Display, Formatter};
 use std::slice::Iter;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use haneul_protocol_config::ProtocolConfig;
 use tap::TapFallible;
 use tracing::warn;
 
@@ -199,7 +199,9 @@ impl CheckpointArtifacts {
     }
 
     /// Get the object states if present
-    pub fn object_states(&self) -> HaneulResult<&BTreeMap<ObjectID, (SequenceNumber, ObjectDigest)>> {
+    pub fn object_states(
+        &self,
+    ) -> HaneulResult<&BTreeMap<ObjectID, (SequenceNumber, ObjectDigest)>> {
         self.artifacts
             .iter()
             .find(|artifact| matches!(artifact, CheckpointArtifact::ObjectStates(_)))
@@ -434,7 +436,11 @@ impl CheckpointSummary {
             .map(|e| e.next_epoch_committee.as_slice())
     }
 
-    pub fn report_checkpoint_age(&self, metrics: &Histogram, metrics_deprecated: &HaneullabsHistogram) {
+    pub fn report_checkpoint_age(
+        &self,
+        metrics: &Histogram,
+        metrics_deprecated: &HaneullabsHistogram,
+    ) {
         SystemTime::now()
             .duration_since(self.timestamp())
             .map(|latency| {

@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use clap::Parser;
-use haneullabs_metrics::start_prometheus_server;
-use std::path::PathBuf;
-use std::time::Duration;
 use haneul_config::Config;
 use haneul_oracle::{OracleNode, config::OracleNodeConfig};
 use haneul_sdk::wallet_context::WalletContext;
+use haneullabs_metrics::start_prometheus_server;
+use std::path::PathBuf;
+use std::time::Duration;
 
 #[derive(Parser)]
 #[clap(rename_all = "kebab-case")]

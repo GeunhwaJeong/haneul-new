@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use anyhow::bail;
-use move_core_types::language_storage::TypeTag;
 use haneul_json_rpc_types::{BalanceChange, HaneulData, HaneulObjectData, HaneulObjectDataOptions};
 use haneul_sdk::HaneulClient;
 use haneul_types::error::HaneulObjectResponseError;
 use haneul_types::gas_coin::GasCoin;
 use haneul_types::{base_types::ObjectID, object::Owner, parse_haneul_type_tag};
+use move_core_types::language_storage::TypeTag;
 use tracing::{debug, trace};
 
 /// A util struct that helps verify Haneul Object.

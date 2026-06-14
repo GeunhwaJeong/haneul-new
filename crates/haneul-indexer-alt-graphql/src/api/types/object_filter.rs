@@ -6,8 +6,8 @@ use async_graphql::CustomValidator;
 use async_graphql::InputObject;
 use async_graphql::InputValueError;
 
-use crate::api::scalars::owner_kind::OwnerKind;
 use crate::api::scalars::haneul_address::HaneulAddress;
+use crate::api::scalars::owner_kind::OwnerKind;
 use crate::api::scalars::type_filter::TypeFilter;
 use crate::intersect;
 
@@ -246,7 +246,10 @@ mod tests {
             type_: Some("0x2::coin::Coin".parse().unwrap()),
         };
 
-        assert_eq!(a_coin.clone().intersect(a_haneul.clone()).unwrap(), a_haneul);
+        assert_eq!(
+            a_coin.clone().intersect(a_haneul.clone()).unwrap(),
+            a_haneul
+        );
         assert!(a_coin.clone().intersect(o_coin.clone()).is_none());
     }
 }

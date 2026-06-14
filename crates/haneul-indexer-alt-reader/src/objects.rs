@@ -8,7 +8,6 @@ use async_graphql::dataloader::Loader;
 use diesel::BoolExpressionMethods;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
-use prost_types::FieldMask;
 use haneul_indexer_alt_schema::objects::StoredObject;
 use haneul_indexer_alt_schema::schema::kv_objects;
 use haneul_rpc::field::FieldMaskUtil;
@@ -16,6 +15,7 @@ use haneul_rpc::proto::haneul::rpc::v2 as proto;
 use haneul_types::base_types::ObjectID;
 use haneul_types::object::Object;
 use haneul_types::storage::ObjectKey;
+use prost_types::FieldMask;
 
 use crate::bigtable_reader::BigtableReader;
 use crate::error::Error;

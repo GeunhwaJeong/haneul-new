@@ -1,11 +1,11 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_indexer_alt_e2e_tests::FullCluster;
+use haneul_indexer_alt_graphql::extensions::logging::REQUEST_ID_HEADER;
 use reqwest::Client;
 use serde_json::Value;
 use serde_json::json;
-use haneul_indexer_alt_e2e_tests::FullCluster;
-use haneul_indexer_alt_graphql::extensions::logging::REQUEST_ID_HEADER;
 
 struct TestResult {
     request_id: String,

@@ -3,11 +3,11 @@
 
 use std::{collections::BTreeMap, sync::Arc};
 
-use haneullabs_common::debug_fatal;
 use haneul_types::{
     base_types::AuthorityName,
     committee::{Committee, StakeUnit},
 };
+use haneullabs_common::debug_fatal;
 
 /// Aggregates various types of statuses from different authorities,
 /// and the total stake of authorities that have inserted statuses.

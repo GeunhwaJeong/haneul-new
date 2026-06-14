@@ -6,7 +6,6 @@ use std::str::FromStr;
 use anyhow::Context as _;
 use anyhow::anyhow;
 use async_trait::async_trait;
-use prost_types::FieldMask;
 use haneul_rpc::Client as RpcClient;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::GetCheckpointRequest;
@@ -15,6 +14,7 @@ use haneul_rpc::proto::haneul::rpc::v2::GetServiceInfoResponse;
 use haneul_types::digests::ChainIdentifier;
 use haneul_types::digests::CheckpointDigest;
 use haneul_types::full_checkpoint_content::Checkpoint;
+use prost_types::FieldMask;
 use tonic::Code;
 
 use crate::ingestion::decode::Error::ProtoConversion;

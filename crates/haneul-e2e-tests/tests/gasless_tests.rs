@@ -3,11 +3,6 @@
 
 use std::time::Duration;
 
-use move_core_types::{
-    identifier::Identifier,
-    language_storage::{StructTag, TypeTag},
-    u256::U256,
-};
 use haneul_core::transaction_driver::SubmitTransactionOptions;
 use haneul_macros::*;
 use haneul_test_transaction_builder::FundSource;
@@ -23,6 +18,11 @@ use haneul_types::{
         self, Command, FundsWithdrawalArg, GasData, ObjectArg, TransactionData, TransactionDataV1,
         TransactionExpiration, TransactionKind,
     },
+};
+use move_core_types::{
+    identifier::Identifier,
+    language_storage::{StructTag, TypeTag},
+    u256::U256,
 };
 use test_cluster::addr_balance_test_env::{TestEnv, TestEnvBuilder};
 
@@ -47,7 +47,11 @@ async fn setup_custom_coin(test_env: &mut TestEnv, funding: &[(u64, HaneulAddres
     coin_type
 }
 
-fn build_send_funds_ptb(amount: u64, coin_type: TypeTag, recipient: HaneulAddress) -> TransactionKind {
+fn build_send_funds_ptb(
+    amount: u64,
+    coin_type: TypeTag,
+    recipient: HaneulAddress,
+) -> TransactionKind {
     let mut builder = ProgrammableTransactionBuilder::new();
     let withdraw_arg = FundsWithdrawalArg::balance_from_sender(amount, coin_type.clone());
     let withdraw_arg = builder.funds_withdrawal(withdraw_arg).unwrap();

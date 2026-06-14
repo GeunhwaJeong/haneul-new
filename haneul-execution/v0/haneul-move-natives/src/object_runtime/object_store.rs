@@ -2,6 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::object_runtime::LocalProtocolConfig;
+use haneul_protocol_config::{check_limit_by_meter, LimitThresholdCrossed};
+use haneul_types::{
+    base_types::{MoveObjectType, ObjectID, SequenceNumber},
+    error::VMMemoryLimitExceededSubStatusCode,
+    metrics::ExecutionMetrics,
+    object::{Data, MoveObject, Object, Owner},
+    storage::ChildObjectResolver,
+};
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_core_types::{annotated_value as A, runtime_value as R, vm_status::StatusCode};
 use move_vm_types::{
@@ -12,14 +20,6 @@ use move_vm_types::{
 use std::{
     collections::{btree_map, BTreeMap},
     sync::Arc,
-};
-use haneul_protocol_config::{check_limit_by_meter, LimitThresholdCrossed};
-use haneul_types::{
-    base_types::{MoveObjectType, ObjectID, SequenceNumber},
-    error::VMMemoryLimitExceededSubStatusCode,
-    metrics::ExecutionMetrics,
-    object::{Data, MoveObject, Object, Owner},
-    storage::ChildObjectResolver,
 };
 
 use super::get_all_uids;
@@ -125,9 +125,6 @@ impl Inner<'_> {
                     }
                     Owner::ConsensusAddressOwner { .. } => {
                         unimplemented!("ConsensusAddressOwner does not exist for this execution version")
-                    }
-                    Owner::Party { .. } => {
-                        unimplemented!("Party does not exist for this execution version")
                     }
                 };
                 match object.data {

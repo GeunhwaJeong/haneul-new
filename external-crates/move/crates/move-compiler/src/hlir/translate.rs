@@ -7,6 +7,7 @@ use crate::{
     diagnostics::{Diagnostic, DiagnosticReporter, Diagnostics, filter::FilterScope},
     editions::{FeatureGate, Flavor},
     expansion::ast::{self as E, Fields, ModuleIdent, Mutability},
+    haneul_mode::ID_FIELD_NAME,
     hlir::{
         ast::{self as H, Block, BlockLabel, MoveOpAnnotation, UnpackType},
         detect_dead_code::program as detect_dead_code_analysis,
@@ -25,7 +26,6 @@ use crate::{
         unique_map::UniqueMap,
         *,
     },
-    haneul_mode::ID_FIELD_NAME,
     typing::ast as T,
 };
 
@@ -3033,7 +3033,8 @@ fn gen_unused_warnings(
         // cannot be analyzed in this pass
         return;
     }
-    let is_haneul_mode = context.env.package_config(context.current_package).flavor == Flavor::Haneul;
+    let is_haneul_mode =
+        context.env.package_config(context.current_package).flavor == Flavor::Haneul;
 
     for (_, sname, sdef) in structs {
         context.push_warning_filter_scope(sdef.warning_filter.clone());

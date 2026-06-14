@@ -17,6 +17,7 @@ use haneul_types::{
     committee::EpochId,
     crypto::AuthorityKeyPair,
     error::{HaneulError, HaneulErrorKind, HaneulResult},
+    haneul_system_state::HaneulSystemState,
     messages_checkpoint::{
         CheckpointRequest, CheckpointRequestV2, CheckpointResponse, CheckpointResponseV2,
     },
@@ -27,7 +28,6 @@ use haneul_types::{
         ValidatorHealthRequest, ValidatorHealthResponse, WaitForEffectsRequest,
         WaitForEffectsResponse,
     },
-    haneul_system_state::HaneulSystemState,
     transaction::{Transaction, VerifiedTransaction},
 };
 

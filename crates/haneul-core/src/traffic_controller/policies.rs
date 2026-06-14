@@ -5,6 +5,7 @@
 use std::{collections::HashMap, net::IpAddr, sync::Arc};
 
 use count_min_sketch::CountMinSketch32;
+use haneul_types::traffic_control::{FreqThresholdConfig, PolicyConfig, PolicyType, Weight};
 use haneullabs_metrics::spawn_monitored_task;
 use parking_lot::RwLock;
 use std::cmp::Reverse;
@@ -13,7 +14,6 @@ use std::fmt::Debug;
 use std::hash::Hash;
 use std::time::Duration;
 use std::time::{Instant, SystemTime};
-use haneul_types::traffic_control::{FreqThresholdConfig, PolicyConfig, PolicyType, Weight};
 use tracing::{info, trace};
 
 const HIGHEST_RATES_CAPACITY: usize = 20;
@@ -235,7 +235,6 @@ pub struct TrafficTally {
     pub error_info: Option<(Weight, String)>,
     pub spam_weight: Weight,
     pub timestamp: SystemTime,
-    pub method: Option<String>,
 }
 
 impl TrafficTally {
@@ -251,13 +250,7 @@ impl TrafficTally {
             error_info,
             spam_weight,
             timestamp: SystemTime::now(),
-            method: None,
         }
-    }
-
-    pub fn with_method(mut self, method: String) -> Self {
-        self.method = Some(method);
-        self
     }
 }
 
@@ -525,11 +518,11 @@ impl TestPanicOnInvocationPolicy {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::net::{IpAddr, Ipv4Addr};
     use haneul_macros::sim_test;
     use haneul_types::traffic_control::{
         DEFAULT_SKETCH_CAPACITY, DEFAULT_SKETCH_PROBABILITY, DEFAULT_SKETCH_TOLERANCE,
     };
+    use std::net::{IpAddr, Ipv4Addr};
 
     #[sim_test]
     async fn test_freq_threshold_policy() {
@@ -555,7 +548,6 @@ mod tests {
             error_info: None,
             spam_weight: Weight::one(),
             timestamp: SystemTime::now(),
-            method: None,
         };
         let bob = TrafficTally {
             direct: Some(IpAddr::V4(Ipv4Addr::new(8, 7, 6, 5))),
@@ -563,7 +555,6 @@ mod tests {
             error_info: None,
             spam_weight: Weight::one(),
             timestamp: SystemTime::now(),
-            method: None,
         };
         let charlie = TrafficTally {
             direct: Some(IpAddr::V4(Ipv4Addr::new(8, 7, 6, 5))),
@@ -571,7 +562,6 @@ mod tests {
             error_info: None,
             spam_weight: Weight::one(),
             timestamp: SystemTime::now(),
-            method: None,
         };
 
         // initial 2 tallies for alice, should not block

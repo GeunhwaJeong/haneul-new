@@ -5,21 +5,12 @@ use alloy::primitives::Address as EthAddress;
 use alloy::providers::Provider;
 use clap::*;
 use fastcrypto::encoding::{Encoding, Hex};
-use haneullabs_common::ZipDebugEqIteratorExt;
-use shared_crypto::intent::Intent;
-use shared_crypto::intent::IntentMessage;
-use std::collections::BTreeMap;
-use std::collections::HashMap;
-use std::str::FromStr;
-use std::str::from_utf8;
-use std::sync::Arc;
-use std::time::Duration;
 use haneul_bridge::client::bridge_authority_aggregator::BridgeAuthorityAggregator;
 use haneul_bridge::crypto::{BridgeAuthorityPublicKey, BridgeAuthorityPublicKeyBytes};
 use haneul_bridge::eth_transaction_builder::build_eth_transaction;
-use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge::haneul_client::HaneulBridgeClient;
 use haneul_bridge::haneul_transaction_builder::build_haneul_transaction;
+use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge::types::BridgeActionType;
 use haneul_bridge::utils::get_eth_provider;
 use haneul_bridge::utils::{EthBridgeContracts, get_eth_contracts};
@@ -41,6 +32,15 @@ use haneul_types::crypto::AuthorityPublicKeyBytes;
 use haneul_types::crypto::Signature;
 use haneul_types::crypto::ToFromBytes;
 use haneul_types::transaction::Transaction;
+use haneullabs_common::ZipDebugEqIteratorExt;
+use shared_crypto::intent::Intent;
+use shared_crypto::intent::IntentMessage;
+use std::collections::BTreeMap;
+use std::collections::HashMap;
+use std::str::FromStr;
+use std::str::from_utf8;
+use std::sync::Arc;
+use std::time::Duration;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -513,7 +513,8 @@ async fn main() -> anyhow::Result<()> {
             let config = BridgeCliConfig::load(config_path).expect("Couldn't load BridgeCliConfig");
             let config = LoadedBridgeCliConfig::load(config).await?;
             let metrics = Arc::new(BridgeMetrics::new_for_testing());
-            let haneul_bridge_client = HaneulBridgeClient::new(&config.haneul_rpc_url, metrics).await?;
+            let haneul_bridge_client =
+                HaneulBridgeClient::new(&config.haneul_rpc_url, metrics).await?;
             cmd.handle(&config, haneul_bridge_client).await?;
             return Ok(());
         }

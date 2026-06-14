@@ -2,29 +2,30 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use fastcrypto::traits::KeyPair;
-use move_core_types::{account_address::AccountAddress, ident_str};
-use shared_crypto::intent::{Intent, IntentScope};
-use std::sync::Arc;
-use std::time::Duration;
 use haneul_config::genesis::Genesis;
 use haneul_macros::nondeterministic;
 use haneul_types::base_types::{FullObjectRef, ObjectID, random_object_ref};
 use haneul_types::crypto::AuthorityKeyPair;
-use haneul_types::crypto::{AccountKeyPair, Signer};
+use haneul_types::crypto::{AccountKeyPair, AuthorityPublicKeyBytes, Signer};
 use haneul_types::effects::TestEffectsBuilder;
+use haneul_types::signature_verification::VerifiedDigestCache;
 use haneul_types::transaction::ObjectArg;
 use haneul_types::transaction::{
-    CallArg, TEST_ONLY_GAS_UNIT_FOR_TRANSFER, Transaction, TransactionData,
+    CallArg, SignedTransaction, TEST_ONLY_GAS_UNIT_FOR_TRANSFER, Transaction, TransactionData,
 };
 use haneul_types::utils::create_fake_transaction;
 use haneul_types::utils::to_sender_signed_transaction;
 use haneul_types::{
-    base_types::{AuthorityName, ExecutionDigests, ObjectRef, HaneulAddress, TransactionDigest},
+    base_types::{AuthorityName, ExecutionDigests, HaneulAddress, ObjectRef, TransactionDigest},
     committee::Committee,
     crypto::{AuthoritySignInfo, AuthoritySignature},
     message_envelope::Message,
     transaction::CertifiedTransaction,
 };
+use move_core_types::{account_address::AccountAddress, ident_str};
+use shared_crypto::intent::{Intent, IntentScope};
+use std::sync::Arc;
+use std::time::Duration;
 use tokio::time::timeout;
 use tracing::{info, warn};
 
@@ -205,4 +206,40 @@ pub fn make_dummy_tx(
         ),
         vec![sender_sec],
     )
+}
+
+/// Make a cert using an arbitrarily large committee.
+pub fn make_cert_with_large_committee(
+    committee: &Committee,
+    key_pairs: &[AuthorityKeyPair],
+    transaction: &Transaction,
+) -> CertifiedTransaction {
+    // assumes equal weighting.
+    let len = committee.voting_rights.len();
+    assert_eq!(len, key_pairs.len());
+    let count = (len * 2).div_ceil(3);
+
+    let sigs: Vec<_> = key_pairs
+        .iter()
+        .take(count)
+        .map(|key_pair| {
+            SignedTransaction::new(
+                committee.epoch(),
+                transaction.clone().into_data(),
+                key_pair,
+                AuthorityPublicKeyBytes::from(key_pair.public()),
+            )
+            .auth_sig()
+            .clone()
+        })
+        .collect();
+
+    let cert = CertifiedTransaction::new(transaction.clone().into_data(), sigs, committee).unwrap();
+    cert.verify_signatures_authenticated(
+        committee,
+        &Default::default(),
+        Arc::new(VerifiedDigestCache::new_empty()),
+    )
+    .unwrap();
+    cert
 }

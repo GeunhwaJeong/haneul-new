@@ -4,6 +4,7 @@
 use super::Node;
 use anyhow::Result;
 use futures::future::try_join_all;
+use haneul_types::traffic_control::{PolicyConfig, RemoteFirewallConfig};
 use rand::rngs::OsRng;
 use std::collections::HashMap;
 use std::net::SocketAddr;
@@ -13,7 +14,6 @@ use std::{
     ops,
     path::{Path, PathBuf},
 };
-use haneul_types::traffic_control::{PolicyConfig, RemoteFirewallConfig};
 
 #[cfg(msim)]
 use haneul_config::node::ExecutionTimeObserverConfig;
@@ -27,7 +27,6 @@ use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_swarm_config::network_config_builder::{
     CommitteeConfig, ConfigBuilder, FundsWithdrawSchedulerTypeConfig,
     GlobalStateHashV2EnabledConfig, ProtocolVersionsConfig, SupportedProtocolVersionsCallback,
-    ValidatorObserverConfigCallback,
 };
 use haneul_swarm_config::node_config_builder::FullnodeConfigBuilder;
 use haneul_types::base_types::AuthorityName;
@@ -49,7 +48,6 @@ pub struct SwarmBuilder<R = OsRng> {
     fullnode_rpc_port: Option<u16>,
     fullnode_rpc_addr: Option<SocketAddr>,
     fullnode_rpc_config: Option<haneul_config::RpcConfig>,
-    fullnode_config: Option<NodeConfig>,
     supported_protocol_versions_config: ProtocolVersionsConfig,
     // Default to supported_protocol_versions_config, but can be overridden.
     fullnode_supported_protocol_versions_config: Option<ProtocolVersionsConfig>,
@@ -68,7 +66,6 @@ pub struct SwarmBuilder<R = OsRng> {
     state_sync_config: Option<haneul_config::p2p::StateSyncConfig>,
     #[cfg(msim)]
     execution_time_observer_config: Option<ExecutionTimeObserverConfig>,
-    validator_observer_config: Option<ValidatorObserverConfigCallback>,
 }
 
 impl SwarmBuilder {
@@ -86,7 +83,6 @@ impl SwarmBuilder {
             fullnode_rpc_port: None,
             fullnode_rpc_addr: None,
             fullnode_rpc_config: None,
-            fullnode_config: None,
             supported_protocol_versions_config: ProtocolVersionsConfig::Default,
             fullnode_supported_protocol_versions_config: None,
             db_checkpoint_config: DBCheckpointConfig::default(),
@@ -104,7 +100,6 @@ impl SwarmBuilder {
             state_sync_config: None,
             #[cfg(msim)]
             execution_time_observer_config: None,
-            validator_observer_config: None,
         }
     }
 }
@@ -123,7 +118,6 @@ impl<R> SwarmBuilder<R> {
             fullnode_rpc_port: self.fullnode_rpc_port,
             fullnode_rpc_addr: self.fullnode_rpc_addr,
             fullnode_rpc_config: self.fullnode_rpc_config.clone(),
-            fullnode_config: self.fullnode_config,
             supported_protocol_versions_config: self.supported_protocol_versions_config,
             fullnode_supported_protocol_versions_config: self
                 .fullnode_supported_protocol_versions_config,
@@ -142,7 +136,6 @@ impl<R> SwarmBuilder<R> {
             state_sync_config: self.state_sync_config,
             #[cfg(msim)]
             execution_time_observer_config: self.execution_time_observer_config,
-            validator_observer_config: self.validator_observer_config,
         }
     }
 
@@ -225,13 +218,11 @@ impl<R> SwarmBuilder<R> {
         self
     }
 
-    pub fn with_fullnode_rpc_config(mut self, fullnode_rpc_config: haneul_config::RpcConfig) -> Self {
+    pub fn with_fullnode_rpc_config(
+        mut self,
+        fullnode_rpc_config: haneul_config::RpcConfig,
+    ) -> Self {
         self.fullnode_rpc_config = Some(fullnode_rpc_config);
-        self
-    }
-
-    pub fn with_fullnode_config(mut self, fullnode_config: NodeConfig) -> Self {
-        self.fullnode_config = Some(fullnode_config);
         self
     }
 
@@ -290,11 +281,6 @@ impl<R> SwarmBuilder<R> {
     #[cfg(msim)]
     pub fn with_execution_time_observer_config(mut self, c: ExecutionTimeObserverConfig) -> Self {
         self.execution_time_observer_config = Some(c);
-        self
-    }
-
-    pub fn with_validator_observer_config(mut self, c: ValidatorObserverConfigCallback) -> Self {
-        self.validator_observer_config = Some(c);
         self
     }
 
@@ -443,11 +429,6 @@ impl<R: rand::RngCore + rand::CryptoRng> SwarmBuilder<R> {
                     .with_execution_time_observer_config(execution_time_observer_config);
             }
 
-            if let Some(validator_observer_config) = self.validator_observer_config {
-                final_builder =
-                    final_builder.with_validator_observer_config(validator_observer_config);
-            }
-
             final_builder.build()
         });
 
@@ -492,27 +473,22 @@ impl<R: rand::RngCore + rand::CryptoRng> SwarmBuilder<R> {
         }
 
         if self.fullnode_count > 0 {
-            let mut prebuilt_fullnode_config = self.fullnode_config;
             (0..self.fullnode_count).for_each(|idx| {
-                let config = if idx == 0 && prebuilt_fullnode_config.is_some() {
-                    prebuilt_fullnode_config.take().unwrap()
-                } else {
-                    let mut builder = fullnode_config_builder.clone();
-                    if idx == 0 {
-                        // Only the first fullnode is used as the rpc fullnode, we can only use the
-                        // same address once.
-                        if let Some(rpc_addr) = self.fullnode_rpc_addr {
-                            builder = builder.with_rpc_addr(rpc_addr);
-                        }
-                        if let Some(rpc_port) = self.fullnode_rpc_port {
-                            builder = builder.with_rpc_port(rpc_port);
-                        }
-                        if let Some(rpc_config) = &self.fullnode_rpc_config {
-                            builder = builder.with_rpc_config(rpc_config.clone());
-                        }
+                let mut builder = fullnode_config_builder.clone();
+                if idx == 0 {
+                    // Only the first fullnode is used as the rpc fullnode, we can only use the
+                    // same address once.
+                    if let Some(rpc_addr) = self.fullnode_rpc_addr {
+                        builder = builder.with_rpc_addr(rpc_addr);
                     }
-                    builder.build(&mut OsRng, &network_config)
-                };
+                    if let Some(rpc_port) = self.fullnode_rpc_port {
+                        builder = builder.with_rpc_port(rpc_port);
+                    }
+                    if let Some(rpc_config) = &self.fullnode_rpc_config {
+                        builder = builder.with_rpc_config(rpc_config.clone());
+                    }
+                }
+                let config = builder.build(&mut OsRng, &network_config);
                 info!(
                     "SwarmBuilder configuring full node with name {}",
                     config.protocol_public_key()

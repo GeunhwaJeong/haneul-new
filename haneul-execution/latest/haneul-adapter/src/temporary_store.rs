@@ -1,12 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::execution_mode::ExecutionMode;
 use crate::gas_charger::{GasCharger, PaymentLocation};
-use haneullabs_common::{ZipDebugEqIteratorExt, debug_fatal};
-use haneullabs_metrics::monitored_scope;
-use parking_lot::RwLock;
-use std::collections::{BTreeMap, BTreeSet, HashSet};
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::accumulator_event::AccumulatorEvent;
 use haneul_types::accumulator_root::AccumulatorObjId;
@@ -21,14 +16,14 @@ use haneul_types::execution::{
     DynamicallyLoadedObjectMetadata, ExecutionResults, ExecutionResultsV2, SharedInput,
 };
 use haneul_types::execution_status::{ExecutionErrorKind, ExecutionStatus};
+use haneul_types::haneul_system_state::{AdvanceEpochParams, get_haneul_system_state_wrapper};
 use haneul_types::inner_temporary_store::InnerTemporaryStore;
 use haneul_types::layout_resolver::LayoutResolver;
-use haneul_types::object::{Data, ObjectPermissions};
+use haneul_types::object::Data;
 use haneul_types::storage::{BackingStore, DenyListResult, PackageObject};
-use haneul_types::haneul_system_state::{AdvanceEpochParams, get_haneul_system_state_wrapper};
 use haneul_types::{
     HANEUL_DENY_LIST_OBJECT_ID,
-    base_types::{ObjectID, ObjectRef, SequenceNumber, HaneulAddress, TransactionDigest},
+    base_types::{HaneulAddress, ObjectID, ObjectRef, SequenceNumber, TransactionDigest},
     effects::EffectsObjectChange,
     error::{ExecutionError, HaneulResult},
     gas::GasCostSummary,
@@ -38,6 +33,10 @@ use haneul_types::{
     transaction::InputObjects,
 };
 use haneul_types::{HANEUL_SYSTEM_STATE_OBJECT_ID, TypeTag, is_system_package};
+use haneullabs_common::{ZipDebugEqIteratorExt, debug_fatal};
+use haneullabs_metrics::monitored_scope;
+use parking_lot::RwLock;
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 pub struct TemporaryStore<'backing> {
     // The backing store for retrieving Move packages onchain.
@@ -315,15 +314,6 @@ impl<'backing> TemporaryStore<'backing> {
         gas_charger: &mut GasCharger,
         epoch: EpochId,
     ) -> (InnerTemporaryStore, TransactionEffects) {
-        // Defense-in-depth: Owner::Party is not yet supported as an effect output. There are
-        // no constructions of `Owner::Party` yet so a hard assert should be safe.
-        for (id, obj) in &self.execution_results.written_objects {
-            assert!(
-                !matches!(obj.owner, Owner::Party { .. }),
-                "Party-owned objects are not yet supported (object {id})"
-            );
-        }
-
         self.update_object_version_and_prev_tx();
         // This must happens before merge_accumulator_events.
         let accumulator_running_max_withdraws = self.calculate_accumulator_running_max_withdraws();
@@ -795,16 +785,6 @@ impl TemporaryStore<'_> {
                         // us from catching this.
                         None
                     }
-                    Owner::Party { permissions, .. } => {
-                        let sender_permissions = permissions.permissions_for(sender);
-                        let sponsor_permissions = sponsor
-                            .as_ref()
-                            .map(|s| permissions.permissions_for(s))
-                            .unwrap_or(ObjectPermissions::NONE);
-                        (sender_permissions | sponsor_permissions)
-                            .can_use_mutably()
-                            .then_some(id)
-                    }
                     Owner::ObjectOwner(_parent) => {
                         unreachable!(
                             "Input objects must be address owned, shared, consensus, or immutable"
@@ -890,13 +870,12 @@ impl TemporaryStore<'_> {
                     }
                     // We mutated a shared object -- we checked if this object was in the
                     // authenticated set at the top of this loop and it wasn't so this is a failure.
-                    owner @ Owner::Shared { .. } | owner @ Owner::Party { .. } => {
+                    owner @ Owner::Shared { .. } => {
                         panic!(
                             "Unauthenticated root at {to_authenticate:?} with owner {owner:?}\n\
                              Potentially covering objects in: {authenticated_for_mutation:#?}"
                         );
                     }
-
                     Owner::Immutable => {
                         assert!(
                             is_epoch_change,
@@ -1054,9 +1033,7 @@ impl TemporaryStore<'_> {
         }
     }
 
-    pub fn check_execution_results_consistency<Mode: ExecutionMode>(
-        &self,
-    ) -> Result<(), Mode::Error> {
+    pub fn check_execution_results_consistency(&self) -> Result<(), ExecutionError> {
         assert_invariant!(
             self.execution_results
                 .created_object_ids
@@ -1255,14 +1232,10 @@ impl TemporaryStore<'_> {
     }
 
     /// Defense-in-depth invariant on funds-accumulator events. Per `(address, type)`:
-    /// - If the pair is in `input_reservations`, net withdrawal <= budget.
-    /// - Else if the PTB emitted a Split at this key, we assume there must be an object withdrawal.
-    ///   As such, any net change is acceptable.
-    /// - Else if the PTB emitted only Merges at this key, we can assume there might not be an
-    ///   object withdrawal. In any case, the net balance at the end of the transaction should be
-    ///   non-negative, since there could be additional withdrawals from gas, but they should
-    ///   not exceed the deposits.
-    /// - Else, any event is unauthorized.
+    /// - If the pair is in `input_reservations`: net withdrawal ≤ budget.
+    /// - Else if PTB-emitted events touched it: runtime contribution must not push the net
+    ///   below Move's deposit (`actual ≥ min(0, ptb_change)`).
+    /// - Else: any event is unauthorized — fatal.
     ///
     /// Currently the only funds-accumulator type is `Balance<T>`, so the check is scoped to
     /// those events. As more accumulator shapes are added the filter and the integer
@@ -1279,20 +1252,34 @@ impl TemporaryStore<'_> {
     ///   violations surface loudly during rollout.
     pub fn check_address_balance_changes(
         &self,
-        _protocol_config: &ProtocolConfig,
+        protocol_config: &ProtocolConfig,
+        input_reservations: &BTreeMap<(HaneulAddress, TypeTag), u64>,
+    ) -> Result<(), ExecutionError> {
+        let result = self.check_address_balance_changes_impl(input_reservations);
+        if protocol_config.enforce_address_balance_change_invariant() {
+            result
+        } else {
+            if let Err(e) = result {
+                panic!("address-balance-change invariant violated pre-flag: {e}");
+            }
+            Ok(())
+        }
+    }
+
+    fn check_address_balance_changes_impl(
+        &self,
         input_reservations: &BTreeMap<(HaneulAddress, TypeTag), u64>,
     ) -> Result<(), ExecutionError> {
         use haneul_types::balance::Balance;
 
         let mut actual_changes: BTreeMap<(HaneulAddress, TypeTag), i128> = BTreeMap::new();
-        let mut has_ptb_withdrawals: BTreeSet<(HaneulAddress, TypeTag)> = BTreeSet::new();
-        let mut has_ptb_deposits: BTreeSet<(HaneulAddress, TypeTag)> = BTreeSet::new();
+        let mut ptb_changes: BTreeMap<(HaneulAddress, TypeTag), i128> = BTreeMap::new();
         for (idx, event) in self.execution_results.accumulator_events.iter().enumerate() {
             // Filter on the value shape first: only `Integer` carries the funds-flow we care
             // about. Other shapes (e.g. `EventDigest` for event-stream heads) belong to
             // non-Balance accumulators and are out of scope here. If we ever see an `Integer`
             // value at a non-`Balance<T>` type, the accounting invariants below don't apply
-            // -- debug_fatal so that case is surfaced instead of silently accepted.
+            // — debug_fatal so that case is surfaced instead of silently accepted.
             let amount = match event.write.value {
                 AccumulatorValue::Integer(amount) => amount as i128,
                 AccumulatorValue::IntegerTuple(_, _) | AccumulatorValue::EventDigest(_) => {
@@ -1316,20 +1303,13 @@ impl TemporaryStore<'_> {
                 .any(|range| range.contains(&idx));
             let key = (event.write.address.address, event.write.address.ty.clone());
             let change = match event.write.operation {
-                AccumulatorOperation::Split => {
-                    if is_ptb_emitted {
-                        has_ptb_withdrawals.insert(key.clone());
-                    }
-                    -amount
-                }
-                AccumulatorOperation::Merge => {
-                    if is_ptb_emitted {
-                        has_ptb_deposits.insert(key.clone());
-                    }
-                    amount
-                }
+                AccumulatorOperation::Split => -amount,
+                AccumulatorOperation::Merge => amount,
             };
             *actual_changes.entry(key.clone()).or_insert(0) += change;
+            if is_ptb_emitted {
+                *ptb_changes.entry(key).or_insert(0) += change;
+            }
         }
 
         for (key, actual) in actual_changes {
@@ -1341,19 +1321,16 @@ impl TemporaryStore<'_> {
                     "Balance accumulator withdrawal exceeds reservation budget at address \
                     {address} for type {type_tag}: net Split {net_withdrawn}, budget {budget}"
                 );
-            } else if has_ptb_withdrawals.contains(&key) {
-                // Move authorized the PTB Split against the on-chain balance, so any
-                // resulting net (including a net withdrawal beyond any PTB Merges here)
-                // is trusted.
-            } else if has_ptb_deposits.contains(&key) {
-                // PTB only deposited at this key. As such, the final net change must be
-                // non-negative, since there was no authorization for any withdrawal.
-                // We cannot compare this value to the sum of the PTB deposits due to intricacies
-                // with gas charging and storage rebate.
+            } else if let Some(ptb_change) = ptb_changes.get(&key).copied() {
+                // Runtime-emitted withdrawals at this (address, type) are bounded by Move's
+                // net deposit at the same key: actual ≥ min(0, ptb_change). When Move
+                // deposited (ptb_change > 0), the runtime may withdraw down to 0; when Move
+                // withdrew (ptb_change < 0), the runtime may not withdraw further.
                 assert_invariant!(
-                    actual >= 0,
-                    "PTB-emitted Balance accumulator deposits do not cover the runtime \
-                    withdrawal at address {address} for type {type_tag}: net change {actual}"
+                    actual >= ptb_change.min(0),
+                    "PTB-emitted Balance accumulator events do not cover runtime withdrawals \
+                    at address {address} for type {type_tag}: PTB change {ptb_change}, net \
+                    change {actual}"
                 );
             } else {
                 invariant_violation!(
@@ -1421,7 +1398,8 @@ impl TemporaryStore<'_> {
         // why it is not accounted for here.
         // similarly, all of the storage_rebate *except* the storage_fund_rebate_inflow
         // gets credited to the gas coin both computation costs and storage rebate inflow are
-        total_output_haneul += gas_summary.computation_cost + gas_summary.non_refundable_storage_fee;
+        total_output_haneul +=
+            gas_summary.computation_cost + gas_summary.non_refundable_storage_fee;
         if let Some((epoch_fees, epoch_rebates)) = advance_epoch_gas_summary {
             total_input_haneul += epoch_fees;
             total_output_haneul += epoch_rebates;
@@ -1507,16 +1485,6 @@ fn was_object_mutated(object: &Object, original: &Object) -> bool {
         (Owner::AddressOwner(a), Owner::AddressOwner(b)) => a == b,
         (Owner::Immutable, Owner::Immutable) => true,
         (Owner::ObjectOwner(a), Owner::ObjectOwner(b)) => a == b,
-        (
-            Owner::Party {
-                permissions: a,
-                start_version: _,
-            },
-            Owner::Party {
-                permissions: b,
-                start_version: _,
-            },
-        ) => a == b,
 
         // Keep the left hand side of the match exhaustive to catch future
         // changes to Owner
@@ -1524,8 +1492,7 @@ fn was_object_mutated(object: &Object, original: &Object) -> bool {
         | (Owner::Immutable, _)
         | (Owner::ObjectOwner(_), _)
         | (Owner::Shared { .. }, _)
-        | (Owner::ConsensusAddressOwner { .. }, _)
-        | (Owner::Party { .. }, _) => false,
+        | (Owner::ConsensusAddressOwner { .. }, _) => false,
     };
 
     !data_equal || !owner_equal

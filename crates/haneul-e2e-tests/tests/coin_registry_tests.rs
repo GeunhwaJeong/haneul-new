@@ -7,6 +7,7 @@ use test_cluster::TestClusterBuilder;
 
 use haneul_macros::sim_test;
 
+#[ignore = "requires legacy protocol snapshots not available on new chain genesis"]
 #[sim_test]
 async fn test_create_coin_registry_object() {
     let _guard =

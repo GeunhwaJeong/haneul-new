@@ -8,6 +8,7 @@ use crate::config::BenchmarkConfig;
 /// and records the overall and per-method stats.
 use anyhow::{Context as _, Result};
 use dashmap::DashMap;
+use haneul_futures::stream::TrySpawnStreamExt;
 use phf::phf_map;
 use serde::Deserialize;
 use serde_json::Value;
@@ -16,7 +17,6 @@ use std::{
     sync::{Arc, Mutex},
     time::Instant,
 };
-use haneul_futures::stream::TrySpawnStreamExt;
 use tokio::time::timeout;
 use tracing::{debug, info, warn};
 

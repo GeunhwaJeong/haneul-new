@@ -6,7 +6,7 @@ pub(crate) mod passkey;
 pub(crate) mod zklogin;
 
 use async_graphql::{Object, SimpleObject, Union};
-use haneul_types::crypto::{SignatureScheme as NativeSignatureScheme, HaneulSignature};
+use haneul_types::crypto::{HaneulSignature, SignatureScheme as NativeSignatureScheme};
 use haneul_types::multisig::MultiSig;
 use haneul_types::signature::GenericSignature;
 

@@ -15,19 +15,19 @@ console.log("Current working directory:", process.cwd());
  * to mirror the workflow outputs (snippets/console-output/*.mdx).
  */
 const COMMANDS = [
-  { cmd: "haneul client --help", out: "haneul-client-help.mdx" },
-  { cmd: "haneul replay --help", out: "haneul-replay-help.mdx" },
-  { cmd: "haneul keytool --help", out: "haneul-keytool-help.mdx" },
-  { cmd: "haneul keytool sign --help", out: "haneul-keytool-sign-help.mdx" },
-  { cmd: "haneul move --help", out: "haneul-move-help.mdx" },
-  { cmd: "haneul move build --help", out: "haneul-move-build-help.mdx" },
-  { cmd: "haneul validator --help", out: "haneul-validator-help.mdx" },
+  { cmd: "sui client --help", out: "sui-client-help.mdx" },
+  { cmd: "sui replay --help", out: "sui-replay-help.mdx" },
+  { cmd: "sui keytool --help", out: "sui-keytool-help.mdx" },
+  { cmd: "sui keytool sign --help", out: "sui-keytool-sign-help.mdx" },
+  { cmd: "sui move --help", out: "sui-move-help.mdx" },
+  { cmd: "sui move build --help", out: "sui-move-build-help.mdx" },
+  { cmd: "sui validator --help", out: "sui-validator-help.mdx" },
   {
-    cmd: "haneul validator report-validator --help",
-    out: "haneul-validator-report-validator-help.mdx",
+    cmd: "sui validator report-validator --help",
+    out: "sui-validator-report-validator-help.mdx",
   },
-  { cmd: "haneul client call --help", out: "haneul-client-call-help.mdx" },
-  { cmd: "haneul client ptb --help", out: "haneul-client-ptb-help.mdx" },
+  { cmd: "sui client call --help", out: "sui-client-call-help.mdx" },
+  { cmd: "sui client ptb --help", out: "sui-client-ptb-help.mdx" },
 ];
 
 /** Root for snippet outputs (kept identical to the workflow paths). */

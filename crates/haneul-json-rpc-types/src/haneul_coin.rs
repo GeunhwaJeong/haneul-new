@@ -14,9 +14,9 @@ use haneul_types::base_types::{
 use haneul_types::coin::CoinMetadata;
 use haneul_types::coin_registry;
 use haneul_types::error::HaneulError;
-use haneul_types::object::Object;
 use haneul_types::haneul_serde::BigInt;
 use haneul_types::haneul_serde::SequenceNumber as AsSequenceNumber;
+use haneul_types::object::Object;
 
 pub type CoinPage = Page<Coin, String>;
 

@@ -108,7 +108,12 @@ impl<D: Hash + Eq + Copy> VerifiedDigestCache<D, ()> {
         });
     }
 
-    pub fn is_verified<F, G>(&self, digest: D, verify_callback: F, uncached_checks: G) -> HaneulResult
+    pub fn is_verified<F, G>(
+        &self,
+        digest: D,
+        verify_callback: F,
+        uncached_checks: G,
+    ) -> HaneulResult
     where
         F: FnOnce() -> HaneulResult,
         G: FnOnce() -> HaneulResult,

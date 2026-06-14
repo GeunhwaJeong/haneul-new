@@ -15,11 +15,11 @@ use super::*;
 #[cfg(test)]
 use super::shared_object_version_manager::Schedulable;
 #[cfg(test)]
+use haneul_types::transaction::TransactionKey;
+#[cfg(test)]
 use haneullabs_common::ZipDebugEqIteratorExt;
 #[cfg(test)]
 use std::collections::HashMap;
-#[cfg(test)]
-use haneul_types::transaction::TransactionKey;
 
 // =============================================================================
 // MFP (Mysticeti Fast Path) Test Helpers
@@ -291,7 +291,7 @@ pub async fn init_state_with_ids<I: IntoIterator<Item = (HaneulAddress, ObjectID
     let state = TestAuthorityBuilder::new().build().await;
     for (address, object_id) in objects {
         let obj = Object::with_id_owner_for_testing(object_id, address);
-        state.insert_genesis_object(obj);
+        state.insert_genesis_object(obj).await;
     }
     state
 }
@@ -308,7 +308,7 @@ pub async fn init_state_with_ids_and_versions<
             version,
             Owner::AddressOwner(address),
         );
-        state.insert_genesis_object(obj);
+        state.insert_genesis_object(obj).await;
     }
     state
 }
@@ -317,7 +317,8 @@ pub async fn init_state_with_objects<I: IntoIterator<Item = Object>>(
     objects: I,
 ) -> Arc<AuthorityState> {
     let dir = tempfile::TempDir::new().unwrap();
-    let network_config = haneul_swarm_config::network_config_builder::ConfigBuilder::new(&dir).build();
+    let network_config =
+        haneul_swarm_config::network_config_builder::ConfigBuilder::new(&dir).build();
     let genesis = network_config.genesis;
     let keypair = network_config.validator_configs[0]
         .protocol_key_pair()
@@ -332,7 +333,7 @@ pub async fn init_state_with_objects_and_committee<I: IntoIterator<Item = Object
 ) -> Arc<AuthorityState> {
     let state = init_state_with_committee(genesis, authority_key).await;
     for o in objects {
-        state.insert_genesis_object(o);
+        state.insert_genesis_object(o).await;
     }
     state
 }
@@ -356,7 +357,7 @@ pub async fn init_state_with_ids_and_expensive_checks<
         .await;
     for (address, object_id) in objects {
         let obj = Object::with_id_owner_for_testing(object_id, address);
-        state.insert_genesis_object(obj);
+        state.insert_genesis_object(obj).await;
     }
     state
 }

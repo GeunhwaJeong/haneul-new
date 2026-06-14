@@ -2,6 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use anyhow::{Result, anyhow};
+use haneul_types::{
+    base_types::ObjectID, object::Object, transaction::ProgrammableTransaction,
+    type_input::TypeInput,
+};
 use move_binary_format::{
     binary_config::BinaryConfig,
     file_format::{CompiledModule, SignatureToken},
@@ -9,10 +13,6 @@ use move_binary_format::{
 use move_core_types::account_address::AccountAddress;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use haneul_types::{
-    base_types::ObjectID, object::Object, transaction::ProgrammableTransaction,
-    type_input::TypeInput,
-};
 use tracing::{debug, warn};
 
 /// Datatype definition: (address, module, name, formal_type_params).
@@ -74,7 +74,8 @@ impl MoveCallInfo {
         let mut command_signatures = Vec::with_capacity(ptb.commands.len());
 
         for command in ptb.commands.iter() {
-            let signature = if let haneul_types::transaction::Command::MoveCall(move_call) = command {
+            let signature = if let haneul_types::transaction::Command::MoveCall(move_call) = command
+            {
                 // Extract function signature from the MoveCall
                 match Self::extract_function_signature(move_call, object_cache) {
                     Ok(signature) => {

@@ -6,8 +6,8 @@ use crate::{
     StoreSummary, TransactionInfo, TransactionStore,
 };
 use anyhow::{Error, Result};
-use haneullabs_common::ZipDebugEqIteratorExt;
 use haneul_types::{object::Object, supported_protocol_versions::ProtocolConfig};
+use haneullabs_common::ZipDebugEqIteratorExt;
 
 /// A read-through store that composes a primary (cache) and a secondary (source) store.
 /// It tries the primary first; on miss it reads from the secondary and writes back to the primary.

@@ -315,13 +315,13 @@ impl Loader<VersionedObjectVersionKey> for PgReader {
 mod tests {
     use async_graphql::dataloader::Loader;
     use diesel_async::RunQueryDsl as _;
-    use prometheus::Registry;
     use haneul_indexer_alt_schema::MIGRATIONS;
     use haneul_indexer_alt_schema::schema::obj_versions;
     use haneul_pg_db::Db;
     use haneul_pg_db::DbArgs;
     use haneul_pg_db::temp::TempDb;
     use haneul_types::digests::ObjectDigest;
+    use prometheus::Registry;
 
     use super::*;
 

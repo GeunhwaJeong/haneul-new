@@ -219,17 +219,12 @@ impl EffectsContents {
                 let page = Page::from_params(limits, first, after, last, before)?;
 
                 let events = content.events()?;
-                let transaction_digest = content.digest()?;
-                let timestamp_ms = content.timestamp_ms();
-                // Anchor the parent transaction (with hydrated contents) onto each yielded
-                // Event's scope, so descendant resolvers like `Address.asTransactionObject`
-                // default to it and `*Contents::fetch` short-circuits via the scope.
-                let event_scope = self
-                    .scope
-                    .with_active_transaction_contents(transaction_digest, content.clone());
                 page.paginate_indices(events.len(), |i| {
+                    let transaction_digest = content.digest()?;
+                    let timestamp_ms = content.timestamp_ms();
+
                     Ok(Event {
-                        scope: event_scope.clone(),
+                        scope: self.scope.clone(),
                         native: events[i].clone(),
                         transaction_digest,
                         sequence_number: i as u64,
@@ -493,23 +488,6 @@ impl EffectsContents {
 }
 
 impl TransactionEffects {
-    /// Construct a fully-inflated TransactionEffects with already-hydrated contents. The digest
-    /// is read from `contents`, which keeps it consistent with the contents anchored on the
-    /// scope.
-    pub(crate) fn with_contents(
-        scope: Scope,
-        contents: Arc<NativeTransactionContents>,
-    ) -> Result<Self, RpcError> {
-        let digest = contents.digest()?;
-        Ok(Self {
-            digest,
-            contents: EffectsContents {
-                scope: scope.with_active_transaction_contents(digest, contents.clone()),
-                contents: Some(contents),
-            },
-        })
-    }
-
     /// Create a new TransactionEffects from an ExecutedTransaction.
     pub(crate) fn from_executed_transaction(
         scope: Scope,
@@ -523,7 +501,18 @@ impl TransactionEffects {
             signatures,
         )
         .context("Failed to create TransactionContents from ExecutedTransaction")?;
-        Self::with_contents(scope, Arc::new(contents))
+
+        let digest = contents
+            .digest()
+            .context("Failed to get digest from transaction contents")?;
+
+        Ok(Self {
+            digest,
+            contents: EffectsContents {
+                scope,
+                contents: Some(Arc::new(contents)),
+            },
+        })
     }
 
     /// Load the effects from the store, and return it fully inflated (with contents already
@@ -534,20 +523,23 @@ impl TransactionEffects {
         scope: Scope,
         digest: Digest,
     ) -> Result<Option<Self>, RpcError> {
-        let fetched = EffectsContents::empty(scope.clone())
+        let contents = EffectsContents::empty(scope)
             .fetch(ctx, digest.into())
             .await?;
 
-        let Some(contents) = fetched.contents else {
+        let Some(tx) = &contents.contents else {
             return Ok(None);
         };
 
-        Ok(Some(Self::with_contents(scope, contents)?))
+        Ok(Some(Self {
+            digest: tx.digest()?,
+            contents,
+        }))
     }
 }
 
 impl EffectsContents {
-    pub(crate) fn empty(scope: Scope) -> Self {
+    fn empty(scope: Scope) -> Self {
         Self {
             scope,
             contents: None,
@@ -565,16 +557,6 @@ impl EffectsContents {
         if self.contents.is_some() {
             return Ok(self.clone());
         }
-
-        // Reuse contents anchored on the scope by a parent resolver (streaming and indexed
-        // alike both anchor with hydrated contents when they have them).
-        if let Some(contents) = self.scope.active_transaction_contents_for(digest) {
-            return Ok(Self {
-                scope: self.scope.clone(),
-                contents: Some(contents.clone()),
-            });
-        }
-
         let Some(checkpoint_viewed_at) = self.scope.checkpoint_viewed_at() else {
             return Ok(self.clone());
         };
@@ -606,6 +588,7 @@ impl EffectsContents {
 impl From<Transaction> for TransactionEffects {
     fn from(tx: Transaction) -> Self {
         let TransactionContents { scope, contents } = tx.contents;
+
         Self {
             digest: tx.digest,
             contents: EffectsContents { scope, contents },

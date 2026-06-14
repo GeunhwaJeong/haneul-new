@@ -11,10 +11,10 @@ use async_graphql::Object;
 use async_graphql::connection::Connection;
 use async_graphql::connection::CursorType;
 use async_graphql::connection::Edge;
+use haneul_package_resolver::Module as ParsedModule;
 use move_binary_format::file_format::Visibility;
 use move_disassembler::disassembler::Disassembler;
 use move_ir_types::location::Loc;
-use haneul_package_resolver::Module as ParsedModule;
 use tokio::join;
 use tokio::sync::OnceCell;
 

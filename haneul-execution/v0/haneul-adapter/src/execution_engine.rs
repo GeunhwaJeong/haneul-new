@@ -10,9 +10,6 @@ mod checked {
     use crate::programmable_transactions;
     use crate::temporary_store::TemporaryStore;
     use crate::type_layout_resolver::TypeLayoutResolver;
-    use move_binary_format::CompiledModule;
-    use move_vm_runtime::move_vm::MoveVM;
-    use std::sync::Arc;
     use haneul_protocol_config::{check_limit_by_meter, LimitThresholdCrossed, ProtocolConfig};
     use haneul_types::balance::{
         BALANCE_CREATE_REWARDS_FUNCTION_NAME, BALANCE_DESTROY_REBATES_FUNCTION_NAME,
@@ -27,6 +24,11 @@ mod checked {
     use haneul_types::gas::GasCostSummary;
     use haneul_types::gas::HaneulGasStatus;
     use haneul_types::gas_coin::GAS;
+    #[cfg(msim)]
+    use haneul_types::haneul_system_state::advance_epoch_result_injection::maybe_modify_result_legacy;
+    use haneul_types::haneul_system_state::{
+        AdvanceEpochParams, ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME,
+    };
     use haneul_types::inner_temporary_store::InnerTemporaryStore;
     use haneul_types::messages_checkpoint::CheckpointTimestamp;
     use haneul_types::metrics::ExecutionMetrics;
@@ -34,21 +36,21 @@ mod checked {
     use haneul_types::programmable_transaction_builder::ProgrammableTransactionBuilder;
     use haneul_types::storage::BackingStore;
     use haneul_types::storage::WriteKind;
-    #[cfg(msim)]
-    use haneul_types::haneul_system_state::advance_epoch_result_injection::maybe_modify_result_legacy;
-    use haneul_types::haneul_system_state::{AdvanceEpochParams, ADVANCE_EPOCH_SAFE_MODE_FUNCTION_NAME};
     use haneul_types::transaction::CheckedInputObjects;
     use haneul_types::transaction::{
         Argument, CallArg, ChangeEpoch, Command, GenesisTransaction, ProgrammableTransaction,
         TransactionKind,
     };
     use haneul_types::{
-        base_types::{ObjectRef, HaneulAddress, TransactionDigest, TxContext},
-        object::{Object, ObjectInner},
+        base_types::{HaneulAddress, ObjectRef, TransactionDigest, TxContext},
         haneul_system_state::{ADVANCE_EPOCH_FUNCTION_NAME, HANEUL_SYSTEM_MODULE_NAME},
+        object::{Object, ObjectInner},
         HANEUL_FRAMEWORK_ADDRESS,
     };
     use haneul_types::{HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_PACKAGE_ID};
+    use move_binary_format::CompiledModule;
+    use move_vm_runtime::move_vm::MoveVM;
+    use std::sync::Arc;
     use tracing::{info, instrument, trace, warn};
 
     #[instrument(name = "tx_execute_to_effects", level = "debug", skip_all)]
@@ -109,6 +111,42 @@ mod checked {
         );
 
         let status = if let Err(error) = &execution_result {
+            // Elaborate errors in logs if they are unexpected or their status is terse.
+            use ExecutionErrorKind as K;
+            match error.kind() {
+                K::InvariantViolation | K::VMInvariantViolation => {
+                    #[skip_checked_arithmetic]
+                    tracing::error!(
+                        kind = ?error.kind(),
+                        tx_digest = ?transaction_digest,
+                        "INVARIANT VIOLATION! Source: {:?}",
+                        error.source_ref(),
+                    );
+                }
+
+                K::HaneulMoveVerificationError | K::VMVerificationOrDeserializationError => {
+                    #[skip_checked_arithmetic]
+                    tracing::debug!(
+                        kind = ?error.kind(),
+                        tx_digest = ?transaction_digest,
+                        "Verification Error. Source: {:?}",
+                        error.source_ref(),
+                    );
+                }
+
+                K::PublishUpgradeMissingDependency | K::PublishUpgradeDependencyDowngrade => {
+                    #[skip_checked_arithmetic]
+                    tracing::debug!(
+                        kind = ?error.kind(),
+                        tx_digest = ?transaction_digest,
+                        "Publish/Upgrade Error. Source: {:?}",
+                        error.source_ref(),
+                    )
+                }
+
+                _ => (),
+            };
+
             ExecutionStatus::new_failure(error.to_execution_failure())
         } else {
             ExecutionStatus::Success
@@ -205,11 +243,11 @@ mod checked {
         // we must still ensure an effect is committed and all objects versions incremented
         let result = gas_charger.charge_input_objects(temporary_store);
         let mut result = result.and_then(|()| {
-            let mut execution_result = match execution_params.into_early_errors() {
-                Some(early_execution_errors) => {
-                    Err(ExecutionError::new(early_execution_errors.head, None))
+            let mut execution_result = match execution_params {
+                ExecutionOrEarlyError::Err(early_execution_error) => {
+                    Err(ExecutionError::new(early_execution_error, None))
                 }
-                None => execution_loop::<Mode>(
+                ExecutionOrEarlyError::Ok(()) => execution_loop::<Mode>(
                     temporary_store,
                     transaction_kind,
                     tx_ctx,

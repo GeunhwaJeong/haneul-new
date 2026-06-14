@@ -5,7 +5,7 @@ use jsonrpsee::core::RpcResult;
 use jsonrpsee::proc_macros::rpc;
 
 use haneul_json_rpc_types::{
-    CheckpointedObjectID, EpochInfo, EpochPage, QueryObjectsPage, HaneulObjectResponseQuery,
+    CheckpointedObjectID, EpochInfo, EpochPage, HaneulObjectResponseQuery, QueryObjectsPage,
 };
 use haneul_open_rpc_macros::open_rpc;
 use haneul_types::haneul_serde::BigInt;

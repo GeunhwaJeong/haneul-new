@@ -7,7 +7,7 @@ use tracing::info;
 
 use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_types::{
-    base_types::{ObjectID, HaneulAddress},
+    base_types::{HaneulAddress, ObjectID},
     crypto::{AccountKeyPair, get_key_pair},
     object::Owner,
 };

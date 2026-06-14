@@ -11,7 +11,6 @@ use crate::RpcError;
 use crate::RpcService;
 use crate::error::ObjectNotFoundError;
 use bytes::Bytes;
-use move_binary_format::normalized;
 use haneul_protocol_config::ProtocolConfig;
 use haneul_rpc::proto::google::rpc::bad_request::FieldViolation;
 use haneul_rpc::proto::haneul::rpc::v2::Transaction;
@@ -30,6 +29,7 @@ use haneul_types::transaction::Reservation;
 use haneul_types::transaction::TransactionData;
 use haneul_types::transaction::WithdrawFrom;
 use haneul_types::transaction::WithdrawalTypeArg;
+use move_binary_format::normalized;
 use tap::Pipe;
 
 mod literal;
@@ -308,7 +308,8 @@ fn try_parse_coin_reservation(
     }
 
     let object_id: haneul_types::base_types::ObjectID = unresolved.object_id.into();
-    let version = haneul_types::base_types::SequenceNumber::from_u64(unresolved.version.unwrap_or(0));
+    let version =
+        haneul_types::base_types::SequenceNumber::from_u64(unresolved.version.unwrap_or(0));
     let obj_ref = (object_id, version, object_digest);
     let parsed = ParsedObjectRefWithdrawal::parse(&obj_ref, service.chain_id)?;
     Some((parsed, version))
@@ -660,8 +661,7 @@ fn resolve_object(
             .pipe(Ok)
         }
         haneul_types::object::Owner::Shared { .. }
-        | haneul_types::object::Owner::ConsensusAddressOwner { .. }
-        | haneul_types::object::Owner::Party { .. } => {
+        | haneul_types::object::Owner::ConsensusAddressOwner { .. } => {
             resolve_shared_input_with_object(called_packages, arg_uses, arg_idx, object)
         }
         haneul_types::object::Owner::ObjectOwner(_) => Err(RpcError::new(
@@ -957,7 +957,9 @@ struct UnresolvedInput<'a> {
 }
 
 impl<'a> UnresolvedInput<'a> {
-    fn from_proto(input: &'a haneul_rpc::proto::haneul::rpc::v2::Input) -> Result<Self, FieldViolation> {
+    fn from_proto(
+        input: &'a haneul_rpc::proto::haneul::rpc::v2::Input,
+    ) -> Result<Self, FieldViolation> {
         Ok(Self {
             kind: input.kind.map(|_| input.kind()),
             literal: input.literal.as_deref(),

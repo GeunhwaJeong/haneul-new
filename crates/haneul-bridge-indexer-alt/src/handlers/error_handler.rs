@@ -4,7 +4,6 @@
 use crate::handlers::is_bridge_txn;
 use async_trait::async_trait;
 use diesel_async::RunQueryDsl;
-use std::sync::Arc;
 use haneul_bridge_schema::models::HaneulErrorTransactions;
 use haneul_bridge_schema::schema::haneul_error_transactions;
 use haneul_indexer_alt_framework::pipeline::Processor;
@@ -14,6 +13,7 @@ use haneul_indexer_alt_framework::types::effects::TransactionEffectsAPI;
 use haneul_indexer_alt_framework::types::execution_status::{ExecutionFailure, ExecutionStatus};
 use haneul_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 use haneul_indexer_alt_framework::types::transaction::TransactionDataAPI;
+use std::sync::Arc;
 
 pub struct ErrorTransactionHandler;
 

@@ -15,17 +15,17 @@
 //! - its definition does not involve type parameters
 //! - its only instance in existence is passed as an argument to the module initializer
 //! - it is never instantiated anywhere in its defining module
-use move_binary_format::file_format::{
-    Ability, AbilitySet, Bytecode, CompiledModule, DatatypeHandle, FunctionDefinition,
-    FunctionHandle, SignatureToken, StructDefinition,
-};
-use move_core_types::{ident_str, language_storage::ModuleId};
 use haneul_types::{
     base_types::{TX_CONTEXT_MODULE_NAME, TX_CONTEXT_STRUCT_NAME},
     error::ExecutionError,
     move_package::{is_test_fun, FnInfoMap},
     HANEUL_FRAMEWORK_ADDRESS,
 };
+use move_binary_format::file_format::{
+    Ability, AbilitySet, Bytecode, CompiledModule, DatatypeHandle, FunctionDefinition,
+    FunctionHandle, SignatureToken, StructDefinition,
+};
+use move_core_types::{ident_str, language_storage::ModuleId};
 
 use crate::{verification_failure, INIT_FN_NAME};
 
@@ -41,7 +41,8 @@ pub fn verify_module(
     // the module has no initializer). The reason for it is that the HANEUL coin is only instantiated
     // during genesis. It is easiest to simply special-case this module particularly that this is
     // framework code and thus deemed correct.
-    if ModuleId::new(HANEUL_FRAMEWORK_ADDRESS, ident_str!("haneul").to_owned()) == module.self_id() {
+    if ModuleId::new(HANEUL_FRAMEWORK_ADDRESS, ident_str!("haneul").to_owned()) == module.self_id()
+    {
         return Ok(());
     }
 

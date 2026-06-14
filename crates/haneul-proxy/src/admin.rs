@@ -13,14 +13,14 @@ use anyhow::Result;
 use axum::{Extension, Router, extract::DefaultBodyLimit, middleware, routing::post};
 use fastcrypto::ed25519::{Ed25519KeyPair, Ed25519PublicKey};
 use fastcrypto::traits::{KeyPair, ToFromBytes};
-use rustls::pki_types::{CertificateDer, PrivateKeyDer, pem::PemObject};
-use std::net::SocketAddr;
-use std::sync::Arc;
-use std::time::Duration;
 use haneul_tls::HANEUL_VALIDATOR_SERVER_NAME;
 use haneul_tls::{
     AllowAll, ClientCertVerifier, SelfSignedCertificate, TlsAcceptor, rustls::ServerConfig,
 };
+use rustls::pki_types::{CertificateDer, PrivateKeyDer, pem::PemObject};
+use std::net::SocketAddr;
+use std::sync::Arc;
+use std::time::Duration;
 use tokio::signal;
 use tower::ServiceBuilder;
 use tower_http::{
@@ -231,10 +231,11 @@ pub fn create_server_cert_default_allow(
 ) -> Result<ServerConfig, haneul_tls::rustls::Error> {
     let CertKeyPair(server_certificate, _) = generate_self_cert(hostname);
 
-    ClientCertVerifier::new(AllowAll, HANEUL_VALIDATOR_SERVER_NAME.to_string()).rustls_server_config(
-        vec![server_certificate.rustls_certificate()],
-        server_certificate.rustls_private_key(),
-    )
+    ClientCertVerifier::new(AllowAll, HANEUL_VALIDATOR_SERVER_NAME.to_string())
+        .rustls_server_config(
+            vec![server_certificate.rustls_certificate()],
+            server_certificate.rustls_private_key(),
+        )
 }
 
 /// Verify clients against haneul blockchain, clients that are not found in haneul_getValidators

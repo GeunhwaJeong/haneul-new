@@ -5,6 +5,12 @@ use anyhow::{Result, anyhow};
 use async_trait::async_trait;
 use dashmap::{DashMap, DashSet};
 use futures::future::join_all;
+use haneul_json_rpc_types::{
+    HaneulExecutionStatus, HaneulObjectDataOptions, HaneulTransactionBlockDataAPI,
+    HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse,
+    HaneulTransactionBlockResponseOptions,
+};
+use haneul_types::digests::TransactionDigest;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use shared_crypto::intent::{Intent, IntentMessage};
@@ -13,19 +19,16 @@ use std::fs::{self, File};
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use haneul_json_rpc_types::{
-    HaneulExecutionStatus, HaneulObjectDataOptions, HaneulTransactionBlockDataAPI,
-    HaneulTransactionBlockEffectsAPI, HaneulTransactionBlockResponse, HaneulTransactionBlockResponseOptions,
-};
-use haneul_types::digests::TransactionDigest;
 use tokio::sync::RwLock;
 use tokio::time::sleep;
 use tracing::{debug, info};
 
 use crate::load_test::LoadTestConfig;
 use haneul_sdk::{HaneulClient, HaneulClientBuilder};
-use haneul_types::base_types::{ObjectID, ObjectRef, HaneulAddress};
-use haneul_types::crypto::{AccountKeyPair, EncodeDecodeBase64, Signature, HaneulKeyPair, get_key_pair};
+use haneul_types::base_types::{HaneulAddress, ObjectID, ObjectRef};
+use haneul_types::crypto::{
+    AccountKeyPair, EncodeDecodeBase64, HaneulKeyPair, Signature, get_key_pair,
+};
 use haneul_types::transaction::{Transaction, TransactionData};
 use haneul_types::transaction_driver_types::ExecuteTransactionRequestType;
 
@@ -167,7 +170,10 @@ impl RpcCommandProcessor {
         }
     }
 
-    pub(crate) fn add_object_ids_from_response(&self, responses: &[HaneulTransactionBlockResponse]) {
+    pub(crate) fn add_object_ids_from_response(
+        &self,
+        responses: &[HaneulTransactionBlockResponse],
+    ) {
         for response in responses {
             let effects = &response.effects;
             if let Some(effects) = effects {
@@ -388,7 +394,8 @@ impl fmt::Display for CacheType {
 // TODO(Will): Consider using enums for input and output? Would mean we need to do checks any time we use generic load_cache_from_file
 pub fn load_addresses_from_file(filepath: String) -> Vec<HaneulAddress> {
     let path = format!("{}/{}", filepath, CacheType::HaneulAddress);
-    let addresses: Vec<HaneulAddress> = read_data_from_file(&path).expect("Failed to read addresses");
+    let addresses: Vec<HaneulAddress> =
+        read_data_from_file(&path).expect("Failed to read addresses");
     addresses
 }
 
@@ -682,7 +689,10 @@ fn calculate_split_amounts(
     split_amounts
 }
 
-async fn get_coin_with_max_balance(client: &HaneulClient, address: HaneulAddress) -> (ObjectID, u64) {
+async fn get_coin_with_max_balance(
+    client: &HaneulClient,
+    address: HaneulAddress,
+) -> (ObjectID, u64) {
     let coins = get_haneul_coin_ids(client, address).await;
     assert!(!coins.is_empty());
     coins.into_iter().max_by(|a, b| a.1.cmp(&b.1)).unwrap()
@@ -693,7 +703,10 @@ fn get_coin_with_balance(coins: &[(ObjectID, u64)], target: u64) -> ObjectID {
 }
 
 // TODO: move this to the Rust SDK
-async fn get_haneul_coin_ids(client: &HaneulClient, address: HaneulAddress) -> Vec<(ObjectID, u64)> {
+async fn get_haneul_coin_ids(
+    client: &HaneulClient,
+    address: HaneulAddress,
+) -> Vec<(ObjectID, u64)> {
     match client
         .coin_read_api()
         .get_coins(address, None, None, None)

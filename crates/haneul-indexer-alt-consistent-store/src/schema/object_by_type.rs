@@ -3,9 +3,9 @@
 
 use bincode::Decode;
 use bincode::Encode;
-use move_core_types::language_storage::StructTag;
 use haneul_indexer_alt_framework::types::base_types::ObjectID;
 use haneul_indexer_alt_framework::types::object::Object;
+use move_core_types::language_storage::StructTag;
 
 /// Key for the index that supports fetching objects by their type.
 #[derive(Encode, Decode, PartialEq, Eq)]

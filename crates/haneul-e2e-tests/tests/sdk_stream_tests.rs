@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use futures::StreamExt;
+use haneul_sdk::{HANEUL_COIN_TYPE, HaneulClientBuilder};
+use haneul_swarm_config::genesis_config::{
+    DEFAULT_GAS_AMOUNT, DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT,
+};
 use haneullabs_common::ZipDebugEqIteratorExt;
 use std::future;
-use haneul_sdk::{HANEUL_COIN_TYPE, HaneulClientBuilder};
-use haneul_swarm_config::genesis_config::{DEFAULT_GAS_AMOUNT, DEFAULT_NUMBER_OF_OBJECT_PER_ACCOUNT};
 use test_cluster::TestClusterBuilder;
 
 // TODO: rewrite the tests after the removal of DevNet NFT

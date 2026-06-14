@@ -6,8 +6,9 @@ use crate::client::bridge_authority_aggregator::BridgeAuthorityAggregator;
 use crate::crypto::BridgeAuthorityKeyPair;
 use crate::e2e_tests::test_utils::{
     BridgeTestClusterBuilder, TestClusterWrapperBuilder, get_signatures,
-    initiate_bridge_erc20_to_haneul, initiate_bridge_eth_to_haneul, initiate_bridge_eth_to_haneul_v2,
-    initiate_bridge_haneul_to_eth, initiate_bridge_haneul_to_eth_v2, send_eth_tx_and_get_tx_receipt,
+    initiate_bridge_erc20_to_haneul, initiate_bridge_eth_to_haneul,
+    initiate_bridge_eth_to_haneul_v2, initiate_bridge_haneul_to_eth,
+    initiate_bridge_haneul_to_eth_v2, send_eth_tx_and_get_tx_receipt,
 };
 use crate::encoding::TOKEN_TRANSFER_MESSAGE_VERSION_V2;
 use crate::eth_transaction_builder::build_eth_transaction;
@@ -20,15 +21,15 @@ use crate::types::{AddTokensOnEvmAction, BridgeAction};
 use crate::utils::publish_and_register_coins_return_add_coins_on_haneul_action;
 use alloy::primitives::{Address as EthAddress, U256};
 use alloy::providers::Provider;
-use std::collections::HashSet;
-use std::path::Path;
-use std::sync::Arc;
 use haneul_types::bridge::{
     BridgeChainId, BridgeTokenMetadata, BridgeTrait, TOKEN_ID_ETH, get_bridge,
 };
 use haneul_types::coin::Coin;
 use haneul_types::crypto::get_key_pair;
 use haneul_types::effects::TransactionEffectsAPI;
+use std::collections::HashSet;
+use std::path::Path;
+use std::sync::Arc;
 use tracing::info;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 8)]
@@ -140,7 +141,8 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
 
     let message: eth_haneul_bridge::BridgeUtils::Message =
         haneul_to_eth_bridge_action.try_into().unwrap();
-    let signatures = get_signatures(bridge_test_cluster.bridge_client(), nonce, haneul_chain_id).await;
+    let signatures =
+        get_signatures(bridge_test_cluster.bridge_client(), nonce, haneul_chain_id).await;
 
     let (eth_signer, _) = bridge_test_cluster.get_eth_signer_and_address().unwrap();
 
@@ -282,7 +284,8 @@ async fn test_bridge_from_eth_to_haneul_to_eth_v2() {
 
     let message: eth_haneul_bridge::BridgeUtils::Message =
         haneul_to_eth_bridge_action.try_into().unwrap();
-    let signatures = get_signatures(bridge_test_cluster.bridge_client(), nonce, haneul_chain_id).await;
+    let signatures =
+        get_signatures(bridge_test_cluster.bridge_client(), nonce, haneul_chain_id).await;
 
     let eth_haneul_bridge = EthHaneulBridge::new(
         bridge_test_cluster.contracts().haneul_bridge,

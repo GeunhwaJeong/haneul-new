@@ -9,17 +9,17 @@ use std::time::Duration;
 use anyhow::Context;
 use anyhow::bail;
 use anyhow::ensure;
+use haneul_indexer_alt_framework_store_traits::ConcurrentStore;
+use haneul_indexer_alt_framework_store_traits::Connection;
+use haneul_indexer_alt_framework_store_traits::SequentialStore;
+use haneul_indexer_alt_framework_store_traits::Store;
+use haneul_indexer_alt_framework_store_traits::pipeline_task;
 use ingestion::ClientArgs;
 use ingestion::IngestionConfig;
 use ingestion::IngestionService;
 use ingestion::ingestion_client::IngestionClient;
 use metrics::IndexerMetrics;
 use prometheus::Registry;
-use haneul_indexer_alt_framework_store_traits::ConcurrentStore;
-use haneul_indexer_alt_framework_store_traits::Connection;
-use haneul_indexer_alt_framework_store_traits::SequentialStore;
-use haneul_indexer_alt_framework_store_traits::Store;
-use haneul_indexer_alt_framework_store_traits::pipeline_task;
 use tracing::info;
 
 use crate::metrics::IngestionMetrics;
@@ -210,32 +210,6 @@ impl<S: Store> Indexer<S> {
         metrics_prefix: Option<&str>,
         registry: &Registry,
     ) -> anyhow::Result<Self> {
-        let ingestion_service =
-            IngestionService::new(client_args, ingestion_config, metrics_prefix, registry)?;
-        Self::with_ingestion_service(
-            store,
-            indexer_args,
-            ingestion_service,
-            metrics_prefix,
-            registry,
-        )
-        .await
-    }
-
-    /// Variant of [`Self::new`] that accepts a pre-built
-    /// [`IngestionService`], bypassing [`ClientArgs`]-driven
-    /// construction. Callers that supply their own ingestion /
-    /// streaming clients — for example, when embedding the indexer
-    /// in a fullnode that already has checkpoint data on hand —
-    /// build the service via [`IngestionService::with_clients`] and
-    /// hand it in here.
-    pub async fn with_ingestion_service(
-        store: S,
-        indexer_args: IndexerArgs,
-        mut ingestion_service: IngestionService,
-        metrics_prefix: Option<&str>,
-        registry: &Registry,
-    ) -> anyhow::Result<Self> {
         let IndexerArgs {
             first_checkpoint,
             last_checkpoint,
@@ -244,6 +218,9 @@ impl<S: Store> Indexer<S> {
         } = indexer_args;
 
         let metrics = IndexerMetrics::new(metrics_prefix, registry);
+
+        let ingestion_service =
+            IngestionService::new(client_args, ingestion_config, metrics_prefix, registry)?;
 
         let latest_checkpoint = ingestion_service.latest_checkpoint_number().await?;
 

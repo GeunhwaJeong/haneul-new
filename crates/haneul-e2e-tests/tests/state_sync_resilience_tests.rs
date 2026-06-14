@@ -3,8 +3,6 @@
 
 #[cfg(msim)]
 mod test {
-    use std::sync::Arc;
-    use std::time::Duration;
     use haneul_config::p2p::{DiscoveryConfig, StateSyncConfig};
     use haneul_macros::sim_test;
     use haneul_simulator::SimConfig;
@@ -12,6 +10,8 @@ mod test {
     use haneul_simulator::net::NetSim;
     use haneul_simulator::net::config::{InterNodeLatencyMap, LatencyDistribution};
     use haneul_simulator::plugin::simulator;
+    use std::sync::Arc;
+    use std::time::Duration;
     use test_cluster::TestClusterBuilder;
 
     fn simple_latency_config() -> SimConfig {
@@ -34,8 +34,12 @@ mod test {
 
         let validator_id =
             test_cluster.swarm.validator_node_handles()[0].with(|n| n.get_sim_node_id());
-        let degraded_id_1 = degraded_fullnode_1.haneul_node.with(|n| n.get_sim_node_id());
-        let degraded_id_2 = degraded_fullnode_2.haneul_node.with(|n| n.get_sim_node_id());
+        let degraded_id_1 = degraded_fullnode_1
+            .haneul_node
+            .with(|n| n.get_sim_node_id());
+        let degraded_id_2 = degraded_fullnode_2
+            .haneul_node
+            .with(|n| n.get_sim_node_id());
         let syncing_node_id = syncing_node.haneul_node.with(|n| n.get_sim_node_id());
 
         tokio::time::sleep(Duration::from_secs(30)).await;

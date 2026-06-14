@@ -5,6 +5,7 @@ use crate::{
     NativesCostTable, get_extension, get_extension_mut,
     object_runtime::{MoveAccumulatorAction, MoveAccumulatorValue, ObjectRuntime},
 };
+use haneul_types::base_types::ObjectID;
 use move_binary_format::errors::PartialVMResult;
 use move_binary_format::safe_unwrap;
 use move_core_types::account_address::AccountAddress;
@@ -13,7 +14,6 @@ use move_vm_runtime::native_charge_gas_early_exit;
 use move_vm_runtime::natives::functions::{NativeContext, NativeResult};
 use smallvec::smallvec;
 use std::collections::VecDeque;
-use haneul_types::base_types::ObjectID;
 
 pub fn emit_deposit_event(
     context: &mut NativeContext,

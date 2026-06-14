@@ -1,6 +1,8 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+use haneul_types::error::{ExecutionError, HaneulError};
+use haneul_types::execution_status::{ExecutionErrorKind, MoveLocation, MoveLocationOpt};
 use move_binary_format::{
     errors::{Location, VMError},
     file_format::FunctionDefinitionIndex,
@@ -8,8 +10,6 @@ use move_binary_format::{
 use move_core_types::vm_status::{StatusCode, StatusType};
 use move_vm_runtime::move_vm::MoveVM;
 use move_vm_types::data_store::MoveResolver;
-use haneul_types::error::{ExecutionError, HaneulError};
-use haneul_types::execution_status::{ExecutionErrorKind, MoveLocation, MoveLocationOpt};
 
 pub(crate) fn convert_vm_error<S: MoveResolver<Err = HaneulError>>(
     error: VMError,

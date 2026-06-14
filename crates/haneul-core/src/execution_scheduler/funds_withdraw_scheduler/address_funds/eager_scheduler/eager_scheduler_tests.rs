@@ -3,15 +3,15 @@
 
 use std::{collections::BTreeMap, sync::Arc, time::Duration};
 
-use haneullabs_metrics::monitored_mpsc::unbounded_channel;
-use parking_lot::Mutex;
-use rand::{Rng, seq::SliceRandom};
 use haneul_macros::sim_test;
 use haneul_types::{
     accumulator_root::AccumulatorObjId,
     base_types::{ObjectID, SequenceNumber},
     digests::TransactionDigest,
 };
+use haneullabs_metrics::monitored_mpsc::unbounded_channel;
+use parking_lot::Mutex;
+use rand::{Rng, seq::SliceRandom};
 use tracing::{debug, info};
 
 use crate::execution_scheduler::funds_withdraw_scheduler::{

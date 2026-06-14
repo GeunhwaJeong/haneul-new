@@ -13,14 +13,14 @@
 use crate::{
     error::BridgeResult,
     events::{EmittedHaneulToEthTokenBridgeV1, EmittedHaneulToEthTokenBridgeV2, HaneulBridgeEvent},
+    haneul_client::{HaneulClient, HaneulClientInner},
     metrics::BridgeMetrics,
     retry_with_max_elapsed_time,
-    haneul_client::{HaneulClient, HaneulClientInner},
     types::BridgeAction,
 };
+use haneul_types::{Identifier, event::EventID};
 use haneullabs_metrics::spawn_logged_monitored_task;
 use std::{collections::HashMap, sync::Arc};
-use haneul_types::{Identifier, event::EventID};
 use tokio::{
     sync::Notify,
     task::JoinHandle,
@@ -259,8 +259,8 @@ mod tests {
     use super::*;
 
     use crate::{haneul_client::HaneulClient, haneul_mock_client::HaneulMockClient};
-    use prometheus::Registry;
     use haneul_types::bridge::{BridgeChainId, MoveTypeBridgeMessage, MoveTypeBridgeRecord};
+    use prometheus::Registry;
     use tokio::time::timeout;
 
     async fn assert_no_more_events<T: std::fmt::Debug>(
@@ -344,10 +344,18 @@ mod tests {
         mock.set_latest_checkpoint_sequence_number(1000);
 
         // Add some bridge records
-        let record_0 =
-            create_test_bridge_record(0, BridgeChainId::HaneulCustom, BridgeChainId::EthCustom, 1000);
-        let record_1 =
-            create_test_bridge_record(1, BridgeChainId::HaneulCustom, BridgeChainId::EthCustom, 2000);
+        let record_0 = create_test_bridge_record(
+            0,
+            BridgeChainId::HaneulCustom,
+            BridgeChainId::EthCustom,
+            1000,
+        );
+        let record_1 = create_test_bridge_record(
+            1,
+            BridgeChainId::HaneulCustom,
+            BridgeChainId::EthCustom,
+            2000,
+        );
 
         mock.add_bridge_record(source_chain_id, 0, record_0);
         mock.add_bridge_record(source_chain_id, 1, record_1);

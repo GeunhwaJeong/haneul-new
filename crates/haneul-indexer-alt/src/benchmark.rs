@@ -4,7 +4,6 @@
 use std::path::PathBuf;
 use std::time::Instant;
 
-use prometheus::Registry;
 use haneul_indexer_alt_framework::IndexerArgs;
 use haneul_indexer_alt_framework::ingestion::ClientArgs;
 use haneul_indexer_alt_framework::ingestion::ingestion_client::IngestionClientArgs;
@@ -15,6 +14,7 @@ use haneul_indexer_alt_schema::MIGRATIONS;
 use haneul_indexer_alt_schema::checkpoints::StoredGenesis;
 use haneul_indexer_alt_schema::epochs::StoredEpochStart;
 use haneul_synthetic_ingestion::synthetic_ingestion::read_ingestion_data;
+use prometheus::Registry;
 use tracing::info;
 use url::Url;
 

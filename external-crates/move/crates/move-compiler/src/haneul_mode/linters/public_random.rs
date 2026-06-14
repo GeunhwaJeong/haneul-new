@@ -4,8 +4,8 @@
 //! This analysis flags uses of random::Random and random::RandomGenerator in public functions.
 
 use crate::expansion::ast::ModuleIdent;
-use crate::parser::ast::FunctionName;
 use crate::haneul_mode::{HANEUL_ADDR_NAME, HANEUL_ADDR_VALUE};
+use crate::parser::ast::FunctionName;
 use crate::typing::visitor::simple_visitor;
 use crate::{
     diag,

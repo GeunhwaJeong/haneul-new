@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use async_trait::async_trait;
-use std::sync::Arc;
 use haneul_core::{
     authority_aggregator::AuthorityAggregator,
     authority_client::NetworkAuthorityClient,
@@ -11,6 +10,7 @@ use haneul_core::{
     transaction_driver::{AuthorityAggregatorUpdatable, ReconfigObserver},
 };
 use haneul_rpc_api::Client;
+use std::sync::Arc;
 use tracing::{debug, error, trace};
 
 /// A ReconfigObserver that polls FullNode periodically
@@ -58,13 +58,16 @@ impl ReconfigObserver<NetworkAuthorityClient> for FullNodeReconfigObserver {
                     let epoch_id = haneul_system_state.epoch;
                     if epoch_id > driver.epoch() {
                         debug!(epoch_id, "Got HaneulSystemState in newer epoch");
-                        let new_committee = haneul_system_state.get_haneul_committee_for_benchmarking();
+                        let new_committee =
+                            haneul_system_state.get_haneul_committee_for_benchmarking();
                         let _ = self
                             .committee_store
                             .insert_new_committee(new_committee.committee());
                         let auth_agg = AuthorityAggregator::new_from_committee(
                             new_committee,
-                            Arc::new(haneul_system_state.get_committee_authority_names_to_hostnames()),
+                            Arc::new(
+                                haneul_system_state.get_committee_authority_names_to_hostnames(),
+                            ),
                             haneul_system_state.reference_gas_price,
                             &self.committee_store,
                             self.safe_client_metrics_base.clone(),

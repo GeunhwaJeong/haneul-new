@@ -7,9 +7,6 @@ use std::sync::LazyLock;
 use bytes::BufMut;
 use bytes::Bytes;
 use bytes::BytesMut;
-use object_store::ObjectStoreExt as _;
-use object_store::path::Path as ObjectPath;
-use prost::Message;
 use haneul_indexer_alt_framework::pipeline::Processor;
 use haneul_indexer_alt_framework::pipeline::concurrent::BatchStatus;
 use haneul_indexer_alt_framework::pipeline::concurrent::Handler;
@@ -20,6 +17,9 @@ use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::merge::Merge;
 use haneul_rpc::proto::haneul::rpc;
 use haneul_types::full_checkpoint_content::Checkpoint;
+use object_store::ObjectStoreExt as _;
+use object_store::path::Path as ObjectPath;
+use prost::Message;
 
 pub struct CheckpointBlob {
     pub sequence_number: u64,

@@ -22,6 +22,7 @@ use crate::rpc_index::RpcIndexStore;
 use crate::traffic_controller::TrafficController;
 use crate::traffic_controller::metrics::TrafficControllerMetrics;
 use crate::transaction_outputs::TransactionOutputs;
+use crate::verify_indexes::{fix_indexes, verify_indexes};
 use arc_swap::{ArcSwap, ArcSwapOption, Guard};
 use async_trait::async_trait;
 use authority_per_epoch_store::CertLockGuard;
@@ -29,14 +30,42 @@ use dashmap::DashMap;
 use fastcrypto::encoding::Base58;
 use fastcrypto::encoding::Encoding;
 use fastcrypto::hash::MultisetHash;
+use haneul_config::NodeConfig;
+use haneul_config::node::{AuthorityOverloadConfig, StateDebugDumpConfig};
+use haneul_execution::Executor;
+use haneul_protocol_config::PerObjectCongestionControlMode;
+use haneul_types::accumulator_root::AccumulatorObjId;
+use haneul_types::crypto::RandomnessRound;
+use haneul_types::dynamic_field::visitor as DFV;
+use haneul_types::execution::ExecutionOutput;
+use haneul_types::execution::ExecutionTimeObservationKey;
+use haneul_types::execution::ExecutionTiming;
+use haneul_types::execution_params::ExecutionOrEarlyError;
+use haneul_types::execution_params::FundsWithdrawStatus;
+use haneul_types::execution_params::get_early_execution_error;
+use haneul_types::execution_status::ExecutionStatus;
+use haneul_types::inner_temporary_store::PackageStoreWithFallback;
+use haneul_types::layout_resolver::LayoutResolver;
+use haneul_types::layout_resolver::into_struct_layout;
+use haneul_types::messages_consensus::AuthorityCapabilitiesV2;
+use haneul_types::object::bounded_visitor::BoundedVisitor;
+use haneul_types::storage::ChildObjectResolver;
+use haneul_types::storage::InputKey;
+use haneul_types::storage::OverlayBackingPackageStore;
+use haneul_types::storage::TrackingBackingStore;
+use haneul_types::traffic_control::{
+    PolicyConfig, RemoteFirewallConfig, TrafficControlReconfigParams,
+};
+use haneul_types::transaction_executor::SimulateTransactionResult;
+use haneul_types::transaction_executor::TransactionChecks;
+use haneul_types::{HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, accumulator_metadata};
+use haneullabs_common::ZipDebugEqIteratorExt;
+use haneullabs_common::{assert_reachable, fatal};
 use itertools::Itertools;
 use move_binary_format::CompiledModule;
 use move_binary_format::binary_config::BinaryConfig;
 use move_core_types::annotated_value::MoveStructLayout;
 use move_core_types::language_storage::ModuleId;
-use haneullabs_common::ZipDebugEqIteratorExt;
-use haneullabs_common::{assert_reachable, fatal};
-use nonempty::NonEmpty;
 use parking_lot::Mutex;
 use prometheus::{
     Histogram, HistogramVec, IntCounter, IntCounterVec, IntGauge, IntGaugeVec, Registry,
@@ -66,40 +95,12 @@ use std::{
     sync::Arc,
     vec,
 };
-use haneul_config::NodeConfig;
-use haneul_config::node::{AuthorityOverloadConfig, StateDebugDumpConfig};
-use haneul_execution::Executor;
-use haneul_protocol_config::Chain;
-use haneul_protocol_config::PerObjectCongestionControlMode;
-use haneul_types::accumulator_root::AccumulatorObjId;
-use haneul_types::dynamic_field::visitor as DFV;
-use haneul_types::execution::ExecutionOutput;
-use haneul_types::execution::ExecutionTimeObservationKey;
-use haneul_types::execution::ExecutionTiming;
-use haneul_types::execution_params::ExecutionOrEarlyError;
-use haneul_types::execution_params::FundsWithdrawStatus;
-use haneul_types::execution_params::get_early_execution_error;
-use haneul_types::inner_temporary_store::PackageStoreWithFallback;
-use haneul_types::layout_resolver::LayoutResolver;
-use haneul_types::layout_resolver::into_struct_layout;
-use haneul_types::messages_consensus::AuthorityCapabilitiesV2;
-use haneul_types::node_role::NodeRole;
-use haneul_types::object::bounded_visitor::BoundedVisitor;
-use haneul_types::storage::ChildObjectResolver;
-use haneul_types::storage::InputKey;
-use haneul_types::storage::OverlayBackingPackageStore;
-use haneul_types::storage::TrackingBackingStore;
-use haneul_types::traffic_control::{
-    PolicyConfig, RemoteFirewallConfig, TrafficControlReconfigParams,
-};
-use haneul_types::transaction_executor::SimulateTransactionResult;
-use haneul_types::transaction_executor::TransactionChecks;
-use haneul_types::{HANEUL_ACCUMULATOR_ROOT_OBJECT_ID, accumulator_metadata};
 use tap::TapFallible;
 use tokio::sync::RwLock;
 use tokio::sync::mpsc::unbounded_channel;
-use tokio::sync::oneshot;
 use tokio::sync::watch::error::RecvError;
+use tokio::sync::{mpsc, oneshot};
+use tokio::task::JoinHandle;
 use tokio::time::timeout;
 use tracing::{debug, error, info, instrument, warn};
 
@@ -112,8 +113,6 @@ use crate::jsonrpc_index::IndexStore;
 use crate::jsonrpc_index::{
     CoinInfo, IndexStoreCacheUpdates, IndexStoreCacheUpdatesWithLocks, ObjectIndexChanges,
 };
-use haneullabs_common::debug_fatal;
-use shared_crypto::intent::{Intent, IntentScope};
 use haneul_config::genesis::Genesis;
 use haneul_config::node::{DBCheckpointConfig, ExpensiveSafetyCheckConfig};
 use haneul_framework::{BuiltInFramework, SystemPackage};
@@ -138,12 +137,17 @@ use haneul_types::effects::{
     InputConsensusObject, SignedTransactionEffects, TransactionEffects, TransactionEffectsAPI,
     TransactionEvents, VerifiedSignedTransactionEffects,
 };
-use haneul_types::error::{ExecutionError, HaneulErrorKind, UserInputError};
+use haneul_types::error::{ExecutionError, ExecutionErrorTrait, HaneulErrorKind, UserInputError};
 use haneul_types::event::EventID;
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::execution_status::ExecutionErrorKind;
 use haneul_types::gas::{GasCostSummary, HaneulGasStatus};
-use haneul_types::inner_temporary_store::{InnerTemporaryStore, ObjectMap, TxCoins, WrittenObjects};
+use haneul_types::haneul_system_state::HaneulSystemStateTrait;
+use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
+use haneul_types::haneul_system_state::{HaneulSystemState, get_haneul_system_state};
+use haneul_types::inner_temporary_store::{
+    InnerTemporaryStore, ObjectMap, TxCoins, WrittenObjects,
+};
 use haneul_types::message_envelope::Message;
 use haneul_types::messages_checkpoint::{
     CertifiedCheckpointSummary, CheckpointCommitment, CheckpointContents, CheckpointContentsDigest,
@@ -161,9 +165,6 @@ use haneul_types::signature::GenericSignature;
 use haneul_types::storage::{
     BackingPackageStore, BackingStore, ObjectKey, ObjectOrTombstone, ObjectStore, WriteKind,
 };
-use haneul_types::haneul_system_state::HaneulSystemStateTrait;
-use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
-use haneul_types::haneul_system_state::{HaneulSystemState, get_haneul_system_state};
 use haneul_types::supported_protocol_versions::{ProtocolConfig, SupportedProtocolVersions};
 use haneul_types::{
     HANEUL_SYSTEM_ADDRESS,
@@ -175,6 +176,8 @@ use haneul_types::{
     transaction::*,
 };
 use haneul_types::{TypeTag, is_system_package};
+use haneullabs_common::{debug_fatal, debug_fatal_no_invariant};
+use shared_crypto::intent::{Intent, IntentScope};
 use typed_store::TypedStoreError;
 use typed_store::rocks::StagedBatch;
 
@@ -852,7 +855,9 @@ impl Default for ForkRecoveryState {
 }
 
 impl ForkRecoveryState {
-    pub fn new(config: Option<&haneul_config::node::ForkRecoveryConfig>) -> Result<Self, HaneulError> {
+    pub fn new(
+        config: Option<&haneul_config::node::ForkRecoveryConfig>,
+    ) -> Result<Self, HaneulError> {
         let Some(config) = config else {
             return Ok(Self::default());
         };
@@ -864,7 +869,10 @@ impl ForkRecoveryState {
             })?;
             let effects_digest =
                 TransactionEffectsDigest::from_str(effects_digest_str).map_err(|_| {
-                    HaneulErrorKind::Unknown(format!("Invalid effects digest: {}", effects_digest_str))
+                    HaneulErrorKind::Unknown(format!(
+                        "Invalid effects digest: {}",
+                        effects_digest_str
+                    ))
                 })?;
             transaction_overrides.insert(tx_digest, effects_digest);
         }
@@ -969,16 +977,12 @@ pub struct AuthorityState {
 ///
 /// Repeating valid commands should produce no changes and return no error.
 impl AuthorityState {
-    pub fn node_role(&self, epoch_store: &AuthorityPerEpochStore) -> NodeRole {
-        epoch_store.node_role()
-    }
-
     pub fn is_validator(&self, epoch_store: &AuthorityPerEpochStore) -> bool {
-        epoch_store.node_role().is_validator()
+        epoch_store.committee().authority_exists(&self.name)
     }
 
     pub fn is_fullnode(&self, epoch_store: &AuthorityPerEpochStore) -> bool {
-        epoch_store.node_role().is_fullnode()
+        !self.is_validator(epoch_store)
     }
 
     pub fn committee_store(&self) -> &Arc<CommitteeStore> {
@@ -1068,15 +1072,16 @@ impl AuthorityState {
             epoch_store.epoch(),
         )?;
 
-        let (_gas_status, checked_input_objects) = haneul_transaction_checks::check_transaction_input(
-            epoch_store.protocol_config(),
-            epoch_store.reference_gas_price(),
-            tx_data,
-            input_objects,
-            &receiving_objects,
-            &self.metrics.bytecode_verifier_metrics,
-            &self.config.verifier_signing_config,
-        )?;
+        let (_gas_status, checked_input_objects) =
+            haneul_transaction_checks::check_transaction_input(
+                epoch_store.protocol_config(),
+                epoch_store.reference_gas_price(),
+                tx_data,
+                input_objects,
+                &receiving_objects,
+                &self.metrics.bytecode_verifier_metrics,
+                &self.config.verifier_signing_config,
+            )?;
 
         self.handle_coin_deny_list_checks(
             tx_data,
@@ -1455,7 +1460,7 @@ impl AuthorityState {
     ///
     /// Should only be called within haneul-core.
     #[instrument(level = "trace", skip_all)]
-    pub fn try_execute_immediately(
+    pub async fn try_execute_immediately(
         &self,
         certificate: &VerifiedExecutableTransaction,
         mut execution_env: ExecutionEnv,
@@ -1647,6 +1652,7 @@ impl AuthorityState {
                 execution_env,
                 &epoch_store,
             )
+            .await
             .unwrap();
         let signed_effects = self.sign_effects(effects, &epoch_store).unwrap();
         (signed_effects, execution_error_opt)
@@ -1660,6 +1666,7 @@ impl AuthorityState {
         let epoch_store = self.epoch_store_for_testing();
         let (effects, execution_error_opt) = self
             .try_execute_immediately(executable, execution_env, &epoch_store)
+            .await
             .unwrap();
         self.flush_post_processing(executable.digest()).await;
         let signed_effects = self.sign_effects(effects, &epoch_store).unwrap();
@@ -1999,17 +2006,9 @@ impl AuthorityState {
             self.config.certificate_deny_config.certificate_deny_set(),
             &execution_env.funds_withdraw_status,
         );
-        // Mainnet-only: feed the accumulator (settlement) version so the address-balance gas-smash
-        // short-circuit activates at its rollout version and replays bit-for-bit. Other chains pass
-        // `None`, where the short-circuit applies unconditionally.
-        let accumulator_version = if self.chain_identifier.chain() == Chain::Mainnet {
-            execution_env.assigned_versions.accumulator_version
-        } else {
-            None
-        };
         let execution_params = match early_execution_error {
-            None => ExecutionOrEarlyError::ok(accumulator_version),
-            Some(errors) => ExecutionOrEarlyError::failed(errors, accumulator_version),
+            Some(error) => ExecutionOrEarlyError::Err(error),
+            None => ExecutionOrEarlyError::Ok(()),
         };
 
         // Skip on early error: the tx will fail anyway and rewriting may fail if the accumulator
@@ -2139,7 +2138,9 @@ impl AuthorityState {
             fork_probability,
         ): (
             std::sync::Arc<
-                std::sync::Mutex<std::collections::HashSet<haneul_types::base_types::AuthorityName>>,
+                std::sync::Mutex<
+                    std::collections::HashSet<haneul_types::base_types::AuthorityName>,
+                >,
             >,
             bool,
             std::sync::Arc<std::sync::Mutex<std::collections::BTreeMap<String, String>>>,
@@ -2344,7 +2345,7 @@ impl AuthorityState {
         let execution_error_source = execution_result
             .as_ref()
             .err()
-            .and_then(|e| e.source().as_ref().map(|e| e.to_string()));
+            .and_then(|e| e.source_ref().as_ref().map(|e| e.to_string()));
 
         let response = DryRunTransactionBlockResponse {
             suggested_gas_price,
@@ -2417,19 +2418,15 @@ impl AuthorityState {
             .into());
         }
 
-        // Compute input/receiving object kinds before mock gas injection so the mock
-        // gas reference is not included in input_object_kinds (it is added to
-        // input_objects directly after object loading).
+        // Cheap validity checks for a transaction, including input size limits.
+        transaction.validity_check_no_gas_check(epoch_store.protocol_config())?;
+
         let input_object_kinds = transaction.input_objects()?;
         let receiving_object_refs = transaction.receiving_objects();
 
-        // Inject mock gas coin before validity_check so that on protocol versions
-        // where address-balance gas payments are not yet enabled, the non-empty
-        // payment check in validity_check passes for simulate/dev-inspect requests
-        // submitted without explicit gas.
-        // Also required before pre_object_load_checks so that funds-withdrawal
-        // processing sees non-empty payment and doesn't create an address-balance
-        // withdrawal for gas.
+        // Create and inject mock gas coin before pre_object_load_checks so that
+        // funds withdrawal processing sees non-empty payment and doesn't incorrectly
+        // create an address balance withdrawal for gas.
         // Skip mock gas for gasless transactions — they don't use gas coins.
         let is_gasless = protocol_config.enable_gasless() && transaction.is_gasless_transaction();
         let mock_gas_object = if allow_mock_gas_coin && transaction.gas().is_empty() && !is_gasless
@@ -2448,9 +2445,6 @@ impl AuthorityState {
         } else {
             None
         };
-
-        // Full validity check including gas budget and price.
-        transaction.validity_check(&epoch_store.tx_validity_check_context())?;
 
         let declared_withdrawals = self.pre_object_load_checks(
             &transaction,
@@ -2519,11 +2513,9 @@ impl AuthorityState {
             self.config.certificate_deny_config.certificate_deny_set(),
             &FundsWithdrawStatus::MaybeSufficient,
         );
-        // Dev-inspect/simulation path (not committed): no assigned accumulator version here, so the
-        // IFFW short-circuit applies unconditionally (`None`), matching non-mainnet execution.
         let execution_params = match early_execution_error {
-            None => ExecutionOrEarlyError::ok(None),
-            Some(errors) => ExecutionOrEarlyError::failed(errors, None),
+            Some(error) => ExecutionOrEarlyError::Err(error),
+            None => ExecutionOrEarlyError::Ok(()),
         };
 
         let tracking_store = TrackingBackingStore::new(self.get_backing_store().as_ref());
@@ -2563,7 +2555,7 @@ impl AuthorityState {
                 .iter()
                 .filter(|(id, _)| !address_funds.contains(id))
                 .any(|(id, max_withdraw)| {
-                    let balance = self.get_account_funds_read().get_latest_account_amount(id);
+                    let (balance, _) = self.get_account_funds_read().get_latest_account_amount(id);
                     balance < *max_withdraw
                 });
 
@@ -2579,10 +2571,7 @@ impl AuthorityState {
                     protocol_config,
                     self.metrics.execution_metrics.clone(),
                     false,
-                    ExecutionOrEarlyError::failed(
-                        NonEmpty::new(ExecutionErrorKind::InsufficientFundsForWithdraw),
-                        None,
-                    ),
+                    ExecutionOrEarlyError::Err(ExecutionErrorKind::InsufficientFundsForWithdraw),
                     &epoch_id,
                     epoch_timestamp_ms,
                     cloned_input_objects,
@@ -3399,14 +3388,15 @@ impl AuthorityState {
 
         let requested_object_seq = match request.request_kind {
             ObjectInfoRequestKind::LatestObjectInfo => {
-                let (_, seq, _) =
-                    self.get_object_or_tombstone(request.object_id)
-                        .ok_or_else(|| {
-                            HaneulError::from(UserInputError::ObjectNotFound {
-                                object_id: request.object_id,
-                                version: None,
-                            })
-                        })?;
+                let (_, seq, _) = self
+                    .get_object_or_tombstone(request.object_id)
+                    .await
+                    .ok_or_else(|| {
+                        HaneulError::from(UserInputError::ObjectNotFound {
+                            object_id: request.object_id,
+                            version: None,
+                        })
+                    })?;
                 seq
             }
             ObjectInfoRequestKind::PastObjectInfoDebug(seq) => seq,
@@ -3443,7 +3433,8 @@ impl AuthorityState {
             // Only address owned objects have locks.
             None
         } else {
-            self.get_transaction_lock(&object.compute_object_reference(), &epoch_store)?
+            self.get_transaction_lock(&object.compute_object_reference(), &epoch_store)
+                .await?
                 .map(|s| s.into_inner())
         };
 
@@ -3654,6 +3645,8 @@ impl AuthorityState {
         });
         state.init_object_funds_checker().await;
 
+        let state_clone = Arc::downgrade(&state);
+        spawn_monitored_task!(fix_indexes(state_clone));
         // Start a task to execute ready certificates.
         let authority_state = Arc::downgrade(&state);
         spawn_monitored_task!(execution_process(
@@ -3701,12 +3694,15 @@ impl AuthorityState {
             && epoch_store.protocol_config().enable_object_funds_withdraw()
         {
             if self.object_funds_checker.load().is_none() {
-                let inner = self.get_object(&HANEUL_ACCUMULATOR_ROOT_OBJECT_ID).map(|o| {
-                    Arc::new(ObjectFundsChecker::new(
-                        o.version(),
-                        self.object_funds_checker_metrics.clone(),
-                    ))
-                });
+                let inner = self
+                    .get_object(&HANEUL_ACCUMULATOR_ROOT_OBJECT_ID)
+                    .await
+                    .map(|o| {
+                        Arc::new(ObjectFundsChecker::new(
+                            o.version(),
+                            self.object_funds_checker_metrics.clone(),
+                        ))
+                    });
                 self.object_funds_checker.store(inner);
             }
         } else {
@@ -3804,18 +3800,6 @@ impl AuthorityState {
     }
 
     pub fn database_for_testing(&self) -> Arc<AuthorityStore> {
-        self.execution_cache_trait_pointers
-            .testing_api
-            .database_for_testing()
-    }
-
-    /// Access to the underlying authority store for diagnostic tooling (db-shell).
-    ///
-    /// Goes through `testing_api` deliberately: db-shell is read-only diagnostics
-    /// that bypasses the writeback cache, and we want the execution path to have
-    /// no other route to the raw `AuthorityStore`. Using the testing API here
-    /// keeps that invariant visible — diagnostic code is the only non-test caller.
-    pub fn authority_store(&self) -> Arc<AuthorityStore> {
         self.execution_cache_trait_pointers
             .testing_api
             .database_for_testing()
@@ -4049,6 +4033,7 @@ impl AuthorityState {
     ) -> Vec<(VerifiedExecutableTransaction, ExecutionEnv)> {
         let accumulator_version = self
             .get_object(&HANEUL_ACCUMULATOR_ROOT_OBJECT_ID)
+            .await
             .unwrap()
             .version();
         // Use provided checkpoint sequence, or fall back to accumulator version.
@@ -4099,6 +4084,7 @@ impl AuthorityState {
             let env = ExecutionEnv::new().with_assigned_versions(assigned);
             let (effects, _) = self
                 .try_execute_immediately(&tx.clone(), env.clone(), &epoch_store)
+                .await
                 .unwrap();
             assert!(effects.status().is_ok());
             replay_txns.push((tx, env));
@@ -4128,6 +4114,7 @@ impl AuthorityState {
         let env = ExecutionEnv::new().with_assigned_versions(barrier_assigned);
         let (effects, _) = self
             .try_execute_immediately(&barrier.clone(), env.clone(), &epoch_store)
+            .await
             .unwrap();
         assert!(effects.status().is_ok());
         replay_txns.push((barrier, env));
@@ -4153,6 +4140,7 @@ impl AuthorityState {
         for (tx, env) in txns {
             let (effects, _) = self
                 .try_execute_immediately(tx, env.clone(), &epoch_store)
+                .await
                 .unwrap();
             assert!(effects.status().is_ok());
         }
@@ -4238,6 +4226,13 @@ impl AuthorityState {
                 cur_epoch_store.epoch()
             );
             self.expensive_check_is_consistent_state(state_hasher, cur_epoch_store);
+        }
+
+        if expensive_safety_check_config.enable_secondary_index_checks()
+            && let Some(indexes) = self.indexes.clone()
+        {
+            verify_indexes(self.get_global_state_hash_store().as_ref(), indexes)
+                .expect("secondary indexes are inconsistent");
         }
 
         // Verify all checkpointed transactions are present in transactions_seq.
@@ -4400,13 +4395,14 @@ impl AuthorityState {
     }
 
     #[instrument(level = "trace", skip_all)]
-    pub fn get_object(&self, object_id: &ObjectID) -> Option<Object> {
+    pub async fn get_object(&self, object_id: &ObjectID) -> Option<Object> {
         self.get_object_store().get_object(object_id)
     }
 
-    pub fn get_haneul_system_package_object_ref(&self) -> HaneulResult<ObjectRef> {
+    pub async fn get_haneul_system_package_object_ref(&self) -> HaneulResult<ObjectRef> {
         Ok(self
             .get_object(&HANEUL_SYSTEM_ADDRESS.into())
+            .await
             .expect("framework object should always exist")
             .compute_object_reference())
     }
@@ -4736,7 +4732,11 @@ impl AuthorityState {
     }
 
     #[instrument(level = "trace", skip_all)]
-    pub fn get_move_objects<T>(&self, owner: HaneulAddress, type_: MoveObjectType) -> HaneulResult<Vec<T>>
+    pub async fn get_move_objects<T>(
+        &self,
+        owner: HaneulAddress,
+        type_: MoveObjectType,
+    ) -> HaneulResult<Vec<T>>
     where
         T: DeserializeOwned,
     {
@@ -4792,8 +4792,9 @@ impl AuthorityState {
         owner: ObjectID,
         // If `Some`, the query will start from the next item after the specified cursor
         cursor: Option<ObjectID>,
-    ) -> HaneulResult<impl Iterator<Item = Result<(ObjectID, DynamicFieldInfo), TypedStoreError>> + '_>
-    {
+    ) -> HaneulResult<
+        impl Iterator<Item = Result<(ObjectID, DynamicFieldInfo), TypedStoreError>> + '_,
+    > {
         if let Some(indexes) = &self.indexes {
             indexes.get_dynamic_fields_iterator(owner, cursor)
         } else {
@@ -4940,7 +4941,9 @@ impl AuthorityState {
     }
 
     #[cfg(msim)]
-    pub fn get_highest_pruned_checkpoint_for_testing(&self) -> HaneulResult<CheckpointSequenceNumber> {
+    pub fn get_highest_pruned_checkpoint_for_testing(
+        &self,
+    ) -> HaneulResult<CheckpointSequenceNumber> {
         self.database_for_testing()
             .perpetual_tables
             .get_highest_pruned_checkpoint()
@@ -5214,14 +5217,17 @@ impl AuthorityState {
         Ok(events)
     }
 
-    pub fn insert_genesis_object(&self, object: Object) {
+    pub async fn insert_genesis_object(&self, object: Object) {
         self.get_reconfig_api().insert_genesis_object(object);
     }
 
-    pub fn insert_genesis_objects(&self, objects: &[Object]) {
-        for o in objects {
-            self.insert_genesis_object(o.clone());
-        }
+    pub async fn insert_genesis_objects(&self, objects: &[Object]) {
+        futures::future::join_all(
+            objects
+                .iter()
+                .map(|o| self.insert_genesis_object(o.clone())),
+        )
+        .await;
     }
 
     /// Make a status response for a transaction
@@ -5239,17 +5245,15 @@ impl AuthorityState {
                 .get_transaction_cache_reader()
                 .get_transaction_block(transaction_digest)
             {
+                let cert_sig = epoch_store.get_transaction_cert_sig(transaction_digest)?;
                 let events = if effects.events_digest().is_some() {
                     self.get_transaction_events(effects.transaction_digest())?
                 } else {
                     TransactionEvents::default()
                 };
-                // The cert_sig slot is permanently None: validators no longer aggregate or
-                // persist per-transaction quorum signatures (the transaction_cert_signatures
-                // table is deprecated and unwritten).
                 return Ok(Some((
                     (*transaction).clone().into_message(),
-                    TransactionStatus::Executed(None, effects.into_inner(), events),
+                    TransactionStatus::Executed(cert_sig, effects.into_inner(), events),
                 )));
             } else {
                 // The read of effects and read of transaction are not atomic. It's possible that we reverted
@@ -5412,7 +5416,7 @@ impl AuthorityState {
     /// Returns None if a lock record is initialized for the given ObjectRef but not yet locked by any transaction,
     ///     or cannot find the transaction in transaction table, because of data race etc.
     #[instrument(level = "trace", skip_all)]
-    pub fn get_transaction_lock(
+    pub async fn get_transaction_lock(
         &self,
         object_ref: &ObjectRef,
         epoch_store: &AuthorityPerEpochStore,
@@ -5437,11 +5441,11 @@ impl AuthorityState {
         epoch_store.get_signed_transaction(&lock_info.tx_digest)
     }
 
-    pub fn get_objects(&self, objects: &[ObjectID]) -> Vec<Option<Object>> {
+    pub async fn get_objects(&self, objects: &[ObjectID]) -> Vec<Option<Object>> {
         self.get_object_cache_reader().get_objects(objects)
     }
 
-    pub fn get_object_or_tombstone(&self, object_id: ObjectID) -> Option<ObjectRef> {
+    pub async fn get_object_or_tombstone(&self, object_id: ObjectID) -> Option<ObjectRef> {
         self.get_object_cache_reader()
             .get_latest_object_ref_or_tombstone(object_id)
     }
@@ -5552,7 +5556,7 @@ impl AuthorityState {
         binary_config: &BinaryConfig,
     ) -> Option<Vec<(SequenceNumber, Vec<Vec<u8>>, Vec<ObjectID>)>> {
         let ids: Vec<_> = system_packages.iter().map(|(id, _, _)| *id).collect();
-        let objects = self.get_objects(&ids);
+        let objects = self.get_objects(&ids).await;
 
         let mut res = Vec::with_capacity(system_packages.len());
         for (system_package_ref, object) in system_packages.into_iter().zip_debug_eq(objects.iter())
@@ -6335,7 +6339,6 @@ impl AuthorityState {
             self.get_object_store().clone(),
             expensive_safety_check_config,
             epoch_last_checkpoint,
-            self.config.fullnode_sync_mode,
         )?;
         self.epoch_store.store(new_epoch_store.clone());
         Ok(new_epoch_store)
@@ -6371,6 +6374,133 @@ impl AuthorityState {
         self.get_reconfig_api()
             .clear_state_end_of_epoch(&self.execution_lock_for_reconfiguration().await);
         Ok(())
+    }
+}
+
+pub struct RandomnessRoundReceiver {
+    authority_state: Arc<AuthorityState>,
+    randomness_rx: mpsc::Receiver<(EpochId, RandomnessRound, Vec<u8>)>,
+}
+
+impl RandomnessRoundReceiver {
+    pub fn spawn(
+        authority_state: Arc<AuthorityState>,
+        randomness_rx: mpsc::Receiver<(EpochId, RandomnessRound, Vec<u8>)>,
+    ) -> JoinHandle<()> {
+        let rrr = RandomnessRoundReceiver {
+            authority_state,
+            randomness_rx,
+        };
+        spawn_monitored_task!(rrr.run())
+    }
+
+    async fn run(mut self) {
+        info!("RandomnessRoundReceiver event loop started");
+
+        loop {
+            tokio::select! {
+                maybe_recv = self.randomness_rx.recv() => {
+                    if let Some((epoch, round, bytes)) = maybe_recv {
+                        self.handle_new_randomness(epoch, round, bytes).await;
+                    } else {
+                        break;
+                    }
+                },
+            }
+        }
+
+        info!("RandomnessRoundReceiver event loop ended");
+    }
+
+    #[instrument(level = "debug", skip_all, fields(?epoch, ?round))]
+    async fn handle_new_randomness(&self, epoch: EpochId, round: RandomnessRound, bytes: Vec<u8>) {
+        fail_point_async!("randomness-delay");
+
+        let epoch_store = self.authority_state.load_epoch_store_one_call_per_task();
+        if epoch_store.epoch() != epoch {
+            warn!(
+                "dropping randomness for epoch {epoch}, round {round}, because we are in epoch {}",
+                epoch_store.epoch()
+            );
+            return;
+        }
+        let key = TransactionKey::RandomnessRound(epoch, round);
+        let transaction = VerifiedTransaction::new_randomness_state_update(
+            epoch,
+            round,
+            bytes,
+            epoch_store
+                .epoch_start_config()
+                .randomness_obj_initial_shared_version()
+                .expect("randomness state obj must exist"),
+        );
+        debug!(
+            "created randomness state update transaction with digest: {:?}",
+            transaction.digest()
+        );
+        let transaction = VerifiedExecutableTransaction::new_system(transaction, epoch);
+        let digest = *transaction.digest();
+
+        // Randomness state updates contain the full bls signature for the random round,
+        // which cannot necessarily be reconstructed again later. Therefore we must immediately
+        // persist this transaction. If we crash before its outputs are committed, this
+        // ensures we will be able to re-execute it.
+        self.authority_state
+            .get_cache_commit()
+            .persist_transaction(&transaction);
+
+        // Notify the scheduler that the transaction key now has a known digest
+        if epoch_store.insert_tx_key(key, digest).is_err() {
+            warn!("epoch ended while handling new randomness");
+        }
+
+        let authority_state = self.authority_state.clone();
+        spawn_monitored_task!(async move {
+            // Wait for transaction execution in a separate task, to avoid deadlock in case of
+            // out-of-order randomness generation. (Each RandomnessStateUpdate depends on the
+            // output of the RandomnessStateUpdate from the previous round.)
+            //
+            // We set a very long timeout so that in case this gets stuck for some reason, the
+            // validator will eventually crash rather than continuing in a zombie mode.
+            const RANDOMNESS_STATE_UPDATE_EXECUTION_TIMEOUT: Duration = Duration::from_secs(300);
+            let result = tokio::time::timeout(
+                RANDOMNESS_STATE_UPDATE_EXECUTION_TIMEOUT,
+                authority_state
+                    .get_transaction_cache_reader()
+                    .notify_read_executed_effects(
+                        "RandomnessRoundReceiver::notify_read_executed_effects_first",
+                        &[digest],
+                    ),
+            )
+            .await;
+            let mut effects = match result {
+                Ok(result) => result,
+                Err(_) => {
+                    // Crash on randomness update execution timeout in debug builds.
+                    debug_fatal_no_invariant!(
+                        "randomness state update transaction execution timed out at epoch {epoch}, round {round}"
+                    );
+                    // Continue waiting as long as necessary in non-debug builds.
+                    authority_state
+                        .get_transaction_cache_reader()
+                        .notify_read_executed_effects(
+                            "RandomnessRoundReceiver::notify_read_executed_effects_second",
+                            &[digest],
+                        )
+                        .await
+                }
+            };
+
+            let effects = effects.pop().expect("should return effects");
+            if *effects.status() != ExecutionStatus::Success {
+                fatal!(
+                    "failed to execute randomness state update transaction at epoch {epoch}, round {round}: {effects:?}"
+                );
+            }
+            debug!(
+                "successfully executed randomness state update transaction at epoch {epoch}, round {round}"
+            );
+        });
     }
 }
 
@@ -6469,7 +6599,10 @@ impl TransactionKeyValueStoreTrait for AuthorityState {
     }
 
     #[instrument(skip_all)]
-    async fn multi_get_objects(&self, object_keys: &[ObjectKey]) -> HaneulResult<Vec<Option<Object>>> {
+    async fn multi_get_objects(
+        &self,
+        object_keys: &[ObjectKey],
+    ) -> HaneulResult<Vec<Option<Object>>> {
         Ok(self
             .get_object_cache_reader()
             .multi_get_objects_by_key(object_keys))
@@ -6507,12 +6640,12 @@ impl TransactionKeyValueStoreTrait for AuthorityState {
 
 #[cfg(msim)]
 pub mod framework_injection {
-    use move_binary_format::CompiledModule;
-    use std::collections::BTreeMap;
-    use std::{cell::RefCell, collections::BTreeSet};
     use haneul_framework::{BuiltInFramework, SystemPackage};
     use haneul_types::base_types::{AuthorityName, ObjectID};
     use haneul_types::is_system_package;
+    use move_binary_format::CompiledModule;
+    use std::collections::BTreeMap;
+    use std::{cell::RefCell, collections::BTreeSet};
 
     type FrameworkOverrideConfig = BTreeMap<ObjectID, PackageOverrideConfig>;
 

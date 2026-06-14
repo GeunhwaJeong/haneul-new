@@ -5,9 +5,9 @@
 
 use crate::haneul_bridge_watchdog::Observable;
 use async_trait::async_trait;
+use haneul_rpc::proto::haneul::rpc::v2::GetCoinInfoRequest;
 use prometheus::IntGaugeVec;
 use std::collections::BTreeMap;
-use haneul_rpc::proto::haneul::rpc::v2::GetCoinInfoRequest;
 
 use tokio::time::Duration;
 use tracing::{error, info};

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use anyhow::{Result, anyhow, bail};
+use haneul_genesis_builder::validator_info::GenesisValidatorInfo;
 use move_core_types::ident_str;
 use std::{
     collections::{BTreeMap, HashSet},
@@ -10,7 +11,6 @@ use std::{
     path::PathBuf,
     sync::Arc,
 };
-use haneul_genesis_builder::validator_info::GenesisValidatorInfo;
 use url::{ParseError, Url};
 
 use haneul_rpc::proto::haneul::rpc::v2 as proto;
@@ -18,12 +18,14 @@ use haneul_rpc_api::Client;
 use haneul_rpc_api::client::ExecutedTransaction;
 use haneul_types::{
     HANEUL_SYSTEM_PACKAGE_ID,
-    base_types::{ObjectID, ObjectRef, HaneulAddress},
+    base_types::{HaneulAddress, ObjectID, ObjectRef},
     crypto::{AuthorityPublicKey, DEFAULT_EPOCH_ID, NetworkPublicKey, Signable},
     effects::TransactionEffectsAPI,
+    haneul_system_state::haneul_system_state_inner_v1::{
+        UnverifiedValidatorOperationCapV1, ValidatorV1,
+    },
     multiaddr::Multiaddr,
     object::Owner,
-    haneul_system_state::haneul_system_state_inner_v1::{UnverifiedValidatorOperationCapV1, ValidatorV1},
 };
 use tap::tap::TapOptional;
 
@@ -35,13 +37,11 @@ use fastcrypto::{
     encoding::{Base64, Encoding},
     traits::KeyPair,
 };
-use serde::Serialize;
-use shared_crypto::intent::{Intent, IntentMessage, IntentScope};
-use haneul_bridge::metrics::BridgeMetrics;
 use haneul_bridge::haneul_client::HaneulClient as HaneulBridgeClient;
 use haneul_bridge::haneul_transaction_builder::{
     build_committee_register_transaction, build_committee_update_url_transaction,
 };
+use haneul_bridge::metrics::BridgeMetrics;
 use haneul_keys::{
     key_derive::generate_new_key,
     keypair_file::{
@@ -51,11 +51,13 @@ use haneul_keys::{
 };
 use haneul_keys::{keypair_file::read_key, keystore::AccountKeystore};
 use haneul_sdk::wallet_context::WalletContext;
-use haneul_types::crypto::{AuthorityKeyPair, NetworkKeyPair, SignatureScheme, HaneulKeyPair};
+use haneul_types::crypto::{AuthorityKeyPair, HaneulKeyPair, NetworkKeyPair, SignatureScheme};
 use haneul_types::crypto::{
     AuthorityPublicKeyBytes, generate_proof_of_possession, get_authority_key_pair,
 };
 use haneul_types::transaction::{CallArg, ObjectArg, Transaction, TransactionData};
+use serde::Serialize;
+use shared_crypto::intent::{Intent, IntentMessage, IntentScope};
 
 #[path = "unit_tests/validator_tests.rs"]
 #[cfg(test)]
@@ -309,7 +311,9 @@ impl HaneulValidatorCommand {
                 let dir = std::env::current_dir()?;
                 let protocol_key_file_name = dir.join("protocol.key");
                 let account_key = match context.config.keystore.export(&haneul_address)? {
-                    HaneulKeyPair::Ed25519(account_key) => HaneulKeyPair::Ed25519(account_key.copy()),
+                    HaneulKeyPair::Ed25519(account_key) => {
+                        HaneulKeyPair::Ed25519(account_key.copy())
+                    }
                     _ => panic!(
                         "Other account key types supported yet, please use Ed25519 keys for now."
                     ),

@@ -36,11 +36,11 @@ pub mod stores;
 pub use node::Node;
 
 use anyhow::{Error, Result};
-use std::io::Write;
 use haneul_types::{
     base_types::ObjectID, effects::TransactionEffects, object::Object,
     supported_protocol_versions::ProtocolConfig, transaction::TransactionData,
 };
+use std::io::Write;
 
 // ============================================================================
 // Data store read traits

@@ -40,7 +40,10 @@ impl<'a> ProcessPayload<'a, &'a GetAllBalances> for RpcCommandProcessor {
     }
 }
 
-async fn get_all_balances(client: &HaneulClient, owner_address: HaneulAddress) -> Result<Vec<Balance>> {
+async fn get_all_balances(
+    client: &HaneulClient,
+    owner_address: HaneulAddress,
+) -> Result<Vec<Balance>> {
     let balances = client
         .coin_read_api()
         .get_all_balances(owner_address)

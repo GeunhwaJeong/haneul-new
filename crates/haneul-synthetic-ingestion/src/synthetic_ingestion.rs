@@ -1,10 +1,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use prost::Message;
-use simulacrum::Simulacrum;
-use std::collections::BTreeMap;
-use std::path::PathBuf;
 use haneul_rpc::proto::haneul::rpc::v2::Checkpoint as ProtoCheckpoint;
 use haneul_test_transaction_builder::TestTransactionBuilder;
 use haneul_types::crypto::get_account_key_pair;
@@ -13,6 +9,10 @@ use haneul_types::full_checkpoint_content::Checkpoint;
 use haneul_types::full_checkpoint_content::CheckpointData;
 use haneul_types::gas_coin::GEUNHWA_PER_HANEUL;
 use haneul_types::utils::to_sender_signed_transaction;
+use prost::Message;
+use simulacrum::Simulacrum;
+use std::collections::BTreeMap;
+use std::path::PathBuf;
 use tokio::fs;
 use tracing::info;
 
@@ -57,7 +57,9 @@ pub async fn generate_ingestion(config: Config) {
     let gas_price = sim.reference_gas_price();
     let (sender, keypair) = get_account_key_pair();
     let mut gas_object = {
-        let effects = sim.request_gas(sender, GEUNHWA_PER_HANEUL * 1000000).unwrap();
+        let effects = sim
+            .request_gas(sender, GEUNHWA_PER_HANEUL * 1000000)
+            .unwrap();
         // `request_gas` will create a transaction, which we don't want to include in the benchmark.
         // Put it in a checkpoint and then remove the checkpoint file.
         sim.create_checkpoint();
@@ -114,11 +116,11 @@ pub async fn read_ingestion_data(path: &PathBuf) -> anyhow::Result<BTreeMap<u64,
 #[cfg(test)]
 mod tests {
     use crate::synthetic_ingestion::generate_ingestion;
-    use prost::Message;
-    use std::path::PathBuf;
     use haneul_rpc::proto::haneul::rpc::v2::Checkpoint as ProtoCheckpoint;
     use haneul_types::full_checkpoint_content::Checkpoint;
     use haneul_types::full_checkpoint_content::CheckpointData;
+    use prost::Message;
+    use std::path::PathBuf;
 
     #[tokio::test]
     async fn test_ingestion_from_zero() {
