@@ -50,6 +50,7 @@ feature_flags:
   enable_group_ops_native_functions: true
   enable_group_ops_native_function_msm: true
   enable_ristretto255_group_ops: true
+  enable_verify_bulletproofs_ristretto255: true
   enable_nitro_attestation: true
   enable_nitro_attestation_upgraded_parsing: true
   enable_nitro_attestation_all_nonzero_pcrs_parsing: true
@@ -114,11 +115,11 @@ feature_flags:
   allow_unbounded_system_objects: true
   type_tags_in_object_runtime: true
   enable_accumulators: true
+  enable_coin_reservation_obj_refs: true
   create_root_accumulator_object: true
   enable_authenticated_event_streams: true
   enable_address_balance_gas_payments: true
   address_balance_gas_check_rgp_at_signing: true
-  address_balance_gas_reject_gas_coin_arg: true
   enable_multi_epoch_transaction_expiration: true
   relax_valid_during_for_owned_inputs: true
   enable_ptb_execution_v2: true
@@ -153,13 +154,24 @@ feature_flags:
   gas_rounding_halve_digits: true
   flexible_tx_context_positions: true
   disable_entry_point_signature_check: true
+  convert_withdrawal_compatibility_ptb_arguments: true
   restrict_hot_or_not_entry_functions: true
   split_checkpoints_in_consensus_handler: true
   consensus_always_accept_system_transactions: true
   validator_metadata_verify_v2: true
+  defer_unpaid_amplification: true
   randomize_checkpoint_tx_limit_in_tests: true
   gasless_transaction_drop_safety: true
+  merge_randomness_into_checkpoint: true
   use_coin_party_owner: true
+  enable_gasless: true
+  gasless_verify_remaining_balance: true
+  disallow_jump_orphans: true
+  early_return_receive_object_mismatched_type: true
+  timestamp_based_epoch_close: true
+  limit_groth16_pvk_inputs: true
+  granular_post_execution_checks: true
+  early_exit_on_iffw: true
 max_tx_size_bytes: 131072
 max_input_objects: 2048
 max_size_written_objects: 5000000
@@ -243,7 +255,7 @@ obj_access_cost_delete_per_byte: 40
 obj_access_cost_verify_per_byte: 200
 max_type_to_layout_nodes: 512
 max_ptb_value_size: 1048576
-gas_model_version: 11
+gas_model_version: 14
 obj_data_cost_refundable: 100
 obj_metadata_cost_non_refundable: 50
 storage_rebate_rate: 9900
@@ -290,6 +302,8 @@ transfer_party_transfer_internal_cost_base: 52
 transfer_freeze_object_cost_base: 52
 transfer_share_object_cost_base: 52
 transfer_receive_object_cost_base: 52
+transfer_receive_object_cost_per_byte: 1
+transfer_receive_object_type_cost_per_byte: 2
 tx_context_derive_id_cost_base: 52
 tx_context_fresh_id_cost_base: 52
 tx_context_sender_cost_base: 30
@@ -404,6 +418,8 @@ group_ops_ristretto_scalar_mul_cost: 11
 group_ops_ristretto_point_mul_cost: 1200
 group_ops_ristretto_scalar_div_cost: 151
 group_ops_ristretto_point_div_cost: 2500
+verify_bulletproofs_ristretto255_base_cost: 30000
+verify_bulletproofs_ristretto255_cost_per_bit_and_commitment: 6500
 hmac_hmac_sha3_256_cost_base: 52
 hmac_hmac_sha3_256_input_cost_per_byte: 2
 hmac_hmac_sha3_256_input_cost_per_block: 2
@@ -445,7 +461,7 @@ vector_destroy_empty_base_cost: 52
 vector_swap_base_cost: 52
 debug_print_base_cost: 52
 debug_print_stack_trace_base_cost: 52
-execution_version: 3
+execution_version: 4
 consensus_bad_nodes_stake_threshold: 30
 max_jwk_votes_per_validator_per_epoch: 240
 max_age_of_jwk_in_epochs: 1
@@ -481,3 +497,9 @@ translation_per_type_node_charge: 1
 translation_per_reference_node_charge: 1
 translation_per_linkage_entry_charge: 10
 max_updates_per_settlement_txn: 100
+gasless_max_computation_units: 5000
+gasless_allowed_token_types: []
+gasless_max_unused_inputs: 1
+gasless_max_pure_input_bytes: 32
+gasless_max_tps: 300
+gasless_max_tx_size_bytes: 16384

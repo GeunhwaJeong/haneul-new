@@ -2753,7 +2753,7 @@ checksum = "230c5f1ca6a325a32553f8640d31ac9b49f2411e901e427570154868b46da4f7"
 
 [[package]]
 name = "bin-version"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "const-str",
  "git-version",
@@ -2843,12 +2843,6 @@ checksum = "08807e080ed7f9d5433fa9b275196cfc35414f66a0c79d864dc51a0d825231a3"
 dependencies = [
  "bit-vec 0.8.0",
 ]
-
-[[package]]
-name = "bit-vec"
-version = "0.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "02b4ff8b16e6076c3e14220b39fbc1fabb6737522281a388998046859400895f"
 
 [[package]]
 name = "bit-vec"
@@ -3001,15 +2995,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0a90ec2df9600c28a01c56c4784c9207a96d2451833aeceb8cc97e4c9548bb78"
 dependencies = [
  "generic-array",
-]
-
-[[package]]
-name = "bloom"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d00ac8e5056d6d65376a3c1aa5c7c34850d6949ace17f0266953a254eb3d6fe8"
-dependencies = [
- "bit-vec 0.4.4",
 ]
 
 [[package]]
@@ -3727,7 +3712,7 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "tokio-util 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tonic-build",
  "tonic-prost",
  "tonic-rustls",
@@ -4800,16 +4785,15 @@ dependencies = [
 
 [[package]]
 name = "diesel-async"
-version = "0.8.0"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b95864e58597509106f1fddfe0600de7e589e1fddddd87f54eee0a49fd111bbc"
+checksum = "2ba6ffb1bd45be497a20abf443ad2c76a4fdae716efd76e6424d19e6c9c411d8"
 dependencies = [
  "bb8",
  "diesel",
  "futures-core",
  "futures-util",
  "pin-project-lite",
- "scoped-futures",
  "tokio",
  "tokio-postgres",
 ]
@@ -5489,6 +5473,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "fastbloom"
+version = "0.17.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ef975e30683b2d965054bb0a836f8973857c4ebf6acf274fe46617cd285060d8"
+dependencies = [
+ "foldhash 0.2.0",
+ "libm",
+ "portable-atomic",
+ "rand 0.9.0",
+ "siphasher 1.0.1",
+]
+
+[[package]]
 name = "fastcrypto"
 version = "0.1.9"
 source = "git+https://github.com/GeunhwaJeong/fastcrypto?rev=0eea35ee442a798fb1f1e7c2f39dc021bd21dbc3#0eea35ee442a798fb1f1e7c2f39dc021bd21dbc3"
@@ -6077,7 +6074,7 @@ dependencies = [
  "time",
  "tokio",
  "tokio-stream",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tonic-build",
  "tonic-prost",
  "tonic-prost-build",
@@ -6425,7 +6422,7 @@ dependencies = [
 
 [[package]]
 name = "haneul"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anemo",
  "anyhow",
@@ -6688,7 +6685,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-analytics-indexer"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "arrow",
@@ -6747,7 +6744,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-analytics-indexer-derive"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -6774,6 +6771,7 @@ dependencies = [
  "bcs",
  "clap",
  "comfy-table",
+ "consensus-config",
  "derive_more 1.0.0",
  "duration-str",
  "futures",
@@ -6819,7 +6817,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-bridge"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "alloy",
  "alloy-multiprovider-strategy",
@@ -6869,7 +6867,7 @@ dependencies = [
  "test-cluster",
  "thiserror 1.0.69",
  "tokio",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tower 0.5.3",
  "tracing",
  "typed-store",
@@ -6878,7 +6876,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-bridge-cli"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "alloy",
  "anyhow",
@@ -6974,7 +6972,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-checkpoint-blob-indexer"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -7005,7 +7003,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-cluster-test"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -7106,6 +7104,7 @@ dependencies = [
  "haneul-execution",
  "haneul-framework",
  "haneul-genesis-builder",
+ "haneul-inverted-index",
  "haneul-json-rpc-types",
  "haneul-macros",
  "haneul-move",
@@ -7151,8 +7150,9 @@ dependencies = [
  "rand 0.8.5",
  "rayon",
  "reqwest",
- "roaring 0.10.9",
+ "roaring",
  "rstest",
+ "rustc-hash 2.1.1",
  "scopeguard",
  "serde",
  "serde_json",
@@ -7210,6 +7210,7 @@ dependencies = [
  "ark-snark",
  "ark-std 0.4.0",
  "base64ct",
+ "blst",
  "bnum",
  "ed25519-dalek",
  "haneul-sdk-types",
@@ -7276,7 +7277,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-default-config"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "quote",
  "syn 1.0.107",
@@ -7284,7 +7285,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-display"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -7308,7 +7309,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-e2e-tests"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -7345,6 +7346,7 @@ dependencies = [
  "haneul-types",
  "haneullabs-common",
  "haneullabs-metrics",
+ "haneullabs-network",
  "indexmap 2.8.0",
  "insta",
  "itertools 0.13.0",
@@ -7368,7 +7370,7 @@ dependencies = [
  "test-cluster",
  "tokio",
  "tokio-stream",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tracing",
  "url",
 ]
@@ -7402,6 +7404,8 @@ dependencies = [
  "haneul-verifier-v1",
  "haneul-verifier-v2",
  "haneul-verifier-v3",
+ "haneullabs-common",
+ "haneullabs-metrics",
  "move-abstract-interpreter",
  "move-abstract-interpreter-v2",
  "move-abstract-interpreter-v3",
@@ -7424,6 +7428,7 @@ dependencies = [
  "move-vm-types-v2",
  "move-vm-types-v3",
  "petgraph 0.5.1",
+ "tracing",
 ]
 
 [[package]]
@@ -7441,13 +7446,14 @@ dependencies = [
 
 [[package]]
 name = "haneul-faucet"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "axum 0.8.3",
  "bin-version",
  "clap",
  "haneul-config",
+ "haneul-futures",
  "haneul-keys",
  "haneul-rpc-api",
  "haneul-sdk",
@@ -7467,14 +7473,14 @@ dependencies = [
 
 [[package]]
 name = "haneul-field-count"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "haneul-field-count-derive",
 ]
 
 [[package]]
 name = "haneul-field-count-derive"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "quote",
  "syn 1.0.107",
@@ -7482,7 +7488,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-fork"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -7503,13 +7509,13 @@ dependencies = [
  "prost 0.14.1",
  "rand 0.8.5",
  "reqwest",
- "roaring 0.10.9",
+ "roaring",
  "serde",
  "serde_json",
  "simulacrum",
  "tempfile",
  "tokio",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tonic-prost",
  "tracing",
  "tracing-subscriber",
@@ -7541,7 +7547,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-framework-snapshot"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "bcs",
@@ -7585,7 +7591,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-futures"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "futures",
@@ -7645,7 +7651,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -7678,12 +7684,12 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-consistent-api"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "prost 0.14.1",
  "prost-types 0.14.1",
  "protox",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tonic-prost",
  "tonic-prost-build",
  "walkdir",
@@ -7691,7 +7697,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-consistent-store"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -7732,7 +7738,7 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "toml 0.7.4",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tonic-health",
  "tonic-reflection",
  "tower 0.5.3",
@@ -7746,8 +7752,10 @@ name = "haneul-indexer-alt-e2e-tests"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-stream",
  "async-trait",
  "bcs",
+ "bytes",
  "coset",
  "datatest-stable",
  "diesel",
@@ -7802,8 +7810,7 @@ dependencies = [
  "test-cluster",
  "tokio",
  "tokio-stream",
- "tokio-tungstenite 0.26.2",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tracing",
  "url",
  "zstd 0.12.3+zstd.1.5.2",
@@ -7811,7 +7818,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-framework"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -7850,7 +7857,7 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "tokio-stream",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tracing",
  "tracing-subscriber",
  "url",
@@ -7860,7 +7867,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-framework-store-traits"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -7872,7 +7879,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-graphql"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-graphql",
@@ -7930,7 +7937,7 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "toml 0.7.4",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tower-http 0.5.2",
  "tracing",
  "url",
@@ -7939,7 +7946,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-jsonrpc"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-graphql",
@@ -7990,7 +7997,7 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "toml 0.7.4",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tower 0.4.13",
  "tower-http 0.5.2",
  "tower-layer",
@@ -8000,7 +8007,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-metrics"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "axum 0.8.3",
@@ -8015,7 +8022,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-object-store"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -8029,7 +8036,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-reader"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-graphql",
@@ -8057,7 +8064,7 @@ dependencies = [
  "prost-types 0.14.1",
  "thiserror 1.0.69",
  "tokio",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tower 0.5.3",
  "tracing",
  "url",
@@ -8065,7 +8072,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-indexer-alt-schema"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "bcs",
@@ -8077,6 +8084,21 @@ dependencies = [
  "move-core-types",
  "serde",
  "siphasher 1.0.1",
+]
+
+[[package]]
+name = "haneul-inverted-index"
+version = "1.3.0"
+dependencies = [
+ "anyhow",
+ "async-stream",
+ "bcs",
+ "futures",
+ "haneul-types",
+ "move-core-types",
+ "roaring",
+ "thiserror 1.0.69",
+ "tokio",
 ]
 
 [[package]]
@@ -8278,14 +8300,21 @@ dependencies = [
 
 [[package]]
 name = "haneul-kv-rpc"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
+ "async-stream",
  "async-trait",
  "axum 0.8.3",
+ "bcs",
  "bin-version",
+ "bytes",
  "clap",
+ "dashmap 5.5.3",
+ "fastcrypto",
+ "futures",
  "haneul-futures",
+ "haneul-inverted-index",
  "haneul-kvstore",
  "haneul-package-resolver",
  "haneul-protocol-config",
@@ -8299,22 +8328,31 @@ dependencies = [
  "haneullabs-network",
  "move-core-types",
  "prometheus",
+ "prost 0.14.1",
  "prost-types 0.14.1",
  "rustls",
+ "schemars 0.8.21",
+ "serde",
+ "serde_json",
+ "serde_yaml 0.8.26",
  "telemetry-subscribers",
+ "thiserror 1.0.69",
  "tokio",
- "tonic 0.14.5",
+ "tonic 0.14.6",
+ "tonic-prost",
  "tonic-reflection",
  "tracing",
 ]
 
 [[package]]
 name = "haneul-kvstore"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "arc-swap",
+ "async-stream",
  "async-trait",
+ "backoff",
  "base64 0.21.7",
  "bcs",
  "bytes",
@@ -8323,9 +8361,11 @@ dependencies = [
  "gcp_auth",
  "governor",
  "haneul-default-config",
+ "haneul-futures",
  "haneul-indexer-alt-framework",
  "haneul-indexer-alt-framework-store-traits",
  "haneul-indexer-alt-metrics",
+ "haneul-inverted-index",
  "haneul-keys",
  "haneul-protocol-config",
  "haneul-rpc",
@@ -8333,18 +8373,24 @@ dependencies = [
  "haneul-types",
  "haneullabs-common",
  "http 1.3.1",
+ "integer-encoding",
+ "move-core-types",
+ "num_cpus",
  "prometheus",
  "prost 0.14.1",
  "prost-types 0.14.1",
  "rand 0.8.5",
+ "roaring",
+ "rustc-hash 2.1.1",
  "rustls",
+ "scoped-futures",
  "serde",
  "telemetry-subscribers",
  "test-cluster",
  "tokio",
  "tokio-stream",
  "toml 0.7.4",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tonic-prost",
  "tracing",
  "url",
@@ -8352,7 +8398,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-light-client"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -8377,7 +8423,7 @@ dependencies = [
  "object_store 0.13.0",
  "prost-types 0.14.1",
  "reqwest",
- "roaring 0.10.9",
+ "roaring",
  "serde",
  "serde_json",
  "serde_yaml 0.8.26",
@@ -8385,7 +8431,7 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "tokio-stream",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tracing",
  "url",
 ]
@@ -8402,7 +8448,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-metric-checker"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "backoff",
@@ -8439,7 +8485,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-move"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "bin-version",
@@ -8481,11 +8527,12 @@ dependencies = [
  "toml 0.7.4",
  "tracing",
  "walkdir",
+ "which",
 ]
 
 [[package]]
 name = "haneul-move-build"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "fastcrypto",
@@ -8511,7 +8558,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-move-lsp"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "bin-version",
  "clap",
@@ -8626,7 +8673,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-name-service"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "bcs",
  "haneul-types",
@@ -8680,7 +8727,7 @@ dependencies = [
  "tempfile",
  "tokio",
  "tokio-rustls",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tonic-build",
  "tonic-health",
  "tonic-prost",
@@ -8693,7 +8740,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-node"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anemo",
  "anemo-tower",
@@ -8748,7 +8795,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-open-rpc"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "bcs",
@@ -8782,7 +8829,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-oracle"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "bcs",
@@ -8812,7 +8859,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-package-alt"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -8831,7 +8878,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-package-dump"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "bcs",
@@ -8847,7 +8894,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-package-management"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "haneul-framework-snapshot",
@@ -8880,7 +8927,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-pg-db"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -8930,6 +8977,7 @@ dependencies = [
  "move-binary-format",
  "move-core-types",
  "move-vm-config",
+ "prost-types 0.14.1",
  "rand 0.8.5",
  "schemars 0.8.21",
  "serde",
@@ -9076,7 +9124,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-rosetta"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -9102,6 +9150,7 @@ dependencies = [
  "move-cli",
  "move-core-types",
  "once_cell",
+ "prost 0.14.1",
  "prost-types 0.14.1",
  "quick-js",
  "rand 0.8.5",
@@ -9117,7 +9166,7 @@ dependencies = [
  "test-cluster",
  "thiserror 1.0.69",
  "tokio",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tracing",
 ]
 
@@ -9130,6 +9179,7 @@ dependencies = [
  "bcs",
  "bytes",
  "futures",
+ "haneul-crypto",
  "haneul-sdk-types",
  "http 1.3.1",
  "http-body 1.0.1",
@@ -9139,7 +9189,7 @@ dependencies = [
  "serde_json",
  "tap",
  "tokio",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tonic-prost",
  "tower 0.5.3",
 ]
@@ -9159,6 +9209,7 @@ dependencies = [
  "haneul-config",
  "haneul-crypto",
  "haneul-display",
+ "haneul-inverted-index",
  "haneul-macros",
  "haneul-name-service",
  "haneul-package-resolver",
@@ -9179,11 +9230,13 @@ dependencies = [
  "prost-types 0.14.1",
  "protox",
  "rand 0.8.5",
+ "roaring",
  "serde",
  "serde_json",
  "tap",
  "tokio",
- "tonic 0.14.5",
+ "tokio-util 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tonic 0.14.6",
  "tonic-health",
  "tonic-prost",
  "tonic-prost-build",
@@ -9196,7 +9249,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-rpc-benchmark"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "bb8",
@@ -9221,7 +9274,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-rpc-loadgen"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -9242,13 +9295,13 @@ dependencies = [
  "strum_macros 0.27.1",
  "telemetry-subscribers",
  "tokio",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tracing",
 ]
 
 [[package]]
 name = "haneul-rpc-resolver"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -9267,7 +9320,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-sdk"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -9321,7 +9374,7 @@ dependencies = [
  "bytes",
  "bytestring",
  "itertools 0.14.0",
- "roaring 0.11.2",
+ "roaring",
  "serde",
  "serde_derive",
  "serde_json",
@@ -9331,7 +9384,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-security-watchdog"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "arrow-array",
@@ -9379,7 +9432,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-single-node-benchmark"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "bcs",
  "clap",
@@ -9438,7 +9491,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-source-validation"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "colored",
@@ -9481,7 +9534,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-sql-macro"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "quote",
  "syn 1.0.107",
@@ -9547,7 +9600,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-surfer"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "bcs",
  "clap",
@@ -9604,6 +9657,7 @@ dependencies = [
  "anemo",
  "anyhow",
  "bcs",
+ "consensus-config",
  "fastcrypto",
  "haneul-config",
  "haneul-execution",
@@ -9668,7 +9722,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-test-validator"
-version = "1.2.0"
+version = "1.3.0"
 
 [[package]]
 name = "haneul-tls"
@@ -9694,7 +9748,7 @@ dependencies = [
 
 [[package]]
 name = "haneul-tool"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anemo",
  "anemo-cli",
@@ -9726,14 +9780,18 @@ dependencies = [
  "move-core-types",
  "num_cpus",
  "object_store 0.13.0",
+ "parking_lot 0.12.3",
  "prometheus",
+ "rhai",
  "ron",
+ "rustyline",
  "serde",
  "serde_json",
  "strum 0.27.1",
  "strum_macros 0.27.1",
  "telemetry-subscribers",
  "tempfile",
+ "tideconsole",
  "tokio",
  "tracing",
  "typed-store",
@@ -9881,7 +9939,7 @@ dependencies = [
  "prost 0.14.1",
  "prost-types 0.14.1",
  "rand 0.8.5",
- "roaring 0.10.9",
+ "roaring",
  "rustls-pki-types",
  "schemars 0.8.21",
  "serde",
@@ -9898,7 +9956,7 @@ dependencies = [
  "tap",
  "thiserror 1.0.69",
  "tokio",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tracing",
  "typed-store-error",
  "url",
@@ -10015,9 +10073,11 @@ dependencies = [
  "haneullabs-metrics",
  "once_cell",
  "parking_lot 0.12.3",
+ "prost-types 0.14.1",
  "rand 0.8.5",
  "serde_json",
  "tempfile",
+ "thiserror 1.0.69",
  "tokio",
  "tracing",
 ]
@@ -10072,7 +10132,7 @@ dependencies = [
  "snap",
  "tokio",
  "tokio-rustls",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tower 0.5.3",
  "tower-http 0.5.2",
  "tracing",
@@ -11501,7 +11561,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc2f4eb4bc735547cfed7c0a4922cbd04a4655978c09b54f1f7b228750664c34"
 dependencies = [
  "cfg-if",
- "windows-targets 0.48.0",
+ "windows-targets 0.52.6",
 ]
 
 [[package]]
@@ -12079,7 +12139,7 @@ dependencies = [
 [[package]]
 name = "minibytes"
 version = "0.1.0"
-source = "git+https://github.com/GeunhwaJeong/tidehunter.git?rev=9a0472f81e71e821e1f4f71e308c2580f16f9e05#9a0472f81e71e821e1f4f71e308c2580f16f9e05"
+source = "git+https://github.com/GeunhwaJeong/tidehunter.git?rev=2e0cd5669b1b6776e204e9ad0385189a65a62236#2e0cd5669b1b6776e204e9ad0385189a65a62236"
 dependencies = [
  "bytes",
  "memmap2 0.7.1",
@@ -13104,7 +13164,7 @@ dependencies = [
 [[package]]
 name = "msim"
 version = "0.1.0"
-source = "git+https://github.com/GeunhwaJeong/mysten-sim.git?rev=53016c1a9038154b1e47b96f0a314efa7e7d809b#53016c1a9038154b1e47b96f0a314efa7e7d809b"
+source = "git+https://github.com/GeunhwaJeong/mysten-sim.git?rev=2c2ec3ffbc1e559c575dc7de1ff2498d1f6700f6#2c2ec3ffbc1e559c575dc7de1ff2498d1f6700f6"
 dependencies = [
  "ahash 0.7.8",
  "async-task",
@@ -13133,7 +13193,7 @@ dependencies = [
 [[package]]
 name = "msim-macros"
 version = "0.1.0"
-source = "git+https://github.com/GeunhwaJeong/mysten-sim.git?rev=53016c1a9038154b1e47b96f0a314efa7e7d809b#53016c1a9038154b1e47b96f0a314efa7e7d809b"
+source = "git+https://github.com/GeunhwaJeong/mysten-sim.git?rev=2c2ec3ffbc1e559c575dc7de1ff2498d1f6700f6#2c2ec3ffbc1e559c575dc7de1ff2498d1f6700f6"
 dependencies = [
  "darling 0.14.2",
  "proc-macro2",
@@ -13776,6 +13836,9 @@ name = "once_cell"
 version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
+dependencies = [
+ "portable-atomic",
+]
 
 [[package]]
 name = "oorandom"
@@ -15135,7 +15198,7 @@ dependencies = [
  "quinn-udp",
  "rustc-hash 2.1.1",
  "rustls",
- "socket2 0.5.6",
+ "socket2 0.6.3",
  "thiserror 2.0.17",
  "tokio",
  "tracing",
@@ -15149,7 +15212,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "434b42fec591c96ef50e21e886936e66d3cc3f737104fdb9b737c40ffb94c098"
 dependencies = [
  "bytes",
- "fastbloom",
+ "fastbloom 0.14.1",
  "getrandom 0.3.2",
  "lru-slab",
  "rand 0.9.0",
@@ -15746,6 +15809,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "rhai"
+version = "1.25.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd4dd0f8c36625202a4ba553c416c19b719947cd2a31d1bda06126e4a5727daf"
+dependencies = [
+ "ahash 0.8.11",
+ "bitflags 2.11.1",
+ "num-traits",
+ "once_cell",
+ "rhai_codegen",
+ "smallvec",
+ "smartstring",
+ "thin-vec",
+ "web-time",
+]
+
+[[package]]
+name = "rhai_codegen"
+version = "3.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3cd3a7535e50bf36857e7be7bec276d334e8c2dfa469c2201226fd01638ea5ca"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
+]
+
+[[package]]
 name = "ring"
 version = "0.16.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -15796,19 +15887,9 @@ dependencies = [
 
 [[package]]
 name = "roaring"
-version = "0.10.9"
+version = "0.11.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41589aba99537475bf697f2118357cad1c31590c5a1b9f6d9fc4ad6d07503661"
-dependencies = [
- "bytemuck",
- "byteorder",
-]
-
-[[package]]
-name = "roaring"
-version = "0.11.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f08d6a905edb32d74a5d5737a0c9d7e950c312f3c46cb0ca0a2ca09ea11878a0"
+checksum = "1dedc5658c6ecb3bdb5ef5f3295bb9253f42dcf3fd1402c03f6b1f7659c3c4a9"
 dependencies = [
  "bytemuck",
  "byteorder",
@@ -16947,6 +17028,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "smartstring"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3fb72c633efbaa2dd666986505016c32c3044395ceaf881518399d2f4127ee29"
+dependencies = [
+ "autocfg",
+ "static_assertions",
+ "version_check",
+]
+
+[[package]]
 name = "smawk"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -17719,7 +17811,7 @@ dependencies = [
  "prometheus",
  "rand 0.8.5",
  "tokio",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tracing",
 ]
 
@@ -17801,6 +17893,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "thin-vec"
+version = "0.2.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0f7e269b48f0a7dd0146680fa24b50cc67fc0373f086a5b2f99bd084639b482"
+
+[[package]]
 name = "thiserror"
 version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -17870,18 +17968,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "tideconsole"
+version = "0.1.0"
+source = "git+https://github.com/GeunhwaJeong/tidehunter.git?rev=2e0cd5669b1b6776e204e9ad0385189a65a62236#2e0cd5669b1b6776e204e9ad0385189a65a62236"
+dependencies = [
+ "anyhow",
+ "clap",
+ "hex",
+ "parking_lot 0.12.3",
+ "rhai",
+ "rustyline",
+ "tidehunter",
+ "tikv-jemallocator",
+]
+
+[[package]]
 name = "tidehunter"
 version = "0.1.0"
-source = "git+https://github.com/GeunhwaJeong/tidehunter.git?rev=9a0472f81e71e821e1f4f71e308c2580f16f9e05#9a0472f81e71e821e1f4f71e308c2580f16f9e05"
+source = "git+https://github.com/GeunhwaJeong/tidehunter.git?rev=2e0cd5669b1b6776e204e9ad0385189a65a62236#2e0cd5669b1b6776e204e9ad0385189a65a62236"
 dependencies = [
  "arc-swap",
  "bincode 1.3.3",
  "blake2",
- "bloom",
  "bytes",
  "crc32fast",
+ "fastbloom 0.17.0",
  "libc",
  "lru 0.12.3",
+ "lz4_flex",
  "memmap2 0.7.1",
  "minibytes",
  "parking_lot 0.12.3",
@@ -18338,8 +18452,9 @@ dependencies = [
 
 [[package]]
 name = "tonic"
-version = "0.14.5"
-source = "git+https://github.com/hyperium/tonic.git?rev=d6ce69b0d93e1de21b0769e942ace00b48f52e17#d6ce69b0d93e1de21b0769e942ace00b48f52e17"
+version = "0.14.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ac2a5518c70fa84342385732db33fb3f44bc4cc748936eb5833d2df34d6445ef"
 dependencies = [
  "async-trait",
  "axum 0.8.3",
@@ -18371,9 +18486,9 @@ dependencies = [
 
 [[package]]
 name = "tonic-build"
-version = "0.14.2"
+version = "0.14.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c40aaccc9f9eccf2cd82ebc111adc13030d23e887244bc9cfa5d1d636049de3"
+checksum = "c68f61875ac5293cf72e6c8cf0158086428c82c37229e98c840878f1706b0322"
 dependencies = [
  "prettyplease",
  "proc-macro2",
@@ -18383,32 +18498,33 @@ dependencies = [
 
 [[package]]
 name = "tonic-health"
-version = "0.14.2"
+version = "0.14.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2a82868bf299e0a1d2e8dce0dc33a46c02d6f045b2c1f1d6cc8dc3d0bf1812ef"
+checksum = "fcfab99db777fba2802f0dfa861d1628d1ae916fb199d29819941f139ae85082"
 dependencies = [
  "prost 0.14.1",
  "tokio",
  "tokio-stream",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tonic-prost",
 ]
 
 [[package]]
 name = "tonic-prost"
-version = "0.14.5"
-source = "git+https://github.com/hyperium/tonic.git?rev=d6ce69b0d93e1de21b0769e942ace00b48f52e17#d6ce69b0d93e1de21b0769e942ace00b48f52e17"
+version = "0.14.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "50849f68853be452acf590cde0b146665b8d507b3b8af17261df47e02c209ea0"
 dependencies = [
  "bytes",
  "prost 0.14.1",
- "tonic 0.14.5",
+ "tonic 0.14.6",
 ]
 
 [[package]]
 name = "tonic-prost-build"
-version = "0.14.2"
+version = "0.14.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4a16cba4043dc3ff43fcb3f96b4c5c154c64cbd18ca8dce2ab2c6a451d058a2"
+checksum = "654e5643eff75d7f8c99197ce1440ed19a3474eada74c12bbac488b2cafdae27"
 dependencies = [
  "prettyplease",
  "proc-macro2",
@@ -18422,14 +18538,15 @@ dependencies = [
 
 [[package]]
 name = "tonic-reflection"
-version = "0.14.5"
-source = "git+https://github.com/hyperium/tonic.git?rev=d6ce69b0d93e1de21b0769e942ace00b48f52e17#d6ce69b0d93e1de21b0769e942ace00b48f52e17"
+version = "0.14.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "acccd136a4bf19810a1fde9c74edc6129b42a66b44d0c1c8aaa67aeb49a146a7"
 dependencies = [
  "prost 0.14.1",
  "prost-types 0.14.1",
  "tokio",
  "tokio-stream",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tonic-prost",
 ]
 
@@ -18453,7 +18570,7 @@ dependencies = [
  "tokio",
  "tokio-rustls",
  "tokio-stream",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tower 0.5.3",
  "tower-layer",
  "tower-service",
@@ -18462,9 +18579,9 @@ dependencies = [
 
 [[package]]
 name = "tonic-web"
-version = "0.14.2"
+version = "0.14.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75214f6b6bd28c19aa752ac09fdf0eea546095670906c21fe3940e180a4c43f2"
+checksum = "b5e6a1b6319ca4b61a4c0f0c94d439c8f3ed344cca56fe0df40e1fe4be11380b"
 dependencies = [
  "base64 0.22.1",
  "bytes",
@@ -18472,7 +18589,7 @@ dependencies = [
  "http-body 1.0.1",
  "pin-project",
  "tokio-stream",
- "tonic 0.14.5",
+ "tonic 0.14.6",
  "tower-layer",
  "tower-service",
  "tracing",
@@ -19602,6 +19719,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "which"
+version = "8.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "48d7cd18d4acb58fb3cdfe9ea54e6cd96a4e7d4cc45c56338b236e82dad47248"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "whoami"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -20195,7 +20321,7 @@ dependencies = [
 
 [[package]]
 name = "x"
-version = "1.2.0"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "camino",

@@ -688,21 +688,6 @@ get_active_validator_ref
 get_pending_validator_ref
 	public fun
 	0x3::validator_set
-StorageFund
-	public struct
-	0x3::storage_fund
-new
-	public(package) fun
-	0x3::storage_fund
-advance_epoch
-	public(package) fun
-	0x3::storage_fund
-total_object_storage_rebates
-	public fun
-	0x3::storage_fund
-total_balance
-	public fun
-	0x3::storage_fund
 StakeSubsidy
 	public struct
 	0x3::stake_subsidy
@@ -718,6 +703,21 @@ current_epoch_subsidy_amount
 get_distribution_counter
 	public(package) fun
 	0x3::stake_subsidy
+StorageFund
+	public struct
+	0x3::storage_fund
+new
+	public(package) fun
+	0x3::storage_fund
+advance_epoch
+	public(package) fun
+	0x3::storage_fund
+total_object_storage_rebates
+	public fun
+	0x3::storage_fund
+total_balance
+	public fun
+	0x3::storage_fund
 ExecutionTimeObservationChunkKey
 	public struct
 	0x3::haneul_system_state_inner
