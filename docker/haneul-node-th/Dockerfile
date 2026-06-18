@@ -24,7 +24,7 @@ ARG GIT_REVISION
 ENV GIT_REVISION=$GIT_REVISION
 ENV USE_TIDEHUNTER=1
 RUN cargo build --locked --profile ${PROFILE} \
-    --features typed-store/tidehunter \
+    --features typed-store/tidehunter,haneul-tool/tideconsole \
     --bin haneul-node --bin haneul --bin haneul-tool --bin stress
 
 # Production Image

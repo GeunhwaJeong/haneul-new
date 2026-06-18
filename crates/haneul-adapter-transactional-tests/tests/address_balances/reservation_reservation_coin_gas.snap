@@ -1,0 +1,65 @@
+---
+source: external-crates/move/crates/move-transactional-test-runner/src/framework.rs
+---
+processed 9 tasks
+
+init:
+A: object(0,0), B: object(0,1)
+
+task 1, lines 12-14:
+//# view-object 0,0
+Owner: Account Address ( A )
+Version: 1
+Contents: haneul::coin::Coin<haneul::haneul::HANEUL> {
+    id: haneul::object::UID {
+        id: haneul::object::ID {
+            bytes: fake(0,0),
+        },
+    },
+    balance: haneul::balance::Balance<haneul::haneul::HANEUL> {
+        value: 300000000000000u64,
+    },
+}
+
+task 2, lines 15-20:
+//# programmable --sender A --inputs 100000000000 @A
+//> 0: SplitCoins(Gas, [Input(0)]);
+//> 1: haneul::coin::into_balance<haneul::haneul::HANEUL>(Result(0));
+//> 2: haneul::balance::send_funds<haneul::haneul::HANEUL>(Result(1), Input(1));
+// Create a HANEUL coin to be smashed into the (deduped) withdrawal target.
+mutated: object(0,0)
+accumulators_written: (object(2,0), A, haneul::balance::Balance<haneul::haneul::HANEUL>, Merge, 100000000000)
+gas summary: computation_cost: 1000000, storage_cost: 988000,  storage_rebate: 0, non_refundable_storage_fee: 0
+
+task 3, lines 21-23:
+//# programmable --sender A --inputs 1000000000 @A
+//> 0: SplitCoins(Gas, [Input(0)]);
+//> TransferObjects([Result(0)], Input(1))
+created: object(3,0)
+mutated: object(0,0)
+gas summary: computation_cost: 1000000, storage_cost: 1976000,  storage_rebate: 978120, non_refundable_storage_fee: 9880
+
+task 4, line 25:
+//# create-checkpoint
+Checkpoint created: 1
+
+task 5, lines 27-32:
+//# view-funds haneul::balance::Balance<haneul::haneul::HANEUL> A
+100000000000
+
+task 6, lines 33-35:
+//# programmable --sender A --gas-budget 1000000000 --gas-payment withdraw<haneul::balance::Balance<haneul::haneul::HANEUL>>(500000000) --gas-payment withdraw<haneul::balance::Balance<haneul::haneul::HANEUL>>(500000000) --gas-payment object(3,0) --inputs 100000 @B
+//> 0: SplitCoins(Gas, [Input(0)]);
+//> TransferObjects([Result(0)], Input(1))
+created: object(6,0)
+deleted: object(3,0)
+accumulators_written: (object(2,0), A, haneul::balance::Balance<haneul::haneul::HANEUL>, Merge, 998890120)
+gas summary: computation_cost: 1000000, storage_cost: 988000,  storage_rebate: 978120, non_refundable_storage_fee: 9880
+
+task 7, lines 37-39:
+//# create-checkpoint
+Checkpoint created: 2
+
+task 8, line 40:
+//# view-funds haneul::balance::Balance<haneul::haneul::HANEUL> A
+100998890120

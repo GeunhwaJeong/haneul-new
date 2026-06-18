@@ -132,6 +132,7 @@ members = [
   "crates/haneul-indexer-alt-object-store",
   "crates/haneul-indexer-alt-reader",
   "crates/haneul-indexer-alt-schema",
+  "crates/haneul-inverted-index",
   "crates/haneul-json",
   "crates/haneul-json-rpc",
   "crates/haneul-json-rpc-api",
@@ -228,7 +229,7 @@ members = [
 
 [workspace.package]
 # This version string will be inherited by haneul-core, haneul-faucet, haneul-node, haneul-tools, haneul-sdk, haneul-move-build, and haneul crates.
-version = "1.2.0"
+version = "1.3.0"
 
 [profile.release]
 # debug = 1 means line charts only, which is minimum needed for good stack traces
@@ -375,7 +376,7 @@ datatest-stable = { git = "https://github.com/nextest-rs/datatest-stable.git", r
 derive-syn-parse = "0.1.5"
 derive_more = "1.0.0"
 diesel = "2.3"
-diesel-async = "0.8"
+diesel-async = "0.9"
 diesel_migrations = "2.3"
 dirs = "4.0.0"
 duration-str = "0.5.0"
@@ -446,6 +447,7 @@ haneul-indexer-alt-metrics = { path = "crates/haneul-indexer-alt-metrics" }
 haneul-indexer-alt-object-store = { path = "crates/haneul-indexer-alt-object-store" }
 haneul-indexer-alt-reader = { path = "crates/haneul-indexer-alt-reader" }
 haneul-indexer-alt-schema = { path = "crates/haneul-indexer-alt-schema" }
+haneul-inverted-index = { path = "crates/haneul-inverted-index" }
 haneul-json = { path = "crates/haneul-json" }
 haneul-json-rpc = { path = "crates/haneul-json-rpc" }
 haneul-json-rpc-api = { path = "crates/haneul-json-rpc-api" }
@@ -477,7 +479,7 @@ haneul-proxy = { path = "crates/haneul-proxy" }
 haneul-replay = { path = "crates/haneul-replay" }
 haneul-replay-2 = { path = "crates/haneul-replay-2" }
 haneul-rosetta = { path = "crates/haneul-rosetta" }
-haneul-rpc = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "e0e1b3176f6f77099d71c455ee97f2649c5dc55c" }
+haneul-rpc = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "e0e1b3176f6f77099d71c455ee97f2649c5dc55c", features = [ "unstable" ] }
 
 ### Workspace Members ###
 haneul-rpc-api = { path = "crates/haneul-rpc-api" }
@@ -578,8 +580,8 @@ move-transactional-test-runner = { path = "external-crates/move/crates/move-tran
 move-unit-test = { path = "external-crates/move/crates/move-unit-test" }
 move-vm-config = { path = "external-crates/move/crates/move-vm-config" }
 move-vm-profiler = { path = "external-crates/move/crates/move-vm-profiler" }
-msim = { git = "https://github.com/GeunhwaJeong/mysten-sim.git", rev = "53016c1a9038154b1e47b96f0a314efa7e7d809b", package = "msim" }
-msim-macros = { git = "https://github.com/GeunhwaJeong/mysten-sim.git", rev = "53016c1a9038154b1e47b96f0a314efa7e7d809b", package = "msim-macros" }
+msim = { git = "https://github.com/GeunhwaJeong/mysten-sim.git", rev = "2c2ec3ffbc1e559c575dc7de1ff2498d1f6700f6", package = "msim" }
+msim-macros = { git = "https://github.com/GeunhwaJeong/mysten-sim.git", rev = "2c2ec3ffbc1e559c575dc7de1ff2498d1f6700f6", package = "msim-macros" }
 multiaddr = "0.18.2"
 nexlint = { git = "https://github.com/nextest-rs/nexlint.git", rev = "7ce56bd591242a57660ed05f14ca2483c37d895b" }
 nexlint-lints = { git = "https://github.com/nextest-rs/nexlint.git", rev = "7ce56bd591242a57660ed05f14ca2483c37d895b" }
@@ -638,9 +640,10 @@ reqwest = { version = "0.12", default-features = false, features = [
   "json",
   "rustls-tls",
 ] }
-roaring = "0.10.6"
+roaring = "0.11.3"
 ron = "0.8.0"
 rstest = "0.16.0"
+rustc-hash = "2"
 rustls = { version = "0.23", default-features = false, features = [
   "std",
   "tls12",
@@ -705,18 +708,18 @@ tokio-tungstenite = { version = "0.26.2", features = ["connect"] }
 tokio-util = "0.7.18"
 toml = { version = "0.7.4", features = ["preserve_order"] }
 toml_edit = { version = "0.19.10" }
-tonic = { version = "0.14.3", features = [
+tonic = { version = "0.14.6", features = [
   "zstd",
   "transport",
   "tls-webpki-roots",
 ] }
-tonic-build = "0.14.2"
-tonic-health = "0.14.2"
-tonic-prost = "0.14.2"
-tonic-prost-build = "0.14.2"
-tonic-reflection = "0.14.2"
+tonic-build = "0.14.6"
+tonic-health = "0.14.6"
+tonic-prost = "0.14.6"
+tonic-prost-build = "0.14.6"
+tonic-reflection = "0.14.6"
 tonic-rustls = "0.3.0"
-tonic-web = "0.14.2"
+tonic-web = "0.14.6"
 tower = { version = "0.5", features = [
   "full",
   "util",
@@ -761,6 +764,7 @@ webpki = { version = "0.103.10", package = "rustls-webpki", features = [
   "std",
   "ring",
 ] }
+which = "8.0.2"
 winnow = "0.7"
 wiremock = "0.5"
 x = { path = "crates/x" }
@@ -768,12 +772,6 @@ x = { path = "crates/x" }
 x509-parser = { version = "0.17.0", features = ["verify"] }
 zstd = "0.12.3"
 [patch.crates-io]
-# Go back to using a crates.io release once a release is made that includes
-# this fix: https://github.com/hyperium/tonic/pull/2596
-tonic = { git = "https://github.com/hyperium/tonic.git", rev = "d6ce69b0d93e1de21b0769e942ace00b48f52e17" }
-tonic-prost = { git = "https://github.com/hyperium/tonic.git", rev = "d6ce69b0d93e1de21b0769e942ace00b48f52e17" }
-tonic-reflection = { git = "https://github.com/hyperium/tonic.git", rev = "d6ce69b0d93e1de21b0769e942ace00b48f52e17" }
 async-graphql = { git = "https://github.com/amnn/async-graphql", branch = "v7.0.1-react-18-graphiql-4" }
 async-graphql-axum = { git = "https://github.com/amnn/async-graphql", branch = "v7.0.1-react-18-graphiql-4" }
 async-graphql-value = { git = "https://github.com/amnn/async-graphql", branch = "v7.0.1-react-18-graphiql-4" }
-

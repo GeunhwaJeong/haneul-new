@@ -17,11 +17,15 @@ use haneul_config::{HANEUL_KEYSTORE_FILENAME, haneul_config_dir};
 use haneul_rosetta::types::{CurveType, HaneulEnv, PrefundedAccount};
 use haneul_rosetta::{HANEUL, RosettaOfflineServer, RosettaOnlineServer};
 use haneul_rpc::client::Client as GrpcClient;
+use haneul_rpc::client::HeadersInterceptor;
 use haneul_rpc::proto::haneul::rpc::v2::GetServiceInfoRequest;
 use haneul_types::base_types::HaneulAddress;
 use haneul_types::crypto::{HaneulKeyPair, KeypairTraits, ToFromBytes};
 use haneul_types::digests::{ChainIdentifier, CheckpointDigest};
 use serde_json::{Value, json};
+use tonic::metadata::Ascii;
+use tonic::metadata::MetadataKey;
+use tonic::metadata::MetadataValue;
 use tracing::info;
 
 #[derive(Parser)]
@@ -46,6 +50,10 @@ pub enum RosettaServerCommand {
         full_node_url: String,
         #[clap(long, default_value = "/data")]
         data_path: PathBuf,
+        /// Additional gRPC header to send on every request to the full node as
+        /// `<name>:<value>`. May be provided multiple times.
+        #[clap(long = "haneul-grpc-header", value_parser = parse_grpc_header)]
+        grpc_headers: Vec<(MetadataKey<Ascii>, MetadataValue<Ascii>)>,
     },
     StartOfflineServer {
         #[clap(long, default_value = "localnet")]
@@ -126,6 +134,7 @@ impl RosettaServerCommand {
                 addr,
                 full_node_url,
                 data_path,
+                grpc_headers,
             } => {
                 info!(
                     "Starting Rosetta Online Server with remote Haneul full node [{full_node_url}]."
@@ -133,7 +142,15 @@ impl RosettaServerCommand {
                 let rosetta_path = data_path.join("rosetta_db");
                 info!("Rosetta db path : {rosetta_path:?}");
                 let mut client = GrpcClient::new(&full_node_url)
-                    .map_err(|e| anyhow::anyhow!("Failed to create gRPC client: {}", e))?;
+                    .map_err(|e| anyhow::anyhow!("Failed to create gRPC client: {}", e))?
+                    .with_max_decoding_message_size(128 * 1024 * 1024);
+                if !grpc_headers.is_empty() {
+                    let mut headers = HeadersInterceptor::new();
+                    for (name, value) in grpc_headers {
+                        headers.headers_mut().insert(name, value);
+                    }
+                    client = client.with_headers(headers);
+                }
                 let chain_id = fetch_chain_id(&mut client).await?;
                 let rosetta = RosettaOnlineServer::new(env, client, chain_id);
                 rosetta.serve(addr).await;
@@ -151,6 +168,20 @@ async fn fetch_chain_id(client: &mut GrpcClient) -> Result<ChainIdentifier, anyh
         .into_inner();
     let digest = CheckpointDigest::from_str(response.chain_id())?;
     Ok(ChainIdentifier::from(digest))
+}
+
+fn parse_grpc_header(header: &str) -> Result<(MetadataKey<Ascii>, MetadataValue<Ascii>), String> {
+    let (name, value) = header
+        .split_once(':')
+        .ok_or_else(|| "gRPC header must be in `<name>:<value>` format".to_string())?;
+
+    let name = MetadataKey::from_bytes(name.as_bytes())
+        .map_err(|err| format!("invalid gRPC header name `{name}`: {err}"))?;
+    let mut value = MetadataValue::try_from(value)
+        .map_err(|err| format!("invalid gRPC header value for `{name}`: {err}"))?;
+    // Header values are likely auth tokens; keep them out of logs/debug output.
+    value.set_sensitive(true);
+    Ok((name, value))
 }
 
 /// This method reads the keypairs from the Haneul keystore to create the PrefundedAccount objects,
@@ -242,6 +273,23 @@ async fn test_read_keystore() {
     let schema2: SignatureScheme = acc2.curve_type.into();
     assert!(matches!(schema1, SignatureScheme::ED25519));
     assert!(matches!(schema2, SignatureScheme::Secp256k1));
+}
+
+#[test]
+fn test_parse_grpc_header() {
+    let (name, value) = parse_grpc_header("x-token:secret").unwrap();
+    assert_eq!(name.as_str(), "x-token");
+    assert_eq!(value.to_str().unwrap(), "secret");
+    assert!(value.is_sensitive());
+
+    // Values may legitimately contain `:` (only the first delimiter splits).
+    let (name, value) = parse_grpc_header("authorization:Bearer a:b:c").unwrap();
+    assert_eq!(name.as_str(), "authorization");
+    assert_eq!(value.to_str().unwrap(), "Bearer a:b:c");
+
+    assert!(parse_grpc_header("no-delimiter").is_err());
+    assert!(parse_grpc_header("bad name:value").is_err());
+    assert!(parse_grpc_header("name:invalid\nvalue").is_err());
 }
 
 #[tokio::main]

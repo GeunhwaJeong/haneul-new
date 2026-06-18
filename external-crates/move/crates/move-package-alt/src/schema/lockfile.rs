@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, path::PathBuf};
 
 use super::{
-    EnvironmentName, GitSha, LocalDepInfo, OnChainDepInfo, PackageName, PublishAddresses,
+    EnvironmentName, GitSha, LocalDepInfo, OnChainAddress, PackageName, PublishAddresses,
     RenderToml,
     toml_format::{expand_toml, flatten_toml},
 };
@@ -68,7 +68,7 @@ pub struct Pin {
 #[serde(untagged)]
 pub enum LockfileDependencyInfo {
     Local(LocalDepInfo),
-    OnChain(OnChainDepInfo),
+    OnChain(OnChainAddress),
     Git(LockfileGitDepInfo),
     Root(RootDepInfo),
 }
@@ -166,32 +166,37 @@ mod tests {
             [pinned.mainnet.Foo_0]
             source = { git = "...", subdir = "...", rev = "da39a3ee5e6b4b0d3255bfef95601890afd80709" }
             manifest_digest = "..."
-            deps = { haneul = "Haneul", std = "MoveStdlib" }
+            deps = { std = "MoveStdlib", haneul = "Haneul" }
 
             [pinned.mainnet.Foo_1]
             source = { git = "...", subdir = "...", rev = "da39a3ee5e6b4b0d3255bfef95601890afd80709" }
             manifest_digest = "..."
-            deps = { haneul = "Haneul", std = "MoveStdlib" }
-
-            [pinned.mainnet.Haneul]
-            source = { git = "...", subdir = "...", rev = "da39a3ee5e6b4b0d3255bfef95601890afd80709" }
-            manifest_digest = "..."
-            deps = { std = "MoveStdlib" }
+            deps = { std = "MoveStdlib", haneul = "Haneul" }
 
             [pinned.mainnet.MoveStdlib]
             source = { git = "...", subdir = "...", rev = "da39a3ee5e6b4b0d3255bfef95601890afd80709" }
             manifest_digest = "..."
             deps = {}
 
+            [pinned.mainnet.Haneul]
+            source = { git = "...", subdir = "...", rev = "da39a3ee5e6b4b0d3255bfef95601890afd80709" }
+            manifest_digest = "..."
+            deps = { std = "MoveStdlib" }
+
             [pinned.testnet.MoveStdlib]
             source = { git = "...", subdir = "...", rev = "da39a3ee5e6b4b0d3255bfef95601890afd80709" }
+            manifest_digest = "..."
+            deps = {}
+
+            [pinned.testnet.OnChainPkg]
+            source = { on-chain = "0x0000000000000000000000000000000000000000000000000000000000000001" }
             manifest_digest = "..."
             deps = {}
 
             [pinned.testnet.example]
             source = { local = "." }
             manifest_digest = "..."
-            deps = { bar = "bar", foo = "Foo_0", haneul = "Haneul", non = "Foo_1", std = "MoveStdlib" }
+            deps = { bar = "bar", foo = "Foo_0", non = "Foo_1", onchain = "OnChainPkg", std = "MoveStdlib", haneul = "Haneul" }
             "###
         );
 

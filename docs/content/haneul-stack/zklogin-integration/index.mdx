@@ -41,8 +41,8 @@ $ npm install @haneullabs/haneul@experimental
 import { generateNonce, generateRandomness } from '@haneullabs/haneul/zklogin';
 import { HaneulGrpcClient } from '@haneullabs/haneul/grpc';
 
-const FULLNODE_URL = 'https://fullnode.devnet.haneul.io:443'; // replace with the RPC URL you want to use
-const haneulClient = new HaneulGrpcClient({ baseUrl: FULLNODE_URL, network: 'devnet' });
+const FULLNODE_URL = 'https://fullnode.testnet.haneul.io:443'; // or mainnet: https://fullnode.mainnet.haneul.io:443
+const haneulClient = new HaneulGrpcClient({ baseUrl: FULLNODE_URL, network: 'testnet' });
 const { epoch, epochDurationMs, epochStartTimestampMs } = await haneulClient.core.getLatestHaneulSystemState();
 
 const maxEpoch = Number(epoch) + 2; // this means the ephemeral key will be active for 2 epochs from now.

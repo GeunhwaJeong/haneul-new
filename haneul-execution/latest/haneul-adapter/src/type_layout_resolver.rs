@@ -8,7 +8,7 @@ use crate::static_programmable_transactions::linkage::resolved_linkage::Executab
 use haneul_protocol_config::ProtocolConfig;
 use haneul_types::TypeTag;
 use haneul_types::base_types::ObjectID;
-use haneul_types::error::{HaneulErrorKind, HaneulResult};
+use haneul_types::error::{ExecutionError, HaneulErrorKind, HaneulResult};
 use haneul_types::execution::TypeLayoutStore;
 use haneul_types::storage::{BackingPackageStore, PackageObject};
 use haneul_types::{error::HaneulError, layout_resolver::LayoutResolver};
@@ -59,8 +59,9 @@ impl LayoutResolver for TypeLayoutResolver<'_, '_> {
             ),
             self.protocol_config.binary_config(None),
         );
-        let tag_linkage = ExecutableLinkage::type_linkage(config, ids, &resolver)?;
-        let link_context = tag_linkage.linkage_context()?;
+        let tag_linkage =
+            ExecutableLinkage::type_linkage::<_, ExecutionError>(config, ids, &resolver)?;
+        let link_context = tag_linkage.linkage_context::<ExecutionError>()?;
         let data_store = TransactionPackageStore::new(&null_resolver);
         let Ok(vm) = self.vm.make_vm(data_store, link_context) else {
             return Err(HaneulErrorKind::FailObjectLayout {

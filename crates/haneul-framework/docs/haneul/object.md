@@ -41,14 +41,14 @@ Haneul object identifiers
 -  [Function `record_new_uid`](#haneul_object_record_new_uid)
 
 
-<pre><code><b>use</b> <a href="../haneul/address.md#haneul_address">haneul::address</a>;
-<b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
-<b>use</b> <a href="../haneul/tx_context.md#haneul_tx_context">haneul::tx_context</a>;
-<b>use</b> <a href="../std/ascii.md#std_ascii">std::ascii</a>;
+<pre><code><b>use</b> <a href="../std/ascii.md#std_ascii">std::ascii</a>;
 <b>use</b> <a href="../std/bcs.md#std_bcs">std::bcs</a>;
 <b>use</b> <a href="../std/option.md#std_option">std::option</a>;
 <b>use</b> <a href="../std/string.md#std_string">std::string</a>;
 <b>use</b> <a href="../std/vector.md#std_vector">std::vector</a>;
+<b>use</b> <a href="../haneul/address.md#haneul_address">haneul::address</a>;
+<b>use</b> <a href="../haneul/hex.md#haneul_hex">haneul::hex</a>;
+<b>use</b> <a href="../haneul/tx_context.md#haneul_tx_context">haneul::tx_context</a>;
 </code></pre>
 
 

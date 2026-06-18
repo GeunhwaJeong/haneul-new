@@ -13,7 +13,8 @@ use async_trait::async_trait;
 use tracing::info;
 
 use haneul_types::effects::TransactionEffectsAPI;
-use haneul_types::error::{HaneulError, HaneulErrorKind};
+use haneul_types::error::HaneulError;
+use haneul_types::error::HaneulErrorKind;
 use haneul_types::storage::get_transaction_input_objects;
 use haneul_types::storage::get_transaction_output_objects;
 use haneul_types::transaction::TransactionData;

@@ -9,7 +9,7 @@ use haneul_keys::keystore::Keystore;
 use haneul_move_build::BuildConfig;
 use haneul_rosetta::CoinMetadataCache;
 use haneul_rosetta::operations::Operations;
-use haneul_rosetta::types::{ConstructionMetadata, OperationStatus, OperationType};
+use haneul_rosetta::types::{OperationStatus, OperationType};
 use haneul_rpc::client::Client as GrpcClient;
 use haneul_rpc::field::FieldMaskUtil;
 use haneul_rpc::proto::haneul::rpc::v2::{
@@ -29,7 +29,6 @@ use haneul_types::transaction::{
 use move_core_types::identifier::Identifier;
 use prost_types::FieldMask;
 use rand::seq::{IteratorRandom, SliceRandom};
-use serde_json::json;
 use shared_crypto::intent::Intent;
 use signature::rand_core::OsRng;
 use std::collections::{BTreeMap, HashMap};
@@ -584,77 +583,6 @@ async fn test_pay_all_haneul() {
         false,
     )
     .await;
-}
-
-#[tokio::test]
-async fn test_delegation_parsing() -> Result<(), anyhow::Error> {
-    let network = TestClusterBuilder::new().build().await;
-    let mut client = GrpcClient::new(network.rpc_url()).unwrap();
-    let rgp = client.get_reference_gas_price().await.unwrap();
-    let sender = get_random_address(&network.get_addresses(), vec![]);
-    let mut client = GrpcClient::new(network.rpc_url()).unwrap();
-    let gas = get_random_haneul(&mut client, sender, vec![]).await;
-    let total_coin_value = 0i128;
-    let request = GetEpochRequest::latest().with_read_mask(FieldMask::from_paths(["system_state"]));
-
-    let response = client
-        .ledger_client()
-        .get_epoch(request)
-        .await
-        .unwrap()
-        .into_inner();
-
-    let system_state = response.epoch.and_then(|epoch| epoch.system_state).unwrap();
-
-    let validator = system_state.validators.unwrap().active_validators[0]
-        .address()
-        .parse::<HaneulAddress>()
-        .unwrap();
-
-    let ops: Operations = serde_json::from_value(json!(
-        [{
-            "operation_identifier":{"index":0},
-            "type":"Stake",
-            "account": { "address" : sender.to_string() },
-            "amount" : { "value": "-100000" , "currency": { "symbol": "HANEUL", "decimals": 9}},
-            "metadata": { "Stake" : {"validator": validator.to_string()} }
-        }]
-    ))
-    .unwrap();
-    let metadata = ConstructionMetadata {
-        sender,
-        gas_coins: vec![gas],
-        extra_gas_coins: vec![],
-        objects: vec![],
-        party_objects: vec![],
-        total_coin_value,
-        gas_price: rgp,
-        budget: rgp * TEST_ONLY_GAS_UNIT_FOR_STAKING,
-        currency: None,
-        address_balance_withdrawal: 0,
-        fss_object_count: None,
-        redeem_token_amount: None,
-        epoch: None,
-        chain_id: None,
-    };
-    let parsed_data = ops.clone().into_internal()?.try_into_data(metadata)?;
-
-    let proto_tx: haneul_rpc::proto::haneul::rpc::v2::Transaction = parsed_data.clone().into();
-    let parsed_ops = Operations::new(Operations::from_transaction(
-        proto_tx
-            .kind
-            .ok_or_else(|| anyhow::anyhow!("Transaction missing kind"))?,
-        parsed_data.sender(),
-        None,
-    )?);
-
-    assert_eq!(
-        ops, parsed_ops,
-        "expected {:#?}, got: {:#?}",
-        ops, parsed_ops
-    );
-
-    Ok(())
 }
 
 // Record current Haneul balance of an address then execute the transaction,

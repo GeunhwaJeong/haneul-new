@@ -19,7 +19,7 @@ use haneul_types::full_checkpoint_content::ObjectSet;
 use prost_types::FieldMask;
 
 pub const MAX_BATCH_REQUESTS: usize = 1000;
-pub const READ_MASK_DEFAULT: &str = "object_id,version,digest";
+pub const READ_MASK_DEFAULT: &str = crate::read_mask_defaults::OBJECT;
 
 type ValidationResult = Result<(Vec<(Address, Option<u64>)>, FieldMaskTree), RpcError>;
 

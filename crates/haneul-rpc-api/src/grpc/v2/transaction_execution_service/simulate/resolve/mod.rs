@@ -661,7 +661,8 @@ fn resolve_object(
             .pipe(Ok)
         }
         haneul_types::object::Owner::Shared { .. }
-        | haneul_types::object::Owner::ConsensusAddressOwner { .. } => {
+        | haneul_types::object::Owner::ConsensusAddressOwner { .. }
+        | haneul_types::object::Owner::Party { .. } => {
             resolve_shared_input_with_object(called_packages, arg_uses, arg_idx, object)
         }
         haneul_types::object::Owner::ObjectOwner(_) => Err(RpcError::new(

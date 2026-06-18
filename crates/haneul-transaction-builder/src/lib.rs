@@ -404,6 +404,10 @@ impl TransactionBuilder {
             | Owner::ConsensusAddressOwner {
                 start_version: initial_shared_version,
                 ..
+            }
+            | Owner::Party {
+                start_version: initial_shared_version,
+                ..
             } => ObjectArg::SharedObject {
                 id,
                 initial_shared_version,
@@ -546,11 +550,16 @@ impl TransactionBuilder {
                 | Owner::ConsensusAddressOwner {
                     start_version: initial_shared_version,
                     ..
+                }
+                | Owner::Party {
+                    start_version: initial_shared_version,
+                    ..
                 } => ObjectArg::SharedObject {
                     id: upgrade_capability.compute_object_reference().0,
                     initial_shared_version,
                     mutability: SharedObjectMutability::Mutable,
                 },
+
                 Owner::Immutable => {
                     bail!("Upgrade capability is stored immutably and cannot be used for upgrades")
                 }

@@ -18,6 +18,7 @@ use haneul_kvstore::TransactionData;
 use haneul_kvstore::TransactionEventsData;
 use haneul_kvstore::WatermarkV1;
 use haneul_kvstore::validate_pipeline_name;
+use haneul_types::digests::CheckpointDigest;
 use haneul_types::digests::TransactionDigest;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::object::Object;
@@ -151,6 +152,20 @@ impl BigtableReader {
             "checkpoints",
             &keys,
             self.client.clone().get_checkpoints(keys),
+        )
+        .await
+    }
+
+    /// Get a single checkpoint by its digest. The underlying KV store only supports single-digest
+    /// lookup, so callers that need to batch should fan out themselves.
+    pub(crate) async fn checkpoint_by_digest(
+        &self,
+        digest: CheckpointDigest,
+    ) -> anyhow::Result<Option<CheckpointData>> {
+        measure(
+            "checkpoint_by_digest",
+            &digest,
+            self.client.clone().get_checkpoint_by_digest(digest),
         )
         .await
     }

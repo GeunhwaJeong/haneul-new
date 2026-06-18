@@ -58,29 +58,6 @@ ignore = [
     # walrus, seal, and other downstream consumers. Deferred pending a coordinated
     # ecosystem-wide bump (likely driven by fastcrypto first).
     "RUSTSEC-2026-0097",
-    # diesel-async 0.8 MySQL backend: unsound access to padding bytes while
-    # serializing date/time values. The unsoundness lives entirely inside the
-    # MySQL backend code path of the diesel-async crate.
-    #
-    # Why this is unreachable in Haneul:
-    #   - Haneul (like Sui) uses PostgreSQL exclusively for all indexer storage.
-    #   - The MySQL backend code in diesel-async is compiled (transitive feature)
-    #     but never instantiated: no `diesel_async::mysql::*` call sites across
-    #     the workspace, no `MysqlConnection` / `AsyncMysqlConnection` usage.
-    #   - The vulnerable serialization path is only reached when a query runs
-    #     against a MySQL connection, which cannot happen in Haneul.
-    #
-    # Why we ignore instead of migrating to diesel-async 0.9 (which Sui main did):
-    #   - Sui's fix is a multi-PR migration (sui-bridge-indexer, suins-indexer,
-    #     etc.) landed on Sui main *after* the mainnet-v1.72.2 tag we base on.
-    #     Cherry-picking those PRs onto a v1.72.2-rooted branch risks conflicts.
-    #   - The diesel-async 0.8 -> 0.9 API change touches ~168 lines across
-    #     indexer crates. Doing this for an unreachable code path provides
-    #     zero security benefit and adds upgrade risk.
-    #   - When the next Sui mainnet release (≥ v1.74) is tagged, the diesel-async
-    #     0.9 migration will arrive bundled and we will drop this ignore
-    #     automatically. This entry should be removed at that point.
-    "RUSTSEC-2026-0138",
 ]
 # Threshold for security vulnerabilities, any vulnerability with a CVSS score
 # lower than the range specified will be ignored. Note that ignored advisories

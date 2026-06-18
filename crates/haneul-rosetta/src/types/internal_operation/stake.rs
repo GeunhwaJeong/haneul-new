@@ -27,7 +27,7 @@ use super::{
     withdraw_coin_from_address_balance,
 };
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct Stake {
     pub sender: HaneulAddress,
     pub validator: HaneulAddress,
@@ -152,6 +152,8 @@ impl TryConstructTransaction for Stake {
                     address_balance_withdrawal: actual_deficit,
                     fss_object_count: None,
                     redeem_token_amount: None,
+                    redeem_plan: None,
+                    bind_epoch: None,
                 })
             }
             _ => {
@@ -191,6 +193,8 @@ impl TryConstructTransaction for Stake {
                     address_balance_withdrawal,
                     fss_object_count: None,
                     redeem_token_amount: None,
+                    redeem_plan: None,
+                    bind_epoch: None,
                 })
             }
         }

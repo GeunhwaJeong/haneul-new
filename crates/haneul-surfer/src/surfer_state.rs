@@ -251,11 +251,15 @@ impl SurferState {
                     }
                 }
                 Owner::ObjectOwner(_) => (),
+                // TODO(Party WIP) Implement full support for Party objects in haneul-surfer.
                 Owner::Shared {
                     initial_shared_version,
                 }
-                // TODO: Implement full support for ConsensusAddressOwner objects in haneul-surfer.
                 | Owner::ConsensusAddressOwner {
+                    start_version: initial_shared_version,
+                    ..
+                }
+                | Owner::Party {
                     start_version: initial_shared_version,
                     ..
                 } => {
@@ -344,7 +348,12 @@ impl SurferState {
             self.address,
             self.gas_object,
             modules,
-            package.dependency_ids.published.values().cloned().collect(),
+            package
+                .dependency_ids
+                .published
+                .values()
+                .map(|dep| dep.published_at)
+                .collect(),
             TEST_ONLY_GAS_UNIT_FOR_PUBLISH * rgp,
             rgp,
         );

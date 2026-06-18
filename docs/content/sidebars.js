@@ -527,6 +527,7 @@ haneulStackSidebar: [
         'haneul-stack/walrus/haneul-stack-walrus',
         'haneul-stack/walrus/indexer-walrus',
         'haneul-stack/walrus/only-fins',
+        'haneul-stack/walrus/haneul-stack-walrus-sites',
       ],
     },
     {
@@ -541,6 +542,19 @@ haneulStackSidebar: [
         },
         'haneul-stack/seal/haneul-stack-seal',
         'haneul-stack/seal/haneul-chat-app',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'HaneulNS',
+      link: { type: 'doc', id: 'haneul-stack/haneulns/index' },
+      items: [
+        {
+          type: 'link',
+          label: 'HaneulNS Docs',
+          href: 'https://docs.haneulns.io',
+        },
+        'haneul-stack/haneulns/haneul-stack-haneulns',
       ],
     },
     {
@@ -573,9 +587,22 @@ haneulStackSidebar: [
     {
       type: 'category',
       label: 'DeepBook',
-      items: [
-        'onchain-finance/deepbookv3/deepbook',
-        'onchain-finance/deepbook-margin/deepbook-margin',
+	  items: [
+		{
+          type: 'link',
+          label: 'DeepBookV3',
+          href: 'https://docs.haneul.io/onchain-finance/deepbookv3/deepbook',
+        },
+		{
+          type: 'link',
+          label: 'DeepBook Margin',
+          href: 'https://docs.haneul.io/onchain-finance/deepbook-margin/design',
+        },
+		{
+          type: 'link',
+          label: 'DeepBook Predict',
+          href: 'https://docs.haneul.io/onchain-finance/deepbook-predict/design',
+        },
       ],
     },
     {
