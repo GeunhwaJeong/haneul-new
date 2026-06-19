@@ -5,13 +5,19 @@
 //! path and the remote-fallback pre-fork guard. Wired in from `store.rs` via a
 //! `#[path]` module so it has `super::*` access to `pub(crate)` items.
 
-use fastcrypto::encoding::{Base64 as FastCryptoBase64, Encoding};
+use fastcrypto::encoding::Base64 as FastCryptoBase64;
+use fastcrypto::encoding::Encoding;
 use haneul_types::full_checkpoint_content::ExecutedTransaction;
 use haneul_types::test_checkpoint_data_builder::TestCheckpointBuilder;
-use haneul_types::transaction::{Transaction as HaneulTransaction, VerifiedTransaction};
+use haneul_types::transaction::Transaction as HaneulTransaction;
+use haneul_types::transaction::VerifiedTransaction;
 use serde_json::json;
-use wiremock::matchers::{body_partial_json, method, path};
-use wiremock::{Mock, MockServer, ResponseTemplate};
+use wiremock::Mock;
+use wiremock::MockServer;
+use wiremock::ResponseTemplate;
+use wiremock::matchers::body_partial_json;
+use wiremock::matchers::method;
+use wiremock::matchers::path;
 
 use super::*;
 

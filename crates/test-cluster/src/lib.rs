@@ -26,6 +26,7 @@ use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_swarm_config::network_config_builder::{
     FundsWithdrawSchedulerTypeConfig, GlobalStateHashV2EnabledCallback,
     GlobalStateHashV2EnabledConfig, ProtocolVersionsConfig, SupportedProtocolVersionsCallback,
+    ValidatorObserverConfigCallback,
 };
 use haneul_swarm_config::node_config_builder::{FullnodeConfigBuilder, ValidatorConfigBuilder};
 use haneul_test_transaction_builder::TestTransactionBuilder;
@@ -1161,6 +1162,8 @@ pub struct TestClusterBuilder {
 
     execution_time_observer_config: Option<haneul_config::node::ExecutionTimeObserverConfig>,
 
+    validator_observer_config: Option<ValidatorObserverConfigCallback>,
+
     state_sync_config: Option<haneul_config::p2p::StateSyncConfig>,
 
     #[cfg(msim)]
@@ -1206,6 +1209,7 @@ impl TestClusterBuilder {
                 })),
             rpc_config: None,
             execution_time_observer_config: None,
+            validator_observer_config: None,
             state_sync_config: None,
             #[cfg(msim)]
             inject_synthetic_execution_time: false,
@@ -1222,6 +1226,11 @@ impl TestClusterBuilder {
         config: haneul_config::node::ExecutionTimeObserverConfig,
     ) -> Self {
         self.execution_time_observer_config = Some(config);
+        self
+    }
+
+    pub fn with_validator_observer_config(mut self, c: ValidatorObserverConfigCallback) -> Self {
+        self.validator_observer_config = Some(c);
         self
     }
 
@@ -1587,6 +1596,10 @@ impl TestClusterBuilder {
 
         if self.disable_fullnode_pruning {
             builder = builder.with_disable_fullnode_pruning();
+        }
+
+        if let Some(validator_observer_config) = self.validator_observer_config.take() {
+            builder = builder.with_validator_observer_config(validator_observer_config);
         }
 
         #[cfg(msim)]

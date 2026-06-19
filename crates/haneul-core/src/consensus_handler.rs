@@ -15,7 +15,7 @@ use consensus_types::block::TransactionIndex;
 use fastcrypto_zkp::bn254::zk_login::{JWK, JwkId};
 use haneul_config::node::CongestionLogConfig;
 use haneul_macros::{fail_point, fail_point_arg, fail_point_if};
-use haneul_protocol_config::{PerObjectCongestionControlMode, ProtocolConfig};
+use haneul_protocol_config::{Chain, PerObjectCongestionControlMode, ProtocolConfig};
 use haneul_types::{
     HANEUL_RANDOMNESS_STATE_OBJECT_ID,
     authenticator_state::ActiveJwk,
@@ -2448,7 +2448,17 @@ impl<C: CheckpointServiceNotify + Send + Sync> ConsensusHandler<C> {
             randomness_dkg_confirmations,
         );
 
-        if randomness_dkg_updates || randomness_dkg_confirmation_updates {
+        // On mainnet from epoch 1143 onward, always advance the DKG state machine until
+        // it is resolved, regardless of whether new messages/confirmations were processed
+        // this commit.
+        let always_advance_dkg_to_resolution = self.epoch_store.get_chain() == Chain::Mainnet
+            && self.epoch_store.epoch() >= 1143
+            && randomness_manager.dkg_status() == DkgStatus::Pending;
+
+        if randomness_dkg_updates
+            || randomness_dkg_confirmation_updates
+            || always_advance_dkg_to_resolution
+        {
             randomness_manager
                 .advance_dkg(&mut state.output, commit_info.round)
                 .await
@@ -3251,17 +3261,23 @@ impl MysticetiConsensusHandler {
         mut consensus_handler: ConsensusHandler<CheckpointService>,
         mut commit_receiver: UnboundedReceiver<consensus_core::CommittedSubDag>,
         commit_consumer_monitor: Arc<CommitConsumerMonitor>,
+        process_consensus_commits: bool,
     ) -> Self {
         debug!(
             last_processed_commit_at_startup,
-            "Starting consensus replay"
+            process_consensus_commits, "Starting consensus replay"
         );
         let mut tasks = JoinSet::new();
         tasks.spawn(monitored_future!(async move {
             // TODO: pause when execution is overloaded, so consensus can detect the backpressure.
             while let Some(consensus_commit) = commit_receiver.recv().await {
                 let commit_index = consensus_commit.commit_ref.index;
-                if commit_index <= last_processed_commit_at_startup {
+                if !process_consensus_commits {
+                    debug!(
+                        commit_index,
+                        "Observer skipping consensus commit processing"
+                    );
+                } else if commit_index <= last_processed_commit_at_startup {
                     consensus_handler.handle_prior_consensus_commit(consensus_commit);
                 } else {
                     consensus_handler

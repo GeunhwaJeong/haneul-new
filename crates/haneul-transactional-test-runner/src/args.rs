@@ -754,6 +754,7 @@ impl HaneulValue {
                 initial_shared_version,
             } => initial_shared_version,
             Owner::ConsensusAddressOwner { start_version, .. } => start_version,
+            Owner::Party { start_version, .. } => start_version,
         };
         Ok(ObjectArg::SharedObject {
             id,
@@ -781,6 +782,11 @@ impl HaneulValue {
                 initial_shared_version,
                 mutability: SharedObjectMutability::Mutable,
             }),
+            Owner::Party { .. } => {
+                // TODO(Party WIP)
+                // We need to know the sender for mutability flag
+                todo!("Party WIP")
+            }
             Owner::AddressOwner(_) | Owner::ObjectOwner(_) | Owner::Immutable => {
                 let obj_ref = obj.compute_object_reference();
                 Ok(ObjectArg::ImmOrOwnedObject(obj_ref))

@@ -22,7 +22,6 @@ use crate::rpc_index::RpcIndexStore;
 use crate::traffic_controller::TrafficController;
 use crate::traffic_controller::metrics::TrafficControllerMetrics;
 use crate::transaction_outputs::TransactionOutputs;
-use crate::verify_indexes::{fix_indexes, verify_indexes};
 use arc_swap::{ArcSwap, ArcSwapOption, Guard};
 use async_trait::async_trait;
 use authority_per_epoch_store::CertLockGuard;
@@ -33,6 +32,7 @@ use fastcrypto::hash::MultisetHash;
 use haneul_config::NodeConfig;
 use haneul_config::node::{AuthorityOverloadConfig, StateDebugDumpConfig};
 use haneul_execution::Executor;
+use haneul_protocol_config::Chain;
 use haneul_protocol_config::PerObjectCongestionControlMode;
 use haneul_types::accumulator_root::AccumulatorObjId;
 use haneul_types::crypto::RandomnessRound;
@@ -48,6 +48,7 @@ use haneul_types::inner_temporary_store::PackageStoreWithFallback;
 use haneul_types::layout_resolver::LayoutResolver;
 use haneul_types::layout_resolver::into_struct_layout;
 use haneul_types::messages_consensus::AuthorityCapabilitiesV2;
+use haneul_types::node_role::NodeRole;
 use haneul_types::object::bounded_visitor::BoundedVisitor;
 use haneul_types::storage::ChildObjectResolver;
 use haneul_types::storage::InputKey;
@@ -66,6 +67,7 @@ use move_binary_format::CompiledModule;
 use move_binary_format::binary_config::BinaryConfig;
 use move_core_types::annotated_value::MoveStructLayout;
 use move_core_types::language_storage::ModuleId;
+use nonempty::NonEmpty;
 use parking_lot::Mutex;
 use prometheus::{
     Histogram, HistogramVec, IntCounter, IntCounterVec, IntGauge, IntGaugeVec, Registry,
@@ -137,7 +139,7 @@ use haneul_types::effects::{
     InputConsensusObject, SignedTransactionEffects, TransactionEffects, TransactionEffectsAPI,
     TransactionEvents, VerifiedSignedTransactionEffects,
 };
-use haneul_types::error::{ExecutionError, ExecutionErrorTrait, HaneulErrorKind, UserInputError};
+use haneul_types::error::{ExecutionError, HaneulErrorKind, UserInputError};
 use haneul_types::event::EventID;
 use haneul_types::executable_transaction::VerifiedExecutableTransaction;
 use haneul_types::execution_status::ExecutionErrorKind;
@@ -977,12 +979,16 @@ pub struct AuthorityState {
 ///
 /// Repeating valid commands should produce no changes and return no error.
 impl AuthorityState {
+    pub fn node_role(&self, epoch_store: &AuthorityPerEpochStore) -> NodeRole {
+        epoch_store.node_role()
+    }
+
     pub fn is_validator(&self, epoch_store: &AuthorityPerEpochStore) -> bool {
-        epoch_store.committee().authority_exists(&self.name)
+        epoch_store.node_role().is_validator()
     }
 
     pub fn is_fullnode(&self, epoch_store: &AuthorityPerEpochStore) -> bool {
-        !self.is_validator(epoch_store)
+        epoch_store.node_role().is_fullnode()
     }
 
     pub fn committee_store(&self) -> &Arc<CommitteeStore> {
@@ -2006,9 +2012,17 @@ impl AuthorityState {
             self.config.certificate_deny_config.certificate_deny_set(),
             &execution_env.funds_withdraw_status,
         );
+        // Mainnet-only: feed the accumulator (settlement) version so the address-balance gas-smash
+        // short-circuit activates at its rollout version and replays bit-for-bit. Other chains pass
+        // `None`, where the short-circuit applies unconditionally.
+        let accumulator_version = if self.chain_identifier.chain() == Chain::Mainnet {
+            execution_env.assigned_versions.accumulator_version
+        } else {
+            None
+        };
         let execution_params = match early_execution_error {
-            Some(error) => ExecutionOrEarlyError::Err(error),
-            None => ExecutionOrEarlyError::Ok(()),
+            None => ExecutionOrEarlyError::ok(accumulator_version),
+            Some(errors) => ExecutionOrEarlyError::failed(errors, accumulator_version),
         };
 
         // Skip on early error: the tx will fail anyway and rewriting may fail if the accumulator
@@ -2345,7 +2359,7 @@ impl AuthorityState {
         let execution_error_source = execution_result
             .as_ref()
             .err()
-            .and_then(|e| e.source_ref().as_ref().map(|e| e.to_string()));
+            .and_then(|e| e.source().as_ref().map(|e| e.to_string()));
 
         let response = DryRunTransactionBlockResponse {
             suggested_gas_price,
@@ -2513,9 +2527,11 @@ impl AuthorityState {
             self.config.certificate_deny_config.certificate_deny_set(),
             &FundsWithdrawStatus::MaybeSufficient,
         );
+        // Dev-inspect/simulation path (not committed): no assigned accumulator version here, so the
+        // IFFW short-circuit applies unconditionally (`None`), matching non-mainnet execution.
         let execution_params = match early_execution_error {
-            Some(error) => ExecutionOrEarlyError::Err(error),
-            None => ExecutionOrEarlyError::Ok(()),
+            None => ExecutionOrEarlyError::ok(None),
+            Some(errors) => ExecutionOrEarlyError::failed(errors, None),
         };
 
         let tracking_store = TrackingBackingStore::new(self.get_backing_store().as_ref());
@@ -2571,7 +2587,10 @@ impl AuthorityState {
                     protocol_config,
                     self.metrics.execution_metrics.clone(),
                     false,
-                    ExecutionOrEarlyError::Err(ExecutionErrorKind::InsufficientFundsForWithdraw),
+                    ExecutionOrEarlyError::failed(
+                        NonEmpty::new(ExecutionErrorKind::InsufficientFundsForWithdraw),
+                        None,
+                    ),
                     &epoch_id,
                     epoch_timestamp_ms,
                     cloned_input_objects,
@@ -3645,8 +3664,6 @@ impl AuthorityState {
         });
         state.init_object_funds_checker().await;
 
-        let state_clone = Arc::downgrade(&state);
-        spawn_monitored_task!(fix_indexes(state_clone));
         // Start a task to execute ready certificates.
         let authority_state = Arc::downgrade(&state);
         spawn_monitored_task!(execution_process(
@@ -4226,13 +4243,6 @@ impl AuthorityState {
                 cur_epoch_store.epoch()
             );
             self.expensive_check_is_consistent_state(state_hasher, cur_epoch_store);
-        }
-
-        if expensive_safety_check_config.enable_secondary_index_checks()
-            && let Some(indexes) = self.indexes.clone()
-        {
-            verify_indexes(self.get_global_state_hash_store().as_ref(), indexes)
-                .expect("secondary indexes are inconsistent");
         }
 
         // Verify all checkpointed transactions are present in transactions_seq.
@@ -5245,15 +5255,17 @@ impl AuthorityState {
                 .get_transaction_cache_reader()
                 .get_transaction_block(transaction_digest)
             {
-                let cert_sig = epoch_store.get_transaction_cert_sig(transaction_digest)?;
                 let events = if effects.events_digest().is_some() {
                     self.get_transaction_events(effects.transaction_digest())?
                 } else {
                     TransactionEvents::default()
                 };
+                // The cert_sig slot is permanently None: validators no longer aggregate or
+                // persist per-transaction quorum signatures (the transaction_cert_signatures
+                // table is deprecated and unwritten).
                 return Ok(Some((
                     (*transaction).clone().into_message(),
-                    TransactionStatus::Executed(cert_sig, effects.into_inner(), events),
+                    TransactionStatus::Executed(None, effects.into_inner(), events),
                 )));
             } else {
                 // The read of effects and read of transaction are not atomic. It's possible that we reverted
@@ -6339,6 +6351,7 @@ impl AuthorityState {
             self.get_object_store().clone(),
             expensive_safety_check_config,
             epoch_last_checkpoint,
+            self.config.fullnode_sync_mode,
         )?;
         self.epoch_store.store(new_epoch_store.clone());
         Ok(new_epoch_store)

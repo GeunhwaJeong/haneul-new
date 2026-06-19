@@ -27,7 +27,6 @@ mod checked {
     use haneul_types::{
         BRIDGE_ADDRESS, HANEUL_BRIDGE_OBJECT_ID, HANEUL_RANDOMNESS_STATE_OBJECT_ID,
     };
-    use haneullabs_common::debug_fatal;
     use move_binary_format::CompiledModule;
     use move_trace_format::format::MoveTraceBuilder;
     use move_vm_runtime::move_vm::MoveVM;
@@ -189,50 +188,6 @@ mod checked {
         );
 
         let status = if let Err(error) = &execution_result {
-            // Elaborate errors in logs if they are unexpected or their status is terse.
-            use ExecutionErrorKind as K;
-            match error.kind() {
-                K::InvariantViolation | K::VMInvariantViolation => {
-                    if protocol_config.debug_fatal_on_move_invariant_violation() {
-                        debug_fatal!(
-                            "INVARIANT VIOLATION! Txn Digest: {}, Source: {:?}",
-                            transaction_digest,
-                            error.source_ref(),
-                        );
-                    } else {
-                        #[skip_checked_arithmetic]
-                        tracing::error!(
-                            kind = ?error.kind(),
-                            tx_digest = ?transaction_digest,
-                            "INVARIANT VIOLATION! Source: {:?}",
-                            error.source_ref(),
-                        );
-                    }
-                }
-
-                K::HaneulMoveVerificationError | K::VMVerificationOrDeserializationError => {
-                    #[skip_checked_arithmetic]
-                    tracing::debug!(
-                        kind = ?error.kind(),
-                        tx_digest = ?transaction_digest,
-                        "Verification Error. Source: {:?}",
-                        error.source_ref(),
-                    );
-                }
-
-                K::PublishUpgradeMissingDependency | K::PublishUpgradeDependencyDowngrade => {
-                    #[skip_checked_arithmetic]
-                    tracing::debug!(
-                        kind = ?error.kind(),
-                        tx_digest = ?transaction_digest,
-                        "Publish/Upgrade Error. Source: {:?}",
-                        error.source_ref(),
-                    )
-                }
-
-                _ => (),
-            };
-
             ExecutionStatus::new_failure(error.to_execution_failure())
         } else {
             ExecutionStatus::Success
@@ -360,11 +315,12 @@ mod checked {
                     let mut execution_result: ResultWithTimings<
                         Mode::ExecutionResults,
                         ExecutionError,
-                    > = match execution_params {
-                        ExecutionOrEarlyError::Err(early_execution_error) => {
-                            Err((ExecutionError::new(early_execution_error, None), vec![]))
-                        }
-                        ExecutionOrEarlyError::Ok(()) => execution_loop::<Mode>(
+                    > = match execution_params.into_early_errors() {
+                        Some(early_execution_errors) => Err((
+                            ExecutionError::new(early_execution_errors.head, None),
+                            vec![],
+                        )),
+                        None => execution_loop::<Mode>(
                             store,
                             temporary_store,
                             transaction_kind,

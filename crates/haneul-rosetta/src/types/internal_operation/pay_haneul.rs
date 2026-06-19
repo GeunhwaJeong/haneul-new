@@ -21,7 +21,7 @@ use super::{
     simulate_transaction, withdraw_coin_from_address_balance,
 };
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct PayHaneul {
     pub sender: HaneulAddress,
     pub recipients: Vec<HaneulAddress>,
@@ -127,6 +127,8 @@ impl TryConstructTransaction for PayHaneul {
                     address_balance_withdrawal: address_balance_withdrawl,
                     fss_object_count: None,
                     redeem_token_amount: None,
+                    redeem_plan: None,
+                    bind_epoch: None,
                 })
             }
             _ => {
@@ -168,6 +170,8 @@ impl TryConstructTransaction for PayHaneul {
                     address_balance_withdrawal,
                     fss_object_count: None,
                     redeem_token_amount: None,
+                    redeem_plan: None,
+                    bind_epoch: None,
                 })
             }
         }

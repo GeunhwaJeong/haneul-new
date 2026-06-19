@@ -23,7 +23,7 @@ use haneul_types::full_checkpoint_content::ObjectSet as TypesObjectSet;
 use haneullabs_common::ZipDebugEqIteratorExt;
 use prost_types::FieldMask;
 
-pub const READ_MASK_DEFAULT: &str = "sequence_number,digest";
+pub const READ_MASK_DEFAULT: &str = crate::read_mask_defaults::CHECKPOINT;
 
 #[tracing::instrument(skip(service))]
 pub fn get_checkpoint(

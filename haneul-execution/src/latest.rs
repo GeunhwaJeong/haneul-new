@@ -10,7 +10,7 @@ use haneul_types::{
     committee::EpochId,
     digests::TransactionDigest,
     effects::TransactionEffects,
-    error::{ExecutionError, HaneulError, HaneulResult},
+    error::{ExecutionError, ExecutionErrorTrait, HaneulError, HaneulResult},
     execution::{ExecutionResult, TypeLayoutStore},
     execution_status::ExecutionFailure,
     gas::HaneulGasStatus,
@@ -32,6 +32,7 @@ use haneul_adapter_latest::type_layout_resolver::TypeLayoutResolver;
 use haneul_move_natives_latest::all_natives;
 use haneul_types::storage::BackingStore;
 use haneul_verifier_latest::meter::HaneulVerifierMeter;
+use haneullabs_common::debug_fatal;
 use move_bytecode_verifier_meter::Meter;
 use move_vm_runtime_latest::runtime::MoveRuntime;
 
@@ -105,6 +106,9 @@ impl executor::Executor for Executor {
                 execution_params,
                 trace_builder_opt,
             );
+        if let Err(error) = &result {
+            log_execution_error(transaction_digest, error);
+        }
         (store_out, gas_status_out, effects, timings, result)
     }
 
@@ -132,24 +136,29 @@ impl executor::Executor for Executor {
         Vec<ExecutionTiming>,
         Result<(), ExecutionError>,
     ) {
-        execute_transaction_to_effects::<execution_mode::Normal<ExecutionError>>(
-            store,
-            input_objects,
-            gas,
-            gas_status,
-            transaction_kind,
-            rewritten_inputs,
-            transaction_signer,
-            transaction_digest,
-            &self.0,
-            epoch_id,
-            epoch_timestamp_ms,
-            protocol_config,
-            metrics,
-            enable_expensive_checks,
-            execution_params,
-            trace_builder_opt,
-        )
+        let (store_out, gas_status_out, effects, timings, result) =
+            execute_transaction_to_effects::<execution_mode::Normal<ExecutionError>>(
+                store,
+                input_objects,
+                gas,
+                gas_status,
+                transaction_kind,
+                rewritten_inputs,
+                transaction_signer,
+                transaction_digest,
+                &self.0,
+                epoch_id,
+                epoch_timestamp_ms,
+                protocol_config,
+                metrics,
+                enable_expensive_checks,
+                execution_params,
+                trace_builder_opt,
+            );
+        if let Err(error) = &result {
+            log_execution_error(transaction_digest, error);
+        }
+        (store_out, gas_status_out, effects, timings, result)
     }
 
     fn dev_inspect_transaction(
@@ -214,6 +223,9 @@ impl executor::Executor for Executor {
                 &mut None,
             )
         };
+        if let Err(error) = &result {
+            log_execution_error(transaction_digest, error);
+        }
         (inner_temp_store, gas_status, effects, result)
     }
 
@@ -277,5 +289,39 @@ impl verifier::Verifier for Verifier<'_> {
         meter: &mut dyn Meter,
     ) -> HaneulResult<()> {
         run_metered_move_bytecode_verifier(modules, &self.config, meter, self.metrics)
+    }
+}
+
+fn log_execution_error<E>(transaction_digest: TransactionDigest, error: &E)
+where
+    E: ExecutionErrorTrait + std::error::Error,
+{
+    use haneul_types::execution_status::ExecutionErrorKind as K;
+
+    match error.kind() {
+        K::InvariantViolation | K::VMInvariantViolation => {
+            debug_fatal!(
+                "INVARIANT VIOLATION! Txn Digest: {}, Source: {:?}",
+                transaction_digest,
+                std::error::Error::source(error)
+            );
+        }
+        K::HaneulMoveVerificationError | K::VMVerificationOrDeserializationError => {
+            tracing::debug!(
+                kind = ?error.kind(),
+                tx_digest = ?transaction_digest,
+                "Verification Error. Source: {:?}",
+                std::error::Error::source(error),
+            );
+        }
+        K::PublishUpgradeMissingDependency | K::PublishUpgradeDependencyDowngrade => {
+            tracing::debug!(
+                kind = ?error.kind(),
+                tx_digest = ?transaction_digest,
+                "Publish/Upgrade Error. Source: {:?}",
+                std::error::Error::source(error),
+            );
+        }
+        _ => (),
     }
 }

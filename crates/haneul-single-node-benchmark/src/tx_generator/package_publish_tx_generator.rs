@@ -4,7 +4,7 @@
 use crate::benchmark_context::BenchmarkContext;
 use crate::mock_account::Account;
 use crate::tx_generator::TxGenerator;
-use haneul_move_build::{BuildConfig, CompiledPackage};
+use haneul_move_build::{BuildConfig, CompiledPackage, PublishedDependency};
 use haneul_test_transaction_builder::{PublishData, TestTransactionBuilder};
 use haneul_types::transaction::{DEFAULT_VALIDATOR_GAS_PRICE, Transaction};
 use move_symbol_pool::Symbol;
@@ -80,7 +80,12 @@ impl PackagePublishTxGenerator {
         );
 
         let target_path = dir.join(path);
-        let published_deps = dep_map.clone();
+        let published_deps = dep_map
+            .iter()
+            .map(|(name, published_at)| {
+                (*name, PublishedDependency::new(*name, *name, *published_at))
+            })
+            .collect();
 
         let mut compiled_package = BuildConfig::new_for_testing_replace_addresses(
             dep_map.into_iter().map(|(k, v)| (k.to_string(), v)),

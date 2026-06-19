@@ -75,6 +75,9 @@ fn coins(objects: &[Object]) -> impl Iterator<Item = (&HaneulAddress, TypeTag, u
                 owner: haneul_address,
                 ..
             } => haneul_address,
+            // We could report balance changes for each address? Though that might be confusing
+            // TODO(Party WIP)
+            Owner::Party { .. } => todo!("Party WIP"),
             Owner::Shared { .. } | Owner::Immutable => return None,
         };
         let (coin_type, balance) = Coin::extract_balance_if_coin(object).ok().flatten()?;

@@ -12,7 +12,7 @@ use crate::{
 use haneul_protocol_config::Amendments;
 use haneul_types::{
     HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_SYSTEM_PACKAGE_ID, MOVE_STDLIB_PACKAGE_ID,
-    base_types::ObjectID, error::ExecutionError,
+    base_types::ObjectID, error::ExecutionErrorTrait,
 };
 use move_binary_format::binary_config::BinaryConfig;
 use move_vm_runtime::{
@@ -69,10 +69,10 @@ impl ResolutionConfig {
         &self.0.binary_config
     }
 
-    pub(crate) fn resolution_table_with_native_packages(
+    pub(crate) fn resolution_table_with_native_packages<E: ExecutionErrorTrait>(
         &self,
         store: &dyn PackageStore,
-    ) -> Result<ResolutionTable, ExecutionError> {
+    ) -> Result<ResolutionTable, E> {
         let mut resolution_table = ResolutionTable::empty(self.clone());
         if self.0.linkage_config.always_include_system_packages {
             for id in NATIVE_PACKAGE_IDS {

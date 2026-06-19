@@ -27,6 +27,7 @@ use haneul_swarm_config::network_config::NetworkConfig;
 use haneul_swarm_config::network_config_builder::{
     CommitteeConfig, ConfigBuilder, FundsWithdrawSchedulerTypeConfig,
     GlobalStateHashV2EnabledConfig, ProtocolVersionsConfig, SupportedProtocolVersionsCallback,
+    ValidatorObserverConfigCallback,
 };
 use haneul_swarm_config::node_config_builder::FullnodeConfigBuilder;
 use haneul_types::base_types::AuthorityName;
@@ -66,6 +67,7 @@ pub struct SwarmBuilder<R = OsRng> {
     state_sync_config: Option<haneul_config::p2p::StateSyncConfig>,
     #[cfg(msim)]
     execution_time_observer_config: Option<ExecutionTimeObserverConfig>,
+    validator_observer_config: Option<ValidatorObserverConfigCallback>,
 }
 
 impl SwarmBuilder {
@@ -100,6 +102,7 @@ impl SwarmBuilder {
             state_sync_config: None,
             #[cfg(msim)]
             execution_time_observer_config: None,
+            validator_observer_config: None,
         }
     }
 }
@@ -136,6 +139,7 @@ impl<R> SwarmBuilder<R> {
             state_sync_config: self.state_sync_config,
             #[cfg(msim)]
             execution_time_observer_config: self.execution_time_observer_config,
+            validator_observer_config: self.validator_observer_config,
         }
     }
 
@@ -284,6 +288,11 @@ impl<R> SwarmBuilder<R> {
         self
     }
 
+    pub fn with_validator_observer_config(mut self, c: ValidatorObserverConfigCallback) -> Self {
+        self.validator_observer_config = Some(c);
+        self
+    }
+
     pub fn with_fullnode_supported_protocol_versions_config(
         mut self,
         c: ProtocolVersionsConfig,
@@ -427,6 +436,11 @@ impl<R: rand::RngCore + rand::CryptoRng> SwarmBuilder<R> {
             if let Some(execution_time_observer_config) = self.execution_time_observer_config {
                 final_builder = final_builder
                     .with_execution_time_observer_config(execution_time_observer_config);
+            }
+
+            if let Some(validator_observer_config) = self.validator_observer_config {
+                final_builder =
+                    final_builder.with_validator_observer_config(validator_observer_config);
             }
 
             final_builder.build()
