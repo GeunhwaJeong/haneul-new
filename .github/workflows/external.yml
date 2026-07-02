@@ -49,7 +49,7 @@ jobs:
   external-crates-test:
     needs: [diff, rustfmt, clippy]
     if: needs.diff.outputs.isRust == 'true'
-    timeout-minutes: 45
+    timeout-minutes: 75
     env:
       # Tests written with #[sim_test] are often flaky if run as #[tokio::test] - this var
       # causes #[sim_test] to only run under the deterministic `simtest` job, and not the
