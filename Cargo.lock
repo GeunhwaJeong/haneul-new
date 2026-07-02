@@ -8820,7 +8820,6 @@ dependencies = [
  "haneul-simulator",
  "haneul-snapshot",
  "haneul-storage",
- "haneul-telemetry",
  "haneul-tls",
  "haneul-types",
  "haneullabs-common",
@@ -9745,16 +9744,6 @@ dependencies = [
  "tokio",
  "tracing",
  "zstd 0.12.3+zstd.1.5.2",
-]
-
-[[package]]
-name = "haneul-telemetry"
-version = "0.1.0"
-dependencies = [
- "haneul-core",
- "reqwest",
- "serde",
- "tracing",
 ]
 
 [[package]]

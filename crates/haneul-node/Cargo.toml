@@ -45,7 +45,6 @@ haneul-json-rpc.workspace = true
 haneul-json-rpc-api.workspace = true
 haneul-protocol-config.workspace = true
 haneul-snapshot.workspace = true
-haneul-telemetry.workspace = true
 haneul-types.workspace = true
 haneullabs-metrics.workspace = true
 haneullabs-service.workspace = true

@@ -7,13 +7,11 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::broadcast;
-use tokio::time::sleep;
 use tracing::{error, info};
 
 use haneul_config::node::RunWithRange;
 use haneul_config::{Config, NodeConfig};
 use haneul_core::runtime::HaneulRuntimes;
-use haneul_telemetry::send_telemetry_event;
 use haneul_types::committee::EpochId;
 use haneul_types::crypto::KeypairTraits;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
@@ -160,9 +158,8 @@ fn main() {
         }
     });
 
-    let node_once_cell_clone = node_once_cell.clone();
     runtimes.metrics.spawn(async move {
-        let node = node_once_cell_clone.get().await;
+        let node = node_once_cell.get().await;
         let chain_identifier = node.state().get_chain_identifier().to_string();
         info!("Haneul chain identifier: {chain_identifier}");
         prometheus_registry
@@ -178,15 +175,6 @@ fn main() {
             .unwrap();
 
         haneul_node::admin::run_admin_server(node, admin_interface_port, Some(filter_handle)).await
-    });
-
-    runtimes.metrics.spawn(async move {
-        let node = node_once_cell.get().await;
-        let state = node.state();
-        loop {
-            send_telemetry_event(state.clone(), is_validator).await;
-            sleep(Duration::from_secs(3600)).await;
-        }
     });
 
     // wait for SIGINT on the main thread
