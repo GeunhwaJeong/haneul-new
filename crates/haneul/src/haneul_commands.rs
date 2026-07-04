@@ -25,7 +25,7 @@ use haneul_config::node::Genesis;
 use haneul_config::p2p::SeedPeer;
 use haneul_config::{
     Config, FULL_NODE_DB_PATH, HANEUL_CLIENT_CONFIG, HANEUL_FULLNODE_CONFIG, HANEUL_NETWORK_CONFIG,
-    PersistedConfig, genesis_blob_exists, haneul_config_dir,
+    NodeConfig, PersistedConfig, genesis_blob_exists, haneul_config_dir,
 };
 use haneul_config::{
     HANEUL_BENCHMARK_GENESIS_GAS_KEYSTORE_FILENAME, HANEUL_GENESIS_FILENAME,
@@ -40,7 +40,9 @@ use haneul_indexer_alt_consistent_store::{
 };
 use haneul_indexer_alt_framework::{
     IndexerArgs,
-    ingestion::{ClientArgs, ingestion_client::IngestionClientArgs},
+    ingestion::{
+        ClientArgs, ingestion_client::IngestionClientArgs, streaming_client::StreamingClientArgs,
+    },
 };
 use haneul_indexer_alt_graphql::{
     RpcArgs as GraphQlArgs, args::SubscriptionArgs, config::RpcConfig as GraphQlConfig,
@@ -859,7 +861,7 @@ async fn start(
     force_regenesis: bool,
     epoch_duration_ms: Option<u64>,
     fullnode_rpc_port: u16,
-    mut data_ingestion_dir: Option<PathBuf>,
+    data_ingestion_dir: Option<PathBuf>,
     no_full_node: bool,
     committee_size: Option<usize>,
 ) -> Result<(), anyhow::Error> {
@@ -1023,13 +1025,6 @@ async fn start(
         haneul_config_path
     };
 
-    // the indexer requires to set the fullnode's data ingestion directory
-    // note that this overrides the default configuration that is set when running the genesis
-    // command, which sets data_ingestion_dir to None.
-    if with_indexer.is_some() && data_ingestion_dir.is_none() {
-        data_ingestion_dir = Some(haneullabs_common::tempdir()?.keep())
-    }
-
     if let Some(ref dir) = data_ingestion_dir {
         swarm_builder = swarm_builder.with_data_ingestion_dir(dir.clone());
     }
@@ -1048,13 +1043,41 @@ async fn start(
         swarm_builder = swarm_builder
             .with_fullnode_count(1)
             .with_fullnode_rpc_addr(fullnode_rpc_address)
-            .with_fullnode_rpc_config(rpc_config);
+            .with_fullnode_rpc_config(rpc_config.clone());
+
+        let fullnode_config_path = config_dir.join(HANEUL_FULLNODE_CONFIG);
+        if fullnode_config_path.exists() {
+            let mut fullnode_config: NodeConfig = PersistedConfig::read(&fullnode_config_path)
+                .map_err(|err| {
+                    err.context(format!(
+                        "Cannot open Haneul fullnode config file at {:?}",
+                        fullnode_config_path
+                    ))
+                })?;
+            fullnode_config.json_rpc_address = fullnode_rpc_address;
+            fullnode_config.rpc = Some(rpc_config);
+            let localhost = haneul_config::local_ip_utils::localhost_for_testing();
+            fullnode_config.metrics_address =
+                haneul_config::local_ip_utils::new_local_tcp_socket_for_testing();
+            fullnode_config.admin_interface_port =
+                haneul_config::local_ip_utils::get_available_port(&localhost);
+            fullnode_config.network_address =
+                haneul_config::local_ip_utils::new_tcp_address_for_testing(&localhost);
+            fullnode_config.p2p_config.listen_address =
+                haneul_config::local_ip_utils::new_udp_address_for_testing(&localhost)
+                    .udp_multiaddr_to_listen_address()
+                    .unwrap();
+            if let Some(ref dir) = data_ingestion_dir {
+                fullnode_config
+                    .checkpoint_executor_config
+                    .data_ingestion_dir = Some(dir.clone());
+            }
+            swarm_builder = swarm_builder.with_fullnode_config(fullnode_config);
+        }
     }
 
     let mut swarm = swarm_builder.build();
     swarm.launch().await?;
-    // Let nodes connect to one another
-    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
     info!("Cluster started");
 
     let fullnode_rpc_url = socket_addr_to_url(fullnode_rpc_address)?
@@ -1062,6 +1085,22 @@ async fn start(
         .trim_end_matches("/")
         .to_string();
     info!("Fullnode RPC URL: {fullnode_rpc_url}");
+
+    let fullnode_grpc_url = socket_addr_to_url(fullnode_rpc_address)?;
+    let client_args = ClientArgs {
+        ingestion: IngestionClientArgs {
+            rpc_api_url: Some(fullnode_grpc_url.clone()),
+            ..Default::default()
+        },
+        streaming: StreamingClientArgs {
+            streaming_url: Some(
+                fullnode_grpc_url
+                    .as_str()
+                    .parse()
+                    .context("Failed to parse fullnode gRPC URL into a streaming URI")?,
+            ),
+        },
+    };
 
     let prometheus_registry = Registry::new();
     let mut rpc_services = Service::new();
@@ -1098,19 +1137,11 @@ async fn start(
     };
 
     let pipelines = if let Some(ref db_url) = database_url {
-        let client_args = ClientArgs {
-            ingestion: IngestionClientArgs {
-                local_ingestion_path: data_ingestion_dir.clone(),
-                ..Default::default()
-            },
-            ..Default::default()
-        };
-
         let indexer = setup_indexer(
             db_url.clone(),
             DbArgs::default(),
             IndexerArgs::default(),
-            client_args,
+            client_args.clone(),
             IndexerConfig::for_test(),
             None,
             &prometheus_registry,
@@ -1131,14 +1162,6 @@ async fn start(
         let address = parse_host_port(input, DEFAULT_CONSISTENT_STORE_PORT)
             .context("Invalid consistent store host and port")?;
 
-        let client_args = ClientArgs {
-            ingestion: IngestionClientArgs {
-                local_ingestion_path: data_ingestion_dir.clone(),
-                ..Default::default()
-            },
-            ..Default::default()
-        };
-
         let consistent_args = ConsistentArgs {
             rpc_listen_address: address,
             ..Default::default()
@@ -1148,7 +1171,7 @@ async fn start(
             start_consistent_store(
                 config_dir.join("consistent_store"),
                 IndexerArgs::default(),
-                client_args,
+                client_args.clone(),
                 consistent_args,
                 "0.0.0",
                 ConsistentConfig::for_test(),
@@ -1480,7 +1503,7 @@ async fn genesis(
     info!("Client keystore is stored in {:?}.", keystore_path);
 
     let fullnode_config = FullnodeConfigBuilder::new()
-        .with_config_directory(FULL_NODE_DB_PATH.into())
+        .with_config_directory(haneul_config_dir.to_path_buf())
         .with_rpc_addr(haneul_config::node::default_json_rpc_address())
         .build(&mut OsRng, &network_config);
 

@@ -104,8 +104,8 @@ mod tests {
     use std::sync::Arc;
 
     use async_trait::async_trait;
+    use haneul_field_count::FieldCount;
     use haneul_indexer_alt_framework_store_traits::testing::mock_store::MockWatermark;
-    use haneul_pg_db::FieldCount;
     use haneul_types::full_checkpoint_content::Checkpoint;
     use tokio::time::Duration;
 

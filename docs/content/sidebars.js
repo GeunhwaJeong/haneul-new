@@ -161,6 +161,7 @@ export default {
       link: { type: 'doc', id: 'develop/accessing-data/index' },
       items: [
         'develop/accessing-data/data-serving',
+        'develop/accessing-data/json-rpc-migration',
         {
           type: 'category',
           label: 'gRPC',
@@ -229,7 +230,7 @@ export default {
 
   gettingStartedSidebar: [
     'getting-started',
-    'getting-started/agent-skills',
+    { type: 'link', label: 'Skills', href: '/skills' },
     {
       type: 'category',
       label: 'Hello, World!',
@@ -541,7 +542,72 @@ haneulStackSidebar: [
           href: 'https://seal-docs.wal.app',
         },
         'haneul-stack/seal/haneul-stack-seal',
-        'haneul-stack/seal/haneul-chat-app',
+        {
+          type: 'link',
+          label: 'Messaging SDK Chat App Example →',
+          href: '/haneul-stack/messaging/chat-app',
+        },
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Messaging SDK',
+      link: { type: 'doc', id: 'haneul-stack/messaging/index' },
+      items: [
+        {
+          type: 'category',
+          label: 'Getting Started',
+          collapsed: true,
+          items: [
+            'haneul-stack/messaging/installation',
+            'haneul-stack/messaging/setup',
+            'haneul-stack/messaging/examples',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Architecture',
+          collapsed: true,
+          items: [
+            'haneul-stack/messaging/encryption',
+            'haneul-stack/messaging/security',
+            'haneul-stack/messaging/relayer',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Guides',
+          collapsed: true,
+          items: [
+            'haneul-stack/messaging/attachments',
+            'haneul-stack/messaging/archive-recovery',
+            'haneul-stack/messaging/group-discovery',
+            'haneul-stack/messaging/extending',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Reference',
+          collapsed: true,
+          items: [
+            'haneul-stack/messaging/api-reference',
+            'haneul-stack/messaging/testing',
+            'haneul-stack/messaging/community-contributed',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Examples',
+          collapsed: true,
+          items: [
+            'haneul-stack/messaging/chat-app',
+          ],
+        },
+        {
+          type: 'link',
+          label: 'GitHub Repo',
+          href: 'https://github.com/GeunhwaJeong/haneul-stack-messaging',
+        },
       ],
     },
     {

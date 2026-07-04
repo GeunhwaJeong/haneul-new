@@ -305,7 +305,7 @@ impl StateRead for AuthorityState {
     }
 
     async fn get_object(&self, object_id: &ObjectID) -> StateReadResult<Option<Object>> {
-        Ok(self.get_object(object_id).await)
+        Ok(self.get_object(object_id))
     }
 
     fn get_past_object_read(
@@ -442,9 +442,7 @@ impl StateRead for AuthorityState {
     }
 
     async fn get_staked_haneul(&self, owner: HaneulAddress) -> StateReadResult<Vec<StakedHaneul>> {
-        Ok(self
-            .get_move_objects(owner, MoveObjectType::staked_haneul())
-            .await?)
+        Ok(self.get_move_objects(owner, MoveObjectType::staked_haneul())?)
     }
     fn get_system_state(&self) -> StateReadResult<HaneulSystemState> {
         Ok(self

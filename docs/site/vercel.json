@@ -1267,7 +1267,7 @@
     },
     {
       "source": "/exchange-integration-guide",
-      "destination": "/references/exchange-integration-guide",
+      "destination": "/operators/exchange-integration",
       "permanent": true
     },
     {
@@ -1848,6 +1848,16 @@
     {
       "source": "/concepts/cryptography/system/checkpoint-verification",
       "destination": "/develop/haneul-architecture/checkpoint-verification",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/cryptography/system/validator-signatures",
+      "destination": "/develop/transactions/transaction-auth/auth-overview",
+      "permanent": true
+    },
+    {
+      "source": "/concepts/cryptography/system/intents-for-validators",
+      "destination": "/develop/transactions/transaction-auth/intent-signing",
       "permanent": true
     },
     {

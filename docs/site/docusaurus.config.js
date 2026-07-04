@@ -93,6 +93,7 @@ const config = {
   clientModules: [
     require.resolve("./src/client/pushfeedback-toc.js"),
     require.resolve("./src/client/webmcp.js"),
+    require.resolve("./src/client/kapa-sidebar.js"),
   ],
   plugins: [
     function llmsTxtDirectivePlugin() {
@@ -344,19 +345,17 @@ const config = {
       "data-project-name": "Haneul Knowledge",
       "data-project-color": "#298DFF",
       "data-button-hide": "true",
+      "data-view-mode": "sidebar",
       "data-modal-title": "Ask Haneul AI",
       "data-modal-ask-ai-input-placeholder": "Ask me anything about Haneul!",
       "data-modal-example-questions":"How do I deploy to Haneul?,What is Mysticeti?,What are object ownership types for Haneul Move?,What are programmable transaction blocks (PTBs)?",
-      "data-modal-body-bg-color": "#E0E2E6",
-      "data-source-link-bg-color": "#FFFFFF",
-      "data-source-link-border": "#298DFF",
-      "data-answer-feedback-button-bg-color": "#FFFFFF",
-      "data-answer-copy-button-bg-color" : "#FFFFFF",
-      "data-thread-clear-button-bg-color" : "#FFFFFF",
+      "data-modal-overlay-hidden": "true",
+      "data-modal-lock-scroll": "false",
       "data-modal-image": "/img/logo.svg",
       "data-mcp-enabled": "true",
       "data-mcp-server-url": "https://haneul.mcp.kapa.ai",
       "data-mcp-button-text": "Use Haneul MCP Server",
+      "data-chat-disclaimer": "**New:** Install [Haneul Agent Skills](https://docs.haneul.io/skills) to supercharge your AI coding agent with Haneul expertise.",
       async: true,
     },
   ],
@@ -381,6 +380,12 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      announcementBar: {
+        id: "skills_launch",
+        content:
+          'New: <a href="/skills">Haneul Agent Skills</a> — drop pre-built skills into Claude Code, Cursor, Codex, and other AI coding agents.',
+        isCloseable: true,
+      },
       image: "img/haneul-doc-og.png",
       mermaid: {
         theme: {
@@ -434,6 +439,7 @@ const config = {
             label: "Getting Started",
             to: "getting-started",
             items: [
+              { to: "/skills", label: "Skills" },
               { type: "doc", docId: "getting-started/onboarding/index", label: "Hello, World!" },
               { type: "doc", docId: "getting-started/examples/index", label: "Example Apps" },
               { type: "doc", docId: "getting-started/tooling", label: "Developer Tools" },

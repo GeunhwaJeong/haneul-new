@@ -72,7 +72,7 @@ export default function FooterLayout({ style, links, logo, copyright }) {
                 />
               </svg>
             </Link>
-            <Link to="https://github.com/GeunhwaJeongLabs/haneul/">
+            <Link to="https://github.com/GeunhwaJeong/haneul/">
               <svg
                 width="32"
                 height="32"

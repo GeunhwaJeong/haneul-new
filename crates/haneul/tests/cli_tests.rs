@@ -2911,7 +2911,7 @@ async fn test_serialize_tx() -> Result<(), anyhow::Error> {
     .execute(context)
     .await?;
 
-    let forking_mode_tx = HaneulClientCommands::TransferHaneul {
+    let skip_signing_tx = HaneulClientCommands::TransferHaneul {
         to: KeyIdentity::Address(address1),
         haneul_coin_object_id: coin,
         amount: Some(1),
@@ -2921,7 +2921,7 @@ async fn test_serialize_tx() -> Result<(), anyhow::Error> {
         },
         processing: TxProcessingArgs {
             serialize_signed_transaction: true,
-            forking_mode: true,
+            skip_signing: true,
             ..Default::default()
         },
     }
@@ -2929,7 +2929,7 @@ async fn test_serialize_tx() -> Result<(), anyhow::Error> {
     .await?;
 
     let HaneulClientCommandResult::SerializedSignedTransaction(sender_signed_data) =
-        forking_mode_tx
+        skip_signing_tx
     else {
         panic!("Expected SerializedSignedTransaction result");
     };

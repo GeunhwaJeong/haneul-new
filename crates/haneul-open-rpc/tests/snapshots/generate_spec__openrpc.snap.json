@@ -12,7 +12,7 @@
       "name": "Apache-2.0",
       "url": "https://raw.githubusercontent.com/HaneulLabs/haneul/main/LICENSE"
     },
-    "version": "1.3.0"
+    "version": "1.4.0"
   },
   "methods": [
     {
@@ -1294,7 +1294,7 @@
             "name": "Result",
             "value": {
               "minSupportedProtocolVersion": "1",
-              "maxSupportedProtocolVersion": "118",
+              "maxSupportedProtocolVersion": "119",
               "protocolVersion": "6",
               "featureFlags": {
                 "abstract_size_in_object_runtime": false,
@@ -1312,6 +1312,7 @@
                 "allow_receiving_object_id": false,
                 "allow_references_in_ptbs": false,
                 "allow_unbounded_system_objects": false,
+                "always_advance_dkg_to_resolution": false,
                 "authority_capabilities_v2": false,
                 "ban_entry_init": false,
                 "better_adapter_type_resolution_errors": false,
@@ -1856,6 +1857,8 @@
                 "max_generic_instantiation_length": {
                   "u64": "32"
                 },
+                "max_generic_instantiation_type_nodes_per_function": null,
+                "max_generic_instantiation_type_nodes_per_module": null,
                 "max_input_objects": {
                   "u64": "2048"
                 },
@@ -2123,6 +2126,7 @@
                 "allow_receiving_object_id": false,
                 "allow_references_in_ptbs": false,
                 "allow_unbounded_system_objects": false,
+                "always_advance_dkg_to_resolution": false,
                 "authority_capabilities_v2": false,
                 "ban_entry_init": false,
                 "base_tx_cost_fixed": "2000",

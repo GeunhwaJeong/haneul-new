@@ -863,6 +863,7 @@ Convert the given staked HANEUL to an FungibleStakedHaneul object
         <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_stake_activation_epoch">stake_activation_epoch</a>,
     );
     <b>let</b> <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_pool_token_amount">pool_token_amount</a> = exchange_rate_at_staking_epoch.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_get_token_amount">get_token_amount</a>(principal.value());
+    <b>assert</b>!(<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_pool_token_amount">pool_token_amount</a> &gt; 0, <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_EStakedHaneulBelowThreshold">EStakedHaneulBelowThreshold</a>);
     <b>let</b> key = <a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_FungibleStakedHaneulDataKey">FungibleStakedHaneulDataKey</a> {};
     <b>if</b> (!pool.extra_fields.contains(key)) {
         pool
@@ -1037,9 +1038,12 @@ Also called immediately upon withdrawal if the pool is inactive.
     pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a> = <b>if</b> (pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a> &gt;= pool.pending_total_haneul_withdraw) {
         pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a> - pool.pending_total_haneul_withdraw
     } <b>else</b> {
-        // the diff will be applied in the `<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_process_pending_stake">process_pending_stake</a>` function.
         <b>let</b> diff = pool.pending_total_haneul_withdraw - pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_haneul_balance">haneul_balance</a>;
-        pool.extra_fields.add(<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_UnderflowHaneulBalance">UnderflowHaneulBalance</a> {}, diff);
+        // While this key is expected to be removed in the next call to `<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_process_pending_stake">process_pending_stake</a>`,
+        // we do not call `<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_process_pending_stake">process_pending_stake</a>` <b>for</b> inactive pools — skip the bookkeeping.
+        <b>if</b> (!pool.<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_is_inactive">is_inactive</a>()) {
+            pool.extra_fields.add(<a href="../haneul_system/staking_pool.md#haneul_system_staking_pool_UnderflowHaneulBalance">UnderflowHaneulBalance</a> {}, diff);
+        };
         0
     };
     pool.pool_token_balance = <b>if</b> (pool.pool_token_balance &gt;= pool.pending_pool_token_withdraw) {

@@ -121,6 +121,20 @@ impl CommitteeStore {
         })
     }
 
+    /// List epoch→committee pairs starting at `start` epoch, up to `limit`.
+    pub fn list_epochs(
+        &self,
+        start: Option<EpochId>,
+        limit: usize,
+    ) -> HaneulResult<Vec<(EpochId, Committee)>> {
+        self.tables
+            .committee_map
+            .safe_iter_with_bounds(start, None)
+            .take(limit)
+            .map(|r| r.map_err(Into::into))
+            .collect()
+    }
+
     pub fn checkpoint_db(&self, path: &Path) -> HaneulResult {
         self.tables
             .committee_map

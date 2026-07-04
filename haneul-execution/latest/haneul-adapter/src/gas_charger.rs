@@ -26,6 +26,7 @@ pub mod checked {
         is_system_package,
         object::Data,
     };
+    use haneullabs_common::assert_reachable;
     use indexmap::IndexMap;
     use tracing::trace;
 
@@ -606,6 +607,7 @@ pub mod checked {
                 assert_ne!(location, smash_location, "Payment methods must be unique");
                 match payment_method {
                     PaymentMethod::AddressBalance(haneul_address, reservation) => {
+                        assert_reachable!("smashed payment is address-balance reservation");
                         let balance_type = haneul_types::balance::Balance::type_tag(
                             haneul_types::gas_coin::GAS::type_tag(),
                         );
@@ -618,12 +620,14 @@ pub mod checked {
                         temporary_store.add_accumulator_event(event);
                     }
                     PaymentMethod::Coin((id, _, _)) => {
+                        assert_reachable!("smashed payment is coin object");
                         temporary_store.delete_input_object(id);
                     }
                 }
             }
             match &self.smash_target {
                 PaymentMethod::AddressBalance(haneul_address, reservation) => {
+                    assert_reachable!("smash target is address-balance reservation");
                     // The reservation here is only a maximal withdrawal from this address balance
                     // We do not need to withdraw here unless necessary, which will be done during
                     // gas charging

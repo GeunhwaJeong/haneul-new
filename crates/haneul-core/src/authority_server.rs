@@ -14,7 +14,9 @@ use haneul_network::{
 use haneul_types::effects::TransactionEffectsAPI;
 use haneul_types::haneul_system_state::HaneulSystemState;
 use haneul_types::message_envelope::Message;
-use haneul_types::messages_consensus::{ConsensusPosition, ConsensusTransaction};
+use haneul_types::messages_consensus::{
+    ConsensusPosition, ConsensusTransaction, ConsensusTransactionKey,
+};
 use haneul_types::messages_grpc::{
     ObjectInfoRequest, ObjectInfoResponse, RawSubmitTxResponse, SystemStateRequest,
     TransactionInfoRequest, TransactionInfoResponse,
@@ -53,6 +55,7 @@ use prometheus::{
     register_int_counter_with_registry,
 };
 use std::{
+    collections::HashSet,
     io,
     net::{IpAddr, SocketAddr},
     sync::Arc,
@@ -67,6 +70,7 @@ use crate::gasless_rate_limiter::GaslessRateLimiter;
 use crate::{
     authority::{AuthorityState, consensus_tx_status_cache::ConsensusTxStatus},
     consensus_adapter::{ConsensusAdapter, ConsensusAdapterMetrics, ConsensusOverloadChecker},
+    consensus_handler::SequencedConsensusTransactionKey,
     traffic_controller::{TrafficController, parse_ip, policies::TrafficTally},
 };
 use crate::{
@@ -197,6 +201,7 @@ pub struct ValidatorServiceMetrics {
 
     num_rejected_tx_during_overload: IntCounterVec,
     submission_rejected_transactions: IntCounterVec,
+    submission_suppressed_already_processed: IntCounterVec,
     connection_ip_not_found: IntCounter,
     forwarded_header_parse_error: IntCounter,
     forwarded_header_invalid: IntCounter,
@@ -289,6 +294,14 @@ impl ValidatorServiceMetrics {
                 "validator_service_submission_rejected_transactions",
                 "Number of transactions rejected during submission",
                 &["reason"],
+                registry,
+            )
+            .unwrap(),
+            submission_suppressed_already_processed: register_int_counter_vec_with_registry!(
+                "validator_service_submission_suppressed_already_processed",
+                "Number of submitted transactions suppressed because consensus had already \
+                 processed them this epoch (re-submission of already-processed transactions)",
+                &["req_type"],
                 registry,
             )
             .unwrap(),
@@ -577,12 +590,12 @@ impl ValidatorService {
                             timeout(Duration::from_secs(15), state.wait_for_epoch(next_epoch)).await
                         {
                             assert_reachable!("retry submission at epoch end");
-                            if new_epoch == next_epoch {
+                            if new_epoch >= next_epoch {
                                 continue;
                             }
-
+                            // wait_for_epoch guarantees >= target; < would indicate a bug there.
                             debug_fatal!(
-                                "expected epoch {} after reconfiguration. got {}",
+                                "wait_for_epoch returned early: expected >= {}, got {}",
                                 next_epoch,
                                 new_epoch
                             );
@@ -668,6 +681,11 @@ impl ValidatorService {
         let mut total_size_bytes = 0;
         // Traffic control spam weight to use for the transaction.
         let mut spam_weight = Weight::zero();
+        // First gas price seen in this soft bundle.
+        let mut expected_soft_bundle_gas_price = None;
+        // Transaction digests seen in this soft bundle, used to reject bundles that repeat a
+        // transaction. No legitimate client constructs such a bundle.
+        let mut soft_bundle_digests = HashSet::new();
 
         let req_type = if is_ping_request {
             "ping"
@@ -700,6 +718,41 @@ impl ValidatorService {
 
             // Ok to fail the request when any transaction is invalid.
             let tx_size = transaction.validity_check(&epoch_store.tx_validity_check_context())?;
+            let tx_digest = *transaction.digest();
+
+            // Soft bundles must not repeat a transaction. Fail the whole request if they do.
+            if is_soft_bundle_request {
+                fp_ensure!(
+                    soft_bundle_digests.insert(tx_digest),
+                    HaneulErrorKind::UserInputError {
+                        error: UserInputError::RepeatedTransactionInSoftBundle {
+                            digest: tx_digest
+                        }
+                    }
+                    .into()
+                );
+            }
+
+            // Soft bundles require all transactions to use the same gas price.
+            if is_soft_bundle_request {
+                let gas_price = transaction.data().transaction_data().gas_price();
+                if let Some(expected) = expected_soft_bundle_gas_price {
+                    fp_ensure!(
+                        gas_price == expected,
+                        HaneulErrorKind::UserInputError {
+                            error: UserInputError::GasPriceMismatchError {
+                                digest: tx_digest,
+                                expected,
+                                actual: gas_price,
+                            }
+                        }
+                        .into()
+                    );
+                } else {
+                    expected_soft_bundle_gas_price = Some(gas_price);
+                }
+            }
+
             let is_gasless = transaction
                 .data()
                 .transaction_data()
@@ -743,6 +796,12 @@ impl ValidatorService {
                     .num_rejected_tx_during_overload
                     .with_label_values(&[error.as_ref()])
                     .inc();
+                if is_gasless {
+                    metrics
+                        .gasless_submission_outcomes
+                        .with_label_values(&["rejected_overload"])
+                        .inc();
+                }
                 results[idx] = Some(SubmitTxResult::Rejected { error });
                 continue;
             }
@@ -788,7 +847,6 @@ impl ValidatorService {
                 }
             };
 
-            let tx_digest = *verified_transaction.tx().digest();
             debug!(
                 ?tx_digest,
                 "handle_submit_transaction: verified transaction"
@@ -823,6 +881,33 @@ impl ValidatorService {
                 debug!(
                     ?tx_digest,
                     "handle_submit_transaction: transaction already executed in previous epoch"
+                );
+                continue;
+            }
+
+            // Suppress resubmission of transactions consensus already processed this epoch:
+            // executed transactions whose effects details could not be reconstructed above (e.g.
+            // objects pruned), and sequenced-but-deferred transactions. Rejected is imperfect for
+            // the deferred case, but acceptable since well-behaved clients get Executed before
+            // pruning; this mainly sheds continuous resubmissions from faulty clients.
+            let consensus_key = SequencedConsensusTransactionKey::External(
+                ConsensusTransactionKey::Certificate(tx_digest),
+            );
+            if epoch_store.is_consensus_message_processed(&consensus_key)? {
+                metrics
+                    .submission_suppressed_already_processed
+                    .with_label_values(&[req_type])
+                    .inc();
+                results[idx] = Some(SubmitTxResult::Rejected {
+                    error: HaneulErrorKind::TransactionProcessing {
+                        digest: tx_digest,
+                        status: "sequenced by consensus".to_string(),
+                    }
+                    .into(),
+                });
+                debug!(
+                    ?tx_digest,
+                    "handle_submit_transaction: consensus message already processed"
                 );
                 continue;
             }

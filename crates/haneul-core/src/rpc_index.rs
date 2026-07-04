@@ -17,12 +17,11 @@ use haneul_types::base_types::SequenceNumber;
 use haneul_types::coin::Coin;
 use haneul_types::committee::EpochId;
 use haneul_types::digests::TransactionDigest;
-use haneul_types::effects::{AccumulatorValue, TransactionEffectsAPI};
-use haneul_types::full_checkpoint_content::CheckpointData;
-use haneul_types::full_checkpoint_content::CheckpointTransaction;
+use haneul_types::effects::TransactionEffectsAPI;
+use haneul_types::full_checkpoint_content::Checkpoint;
+use haneul_types::full_checkpoint_content::ExecutedTransaction;
 use haneul_types::full_checkpoint_content::ObjectSet;
 use haneul_types::haneul_system_state::HaneulSystemStateTrait;
-use haneul_types::layout_resolver::LayoutResolver;
 use haneul_types::messages_checkpoint::CheckpointSequenceNumber;
 use haneul_types::object::Data;
 use haneul_types::object::Object;
@@ -34,9 +33,10 @@ use haneul_types::storage::LedgerBitmapBucket;
 use haneul_types::storage::LedgerBitmapBucketIterator;
 use haneul_types::storage::LedgerTxSeqDigest;
 use haneul_types::storage::LedgerTxSeqDigestIterator;
+use haneul_types::storage::ObjectKey;
 use haneul_types::storage::TransactionInfo;
 use haneul_types::storage::error::Error as StorageError;
-use haneul_types::transaction::{TransactionDataAPI, TransactionKind};
+use haneul_types::transaction::TransactionDataAPI;
 use haneullabs_common::ZipDebugEqIteratorExt;
 use itertools::Itertools;
 use move_core_types::language_storage::{StructTag, TypeTag};
@@ -416,7 +416,6 @@ impl BitmapKind {
 
 #[derive(Default, Clone)]
 pub struct IndexStoreOptions {
-    pub events_compaction_filter: Option<EventsCompactionFilter>,
     /// Shared exclusive tx-seq prune floor for compaction filters.
     /// A zero floor keeps every bucket.
     pub pruning_tx_seq_exclusive: Arc<AtomicU64>,
@@ -434,28 +433,6 @@ fn default_table_options() -> typed_store::rocks::DBOptions {
 fn tx_seq_digest_table_options() -> typed_store::rocks::DBOptions {
     let mut options = default_table_options();
     options.rw_options = options.rw_options.clone().set_ignore_range_deletions(false);
-    options
-}
-
-fn events_table_options(
-    compaction_filter: Option<EventsCompactionFilter>,
-) -> typed_store::rocks::DBOptions {
-    let mut options = default_table_options();
-    if let Some(filter) = compaction_filter {
-        options.options.set_compaction_filter(
-            "events_by_stream",
-            move |_, key, value| match filter.filter(key, value) {
-                Ok(decision) => decision,
-                Err(e) => {
-                    warn!(
-                        "Failed to parse event key during compaction: {}, key: {:?}",
-                        e, key
-                    );
-                    Decision::Remove
-                }
-            },
-        );
-    }
     options
 }
 
@@ -729,9 +706,6 @@ struct IndexStoreTables {
     #[default_options_override_fn = "default_table_options"]
     package_version: DBMap<PackageVersionKey, PackageVersionInfo>,
 
-    /// Authenticated events index by (stream_id, checkpoint_seq, transaction_idx, event_index)
-    events_by_stream: DBMap<EventIndexKey, ()>,
-
     /// `tx_sequence_number` → (digest, event_count, checkpoint_number).
     #[default_options_override_fn = "tx_seq_digest_table_options"]
     tx_seq_digest: DBMap<u64, TxSeqDigestInfo>,
@@ -746,41 +720,6 @@ struct IndexStoreTables {
     // NOTE: Authors and Reviewers before adding any new tables ensure that they are either:
     // - bounded in size by the live object set
     // - are prune-able and have corresponding logic in the `prune` function
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
-pub struct EventIndexKey {
-    pub stream_id: HaneulAddress,
-    pub checkpoint_seq: u64,
-    /// The accumulator version that this event is settled into
-    pub accumulator_version: u64,
-    pub transaction_idx: u32,
-    pub event_index: u32,
-}
-
-/// Compaction filter for automatic pruning of old authenticated events during RocksDB compaction.
-#[derive(Clone)]
-pub struct EventsCompactionFilter {
-    pruning_watermark: Arc<std::sync::atomic::AtomicU64>,
-}
-
-impl EventsCompactionFilter {
-    pub fn new(pruning_watermark: Arc<std::sync::atomic::AtomicU64>) -> Self {
-        Self { pruning_watermark }
-    }
-
-    pub fn filter(&self, key: &[u8], _value: &[u8]) -> anyhow::Result<Decision> {
-        let event_key: EventIndexKey = bcs::from_bytes(key)?;
-        let watermark = self
-            .pruning_watermark
-            .load(std::sync::atomic::Ordering::Relaxed);
-
-        if event_key.checkpoint_seq <= watermark {
-            Ok(Decision::Remove)
-        } else {
-            Ok(Decision::Keep)
-        }
-    }
 }
 
 /// Completely empty a column family and physically reclaim its disk. A single
@@ -847,10 +786,6 @@ impl IndexStoreTables {
         table_options.insert("balance".to_string(), balance_table_options());
         // Range-delete pruning needs tombstones honored by reads immediately.
         table_options.insert("tx_seq_digest".to_string(), tx_seq_digest_table_options());
-        table_options.insert(
-            "events_by_stream".to_string(),
-            events_table_options(index_options.events_compaction_filter),
-        );
 
         let bitmap_filter_tx = BitmapCompactionFilter::new(
             index_options.pruning_tx_seq_exclusive.clone(),
@@ -968,8 +903,37 @@ impl IndexStoreTables {
     ) -> Result<(), StorageError> {
         info!("Initializing RPC indexes");
 
-        let highest_executed_checkpint =
-            checkpoint_store.get_highest_executed_checkpoint_seq_number()?;
+        // The restore target: the highest checkpoint whose transaction outputs
+        // (objects, effects) are durably committed to the perpetual store. The
+        // live-object indexing below reads the live object set directly, and the
+        // historical backfill covers `[lowest, restore_target]`, so this is the
+        // checkpoint the rebuilt index reflects. We stamp `Watermark::Indexed`
+        // here, and `commit_update_for_checkpoint` then only applies the next
+        // contiguous checkpoint (`watermark + 1`), dropping forward updates at
+        // or below the watermark. That is what stops the checkpoint executor --
+        // which resumes from the possibly-lagging `highest_executed` -- from
+        // re-applying checkpoints the restore already captured.
+        //
+        // We use the perpetual store's `highest_committed` watermark (written
+        // atomically with the objects) rather than the checkpoint store's
+        // `highest_executed` (bumped in a separate write afterward). An unclean
+        // stop can leave the object writes durable while `highest_executed`
+        // still lags, so the live object set can reflect a checkpoint beyond
+        // `highest_executed`; using `highest_committed` keeps the restore target
+        // (and therefore the drop floor) consistent with the set we actually
+        // read, so the executor's re-application of `(highest_executed,
+        // highest_committed]` is dropped rather than double-counted.
+        //
+        // Fall back to `highest_executed` for a database written before the
+        // atomic `highest_committed` watermark existed: it has no stamp yet, so
+        // this preserves the prior restore target until the next committed
+        // checkpoint stamps the consistent one. In normal operation
+        // `highest_committed` is written before `highest_executed` is bumped, so
+        // it is never absent while the executed watermark is present.
+        let restore_target = authority_store
+            .perpetual_tables
+            .get_highest_committed_checkpoint()?
+            .or(checkpoint_store.get_highest_executed_checkpoint_seq_number()?);
         let lowest_available_checkpoint = checkpoint_store
             .get_highest_pruned_checkpoint_seq_number()?
             .map(|c| c.saturating_add(1))
@@ -984,17 +948,11 @@ impl IndexStoreTables {
         let lowest_available_checkpoint =
             lowest_available_checkpoint.max(lowest_available_checkpoint_objects);
 
-        let checkpoint_range = highest_executed_checkpint.map(|highest_executed_checkpint| {
-            lowest_available_checkpoint..=highest_executed_checkpint
-        });
+        let checkpoint_range =
+            restore_target.map(|restore_target| lowest_available_checkpoint..=restore_target);
 
         if let Some(checkpoint_range) = checkpoint_range.clone() {
-            self.index_existing_checkpoints(
-                authority_store,
-                checkpoint_store,
-                checkpoint_range,
-                rpc_config,
-            )?;
+            self.index_existing_checkpoints(authority_store, checkpoint_store, checkpoint_range)?;
         }
 
         if rpc_config.ledger_history_indexing()
@@ -1012,7 +970,7 @@ impl IndexStoreTables {
         // Only index live objects if genesis checkpoint has been executed.
         // If genesis hasn't been executed yet, the objects will be properly indexed
         // as checkpoints are processed through the normal checkpoint execution path.
-        if highest_executed_checkpint.is_some() {
+        if restore_target.is_some() {
             let coin_index = Mutex::new(HashMap::new());
 
             let make_live_object_indexer = RpcParLiveObjectSetIndexer {
@@ -1029,10 +987,17 @@ impl IndexStoreTables {
             self.coin.multi_insert(coin_index.into_inner().unwrap())?;
         }
 
-        self.watermark.insert(
-            &Watermark::Indexed,
-            &highest_executed_checkpint.unwrap_or(0),
-        )?;
+        // Stamp the watermark at the restore target so forward indexing resumes
+        // (and the drop floor in `commit_update_for_checkpoint` sits) exactly at
+        // the checkpoint the rebuilt index reflects. When `restore_target` is
+        // `None` -- a fresh node with nothing committed yet -- leave the
+        // watermark absent rather than stamping 0: nothing has been indexed, so
+        // genesis must still be applied by forward indexing (`watermark + 1`
+        // starts at 0), not dropped as already-covered.
+        if let Some(restore_target) = restore_target {
+            self.watermark
+                .insert(&Watermark::Indexed, &restore_target)?;
+        }
 
         // Write the schema version and the feature settings in one batch so the
         // two can never be persisted independently.
@@ -1062,13 +1027,12 @@ impl IndexStoreTables {
         Ok(())
     }
 
-    #[tracing::instrument(skip(self, authority_store, checkpoint_store, rpc_config))]
+    #[tracing::instrument(skip(self, authority_store, checkpoint_store))]
     fn index_existing_checkpoints(
         &mut self,
         authority_store: &AuthorityStore,
         checkpoint_store: &CheckpointStore,
         checkpoint_range: std::ops::RangeInclusive<u64>,
-        rpc_config: &haneul_config::RpcConfig,
     ) -> Result<(), StorageError> {
         info!(
             "Indexing {} checkpoints in range {checkpoint_range:?}",
@@ -1077,20 +1041,15 @@ impl IndexStoreTables {
         let start_time = Instant::now();
 
         checkpoint_range.into_par_iter().try_for_each(|seq| {
-            let load_events = rpc_config.authenticated_events_indexing();
-            let Some(checkpoint_data) = sparse_checkpoint_data_for_epoch_backfill(
-                authority_store,
-                checkpoint_store,
-                seq,
-                load_events,
-            )?
+            let Some(checkpoint) =
+                sparse_checkpoint_for_epoch_backfill(authority_store, checkpoint_store, seq)?
             else {
                 return Ok(());
             };
 
             let mut batch = self.epochs.batch();
 
-            self.index_epoch(&checkpoint_data, &mut batch)?;
+            self.index_epoch(&checkpoint, &mut batch)?;
 
             batch
                 .write_opt(bulk_ingestion_write_options())
@@ -1120,20 +1079,18 @@ impl IndexStoreTables {
 
         checkpoint_range.clone().into_par_iter().try_for_each(
             |seq| -> Result<(), StorageError> {
-                let cp_data = full_checkpoint_data_for_backfill(
-                    authority_store,
-                    checkpoint_store,
-                    seq,
-                )?
-                .ok_or_else(|| {
-                    // Missing retained data would leave a permanent hole.
-                    StorageError::missing(format!(
-                        "ledger history backfill: checkpoint {seq} is missing from local storage \
-                         but falls inside the retained backfill range {checkpoint_range:?}"
-                    ))
-                })?;
+                let checkpoint =
+                    full_checkpoint_for_backfill(authority_store, checkpoint_store, seq)?
+                        .ok_or_else(|| {
+                            // Missing retained data would leave a permanent hole.
+                            StorageError::missing(format!(
+                                "ledger history backfill: checkpoint {seq} is missing from local \
+                                 storage but falls inside the retained backfill range \
+                                 {checkpoint_range:?}"
+                            ))
+                        })?;
                 let mut batch = self.meta.batch();
-                self.write_ledger_history_rows_for_checkpoint(&cp_data, &mut batch)?;
+                self.write_ledger_history_rows_for_checkpoint(&checkpoint, &mut batch)?;
                 batch
                     .write_opt(bulk_ingestion_write_options())
                     .map_err(StorageError::from)
@@ -1210,24 +1167,18 @@ impl IndexStoreTables {
     /// Index a Checkpoint
     fn index_checkpoint(
         &self,
-        checkpoint: &CheckpointData,
-        _resolver: &mut dyn LayoutResolver,
-        rpc_config: &haneul_config::RpcConfig,
+        checkpoint: &Checkpoint,
         ledger_history_enabled: bool,
     ) -> Result<typed_store::rocks::DBBatch, StorageError> {
         debug!(
-            checkpoint = checkpoint.checkpoint_summary.sequence_number,
+            checkpoint = checkpoint.summary.sequence_number,
             "indexing checkpoint"
         );
 
         let mut batch = self.owner.batch();
 
         self.index_epoch(checkpoint, &mut batch)?;
-        self.index_transactions(
-            checkpoint,
-            &mut batch,
-            rpc_config.authenticated_events_indexing(),
-        )?;
+        self.index_transactions(checkpoint, &mut batch)?;
         self.index_objects(checkpoint, &mut batch)?;
 
         // Ledger history rows ride the same batch as `Watermark::Indexed`.
@@ -1237,94 +1188,20 @@ impl IndexStoreTables {
 
         batch.insert_batch(
             &self.watermark,
-            [(
-                Watermark::Indexed,
-                checkpoint.checkpoint_summary.sequence_number,
-            )],
+            [(Watermark::Indexed, checkpoint.summary.sequence_number)],
         )?;
 
         debug!(
-            checkpoint = checkpoint.checkpoint_summary.sequence_number,
+            checkpoint = checkpoint.summary.sequence_number,
             "finished indexing checkpoint"
         );
 
         Ok(batch)
     }
 
-    fn extract_accumulator_version(&self, tx: &CheckpointTransaction) -> Option<u64> {
-        let TransactionKind::ProgrammableSystemTransaction(pt) =
-            tx.transaction.transaction_data().kind()
-        else {
-            return None;
-        };
-
-        if pt.shared_input_objects().any(|obj| {
-            obj.id == HANEUL_ACCUMULATOR_ROOT_OBJECT_ID
-                && obj.mutability == haneul_types::transaction::SharedObjectMutability::Mutable
-        }) {
-            return tx.output_objects.iter().find_map(|obj| {
-                if obj.id() == HANEUL_ACCUMULATOR_ROOT_OBJECT_ID {
-                    Some(obj.version().value())
-                } else {
-                    None
-                }
-            });
-        }
-
-        None
-    }
-
-    fn index_transaction_events(
-        &self,
-        tx: &CheckpointTransaction,
-        checkpoint_seq: u64,
-        tx_idx: u32,
-        accumulator_version: Option<u64>,
-        batch: &mut typed_store::rocks::DBBatch,
-    ) -> Result<(), StorageError> {
-        let acc_events = tx.effects.accumulator_events();
-        if acc_events.is_empty() {
-            return Ok(());
-        }
-
-        let mut entries: Vec<(EventIndexKey, ())> = Vec::new();
-        for acc in acc_events {
-            if let AccumulatorValue::EventDigest(event_digests) = &acc.write.value {
-                let Some(accumulator_version) = accumulator_version else {
-                    haneullabs_common::debug_fatal!(
-                        "Found events at checkpoint {} tx {} before any accumulator settlement",
-                        checkpoint_seq,
-                        tx_idx
-                    );
-                    continue;
-                };
-
-                if let Some(stream_id) =
-                    haneul_types::accumulator_root::stream_id_from_accumulator_event(&acc)
-                {
-                    for (idx, _d) in event_digests {
-                        let key = EventIndexKey {
-                            stream_id,
-                            checkpoint_seq,
-                            accumulator_version,
-                            transaction_idx: tx_idx,
-                            event_index: *idx as u32,
-                        };
-                        entries.push((key, ()));
-                    }
-                }
-            }
-        }
-
-        if !entries.is_empty() {
-            batch.insert_batch(&self.events_by_stream, entries)?;
-        }
-        Ok(())
-    }
-
     fn index_epoch(
         &self,
-        checkpoint: &CheckpointData,
+        checkpoint: &Checkpoint,
         batch: &mut typed_store::rocks::DBBatch,
     ) -> Result<(), StorageError> {
         let Some(epoch_info) = checkpoint.epoch_info()? else {
@@ -1383,19 +1260,13 @@ impl IndexStoreTables {
 
     fn index_transactions(
         &self,
-        checkpoint: &CheckpointData,
+        checkpoint: &Checkpoint,
         batch: &mut typed_store::rocks::DBBatch,
-        index_events: bool,
     ) -> Result<(), StorageError> {
-        let cp = checkpoint.checkpoint_summary.sequence_number;
-        let mut current_accumulator_version: Option<u64> = None;
-
-        // iterate in reverse order, process accumulator settlements first
-        for (tx_idx, tx) in checkpoint.transactions.iter().enumerate().rev() {
-            let balance_changes = haneul_types::balance_change::derive_detailed_balance_changes(
+        for tx in &checkpoint.transactions {
+            let balance_changes = haneul_types::balance_change::derive_detailed_balance_changes_2(
                 &tx.effects,
-                &tx.input_objects,
-                &tx.output_objects,
+                &checkpoint.object_set,
             )
             .into_iter()
             .filter_map(|change| {
@@ -1415,20 +1286,6 @@ impl IndexStoreTables {
                 }
             });
             batch.partial_merge_batch(&self.balance, balance_changes)?;
-
-            if index_events {
-                if let Some(version) = self.extract_accumulator_version(tx) {
-                    current_accumulator_version = Some(version);
-                }
-
-                self.index_transaction_events(
-                    tx,
-                    cp,
-                    tx_idx as u32,
-                    current_accumulator_version,
-                    batch,
-                )?;
-            }
         }
 
         Ok(())
@@ -1440,14 +1297,11 @@ impl IndexStoreTables {
     /// `Watermark::Indexed` is the source of truth for coverage.
     fn write_ledger_history_rows_for_checkpoint(
         &self,
-        checkpoint: &CheckpointData,
+        checkpoint: &Checkpoint,
         batch: &mut typed_store::rocks::DBBatch,
     ) -> Result<(), StorageError> {
-        let cp_seq = checkpoint.checkpoint_summary.sequence_number;
-        let net_total = checkpoint
-            .checkpoint_summary
-            .data()
-            .network_total_transactions;
+        let cp_seq = checkpoint.summary.sequence_number;
+        let net_total = checkpoint.summary.data().network_total_transactions;
         let tx_count = checkpoint.transactions.len() as u64;
         // `network_total_transactions` is cumulative *including* this cp.
         // checked_sub: if the cp's network_total_transactions is somehow
@@ -1459,15 +1313,7 @@ impl IndexStoreTables {
             ))
         })?;
 
-        // Build one ObjectSet covering all txs in the cp so the dimension
-        // extractor's object_set.get(ObjectKey) lookups work without per-tx
-        // allocation. Costs O(input_objects + output_objects) clones.
-        let mut object_set = ObjectSet::default();
-        for tx in &checkpoint.transactions {
-            for obj in tx.input_objects.iter().chain(tx.output_objects.iter()) {
-                object_set.insert(obj.clone());
-            }
-        }
+        let object_set = &checkpoint.object_set;
 
         // Group tx-space bitmap bits across the whole checkpoint so repeated
         // dimensions in the same tx bucket produce one Rocks merge operand.
@@ -1476,8 +1322,8 @@ impl IndexStoreTables {
         for (i, tx) in checkpoint.transactions.iter().enumerate() {
             let tx_seq = tx_lo + i as u64;
 
-            let tx_data = tx.transaction.transaction_data();
-            let digest = *tx.transaction.digest();
+            let tx_data = &tx.transaction;
+            let digest = *tx.effects.transaction_digest();
             let event_count = tx.events.as_ref().map(|e| e.data.len() as u32).unwrap_or(0);
 
             // tx_seq_digest: one direct row per tx, no merge needed.
@@ -1504,7 +1350,7 @@ impl IndexStoreTables {
                 tx_data,
                 &tx.effects,
                 tx.events.as_ref(),
-                &object_set,
+                object_set,
                 |dim, value| {
                     tx_dim_keys.insert(encode_dimension_key(dim, value));
                 },
@@ -1572,15 +1418,16 @@ impl IndexStoreTables {
 
     fn index_objects(
         &self,
-        checkpoint: &CheckpointData,
+        checkpoint: &Checkpoint,
         batch: &mut typed_store::rocks::DBBatch,
     ) -> Result<(), StorageError> {
         let mut coin_index: HashMap<CoinIndexKey, CoinIndexInfo> = HashMap::new();
         let mut package_version_index: Vec<(PackageVersionKey, PackageVersionInfo)> = vec![];
+        let object_set = &checkpoint.object_set;
 
         for tx in &checkpoint.transactions {
             // determine changes from removed objects
-            for removed_object in tx.removed_objects_pre_version() {
+            for removed_object in tx_removed_objects_pre_version(tx, object_set) {
                 match removed_object.owner() {
                     Owner::AddressOwner(_) | Owner::ConsensusAddressOwner { .. } => {
                         let owner_key = OwnerIndexKey::from_object(removed_object);
@@ -1603,7 +1450,7 @@ impl IndexStoreTables {
             }
 
             // determine changes from changed objects
-            for (object, old_object) in tx.changed_objects() {
+            for (object, old_object) in tx_changed_objects(tx, object_set) {
                 if let Some(old_object) = old_object {
                     match old_object.owner() {
                         Owner::AddressOwner(_) | Owner::ConsensusAddressOwner { .. } => {
@@ -1657,7 +1504,10 @@ impl IndexStoreTables {
             // coin indexing relies on the fact that CoinMetadata and TreasuryCap are created in
             // the same transaction so we don't need to worry about overriding any older value
             // that may exist in the database (because there necessarily cannot be).
-            for (key, value) in tx.created_objects().flat_map(try_create_coin_index_info) {
+            for (key, value) in tx
+                .created_objects(object_set)
+                .flat_map(try_create_coin_index_info)
+            {
                 use std::collections::hash_map::Entry;
 
                 match coin_index.entry(key) {
@@ -1679,39 +1529,6 @@ impl IndexStoreTables {
 
     fn get_epoch_info(&self, epoch: EpochId) -> Result<Option<EpochInfo>, TypedStoreError> {
         self.epochs.get(&epoch)
-    }
-
-    fn event_iter(
-        &self,
-        stream_id: HaneulAddress,
-        start_checkpoint: u64,
-        start_accumulator_version: u64,
-        start_transaction_idx: u32,
-        start_event_idx: u32,
-        end_checkpoint: u64,
-        limit: u32,
-    ) -> Result<impl Iterator<Item = Result<EventIndexKey, TypedStoreError>> + '_, TypedStoreError>
-    {
-        let lower = EventIndexKey {
-            stream_id,
-            checkpoint_seq: start_checkpoint,
-            accumulator_version: start_accumulator_version,
-            transaction_idx: start_transaction_idx,
-            event_index: start_event_idx,
-        };
-        let upper = EventIndexKey {
-            stream_id,
-            checkpoint_seq: end_checkpoint,
-            accumulator_version: u64::MAX,
-            transaction_idx: u32::MAX,
-            event_index: u32::MAX,
-        };
-
-        Ok(self
-            .events_by_stream
-            .safe_iter_with_bounds(Some(lower), Some(upper))
-            .map(|res| res.map(|(k, _)| k))
-            .take(limit as usize))
     }
 
     fn owner_iter(
@@ -1847,7 +1664,6 @@ impl IndexStoreTables {
 pub struct RpcIndexStore {
     tables: IndexStoreTables,
     pending_updates: Mutex<BTreeMap<u64, typed_store::rocks::DBBatch>>,
-    rpc_config: haneul_config::RpcConfig,
     /// Shared with the bitmap compaction filters. Advanced by `prune()` after
     /// the corresponding watermark batch commits, so compactions never see a
     /// value that hasn't been persisted.
@@ -1870,14 +1686,11 @@ impl RpcIndexStore {
         checkpoint_store: &CheckpointStore,
         epoch_store: &AuthorityPerEpochStore,
         package_store: &Arc<dyn BackingPackageStore + Send + Sync>,
-        pruning_watermark: Arc<std::sync::atomic::AtomicU64>,
         rpc_config: haneul_config::RpcConfig,
     ) -> Self {
-        let events_filter = EventsCompactionFilter::new(pruning_watermark);
         // Internal-only tx-seq floor, hydrated from disk on open.
         let ledger_history_pruning_watermark = Arc::new(AtomicU64::new(0));
         let index_options = IndexStoreOptions {
-            events_compaction_filter: Some(events_filter),
             pruning_tx_seq_exclusive: ledger_history_pruning_watermark,
         };
 
@@ -2067,11 +1880,6 @@ impl RpcIndexStore {
                     );
                     table_config_map.insert("balance".to_string(), balance_options);
 
-                    table_config_map.insert(
-                        "events_by_stream".to_string(),
-                        events_table_options(index_options.events_compaction_filter.clone()),
-                    );
-
                     let bitmap_filter_tx = BitmapCompactionFilter::new(
                         index_options.pruning_tx_seq_exclusive.clone(),
                         BitmapKind::Transaction,
@@ -2198,7 +2006,6 @@ impl RpcIndexStore {
         Self {
             tables,
             pending_updates: Default::default(),
-            rpc_config,
             ledger_history_pruning_watermark: ledger_history_atomic,
             ledger_history_enabled,
         }
@@ -2216,7 +2023,6 @@ impl RpcIndexStore {
         // Keep already-built ledger history indexes prunable in offline paths.
         let ledger_history_atomic = Arc::new(AtomicU64::new(0));
         let index_options = IndexStoreOptions {
-            events_compaction_filter: None,
             pruning_tx_seq_exclusive: ledger_history_atomic.clone(),
         };
         let tables = IndexStoreTables::open_with_index_options(path, index_options);
@@ -2228,7 +2034,6 @@ impl RpcIndexStore {
             tables,
             pending_updates: Default::default(),
             ledger_history_pruning_watermark: ledger_history_atomic,
-            rpc_config: haneul_config::RpcConfig::default(),
             ledger_history_enabled,
         }
     }
@@ -2252,18 +2057,13 @@ impl RpcIndexStore {
     /// called.
     #[tracing::instrument(
         skip_all,
-        fields(checkpoint = checkpoint.checkpoint_summary.sequence_number)
+        fields(checkpoint = checkpoint.summary.sequence_number)
     )]
-    pub fn index_checkpoint(&self, checkpoint: &CheckpointData, resolver: &mut dyn LayoutResolver) {
-        let sequence_number = checkpoint.checkpoint_summary.sequence_number;
+    pub fn index_checkpoint(&self, checkpoint: &Checkpoint) {
+        let sequence_number = checkpoint.summary.sequence_number;
         let batch = self
             .tables
-            .index_checkpoint(
-                checkpoint,
-                resolver,
-                &self.rpc_config,
-                self.ledger_history_enabled,
-            )
+            .index_checkpoint(checkpoint, self.ledger_history_enabled)
             .expect("db error");
 
         self.pending_updates
@@ -2279,6 +2079,20 @@ impl RpcIndexStore {
     /// - Callers of this function must ensure that it is called for each checkpoint in sequential
     ///   order. This will panic if the provided checkpoint does not match the expected next
     ///   checkpoint to commit.
+    ///
+    /// Forward updates are gated on `Watermark::Indexed`, the source of truth for
+    /// index coverage: only the next contiguous checkpoint (`watermark + 1`, or 0
+    /// when nothing is indexed yet) is written, and its batch advances the
+    /// watermark. A checkpoint at or below the watermark is already reflected in
+    /// the index, so its batch is dropped rather than re-applied -- this is what
+    /// prevents double-counting after a bulk restore. The restore stamps the
+    /// watermark at the checkpoint the live object set reflects
+    /// (`highest_committed`), but the checkpoint executor resumes from the
+    /// separately-bumped `highest_executed`, which can lag; without this drop it
+    /// would re-apply the `(highest_executed, highest_committed]` checkpoints the
+    /// restore already captured, double-counting additive indexes like balances.
+    /// A checkpoint above `watermark + 1` is a gap that would leave a hole in the
+    /// index, so it panics.
     #[tracing::instrument(skip(self))]
     pub fn commit_update_for_checkpoint(&self, checkpoint: u64) -> Result<(), StorageError> {
         let next_batch = self.pending_updates.lock().unwrap().pop_first();
@@ -2288,6 +2102,23 @@ impl RpcIndexStore {
         assert_eq!(
             checkpoint, next_sequence_number,
             "commit_update_for_checkpoint must be called in order"
+        );
+
+        let indexed = self.tables.watermark.get(&Watermark::Indexed)?;
+        let expected_next = indexed.map_or(0, |w| w + 1);
+        if checkpoint < expected_next {
+            // Already covered (by the bulk restore or a prior commit). Dropping
+            // the batch avoids re-applying its additive index updates.
+            debug!(
+                checkpoint,
+                expected_next, "dropping already-indexed checkpoint update"
+            );
+            return Ok(());
+        }
+        assert_eq!(
+            checkpoint, expected_next,
+            "rpc-index forward update is not contiguous: expected checkpoint {expected_next}, \
+             got {checkpoint}"
         );
 
         Ok(batch.write()?)
@@ -2353,28 +2184,6 @@ impl RpcIndexStore {
         TypedStoreError,
     > {
         self.tables.package_versions_iter(original_id, cursor)
-    }
-
-    pub fn event_iter(
-        &self,
-        stream_id: HaneulAddress,
-        start_checkpoint: u64,
-        start_accumulator_version: u64,
-        start_transaction_idx: u32,
-        start_event_idx: u32,
-        end_checkpoint: u64,
-        limit: u32,
-    ) -> Result<impl Iterator<Item = Result<EventIndexKey, TypedStoreError>> + '_, TypedStoreError>
-    {
-        self.tables.event_iter(
-            stream_id,
-            start_checkpoint,
-            start_accumulator_version,
-            start_transaction_idx,
-            start_event_idx,
-            end_checkpoint,
-            limit,
-        )
     }
 
     pub fn get_highest_indexed_checkpoint_seq_number(
@@ -2518,6 +2327,46 @@ impl RpcIndexStore {
             result.and_then(|(key, blob)| decode_ledger_bitmap_bucket(key, blob))
         })))
     }
+}
+
+/// Objects that existed before this transaction but no longer exist after
+/// (deleted or wrapped). Mirrors `CheckpointTransaction::removed_objects_pre_version`
+/// for `ExecutedTransaction`, which stores its objects in a shared `ObjectSet`
+/// keyed by `(id, version)` rather than in dense per-tx vectors.
+fn tx_removed_objects_pre_version<'a>(
+    tx: &'a ExecutedTransaction,
+    object_set: &'a ObjectSet,
+) -> impl Iterator<Item = &'a Object> + 'a {
+    tx.effects
+        .object_changes()
+        .into_iter()
+        .filter_map(
+            move |change| match (change.input_version, change.output_version) {
+                (Some(input_version), None) => object_set.get(&ObjectKey(change.id, input_version)),
+                _ => None,
+            },
+        )
+}
+
+/// Pairs of `(output_object, optional_input_object)` for every changed object
+/// (mutated, created, or unwrapped). Mirrors `CheckpointTransaction::changed_objects`
+/// for `ExecutedTransaction`.
+fn tx_changed_objects<'a>(
+    tx: &'a ExecutedTransaction,
+    object_set: &'a ObjectSet,
+) -> impl Iterator<Item = (&'a Object, Option<&'a Object>)> + 'a {
+    tx.effects
+        .object_changes()
+        .into_iter()
+        .filter_map(move |change| {
+            let output = change
+                .output_version
+                .and_then(|v| object_set.get(&ObjectKey(change.id, v)))?;
+            let input = change
+                .input_version
+                .and_then(|v| object_set.get(&ObjectKey(change.id, v)));
+            Some((output, input))
+        })
 }
 
 fn should_index_dynamic_field(object: &Object) -> bool {
@@ -2718,17 +2567,17 @@ impl LiveObjectIndexer for RpcLiveObjectIndexer<'_> {
 
 // TODO figure out a way to dedup this logic. Today we'd need to do quite a bit of refactoring to
 // make it possible.
-/// Load full `CheckpointData` for `checkpoint` from local storage. Sibling
-/// of [`sparse_checkpoint_data_for_epoch_backfill`] that returns data for
+/// Load a full `Checkpoint` for `checkpoint` from local storage. Sibling
+/// of [`sparse_checkpoint_for_epoch_backfill`] that returns data for
 /// every cp (not just genesis / EoE) and always loads transaction events.
 ///
 /// Returns `Ok(None)` if the cp's summary or contents are not present
 /// locally (e.g. pruned out of the underlying store).
-fn full_checkpoint_data_for_backfill(
+fn full_checkpoint_for_backfill(
     authority_store: &AuthorityStore,
     checkpoint_store: &CheckpointStore,
     checkpoint: u64,
-) -> Result<Option<CheckpointData>, StorageError> {
+) -> Result<Option<Checkpoint>, StorageError> {
     let Some(summary) = checkpoint_store.get_checkpoint_by_sequence_number(checkpoint)? else {
         return Ok(None);
     };
@@ -2736,64 +2585,24 @@ fn full_checkpoint_data_for_backfill(
         return Ok(None);
     };
 
-    let transaction_digests = contents
-        .iter()
-        .map(|execution_digests| execution_digests.transaction)
-        .collect::<Vec<_>>();
-    let transactions = authority_store
-        .multi_get_transaction_blocks(&transaction_digests)?
-        .into_iter()
-        .map(|maybe_transaction| {
-            maybe_transaction.ok_or_else(|| StorageError::custom("missing transaction"))
-        })
-        .collect::<Result<Vec<_>, _>>()?;
-
-    let effects = authority_store
-        .multi_get_executed_effects(&transaction_digests)?
-        .into_iter()
-        .map(|maybe_effects| maybe_effects.ok_or_else(|| StorageError::custom("missing effects")))
-        .collect::<Result<Vec<_>, _>>()?;
-
     // Always load events: event-space dimensions need them, and tx-space
     // dimensions include EmitModule / EventType / EventStreamHead which are
     // sourced from events too.
-    let events = authority_store
-        .multi_get_events(&transaction_digests)
-        .map_err(|e| StorageError::custom(e.to_string()))?;
+    let (transactions, object_set) = load_executed_transactions(authority_store, &contents, true)?;
 
-    let mut full_transactions = Vec::with_capacity(transactions.len());
-    for ((tx, fx), ev) in transactions
-        .into_iter()
-        .zip_debug_eq(effects)
-        .zip_debug_eq(events)
-    {
-        let input_objects =
-            haneul_types::storage::get_transaction_input_objects(authority_store, &fx)?;
-        let output_objects =
-            haneul_types::storage::get_transaction_output_objects(authority_store, &fx)?;
-
-        full_transactions.push(CheckpointTransaction {
-            transaction: tx.into(),
-            effects: fx,
-            events: ev,
-            input_objects,
-            output_objects,
-        });
-    }
-
-    Ok(Some(CheckpointData {
-        checkpoint_summary: summary.into(),
-        checkpoint_contents: contents,
-        transactions: full_transactions,
+    Ok(Some(Checkpoint {
+        summary: summary.into(),
+        contents,
+        transactions,
+        object_set,
     }))
 }
 
-fn sparse_checkpoint_data_for_epoch_backfill(
+fn sparse_checkpoint_for_epoch_backfill(
     authority_store: &AuthorityStore,
     checkpoint_store: &CheckpointStore,
     checkpoint: u64,
-    load_events: bool,
-) -> Result<Option<CheckpointData>, StorageError> {
+) -> Result<Option<Checkpoint>, StorageError> {
     let summary = checkpoint_store
         .get_checkpoint_by_sequence_number(checkpoint)?
         .ok_or_else(|| StorageError::missing(format!("missing checkpoint {checkpoint}")))?;
@@ -2807,6 +2616,26 @@ fn sparse_checkpoint_data_for_epoch_backfill(
         .get_checkpoint_contents(&summary.content_digest)?
         .ok_or_else(|| StorageError::missing(format!("missing checkpoint {checkpoint}")))?;
 
+    let (transactions, object_set) = load_executed_transactions(authority_store, &contents, false)?;
+
+    Ok(Some(Checkpoint {
+        summary: summary.into(),
+        contents,
+        transactions,
+        object_set,
+    }))
+}
+
+/// Load `ExecutedTransaction`s for every digest in `contents`, alongside an
+/// `ObjectSet` populated with their input and output objects. `Checkpoint`
+/// stores objects in a shared keyed set rather than the per-tx vectors used
+/// by the old `CheckpointTransaction`, so this is the equivalent shape for
+/// the backfill loaders to return.
+fn load_executed_transactions(
+    authority_store: &AuthorityStore,
+    contents: &haneul_types::messages_checkpoint::CheckpointContents,
+    load_events: bool,
+) -> Result<(Vec<ExecutedTransaction>, ObjectSet), StorageError> {
     let transaction_digests = contents
         .iter()
         .map(|execution_digests| execution_digests.transaction)
@@ -2834,6 +2663,7 @@ fn sparse_checkpoint_data_for_epoch_backfill(
     };
 
     let mut full_transactions = Vec::with_capacity(transactions.len());
+    let mut object_set = ObjectSet::default();
     for ((tx, fx), ev) in transactions
         .into_iter()
         .zip_debug_eq(effects)
@@ -2844,24 +2674,28 @@ fn sparse_checkpoint_data_for_epoch_backfill(
         let output_objects =
             haneul_types::storage::get_transaction_output_objects(authority_store, &fx)?;
 
-        let full_transaction = CheckpointTransaction {
-            transaction: tx.into(),
+        for obj in input_objects.into_iter().chain(output_objects.into_iter()) {
+            object_set.insert(obj);
+        }
+
+        let sender_signed = haneul_types::transaction::Transaction::from(tx)
+            .into_data()
+            .into_inner();
+        full_transactions.push(ExecutedTransaction {
+            transaction: sender_signed.intent_message.value,
+            signatures: sender_signed.tx_signatures,
             effects: fx,
             events: ev,
-            input_objects,
-            output_objects,
-        };
-
-        full_transactions.push(full_transaction);
+            // The backfill index paths (`index_epoch` and
+            // `write_ledger_history_rows_for_checkpoint`) only read objects
+            // through `effects.object_changes()`, which never reaches
+            // unchanged loaded runtime objects. Leaving this empty avoids a
+            // pointless lookup per checkpoint.
+            unchanged_loaded_runtime_objects: Vec::new(),
+        });
     }
 
-    let checkpoint_data = CheckpointData {
-        checkpoint_summary: summary.into(),
-        checkpoint_contents: contents,
-        transactions: full_transactions,
-    };
-
-    Ok(Some(checkpoint_data))
+    Ok((full_transactions, object_set))
 }
 
 fn get_balance_and_type_if_coin(object: &Object) -> Result<Option<(StructTag, u64)>, StorageError> {
@@ -2910,134 +2744,7 @@ fn get_address_balance_info(object: &Object) -> Option<(HaneulAddress, StructTag
 #[cfg(test)]
 mod tests {
     use super::*;
-    use haneul_types::base_types::HaneulAddress;
     use std::sync::atomic::AtomicU64;
-
-    #[tokio::test]
-    async fn test_events_compaction_filter() {
-        let temp_dir = tempfile::tempdir().unwrap();
-        let path = temp_dir.path();
-        let db_path = path.join("rpc-index");
-
-        let pruning_watermark = Arc::new(AtomicU64::new(5));
-        let compaction_filter = EventsCompactionFilter::new(pruning_watermark.clone());
-
-        let index_options = IndexStoreOptions {
-            events_compaction_filter: Some(compaction_filter),
-            pruning_tx_seq_exclusive: Arc::new(AtomicU64::new(0)),
-        };
-
-        let tables = IndexStoreTables::open_with_index_options(&db_path, index_options);
-        let stream_id = HaneulAddress::random_for_testing_only();
-        let test_events: Vec<EventIndexKey> = [1, 3, 5, 10, 15]
-            .iter()
-            .map(|&checkpoint_seq| EventIndexKey {
-                stream_id,
-                checkpoint_seq,
-                accumulator_version: 0,
-                transaction_idx: 0,
-                event_index: 0,
-            })
-            .collect();
-
-        let mut batch = tables.events_by_stream.batch();
-        for key in &test_events {
-            batch
-                .insert_batch(&tables.events_by_stream, [(key.clone(), ())])
-                .unwrap();
-        }
-        batch.write().unwrap();
-
-        tables.events_by_stream.flush().unwrap();
-        let mut events_before_compaction = 0;
-        for result in tables.events_by_stream.safe_iter() {
-            if result.is_ok() {
-                events_before_compaction += 1;
-            }
-        }
-        assert_eq!(
-            events_before_compaction, 5,
-            "Should have 5 events before compaction"
-        );
-        let start_key = EventIndexKey {
-            stream_id: HaneulAddress::ZERO,
-            checkpoint_seq: 0,
-            accumulator_version: 0,
-            transaction_idx: 0,
-            event_index: 0,
-        };
-        let end_key = EventIndexKey {
-            stream_id: HaneulAddress::random_for_testing_only(),
-            checkpoint_seq: u64::MAX,
-            accumulator_version: u64::MAX,
-            transaction_idx: u32::MAX,
-            event_index: u32::MAX,
-        };
-
-        tables
-            .events_by_stream
-            .compact_range(&start_key, &end_key)
-            .unwrap();
-        let mut events_after_compaction = Vec::new();
-        for (key, _event) in tables.events_by_stream.safe_iter().flatten() {
-            events_after_compaction.push(key);
-        }
-
-        println!("Events after compaction: {}", events_after_compaction.len());
-        assert!(
-            events_after_compaction.len() >= 2,
-            "Should have at least the events that shouldn't be pruned"
-        );
-        pruning_watermark.store(20, std::sync::atomic::Ordering::Relaxed);
-        let watermark_after = pruning_watermark.load(std::sync::atomic::Ordering::Relaxed);
-        assert_eq!(watermark_after, 20, "Watermark should be updated");
-    }
-
-    #[test]
-    fn test_events_compaction_filter_logic() {
-        let watermark = Arc::new(AtomicU64::new(100));
-        let filter = EventsCompactionFilter::new(watermark.clone());
-
-        let old_key = EventIndexKey {
-            stream_id: HaneulAddress::random_for_testing_only(),
-            checkpoint_seq: 50,
-            accumulator_version: 0,
-            transaction_idx: 0,
-            event_index: 0,
-        };
-        let old_key_bytes = bcs::to_bytes(&old_key).unwrap();
-        let decision = filter.filter(&old_key_bytes, &[]).unwrap();
-        assert!(
-            matches!(decision, Decision::Remove),
-            "Event with checkpoint 50 should be removed when watermark is 100"
-        );
-        let new_key = EventIndexKey {
-            stream_id: HaneulAddress::random_for_testing_only(),
-            checkpoint_seq: 150,
-            accumulator_version: 0,
-            transaction_idx: 0,
-            event_index: 0,
-        };
-        let new_key_bytes = bcs::to_bytes(&new_key).unwrap();
-        let decision = filter.filter(&new_key_bytes, &[]).unwrap();
-        assert!(
-            matches!(decision, Decision::Keep),
-            "Event with checkpoint 150 should be kept when watermark is 100"
-        );
-        let boundary_key = EventIndexKey {
-            stream_id: HaneulAddress::random_for_testing_only(),
-            checkpoint_seq: 100,
-            accumulator_version: 0,
-            transaction_idx: 0,
-            event_index: 0,
-        };
-        let boundary_key_bytes = bcs::to_bytes(&boundary_key).unwrap();
-        let decision = filter.filter(&boundary_key_bytes, &[]).unwrap();
-        assert!(
-            matches!(decision, Decision::Remove),
-            "Event with checkpoint equal to watermark should be removed"
-        );
-    }
 
     /// Every column family opened via `open_with_index_options` must have the
     /// `disable_write_throttling` override applied. The typed-store derive
@@ -3285,7 +2992,6 @@ mod tests {
 
         let watermark = Arc::new(AtomicU64::new(0));
         let index_options = IndexStoreOptions {
-            events_compaction_filter: None,
             pruning_tx_seq_exclusive: watermark.clone(),
         };
         let tables = IndexStoreTables::open_with_index_options(&db_path, index_options);
@@ -3348,20 +3054,20 @@ mod tests {
     #[test]
     fn backfill_missing_cp_in_retained_range_is_error() {
         // Mirror the backfill closure: take the
-        // `Result<Option<CheckpointData>>` from the loader, and require
-        // `Some(cp_data)` for every cp in the retained range.
+        // `Result<Option<Checkpoint>>` from the loader, and require
+        // `Some(checkpoint)` for every cp in the retained range.
         let checkpoint_range = 5u64..=10u64;
         let seq = 7u64;
-        let loaded: Result<Option<CheckpointData>, StorageError> = Ok(None);
+        let loaded: Result<Option<Checkpoint>, StorageError> = Ok(None);
 
         let result: Result<(), StorageError> = (|| {
-            let cp_data = loaded?.ok_or_else(|| {
+            let checkpoint = loaded?.ok_or_else(|| {
                 StorageError::missing(format!(
                     "ledger history backfill: checkpoint {seq} is missing from local storage \
                      but falls inside the retained backfill range {checkpoint_range:?}"
                 ))
             })?;
-            let _ = cp_data;
+            let _ = checkpoint;
             Ok(())
         })();
 
@@ -3622,7 +3328,6 @@ mod tests {
     /// Forward `index_checkpoint` writes ledger history rows only when enabled.
     #[tokio::test]
     async fn index_checkpoint_gates_on_ledger_history_enabled() {
-        use haneul_types::layout_resolver::LayoutResolver;
         use haneul_types::test_checkpoint_data_builder::TestCheckpointBuilder;
 
         let temp_dir = tempfile::tempdir().unwrap();
@@ -3636,31 +3341,10 @@ mod tests {
             .start_transaction(1)
             .finish_transaction()
             .build_checkpoint();
-        let checkpoint_data: CheckpointData = checkpoint.into();
-
-        let rpc_config = haneul_config::RpcConfig::default();
-
-        struct PanicResolver;
-        impl LayoutResolver for PanicResolver {
-            fn get_annotated_layout(
-                &mut self,
-                _struct_tag: &move_core_types::language_storage::StructTag,
-            ) -> Result<
-                move_core_types::annotated_value::MoveDatatypeLayout,
-                haneul_types::error::HaneulError,
-            > {
-                panic!("layout resolver should not be invoked by ledger history indexing");
-            }
-        }
 
         // Disabled: no ledger history writes.
         let batch = tables
-            .index_checkpoint(
-                &checkpoint_data,
-                &mut PanicResolver,
-                &rpc_config,
-                /*ledger_history_enabled=*/ false,
-            )
+            .index_checkpoint(&checkpoint, /*ledger_history_enabled=*/ false)
             .expect("index_checkpoint failed");
         batch.write().expect("batch write failed");
         assert_eq!(tables.tx_seq_digest.safe_iter().count(), 0);
@@ -3672,14 +3356,8 @@ mod tests {
             .start_transaction(1)
             .finish_transaction()
             .build_checkpoint();
-        let checkpoint_data2: CheckpointData = checkpoint2.into();
         let batch = tables
-            .index_checkpoint(
-                &checkpoint_data2,
-                &mut PanicResolver,
-                &rpc_config,
-                /*ledger_history_enabled=*/ true,
-            )
+            .index_checkpoint(&checkpoint2, /*ledger_history_enabled=*/ true)
             .expect("index_checkpoint failed");
         batch.write().expect("batch write failed");
         assert!(
@@ -3693,31 +3371,16 @@ mod tests {
     /// every checkpoint boundary.
     #[tokio::test]
     async fn index_checkpoint_records_within_checkpoint_tx_offset() {
-        use haneul_types::layout_resolver::LayoutResolver;
         use haneul_types::test_checkpoint_data_builder::TestCheckpointBuilder;
 
         let temp_dir = tempfile::tempdir().unwrap();
         let db_path = temp_dir.path().join("rpc-index");
         let tables =
             IndexStoreTables::open_with_index_options(&db_path, IndexStoreOptions::default());
-        let rpc_config = haneul_config::RpcConfig::default();
-
-        struct PanicResolver;
-        impl LayoutResolver for PanicResolver {
-            fn get_annotated_layout(
-                &mut self,
-                _struct_tag: &move_core_types::language_storage::StructTag,
-            ) -> Result<
-                move_core_types::annotated_value::MoveDatatypeLayout,
-                haneul_types::error::HaneulError,
-            > {
-                panic!("layout resolver should not be invoked by ledger history indexing");
-            }
-        }
 
         // Checkpoint 1: three txs over a non-zero tx-seq base (100), so the
         // global tx_seqs are 100,101,102 — distinct from the offsets 0,1,2.
-        let checkpoint1: CheckpointData = TestCheckpointBuilder::new(1)
+        let checkpoint1 = TestCheckpointBuilder::new(1)
             .with_network_total_transactions(100)
             .start_transaction(0)
             .finish_transaction()
@@ -3725,26 +3388,24 @@ mod tests {
             .finish_transaction()
             .start_transaction(2)
             .finish_transaction()
-            .build_checkpoint()
-            .into();
+            .build_checkpoint();
         tables
-            .index_checkpoint(&checkpoint1, &mut PanicResolver, &rpc_config, true)
+            .index_checkpoint(&checkpoint1, true)
             .expect("index_checkpoint failed")
             .write()
             .expect("batch write failed");
 
         // Checkpoint 2: two more txs; global tx_seqs continue at 103,104 but the
         // offsets restart at 0.
-        let checkpoint2: CheckpointData = TestCheckpointBuilder::new(2)
+        let checkpoint2 = TestCheckpointBuilder::new(2)
             .with_network_total_transactions(103)
             .start_transaction(0)
             .finish_transaction()
             .start_transaction(1)
             .finish_transaction()
-            .build_checkpoint()
-            .into();
+            .build_checkpoint();
         tables
-            .index_checkpoint(&checkpoint2, &mut PanicResolver, &rpc_config, true)
+            .index_checkpoint(&checkpoint2, true)
             .expect("index_checkpoint failed")
             .write()
             .expect("batch write failed");

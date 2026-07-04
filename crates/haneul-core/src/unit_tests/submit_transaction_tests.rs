@@ -223,7 +223,6 @@ async fn test_submit_transaction_already_executed() {
     test_context
         .state
         .try_execute_immediately(&verified_transaction, ExecutionEnv::new(), &epoch_store)
-        .await
         .unwrap();
 
     // Submit the same transaction that has already been executed.
@@ -247,6 +246,42 @@ async fn test_submit_transaction_already_executed() {
             );
         }
         _ => panic!("Expected Executed response"),
+    };
+}
+
+// Test that a transaction already processed by consensus this epoch but not yet executed
+// (e.g. deferred) is suppressed rather than resubmitted to consensus.
+#[tokio::test]
+async fn test_submit_transaction_consensus_message_processed() {
+    let test_context = TestContext::new().await;
+
+    let transaction = test_context.build_test_transaction();
+    let tx_digest = *transaction.digest();
+    let request = test_context.build_submit_request(transaction);
+
+    // Mark the transaction as processed by consensus without executing it, simulating a
+    // sequenced-but-deferred transaction. Its gas object is still unspent, so without the
+    // is_consensus_message_processed check it would be resubmitted to consensus.
+    let epoch_store = test_context.state.epoch_store_for_testing();
+    epoch_store.test_insert_user_signature(tx_digest, vec![]);
+
+    let response = test_context
+        .client
+        .submit_transaction(request, None)
+        .await
+        .unwrap();
+    assert_eq!(response.results.len(), 1);
+    match &response.results[0] {
+        SubmitTxResult::Rejected { error } => {
+            assert!(
+                matches!(
+                    error.as_inner(),
+                    HaneulErrorKind::TransactionProcessing { digest, .. } if *digest == tx_digest
+                ),
+                "unexpected rejection error: {error}"
+            );
+        }
+        other => panic!("Expected Rejected response, got {other:?}"),
     };
 }
 
@@ -388,13 +423,12 @@ async fn test_submit_batched_transactions_with_already_executed() {
     test_context
         .state
         .try_execute_immediately(&verified_tx1, ExecutionEnv::new(), &epoch_store)
-        .await
         .unwrap();
 
     // Create 2nd transaction (not executed)
     let gas_object2 = Object::with_owner_for_testing(test_context.sender);
     let gas_object_ref2 = gas_object2.compute_object_reference();
-    test_context.state.insert_genesis_object(gas_object2).await;
+    test_context.state.insert_genesis_object(gas_object2);
 
     let tx_data2 = TestTransactionBuilder::new(
         test_context.sender,
@@ -451,7 +485,22 @@ async fn test_submit_soft_bundle_transactions() {
     let test_context = TestContext::new().await;
 
     let tx1 = test_context.build_test_transaction();
-    let tx2 = test_context.build_test_transaction();
+
+    // tx2 must be distinct from tx1: a soft bundle may not repeat a transaction.
+    let gas_object2 = Object::with_owner_for_testing(test_context.sender);
+    let gas_object_ref2 = gas_object2.compute_object_reference();
+    test_context.state.insert_genesis_object(gas_object2);
+    let tx_data2 = TestTransactionBuilder::new(
+        test_context.sender,
+        gas_object_ref2,
+        test_context
+            .state
+            .reference_gas_price_for_testing()
+            .unwrap(),
+    )
+    .transfer_haneul(None, test_context.sender)
+    .build();
+    let tx2 = to_sender_signed_transaction(tx_data2, &test_context.keypair);
 
     // Build request with batched transactions.
     let request = RawSubmitTxRequest {
@@ -486,6 +535,41 @@ async fn test_submit_soft_bundle_transactions() {
     }
 }
 
+// A soft bundle that repeats the same transaction is rejected outright.
+#[tokio::test]
+async fn test_submit_soft_bundle_with_repeated_transaction() {
+    let test_context = TestContext::new().await;
+
+    let tx = test_context.build_test_transaction();
+    let tx_digest = *tx.digest();
+
+    let request = RawSubmitTxRequest {
+        transactions: vec![
+            bcs::to_bytes(&tx).unwrap().into(),
+            bcs::to_bytes(&tx).unwrap().into(),
+        ],
+        submit_type: SubmitTxType::SoftBundle.into(),
+    };
+
+    let response = test_context
+        .client
+        .client()
+        .unwrap()
+        .submit_transaction(request)
+        .await;
+    assert!(response.is_err());
+    let error: HaneulError = response.unwrap_err().into();
+    assert!(
+        matches!(
+            error.into_inner(),
+            HaneulErrorKind::UserInputError {
+                error: UserInputError::RepeatedTransactionInSoftBundle { digest }
+            } if digest == tx_digest
+        ),
+        "expected RepeatedTransactionInSoftBundle error"
+    );
+}
+
 #[tokio::test]
 async fn test_submit_soft_bundle_transactions_with_already_executed() {
     let test_context = TestContext::new().await;
@@ -501,13 +585,12 @@ async fn test_submit_soft_bundle_transactions_with_already_executed() {
     test_context
         .state
         .try_execute_immediately(&verified_tx1, ExecutionEnv::new(), &epoch_store)
-        .await
         .unwrap();
 
     // Create 2nd transaction (not executed)
     let gas_object2 = Object::with_owner_for_testing(test_context.sender);
     let gas_object_ref2 = gas_object2.compute_object_reference();
-    test_context.state.insert_genesis_object(gas_object2).await;
+    test_context.state.insert_genesis_object(gas_object2);
 
     let tx_data2 = TestTransactionBuilder::new(
         test_context.sender,
@@ -556,6 +639,69 @@ async fn test_submit_soft_bundle_transactions_with_already_executed() {
     }
 }
 
+// Test that a transaction already processed by consensus (but not executed) is removed from a
+// soft bundle before submission, while the remaining transactions in the bundle are still
+// submitted to consensus.
+#[tokio::test]
+async fn test_submit_soft_bundle_transactions_with_consensus_message_processed() {
+    let test_context = TestContext::new().await;
+
+    // 1st transaction: mark as already processed by consensus without executing it.
+    let tx1 = test_context.build_test_transaction();
+    let tx1_digest = *tx1.digest();
+    let epoch_store = test_context.state.epoch_store_for_testing();
+    epoch_store.test_insert_user_signature(tx1_digest, vec![]);
+
+    // 2nd transaction: a fresh, unprocessed transaction with its own gas object.
+    let gas_object2 = Object::with_owner_for_testing(test_context.sender);
+    let gas_object_ref2 = gas_object2.compute_object_reference();
+    test_context.state.insert_genesis_object(gas_object2);
+
+    let tx_data2 = TestTransactionBuilder::new(
+        test_context.sender,
+        gas_object_ref2,
+        test_context
+            .state
+            .reference_gas_price_for_testing()
+            .unwrap(),
+    )
+    .transfer_haneul(None, test_context.sender)
+    .build();
+    let tx2 = to_sender_signed_transaction(tx_data2, &test_context.keypair);
+
+    let request = RawSubmitTxRequest {
+        transactions: vec![
+            bcs::to_bytes(&tx1).unwrap().into(),
+            bcs::to_bytes(&tx2).unwrap().into(),
+        ],
+        submit_type: SubmitTxType::SoftBundle.into(),
+    };
+
+    let raw_response = test_context
+        .client
+        .client()
+        .unwrap()
+        .submit_transaction(request)
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(raw_response.results.len(), 2);
+
+    // The already-processed transaction is rejected and excluded from the bundle submitted to
+    // consensus; the remaining transaction is still submitted.
+    match &raw_response.results[0].inner {
+        Some(haneul_types::messages_grpc::RawValidatorSubmitStatus::Rejected(_)) => {}
+        other => {
+            panic!("Expected Rejected status for already-processed transaction, got {other:?}")
+        }
+    }
+    match &raw_response.results[1].inner {
+        Some(haneul_types::messages_grpc::RawValidatorSubmitStatus::Submitted(_)) => {}
+        other => panic!("Expected Submitted status for remaining transaction, got {other:?}"),
+    }
+}
+
 #[tokio::test]
 async fn test_submit_oversized_transaction() {
     use haneul_types::base_types::dbg_addr;
@@ -574,7 +720,6 @@ async fn test_submit_oversized_transaction() {
     let gas_object = test_context
         .state
         .get_object(&test_context.gas_object_ref.0)
-        .await
         .unwrap();
     let full_object_ref = gas_object.compute_full_object_reference();
     let recipient = dbg_addr(2);

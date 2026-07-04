@@ -1618,10 +1618,8 @@ For candidate validators, the name is not checked for duplicates.
     <b>let</b> <a href="../haneul_system/validator.md#haneul_system_validator">validator</a> = self.<a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_validators">validators</a>.any_validator_mut(validator_address);
     <a href="../haneul_system/validator.md#haneul_system_validator">validator</a>.update_name(name);
     <b>let</b> <a href="../haneul_system/validator.md#haneul_system_validator">validator</a>: &Validator = <a href="../haneul_system/validator.md#haneul_system_validator">validator</a>; // Avoid parallel mutable borrow.
-    // only run the duplicate check <b>for</b> non-candidates
-    <b>if</b> (!self.<a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_validators">validators</a>.is_validator_candidate(validator_address)) {
-        self.<a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_validators">validators</a>.assert_no_pending_or_active_duplicates(<a href="../haneul_system/validator.md#haneul_system_validator">validator</a>);
-    };
+    // always check <b>for</b> duplicates in active/pending state
+    self.<a href="../haneul_system/haneul_system_state_inner.md#haneul_system_haneul_system_state_inner_validators">validators</a>.assert_no_pending_or_active_duplicates(<a href="../haneul_system/validator.md#haneul_system_validator">validator</a>);
 }
 </code></pre>
 

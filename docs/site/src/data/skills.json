@@ -1,0 +1,149 @@
+[
+  {
+    "slug": "accessing-data",
+    "title": "Accessing Data",
+    "description": "Query onchain state, subscribe to events, build indexing pipelines, and store blobs with Walrus.",
+    "category": "Transactions and data",
+    "path": "accessing-data"
+  },
+  {
+    "slug": "haneul-build-test",
+    "title": "Build and Test Move",
+    "description": "Compile Move packages, resolve build errors, and run haneul move build.",
+    "category": "Build and deploy",
+    "path": "haneul-build-test"
+  },
+  {
+    "slug": "composable-move-functions",
+    "title": "Composable Functions",
+    "description": "Design composable Move APIs with the right visibility, parameter order, and return patterns.",
+    "category": "Move",
+    "path": "composable-move-functions"
+  },
+  {
+    "slug": "frontend-apps",
+    "title": "Frontend Apps",
+    "description": "Build browser dApps with dApp Kit, from wallet connection to onchain queries and transaction execution.",
+    "category": "Frontend and SDKs",
+    "path": "frontend-apps"
+  },
+  {
+    "slug": "generate-haneul-agent-config",
+    "title": "Generate Agent Config",
+    "description": "Generate a CLAUDE.md or AGENT.md file tailored to your Haneul project.",
+    "category": "Get started",
+    "path": "generate-haneul-agent-config"
+  },
+  {
+    "slug": "haneul-install",
+    "title": "Install Haneul",
+    "description": "Install and manage Haneul CLI versions, toolchain components, and network-specific builds with haneulup.",
+    "category": "Get started",
+    "path": "haneul-install"
+  },
+  {
+    "slug": "modern-move-syntax",
+    "title": "Modern Move Syntax",
+    "description": "Write idiomatic Move with 2024 edition syntax: method calls, string literals, vectors, options, and more.",
+    "category": "Move",
+    "path": "modern-move-syntax"
+  },
+  {
+    "slug": "haneul-move-project",
+    "title": "Move Project Setup",
+    "description": "Set up Move projects, configure Move.toml and MVR dependencies, and troubleshoot build errors.",
+    "category": "Move",
+    "path": "haneul-move-project"
+  },
+  {
+    "slug": "move-unit-testing",
+    "title": "Move Unit Testing",
+    "description": "Write and structure Move unit tests with proper naming, assertions, context usage, and cleanup.",
+    "category": "Build and deploy",
+    "path": "move-unit-testing"
+  },
+  {
+    "slug": "naming-conventions",
+    "title": "Naming Conventions",
+    "description": "Apply consistent naming to Move structs, constants, events, capabilities, and dynamic field keys.",
+    "category": "Move",
+    "path": "naming-conventions"
+  },
+  {
+    "slug": "object-model",
+    "title": "Object Model",
+    "description": "Model data with Haneul objects: ownership types, dynamic fields, collections, wrapping, and transfer rules.",
+    "category": "Move",
+    "path": "object-model"
+  },
+  {
+    "slug": "ptbs",
+    "title": "Programmable Transaction Blocks",
+    "description": "Compose multiple Move calls into a single atomic transaction with gas handling and sponsorship support.",
+    "category": "Transactions and data",
+    "path": "ptbs"
+  },
+  {
+    "slug": "haneul-publish",
+    "title": "Publish and Upgrade",
+    "description": "Publish and upgrade Move packages on any network, from localnet testing to multisig mainnet deploys.",
+    "category": "Build and deploy",
+    "path": "haneul-publish"
+  },
+  {
+    "slug": "haneul-cli",
+    "title": "Haneul CLI",
+    "description": "Understand Haneul networks, gas costs, epochs, and how the network operates at a high level.",
+    "category": "CLI",
+    "path": "haneul-cli"
+  },
+  {
+    "slug": "haneul-client",
+    "title": "Haneul Client",
+    "description": "Configure the Haneul client, manage addresses, switch networks, request faucet tokens, and check balances.",
+    "category": "CLI",
+    "path": "haneul-client"
+  },
+  {
+    "slug": "haneul-move",
+    "title": "Haneul Move",
+    "description": "Write and debug Move smart contracts covering abilities, init functions, one-time witnesses, upgrades, and custom coins.",
+    "category": "Move",
+    "path": "haneul-move"
+  },
+  {
+    "slug": "haneul-overview",
+    "title": "Haneul Overview",
+    "description": "Learn what Haneul is, how it compares to other chains, and which Haneul Stack primitives fit your use case.",
+    "category": "Get started",
+    "path": "haneul-overview"
+  },
+  {
+    "slug": "haneul-sdks",
+    "title": "Haneul SDKs",
+    "description": "Pick the right Haneul SDK for your language and wire it up: TypeScript, Rust, Python, Go, Dart, Kotlin, or Swift.",
+    "category": "Frontend and SDKs",
+    "path": "haneul-sdks"
+  },
+  {
+    "slug": "walrus-sites",
+    "title": "Walrus Sites",
+    "description": "Deploy and manage fully decentralized websites powered by Walrus storage and onchain site objects.",
+    "category": "Frontend and SDKs",
+    "path": "walrus-sites"
+  },
+  {
+    "slug": "walrus-sites-portal",
+    "title": "Walrus Sites Portal",
+    "description": "Run a local portal server to browse and test Walrus Sites on testnet.",
+    "category": "Frontend and SDKs",
+    "path": "walrus-sites/portal"
+  },
+  {
+    "slug": "walrus-sites-publishing",
+    "title": "Walrus Sites Publishing",
+    "description": "Publish and update Walrus Sites using the site-builder CLI.",
+    "category": "Frontend and SDKs",
+    "path": "walrus-sites/publishing"
+  }
+]

@@ -2303,7 +2303,6 @@ mod tests {
     use move_core_types::account_address::AccountAddress;
     use prometheus::Registry;
     use std::collections::BTreeMap;
-    use std::env::temp_dir;
 
     #[tokio::test]
     async fn test_index_cache() -> anyhow::Result<()> {
@@ -2314,8 +2313,13 @@ mod tests {
         // and verified from both db and cache.
         // This tests make sure we are invalidating entries in the cache and always reading latest
         // balance.
-        let index_store =
-            IndexStore::new_without_init(temp_dir(), &Registry::default(), Some(128), false);
+        let dir = tempfile::tempdir().unwrap();
+        let index_store = IndexStore::new_without_init(
+            dir.path().to_path_buf(),
+            &Registry::default(),
+            Some(128),
+            false,
+        );
         let address: HaneulAddress = AccountAddress::random().into();
         let mut written_objects = BTreeMap::new();
         let mut input_objects = BTreeMap::new();
@@ -2450,7 +2454,13 @@ mod tests {
         use haneul_types::base_types::ObjectID;
         use typed_store::Map;
 
-        let index_store = IndexStore::new(temp_dir(), &Registry::default(), Some(128), false);
+        let dir = tempfile::tempdir().unwrap();
+        let index_store = IndexStore::new(
+            dir.path().to_path_buf(),
+            &Registry::default(),
+            Some(128),
+            false,
+        );
         let db = &index_store.tables.transactions_by_move_function;
         db.insert(
             &(

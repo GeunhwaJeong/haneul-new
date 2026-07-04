@@ -32,7 +32,7 @@ use tracing::{info, warn};
 
 /// The minimum and maximum protocol versions supported by this build.
 const MIN_PROTOCOL_VERSION: u64 = 1;
-const MAX_PROTOCOL_VERSION: u64 = 118;
+const MAX_PROTOCOL_VERSION: u64 = 119;
 
 const TESTNET_USDC: &str =
     "0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC";
@@ -333,6 +333,10 @@ const MAINNET_USDB: &str =
 // Version 117: Update Haneul System metadata handling.
 // Version 118: Granular post-execution checks; timestamp-based epoch close on testnet;
 //              early-exit handling for insufficient funds on withdrawals.
+// Version 119: Advance DKG to resolution unconditionally.
+//              Enable timestamp-based epoch close on mainnet.
+//              Update gas prices for range proofs and ristretto group operations.
+//              Make some additional bounds to binary tables explicit.
 
 #[derive(Copy, Clone, Debug, Hash, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ProtocolVersion(u64);
@@ -931,6 +935,10 @@ struct FeatureFlags {
     #[serde(skip_serializing_if = "is_false")]
     cancel_for_failed_dkg_early: bool,
 
+    // If true, keep advancing the DKG state machine while DKG is pending.
+    #[serde(skip_serializing_if = "is_false")]
+    always_advance_dkg_to_resolution: bool,
+
     // Enable coin registry protocol
     #[serde(skip_serializing_if = "is_false")]
     enable_coin_registry: bool,
@@ -1371,6 +1379,12 @@ pub struct ProtocolConfig {
 
     /// Maximum number of "type nodes", a metric for how big a SignatureToken will be when expanded into a fully qualified type. Enforced by the Move bytecode verifier.
     max_type_nodes: Option<u64>,
+
+    /// Maximum number of "type nodes" that can be instantiated in a single function.
+    max_generic_instantiation_type_nodes_per_function: Option<u64>,
+
+    /// Maximum number of "type nodes" that can be instantiated in a module.
+    max_generic_instantiation_type_nodes_per_module: Option<u64>,
 
     /// Maximum number of push instructions in one function. Enforced by the Move bytecode verifier.
     max_push_size: Option<u64>,
@@ -2646,6 +2660,10 @@ impl ProtocolConfig {
         self.feature_flags.cancel_for_failed_dkg_early
     }
 
+    pub fn always_advance_dkg_to_resolution(&self) -> bool {
+        self.feature_flags.always_advance_dkg_to_resolution
+    }
+
     pub fn abstract_size_in_object_runtime(&self) -> bool {
         self.feature_flags.abstract_size_in_object_runtime
     }
@@ -3018,6 +3036,8 @@ impl ProtocolConfig {
             max_basic_blocks: Some(1024),
             max_value_stack_size: Some(1024),
             max_type_nodes: Some(256),
+            max_generic_instantiation_type_nodes_per_function: None,
+            max_generic_instantiation_type_nodes_per_module: None,
             max_push_size: Some(10000),
             max_struct_definitions: Some(200),
             max_function_definitions: Some(1000),
@@ -4982,6 +5002,40 @@ impl ProtocolConfig {
                     // withdrawals are handled (early exit on insufficient funds).
                     cfg.feature_flags.early_exit_on_iffw = true;
                 }
+                119 => {
+                    // v119 consolidates upstream protocol versions 127-128.
+
+                    // From upstream v127: advance DKG to resolution unconditionally,
+                    // close epochs based on timestamps, and refresh gas prices for
+                    // range proofs and ristretto group operations.
+                    cfg.feature_flags.always_advance_dkg_to_resolution = true;
+
+                    cfg.verify_bulletproofs_ristretto255_base_cost = Some(23866);
+                    cfg.verify_bulletproofs_ristretto255_cost_per_bit_and_commitment = Some(1324);
+                    cfg.group_ops_ristretto_decode_scalar_cost = Some(5);
+                    cfg.group_ops_ristretto_decode_point_cost = Some(216);
+                    cfg.group_ops_ristretto_scalar_add_cost = Some(2);
+                    cfg.group_ops_ristretto_point_add_cost = Some(8);
+                    cfg.group_ops_ristretto_scalar_sub_cost = Some(2);
+                    cfg.group_ops_ristretto_point_sub_cost = Some(8);
+                    cfg.group_ops_ristretto_scalar_mul_cost = Some(5);
+                    cfg.group_ops_ristretto_point_mul_cost = Some(1763);
+                    cfg.group_ops_ristretto_scalar_div_cost = Some(557);
+                    cfg.group_ops_ristretto_point_div_cost = Some(2244);
+
+                    if chain != Chain::Mainnet {
+                        cfg.feature_flags.enable_ristretto255_group_ops = true;
+                        cfg.feature_flags.enable_verify_bulletproofs_ristretto255 = true;
+                    }
+
+                    cfg.feature_flags.timestamp_based_epoch_close = true;
+
+                    // From upstream v128: make implicit binary table bounds explicit.
+                    cfg.max_generic_instantiation_type_nodes_per_function = Some(10_000);
+                    cfg.max_generic_instantiation_type_nodes_per_module = Some(500_000);
+                    cfg.binary_enum_defs = Some(200);
+                    cfg.binary_enum_def_instantiations = Some(100);
+                }
                 // Use this template when making changes:
                 //
                 //     // modify an existing constant.
@@ -5062,6 +5116,12 @@ impl ProtocolConfig {
             max_basic_blocks: Some(self.max_basic_blocks() as usize),
             max_value_stack_size: self.max_value_stack_size() as usize,
             max_type_nodes: Some(self.max_type_nodes() as usize),
+            max_generic_instantiation_type_nodes_per_function: self
+                .max_generic_instantiation_type_nodes_per_function_as_option()
+                .map(|v| v as usize),
+            max_generic_instantiation_type_nodes_per_module: self
+                .max_generic_instantiation_type_nodes_per_module_as_option()
+                .map(|v| v as usize),
             max_push_size: Some(self.max_push_size() as usize),
             max_dependency_depth: Some(self.max_dependency_depth() as usize),
             max_fields_in_struct: Some(self.max_fields_in_struct() as usize),
@@ -5435,6 +5495,10 @@ impl ProtocolConfig {
 
     pub fn set_cancel_for_failed_dkg_early_for_testing(&mut self, val: bool) {
         self.feature_flags.cancel_for_failed_dkg_early = val;
+    }
+
+    pub fn set_always_advance_dkg_to_resolution_for_testing(&mut self, val: bool) {
+        self.feature_flags.always_advance_dkg_to_resolution = val;
     }
 
     pub fn set_use_mfp_txns_in_load_initial_object_debts_for_testing(&mut self, val: bool) {

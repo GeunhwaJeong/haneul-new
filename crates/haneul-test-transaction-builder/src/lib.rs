@@ -28,6 +28,7 @@ use haneul_types::{HANEUL_FRAMEWORK_PACKAGE_ID, HANEUL_RANDOMNESS_STATE_OBJECT_I
 use haneul_types::{HANEUL_SYSTEM_PACKAGE_ID, TypeTag};
 use move_core_types::ident_str;
 use move_core_types::u256::U256;
+use rand::Rng;
 use shared_crypto::intent::{Intent, IntentMessage};
 use std::path::PathBuf;
 
@@ -677,6 +678,15 @@ impl TestTransactionBuilder {
 
     pub fn build_and_sign(self, signer: &dyn Signer<Signature>) -> Transaction {
         Transaction::from_data_and_signer(self.build(), vec![signer])
+    }
+
+    // ensure that transaction is unique
+    pub fn ensure_unique(mut self) -> Self {
+        let nonce: u64 = rand::thread_rng().r#gen();
+        self.ptb_builder
+            .force_separate_pure(nonce)
+            .expect("nonce serialization is infallible");
+        self
     }
 
     pub fn build_and_sign_multisig(

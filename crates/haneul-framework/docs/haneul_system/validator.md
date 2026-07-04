@@ -1273,6 +1273,7 @@ Set new commission rate for the candidate validator.
     <b>assert</b>!(self.<a href="../haneul_system/validator.md#haneul_system_validator_is_preactive">is_preactive</a>(), <a href="../haneul_system/validator.md#haneul_system_validator_ENotValidatorCandidate">ENotValidatorCandidate</a>);
     <b>assert</b>!(new_commission_rate &lt;= <a href="../haneul_system/validator.md#haneul_system_validator_MAX_COMMISSION_RATE">MAX_COMMISSION_RATE</a>, <a href="../haneul_system/validator.md#haneul_system_validator_ECommissionRateTooHigh">ECommissionRateTooHigh</a>);
     self.<a href="../haneul_system/validator.md#haneul_system_validator_commission_rate">commission_rate</a> = new_commission_rate;
+    self.next_epoch_commission_rate = new_commission_rate;
 }
 </code></pre>
 
