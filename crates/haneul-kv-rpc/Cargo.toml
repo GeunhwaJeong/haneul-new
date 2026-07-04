@@ -37,7 +37,6 @@ haneul-protocol-config.workspace = true
 haneul-rpc.workspace = true
 haneul-rpc-api.workspace = true
 haneul-sdk-types.workspace = true
-haneul-storage.workspace = true
 haneul-types.workspace = true
 telemetry-subscribers.workspace = true
 thiserror.workspace = true
@@ -47,3 +46,7 @@ tonic-prost.workspace = true
 tonic-reflection.workspace = true
 prost.workspace = true
 tracing.workspace = true
+
+[dev-dependencies]
+# `test-util` powers `#[tokio::test(start_paused = true)]` in the limiter tests.
+tokio = { workspace = true, features = ["test-util"] }

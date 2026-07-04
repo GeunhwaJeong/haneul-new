@@ -35,7 +35,6 @@ use haneul_execution::Executor;
 use haneul_protocol_config::Chain;
 use haneul_protocol_config::PerObjectCongestionControlMode;
 use haneul_types::accumulator_root::AccumulatorObjId;
-use haneul_types::crypto::RandomnessRound;
 use haneul_types::dynamic_field::visitor as DFV;
 use haneul_types::execution::ExecutionOutput;
 use haneul_types::execution::ExecutionTimeObservationKey;
@@ -43,7 +42,6 @@ use haneul_types::execution::ExecutionTiming;
 use haneul_types::execution_params::ExecutionOrEarlyError;
 use haneul_types::execution_params::FundsWithdrawStatus;
 use haneul_types::execution_params::get_early_execution_error;
-use haneul_types::execution_status::ExecutionStatus;
 use haneul_types::inner_temporary_store::PackageStoreWithFallback;
 use haneul_types::layout_resolver::LayoutResolver;
 use haneul_types::layout_resolver::into_struct_layout;
@@ -100,15 +98,14 @@ use std::{
 use tap::TapFallible;
 use tokio::sync::RwLock;
 use tokio::sync::mpsc::unbounded_channel;
+use tokio::sync::oneshot;
 use tokio::sync::watch::error::RecvError;
-use tokio::sync::{mpsc, oneshot};
-use tokio::task::JoinHandle;
 use tokio::time::timeout;
 use tracing::{debug, error, info, instrument, warn};
 
 use self::authority_store::ExecutionLockWriteGuard;
 use self::authority_store_pruner::{AuthorityStorePruningMetrics, PrunerWatermarks};
-pub use authority_store::{AuthorityStore, ResolverWrapper, UpdateType};
+pub use authority_store::{AuthorityStore, ResolverWrapper};
 use haneullabs_metrics::{monitored_scope, spawn_monitored_task};
 
 use crate::jsonrpc_index::IndexStore;
@@ -124,6 +121,7 @@ use haneul_json_rpc_types::{
     HaneulTransactionBlockEvents, TransactionFilter,
 };
 use haneul_macros::{fail_point, fail_point_arg, fail_point_async, fail_point_if};
+use haneul_rpc_store::Store as RpcStore;
 use haneul_storage::key_value_store::{TransactionKeyValueStore, TransactionKeyValueStoreTrait};
 use haneul_storage::key_value_store_metrics::KeyValueStoreMetrics;
 use haneul_types::accumulator_root::AccumulatorValue;
@@ -178,7 +176,7 @@ use haneul_types::{
     transaction::*,
 };
 use haneul_types::{TypeTag, is_system_package};
-use haneullabs_common::{debug_fatal, debug_fatal_no_invariant};
+use haneullabs_common::debug_fatal;
 use shared_crypto::intent::{Intent, IntentScope};
 use typed_store::TypedStoreError;
 use typed_store::rocks::StagedBatch;
@@ -328,6 +326,7 @@ pub struct AuthorityMetrics {
 
     /// Consensus commit and transaction handler metrics
     pub consensus_handler_processed: IntCounterVec,
+    pub consensus_handler_processed_user_transactions: IntCounterVec,
     pub consensus_handler_transaction_sizes: HistogramVec,
     pub consensus_handler_deferred_transactions: IntCounter,
     pub consensus_handler_congested_transactions: IntCounter,
@@ -643,14 +642,20 @@ impl AuthorityMetrics {
             .unwrap(),
             consensus_handler_processed: register_int_counter_vec_with_registry!(
                 "consensus_handler_processed",
-                "Number of transactions processed by consensus handler",
-                &["class"],
+                "Number of transactions processed by consensus handler, sliced by class and commit outcome (accepted/rejected)",
+                &["class", "outcome"],
+                registry
+            ).unwrap(),
+            consensus_handler_processed_user_transactions: register_int_counter_vec_with_registry!(
+                "consensus_handler_processed_user_transactions",
+                "Number of user transactions processed by consensus handler, sliced by commit outcome (accepted/rejected) and block author",
+                &["outcome", "authority"],
                 registry
             ).unwrap(),
             consensus_handler_transaction_sizes: register_histogram_vec_with_registry!(
                 "consensus_handler_transaction_sizes",
-                "Sizes of each type of transactions processed by consensus handler",
-                &["class"],
+                "Sizes of each type of transactions processed by consensus handler, sliced by class and commit outcome (accepted/rejected)",
+                &["class", "outcome"],
                 POSITIVE_INT_BUCKETS.to_vec(),
                 registry
             ).unwrap(),
@@ -1291,12 +1296,6 @@ impl AuthorityState {
             .check_system_overload_at_signing
     }
 
-    pub fn check_system_overload_at_execution(&self) -> bool {
-        self.config
-            .authority_overload_config
-            .check_system_overload_at_execution
-    }
-
     pub(crate) fn check_system_overload(
         &self,
         tx_data: &SenderSignedData,
@@ -1466,7 +1465,7 @@ impl AuthorityState {
     ///
     /// Should only be called within haneul-core.
     #[instrument(level = "trace", skip_all)]
-    pub async fn try_execute_immediately(
+    pub fn try_execute_immediately(
         &self,
         certificate: &VerifiedExecutableTransaction,
         mut execution_env: ExecutionEnv,
@@ -1644,26 +1643,6 @@ impl AuthorityState {
         )
     }
 
-    /// Test only wrapper for `try_execute_immediately()` above, useful for executing change epoch
-    /// transactions. Assumes execution will always succeed.
-    pub async fn try_execute_for_test(
-        &self,
-        certificate: &VerifiedCertificate,
-        execution_env: ExecutionEnv,
-    ) -> (VerifiedSignedTransactionEffects, Option<ExecutionError>) {
-        let epoch_store = self.epoch_store_for_testing();
-        let (effects, execution_error_opt) = self
-            .try_execute_immediately(
-                &VerifiedExecutableTransaction::new_from_certificate(certificate.clone()),
-                execution_env,
-                &epoch_store,
-            )
-            .await
-            .unwrap();
-        let signed_effects = self.sign_effects(effects, &epoch_store).unwrap();
-        (signed_effects, execution_error_opt)
-    }
-
     pub async fn try_execute_executable_for_test(
         &self,
         executable: &VerifiedExecutableTransaction,
@@ -1672,7 +1651,6 @@ impl AuthorityState {
         let epoch_store = self.epoch_store_for_testing();
         let (effects, execution_error_opt) = self
             .try_execute_immediately(executable, execution_env, &epoch_store)
-            .await
             .unwrap();
         self.flush_post_processing(executable.digest()).await;
         let signed_effects = self.sign_effects(effects, &epoch_store).unwrap();
@@ -2432,15 +2410,19 @@ impl AuthorityState {
             .into());
         }
 
-        // Cheap validity checks for a transaction, including input size limits.
-        transaction.validity_check_no_gas_check(epoch_store.protocol_config())?;
-
+        // Compute input/receiving object kinds before mock gas injection so the mock
+        // gas reference is not included in input_object_kinds (it is added to
+        // input_objects directly after object loading).
         let input_object_kinds = transaction.input_objects()?;
         let receiving_object_refs = transaction.receiving_objects();
 
-        // Create and inject mock gas coin before pre_object_load_checks so that
-        // funds withdrawal processing sees non-empty payment and doesn't incorrectly
-        // create an address balance withdrawal for gas.
+        // Inject mock gas coin before validity_check so that on protocol versions
+        // where address-balance gas payments are not yet enabled, the non-empty
+        // payment check in validity_check passes for simulate/dev-inspect requests
+        // submitted without explicit gas.
+        // Also required before pre_object_load_checks so that funds-withdrawal
+        // processing sees non-empty payment and doesn't create an address-balance
+        // withdrawal for gas.
         // Skip mock gas for gasless transactions — they don't use gas coins.
         let is_gasless = protocol_config.enable_gasless() && transaction.is_gasless_transaction();
         let mock_gas_object = if allow_mock_gas_coin && transaction.gas().is_empty() && !is_gasless
@@ -2459,6 +2441,9 @@ impl AuthorityState {
         } else {
             None
         };
+
+        // Full validity check including gas budget and price.
+        transaction.validity_check(&epoch_store.tx_validity_check_context())?;
 
         let declared_withdrawals = self.pre_object_load_checks(
             &transaction,
@@ -2571,7 +2556,7 @@ impl AuthorityState {
                 .iter()
                 .filter(|(id, _)| !address_funds.contains(id))
                 .any(|(id, max_withdraw)| {
-                    let (balance, _) = self.get_account_funds_read().get_latest_account_amount(id);
+                    let balance = self.get_account_funds_read().get_latest_account_amount(id);
                     balance < *max_withdraw
                 });
 
@@ -3407,15 +3392,14 @@ impl AuthorityState {
 
         let requested_object_seq = match request.request_kind {
             ObjectInfoRequestKind::LatestObjectInfo => {
-                let (_, seq, _) = self
-                    .get_object_or_tombstone(request.object_id)
-                    .await
-                    .ok_or_else(|| {
-                        HaneulError::from(UserInputError::ObjectNotFound {
-                            object_id: request.object_id,
-                            version: None,
-                        })
-                    })?;
+                let (_, seq, _) =
+                    self.get_object_or_tombstone(request.object_id)
+                        .ok_or_else(|| {
+                            HaneulError::from(UserInputError::ObjectNotFound {
+                                object_id: request.object_id,
+                                version: None,
+                            })
+                        })?;
                 seq
             }
             ObjectInfoRequestKind::PastObjectInfoDebug(seq) => seq,
@@ -3452,8 +3436,7 @@ impl AuthorityState {
             // Only address owned objects have locks.
             None
         } else {
-            self.get_transaction_lock(&object.compute_object_reference(), &epoch_store)
-                .await?
+            self.get_transaction_lock(&object.compute_object_reference(), &epoch_store)?
                 .map(|s| s.into_inner())
         };
 
@@ -3558,6 +3541,7 @@ impl AuthorityState {
         committee_store: Arc<CommitteeStore>,
         indexes: Option<Arc<IndexStore>>,
         rpc_index: Option<Arc<RpcIndexStore>>,
+        rpc_store: Option<RpcStore>,
         checkpoint_store: Arc<CheckpointStore>,
         prometheus_registry: &Registry,
         genesis_objects: &[Object],
@@ -3594,6 +3578,7 @@ impl AuthorityState {
             store.perpetual_tables.clone(),
             checkpoint_store.clone(),
             rpc_index.clone(),
+            rpc_store,
             indexes.clone(),
             config.authority_store_pruning_config.clone(),
             epoch_store.committee().authority_exists(&name),
@@ -3713,7 +3698,6 @@ impl AuthorityState {
             if self.object_funds_checker.load().is_none() {
                 let inner = self
                     .get_object(&HANEUL_ACCUMULATOR_ROOT_OBJECT_ID)
-                    .await
                     .map(|o| {
                         Arc::new(ObjectFundsChecker::new(
                             o.version(),
@@ -3758,12 +3742,6 @@ impl AuthorityState {
 
     pub fn get_object_store(&self) -> &Arc<dyn ObjectStore + Send + Sync> {
         &self.execution_cache_trait_pointers.object_store
-    }
-
-    pub fn pending_post_processing(
-        &self,
-    ) -> &Arc<DashMap<TransactionDigest, oneshot::Receiver<PostProcessingOutput>>> {
-        &self.pending_post_processing
     }
 
     pub async fn await_post_processing(
@@ -3822,6 +3800,18 @@ impl AuthorityState {
             .database_for_testing()
     }
 
+    /// Access to the underlying authority store for diagnostic tooling (db-shell).
+    ///
+    /// Goes through `testing_api` deliberately: db-shell is read-only diagnostics
+    /// that bypasses the writeback cache, and we want the execution path to have
+    /// no other route to the raw `AuthorityStore`. Using the testing API here
+    /// keeps that invariant visible — diagnostic code is the only non-test caller.
+    pub fn authority_store(&self) -> Arc<AuthorityStore> {
+        self.execution_cache_trait_pointers
+            .testing_api
+            .database_for_testing()
+    }
+
     pub fn cache_for_testing(&self) -> &WritebackCache {
         self.execution_cache_trait_pointers
             .testing_api
@@ -3839,6 +3829,7 @@ impl AuthorityState {
             &self.database_for_testing().perpetual_tables,
             &self.checkpoint_store,
             self.rpc_index.as_deref(),
+            None,
             config.authority_store_pruning_config,
             metrics,
             EPOCH_DURATION_MS_FOR_TESTING,
@@ -4050,7 +4041,6 @@ impl AuthorityState {
     ) -> Vec<(VerifiedExecutableTransaction, ExecutionEnv)> {
         let accumulator_version = self
             .get_object(&HANEUL_ACCUMULATOR_ROOT_OBJECT_ID)
-            .await
             .unwrap()
             .version();
         // Use provided checkpoint sequence, or fall back to accumulator version.
@@ -4101,7 +4091,6 @@ impl AuthorityState {
             let env = ExecutionEnv::new().with_assigned_versions(assigned);
             let (effects, _) = self
                 .try_execute_immediately(&tx.clone(), env.clone(), &epoch_store)
-                .await
                 .unwrap();
             assert!(effects.status().is_ok());
             replay_txns.push((tx, env));
@@ -4131,7 +4120,6 @@ impl AuthorityState {
         let env = ExecutionEnv::new().with_assigned_versions(barrier_assigned);
         let (effects, _) = self
             .try_execute_immediately(&barrier.clone(), env.clone(), &epoch_store)
-            .await
             .unwrap();
         assert!(effects.status().is_ok());
         replay_txns.push((barrier, env));
@@ -4157,7 +4145,6 @@ impl AuthorityState {
         for (tx, env) in txns {
             let (effects, _) = self
                 .try_execute_immediately(tx, env.clone(), &epoch_store)
-                .await
                 .unwrap();
             assert!(effects.status().is_ok());
         }
@@ -4405,14 +4392,13 @@ impl AuthorityState {
     }
 
     #[instrument(level = "trace", skip_all)]
-    pub async fn get_object(&self, object_id: &ObjectID) -> Option<Object> {
+    pub fn get_object(&self, object_id: &ObjectID) -> Option<Object> {
         self.get_object_store().get_object(object_id)
     }
 
-    pub async fn get_haneul_system_package_object_ref(&self) -> HaneulResult<ObjectRef> {
+    pub fn get_haneul_system_package_object_ref(&self) -> HaneulResult<ObjectRef> {
         Ok(self
             .get_object(&HANEUL_SYSTEM_ADDRESS.into())
-            .await
             .expect("framework object should always exist")
             .compute_object_reference())
     }
@@ -4478,30 +4464,6 @@ impl AuthorityState {
     /// Chain Identifier is the digest of the genesis checkpoint.
     pub fn get_chain_identifier(&self) -> ChainIdentifier {
         self.chain_identifier
-    }
-
-    pub fn get_fork_recovery_state(&self) -> Option<&ForkRecoveryState> {
-        self.fork_recovery_state.as_ref()
-    }
-
-    #[instrument(level = "trace", skip_all)]
-    pub fn get_move_object<T>(&self, object_id: &ObjectID) -> HaneulResult<T>
-    where
-        T: DeserializeOwned,
-    {
-        let o = self.get_object_read(object_id)?.into_object()?;
-        if let Some(move_object) = o.data.try_as_move() {
-            Ok(bcs::from_bytes(move_object.contents()).map_err(|e| {
-                HaneulErrorKind::ObjectDeserializationError {
-                    error: format!("{e}"),
-                }
-            })?)
-        } else {
-            Err(HaneulErrorKind::ObjectDeserializationError {
-                error: format!("Provided object : [{object_id}] is not a Move object."),
-            }
-            .into())
-        }
     }
 
     /// This function aims to serve rpc reads on past objects and
@@ -4742,7 +4704,7 @@ impl AuthorityState {
     }
 
     #[instrument(level = "trace", skip_all)]
-    pub async fn get_move_objects<T>(
+    pub fn get_move_objects<T>(
         &self,
         owner: HaneulAddress,
         type_: MoveObjectType,
@@ -5227,17 +5189,14 @@ impl AuthorityState {
         Ok(events)
     }
 
-    pub async fn insert_genesis_object(&self, object: Object) {
+    pub fn insert_genesis_object(&self, object: Object) {
         self.get_reconfig_api().insert_genesis_object(object);
     }
 
-    pub async fn insert_genesis_objects(&self, objects: &[Object]) {
-        futures::future::join_all(
-            objects
-                .iter()
-                .map(|o| self.insert_genesis_object(o.clone())),
-        )
-        .await;
+    pub fn insert_genesis_objects(&self, objects: &[Object]) {
+        for o in objects {
+            self.insert_genesis_object(o.clone());
+        }
     }
 
     /// Make a status response for a transaction
@@ -5261,8 +5220,7 @@ impl AuthorityState {
                     TransactionEvents::default()
                 };
                 // The cert_sig slot is permanently None: validators no longer aggregate or
-                // persist per-transaction quorum signatures (the transaction_cert_signatures
-                // table is deprecated and unwritten).
+                // persist per-transaction quorum signatures.
                 return Ok(Some((
                     (*transaction).clone().into_message(),
                     TransactionStatus::Executed(None, effects.into_inner(), events),
@@ -5428,7 +5386,7 @@ impl AuthorityState {
     /// Returns None if a lock record is initialized for the given ObjectRef but not yet locked by any transaction,
     ///     or cannot find the transaction in transaction table, because of data race etc.
     #[instrument(level = "trace", skip_all)]
-    pub async fn get_transaction_lock(
+    pub fn get_transaction_lock(
         &self,
         object_ref: &ObjectRef,
         epoch_store: &AuthorityPerEpochStore,
@@ -5453,11 +5411,11 @@ impl AuthorityState {
         epoch_store.get_signed_transaction(&lock_info.tx_digest)
     }
 
-    pub async fn get_objects(&self, objects: &[ObjectID]) -> Vec<Option<Object>> {
+    pub fn get_objects(&self, objects: &[ObjectID]) -> Vec<Option<Object>> {
         self.get_object_cache_reader().get_objects(objects)
     }
 
-    pub async fn get_object_or_tombstone(&self, object_id: ObjectID) -> Option<ObjectRef> {
+    pub fn get_object_or_tombstone(&self, object_id: ObjectID) -> Option<ObjectRef> {
         self.get_object_cache_reader()
             .get_latest_object_ref_or_tombstone(object_id)
     }
@@ -5568,7 +5526,7 @@ impl AuthorityState {
         binary_config: &BinaryConfig,
     ) -> Option<Vec<(SequenceNumber, Vec<Vec<u8>>, Vec<ObjectID>)>> {
         let ids: Vec<_> = system_packages.iter().map(|(id, _, _)| *id).collect();
-        let objects = self.get_objects(&ids).await;
+        let objects = self.get_objects(&ids);
 
         let mut res = Vec::with_capacity(system_packages.len());
         for (system_package_ref, object) in system_packages.into_iter().zip_debug_eq(objects.iter())
@@ -6387,133 +6345,6 @@ impl AuthorityState {
         self.get_reconfig_api()
             .clear_state_end_of_epoch(&self.execution_lock_for_reconfiguration().await);
         Ok(())
-    }
-}
-
-pub struct RandomnessRoundReceiver {
-    authority_state: Arc<AuthorityState>,
-    randomness_rx: mpsc::Receiver<(EpochId, RandomnessRound, Vec<u8>)>,
-}
-
-impl RandomnessRoundReceiver {
-    pub fn spawn(
-        authority_state: Arc<AuthorityState>,
-        randomness_rx: mpsc::Receiver<(EpochId, RandomnessRound, Vec<u8>)>,
-    ) -> JoinHandle<()> {
-        let rrr = RandomnessRoundReceiver {
-            authority_state,
-            randomness_rx,
-        };
-        spawn_monitored_task!(rrr.run())
-    }
-
-    async fn run(mut self) {
-        info!("RandomnessRoundReceiver event loop started");
-
-        loop {
-            tokio::select! {
-                maybe_recv = self.randomness_rx.recv() => {
-                    if let Some((epoch, round, bytes)) = maybe_recv {
-                        self.handle_new_randomness(epoch, round, bytes).await;
-                    } else {
-                        break;
-                    }
-                },
-            }
-        }
-
-        info!("RandomnessRoundReceiver event loop ended");
-    }
-
-    #[instrument(level = "debug", skip_all, fields(?epoch, ?round))]
-    async fn handle_new_randomness(&self, epoch: EpochId, round: RandomnessRound, bytes: Vec<u8>) {
-        fail_point_async!("randomness-delay");
-
-        let epoch_store = self.authority_state.load_epoch_store_one_call_per_task();
-        if epoch_store.epoch() != epoch {
-            warn!(
-                "dropping randomness for epoch {epoch}, round {round}, because we are in epoch {}",
-                epoch_store.epoch()
-            );
-            return;
-        }
-        let key = TransactionKey::RandomnessRound(epoch, round);
-        let transaction = VerifiedTransaction::new_randomness_state_update(
-            epoch,
-            round,
-            bytes,
-            epoch_store
-                .epoch_start_config()
-                .randomness_obj_initial_shared_version()
-                .expect("randomness state obj must exist"),
-        );
-        debug!(
-            "created randomness state update transaction with digest: {:?}",
-            transaction.digest()
-        );
-        let transaction = VerifiedExecutableTransaction::new_system(transaction, epoch);
-        let digest = *transaction.digest();
-
-        // Randomness state updates contain the full bls signature for the random round,
-        // which cannot necessarily be reconstructed again later. Therefore we must immediately
-        // persist this transaction. If we crash before its outputs are committed, this
-        // ensures we will be able to re-execute it.
-        self.authority_state
-            .get_cache_commit()
-            .persist_transaction(&transaction);
-
-        // Notify the scheduler that the transaction key now has a known digest
-        if epoch_store.insert_tx_key(key, digest).is_err() {
-            warn!("epoch ended while handling new randomness");
-        }
-
-        let authority_state = self.authority_state.clone();
-        spawn_monitored_task!(async move {
-            // Wait for transaction execution in a separate task, to avoid deadlock in case of
-            // out-of-order randomness generation. (Each RandomnessStateUpdate depends on the
-            // output of the RandomnessStateUpdate from the previous round.)
-            //
-            // We set a very long timeout so that in case this gets stuck for some reason, the
-            // validator will eventually crash rather than continuing in a zombie mode.
-            const RANDOMNESS_STATE_UPDATE_EXECUTION_TIMEOUT: Duration = Duration::from_secs(300);
-            let result = tokio::time::timeout(
-                RANDOMNESS_STATE_UPDATE_EXECUTION_TIMEOUT,
-                authority_state
-                    .get_transaction_cache_reader()
-                    .notify_read_executed_effects(
-                        "RandomnessRoundReceiver::notify_read_executed_effects_first",
-                        &[digest],
-                    ),
-            )
-            .await;
-            let mut effects = match result {
-                Ok(result) => result,
-                Err(_) => {
-                    // Crash on randomness update execution timeout in debug builds.
-                    debug_fatal_no_invariant!(
-                        "randomness state update transaction execution timed out at epoch {epoch}, round {round}"
-                    );
-                    // Continue waiting as long as necessary in non-debug builds.
-                    authority_state
-                        .get_transaction_cache_reader()
-                        .notify_read_executed_effects(
-                            "RandomnessRoundReceiver::notify_read_executed_effects_second",
-                            &[digest],
-                        )
-                        .await
-                }
-            };
-
-            let effects = effects.pop().expect("should return effects");
-            if *effects.status() != ExecutionStatus::Success {
-                fatal!(
-                    "failed to execute randomness state update transaction at epoch {epoch}, round {round}: {effects:?}"
-                );
-            }
-            debug!(
-                "successfully executed randomness state update transaction at epoch {epoch}, round {round}"
-            );
-        });
     }
 }
 

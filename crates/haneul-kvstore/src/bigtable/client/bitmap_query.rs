@@ -16,7 +16,9 @@ use anyhow::Context;
 use futures::StreamExt;
 use haneul_inverted_index::BitmapBucketSource;
 use haneul_inverted_index::BucketStream;
+use haneul_inverted_index::IndexDimension;
 use haneul_inverted_index::ScanDirection;
+use haneul_inverted_index::dense_universe_buckets;
 use roaring::RoaringBitmap;
 
 use super::BigTableClient;
@@ -89,6 +91,18 @@ impl BitmapBucketSource for BigTableBitmapSource {
         range: Range<u64>,
         direction: ScanDirection,
     ) -> BucketStream {
+        // The tx universe is dense (every tx_seq in range is real), so it is
+        // synthesized here rather than stored; see `IndexDimension::TxUniverse`.
+        // Gated on the tx table: the key is only ever produced by the tx filter
+        // layer, and in event-space a dense universe would be semantically wrong.
+        if self.spec.table_name == transaction_bitmap_index::NAME
+            && dimension_key.first() == Some(&IndexDimension::TxUniverse.tag_byte())
+        {
+            return futures::stream::iter(
+                dense_universe_buckets(range, self.spec.bucket_size, direction).map(Ok),
+            )
+            .boxed();
+        }
         scan_bucket_stream(
             self.client.clone(),
             dimension_key,

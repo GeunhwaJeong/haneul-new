@@ -10,8 +10,6 @@ use std::future::Future;
 use std::ops::Range;
 use std::pin::Pin;
 use std::sync::Arc;
-use std::task::Context;
-use std::task::Poll;
 use std::time::Duration;
 use std::time::Instant;
 
@@ -22,6 +20,7 @@ use async_trait::async_trait;
 use bytes::Bytes;
 use futures::StreamExt;
 use gcp_auth::TokenProvider;
+use haneul_futures::task::TaskGuard;
 use haneul_inverted_index::ScanDirection;
 use haneul_types::base_types::EpochId;
 use haneul_types::base_types::ObjectID;
@@ -130,32 +129,6 @@ pub struct BigTableClient {
     metrics: Option<Arc<KvMetrics>>,
     app_profile_id: Option<String>,
 }
-
-struct AbortOnDrop<T> {
-    handle: tokio::task::JoinHandle<T>,
-}
-
-impl<T> AbortOnDrop<T> {
-    fn new(handle: tokio::task::JoinHandle<T>) -> Self {
-        Self { handle }
-    }
-}
-
-impl<T> Future for AbortOnDrop<T> {
-    type Output = std::result::Result<T, tokio::task::JoinError>;
-
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        Pin::new(&mut self.get_mut().handle).poll(cx)
-    }
-}
-
-impl<T> Drop for AbortOnDrop<T> {
-    fn drop(&mut self) {
-        self.handle.abort();
-    }
-}
-
-impl<T> Unpin for AbortOnDrop<T> {}
 
 impl BigTableClient {
     pub async fn new_local(host: String, instance_id: String) -> Result<Self> {
@@ -913,6 +886,12 @@ impl BigTableClient {
         keys: Vec<Vec<u8>>,
         filter: Option<RowFilter>,
     ) -> Result<Vec<(Bytes, Vec<(Bytes, Bytes)>)>> {
+        // An empty key set must never reach `build_multi_get_request`: it would
+        // produce a `RowSet` with no keys/ranges and `rows_limit = 0`, which
+        // BigTable interprets as an unbounded full-table scan. Short-circuit.
+        if keys.is_empty() {
+            return Ok(vec![]);
+        }
         let request = self.build_multi_get_request(table_name, keys, filter);
         self.read_rows(request, table_name).await
     }
@@ -938,6 +917,12 @@ impl BigTableClient {
         keys: Vec<Vec<u8>>,
         filter: Option<RowFilter>,
     ) -> Result<futures::stream::BoxStream<'static, Result<(Bytes, Vec<(Bytes, Bytes)>)>>> {
+        // See `multi_get_internal`: an empty key set would be read as a
+        // full-table scan, so emit an empty stream instead of building a
+        // request.
+        if keys.is_empty() {
+            return Ok(futures::stream::empty().boxed());
+        }
         let request = self.build_multi_get_request(table_name, keys, filter);
         let stream = self.read_rows_stream(request, table_name).await?;
         Ok(stream.boxed())
@@ -1364,7 +1349,7 @@ impl BigTableClient {
 }
 
 type TxSeqDigestScanStream = futures::stream::BoxStream<'static, Result<TxSeqDigestData>>;
-type TxSeqDigestScanTask = AbortOnDrop<Result<TxSeqDigestScanStream>>;
+type TxSeqDigestScanTask = TaskGuard<Result<TxSeqDigestScanStream>>;
 
 fn spawn_tx_seq_digest_bucket_scan(
     mut client: BigTableClient,
@@ -1372,7 +1357,7 @@ fn spawn_tx_seq_digest_bucket_scan(
     direction: ScanDirection,
     descending: bool,
 ) -> TxSeqDigestScanTask {
-    AbortOnDrop::new(tokio::spawn(async move {
+    TaskGuard::new(tokio::spawn(async move {
         open_tx_seq_digest_bucket_scan(&mut client, bucket_range, direction, descending).await
     }))
 }

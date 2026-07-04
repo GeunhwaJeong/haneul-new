@@ -18,7 +18,6 @@ use haneul_core::admission_queue::{
     AdmissionQueueContext, AdmissionQueueManager, AdmissionQueueMetrics,
 };
 use haneul_core::authority::ExecutionEnv;
-use haneul_core::authority::RandomnessRoundReceiver;
 use haneul_core::authority::authority_store_tables::AuthorityPerpetualTablesOptions;
 use haneul_core::authority::backpressure::BackpressureManager;
 use haneul_core::authority::epoch_start_configuration::EpochFlag;
@@ -27,6 +26,9 @@ use haneul_core::consensus_adapter::ConsensusClient;
 use haneul_core::consensus_manager::UpdatableConsensusClient;
 use haneul_core::epoch::randomness::RandomnessManager;
 use haneul_core::execution_cache::build_execution_cache;
+use haneul_core::randomness_round_receiver::{
+    RandomnessRoundReceiver, RandomnessRoundReceiverHandle,
+};
 use haneul_network::endpoint_manager::{AddressSource, EndpointId};
 use haneul_network::validator::server::HANEUL_TLS_SERVER_NAME;
 use haneul_types::full_checkpoint_content::Checkpoint;
@@ -112,8 +114,10 @@ use haneul_core::jsonrpc_index::IndexStore;
 use haneul_core::module_cache_metrics::ResolverMetrics;
 use haneul_core::overload_monitor::overload_monitor;
 use haneul_core::rpc_index::RpcIndexStore;
+use haneul_core::rpc_store_embed::EmbeddedRpcStore;
 use haneul_core::signature_verifier::SignatureVerifierMetrics;
 use haneul_core::storage::RocksDbStore;
+use haneul_core::storage::RpcStoreReadStore;
 use haneul_core::transaction_orchestrator::TransactionOrchestrator;
 use haneul_core::{
     authority::{AuthorityState, AuthorityStore},
@@ -149,6 +153,7 @@ use haneul_types::haneul_system_state::HaneulSystemStateTrait;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemState;
 use haneul_types::haneul_system_state::epoch_start_haneul_system_state::EpochStartSystemStateTrait;
 use haneul_types::messages_consensus::{ConsensusTransaction, check_total_jwk_size};
+use haneul_types::storage::RpcStateReader;
 use haneul_types::supported_protocol_versions::SupportedProtocolVersions;
 use haneullabs_metrics::{RegistryService, spawn_monitored_task};
 use haneullabs_service::server_timing::server_timing_middleware;
@@ -158,6 +163,7 @@ use typed_store::rocks::default_db_options;
 use crate::metrics::{GrpcMetrics, HaneulNodeMetrics};
 
 pub mod admin;
+pub mod db_shell;
 mod handle;
 pub mod metrics;
 
@@ -284,13 +290,22 @@ pub struct HaneulNode {
     // Channel to allow signaling upstream to shutdown haneul-node
     shutdown_channel_tx: broadcast::Sender<Option<RunWithRange>>,
 
+    /// Handle shared with RandomnessManager and the consensus layer.
+    randomness_receiver_handle: Arc<RandomnessRoundReceiverHandle>,
+
     /// AuthorityAggregator of the network, created at start and beginning of each epoch.
     /// Use ArcSwap so that we could mutate it without taking mut reference.
     // TODO: Eventually we can make this auth aggregator a shared reference so that this
     // update will automatically propagate to other uses.
     auth_agg: Arc<ArcSwap<AuthorityAggregator<NetworkAuthorityClient>>>,
 
-    subscription_service_checkpoint_sender: Option<tokio::sync::mpsc::Sender<Checkpoint>>,
+    subscription_service_checkpoint_sender: Option<tokio::sync::broadcast::Sender<Arc<Checkpoint>>>,
+
+    /// The embedded `haneul-rpc-store`, present when the node is configured
+    /// with `use_experimental_rpc_store`. Held for the node's lifetime
+    /// so its tip indexer keeps running (dropping it aborts the indexer).
+    /// Exposed through [`HaneulNode::embedded_rpc_store`] for introspection.
+    embedded_rpc_store: Option<EmbeddedRpcStore>,
 }
 
 impl fmt::Debug for HaneulNode {
@@ -674,27 +689,55 @@ impl HaneulNode {
                 None
             };
 
-        let rpc_index = if node_role.should_enable_index_processing()
+        let chain_identifier = epoch_store.get_chain_identifier();
+
+        // The embedded `haneul-rpc-store` and the legacy `rpc-index` are
+        // mutually exclusive index backends; selecting the experimental
+        // store skips building the old index and serves the index read
+        // paths from the embedded store instead.
+        let (rpc_index, mut embedded_rpc_store) = if node_role.should_enable_index_processing()
             && config.rpc().is_some_and(|rpc| rpc.enable_indexing())
         {
-            info!("creating rpc index store");
-            Some(Arc::new(
-                RpcIndexStore::new(
-                    &config.db_path(),
+            if config
+                .rpc()
+                .is_some_and(|rpc| rpc.use_experimental_rpc_store())
+            {
+                info!("creating embedded rpc-store");
+                // The tip indexer pulls checkpoints from the node's local
+                // checkpoint / perpetual stores via a dedicated read handle.
+                let ingestion_source = RocksDbStore::new(
+                    cache_traits.clone(),
+                    committee_store.clone(),
+                    checkpoint_store.clone(),
+                );
+                let embedded_rpc_store = EmbeddedRpcStore::bootstrap(
+                    &config,
                     &store,
                     &checkpoint_store,
-                    &epoch_store,
-                    &cache_traits.backing_package_store,
-                    pruner_watermarks.checkpoint_id.clone(),
-                    config.rpc().cloned().unwrap_or_default(),
+                    ingestion_source,
+                    chain_identifier,
+                    &prometheus_registry,
                 )
-                .await,
-            ))
+                .await?;
+                (None, Some(embedded_rpc_store))
+            } else {
+                info!("creating rpc index store");
+                let rpc_index = Arc::new(
+                    RpcIndexStore::new(
+                        &config.db_path(),
+                        &store,
+                        &checkpoint_store,
+                        &epoch_store,
+                        &cache_traits.backing_package_store,
+                        config.rpc().cloned().unwrap_or_default(),
+                    )
+                    .await,
+                );
+                (Some(rpc_index), None)
+            }
         } else {
-            None
+            (None, None)
         };
-
-        let chain_identifier = epoch_store.get_chain_identifier();
 
         info!("creating archive reader");
         // Create network
@@ -780,6 +823,7 @@ impl HaneulNode {
             committee_store.clone(),
             index_store.clone(),
             rpc_index,
+            embedded_rpc_store.as_ref().map(|embedded| embedded.store()),
             checkpoint_store.clone(),
             &prometheus_registry,
             genesis.objects(),
@@ -802,15 +846,16 @@ impl HaneulNode {
                         haneul_types::executable_transaction::CertificateProof::Checkpoint(0, 0),
                     ),
                 );
+            let _enter = span.enter();
             state
                 .try_execute_immediately(&transaction, ExecutionEnv::new(), &epoch_store)
-                .instrument(span)
-                .await
                 .unwrap();
         }
 
         // Start the loop that receives new randomness and generates transactions for it.
-        RandomnessRoundReceiver::spawn(state.clone(), randomness_rx);
+        // The returned is long-lived (node lifetime).
+        let randomness_receiver_handle =
+            RandomnessRoundReceiver::spawn(state.clone(), randomness_rx);
 
         let (end_of_epoch_channel, end_of_epoch_receiver) =
             broadcast::channel(config.end_of_epoch_broadcast_channel_capacity);
@@ -836,8 +881,22 @@ impl HaneulNode {
             &prometheus_registry,
             server_version,
             node_role,
+            embedded_rpc_store.as_ref(),
         )
         .await?;
+
+        // Start the embedded rpc-store's tip indexer. It follows the tip
+        // via the checkpoint executor's broadcast stream and backfills
+        // any gap from the perpetual store. Spawned on a background task
+        // (see `spawn_indexer`) so node startup does not block on the
+        // first checkpoint, which the executor only produces after this
+        // function returns.
+        if let Some(embedded) = embedded_rpc_store.as_mut() {
+            embedded.spawn_indexer(
+                subscription_service_checkpoint_sender.clone(),
+                prometheus_registry.clone(),
+            );
+        }
 
         let global_state_hasher = Arc::new(GlobalStateHasher::new(
             cache_traits.global_state_hash_store.clone(),
@@ -883,6 +942,7 @@ impl HaneulNode {
                 haneul_node_metrics.clone(),
                 checkpoint_metrics.clone(),
                 node_role,
+                randomness_receiver_handle.clone(),
             )
             .await?;
 
@@ -943,9 +1003,11 @@ impl HaneulNode {
 
             _state_snapshot_uploader_handle: state_snapshot_handle,
             shutdown_channel_tx: shutdown_channel,
+            randomness_receiver_handle,
 
             auth_agg,
             subscription_service_checkpoint_sender,
+            embedded_rpc_store,
         };
 
         info!("HaneulNode started!");
@@ -1285,6 +1347,7 @@ impl HaneulNode {
         haneul_node_metrics: Arc<HaneulNodeMetrics>,
         checkpoint_metrics: Arc<CheckpointMetrics>,
         node_role: NodeRole,
+        randomness_receiver_handle: Arc<RandomnessRoundReceiverHandle>,
     ) -> Result<ValidatorComponents> {
         let mut config_clone = config.clone();
         let consensus_config = config_clone
@@ -1365,6 +1428,7 @@ impl HaneulNode {
             epoch_store,
             state_sync_handle,
             randomness_handle,
+            randomness_receiver_handle,
             consensus_manager,
             consensus_store_pruner,
             global_state_hasher,
@@ -1388,6 +1452,7 @@ impl HaneulNode {
         epoch_store: Arc<AuthorityPerEpochStore>,
         state_sync_handle: state_sync::Handle,
         randomness_handle: randomness::Handle,
+        randomness_receiver_handle: Arc<RandomnessRoundReceiverHandle>,
         consensus_manager: Arc<ConsensusManager>,
         consensus_store_pruner: ConsensusStorePruner,
         state_hasher: Weak<GlobalStateHasher>,
@@ -1412,12 +1477,22 @@ impl HaneulNode {
             node_role,
         );
 
+        // Clear the VSS public key from the previous epoch so any randomness round
+        // signatures buffer in the channel until the new DKG completes.
+        randomness_receiver_handle.clear_public_key();
+
         if node_role.runs_consensus() && epoch_store.randomness_state_enabled() {
+            let authority_key_pair = if node_role.is_validator() {
+                Some(config.protocol_key_pair())
+            } else {
+                None
+            };
             let randomness_manager = RandomnessManager::try_new(
                 Arc::downgrade(&epoch_store),
                 Box::new(consensus_adapter.clone()),
                 randomness_handle,
-                config.protocol_key_pair(),
+                authority_key_pair,
+                randomness_receiver_handle.clone(),
             )
             .await;
             if let Some(randomness_manager) = randomness_manager {
@@ -1473,6 +1548,7 @@ impl HaneulNode {
                         epoch_store,
                         consensus_handler_initializer,
                         haneul_tx_validator,
+                        Some(randomness_receiver_handle),
                     )
                     .await;
             }
@@ -1550,9 +1626,6 @@ impl HaneulNode {
         };
 
         let certified_checkpoint_output = SendCheckpointToStateSync::new(state_sync_handle);
-        let max_tx_per_checkpoint = max_tx_per_checkpoint(epoch_store.protocol_config());
-        let max_checkpoint_size_bytes =
-            epoch_store.protocol_config().max_checkpoint_size_bytes() as usize;
 
         CheckpointService::build(
             state.clone(),
@@ -1563,8 +1636,6 @@ impl HaneulNode {
             checkpoint_output,
             Box::new(certified_checkpoint_output),
             checkpoint_metrics,
-            max_tx_per_checkpoint,
-            max_checkpoint_size_bytes,
         )
     }
 
@@ -1659,6 +1730,15 @@ impl HaneulNode {
         self.state.clone()
     }
 
+    /// The embedded `haneul-rpc-store` index backend, when the node runs
+    /// with `use_experimental_rpc_store`. Exposes the startup bootstrap
+    /// decision and per-cohort watermarks for introspection (used by
+    /// tests to observe restore/resume behavior across restarts without
+    /// going through the RPC surface).
+    pub fn embedded_rpc_store(&self) -> Option<&EmbeddedRpcStore> {
+        self.embedded_rpc_store.as_ref()
+    }
+
     #[cfg(any(test, msim))]
     pub fn connection_monitor_handle_for_testing(
         &self,
@@ -1679,11 +1759,24 @@ impl HaneulNode {
         self.state.committee_store().clone()
     }
 
-    /*
-    pub fn clone_authority_store(&self) -> Arc<AuthorityStore> {
-        self.state.db()
+    pub fn clone_checkpoint_store(&self) -> Arc<CheckpointStore> {
+        self.checkpoint_store.clone()
     }
-    */
+
+    pub fn clone_authority_store(&self) -> Arc<AuthorityStore> {
+        self.state.authority_store()
+    }
+
+    pub fn clone_consensus_store(
+        &self,
+    ) -> Option<Arc<consensus_core::storage::rocksdb_store::RocksDBStore>> {
+        self.validator_components
+            .try_lock()
+            .ok()?
+            .as_ref()?
+            .consensus_manager
+            .consensus_store()
+    }
 
     /// Clone an AuthorityAggregator currently used in this node, if the node is a fullnode.
     /// After reconfig, Transaction Driver builds a new AuthorityAggregator. The caller
@@ -1922,6 +2015,7 @@ impl HaneulNode {
                             new_epoch_store.clone(),
                             self.state_sync_handle.clone(),
                             self.randomness_handle.clone(),
+                            self.randomness_receiver_handle.clone(),
                             consensus_manager,
                             consensus_store_pruner,
                             weak_hasher,
@@ -1972,6 +2066,7 @@ impl HaneulNode {
                         self.metrics.clone(),
                         self.checkpoint_metrics.clone(),
                         new_role,
+                        self.randomness_receiver_handle.clone(),
                     )
                     .await?;
 
@@ -2481,6 +2576,84 @@ fn build_kv_store(
     )))
 }
 
+async fn build_json_rpc_router(
+    state: &Arc<AuthorityState>,
+    transaction_orchestrator: &Option<Arc<TransactionOrchestrator<NetworkAuthorityClient>>>,
+    config: &NodeConfig,
+    prometheus_registry: &Registry,
+) -> Result<axum::Router> {
+    let traffic_controller = state.traffic_controller.clone();
+    let mut server = JsonRpcServerBuilder::new(
+        env!("CARGO_PKG_VERSION"),
+        prometheus_registry,
+        traffic_controller,
+        config.policy_config.clone(),
+    );
+
+    let kv_store = build_kv_store(state, config, prometheus_registry)?;
+
+    let metrics = Arc::new(JsonRpcMetrics::new(prometheus_registry));
+    server.register_module(ReadApi::new(
+        state.clone(),
+        kv_store.clone(),
+        metrics.clone(),
+    ))?;
+    server.register_module(CoinReadApi::new(
+        state.clone(),
+        kv_store.clone(),
+        metrics.clone(),
+    ))?;
+
+    // if run_with_range is enabled we want to prevent any transactions
+    // run_with_range = None is normal operating conditions
+    if config.run_with_range.is_none() {
+        server.register_module(TransactionBuilderApi::new(state.clone()))?;
+    }
+    server.register_module(GovernanceReadApi::new(state.clone(), metrics.clone()))?;
+    server.register_module(BridgeReadApi::new(state.clone(), metrics.clone()))?;
+
+    if let Some(transaction_orchestrator) = transaction_orchestrator {
+        server.register_module(TransactionExecutionApi::new(
+            state.clone(),
+            transaction_orchestrator.clone(),
+            metrics.clone(),
+        ))?;
+    }
+
+    let name_service_config =
+        if let (Some(package_address), Some(registry_id), Some(reverse_registry_id)) = (
+            config.name_service_package_address,
+            config.name_service_registry_id,
+            config.name_service_reverse_registry_id,
+        ) {
+            haneul_name_service::NameServiceConfig::new(
+                package_address,
+                registry_id,
+                reverse_registry_id,
+            )
+        } else {
+            match state.get_chain_identifier().chain() {
+                Chain::Mainnet => haneul_name_service::NameServiceConfig::mainnet(),
+                Chain::Testnet => haneul_name_service::NameServiceConfig::testnet(),
+                Chain::Unknown => haneul_name_service::NameServiceConfig::default(),
+            }
+        };
+
+    server.register_module(IndexerApi::new(
+        state.clone(),
+        ReadApi::new(state.clone(), kv_store.clone(), metrics.clone()),
+        kv_store,
+        name_service_config,
+        metrics,
+        config.indexer_max_subscriptions,
+    ))?;
+    server.register_module(MoveUtils::new(state.clone()))?;
+
+    let server_type = config.jsonrpc_server_type();
+
+    Ok(server.to_router(server_type).await?)
+}
+
 async fn build_http_servers(
     state: Arc<AuthorityState>,
     store: RocksDbStore,
@@ -2489,7 +2662,11 @@ async fn build_http_servers(
     prometheus_registry: &Registry,
     server_version: ServerVersion,
     node_role: NodeRole,
-) -> Result<(HttpServers, Option<tokio::sync::mpsc::Sender<Checkpoint>>)> {
+    embedded_rpc_store: Option<&EmbeddedRpcStore>,
+) -> Result<(
+    HttpServers,
+    Option<tokio::sync::broadcast::Sender<Arc<Checkpoint>>>,
+)> {
     // Validators do not expose these APIs
     if !node_role.should_run_rpc_servers() {
         return Ok((HttpServers::default(), None));
@@ -2499,86 +2676,42 @@ async fn build_http_servers(
 
     let mut router = axum::Router::new();
 
-    let json_rpc_router = {
-        let traffic_controller = state.traffic_controller.clone();
-        let mut server = JsonRpcServerBuilder::new(
-            env!("CARGO_PKG_VERSION"),
-            prometheus_registry,
-            traffic_controller,
-            config.policy_config.clone(),
+    // The JSON-RPC service can be disabled independently of the gRPC/REST
+    // service and of JSON-RPC indexing, so that a node can keep indexing
+    // without exposing the JSON-RPC endpoints.
+    if config.json_rpc_enabled() {
+        router = router.merge(
+            build_json_rpc_router(
+                &state,
+                transaction_orchestrator,
+                config,
+                prometheus_registry,
+            )
+            .await?,
         );
+    } else {
+        info!("json-rpc service is disabled");
+    }
 
-        let kv_store = build_kv_store(&state, config, prometheus_registry)?;
-
-        let metrics = Arc::new(JsonRpcMetrics::new(prometheus_registry));
-        server.register_module(ReadApi::new(
-            state.clone(),
-            kv_store.clone(),
-            metrics.clone(),
-        ))?;
-        server.register_module(CoinReadApi::new(
-            state.clone(),
-            kv_store.clone(),
-            metrics.clone(),
-        ))?;
-
-        // if run_with_range is enabled we want to prevent any transactions
-        // run_with_range = None is normal operating conditions
-        if config.run_with_range.is_none() {
-            server.register_module(TransactionBuilderApi::new(state.clone()))?;
-        }
-        server.register_module(GovernanceReadApi::new(state.clone(), metrics.clone()))?;
-        server.register_module(BridgeReadApi::new(state.clone(), metrics.clone()))?;
-
-        if let Some(transaction_orchestrator) = transaction_orchestrator {
-            server.register_module(TransactionExecutionApi::new(
-                state.clone(),
-                transaction_orchestrator.clone(),
-                metrics.clone(),
-            ))?;
-        }
-
-        let name_service_config =
-            if let (Some(package_address), Some(registry_id), Some(reverse_registry_id)) = (
-                config.name_service_package_address,
-                config.name_service_registry_id,
-                config.name_service_reverse_registry_id,
-            ) {
-                haneul_name_service::NameServiceConfig::new(
-                    package_address,
-                    registry_id,
-                    reverse_registry_id,
-                )
-            } else {
-                match state.get_chain_identifier().chain() {
-                    Chain::Mainnet => haneul_name_service::NameServiceConfig::mainnet(),
-                    Chain::Testnet => haneul_name_service::NameServiceConfig::testnet(),
-                    Chain::Unknown => haneul_name_service::NameServiceConfig::default(),
-                }
-            };
-
-        server.register_module(IndexerApi::new(
-            state.clone(),
-            ReadApi::new(state.clone(), kv_store.clone(), metrics.clone()),
-            kv_store,
-            name_service_config,
-            metrics,
-            config.indexer_max_subscriptions,
-        ))?;
-        server.register_module(MoveUtils::new(state.clone()))?;
-
-        let server_type = config.jsonrpc_server_type();
-
-        server.to_router(server_type).await?
-    };
-
-    router = router.merge(json_rpc_router);
-
+    // When the embedded rpc-store is active, gate checkpoint delivery on the
+    // index so a client that waits for a checkpoint can immediately read its
+    // indexed state (matching the legacy synchronously-committed index).
+    let indexed_checkpoint = embedded_rpc_store.map(|embedded| embedded.indexed_checkpoint_fn());
     let (subscription_service_checkpoint_sender, subscription_service_handle) =
-        SubscriptionService::build(prometheus_registry);
+        SubscriptionService::build(prometheus_registry, indexed_checkpoint);
     let rpc_router = {
-        let mut rpc_service =
-            haneul_rpc_api::RpcService::new(Arc::new(RestReadStore::new(state.clone(), store)));
+        // Serve the index read paths from the embedded rpc-store when it
+        // is enabled, otherwise from the legacy `rpc-index`. Raw chain
+        // data comes from the perpetual / checkpoint stores either way.
+        let reader: Arc<dyn RpcStateReader> = match embedded_rpc_store {
+            Some(embedded) => Arc::new(RpcStoreReadStore::new(
+                state.clone(),
+                store,
+                embedded.reader(),
+            )),
+            None => Arc::new(RestReadStore::new(state.clone(), store)),
+        };
+        let mut rpc_service = haneul_rpc_api::RpcService::new(reader);
         rpc_service.with_server_version(server_version);
 
         if let Some(config) = config.rpc.clone() {
@@ -2653,16 +2786,6 @@ async fn build_http_servers(
         },
         Some(subscription_service_checkpoint_sender),
     ))
-}
-
-#[cfg(not(test))]
-fn max_tx_per_checkpoint(protocol_config: &ProtocolConfig) -> usize {
-    protocol_config.max_transactions_per_checkpoint() as usize
-}
-
-#[cfg(test)]
-fn max_tx_per_checkpoint(_: &ProtocolConfig) -> usize {
-    2
 }
 
 #[derive(Default)]

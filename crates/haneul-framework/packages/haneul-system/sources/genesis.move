@@ -9,7 +9,6 @@ use haneul_system::stake_subsidy;
 use haneul_system::haneul_system;
 use haneul_system::haneul_system_state_inner;
 use haneul_system::validator::{Self, Validator};
-use haneul_system::validator_set;
 
 public struct GenesisValidatorMetadata has copy, drop {
     name: vector<u8>,
@@ -82,7 +81,7 @@ fun create(
     assert!(ctx.epoch() == 0, ENotCalledAtGenesis);
 
     // Create all the `Validator` structs
-    let mut validators = vector[];
+    let mut validators = vector<Validator>[];
     genesis_validators.do!(|genesis_validator| {
         let GenesisValidatorMetadata {
             name,
@@ -123,7 +122,7 @@ fun create(
 
         // Ensure that each validator is unique
         assert!(
-            !validator_set::is_duplicate_validator(&validators, &validator),
+            validators.all!(|v| v.haneul_address() != haneul_address && !v.is_duplicate(&validator)),
             EDuplicateValidator,
         );
 

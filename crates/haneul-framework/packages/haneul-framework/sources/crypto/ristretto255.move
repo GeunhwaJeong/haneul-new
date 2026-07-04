@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /// Group operations of BLS12-381.
-/// Only available in devnet.
+/// Only available in devnet and testnet.
 module haneul::ristretto255;
 
 use haneul::bcs;

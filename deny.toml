@@ -58,31 +58,12 @@ ignore = [
     # walrus, seal, and other downstream consumers. Deferred pending a coordinated
     # ecosystem-wide bump (likely driven by fastcrypto first).
     "RUSTSEC-2026-0097",
-    # proc-macro-error2 is unmaintained, no safe upgrade — transitive build-time
-    # proc-macro via alloy-sol-macro (haneul-bridge ethereum stack); waiting for
-    # alloy to migrate.
+    # `proc-macro-error2` is unmaintained, no safe upgrade — transitive via
+    # alloy-sol-macro (haneul-bridge ethereum stack); waiting for alloy to migrate
     "RUSTSEC-2026-0173",
-    # tokio-postgres <0.7.18 panic-on-short-DataRow DoS. Only reachable if the
-    # PostgreSQL server returns a malformed DataRow; the Haneul indexer connects to
-    # its own trusted database and this is an off-chain read component (no consensus
-    # impact). Clean upgrade to >=0.7.18 is blocked by a cascading whoami/libredox
-    # resolution conflict, so the whole postgres stack must move together; deferred
-    # to inherit the upstream bump in the next release.
-    "RUSTSEC-2026-0178",
-    # http-types ASCII invariant notice, no safe upgrade — dev-dependency only,
-    # via wiremock 0.5 test mocks; not used to construct auth headers.
+    # `http-types` ASCII invariant notice, no safe upgrade — dev-dependency only,
+    # via wiremock 0.5 test mocks; not used to construct auth headers
     "RUSTSEC-2026-0174",
-    # quick-xml <0.41 algorithmic-complexity DoS when parsing untrusted XML
-    # (duplicate-attribute check is O(N²); unbounded xmlns bindings). Only
-    # reachable via object_store, which uses quick-xml solely to parse XML API
-    # responses from operator-configured cloud storage endpoints (S3/GCS/Azure)
-    # — not attacker-controlled input. The fix requires quick-xml >=0.41 but
-    # object_store pins ^0.38 and no patched object_store release exists yet;
-    # revisit when object_store bumps its quick-xml dependency.
-    "RUSTSEC-2026-0194",
-    # Same reachability argument as RUSTSEC-2026-0194 (quick-xml NsReader
-    # namespace-binding memory growth; same object_store-only dependency path).
-    "RUSTSEC-2026-0195",
 ]
 # Threshold for security vulnerabilities, any vulnerability with a CVSS score
 # lower than the range specified will be ignored. Note that ignored advisories

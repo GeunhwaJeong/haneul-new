@@ -15,8 +15,8 @@ use haneul_rpc_api::{
 use haneul_types::storage::ObjectKey;
 use std::collections::HashMap;
 
-use super::render_json;
 use crate::PackageResolver;
+use crate::render::render_json;
 
 pub const MAX_BATCH_REQUESTS: usize = 1000;
 

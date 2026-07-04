@@ -2927,8 +2927,6 @@ pub trait TransactionDataAPI {
 
     fn validity_check(&self, context: &TxValidityCheckContext<'_>) -> HaneulResult;
 
-    fn validity_check_no_gas_check(&self, config: &ProtocolConfig) -> UserInputResult;
-
     /// Check if the transaction is compliant with sponsorship.
     fn check_sponsorship(&self) -> UserInputResult;
 
@@ -3457,13 +3455,6 @@ impl TransactionDataAPI for TransactionDataV1 {
             }
         }
 
-        self.validity_check_no_gas_check(config)?;
-        Ok(())
-    }
-
-    // Keep all the logic for validity here, we need this for dry run where the gas
-    // may not be provided and created "on the fly"
-    fn validity_check_no_gas_check(&self, config: &ProtocolConfig) -> UserInputResult {
         self.kind().validity_check(config)?;
 
         if config.enable_gasless() && self.is_gasless_transaction() {
@@ -3471,12 +3462,14 @@ impl TransactionDataAPI for TransactionDataV1 {
                 debug_fatal!("gasless transaction is not a ProgrammableTransaction");
                 return Err(UserInputError::Unsupported(
                     "Gasless transactions must be programmable transactions".to_string(),
-                ));
+                )
+                .into());
             };
             pt.validate_gasless_transaction(config)?;
         }
 
-        self.check_sponsorship()
+        self.check_sponsorship()?;
+        Ok(())
     }
 
     /// Check if the transaction is sponsored (namely gas owner != sender)

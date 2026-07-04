@@ -95,7 +95,6 @@ pub(crate) async fn list_events(
         endpoint.default_limit_items,
         endpoint.max_limit_items,
         QueryType::Events,
-        filter.as_ref(),
     )?;
     let limit_items = options.limit_items;
     let ordering = options.ordering;
@@ -621,11 +620,17 @@ fn render_event_chunk(
                     ),
                 )
             })?;
-        let proto_event = service.render_event_to_proto(
+        #[allow(unused_mut)]
+        let mut proto_event = service.render_event_to_proto(
             event,
             read_mask,
             &haneul_types::full_checkpoint_content::ObjectSet::default(),
         );
+        haneul_macros::fail_point_if!("corrupt_authenticated_event", || {
+            if let Some(bcs) = proto_event.contents.as_mut() {
+                bcs.value = Some(vec![0xDE, 0xAD, 0xBE, 0xEF].into());
+            }
+        });
         checkpoint_boundary =
             advance_boundary_excluding_cp(checkpoint_boundary, row.checkpoint_number, options);
         let watermark = item_watermark(

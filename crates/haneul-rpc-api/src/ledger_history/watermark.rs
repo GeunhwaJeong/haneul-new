@@ -179,14 +179,7 @@ mod tests {
         } else {
             haneul_rpc::proto::haneul::rpc::v2alpha::Ordering::Descending as i32
         };
-        QueryOptions::from_proto(
-            Some(&request),
-            100,
-            100,
-            QueryType::Transactions,
-            Option::<&haneul_rpc::proto::haneul::rpc::v2alpha::TransactionFilter>::None,
-        )
-        .unwrap()
+        QueryOptions::from_proto(Some(&request), 100, 100, QueryType::Transactions).unwrap()
     }
 
     #[test]

@@ -86,6 +86,39 @@ $ haneul keytool show 0x5d8aa70f17d9343813d3ba6a59ecf5e8a23ffb487938e860999a7229
 ╰─────────────────┴──────────────────────────────────────────────────────────────────────╯
 ```
 
+### Export a private key
+
+Use `haneul keytool export` to export the private key for an address that exists in the Haneul CLI keystore. Pass the address with the `--key-identity` flag. The `--key-identity` value can be an address or an alias, as long as the CLI identity parser recognizes it.
+
+```sh
+$ haneul keytool export --key-identity 0x3047f142a84297a42a65fb0a8c7a716d9d1b0bd0413d6bfa5ddfec45df175235
+```
+```sh
+╭────────────────────┬─────────────────────────────────────────────────────────────────────────────╮
+│ exportedPrivateKey │  haneulprivkey1q...                                                             │
+│ key                │ ╭─────────────────┬───────────────────────────────────────────────────────╮ │
+│                    │ │ alias           │  elated-diamond                                       │ │
+│                    │ │ haneulAddress      │  0x3047f142a84297a42a65fb0a8c7a716d9d1b0bd0413d6bf...  │ │
+│                    │ │ publicBase64Key │  AHsXwcxaWNaNtCIIszwu7V2G6HO8aNM1598w/8y0zI5q         │ │
+│                    │ │ keyScheme       │  ed25519                                              │ │
+│                    │ │ flag            │  0                                                    │ │
+│                    │ │ peerId          │  7b17c1cc5a58d68db42208b33c2eed5d86e873bc68d335e7...  │ │
+│                    │ ╰─────────────────┴───────────────────────────────────────────────────────╯ │
+╰────────────────────┴─────────────────────────────────────────────────────────────────────────────╯
+```
+
+The `exportedPrivateKey` field is the private key encoded in Bech32 format. It always starts with `haneulprivkey1`. You can pass this value to `haneul keytool import` to add the key to another Haneul CLI keystore.
+
+This command exports from the Haneul CLI keystore at `~/.haneul/haneul_config/haneul.keystore`. It does not export keys from browser or mobile wallets, unless you previously imported that key into the Haneul CLI keystore.
+
+:::danger
+
+The exported private key grants full control of the account, including all of its assets. Anyone who obtains it can sign transactions as you, and the action is irreversible. Never paste a private key into a chat, commit it to a repository, write it to logs, store it in CI variables, or place it in a frontend `.env` file. Keep it only in a secure secret manager or keystore.
+
+:::
+
+To add an exported key to a keystore, use `haneul keytool import`. To sign transactions without exposing the key to a connected environment, see [Offline signing](/develop/transactions/transaction-auth/offline-signing). For the keystore location and client setup, see [Configure a Haneul Client](/getting-started/onboarding/configure-haneul-client).
+
 ### Sign a transaction
 
 ```sh

@@ -19,6 +19,22 @@ pub struct RpcConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub enable_indexing: Option<bool>,
 
+    /// Use the experimental `haneul-rpc-store` backend instead of the built-in
+    /// `rpc-index`.
+    ///
+    /// When set, the node builds the embedded `haneul-rpc-store` indexer (the
+    /// derived-index and ledger-history column families, indexed independently
+    /// of the authority store) and serves the index read paths through it
+    /// rather than building the legacy `rpc-index`. The two are mutually
+    /// exclusive; raw chain data is still served from the perpetual store
+    /// either way.
+    ///
+    /// Experimental.
+    ///
+    /// Defaults to `false`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub use_experimental_rpc_store: Option<bool>,
+
     /// Configure the address to listen on for https
     ///
     /// Defaults to `0.0.0.0:9443` if not specified.
@@ -55,16 +71,6 @@ pub struct RpcConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub index_initialization: Option<RpcIndexInitConfig>,
 
-    /// Enable indexing of authenticated events
-    ///
-    /// This controls whether authenticated events are indexed and whether the authenticated
-    /// events API endpoints are available. When disabled, authenticated events are not indexed
-    /// and API calls will return an unsupported error.
-    ///
-    /// Defaults to `false`, with authenticated events indexing and API disabled
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub authenticated_events_indexing: Option<bool>,
-
     /// Enable historical checkpoint/transaction indexes for RPC queries.
     ///
     /// This flag is persisted in the `rpc-index` DB's own `settings` column
@@ -94,6 +100,10 @@ impl RpcConfig {
         self.enable_indexing.unwrap_or(false)
     }
 
+    pub fn use_experimental_rpc_store(&self) -> bool {
+        self.use_experimental_rpc_store.unwrap_or(false)
+    }
+
     pub fn https_address(&self) -> SocketAddr {
         self.https_address
             .unwrap_or_else(|| SocketAddr::from(([0, 0, 0, 0], 9443)))
@@ -114,10 +124,6 @@ impl RpcConfig {
 
     pub fn index_initialization_config(&self) -> Option<&RpcIndexInitConfig> {
         self.index_initialization.as_ref()
-    }
-
-    pub fn authenticated_events_indexing(&self) -> bool {
-        self.authenticated_events_indexing.unwrap_or(false)
     }
 
     pub fn ledger_history_indexing(&self) -> bool {
