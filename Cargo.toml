@@ -414,7 +414,7 @@ haneul-config = { path = "crates/haneul-config" }
 haneul-consistent-store = { path = "crates/haneul-consistent-store" }
 haneul-core = { path = "crates/haneul-core" }
 haneul-cost = { path = "crates/haneul-cost" }
-haneul-crypto = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "e0e1b3176f6f77099d71c455ee97f2649c5dc55c", features = [ "ed25519", "secp256r1", "secp256k1", "passkey", "zklogin" ] }
+haneul-crypto = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "ebce20536c9c9b5479777f63a78eff57f35da2f9", features = [ "ed25519", "secp256r1", "secp256k1", "passkey", "zklogin" ] }
 haneul-data-ingestion-core = { path = "crates/haneul-data-ingestion-core" }
 haneul-data-store = { path = "crates/haneul-data-store" }
 haneul-default-config = { path = "crates/haneul-default-config" }
@@ -481,7 +481,7 @@ haneul-proxy = { path = "crates/haneul-proxy" }
 haneul-replay = { path = "crates/haneul-replay" }
 haneul-replay-2 = { path = "crates/haneul-replay-2" }
 haneul-rosetta = { path = "crates/haneul-rosetta" }
-haneul-rpc = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "e0e1b3176f6f77099d71c455ee97f2649c5dc55c", features = [ "unstable" ] }
+haneul-rpc = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "ebce20536c9c9b5479777f63a78eff57f35da2f9", features = [ "unstable" ] }
 
 ### Workspace Members ###
 haneul-rpc-api = { path = "crates/haneul-rpc-api" }
@@ -489,7 +489,7 @@ haneul-rpc-loadgen = { path = "crates/haneul-rpc-loadgen" }
 haneul-rpc-resolver = { path = "crates/haneul-rpc-resolver" }
 haneul-rpc-store = { path = "crates/haneul-rpc-store" }
 haneul-sdk = { path = "crates/haneul-sdk" }
-haneul-sdk-types = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "e0e1b3176f6f77099d71c455ee97f2649c5dc55c", features = [ "hash", "serde" ] }
+haneul-sdk-types = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "ebce20536c9c9b5479777f63a78eff57f35da2f9", features = [ "hash", "serde" ] }
 haneul-simulator = { path = "crates/haneul-simulator" }
 haneul-snapshot = { path = "crates/haneul-snapshot" }
 haneul-source-validation = { path = "crates/haneul-source-validation" }

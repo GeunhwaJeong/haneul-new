@@ -16,9 +16,9 @@ title: Module `haneul::party`
 -  [Function `into_native`](#haneul_party_into_native)
 
 
-<pre><code><b>use</b> <a href="../std/option.md#std_option">std::option</a>;
+<pre><code><b>use</b> <a href="../haneul/vec_map.md#haneul_vec_map">haneul::vec_map</a>;
+<b>use</b> <a href="../std/option.md#std_option">std::option</a>;
 <b>use</b> <a href="../std/vector.md#std_vector">std::vector</a>;
-<b>use</b> <a href="../haneul/vec_map.md#haneul_vec_map">haneul::vec_map</a>;
 </code></pre>
 
 
