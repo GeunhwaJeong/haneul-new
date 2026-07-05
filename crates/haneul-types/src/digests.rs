@@ -1183,7 +1183,7 @@ mod test {
         if has_env_override() {
             return;
         }
-        let chain_id = ChainIdentifier::from_chain_short_id(&String::from("35834a8a"));
+        let chain_id = ChainIdentifier::from_chain_short_id(&String::from("a0053d9e"));
         assert_eq!(
             chain_id.unwrap().chain(),
             haneul_protocol_config::Chain::Mainnet
