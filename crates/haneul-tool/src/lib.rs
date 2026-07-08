@@ -589,6 +589,7 @@ fn start_summary_sync(
     num_parallel_downloads: usize,
     verify: bool,
     end_of_epoch_checkpoint_seq_nums: Vec<u64>,
+    start_epoch: u64,
 ) -> JoinHandle<Result<(), anyhow::Error>> {
     tokio::spawn(async move {
         let store = AuthorityStore::open_no_genesis(perpetual_db, false, &Registry::default())?;
@@ -610,7 +611,17 @@ fn start_summary_sync(
             .last()
             .expect("Expected at least one checkpoint");
 
-        let num_to_sync = end_of_epoch_checkpoint_seq_nums.len() as u64;
+        // When the ingestion store's history starts after genesis, entries
+        // before `start_epoch` are placeholders for checkpoints that were
+        // never archived — they cannot be fetched.
+        let seq_nums_to_fetch: Vec<_> = end_of_epoch_checkpoint_seq_nums
+            .iter()
+            .enumerate()
+            .filter(|(cp_epoch, _)| *cp_epoch as u64 >= start_epoch)
+            .map(|(_, seq)| *seq)
+            .collect();
+
+        let num_to_sync = seq_nums_to_fetch.len() as u64;
         let sync_progress_bar = m.add(
             ProgressBar::new(num_to_sync).with_style(
                 ProgressStyle::with_template("[{elapsed_precise}] {wide_bar} {pos}/{len} ({msg})")
@@ -652,7 +663,7 @@ fn start_summary_sync(
             ingestion_url,
             num_parallel_downloads,
             state_sync_store.clone(),
-            end_of_epoch_checkpoint_seq_nums.clone(),
+            seq_nums_to_fetch,
             sync_checkpoint_counter,
         )
         .await?;
@@ -663,8 +674,17 @@ fn start_summary_sync(
             .get_checkpoint_by_sequence_number(*last_checkpoint)?
             .ok_or(anyhow!("Failed to read last checkpoint"))?;
         if verify {
+            // With a partial archive, the first available end-of-epoch
+            // checkpoint (epoch `start_epoch`) is the trust root: the
+            // checkpoint carrying the committee that signed it was never
+            // archived, so it cannot be verified and is trusted as-is.
+            let num_to_verify = if start_epoch > 0 {
+                num_to_sync.saturating_sub(1)
+            } else {
+                num_to_sync
+            };
             let verify_progress_bar = m.add(
-                ProgressBar::new(num_to_sync).with_style(
+                ProgressBar::new(num_to_verify).with_style(
                     ProgressStyle::with_template(
                         "[{elapsed_precise}] {wide_bar} {pos}/{len} ({msg})",
                     )
@@ -696,10 +716,14 @@ fn start_summary_sync(
             for (cp_epoch, epoch_last_cp_seq_num) in
                 end_of_epoch_checkpoint_seq_nums.iter().enumerate()
             {
+                let cp_epoch = cp_epoch as u64;
+                if start_epoch > 0 && cp_epoch <= start_epoch {
+                    continue;
+                }
                 let epoch_last_checkpoint = checkpoint_store
                     .get_checkpoint_by_sequence_number(*epoch_last_cp_seq_num)?
                     .ok_or(anyhow!("Failed to read checkpoint"))?;
-                let committee = state_sync_store.get_committee(cp_epoch as u64).expect(
+                let committee = state_sync_store.get_committee(cp_epoch).expect(
                     "Expected committee to exist after syncing all end of epoch checkpoints",
                 );
                 epoch_last_checkpoint
@@ -788,6 +812,7 @@ pub async fn download_formal_snapshot(
     genesis: &Path,
     snapshot_store_config: ObjectStoreConfig,
     ingestion_url: &str,
+    start_epoch: u64,
     num_parallel_downloads: usize,
     num_parallel_chunks: usize,
     network: Chain,
@@ -846,6 +871,30 @@ pub async fn download_formal_snapshot(
         .into_iter()
         .take((epoch + 1) as usize)
         .collect();
+    if end_of_epoch_checkpoint_seq_nums.len() != (epoch + 1) as usize {
+        return Err(anyhow!(
+            "epochs.json in the ingestion store lists {} end-of-epoch checkpoints, \
+            but restoring epoch {} requires {}",
+            end_of_epoch_checkpoint_seq_nums.len(),
+            epoch,
+            epoch + 1,
+        ));
+    }
+    if start_epoch > 0 {
+        // Transaction digest backfill needs the end-of-epoch checkpoints of
+        // both the target epoch and the epoch before it.
+        if start_epoch >= epoch {
+            return Err(anyhow!(
+                "--start-epoch {start_epoch} must be less than the target epoch {epoch}",
+            ));
+        }
+        let msg = format!(
+            "Ingestion store history starts at epoch {start_epoch}: its end-of-epoch \
+            checkpoint is trusted as the verification root; earlier epochs are skipped.",
+        );
+        m.println(&msg)?;
+        info!("{}", msg);
+    }
 
     let summaries_handle = start_summary_sync(
         perpetual_db.clone(),
@@ -857,6 +906,7 @@ pub async fn download_formal_snapshot(
         num_parallel_downloads,
         verify != SnapshotVerifyMode::None,
         end_of_epoch_checkpoint_seq_nums.clone(),
+        start_epoch,
     );
 
     // Start transaction backfill in parallel with summary sync
@@ -1064,6 +1114,113 @@ pub async fn download_formal_snapshot(
         epoch
     );
 
+    Ok(())
+}
+
+/// Scans a local directory of `<seq>.binpb.zst` checkpoint files for
+/// end-of-epoch checkpoints and writes the `epochs.json` index expected by
+/// checkpoint ingestion stores: a JSON array where entry `i` is the sequence
+/// number of epoch `i`'s last checkpoint. Epochs that ended before the first
+/// archived checkpoint get placeholder `0` entries; a restore over such an
+/// index must pass `--start-epoch`.
+pub async fn generate_epochs_json(
+    ingestion_dir: &Path,
+    out: &Path,
+    concurrency: usize,
+) -> Result<(), anyhow::Error> {
+    let mut seq_nums: Vec<u64> = fs::read_dir(ingestion_dir)?
+        .filter_map(|entry| {
+            let name = entry.ok()?.file_name().into_string().ok()?;
+            name.strip_suffix(".binpb.zst")?.parse().ok()
+        })
+        .collect();
+    seq_nums.sort_unstable();
+    let (first, last) = match (seq_nums.first(), seq_nums.last()) {
+        (Some(first), Some(last)) => (*first, *last),
+        _ => {
+            return Err(anyhow!(
+                "no <seq>.binpb.zst checkpoint files found in {}",
+                ingestion_dir.display()
+            ));
+        }
+    };
+    if let Some(w) = seq_nums.windows(2).find(|w| w[1] != w[0] + 1) {
+        return Err(anyhow!(
+            "gap in archived checkpoints: {} is followed by {}",
+            w[0],
+            w[1]
+        ));
+    }
+    println!(
+        "Scanning {} checkpoints ({first}..={last}) for end-of-epoch checkpoints",
+        seq_nums.len()
+    );
+
+    let progress_bar = ProgressBar::new(seq_nums.len() as u64).with_style(
+        ProgressStyle::with_template("[{elapsed_precise}] {wide_bar} {pos}/{len} ({msg})").unwrap(),
+    );
+    let dir = ingestion_dir.canonicalize()?;
+    let store = build_object_store(&format!("file://{}", dir.display()), vec![]);
+    let boundaries: BTreeMap<u64, u64> = futures::stream::iter(seq_nums)
+        .map(|seq| {
+            let store = store.clone();
+            let progress_bar = progress_bar.clone();
+            async move {
+                let checkpoint = fetch_checkpoint(&store, seq).await?;
+                progress_bar.inc(1);
+                let summary = checkpoint.summary.data();
+                Ok::<_, anyhow::Error>(
+                    summary
+                        .end_of_epoch_data
+                        .as_ref()
+                        .map(|_| (summary.epoch, seq)),
+                )
+            }
+        })
+        .buffer_unordered(concurrency)
+        .try_filter_map(|entry| futures::future::ready(Ok(entry)))
+        .try_collect()
+        .await?;
+    progress_bar.finish_with_message("scan complete");
+
+    let (first_epoch, last_epoch) = match (boundaries.keys().next(), boundaries.keys().last()) {
+        (Some(first_epoch), Some(last_epoch)) => (*first_epoch, *last_epoch),
+        _ => {
+            return Err(anyhow!(
+                "no end-of-epoch checkpoints found in {} — the archive covers \
+                less than one full epoch",
+                ingestion_dir.display()
+            ));
+        }
+    };
+    // A contiguous checkpoint range must yield a contiguous epoch range.
+    if boundaries.len() as u64 != last_epoch - first_epoch + 1 {
+        return Err(anyhow!(
+            "end-of-epoch checkpoints are not contiguous: expected epochs \
+            {first_epoch}..={last_epoch}, found {}",
+            boundaries.keys().join(", ")
+        ));
+    }
+
+    let mut epochs = vec![0u64; (last_epoch + 1) as usize];
+    for (epoch, seq) in &boundaries {
+        epochs[*epoch as usize] = *seq;
+    }
+    fs::write(out, serde_json::to_vec(&epochs)?)?;
+    println!(
+        "Wrote {} entries to {}: epochs {first_epoch}..={last_epoch} have real \
+        end-of-epoch checkpoints{}",
+        epochs.len(),
+        out.display(),
+        if first_epoch > 0 {
+            format!(
+                "; entries 0..={} are placeholders — restore with --start-epoch {first_epoch}",
+                first_epoch - 1
+            )
+        } else {
+            String::new()
+        },
+    );
     Ok(())
 }
 
