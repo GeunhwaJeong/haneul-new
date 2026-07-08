@@ -4,8 +4,9 @@
 use crate::db_tool::{DbToolCommand, execute_db_tool_command, print_db_all_tables};
 use crate::{
     ConciseObjectOutput, GroupedObjectOutput, SnapshotVerifyMode, VerboseObjectOutput,
-    check_completed_snapshot, download_formal_snapshot, get_latest_available_epoch, get_object,
-    get_transaction_block, make_clients, restore_from_db_checkpoint,
+    check_completed_snapshot, download_formal_snapshot, generate_epochs_json,
+    get_latest_available_epoch, get_object, get_transaction_block, make_clients,
+    restore_from_db_checkpoint,
 };
 use anyhow::Result;
 use consensus_core::storage::{Store, rocksdb_store::RocksDBStore};
@@ -279,6 +280,38 @@ pub enum ToolCommand {
         /// Port for the Prometheus metrics server. Defaults to 9184.
         #[clap(long = "metrics-port", default_value = "9184")]
         metrics_port: u16,
+        /// URL of the checkpoint ingestion store used for checkpoint summary
+        /// sync and transaction digest backfill. If not specified, defaults
+        /// are based on the value of `--network`. Supports `https://`,
+        /// `s3://`, and `file://` URLs, e.g. `file:///path/to/checkpoints`
+        /// for a locally unpacked archive.
+        #[clap(long = "ingestion-url")]
+        ingestion_url: Option<String>,
+        /// First epoch whose end-of-epoch checkpoint is available in the
+        /// ingestion store. End-of-epoch checkpoints of earlier epochs are
+        /// neither fetched nor verified; the end-of-epoch checkpoint of this
+        /// epoch becomes the trust root for committee verification instead of
+        /// genesis. Only set this when restoring from an archive whose
+        /// checkpoint history starts after genesis.
+        #[clap(long = "start-epoch")]
+        start_epoch: Option<u64>,
+    },
+
+    /// Generate the `epochs.json` index required by a checkpoint ingestion
+    /// store, by scanning a local directory of `<seq>.binpb.zst` checkpoint
+    /// files (e.g. unpacked archive tars) for end-of-epoch checkpoints.
+    #[clap(name = "generate-epochs-json")]
+    GenerateEpochsJson {
+        /// Directory containing `<seq>.binpb.zst` checkpoint files.
+        #[clap(long = "ingestion-dir")]
+        ingestion_dir: PathBuf,
+        /// Output path for the generated index. Defaults to
+        /// `<ingestion-dir>/epochs.json`.
+        #[clap(long = "out")]
+        out: Option<PathBuf>,
+        /// Number of checkpoint files to read in parallel.
+        #[clap(long = "concurrency", default_value = "16")]
+        concurrency: usize,
     },
 
     #[clap(name = "replay")]
@@ -615,6 +648,8 @@ impl ToolCommand {
                 verbose,
                 max_retries,
                 metrics_port,
+                ingestion_url,
+                start_epoch,
             } => {
                 if !verbose {
                     tracing_handle
@@ -711,11 +746,13 @@ impl ToolCommand {
                     }
                 };
 
-                let ingestion_url = match network {
-                    Chain::Mainnet => "https://checkpoints.mainnet.haneul.io",
-                    Chain::Testnet => "https://checkpoints.testnet.haneul.io",
-                    _ => panic!("Cannot generate default ingestion url for unknown network"),
-                };
+                let ingestion_url = ingestion_url.unwrap_or_else(|| match network {
+                    Chain::Mainnet => "https://checkpoints.mainnet.haneul.io".to_string(),
+                    Chain::Testnet => "https://checkpoints.testnet.haneul.io".to_string(),
+                    _ => panic!(
+                        "--ingestion-url must be specified when --network is not mainnet or testnet"
+                    ),
+                });
 
                 let latest_available_epoch =
                     latest.then_some(get_latest_available_epoch(&snapshot_store_config).await?);
@@ -738,7 +775,8 @@ impl ToolCommand {
                     epoch_to_download,
                     &genesis,
                     snapshot_store_config,
-                    ingestion_url,
+                    &ingestion_url,
+                    start_epoch.unwrap_or(0),
                     num_parallel_downloads,
                     num_parallel_chunks,
                     network,
@@ -747,6 +785,14 @@ impl ToolCommand {
                     metrics_port,
                 )
                 .await?;
+            }
+            ToolCommand::GenerateEpochsJson {
+                ingestion_dir,
+                out,
+                concurrency,
+            } => {
+                let out = out.unwrap_or_else(|| ingestion_dir.join("epochs.json"));
+                generate_epochs_json(&ingestion_dir, &out, concurrency.max(1)).await?;
             }
             ToolCommand::Replay {
                 rpc_url,
