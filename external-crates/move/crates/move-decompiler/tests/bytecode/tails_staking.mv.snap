@@ -35,11 +35,11 @@ use 0x2::bag::Bag;
 use 0x2::balance::Balance;
 use 0x2::clock::Clock;
 use 0x2::coin::Coin;
+use 0x2::haneul::HANEUL;
 use 0x2::kiosk::Kiosk;
 use 0x2::kiosk::KioskOwnerCap;
 use 0x2::object::UID;
 use 0x2::object_table::ObjectTable;
-use 0x2::sui::SUI;
 use 0x2::transfer_policy::TransferPolicy;
 use 0x2::tx_context::TxContext;
 use 0x4b0f4ee1a40ce37ec81c987cc4e76a665419e74b863319492fc7d26f708b835a::big_vector::BigVector;
@@ -189,7 +189,7 @@ public fun claim_profit_sharing<T0>(l0: &mut Version, l1: &mut TailsStakingRegis
     return l4
 }
 
-entry fun daily_sign_up(l0: &mut Version, l1: &mut TailsStakingRegistry, l2: Coin<SUI>, l3: &Clock, l4: &TxContext) {
+entry fun daily_sign_up(l0: &mut Version, l1: &mut TailsStakingRegistry, l2: Coin<HANEUL>, l3: &Clock, l4: &TxContext) {
     ecosystem::version_check(freeze(l0));
     assert!(coin::value(&l2) == (&l1.config)[C5], C4);
     ecosystem::charge_fee(l0, coin::into_balance(l2));
@@ -234,7 +234,7 @@ public fun exp_down(l0: &Version, l1: &mut TailsStakingRegistry, l2: &mut TypusU
     abort 0u64
 }
 
-public fun exp_down_with_fee(l0: &mut Version, l1: &mut TailsStakingRegistry, l2: &mut TypusUserRegistry, l3: address, l4: u64, l5: Coin<SUI>, l6: &TxContext) {
+public fun exp_down_with_fee(l0: &mut Version, l1: &mut TailsStakingRegistry, l2: &mut TypusUserRegistry, l3: address, l4: u64, l5: Coin<HANEUL>, l6: &TxContext) {
     let l14 = tx_context::sender(l6);
     assert!(coin::value(&l5) == (&l1.config)[C6], C4);
     ecosystem::charge_fee(l0, coin::into_balance(l5));
@@ -257,7 +257,7 @@ public fun exp_down_without_staking(l0: &Version, l1: &TailsStakingRegistry, l2:
     abort 0u64
 }
 
-public fun exp_down_without_staking_with_fee(l0: &mut Version, l1: &TailsStakingRegistry, l2: &mut TypusUserRegistry, l3: &mut Kiosk, l4: &KioskOwnerCap, l5: address, l6: u64, l7: Coin<SUI>, l8: &TxContext) {
+public fun exp_down_without_staking_with_fee(l0: &mut Version, l1: &TailsStakingRegistry, l2: &mut TypusUserRegistry, l3: &mut Kiosk, l4: &KioskOwnerCap, l5: address, l6: u64, l7: Coin<HANEUL>, l8: &TxContext) {
     ecosystem::version_check(freeze(l0));
     assert!(coin::value(&l7) == (&l1.config)[C6], C4);
     ecosystem::charge_fee(l0, coin::into_balance(l7));
@@ -620,7 +620,7 @@ entry fun set_profit_sharing<T0, T1>(l0: &Version, l1: &mut TailsStakingRegistry
     event::emit(SetProfitSharingEvent { token: l19, level_profits: l2, level_counts: l10, log: l9, bcs_padding: vector[bcs::to_bytes(&l8)] })
 }
 
-public fun stake_tails(l0: &mut Version, l1: &mut TailsStakingRegistry, l2: &mut Kiosk, l3: &KioskOwnerCap, l4: address, l5: Coin<SUI>, l6: &mut TxContext) {
+public fun stake_tails(l0: &mut Version, l1: &mut TailsStakingRegistry, l2: &mut Kiosk, l3: &KioskOwnerCap, l4: address, l5: Coin<HANEUL>, l6: &mut TxContext) {
     ecosystem::version_check(freeze(l0));
     assert!(coin::value(&l5) == (&l1.config)[C2], C4);
     ecosystem::charge_fee(l0, coin::into_balance(l5));
@@ -687,7 +687,7 @@ fun stake_tails_(l0: &mut TailsStakingRegistry, l1: Tails, l2: address) {
     }
 }
 
-public fun transfer_tails(l0: &mut Version, l1: &TailsStakingRegistry, l2: &mut Kiosk, l3: &KioskOwnerCap, l4: address, l5: Coin<SUI>, l6: address, l7: &mut TxContext) {
+public fun transfer_tails(l0: &mut Version, l1: &TailsStakingRegistry, l2: &mut Kiosk, l3: &KioskOwnerCap, l4: address, l5: Coin<HANEUL>, l6: address, l7: &mut TxContext) {
     ecosystem::version_check(freeze(l0));
     assert!(coin::value(&l5) == (&l1.config)[C3], C4);
     ecosystem::charge_fee(l0, coin::into_balance(l5));

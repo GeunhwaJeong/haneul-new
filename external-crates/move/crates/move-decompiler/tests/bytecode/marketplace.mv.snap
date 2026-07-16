@@ -33,13 +33,13 @@ use 0x1::option::Option;
 use 0x2::balance::Balance;
 use 0x2::clock::Clock;
 use 0x2::coin::Coin;
+use 0x2::haneul::HANEUL;
 use 0x2::kiosk::Kiosk;
 use 0x2::kiosk::KioskOwnerCap;
 use 0x2::kiosk::PurchaseCap;
 use 0x2::linked_table::LinkedTable;
 use 0x2::object::ID;
 use 0x2::object::UID;
-use 0x2::sui::SUI;
 use 0x2::transfer_policy::TransferPolicy;
 use 0x2::transfer_policy::TransferRequest;
 use 0x2::tx_context::TxContext;
@@ -66,7 +66,7 @@ has key {
     is_permissionless: bool,
     new_collection_fee: u64,
     commission_pct: u64,
-    available_sui: Balance<SUI>,
+    available_sui: Balance<HANEUL>,
     user_activity: LinkedTable<address, UserInfo>,
     active_collections: LinkedTable<String, bool>,
     referrals: LinkedTable<address, u64>,
@@ -123,7 +123,7 @@ has key, store {
     listings: LinkedTable<ID, Listing<T0>>,
     bids: LinkedTable<ID, ActiveBids>,
     collection_bids: LinkedTable<address, vector<ActiveBid>>,
-    sui_trait_bids_pool: Balance<SUI>,
+    sui_trait_bids_pool: Balance<HANEUL>,
     are_trait_bids_enabled: bool,
     lifetime_volume: u128,
     ion_points_enabled: bool,
@@ -145,7 +145,7 @@ has store {
 
 public struct ActiveBids has key, store { id: UID, bids: LinkedTable<address, ActiveBid> }
 
-public struct ActiveBid has key, store { id: UID, bidder: address, bid_price: u64, balance: Balance<SUI>, bid_at: u64 }
+public struct ActiveBid has key, store { id: UID, bidder: address, bid_price: u64, balance: Balance<HANEUL>, bid_at: u64 }
 
 public struct ActiveTraitBid
 has key, store {
@@ -846,7 +846,7 @@ public fun award_listing_ion_points<T0: key + store>(l0: &mut MarketPlaceStore, 
     }
 }
 
-public fun buy<T0: key + store>(l0: &Clock, l1: &mut MarketPlaceStore, l2: &mut Kiosk, l3: ID, l4: Coin<SUI>, l5: &mut AnimaIONs, l6: &mut AnimaChef, l7: &mut TxContext): ( T0, TransferRequest<T0>, u64) {
+public fun buy<T0: key + store>(l0: &Clock, l1: &mut MarketPlaceStore, l2: &mut Kiosk, l3: ID, l4: Coin<HANEUL>, l5: &mut AnimaIONs, l6: &mut AnimaChef, l7: &mut TxContext): ( T0, TransferRequest<T0>, u64) {
     marketplace::validation_check(freeze(l1));
     let l46 = clock::timestamp_ms(l0);
     let l22 = tx_context::sender(freeze(l7));
@@ -1157,10 +1157,10 @@ fun create_trait_summary(l0: Option<String>, l1: Option<String>, l2: Option<Stri
     return l4
 }
 
-fun destroy_active_bid(l0: ActiveBid): Balance<SUI> {
+fun destroy_active_bid(l0: ActiveBid): Balance<HANEUL> {
     let ActiveBid { id: reg_1, bidder: reg_2, bid_price: reg_3, balance: reg_4, bid_at: reg_5 } = l0;
     object::delete(reg_1 : 0x2::object::UID);
-    return reg_4 : 0x2::balance::Balance<0x2::sui::SUI>
+    return reg_4 : 0x2::balance::Balance<0x2::haneul::HANEUL>
 }
 
 fun destroy_active_trait_bid(l0: ActiveTraitBid): u64 {
@@ -1671,7 +1671,7 @@ public entry fun list<T0: key + store>(l0: &mut MarketPlaceStore, l1: &mut Kiosk
     event::emit(ListEvent { nft_type: l18, seller: l19, kiosk_id: l16, nft_id: l3, price: l4, listed_at: l20 })
 }
 
-public entry fun make_bid<T0: key + store>(l0: &mut MarketPlaceStore, l1: Option<ID>, l2: u64, l3: Coin<SUI>, l4: &Clock, l5: &mut TxContext) {
+public entry fun make_bid<T0: key + store>(l0: &mut MarketPlaceStore, l1: Option<ID>, l2: u64, l3: Coin<HANEUL>, l4: &Clock, l5: &mut TxContext) {
     marketplace::validation_check(freeze(l0));
     let l16 = tx_context::sender(freeze(l5));
     let l21 = type_name::into_string(type_name::get());
@@ -1731,7 +1731,7 @@ public entry fun make_bid<T0: key + store>(l0: &mut MarketPlaceStore, l1: Option
     helpers::destroy_or_transfer_balance(l22, l16, l5)
 }
 
-public fun make_trait_bid<T0: key + store, T1: key + store>(l0: &Clock, l1: &mut MarketPlaceStore, l2: Coin<SUI>, l3: Option<String>, l4: Option<vector<String>>, l5: Option<String>, l6: Option<vector<String>>, l7: Option<String>, l8: Option<vector<String>>, l9: &mut TxContext): ( ActiveTraitBid, T1, TraitBidsPotato) {
+public fun make_trait_bid<T0: key + store, T1: key + store>(l0: &Clock, l1: &mut MarketPlaceStore, l2: Coin<HANEUL>, l3: Option<String>, l4: Option<vector<String>>, l5: Option<String>, l6: Option<vector<String>>, l7: Option<String>, l8: Option<vector<String>>, l9: &mut TxContext): ( ActiveTraitBid, T1, TraitBidsPotato) {
     marketplace::validation_check(freeze(l1));
     let l14 = tx_context::sender(freeze(l9));
     let l17 = type_name::into_string(type_name::get());
@@ -1761,7 +1761,7 @@ public fun make_trait_bid<T0: key + store, T1: key + store>(l0: &Clock, l1: &mut
     return (l10, l21, l16)
 }
 
-public fun permissionless_add_collection<T0: key + store>(l0: &mut MarketPlaceStore, l1: Coin<SUI>, l2: &mut TxContext) {
+public fun permissionless_add_collection<T0: key + store>(l0: &mut MarketPlaceStore, l1: Coin<HANEUL>, l2: &mut TxContext) {
     marketplace::validation_check(freeze(l0));
     assert!(l0.is_permissionless, C15);
     let l4 = type_name::into_string(type_name::get());
