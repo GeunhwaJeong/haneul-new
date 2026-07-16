@@ -61,6 +61,7 @@ use haneul_move_build::BuildConfig as HaneulBuildConfig;
 use haneul_package_alt::{HaneulFlavor, find_environment};
 use haneul_pg_db::DbArgs;
 use haneul_pg_db::temp::{LocalDatabase, get_available_port};
+use haneul_prompt::{self, execute_prompt_command};
 use haneul_protocol_config::Chain;
 use haneul_replay_2 as SR2;
 use haneul_rpc_api::Client;
@@ -379,6 +380,10 @@ pub enum HaneulCommand {
         #[clap(subcommand)]
         cmd: haneul_move::Command,
     },
+
+    /// Expert Haneul and Move knowledge for AI agents (run `haneul prompt` to start).
+    #[clap(name = "prompt")]
+    Prompt(haneul_prompt::Prompt),
 
     /// Command to initialize the bridge committee, usually used when
     /// running local bridge cluster.
@@ -716,6 +721,10 @@ impl HaneulCommand {
                     }
                 }
             }
+            HaneulCommand::Prompt(prompt) => {
+                execute_prompt_command(prompt)?;
+                Ok(())
+            }
             HaneulCommand::BridgeInitialize {
                 network_config,
                 client_config,
@@ -1029,21 +1038,16 @@ async fn start(
         swarm_builder = swarm_builder.with_data_ingestion_dir(dir.clone());
     }
 
-    let mut fullnode_rpc_address = haneul_config::node::default_json_rpc_address();
-    fullnode_rpc_address.set_port(fullnode_rpc_port);
-
-    if no_full_node {
+    let fullnode_rpc_address = if no_full_node {
         swarm_builder = swarm_builder.with_fullnode_count(0);
+        let mut fullnode_rpc_address = haneul_config::node::default_json_rpc_address();
+        fullnode_rpc_address.set_port(fullnode_rpc_port);
+        fullnode_rpc_address
     } else {
         let rpc_config = haneul_config::RpcConfig {
             enable_indexing: Some(true),
             ..Default::default()
         };
-
-        swarm_builder = swarm_builder
-            .with_fullnode_count(1)
-            .with_fullnode_rpc_addr(fullnode_rpc_address)
-            .with_fullnode_rpc_config(rpc_config.clone());
 
         let fullnode_config_path = config_dir.join(HANEUL_FULLNODE_CONFIG);
         if fullnode_config_path.exists() {
@@ -1054,7 +1058,7 @@ async fn start(
                         fullnode_config_path
                     ))
                 })?;
-            fullnode_config.json_rpc_address = fullnode_rpc_address;
+            fullnode_config.json_rpc_address.set_port(fullnode_rpc_port);
             fullnode_config.rpc = Some(rpc_config);
             let localhost = haneul_config::local_ip_utils::localhost_for_testing();
             fullnode_config.metrics_address =
@@ -1072,9 +1076,21 @@ async fn start(
                     .checkpoint_executor_config
                     .data_ingestion_dir = Some(dir.clone());
             }
-            swarm_builder = swarm_builder.with_fullnode_config(fullnode_config);
+            let fullnode_rpc_address = fullnode_config.json_rpc_address;
+            swarm_builder = swarm_builder
+                .with_fullnode_count(1)
+                .with_fullnode_config(fullnode_config);
+            fullnode_rpc_address
+        } else {
+            let mut fullnode_rpc_address = haneul_config::node::default_json_rpc_address();
+            fullnode_rpc_address.set_port(fullnode_rpc_port);
+            swarm_builder = swarm_builder
+                .with_fullnode_count(1)
+                .with_fullnode_rpc_addr(fullnode_rpc_address)
+                .with_fullnode_rpc_config(rpc_config);
+            fullnode_rpc_address
         }
-    }
+    };
 
     let mut swarm = swarm_builder.build();
     swarm.launch().await?;

@@ -19,7 +19,6 @@ roaring.workspace = true
 rocksdb = { version = "0.22.0", default-features = false, features = ["snappy", "lz4", "zstd", "zlib", "multi-threaded-cf"] }
 serde.workspace = true
 haneul-consistent-store.workspace = true
-haneul-default-config.workspace = true
 haneul-execution.workspace = true
 haneul-futures.workspace = true
 haneul-indexer-alt-framework = { workspace = true, default-features = false }

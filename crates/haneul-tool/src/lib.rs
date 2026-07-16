@@ -1160,7 +1160,7 @@ pub async fn generate_epochs_json(
         ProgressStyle::with_template("[{elapsed_precise}] {wide_bar} {pos}/{len} ({msg})").unwrap(),
     );
     let dir = ingestion_dir.canonicalize()?;
-    let store = build_object_store(&format!("file://{}", dir.display()), vec![]);
+    let store = build_object_store(&format!("file://{}", dir.display()), vec![], vec![]);
     let boundaries: BTreeMap<u64, u64> = futures::stream::iter(seq_nums)
         .map(|seq| {
             let store = store.clone();
@@ -1272,7 +1272,7 @@ async fn backfill_epoch_transaction_digests(
         ),
     );
 
-    let client = build_object_store(&ingestion_url, vec![]);
+    let client = build_object_store(&ingestion_url, vec![], vec![]);
     let checkpoint_counter = Arc::new(AtomicU64::new(0));
     let tx_counter = Arc::new(AtomicU64::new(0));
     let cloned_checkpoint_counter = checkpoint_counter.clone();

@@ -473,7 +473,11 @@ fn function(context: &mut Context, name: FunctionName, f: N::Function) -> T::Fun
     function_signature(context, macro_, &signature);
     expand::function_signature(context, &mut signature);
     let body = if macro_.is_some() {
-        sp(n_body.loc, T::FunctionBody_::Macro)
+        let body_loc = n_body.loc;
+        if context.env().ide_mode() {
+            ide_macro_body(context, name, n_body)
+        }
+        sp(body_loc, T::FunctionBody_::Macro)
     } else {
         function_body(context, n_body)
     };
@@ -519,6 +523,31 @@ fn function_signature(context: &mut Context, macro_: Option<Loc>, sig: &N::Funct
     };
     context.return_type = Some(core::instantiate(context, &return_type));
     core::solve_constraints(context);
+}
+
+/// Best-effort typing of a macro function body in IDE mode. Uses declared parameter types
+/// (already in scope from function_signature) to type the body, generating IDE annotations
+/// (DotAutocompleteInfo, etc.). Diagnostics from this best-effort pass are discarded.
+/// Speculatively typed macro function body is added to the current context's IDEInfo.
+fn ide_macro_body(context: &mut Context, function_name: FunctionName, n_body: N::FunctionBody) {
+    let reporter = context.outer.env.ide_diagnostic_reporter();
+    let old_reporter = std::mem::replace(&mut context.reporter, reporter);
+    let old_ide_typing_macro_body = context.ide_typing_macro_body;
+    context.ide_typing_macro_body = true;
+
+    let body = function_body(context, n_body);
+    if let T::FunctionBody_::Defined(seq) = body.value {
+        let module = *context
+            .current_module()
+            .expect("ICE macro function should be typed inside a module");
+        context
+            .ide_info
+            .add_macro_function_body(module, function_name, seq);
+    }
+    finalize_ide_info(context);
+
+    context.ide_typing_macro_body = old_ide_typing_macro_body;
+    context.reporter = old_reporter;
 }
 
 fn function_body(context: &mut Context, sp!(loc, nb_): N::FunctionBody) -> T::FunctionBody {
@@ -1735,7 +1764,9 @@ fn exp(context: &mut Context, ne: Box<N::Exp>) -> Box<T::Exp> {
             );
             match ty_call_opt {
                 None => {
-                    assert!(context.env().has_errors());
+                    context.assert_has_errors(
+                        "ICE method call failure should have already resulted in an error",
+                    );
                     (context.error_type(eloc), TE::UnresolvedError)
                 }
                 Some(ty_call) => ty_call,
@@ -1767,7 +1798,9 @@ fn exp(context: &mut Context, ne: Box<N::Exp>) -> Box<T::Exp> {
             );
             match ty_call_opt {
                 None => {
-                    assert!(context.env().has_errors());
+                    context.assert_has_errors(
+                        "ICE macro method call failure should have already resulted in an error",
+                    );
                     (context.error_type(eloc), TE::UnresolvedError)
                 }
                 Some(ty_call) => ty_call,
@@ -1785,13 +1818,22 @@ fn exp(context: &mut Context, ne: Box<N::Exp>) -> Box<T::Exp> {
                 nargs_,
             )
         }
-        NE::VarCall(_, sp!(_, nargs_)) => {
+        NE::VarCall(var, sp!(_, nargs_)) => {
             exp_vec(context, nargs_);
-            assert!(
-                context.env().has_errors(),
-                "ICE unbound var call. Should be expanded"
-            );
-            (context.error_type(eloc), TE::UnresolvedError)
+            if context.ide_typing_macro_body {
+                // Example: in `macro fun m($f: |u64| -> bool) { let x = $f(0); }`, `$f(0)`
+                // is normally typed only after macro expansion. This IDE-only pass types the
+                // macro body before expansion, so recover `bool` from `$f`'s declared type.
+                let var_ty = context.get_local_type(&var);
+                let ret_ty = match var_ty.value.inner() {
+                    N::TypeInner::Fun(_, ret) => ret.clone(),
+                    _ => context.error_type(eloc),
+                };
+                (ret_ty, TE::UnresolvedError)
+            } else {
+                context.assert_has_errors("ICE unbound var call. Should be expanded");
+                (context.error_type(eloc), TE::UnresolvedError)
+            }
         }
         NE::Builtin(b, sp!(argloc, nargs_)) => {
             let args = exp_vec(context, nargs_);
@@ -2128,7 +2170,9 @@ fn exp(context: &mut Context, ne: Box<N::Exp>) -> Box<T::Exp> {
             (rhs, e_)
         }
         NE::UnresolvedError => {
-            assert!(context.env().has_errors());
+            context.assert_has_errors(
+                "ICE unresolved expression should have already resulted in an error",
+            );
             (context.error_type(eloc), TE::UnresolvedError)
         }
 
@@ -2959,7 +3003,7 @@ fn lvalue(
             TL::Ignore
         }
         NL::Error => {
-            assert!(context.env().has_errors());
+            context.assert_has_errors("ICE error lvalue should have already resulted in an error");
             TL::Ignore
         }
         NL::Var {
@@ -3815,12 +3859,16 @@ fn borrow_exp_dotted(
                 base_type: index_base_type,
             } => {
                 let Some(index_methods) = syntax_methods else {
-                    assert!(context.env().has_errors());
+                    context.assert_has_errors(
+                        "ICE missing index methods should have already resulted in an error",
+                    );
                     exp = make_error_exp(context, loc);
                     break;
                 };
                 if matches!(index_base_type.value.inner(), TI::UnresolvedError) {
-                    assert!(context.env().has_errors());
+                    context.assert_has_errors(
+                        "ICE unresolved index base type should have already resulted in an error",
+                    );
                     exp = make_error_exp(context, loc);
                     break;
                 }
@@ -4150,7 +4198,9 @@ fn type_to_type_name_(
                     )
                 }
                 TI::UnresolvedError => {
-                    assert!(context.env().has_errors());
+                    context.assert_has_errors(
+                        "ICE unresolved type should have already resulted in an error",
+                    );
                     return None;
                 }
                 TI::Ref(_, _) | TI::Var(_) => {
@@ -4794,7 +4844,9 @@ fn expand_macro(
 
     let valid = context.add_macro_expansion(m, f, call_loc);
     if !valid {
-        assert!(context.env().has_errors());
+        context.assert_has_errors(
+            "ICE invalid macro expansion should have already resulted in an error",
+        );
         return (context.error_type(call_loc), TE::UnresolvedError);
     }
     let res = match macro_expand::call(context, call_loc, m, f, type_args.clone(), args, return_ty)

@@ -107,7 +107,6 @@ members = [
   "crates/haneul-cost",
   "crates/haneul-data-ingestion-core",
   "crates/haneul-data-store",
-  "crates/haneul-default-config",
   "crates/haneul-display",
   "crates/haneul-e2e-tests",
   "crates/haneul-enum-compat-util",
@@ -161,6 +160,7 @@ members = [
   "crates/haneul-package-resolver",
   "crates/haneul-pg-db",
   "crates/haneul-proc-macros",
+  "crates/haneul-prompt",
   "crates/haneul-protocol-config",
   "crates/haneul-protocol-config-macros",
   "crates/haneul-proxy",
@@ -169,6 +169,7 @@ members = [
   "crates/haneul-rosetta",
   "crates/haneul-rpc-api",
   "crates/haneul-rpc-benchmark",
+  "crates/haneul-rpc-cursor",
   "crates/haneul-rpc-loadgen",
   "crates/haneul-rpc-resolver",
   "crates/haneul-rpc-store",
@@ -230,7 +231,7 @@ members = [
 
 [workspace.package]
 # This version string will be inherited by haneul-core, haneul-faucet, haneul-node, haneul-tools, haneul-sdk, haneul-move-build, and haneul crates.
-version = "1.4.0"
+version = "1.5.0"
 
 [profile.release]
 # debug = 1 means line charts only, which is minimum needed for good stack traces
@@ -414,10 +415,9 @@ haneul-config = { path = "crates/haneul-config" }
 haneul-consistent-store = { path = "crates/haneul-consistent-store" }
 haneul-core = { path = "crates/haneul-core" }
 haneul-cost = { path = "crates/haneul-cost" }
-haneul-crypto = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "ebce20536c9c9b5479777f63a78eff57f35da2f9", features = [ "ed25519", "secp256r1", "secp256k1", "passkey", "zklogin" ] }
+haneul-crypto = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "4f0dc46dd7c2d6ddb4799d7b3c1e17378645a819", features = [ "ed25519", "secp256r1", "secp256k1", "passkey", "zklogin" ] }
 haneul-data-ingestion-core = { path = "crates/haneul-data-ingestion-core" }
 haneul-data-store = { path = "crates/haneul-data-store" }
-haneul-default-config = { path = "crates/haneul-default-config" }
 haneul-display = { path = "crates/haneul-display" }
 haneul-e2e-tests = { path = "crates/haneul-e2e-tests" }
 haneul-enum-compat-util = { path = "crates/haneul-enum-compat-util" }
@@ -475,21 +475,23 @@ haneul-package-management = { path = "crates/haneul-package-management" }
 haneul-package-resolver = { path = "crates/haneul-package-resolver" }
 haneul-pg-db = { path = "crates/haneul-pg-db" }
 haneul-proc-macros = { path = "crates/haneul-proc-macros" }
+haneul-prompt = { path = "crates/haneul-prompt" }
 haneul-protocol-config = { path = "crates/haneul-protocol-config" }
 haneul-protocol-config-macros = { path = "crates/haneul-protocol-config-macros" }
 haneul-proxy = { path = "crates/haneul-proxy" }
 haneul-replay = { path = "crates/haneul-replay" }
 haneul-replay-2 = { path = "crates/haneul-replay-2" }
 haneul-rosetta = { path = "crates/haneul-rosetta" }
-haneul-rpc = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "ebce20536c9c9b5479777f63a78eff57f35da2f9", features = [ "unstable" ] }
+haneul-rpc = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "4f0dc46dd7c2d6ddb4799d7b3c1e17378645a819", features = [ "unstable" ] }
 
 ### Workspace Members ###
 haneul-rpc-api = { path = "crates/haneul-rpc-api" }
+haneul-rpc-cursor = { path = "crates/haneul-rpc-cursor" }
 haneul-rpc-loadgen = { path = "crates/haneul-rpc-loadgen" }
 haneul-rpc-resolver = { path = "crates/haneul-rpc-resolver" }
 haneul-rpc-store = { path = "crates/haneul-rpc-store" }
 haneul-sdk = { path = "crates/haneul-sdk" }
-haneul-sdk-types = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "ebce20536c9c9b5479777f63a78eff57f35da2f9", features = [ "hash", "serde" ] }
+haneul-sdk-types = { git = "https://github.com/GeunhwaJeong/haneul-rust-sdk.git", rev = "4f0dc46dd7c2d6ddb4799d7b3c1e17378645a819", features = [ "hash", "serde" ] }
 haneul-simulator = { path = "crates/haneul-simulator" }
 haneul-snapshot = { path = "crates/haneul-snapshot" }
 haneul-source-validation = { path = "crates/haneul-source-validation" }
@@ -705,7 +707,7 @@ tokio-rustls = { version = "0.26", default-features = false, features = [
   "tls12",
   "ring",
 ] }
-tokio-stream = { version = "0.1.14", features = ["sync", "net"] }
+tokio-stream = { version = "0.1.14", features = ["sync", "net", "time"] }
 tokio-tungstenite = { version = "0.26.2", features = ["connect"] }
 tokio-util = "0.7.18"
 toml = { version = "0.7.4", features = ["preserve_order"] }

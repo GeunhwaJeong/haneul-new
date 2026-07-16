@@ -244,6 +244,11 @@ pub fn create_server_cert_enforce_peer(
     dynamic_peers: DynamicPeerValidationConfig,
     static_peers: Option<StaticPeerValidationConfig>,
 ) -> Result<(ServerConfig, Option<HaneulNodeProvider>), haneul_tls::rustls::Error> {
+    // Capture before the cert/key destructure moves out the rest of the struct.
+    let hashi_object_id = dynamic_peers.hashi_object_id.clone();
+    let rpc_url = dynamic_peers.url.clone();
+    let poll_interval = dynamic_peers.interval;
+
     let (Some(certificate_path), Some(private_key_path)) =
         (dynamic_peers.certificate_file, dynamic_peers.private_key)
     else {
@@ -254,7 +259,7 @@ pub fn create_server_cert_enforce_peer(
     let static_peers = load_static_peers(static_peers).map_err(|e| {
         haneul_tls::rustls::Error::General(format!("unable to load static pub keys: {}", e))
     })?;
-    let allower = HaneulNodeProvider::new(dynamic_peers.url, dynamic_peers.interval, static_peers);
+    let allower = HaneulNodeProvider::new(rpc_url, poll_interval, static_peers, hashi_object_id);
     allower.poll_peer_list();
     let c = ClientCertVerifier::new(allower.clone(), HANEUL_VALIDATOR_SERVER_NAME.to_string())
         .rustls_server_config(

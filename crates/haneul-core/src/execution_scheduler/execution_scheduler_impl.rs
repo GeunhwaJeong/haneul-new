@@ -5,7 +5,6 @@ use crate::{
     accumulators::funds_read::AccountFundsRead,
     authority::{
         AuthorityMetrics, ExecutionEnv, authority_per_epoch_store::AuthorityPerEpochStore,
-        epoch_start_configuration::EpochStartConfigTrait,
         shared_object_version_manager::Schedulable,
     },
     execution_cache::{ObjectCacheRead, TransactionCacheRead},
@@ -174,8 +173,8 @@ impl ExecutionScheduler {
         scheduler_type: FundsWithdrawSchedulerType,
         address_funds_scheduler_metrics: &Arc<AddressFundsSchedulerMetrics>,
     ) -> Option<FundsWithdrawScheduler> {
-        let withdraw_scheduler_enabled = epoch_store.node_role().process_consensus_commits()
-            && epoch_store.accumulators_enabled();
+        let withdraw_scheduler_enabled =
+            epoch_store.node_role().runs_consensus() && epoch_store.accumulators_enabled();
         if !withdraw_scheduler_enabled {
             return None;
         }

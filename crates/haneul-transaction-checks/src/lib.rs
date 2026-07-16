@@ -12,6 +12,7 @@ mod checked {
     use haneul_types::base_types::{ObjectID, ObjectRef};
     use haneul_types::error::{HaneulResult, UserInputError, UserInputResult};
     use haneul_types::executable_transaction::VerifiedExecutableTransaction;
+    use haneul_types::gas::HaneulGasStatusAPI;
     use haneul_types::metrics::BytecodeVerifierMetrics;
     use haneul_types::object::ObjectPermission;
     use haneul_types::transaction::{

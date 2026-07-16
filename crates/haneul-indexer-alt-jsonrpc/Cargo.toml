@@ -54,7 +54,6 @@ move-binary-format.workspace = true
 move-core-types.workspace = true
 haneullabs-common.workspace = true
 
-haneul-default-config.workspace = true
 haneul-display.workspace = true
 haneul-futures.workspace = true
 haneul-indexer-alt-consistent-store.workspace = true
@@ -69,6 +68,7 @@ haneul-open-rpc-macros.workspace = true
 haneul-package-resolver.workspace = true
 haneul-protocol-config.workspace = true
 haneul-rpc.workspace = true
+haneul-sdk-types.workspace = true
 haneul-sql-macro.workspace = true
 haneul-types.workspace = true
 

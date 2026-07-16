@@ -59,10 +59,13 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
         .await
         .unwrap();
     let events = bridge_test_cluster
-        .new_bridge_events(HashSet::from_iter([
-            TokenTransferApproved.get().unwrap().clone(),
-            TokenTransferClaimed.get().unwrap().clone(),
-        ]))
+        .new_bridge_events(
+            HashSet::from_iter([
+                TokenTransferApproved.get().unwrap().clone(),
+                TokenTransferClaimed.get().unwrap().clone(),
+            ]),
+            2,
+        )
         .await;
     // There are exactly 1 approved and 1 claimed event
     assert_eq!(events.len(), 2);
@@ -104,11 +107,14 @@ async fn test_bridge_from_eth_to_haneul_to_eth() {
     .await
     .unwrap();
     let events = bridge_test_cluster
-        .new_bridge_events(HashSet::from_iter([
-            HaneulToEthTokenBridgeV1.get().unwrap().clone(),
-            TokenTransferApproved.get().unwrap().clone(),
-            TokenTransferClaimed.get().unwrap().clone(),
-        ]))
+        .new_bridge_events(
+            HashSet::from_iter([
+                HaneulToEthTokenBridgeV1.get().unwrap().clone(),
+                TokenTransferApproved.get().unwrap().clone(),
+                TokenTransferClaimed.get().unwrap().clone(),
+            ]),
+            2,
+        )
         .await;
     // There are exactly 1 deposit and 1 approved event
     assert_eq!(events.len(), 2);
@@ -202,10 +208,13 @@ async fn test_bridge_from_eth_to_haneul_to_eth_v2() {
         .await
         .unwrap();
     let events = bridge_test_cluster
-        .new_bridge_events(HashSet::from_iter([
-            TokenTransferApproved.get().unwrap().clone(),
-            TokenTransferClaimed.get().unwrap().clone(),
-        ]))
+        .new_bridge_events(
+            HashSet::from_iter([
+                TokenTransferApproved.get().unwrap().clone(),
+                TokenTransferClaimed.get().unwrap().clone(),
+            ]),
+            2,
+        )
         .await;
     assert_eq!(events.len(), 2);
 
@@ -245,11 +254,14 @@ async fn test_bridge_from_eth_to_haneul_to_eth_v2() {
     .await
     .unwrap();
     let events = bridge_test_cluster
-        .new_bridge_events(HashSet::from_iter([
-            HaneulToEthTokenBridgeV2.get().unwrap().clone(),
-            TokenTransferApproved.get().unwrap().clone(),
-            TokenTransferClaimed.get().unwrap().clone(),
-        ]))
+        .new_bridge_events(
+            HashSet::from_iter([
+                HaneulToEthTokenBridgeV2.get().unwrap().clone(),
+                TokenTransferApproved.get().unwrap().clone(),
+                TokenTransferClaimed.get().unwrap().clone(),
+            ]),
+            2,
+        )
         .await;
     assert_eq!(events.len(), 2);
     info!(

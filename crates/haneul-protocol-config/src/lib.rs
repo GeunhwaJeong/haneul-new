@@ -32,7 +32,7 @@ use tracing::{info, warn};
 
 /// The minimum and maximum protocol versions supported by this build.
 const MIN_PROTOCOL_VERSION: u64 = 1;
-const MAX_PROTOCOL_VERSION: u64 = 119;
+const MAX_PROTOCOL_VERSION: u64 = 120;
 
 const TESTNET_USDC: &str =
     "0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC";
@@ -337,6 +337,9 @@ const MAINNET_USDB: &str =
 //              Enable timestamp-based epoch close on mainnet.
 //              Update gas prices for range proofs and ristretto group operations.
 //              Make some additional bounds to binary tables explicit.
+// Version 120: Enable unified linkage in PTBs.
+//              Add `insert_before` and `insert_after` to `haneul::linked_table`.
+//              Make binary pool bounds explicit.
 
 #[derive(Copy, Clone, Debug, Hash, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ProtocolVersion(u64);
@@ -1112,6 +1115,10 @@ struct FeatureFlags {
     // If true, exit early for IFWW transactions.
     #[serde(skip_serializing_if = "is_false")]
     early_exit_on_iffw: bool,
+
+    // If true enable unified linkage
+    #[serde(skip_serializing_if = "is_false")]
+    enable_unified_linkage: bool,
 }
 
 fn is_false(b: &bool) -> bool {
@@ -1262,6 +1269,13 @@ impl ConsensusNetwork {
 #[derive(Clone, Serialize, Debug, ProtocolConfigAccessors, ProtocolConfigOverride)]
 pub struct ProtocolConfig {
     pub version: ProtocolVersion,
+
+    /// The chain this config was instantiated for. Unlike the other fields, this is not a
+    /// versioned protocol constant: it identifies the network rather than describing protocol
+    /// behavior, so it is intentionally excluded from serialization (and from the config
+    /// snapshots) and is populated directly from the chain passed to `get_for_version`.
+    #[serde(skip)]
+    chain: Chain,
 
     feature_flags: FeatureFlags,
 
@@ -2031,6 +2045,11 @@ pub struct AliasedAddress {
 
 // feature flags
 impl ProtocolConfig {
+    /// The chain this config was instantiated for (see the `chain` field).
+    pub fn chain(&self) -> Chain {
+        self.chain
+    }
+
     // Add checks for feature flag support here, e.g.:
     // pub fn check_new_protocol_feature_supported(&self) -> Result<(), Error> {
     //     if self.feature_flags.new_protocol_feature_supported {
@@ -2864,6 +2883,10 @@ impl ProtocolConfig {
     pub fn early_exit_on_iffw(&self) -> bool {
         self.feature_flags.early_exit_on_iffw
     }
+
+    pub fn enable_unified_linkage(&self) -> bool {
+        self.feature_flags.enable_unified_linkage
+    }
 }
 
 #[cfg(not(msim))]
@@ -2895,6 +2918,7 @@ impl ProtocolConfig {
 
         let mut ret = Self::get_for_version_impl(version, chain);
         ret.version = version;
+        ret.chain = chain;
 
         ret = Self::apply_config_override(version, ret);
 
@@ -2917,6 +2941,7 @@ impl ProtocolConfig {
         if version.0 >= ProtocolVersion::MIN.0 && version.0 <= ProtocolVersion::MAX_ALLOWED.0 {
             let mut ret = Self::get_for_version_impl(version, chain);
             ret.version = version;
+            ret.chain = chain;
             ret = Self::apply_config_override(version, ret);
             Some(ret)
         } else {
@@ -2986,6 +3011,7 @@ impl ProtocolConfig {
         let mut cfg = Self {
             // will be overwritten before being returned
             version,
+            chain,
 
             // All flags are disabled in V1
             feature_flags: Default::default(),
@@ -5036,6 +5062,14 @@ impl ProtocolConfig {
                     cfg.binary_enum_defs = Some(200);
                     cfg.binary_enum_def_instantiations = Some(100);
                 }
+                120 => {
+                    // v120 tracks upstream protocol version 129.
+
+                    // From upstream v129: enable unified linkage in PTBs; the
+                    // framework gains insert_before/insert_after on linked_table
+                    // and binary pool bounds become explicit.
+                    cfg.feature_flags.enable_unified_linkage = true;
+                }
                 // Use this template when making changes:
                 //
                 //     // modify an existing constant.
@@ -5335,6 +5369,10 @@ impl ProtocolConfig {
 
     pub fn set_enable_party_transfer_for_testing(&mut self, val: bool) {
         self.feature_flags.enable_party_transfer = val
+    }
+
+    pub fn set_enable_unified_linkage_for_testing(&mut self, val: bool) {
+        self.feature_flags.enable_unified_linkage = val
     }
 
     pub fn set_consensus_distributed_vote_scoring_strategy_for_testing(&mut self, val: bool) {

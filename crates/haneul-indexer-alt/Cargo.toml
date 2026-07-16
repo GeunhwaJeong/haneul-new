@@ -34,7 +34,6 @@ toml.workspace = true
 tracing.workspace = true
 url.workspace = true
 
-haneul-default-config.workspace = true
 haneul-indexer-alt-framework = { workspace = true, features = ["postgres"] }
 haneul-indexer-alt-metrics.workspace = true
 haneul-indexer-alt-schema.workspace = true

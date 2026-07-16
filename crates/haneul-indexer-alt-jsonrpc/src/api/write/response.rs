@@ -6,14 +6,20 @@ use std::str::FromStr;
 
 use anyhow::Context as _;
 use haneul_json_rpc_types::BalanceChange as HaneulBalanceChange;
+use haneul_json_rpc_types::DevInspectResults;
 use haneul_json_rpc_types::DryRunTransactionBlockResponse;
+use haneul_json_rpc_types::HaneulArgument;
 use haneul_json_rpc_types::HaneulEvent;
+use haneul_json_rpc_types::HaneulExecutionResult;
+use haneul_json_rpc_types::HaneulExecutionStatus;
 use haneul_json_rpc_types::HaneulTransactionBlock;
 use haneul_json_rpc_types::HaneulTransactionBlockData;
 use haneul_json_rpc_types::HaneulTransactionBlockEffects;
+use haneul_json_rpc_types::HaneulTransactionBlockEffectsAPI;
 use haneul_json_rpc_types::HaneulTransactionBlockEvents;
 use haneul_json_rpc_types::HaneulTransactionBlockResponse;
 use haneul_json_rpc_types::HaneulTransactionBlockResponseOptions;
+use haneul_json_rpc_types::HaneulTypeTag;
 use haneul_json_rpc_types::ObjectChange as HaneulObjectChange;
 use haneul_rpc::proto::haneul::rpc::v2 as proto;
 use haneul_types::TypeTag;
@@ -106,6 +112,52 @@ pub(super) async fn dry_run(
         input: input(ctx, tx_data, vec![]).await?.data,
         execution_error_source: None,
         suggested_gas_price,
+    })
+}
+
+pub(super) async fn dev_inspect(
+    ctx: &Context,
+    tx_data: TransactionData,
+    executed_tx: &proto::ExecutedTransaction,
+    command_outputs: &[proto::CommandResult],
+    raw_txn_data: Vec<u8>,
+    show_raw_txn_data_and_effects: bool,
+) -> Result<DevInspectResults, RpcError<Error>> {
+    let effects = deserialize_effects(executed_tx)?;
+    let tx_digest = tx_data.digest();
+
+    let raw_effects = if show_raw_txn_data_and_effects {
+        raw_effects(executed_tx)?
+    } else {
+        vec![]
+    };
+
+    let effects = effects_response(&effects)?;
+
+    // Like the legacy implementation, exactly one of `results` and `error` is set, depending on
+    // whether execution succeeded. The error message itself may be different. Legacy stringifies
+    // the executor's `ExecutionError`, which is not part of the gRPC simulate response. Here, it is
+    // recovered from the effects' execution status instead.
+    let (results, error) = match effects.status() {
+        HaneulExecutionStatus::Success => (
+            Some(
+                command_outputs
+                    .iter()
+                    .map(execution_result)
+                    .collect::<Result<Vec<_>, _>>()?,
+            ),
+            None,
+        ),
+        HaneulExecutionStatus::Failure { error } => (None, Some(error.clone())),
+    };
+
+    Ok(DevInspectResults {
+        effects,
+        events: events(ctx, tx_digest, executed_tx).await?,
+        results,
+        error,
+        raw_txn_data,
+        raw_effects,
     })
 }
 
@@ -309,4 +361,58 @@ fn effects_response(
         .clone()
         .try_into()
         .context("Failed to convert effects into JSON-RPC response type")?)
+}
+
+/// Convert a single command's outputs from the gRPC response into the dev-inspect execution
+/// result response type.
+fn execution_result(
+    command_result: &proto::CommandResult,
+) -> Result<HaneulExecutionResult, RpcError<Error>> {
+    let return_values = command_result
+        .return_values
+        .iter()
+        .map(command_output_value)
+        .collect::<Result<Vec<_>, _>>()?;
+
+    let mutable_reference_outputs = command_result
+        .mutated_by_ref
+        .iter()
+        .map(|output| {
+            let argument = haneul_argument(
+                output
+                    .argument
+                    .as_ref()
+                    .context("Missing argument in mutated-by-ref command output")?,
+            )?;
+            let (bytes, type_tag) = command_output_value(output)?;
+            Ok::<_, RpcError<Error>>((argument, bytes, type_tag))
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+
+    Ok(HaneulExecutionResult {
+        mutable_reference_outputs,
+        return_values,
+    })
+}
+
+/// Extract the BCS bytes and type of a command output from the gRPC response.
+fn command_output_value(
+    output: &proto::CommandOutput,
+) -> Result<(Vec<u8>, HaneulTypeTag), RpcError<Error>> {
+    let bcs = output
+        .value
+        .as_ref()
+        .context("Missing value in command output")?;
+
+    let type_tag = TypeTag::from_str(bcs.name())
+        .with_context(|| format!("Invalid type in command output: {:?}", bcs.name()))?;
+
+    Ok((bcs.value().to_vec(), HaneulTypeTag::from(type_tag)))
+}
+
+/// Convert an argument from the gRPC response into the JSON-RPC response type.
+fn haneul_argument(argument: &proto::Argument) -> Result<HaneulArgument, RpcError<Error>> {
+    let argument = haneul_sdk_types::Argument::try_from(argument)
+        .context("Invalid argument in command output")?;
+    Ok(haneul_types::transaction::Argument::from(argument).into())
 }

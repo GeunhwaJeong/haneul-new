@@ -32,7 +32,6 @@ use fastcrypto::hash::MultisetHash;
 use haneul_config::NodeConfig;
 use haneul_config::node::{AuthorityOverloadConfig, StateDebugDumpConfig};
 use haneul_execution::Executor;
-use haneul_protocol_config::Chain;
 use haneul_protocol_config::PerObjectCongestionControlMode;
 use haneul_types::accumulator_root::AccumulatorObjId;
 use haneul_types::dynamic_field::visitor as DFV;
@@ -263,6 +262,7 @@ pub mod consensus_tx_status_cache;
 pub(crate) mod epoch_marker_key;
 pub mod epoch_start_configuration;
 pub mod execution_time_estimator;
+pub mod finalized_transactions_cache;
 pub mod shared_object_congestion_tracker;
 pub mod shared_object_version_manager;
 pub mod submitted_transaction_cache;
@@ -332,6 +332,7 @@ pub struct AuthorityMetrics {
     pub consensus_handler_congested_transactions: IntCounter,
     pub consensus_handler_unpaid_amplification_deferrals: IntCounter,
     pub consensus_handler_cancelled_transactions: IntCounter,
+    pub consensus_handler_dropped_transactions: IntCounterVec,
     pub consensus_handler_max_object_costs: IntGaugeVec,
     pub consensus_committed_subdags: IntCounterVec,
     pub accumulator_deposits: IntCounter,
@@ -677,6 +678,12 @@ impl AuthorityMetrics {
             consensus_handler_cancelled_transactions: register_int_counter_with_registry!(
                 "consensus_handler_cancelled_transactions",
                 "Number of transactions cancelled by consensus handler",
+                registry,
+            ).unwrap(),
+            consensus_handler_dropped_transactions: register_int_counter_vec_with_registry!(
+                "consensus_handler_dropped_transactions",
+                "Number of transactions dropped by consensus handler, by drop reason",
+                &["reason"],
                 registry,
             ).unwrap(),
             consensus_handler_max_object_costs: register_int_gauge_vec_with_registry!(
@@ -1990,14 +1997,7 @@ impl AuthorityState {
             self.config.certificate_deny_config.certificate_deny_set(),
             &execution_env.funds_withdraw_status,
         );
-        // Mainnet-only: feed the accumulator (settlement) version so the address-balance gas-smash
-        // short-circuit activates at its rollout version and replays bit-for-bit. Other chains pass
-        // `None`, where the short-circuit applies unconditionally.
-        let accumulator_version = if self.chain_identifier.chain() == Chain::Mainnet {
-            execution_env.assigned_versions.accumulator_version
-        } else {
-            None
-        };
+        let accumulator_version = execution_env.assigned_versions.accumulator_version;
         let execution_params = match early_execution_error {
             None => ExecutionOrEarlyError::ok(accumulator_version),
             Some(errors) => ExecutionOrEarlyError::failed(errors, accumulator_version),
@@ -3692,7 +3692,7 @@ impl AuthorityState {
 
     async fn init_object_funds_checker(&self) {
         let epoch_store = self.epoch_store.load();
-        if self.is_validator(&epoch_store)
+        if self.node_role(&epoch_store).runs_consensus()
             && epoch_store.protocol_config().enable_object_funds_withdraw()
         {
             if self.object_funds_checker.load().is_none() {

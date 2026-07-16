@@ -10,7 +10,7 @@ use haneul_types::committee::EpochId;
 use haneul_types::deny_list_v2::check_coin_deny_list_v2_during_execution;
 use haneul_types::effects::{
     AccumulatorOperation, AccumulatorValue, AccumulatorWriteV1, TransactionEffects,
-    TransactionEvents,
+    TransactionEffectsV2, TransactionEvents,
 };
 use haneul_types::execution::{
     DynamicallyLoadedObjectMetadata, ExecutionResults, ExecutionResultsV2, SharedInput,
@@ -339,15 +339,18 @@ impl<'backing> TemporaryStore<'backing> {
         let lamport_version = self.lamport_timestamp;
         // TODO: Cleanup this clone. Potentially add unchanged_shraed_objects directly to InnerTempStore.
         let loaded_per_epoch_config_objects = self.loaded_per_epoch_config_objects.read().clone();
+        let unchanged_consensus_objects = TransactionEffectsV2::compute_unchanged_consensus_objects(
+            shared_object_refs,
+            loaded_per_epoch_config_objects,
+            &object_changes,
+        );
         let inner = self.into_inner(accumulator_running_max_withdraws);
 
         let effects = TransactionEffects::new_from_execution_v2(
             status,
             epoch,
             gas_cost_summary,
-            // TODO: Provide the list of read-only shared objects directly.
-            shared_object_refs,
-            loaded_per_epoch_config_objects,
+            unchanged_consensus_objects,
             *transaction_digest,
             lamport_version,
             object_changes,

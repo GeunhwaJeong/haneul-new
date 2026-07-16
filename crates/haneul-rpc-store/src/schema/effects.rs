@@ -11,7 +11,7 @@ use haneul_types::effects::TransactionEffects;
 use haneul_types::storage::ObjectKey;
 
 use crate::proto::StoredEffects;
-use crate::schema::keys::U64Be;
+use crate::schema::primitives::U64Be;
 
 pub const NAME: &str = "effects";
 
