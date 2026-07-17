@@ -349,12 +349,12 @@ public fun execute<T0, T1, T2, T3, T4>(l0: &mut MMState, l1: &MMRegistry, l2: &m
                     if (l126 && !(l97)) {
                         if (l98) {
                             let l104 = l90 * l87 / 1000000000u64 * 99u64 / 100u64;
-                            (reg_857, reg_858) = cetus_hedger::flash_swap_sell_sui(l2, l5, l6, l90, l104, l7, l18);
+                            (reg_857, reg_858) = cetus_hedger::flash_swap_sell_haneul(l2, l5, l6, l90, l104, l7, l18);
                             l91 = true;
                             events::emit_log_bytes(C19)
                         } else {
                             let l103 = l90 * l87 / 1000000000u64 * 101u64 / 100u64;
-                            (reg_877, reg_878) = cetus_hedger::flash_swap_buy_sui(l2, l5, l6, l90, l103, l7, l18);
+                            (reg_877, reg_878) = cetus_hedger::flash_swap_buy_haneul(l2, l5, l6, l90, l103, l7, l18);
                             l91 = true;
                             events::emit_log_bytes(C20)
                         }

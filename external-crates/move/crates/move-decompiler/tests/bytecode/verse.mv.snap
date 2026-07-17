@@ -100,7 +100,8 @@ has key, store {
 
 public struct SlotTokenPricing has key, store { id: UID, slot_number: u8, token_prices: Table<String, u64> }
 
-public struct TokenRevenue has key, store { id: UID, token_type: String, total_collected: u64, sui_balance: Balance<HANEUL> }
+public struct TokenRevenue
+has key, store { id: UID, token_type: String, total_collected: u64, haneul_balance: Balance<HANEUL> }
 
 public struct PaymentTokenRegistry has key, store { id: UID, supported_tokens: Table<String, bool>, token_list: vector<String> }
 
@@ -542,7 +543,7 @@ const C53: u8 = 1u8;
 
 const C54: u64 = 1000000u64;
 
-const C55: vector<u8> = vector[48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 50u8, 58u8, 58u8, 115u8, 117u8, 105u8, 58u8, 58u8, 83u8, 85u8, 73u8];
+const C55: vector<u8> = vector[48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 48u8, 50u8, 58u8, 58u8, 104u8, 97u8, 110u8, 101u8, 117u8, 108u8, 58u8, 58u8, 72u8, 65u8, 78u8, 69u8, 85u8, 76u8];
 
 const C56: vector<u8> = vector[82u8, 101u8, 109u8, 111u8, 118u8, 101u8, 100u8];
 
@@ -792,7 +793,7 @@ public fun create_enhanced_staking_pool<T0>(l0: Coin<T0>, l1: u64, l2: u64, l3: 
     let l16 = PoolSlotLimits { id: object::new(l9), default_max_slots_per_wallet: l7, absolute_max_slots: C52, total_users_with_custom_limits: 0u64 };
     dynamic_object_field::add(&mut (&mut l13).id, PoolSlotLimitsKey { dummy_field: false }, l16);
     let l21 = PaymentTokenRegistry { id: object::new(l9), supported_tokens: table::new(l9), token_list: vector[] };
-    let l20 = verse::get_token_type_string_sui();
+    let l20 = verse::get_token_type_string_haneul();
     table::add(&mut (&mut l21).supported_tokens, l20, true);
     (&mut (&mut l21).token_list).push_back(l20);
     dynamic_object_field::add(&mut (&mut l13).id, PaymentTokenRegistryKey { dummy_field: false }, l21);
@@ -983,7 +984,7 @@ public fun get_slot_token_price<T0>(l0: &StakingPool<T0>, l1: u8, l2: String): u
             0u64
         }
     } else {
-        if (l2 == verse::get_token_type_string_sui()) {
+        if (l2 == verse::get_token_type_string_haneul()) {
             verse::get_slot_price(l0, l1)
         } else {
             0u64
@@ -1033,7 +1034,7 @@ fun get_token_type_string_any<T0>(): String {
     return string::utf8(l2)
 }
 
-fun get_token_type_string_sui<T0>(): String {
+fun get_token_type_string_haneul<T0>(): String {
     return string::utf8(ascii::into_bytes(type_name::into_string(type_name::get())))
 }
 
@@ -1226,6 +1227,12 @@ public fun is_collection_allowed_in_slot_view<T0>(l0: &StakingPool<T0>, l1: u8, 
     return verse::is_collection_allowed_in_slot(verse::get_slot_config(&l0.slot_configs, l1), &l2)
 }
 
+fun is_haneul_token<T0>(): bool {
+    let l1 = type_name::into_string(type_name::get());
+    let l0 = ascii::string(C55);
+    return l1 == l0
+}
+
 public fun is_paused<T0>(l0: &StakingPool<T0>): bool {
     return l0.is_paused
 }
@@ -1247,12 +1254,6 @@ fun is_slot_occupied<T0>(l0: &StakingPool<T0>, l1: address, l2: u8): bool {
 fun is_slot_unlocked<T0>(l0: &StakingPool<T0>, l1: address, l2: u8): bool {
     let l4 = SlotDataKey { owner: l1, slot_number: l2 };
     return dynamic_object_field::exists_(&l0.id, l4) && (dynamic_object_field::borrow(&l0.id, l4)).is_unlocked
-}
-
-fun is_sui_token<T0>(): bool {
-    let l1 = type_name::into_string(type_name::get());
-    let l0 = ascii::string(C55);
-    return l1 == l0
 }
 
 public entry fun remove_collection_from_slot<T0>(l0: &mut StakingPool<T0>, l1: u8, l2: String, l3: &Clock, l4: &mut TxContext) {
@@ -1529,10 +1530,10 @@ public entry fun unlock_slot<T0>(l0: &mut StakingPool<T0>, l1: u8, l2: Coin<HANE
             let l11 = verse::safe_sub(l13, l15);
             transfer::public_transfer(coin::from_balance(balance::split(&mut l14, l11), l4), l22)
         };
-        let l21 = verse::get_token_type_string_sui();
+        let l21 = verse::get_token_type_string_haneul();
         let l16 = TokenRevenueKey { token_type: l21 };
         if (!(dynamic_object_field::exists_(&l0.id, l16))) {
-            let l19 = TokenRevenue { id: object::new(l4), token_type: l21, total_collected: 0u64, sui_balance: balance::zero() };
+            let l19 = TokenRevenue { id: object::new(l4), token_type: l21, total_collected: 0u64, haneul_balance: balance::zero() };
             dynamic_object_field::add(&mut l0.id, l16, l19)
         };
         let l20 = dynamic_object_field::borrow_mut(&mut l0.id, l16);
@@ -1580,7 +1581,7 @@ public entry fun unlock_slot_with_token<T0, T1>(l0: &mut StakingPool<T1>, l1: u8
         transfer::public_transfer(l2, l0.admin);
         let l16 = TokenRevenueKey { token_type: l20 };
         if (!(dynamic_object_field::exists_(&l0.id, l16))) {
-            let l18 = TokenRevenue { id: object::new(l4), token_type: l20, total_collected: 0u64, sui_balance: balance::zero() };
+            let l18 = TokenRevenue { id: object::new(l4), token_type: l20, total_collected: 0u64, haneul_balance: balance::zero() };
             dynamic_object_field::add(&mut l0.id, l16, l18)
         };
         let l19 = dynamic_object_field::borrow_mut(&mut l0.id, l16);
@@ -1684,7 +1685,7 @@ public entry fun update_slot_price<T0>(l0: &mut StakingPool<T0>, l1: u8, l2: Str
     verse::assert_not_paused(freeze(l0));
     assert!(l1 >= C53 && l1 <= C52, C29);
     let l9 = clock::timestamp_ms(l4);
-    if (l2 == verse::get_token_type_string_sui()) {
+    if (l2 == verse::get_token_type_string_haneul()) {
         let l10 = 0u64;
         let l11 = (&l0.slot_configs).length();
         loop {
@@ -1777,12 +1778,12 @@ fun verify_nft_ownership<T0: key + store>(l0: &Kiosk, l1: &KioskOwnerCap, l2: ID
     assert!(kiosk::has_item_with_type(l0, l2), C24)
 }
 
-public entry fun withdraw_sui_revenue<T0>(l0: &mut StakingPool<T0>, l1: u64, l2: &mut TxContext) {
+public entry fun withdraw_haneul_revenue<T0>(l0: &mut StakingPool<T0>, l1: u64, l2: &mut TxContext) {
     assert!(tx_context::sender(freeze(l2)) == l0.admin, C1);
     verse::assert_not_paused(freeze(l0));
-    let l3 = TokenRevenueKey { token_type: verse::get_token_type_string_sui() };
+    let l3 = TokenRevenueKey { token_type: verse::get_token_type_string_haneul() };
     assert!(dynamic_object_field::exists_(&l0.id, l3), C34);
     let l4 = dynamic_object_field::borrow_mut(&mut l0.id, l3);
-    assert!(balance::value(&l4.sui_balance) >= l1, C16);
-    transfer::public_transfer(coin::from_balance(balance::split(&mut l4.sui_balance, l1), l2), l0.admin)
+    assert!(balance::value(&l4.haneul_balance) >= l1, C16);
+    transfer::public_transfer(coin::from_balance(balance::split(&mut l4.haneul_balance, l1), l2), l0.admin)
 }
