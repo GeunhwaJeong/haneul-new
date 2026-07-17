@@ -157,7 +157,10 @@ pub mod forking_service_client {
             let mut req = request.into_request();
             req.extensions_mut()
                 .insert(
-                    GrpcMethod::new("haneul.forking.v1alpha.ForkingService", "AdvanceClock"),
+                    GrpcMethod::new(
+                        "haneul.forking.v1alpha.ForkingService",
+                        "AdvanceClock",
+                    ),
                 );
             self.inner.unary(req, path, codec).await
         }
