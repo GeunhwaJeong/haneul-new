@@ -40,7 +40,7 @@ use haneul_types::base_types::HaneulAddress;
 use move_core_types::identifier::Identifier;
 use move_core_types::language_storage::StructTag;
 
-use crate::schema::keys::write_uleb128;
+use crate::schema::primitives::write_uleb128;
 
 /// Structured form of a type-prefix filter. See the
 /// [module docs](self) for the encoding contract.

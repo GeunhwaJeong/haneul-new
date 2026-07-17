@@ -26,6 +26,7 @@ backoff.workspace = true
 axum = { version = "0.7", default-features = false, features = [ "macros", "tokio", "http1", "http2", "json", "matched-path", "original-uri", "form", "query", "ws", ] }
 axum-extra = { version = "0.9", features = ["typed-header"] }
 bcs.workspace = true
+bytes.workspace = true
 chrono.workspace = true
 clap.workspace = true
 const-str.workspace = true
@@ -62,7 +63,6 @@ move-disassembler.workspace = true
 move-ir-types.workspace = true
 
 bin-version.workspace = true
-haneul-default-config.workspace = true
 haneul-display.workspace = true
 haneul-futures.workspace = true
 haneul-indexer-alt-metrics.workspace = true
@@ -73,6 +73,7 @@ haneul-package-resolver.workspace = true
 haneul-pg-db.workspace = true
 haneul-protocol-config.workspace = true
 haneul-rpc.workspace = true
+haneul-rpc-cursor.workspace = true
 haneul-sdk-types.workspace = true
 haneul-sql-macro.workspace = true
 haneul-types.workspace = true
@@ -83,6 +84,7 @@ reqwest.workspace = true
 regex.workspace = true
 haneul-package-resolver = { workspace = true, features = ["testing"] }
 tokio = { workspace = true, features = ["test-util"] }
+tracing-subscriber.workspace = true
 
 [features]
 staging = []

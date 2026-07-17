@@ -4,8 +4,8 @@
 use anyhow::Context;
 use bincode::Decode;
 use bincode::Encode;
-use haneul_default_config::DefaultConfig;
 use haneul_indexer_alt_consistent_api::proto::rpc::consistent::v1alpha::End;
+use serde::Deserialize;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 
@@ -16,7 +16,8 @@ use crate::db::map::DbMap;
 use crate::rpc::error::RpcError;
 use crate::rpc::error::db_error;
 
-#[DefaultConfig]
+#[derive(Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case")]
 pub struct PaginationConfig {
     pub default_page_size: u32,
     pub max_batch_size: u32,

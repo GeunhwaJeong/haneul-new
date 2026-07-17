@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::displays::Pretty;
-use haneul_types::gas::HaneulGasStatus;
-use haneul_types::gas_model::gas_v2::HaneulGasStatus as GasStatusV2;
+use haneul_types::base_types::ObjectID;
+use haneul_types::gas::{HaneulGasStatus, HaneulGasStatusAPI};
+use haneul_types::gas_model::gas_v2::PerObjectStorage;
 use std::fmt::{Display, Formatter};
 use tabled::{
     builder::Builder as TableBuilder,
@@ -13,23 +14,19 @@ use tabled::{
 impl Display for Pretty<'_, HaneulGasStatus> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let Pretty(haneul_gas_status) = self;
-        match haneul_gas_status {
-            HaneulGasStatus::V2(s) => {
-                display_info(f, s)?;
-                per_object_storage_table(f, s)?;
-            }
-        };
+        display_info(f, *haneul_gas_status)?;
+        display_per_object_storage_table(f, haneul_gas_status.per_object_storage())?;
         Ok(())
     }
 }
 
-fn per_object_storage_table(
+fn display_per_object_storage_table(
     f: &mut Formatter,
-    haneul_gas_status: &GasStatusV2,
+    per_object_storage: &[(ObjectID, PerObjectStorage)],
 ) -> std::fmt::Result {
     let mut builder = TableBuilder::default();
     builder.push_record(vec!["Object ID", "Bytes", "Old Rebate", "New Rebate"]);
-    for (object_id, per_obj_storage) in haneul_gas_status.per_object_storage() {
+    for (object_id, per_obj_storage) in per_object_storage {
         builder.push_record(vec![
             object_id.to_string(),
             per_obj_storage.new_size.to_string(),
@@ -46,31 +43,32 @@ fn per_object_storage_table(
     write!(f, "\n{}\n", table)
 }
 
-fn display_info(f: &mut Formatter<'_>, haneul_gas_status: &GasStatusV2) -> std::fmt::Result {
+fn display_info(
+    f: &mut Formatter<'_>,
+    haneul_gas_status: &dyn HaneulGasStatusAPI,
+) -> std::fmt::Result {
+    let move_gas_status = haneul_gas_status.move_gas_status();
     let mut builder = TableBuilder::default();
     builder.push_record(vec!["Gas Info".to_string()]);
     builder.push_record(vec![format!(
         "Reference Gas Price: {}",
         haneul_gas_status.reference_gas_price()
     )]);
-    builder.push_record(vec![format!(
-        "Gas Price: {}",
-        haneul_gas_status.gas_status.gas_price()
-    )]);
+    builder.push_record(vec![format!("Gas Price: {}", move_gas_status.gas_price())]);
 
     builder.push_record(vec![format!(
         "Max Gas Stack Height: {}",
-        haneul_gas_status.gas_status.stack_height_high_water_mark()
+        move_gas_status.stack_height_high_water_mark()
     )]);
 
     builder.push_record(vec![format!(
         "Max Gas Stack Size: {}",
-        haneul_gas_status.gas_status.stack_size_high_water_mark()
+        move_gas_status.stack_size_high_water_mark()
     )]);
 
     builder.push_record(vec![format!(
         "Number of Bytecode Instructions Executed: {}",
-        haneul_gas_status.gas_status.instructions_executed()
+        move_gas_status.instructions_executed()
     )]);
 
     let mut table = builder.build();

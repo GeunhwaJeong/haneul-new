@@ -12,7 +12,7 @@
       "name": "Apache-2.0",
       "url": "https://raw.githubusercontent.com/HaneulLabs/haneul/main/LICENSE"
     },
-    "version": "1.4.0"
+    "version": "1.5.0"
   },
   "methods": [
     {
@@ -1294,7 +1294,7 @@
             "name": "Result",
             "value": {
               "minSupportedProtocolVersion": "1",
-              "maxSupportedProtocolVersion": "119",
+              "maxSupportedProtocolVersion": "120",
               "protocolVersion": "6",
               "featureFlags": {
                 "abstract_size_in_object_runtime": false,
@@ -1377,6 +1377,7 @@
                 "enable_poseidon": false,
                 "enable_ptb_execution_v2": false,
                 "enable_ristretto255_group_ops": false,
+                "enable_unified_linkage": false,
                 "enable_vdf": false,
                 "enable_verify_bulletproofs_ristretto255": false,
                 "end_of_epoch_transaction_supported": false,
@@ -2250,6 +2251,7 @@
                 "enable_poseidon": false,
                 "enable_ptb_execution_v2": false,
                 "enable_ristretto255_group_ops": false,
+                "enable_unified_linkage": false,
                 "enable_vdf": false,
                 "enable_verify_bulletproofs_ristretto255": false,
                 "end_of_epoch_transaction_supported": false,

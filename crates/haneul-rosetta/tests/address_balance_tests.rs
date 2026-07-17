@@ -2383,7 +2383,7 @@ async fn test_address_balance_gas_payment_parsing() {
     use haneul_types::execution_status::ExecutionStatus;
     use haneul_types::gas::GasCostSummary;
     use haneul_types::utils::to_sender_signed_transaction;
-    use std::collections::{BTreeMap, BTreeSet};
+    use std::collections::BTreeMap;
     use std::str::FromStr;
 
     let test_cluster = TestClusterBuilder::new()
@@ -2419,8 +2419,7 @@ async fn test_address_balance_gas_payment_parsing() {
         ExecutionStatus::Success,
         0,                                  // executed_epoch
         GasCostSummary::new(1000, 0, 0, 0), // computation_cost, non_refundable_storage_fee, storage_cost, storage_rebate
-        vec![],                             // shared_objects
-        BTreeSet::new(),                    // loaded_per_epoch_config_objects
+        vec![],                             // unchanged_consensus_objects
         tx_digest,                          // transaction_digest
         9.into(),                           // lamport_version
         BTreeMap::new(),                    // changed_objects

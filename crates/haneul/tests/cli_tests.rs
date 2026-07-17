@@ -3575,6 +3575,36 @@ async fn test_send_funds_haneul() -> Result<(), anyhow::Error> {
     assert_eq!(balance.address_balance(), amount);
     assert_eq!(balance.coin_balance(), 0);
 
+    let balance_output = HaneulClientCommands::Balance {
+        address: Some(recipient1.clone()),
+        coin_type: None,
+        with_coins: false,
+    }
+    .execute(context)
+    .await?
+    .to_string();
+    assert!(
+        balance_output.contains(&amount.to_string()),
+        "{balance_output}"
+    );
+
+    let balance_with_coins_output = HaneulClientCommands::Balance {
+        address: Some(recipient1.clone()),
+        coin_type: None,
+        with_coins: true,
+    }
+    .execute(context)
+    .await?
+    .to_string();
+    assert!(
+        balance_with_coins_output.contains("address balance"),
+        "{balance_with_coins_output}"
+    );
+    assert!(
+        balance_with_coins_output.contains(&amount.to_string()),
+        "{balance_with_coins_output}"
+    );
+
     Ok(())
 }
 

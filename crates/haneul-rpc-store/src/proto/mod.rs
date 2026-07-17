@@ -18,6 +18,7 @@ pub mod haneul {
 
 pub use haneul::rpc_store::v1alpha::BalanceDelta;
 pub use haneul::rpc_store::v1alpha::BitmapBlob;
+pub use haneul::rpc_store::v1alpha::ObjectVersionInfo;
 pub use haneul::rpc_store::v1alpha::PackageVersionInfo;
 pub use haneul::rpc_store::v1alpha::PruningWatermarks;
 pub use haneul::rpc_store::v1alpha::StoredCheckpointContents;

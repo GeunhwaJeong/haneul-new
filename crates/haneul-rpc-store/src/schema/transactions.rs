@@ -11,7 +11,7 @@ use haneul_types::signature::GenericSignature;
 use haneul_types::transaction::TransactionData;
 
 use crate::proto::StoredTransaction;
-use crate::schema::keys::U64Be;
+use crate::schema::primitives::U64Be;
 
 pub const NAME: &str = "transactions";
 

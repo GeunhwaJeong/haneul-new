@@ -20,7 +20,6 @@ haneul-indexer-alt-object-store.workspace = true
 haneul-rpc.workspace = true
 haneul-types.workspace = true
 haneul-storage.workspace = true
-haneul-default-config.workspace = true
 haneul-indexer-alt-metrics.workspace = true
 prost.workspace = true
 serde.workspace = true

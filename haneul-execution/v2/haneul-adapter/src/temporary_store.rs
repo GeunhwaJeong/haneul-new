@@ -6,7 +6,7 @@ use haneul_protocol_config::ProtocolConfig;
 use haneul_types::base_types::VersionDigest;
 use haneul_types::committee::EpochId;
 use haneul_types::digests::ObjectDigest;
-use haneul_types::effects::{TransactionEffects, TransactionEvents};
+use haneul_types::effects::{TransactionEffects, TransactionEffectsV2, TransactionEvents};
 use haneul_types::execution::{
     DynamicallyLoadedObjectMetadata, ExecutionResults, ExecutionResultsV2, SharedInput,
 };
@@ -371,15 +371,18 @@ impl<'backing> TemporaryStore<'backing> {
         let object_changes = self.get_object_changes();
 
         let lamport_version = self.lamport_timestamp;
+        let unchanged_consensus_objects = TransactionEffectsV2::compute_unchanged_consensus_objects(
+            shared_object_refs,
+            BTreeSet::new(),
+            &object_changes,
+        );
         let inner = self.into_inner();
 
         let effects = TransactionEffects::new_from_execution_v2(
             status,
             epoch,
             gas_cost_summary,
-            // TODO: Provide the list of read-only shared objects directly.
-            shared_object_refs,
-            BTreeSet::new(),
+            unchanged_consensus_objects,
             *transaction_digest,
             lamport_version,
             object_changes,

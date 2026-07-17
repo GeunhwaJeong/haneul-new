@@ -4,13 +4,14 @@
 use std::num::NonZeroUsize;
 use std::time::Duration;
 
-use haneul_default_config::DefaultConfig;
 use haneul_indexer_alt_framework::config::ConcurrencyConfig;
 use haneul_indexer_alt_framework::pipeline;
 use haneul_indexer_alt_framework::pipeline::CommitterConfig;
 use haneul_indexer_alt_framework::pipeline::concurrent::ConcurrentConfig;
 use haneul_indexer_alt_framework::pipeline::sequential::SequentialConfig;
 use haneul_indexer_alt_framework::{self as framework};
+use serde::Deserialize;
+use serde::Serialize;
 use tracing::warn;
 
 use crate::bigtable::client::PoolConfig;
@@ -19,8 +20,8 @@ use crate::bigtable::client::PoolConfig;
 /// Java client default.
 pub(crate) const DEFAULT_MAX_ROWS_PER_BIGTABLE_BATCH: usize = 100;
 
-#[DefaultConfig]
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case")]
 pub struct IndexerConfig {
     pub ingestion: IngestionConfig,
     pub committer: CommitterLayer,
@@ -39,8 +40,8 @@ pub struct IndexerConfig {
     pub bigtable_pool: BigtablePoolLayer,
 }
 
-#[DefaultConfig]
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case")]
 pub struct BigtablePoolLayer {
     /// Number of channels to create at startup (default: 10).
     pub initial_pool_size: Option<usize>,
@@ -105,8 +106,8 @@ impl BigtablePoolLayer {
     }
 }
 
-#[DefaultConfig]
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case")]
 pub struct CommitterLayer {
     pub write_concurrency: Option<usize>,
     pub collect_interval_ms: Option<u64>,
@@ -129,8 +130,8 @@ impl CommitterLayer {
     }
 }
 
-#[DefaultConfig]
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case")]
 pub struct ConcurrentLayer {
     pub committer: Option<CommitterLayer>,
     pub ingestion: Option<PipelineIngestionLayer>,
@@ -148,8 +149,8 @@ pub struct ConcurrentLayer {
     pub committer_channel_size: Option<usize>,
 }
 
-#[DefaultConfig]
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case")]
 pub struct PipelineIngestionLayer {
     pub subscriber_channel_size: Option<usize>,
 }
@@ -193,8 +194,8 @@ impl PipelineIngestionLayer {
     }
 }
 
-#[DefaultConfig]
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case")]
 pub struct SequentialLayer {
     // Framework sequential surface — mirrors the fields actually read by
     // `haneul_indexer_alt_framework::pipeline::sequential`.
@@ -254,8 +255,8 @@ impl SequentialLayer {
     }
 }
 
-#[DefaultConfig]
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case")]
 pub struct PipelineLayer {
     pub checkpoints: ConcurrentLayer,
     pub checkpoints_by_digest: ConcurrentLayer,
@@ -275,9 +276,8 @@ pub struct PipelineLayer {
 
 /// This type is identical to [`framework::ingestion::IngestionConfig`], but is set-up to be
 /// serialized and deserialized by `serde`.
-#[DefaultConfig]
-#[derive(Clone, Debug)]
-#[serde(deny_unknown_fields)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case", deny_unknown_fields)]
 pub struct IngestionConfig {
     pub ingest_concurrency: framework::config::ConcurrencyConfig,
     pub retry_interval_ms: u64,

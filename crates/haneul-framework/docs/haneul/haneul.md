@@ -160,7 +160,7 @@ This should be called only once during genesis creation.
     <a href="../haneul/transfer.md#haneul_transfer_public_freeze_object">transfer::public_freeze_object</a>(metadata);
     <b>let</b> <b>mut</b> supply = treasury.treasury_into_supply();
     <b>let</b> total_haneul = supply.increase_supply(<a href="../haneul/haneul.md#haneul_haneul_TOTAL_SUPPLY_GEUNHWA">TOTAL_SUPPLY_GEUNHWA</a>);
-    supply.destroy_supply();
+    <b>let</b> _ = supply.destroy_supply();
     total_haneul
 }
 </code></pre>

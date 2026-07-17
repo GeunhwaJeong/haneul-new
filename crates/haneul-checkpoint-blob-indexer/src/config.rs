@@ -3,24 +3,25 @@
 
 use std::num::NonZeroUsize;
 
-use haneul_default_config::DefaultConfig;
 use haneul_indexer_alt_framework as framework;
 use haneul_indexer_alt_framework::config::ConcurrencyConfig;
 use haneul_indexer_alt_framework::pipeline;
 use haneul_indexer_alt_framework::pipeline::CommitterConfig;
 use haneul_indexer_alt_framework::pipeline::concurrent::ConcurrentConfig;
+use serde::Deserialize;
+use serde::Serialize;
 use tracing::warn;
 
-#[DefaultConfig]
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case")]
 pub struct IndexerConfig {
     pub ingestion: IngestionConfig,
     pub committer: CommitterLayer,
     pub pipeline: PipelineLayer,
 }
 
-#[DefaultConfig]
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case")]
 pub struct CommitterLayer {
     pub write_concurrency: Option<usize>,
     pub collect_interval_ms: Option<u64>,
@@ -43,8 +44,8 @@ impl CommitterLayer {
     }
 }
 
-#[DefaultConfig]
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case")]
 pub struct ConcurrentLayer {
     pub committer: Option<CommitterLayer>,
     pub ingestion: Option<PipelineIngestionLayer>,
@@ -57,8 +58,8 @@ pub struct ConcurrentLayer {
     pub committer_channel_size: Option<usize>,
 }
 
-#[DefaultConfig]
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case")]
 pub struct PipelineIngestionLayer {
     pub subscriber_channel_size: Option<usize>,
 }
@@ -98,8 +99,8 @@ impl PipelineIngestionLayer {
     }
 }
 
-#[DefaultConfig]
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case")]
 pub struct PipelineLayer {
     pub checkpoint_blob: ConcurrentLayer,
     pub epochs: ConcurrentLayer,
@@ -108,9 +109,8 @@ pub struct PipelineLayer {
 
 /// This type is identical to [`framework::ingestion::IngestionConfig`], but is set-up to be
 /// serialized and deserialized by `serde`.
-#[DefaultConfig]
-#[derive(Clone, Debug)]
-#[serde(deny_unknown_fields)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(default, rename_all = "kebab-case", deny_unknown_fields)]
 pub struct IngestionConfig {
     pub ingest_concurrency: framework::config::ConcurrencyConfig,
     pub retry_interval_ms: u64,

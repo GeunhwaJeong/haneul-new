@@ -5,52 +5,54 @@ expression: item
 {
   "data": {
     "transactions": {
-      "digest": "[digest]",
-      "effects": {
-        "objectChanges": {
-          "nodes": [
-            {
-              "inputState": {
-                "address": "[address]",
-                "version": "[version]",
-                "digest": "[digest]",
-                "asMoveObject": {
-                  "contents": {
-                    "type": {
-                      "repr": "[pkg]::coin::Coin<0x0000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL>"
+      "node": {
+        "digest": "[digest]",
+        "effects": {
+          "objectChanges": {
+            "nodes": [
+              {
+                "inputState": {
+                  "address": "[address]",
+                  "version": "[version]",
+                  "digest": "[digest]",
+                  "asMoveObject": {
+                    "contents": {
+                      "type": {
+                        "repr": "[pkg]::coin::Coin<0x0000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL>"
+                      }
+                    }
+                  }
+                },
+                "outputState": {
+                  "address": "[address]",
+                  "version": "[version]",
+                  "digest": "[digest]",
+                  "asMoveObject": {
+                    "contents": {
+                      "type": {
+                        "repr": "[pkg]::coin::Coin<0x0000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL>"
+                      }
                     }
                   }
                 }
               },
-              "outputState": {
-                "address": "[address]",
-                "version": "[version]",
-                "digest": "[digest]",
-                "asMoveObject": {
-                  "contents": {
-                    "type": {
-                      "repr": "[pkg]::coin::Coin<0x0000000000000000000000000000000000000000000000000000000000000002::haneul::HANEUL>"
+              {
+                "inputState": null,
+                "outputState": {
+                  "address": "[address]",
+                  "version": "[version]",
+                  "digest": "[digest]",
+                  "asMoveObject": {
+                    "contents": {
+                      "type": {
+                        "repr": "[pkg]::wrapping::Item"
+                      }
                     }
                   }
                 }
               }
-            },
-            {
-              "inputState": null,
-              "outputState": {
-                "address": "[address]",
-                "version": "[version]",
-                "digest": "[digest]",
-                "asMoveObject": {
-                  "contents": {
-                    "type": {
-                      "repr": "[pkg]::wrapping::Item"
-                    }
-                  }
-                }
-              }
-            }
-          ]
+            ]
+          }
         }
       }
     }
