@@ -314,18 +314,18 @@ async fn test_mnemonics_ed25519() -> Result<(), anyhow::Error> {
     const TEST_CASES: [[&str; 3]; 3] = [
         [
             "film crazy soon outside stand loop subway crumble thrive popular green nuclear struggle pistol arm wife phrase warfare march wheat nephew ask sunny firm",
-            "haneulprivkey1qrwsjvr6gwaxmsvxk4cfun99ra8uwxg3c9pl0nhle7xxpe4s80y055uhy8u",
-            "a2d14fad60c56049ecf75246a481934691214ce413e6a8ae2fe6834c173a6133",
+            "haneulprivkey1qq3denfafqukqq787x2lm3w0xz6l7ervh972qd5qpg6jpatgj0nlqpkkfd5",
+            "055c03c8c3403919d4e09932dcdda72a2fc82bfe3271f997757eb3b4da7bb1c6",
         ],
         [
             "require decline left thought grid priority false tiny gasp angle royal system attack beef setup reward aunt skill wasp tray vital bounce inflict level",
-            "haneulprivkey1qzdvpa77ct272ultqcy20dkw78dysnfyg90fhcxkdm60el0qht9mvwg63td",
-            "1ada6e6f3f3e4055096f606c746690f1108fcc2ca479055cc434a3e1d3f758aa",
+            "haneulprivkey1qzr34yn7lwexhmqdk8tpmqc9kym66spt7emeu0jkqsfa5hk0w5kgxwsw34p",
+            "6f86f3c584f9a645691bf1003eb6a1e4fdb6dda4c61548d2f6ebd4994233bc62",
         ],
         [
             "organ crash swim stick traffic remember army arctic mesh slice swear summer police vast chaos cradle squirrel hood useless evidence pet hub soap lake",
-            "haneulprivkey1qqqscjyyr64jea849dfv9cukurqj2swx0m3rr4hr7sw955jy07tzg56njz5",
-            "e69e896ca10f5a77732769803cc2b5707f0ab9d4407afb5e4b4464b89769af14",
+            "haneulprivkey1qqljwx0h9wq07sujftzygpacxwmkdws08apggv5068vrfpahspzzstnanhk",
+            "18ee8052cb5152c86a472be66075fefd44f7d1bb041b48a5a08b9b65e9f1612a",
         ],
     ];
 
@@ -354,18 +354,18 @@ async fn test_mnemonics_secp256k1() -> Result<(), anyhow::Error> {
     const TEST_CASES: [[&str; 3]; 3] = [
         [
             "film crazy soon outside stand loop subway crumble thrive popular green nuclear struggle pistol arm wife phrase warfare march wheat nephew ask sunny firm",
-            "haneulprivkey1qyqr6yvxdqkh32ep4pk9caqvphmk9epn6rhkczcrhaeermsyvwsg7txwrry",
-            "9e8f732575cc5386f8df3c784cd3ed1b53ce538da79926b2ad54dcc1197d2532",
+            "haneulprivkey1qyxagt2a78lc0s3328xeq0nltyqpyda0vq0t4taq5dmpv645a4wnkvnxy9u",
+            "3324c73fa34509db8d0baaf389a412449509629bdb06d826fbfb50082e6f8b6e",
         ],
         [
             "require decline left thought grid priority false tiny gasp angle royal system attack beef setup reward aunt skill wasp tray vital bounce inflict level",
-            "haneulprivkey1q8hexn5m2u36tx39ln5e22hfseadknp7d2qlkhe30ejy7fc6am5aq6htxwd",
-            "9fd5a804ed6b46d36949ff7434247f0fd594673973ece24aede6b86a7b5dae01",
+            "haneulprivkey1qxt9wll7mf06nl23ftvewtm9stmvrxvhuzdgq4fph9xljat0zsgm6ccaanc",
+            "eb8e733513c797118e0cbca10eafa77fb31c9fe8f74eeb931cf351280a642617",
         ],
         [
             "organ crash swim stick traffic remember army arctic mesh slice swear summer police vast chaos cradle squirrel hood useless evidence pet hub soap lake",
-            "haneulprivkey1qxx6yf53jgxvsmccst8cuwnj0rx4k4uzvn9aalvag7ns0xf0g8j2xxzs5w5",
-            "60287d7c38dee783c2ab1077216124011774be6b0764d62bd05f32c88979d5c5",
+            "haneulprivkey1q9l4ucn5hj2w2mj3v4f5h6qng070j2drd5wgt22frk0jq3ar828sgdlwkjq",
+            "6cc36ff91ffc4170d818c81e821988a8360a720b49150702105836cbfa18bd30",
         ],
     ];
 
@@ -394,18 +394,18 @@ async fn test_mnemonics_secp256r1() -> Result<(), anyhow::Error> {
     const TEST_CASES: [[&str; 3]; 3] = [
         [
             "act wing dilemma glory episode region allow mad tourist humble muffin oblige",
-            "haneulprivkey1qgj6vet4rstf2p00j860xctkg4fyqqq5hxgu4mm0eg60fq787ujnqury7el",
-            "0x4a822457f1970468d38dae8e63fb60eefdaa497d74d781f581ea2d137ec36f3a",
+            "haneulprivkey1qfw9yd23qca85dywwp2gc2fkjv766xe44370r8rsttaul77sn5g22vf6fch",
+            "0x8dca749c89a17aba44abf789e3b82974e85036102917a572406406164d8ec069",
         ],
         [
             "flag rebel cabbage captain minimum purpose long already valley horn enrich salt",
-            "haneulprivkey1qgmgr6dza8slgxn0rcxcy47xeas9l565cc5q440ngdzr575rc2356y44xqz",
-            "0xcd43ecb9dd32249ff5748f5e4d51855b01c9b1b8bbe7f8638bb8ab4cb463b920",
+            "haneulprivkey1q2qgrcj0k5vdhy25fzcgncfl3slc6lvpvq08yspzdtvxj53qxnyqjf5xpte",
+            "0x2cc08866814b783f84c29f5aa387c8f63c88a8c2f34a3a7adc7fbf805c687ee7",
         ],
         [
             "area renew bar language pudding trial small host remind supreme cabbage era",
-            "haneulprivkey1qt2gsye4dyn0lxey0ht6d5f2ada7ew9044a49y2f3mymy2uf0hr557vry8w",
-            "0x0d9047b7e7b698cc09c955ea97b0c68c2be7fb3aebeb59edcc84b1fb87e0f28e",
+            "haneulprivkey1q285mtvz4z4rjhmrf09s44rg2z5u8jw42utv4x46v7mm8jt5r9fx7uau5en",
+            "0x7af553c91a78621cb73fcd5175b6ed43b7b80def8b771759db89c1c3bb14b91d",
         ],
     ];
 

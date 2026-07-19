@@ -19,7 +19,10 @@ use haneul_types::{
 };
 use slip10_ed25519::derive_ed25519_private_key;
 
-pub const DERIVATION_PATH_COIN_TYPE: u32 = 784;
+// SLIP-0044 registered coin type for HANEUL. Must match the TypeScript SDK's
+// default derivation paths (m/44'/8282'/... etc.) so the same mnemonic resolves
+// to the same address across all tooling.
+pub const DERIVATION_PATH_COIN_TYPE: u32 = 8282;
 pub const DERVIATION_PATH_PURPOSE_ED25519: u32 = 44;
 pub const DERVIATION_PATH_PURPOSE_SECP256K1: u32 = 54;
 pub const DERVIATION_PATH_PURPOSE_SECP256R1: u32 = 74;
