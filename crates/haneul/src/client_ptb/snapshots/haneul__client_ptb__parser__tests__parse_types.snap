@@ -71,7 +71,7 @@ expression: parsed
     Spanned {
         span: Span {
             start: 0,
-            end: 15,
+            end: 18,
         },
         value: Struct(
             ParsedStructType {
@@ -111,7 +111,7 @@ expression: parsed
     Spanned {
         span: Span {
             start: 0,
-            end: 26,
+            end: 29,
         },
         value: Struct(
             ParsedStructType {
@@ -131,7 +131,7 @@ expression: parsed
     Spanned {
         span: Span {
             start: 0,
-            end: 28,
+            end: 34,
         },
         value: Struct(
             ParsedStructType {
@@ -166,7 +166,7 @@ expression: parsed
     Spanned {
         span: Span {
             start: 0,
-            end: 68,
+            end: 74,
         },
         value: Struct(
             ParsedStructType {
